@@ -150,7 +150,7 @@ export function PiyasaFiyatArastirmasiDashboard({
     } else {
       useGlobalDocumentPreviewStore.getState().openDocument({
         documentId: targetKey,
-        title: targetKey,
+        documentTitle: targetKey,
         dosyaId: activeDosyaId || undefined,
       });
     }
@@ -339,7 +339,7 @@ export function PiyasaFiyatArastirmasiDashboard({
         winnerFirmaId={manualWinnerFirmaId}
         onSetWinnerFirma={(f) => {
           if (handleSetWinnerFirma) {
-            const targetId = ((f.firma_id as number) || f.id);
+            const targetId = (f.firma_id as number) || f.id;
             handleSetWinnerFirma(
               manualWinnerFirmaId === targetId ? null : targetId,
             );
@@ -441,28 +441,33 @@ export function PiyasaFiyatArastirmasiDashboard({
                   <span className="text-xs font-black uppercase tracking-wider text-amber-800 dark:text-amber-300">
                     Kazanan Firma (Yüklenici) Belirleme
                   </span>
-                  {activeWinnerFirma ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-black bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-md border border-emerald-500/20">
-                      <CheckCircle2 className="w-3 h-3" />
-                      Belirlendi
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-100/80 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-md border border-amber-500/20">
-                      <AlertCircle className="w-3 h-3" />
-                      Henüz Seçilmedi
-                    </span>
-                  )}
+                  {activeWinnerFirma
+                    ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-black bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                        <CheckCircle2 className="w-3 h-3" />
+                        Belirlendi
+                      </span>
+                    )
+                    : (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-100/80 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-md border border-amber-500/20">
+                        <AlertCircle className="w-3 h-3" />
+                        Henüz Seçilmedi
+                      </span>
+                    )}
                 </div>
                 <p className="text-xs font-extrabold text-slate-800 dark:text-slate-100 mt-0.5">
-                  {activeWinnerFirma ? (
-                    <span className="text-emerald-700 dark:text-emerald-300 font-black">
-                      {activeWinnerFirma.unvan}
-                    </span>
-                  ) : (
-                    <span className="text-slate-500 dark:text-slate-400 font-medium">
-                      Teklif girişi haricinde buradan dilediğiniz firmayı doğrudan kazanan yüklenici olarak atayabilirsiniz.
-                    </span>
-                  )}
+                  {activeWinnerFirma
+                    ? (
+                      <span className="text-emerald-700 dark:text-emerald-300 font-black">
+                        {activeWinnerFirma.unvan}
+                      </span>
+                    )
+                    : (
+                      <span className="text-slate-500 dark:text-slate-400 font-medium">
+                        Teklif girişi haricinde buradan dilediğiniz firmayı
+                        doğrudan kazanan yüklenici olarak atayabilirsiniz.
+                      </span>
+                    )}
                 </p>
               </div>
             </div>
@@ -482,7 +487,9 @@ export function PiyasaFiyatArastirmasiDashboard({
                   <option value="">— Firma Seçerek Belirle —</option>
                   {invitedFirms.map((f: any) => (
                     <option key={f.id} value={f.firma_id || f.id}>
-                      {f.unvan} {f.teklif_toplami ? `(${f.teklif_toplami.toLocaleString("tr-TR")} ₺)` : ""}
+                      {f.unvan} {f.teklif_toplami
+                        ? `(${f.teklif_toplami.toLocaleString("tr-TR")} ₺)`
+                        : ""}
                     </option>
                   ))}
                 </select>
@@ -493,7 +500,9 @@ export function PiyasaFiyatArastirmasiDashboard({
                   type="button"
                   onClick={() => {
                     if (handleSetWinnerFirma) {
-                      handleSetWinnerFirma(lowestBidFirm.firma_id || lowestBidFirm.id);
+                      handleSetWinnerFirma(
+                        lowestBidFirm.firma_id || lowestBidFirm.id,
+                      );
                     }
                   }}
                   className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs transition-all shadow-xs hover:shadow-md cursor-pointer border-0 active:scale-95"
@@ -539,7 +548,9 @@ export function PiyasaFiyatArastirmasiDashboard({
                 </span>
               </h3>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                Piyasa fiyat araştırma tutanağını oluşturmadan önce firmalara teklif mektuplarını dağıtın, teklif cetvelini iletin ve yasaklılık durumlarını kontrol edin.
+                Piyasa fiyat araştırma tutanağını oluşturmadan önce firmalara
+                teklif mektuplarını dağıtın, teklif cetvelini iletin ve
+                yasaklılık durumlarını kontrol edin.
               </p>
             </div>
           </div>
@@ -558,13 +569,15 @@ export function PiyasaFiyatArastirmasiDashboard({
                   Teklif Mektubu (Dağıtımlı)
                 </h4>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Tüm istekli firmaların isimlerinin yer aldığı toplu dağıtım listeli mektup.
+                  Tüm istekli firmaların isimlerinin yer aldığı toplu dağıtım
+                  listeli mektup.
                 </p>
               </div>
             </div>
             <button
               type="button"
-              onClick={() => handleOpenSablonByDosyaAdi("teklif-mektubu-dagitim")}
+              onClick={() =>
+                handleOpenSablonByDosyaAdi("teklif-mektubu-dagitim")}
               className="mt-3 w-full py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <Send className="w-3.5 h-3.5" />
@@ -583,13 +596,15 @@ export function PiyasaFiyatArastirmasiDashboard({
                   Karma Dağıtım Mektubu
                 </h4>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Farklı kalem grupları içeren karma alımlar için dağıtım çizelgeli mektup.
+                  Farklı kalem grupları içeren karma alımlar için dağıtım
+                  çizelgeli mektup.
                 </p>
               </div>
             </div>
             <button
               type="button"
-              onClick={() => handleOpenSablonByDosyaAdi("teklif-mektubu-dagitim-karma")}
+              onClick={() =>
+                handleOpenSablonByDosyaAdi("teklif-mektubu-dagitim-karma")}
               className="mt-3 w-full py-1.5 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <Layers className="w-3.5 h-3.5" />
@@ -608,13 +623,15 @@ export function PiyasaFiyatArastirmasiDashboard({
                   Birim Fiyat Teklif Cetveli
                 </h4>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  İstekli firmalara tekliflerini doldurmaları için verilecek boş cetvel formu.
+                  İstekli firmalara tekliflerini doldurmaları için verilecek boş
+                  cetvel formu.
                 </p>
               </div>
             </div>
             <button
               type="button"
-              onClick={() => handleOpenSablonByDosyaAdi("birim-fiyat-teklif-cetveli")}
+              onClick={() =>
+                handleOpenSablonByDosyaAdi("birim-fiyat-teklif-cetveli")}
               className="mt-3 w-full py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <FileSpreadsheet className="w-3.5 h-3.5" />
@@ -633,7 +650,8 @@ export function PiyasaFiyatArastirmasiDashboard({
                   Yasaklılık Sorgulama & Tutanak
                 </h4>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  İhale yasağı kontrolü yapın ve yasaklılık sorgulama tutanağını düzenleyin.
+                  İhale yasağı kontrolü yapın ve yasaklılık sorgulama tutanağını
+                  düzenleyin.
                 </p>
               </div>
             </div>
@@ -649,7 +667,8 @@ export function PiyasaFiyatArastirmasiDashboard({
               </button>
               <button
                 type="button"
-                onClick={() => handleOpenSablonByDosyaAdi("yasaklilik-sorgulama-tutanagi")}
+                onClick={() =>
+                  handleOpenSablonByDosyaAdi("yasaklilik-sorgulama-tutanagi")}
                 className="py-1.5 px-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-[11px] font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
                 title="Yasaklılık Sorgulama Tutanağını Aç"
               >
@@ -662,46 +681,47 @@ export function PiyasaFiyatArastirmasiDashboard({
       </div>
 
       {/* ─── 4. Hazırlanan Tutanaklar / Fiyat Matrisi ─── */}
-      {dashboardViewMode === "prices" ? (
-        <PricesSummaryDashboard
-          invitedFirms={invitedFirms}
-          items={items}
-          bids={bids}
-          manualWinnerFirmaId={manualWinnerFirmaId}
-          handleSetWinnerFirma={handleSetWinnerFirma}
-          onManageFirmsClick={() => {
-            setIsFormOpen(true);
-            setActiveFormTab("firms");
-          }}
-        />
-      ) : (
-        <BelgeListesi
-          title="Hazırlanan Tutanaklar"
-          belgeler={mappedBelgeler}
-          viewMode={docViewMode}
-          onViewModeChange={changeDocViewMode}
-          onView={handleOpenBelgePreview}
-          onOpenExternal={handleOpenExternalForBelge}
-          onPrint={handleQuickPrintForBelge}
-          onEdit={(belge) => {
-            const isMaliyet =
-              belge.belgeTipiId === "yaklasik-maliyet" ||
-              belge.belgeAdi?.toLowerCase().includes("maliyet");
-            handleNewDocument(isMaliyet ? "maliyet" : "tutanak");
-          }}
-          onDelete={(belge) => {
-            if (handleDeleteDocument) {
-              handleDeleteDocument(belge.id);
-            }
-          }}
-          createButtonLabel="Yeni Tutanak / Cetvel Ekle"
-          onCreateBelge={(type) => {
-            const mode = type === "yaklasik-maliyet" ? "maliyet" : "tutanak";
-            handleNewDocument(mode);
-          }}
-          onFiyatGir={() => handleNewDocument("tutanak")}
-        />
-      )}
+      {dashboardViewMode === "prices"
+        ? (
+          <PricesSummaryDashboard
+            invitedFirms={invitedFirms}
+            items={items}
+            bids={bids}
+            manualWinnerFirmaId={manualWinnerFirmaId}
+            handleSetWinnerFirma={handleSetWinnerFirma}
+            onManageFirmsClick={() => {
+              setIsFormOpen(true);
+              setActiveFormTab("firms");
+            }}
+          />
+        )
+        : (
+          <BelgeListesi
+            title="Hazırlanan Tutanaklar"
+            belgeler={mappedBelgeler}
+            viewMode={docViewMode}
+            onViewModeChange={changeDocViewMode}
+            onView={handleOpenBelgePreview}
+            onOpenExternal={handleOpenExternalForBelge}
+            onPrint={handleQuickPrintForBelge}
+            onEdit={(belge) => {
+              const isMaliyet = belge.belgeTipiId === "yaklasik-maliyet" ||
+                belge.belgeAdi?.toLowerCase().includes("maliyet");
+              handleNewDocument(isMaliyet ? "maliyet" : "tutanak");
+            }}
+            onDelete={(belge) => {
+              if (handleDeleteDocument) {
+                handleDeleteDocument(belge.id);
+              }
+            }}
+            createButtonLabel="Yeni Tutanak / Cetvel Ekle"
+            onCreateBelge={(type) => {
+              const mode = type === "yaklasik-maliyet" ? "maliyet" : "tutanak";
+              handleNewDocument(mode);
+            }}
+            onFiyatGir={() => handleNewDocument("tutanak")}
+          />
+        )}
     </div>
   );
 }
