@@ -324,18 +324,21 @@ function FirmaEkleModali({
         <div className="flex items-start justify-between p-5 border-b border-slate-100 dark:border-slate-800">
           <div>
             <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <span>İstekli Firma Seçimi</span>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300">
+              <span className="px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 text-[10px] font-black uppercase tracking-wider">
+                1. Adım
+              </span>
+              <span>İstekli Firma Seçimi & Teklif Dağıtımı</span>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                 Havuzdan Ekle
               </span>
             </h2>
             <p className="text-[11px] text-slate-400 mt-0.5">
-              Havuzdaki kayıtlı firmalardan seçin veya listede yoksa yeni firma kaydedin (En fazla{" "}
+              Fiyat teklifi istenecek istekli firmaları seçin (En fazla{" "}
               <span className="font-bold text-amber-500">{MAX_FIRMS}</span>{" "}
-              firma).
+              firma). Seçimden sonra teklif mektupları dağıtılır ve toplanan fiyatlar <strong>2. Adım (Fiyat Girişi)</strong> aşamasında sisteme işlenir.
               {remaining < MAX_FIRMS && (
                 <span className="ml-1 text-slate-500">
-                  (Mevcut: {addedCount}, Kalan kontenjan: {remaining})
+                  (Mevcut: {addedCount}, Kalan: {remaining})
                 </span>
               )}
             </p>
@@ -929,6 +932,9 @@ export function FiyatIstenenFirmalarınSecilmesi({
             </div>
             <div>
               <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 text-[10px] font-black uppercase tracking-wider">
+                  1. Adım
+                </span>
                 <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
                   {title}
                 </h3>
@@ -937,23 +943,21 @@ export function FiyatIstenenFirmalarınSecilmesi({
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 mt-0.5">
-                Fiyat teklifi istenecek firmalar — en az{" "}
+                Fiyat teklifi istenecek istekli firmalar (En az{" "}
                 <span className="font-semibold text-slate-600 dark:text-slate-300">
                   {MIN_FIRMS}
-                </span>{" "}
-                en fazla{" "}
+                </span>
+                , en fazla{" "}
                 <span className="font-semibold text-slate-600 dark:text-slate-300">
                   {MAX_FIRMS}
                 </span>{" "}
-                istekli seçilmelidir.
+                firma). Teklif mektuplarını dağıttıktan sonra toplanan fiyatlar <strong>2. Adımda</strong> işlenir.
               </p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 shrink-0">
-
-
-            {/* 2. Havuzdan Firma Ekle */}
+            {/* 1. Havuzdan Firma Ekle */}
             <button
               type="button"
               disabled={!canAdd}
@@ -975,7 +979,7 @@ export function FiyatIstenenFirmalarınSecilmesi({
               <span>Havuzdan Ekle</span>
             </button>
 
-            {/* 3. Yeni Firma Kaydet & Ekle */}
+            {/* 2. Yeni Firma Kaydet & Ekle */}
             <button
               type="button"
               disabled={!canAdd}
@@ -990,6 +994,19 @@ export function FiyatIstenenFirmalarınSecilmesi({
               <UserPlus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
               <span>+ Yeni Firma</span>
             </button>
+
+            {/* 3. Dağıtım Sonrası: 2. Adım Fiyat Girişi Butonu */}
+            {addedFirms.length >= MIN_FIRMS && onFiyatGir && (
+              <button
+                type="button"
+                onClick={onFiyatGir}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition-all shadow-xs cursor-pointer border-0 ring-2 ring-emerald-500/20"
+                title="Teklif mektuplarını dağıttıktan sonra toplanan fiyatları girmek için 2. adıma geç"
+              >
+                <Calculator className="w-3.5 h-3.5" />
+                <span>2. Adım: Toplanan Fiyatları Gir ➔</span>
+              </button>
+            )}
 
             {extraHeaderAction}
           </div>
@@ -1142,6 +1159,27 @@ export function FiyatIstenenFirmalarınSecilmesi({
             </tbody>
           </table>
         </div>
+
+        {/* 2. Adım Geçiş Çubuğu */}
+        {addedFirms.length >= MIN_FIRMS && onFiyatGir && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-2.5 bg-emerald-50/50 dark:bg-emerald-950/20 border-t border-emerald-100 dark:border-emerald-900/40">
+            <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-200">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span>
+                <strong>{addedFirms.length} İstekli Firma</strong> belirlendi. Teklif mektuplarını dağıttıktan sonra toplanan fiyatları girebilirsiniz:
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={onFiyatGir}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer border-0 shrink-0"
+              title="Toplanan teklif fiyatlarını girmek için 2. adıma geç"
+            >
+              <Calculator className="w-3.5 h-3.5" />
+              <span>2. Adım: Toplanan Fiyatları Gir ➔</span>
+            </button>
+          </div>
+        )}
       </div>
     </>
   );

@@ -74,8 +74,11 @@ export const DocumentLayout = React.forwardRef<
         style={{
           width: "100%",
           maxWidth: docWidth,
-          height: docHeight,
           minHeight: docHeight,
+          height: "auto",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
           margin: totalPages && totalPages > 1 && !isLastPage ? "0 auto 40px auto" : "0 auto",
           padding:
             `${margins.top}cm ${margins.right}cm ${margins.bottom}cm ${margins.left}cm`,
@@ -88,7 +91,7 @@ export const DocumentLayout = React.forwardRef<
           pageBreakAfter: isLastPage ? "avoid" : "always",
           pageBreakInside: "avoid",
           boxSizing: "border-box",
-          boxShadow: totalPages && totalPages > 1 ? "0 4px 20px -2px rgba(0,0,0,0.12)" : undefined,
+          boxShadow: "0 4px 20px -2px rgba(0,0,0,0.12)",
         }}
       >
         <style dangerouslySetInnerHTML={{ __html: dynamicPrintStyles }} />

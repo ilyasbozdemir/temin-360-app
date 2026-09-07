@@ -42,10 +42,10 @@ export function KomisyonGorevlendirmeOnayi({
       <div
         style={{
           width: "100%",
-          fontSize: "11pt",
+          fontSize: "10pt",
           color: "#000",
           fontFamily: "'Times New Roman', Times, serif",
-          lineHeight: 1.5,
+          lineHeight: 1.35,
         }}
       >
         {/* Meta Row */}
@@ -53,21 +53,21 @@ export function KomisyonGorevlendirmeOnayi({
           style={{
             display: "flex",
             justifyContent: "space-between",
-            marginBottom: "20px",
-            fontSize: "11pt",
+            marginBottom: "10px",
+            fontSize: "10pt",
           }}
         >
           <div>
             <table style={{ borderCollapse: "collapse" }}>
               <tbody>
                 <tr>
-                  <td style={{ fontWeight: "bold", paddingRight: "8px", whiteSpace: "nowrap" }}>
+                  <td style={{ fontWeight: "bold", paddingRight: "6px", whiteSpace: "nowrap" }}>
                     Sayı
                   </td>
                   <td>: <EditableField name="evrakSayisi" value={data.evrakSayisi} /></td>
                 </tr>
                 <tr>
-                  <td style={{ fontWeight: "bold", paddingRight: "8px", whiteSpace: "nowrap" }}>
+                  <td style={{ fontWeight: "bold", paddingRight: "6px", whiteSpace: "nowrap" }}>
                     Konu
                   </td>
                   <td>: <EditableField name="konu" value={data.konu || "Görevlendirme"} /></td>
@@ -85,13 +85,13 @@ export function KomisyonGorevlendirmeOnayi({
         </div>
 
         {/* Boxed Institution Header */}
-        <div style={{ textAlign: "center", margin: "20px 0" }}>
+        <div style={{ textAlign: "center", margin: "8px 0" }}>
           <div
             style={{
               display: "inline-block",
-              padding: "4px 15px",
+              padding: "2px 10px",
               fontWeight: "bold",
-              fontSize: "11.5pt",
+              fontSize: "11pt",
               textTransform: "uppercase",
             }}
           >
@@ -103,9 +103,9 @@ export function KomisyonGorevlendirmeOnayi({
         <div
           style={{
             textAlign: "justify",
-            textIndent: "35px",
-            marginBottom: "15px",
-            lineHeight: 1.5,
+            textIndent: "25px",
+            marginBottom: "8px",
+            lineHeight: 1.35,
           }}
         >
           {data.kurumumuz || "Kurumumuz"} bünyesindeki{" "}
@@ -115,9 +115,9 @@ export function KomisyonGorevlendirmeOnayi({
         <div
           style={{
             textAlign: "justify",
-            textIndent: "35px",
-            marginBottom: "15px",
-            lineHeight: 1.5,
+            textIndent: "25px",
+            marginBottom: "8px",
+            lineHeight: 1.35,
           }}
         >
           Gereğini olurlarınıza arz ederim.
@@ -130,8 +130,8 @@ export function KomisyonGorevlendirmeOnayi({
           align="right"
           nameField="hazirlayanPersonelAdi"
           unvanField="hazirlayanPersonelUnvan"
-          marginTop={10}
-          marginBottom={20}
+          marginTop={4}
+          marginBottom={10}
         />
 
         {/* Table 1: PİYASA ARAŞTIRMA VE SATINALMA KOMİSYONU */}
@@ -141,10 +141,10 @@ export function KomisyonGorevlendirmeOnayi({
             fontWeight: "bold",
             backgroundColor: "#f2f2f2",
             border: "1px solid #000",
-            padding: "5px",
-            fontSize: "10pt",
+            padding: "3px 5px",
+            fontSize: "9.5pt",
             textTransform: "uppercase",
-            marginTop: "10px",
+            marginTop: "6px",
           }}
         >
           PİYASA ARAŞTIRMA VE SATINALMA KOMİSYONU
@@ -153,8 +153,8 @@ export function KomisyonGorevlendirmeOnayi({
           style={{
             width: "100%",
             borderCollapse: "collapse",
-            marginBottom: "20px",
-            fontSize: "10pt",
+            marginBottom: "10px",
+            fontSize: "9pt",
           }}
         >
           <thead>
@@ -162,7 +162,7 @@ export function KomisyonGorevlendirmeOnayi({
               <th
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
+                  padding: "3px 6px",
                   fontWeight: "bold",
                   backgroundColor: "#f9f9f9",
                   width: "35%",
@@ -174,7 +174,7 @@ export function KomisyonGorevlendirmeOnayi({
               <th
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
+                  padding: "3px 6px",
                   fontWeight: "bold",
                   backgroundColor: "#f9f9f9",
                   width: "40%",
@@ -186,7 +186,7 @@ export function KomisyonGorevlendirmeOnayi({
               <th
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
+                  padding: "3px 6px",
                   fontWeight: "bold",
                   backgroundColor: "#f9f9f9",
                   width: "25%",
@@ -201,13 +201,13 @@ export function KomisyonGorevlendirmeOnayi({
             {fiyatUyeleri.length > 0 ? (
               fiyatUyeleri.map((u, idx) => (
                 <tr key={idx}>
-                  <td style={{ border: "1px solid #000", padding: "5px 8px" }}>
+                  <td style={{ border: "1px solid #000", padding: "3px 6px" }}>
                     {u.gorevi || "Üye"}
                   </td>
-                  <td style={{ border: "1px solid #000", padding: "5px 8px", fontWeight: "bold" }}>
+                  <td style={{ border: "1px solid #000", padding: "3px 6px", fontWeight: "bold" }}>
                     {u.adSoyad}
                   </td>
-                  <td style={{ border: "1px solid #000", padding: "5px 8px" }}>
+                  <td style={{ border: "1px solid #000", padding: "3px 6px" }}>
                     {u.unvan}
                   </td>
                 </tr>
@@ -218,7 +218,7 @@ export function KomisyonGorevlendirmeOnayi({
                   colSpan={3}
                   style={{
                     border: "1px solid #000",
-                    padding: "6px 8px",
+                    padding: "4px 6px",
                     textAlign: "center",
                     fontStyle: "italic",
                   }}
@@ -237,8 +237,8 @@ export function KomisyonGorevlendirmeOnayi({
             fontWeight: "bold",
             backgroundColor: "#f2f2f2",
             border: "1px solid #000",
-            padding: "5px",
-            fontSize: "10pt",
+            padding: "3px 5px",
+            fontSize: "9.5pt",
             textTransform: "uppercase",
           }}
         >
@@ -248,8 +248,8 @@ export function KomisyonGorevlendirmeOnayi({
           style={{
             width: "100%",
             borderCollapse: "collapse",
-            marginBottom: "20px",
-            fontSize: "10pt",
+            marginBottom: "10px",
+            fontSize: "9pt",
           }}
         >
           <thead>
@@ -257,7 +257,7 @@ export function KomisyonGorevlendirmeOnayi({
               <th
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
+                  padding: "3px 6px",
                   fontWeight: "bold",
                   backgroundColor: "#f9f9f9",
                   width: "35%",
@@ -269,7 +269,7 @@ export function KomisyonGorevlendirmeOnayi({
               <th
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
+                  padding: "3px 6px",
                   fontWeight: "bold",
                   backgroundColor: "#f9f9f9",
                   width: "40%",
@@ -281,7 +281,7 @@ export function KomisyonGorevlendirmeOnayi({
               <th
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
+                  padding: "3px 6px",
                   fontWeight: "bold",
                   backgroundColor: "#f9f9f9",
                   width: "25%",
@@ -296,13 +296,13 @@ export function KomisyonGorevlendirmeOnayi({
             {muayeneUyeleri.length > 0 ? (
               muayeneUyeleri.map((u, idx) => (
                 <tr key={idx}>
-                  <td style={{ border: "1px solid #000", padding: "5px 8px" }}>
+                  <td style={{ border: "1px solid #000", padding: "3px 6px" }}>
                     {u.gorevi || "Üye"}
                   </td>
-                  <td style={{ border: "1px solid #000", padding: "5px 8px", fontWeight: "bold" }}>
+                  <td style={{ border: "1px solid #000", padding: "3px 6px", fontWeight: "bold" }}>
                     {u.adSoyad}
                   </td>
-                  <td style={{ border: "1px solid #000", padding: "5px 8px" }}>
+                  <td style={{ border: "1px solid #000", padding: "3px 6px" }}>
                     {u.unvan}
                   </td>
                 </tr>
@@ -313,7 +313,7 @@ export function KomisyonGorevlendirmeOnayi({
                   colSpan={3}
                   style={{
                     border: "1px solid #000",
-                    padding: "6px 8px",
+                    padding: "4px 6px",
                     textAlign: "center",
                     fontStyle: "italic",
                   }}
@@ -335,7 +335,7 @@ export function KomisyonGorevlendirmeOnayi({
             nameField="baskanAdi"
             unvanField="baskanUnvan"
             showSpace={true}
-            marginTop={30}
+            marginTop={12}
           />
         ) : (
           <EditableOlurPlaceholder />
