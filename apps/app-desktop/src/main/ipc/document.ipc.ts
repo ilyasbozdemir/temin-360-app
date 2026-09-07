@@ -611,10 +611,10 @@ export function registerDocumentIpcHandlers(): void {
             WHERE temin_dosya_id = ? AND (
               sablon_kodu = ? 
               OR sablon_kodu = ?
-              OR sablon_id = (SELECT id FROM TANIM_Sablon WHERE kod = ? OR dosya_adi = ? OR dosya_adi = ? LIMIT 1)
+              OR sablon_id = (SELECT id FROM TANIM_Sablon WHERE dosya_adi = ? OR dosya_adi = ? LIMIT 1)
             )
             ORDER BY id DESC LIMIT 1
-          `).get(dosyaId, cleanDocId, `${cleanDocId}.html`, cleanDocId, `${cleanDocId}.html`, cleanDocId) as any
+          `).get(dosyaId, cleanDocId, `${cleanDocId}.html`, `${cleanDocId}.html`, cleanDocId) as any
           if (snapRow?.veri_json) {
             savedSnapshot = JSON.parse(snapRow.veri_json)
           }

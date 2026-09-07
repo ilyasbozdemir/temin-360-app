@@ -65,10 +65,12 @@ class DocumentPreloadService {
     const existing = this.cache.get(key)
     if (existing) {
       existing.resolvedData = { ...existing.resolvedData, ...resolvedData }
+      if (!existing.payloadData) existing.payloadData = {}
+      existing.payloadData.savedSnapshot = { ...resolvedData }
       existing.timestamp = Date.now()
     } else {
       this.cache.set(key, {
-        payloadData: {},
+        payloadData: { savedSnapshot: { ...resolvedData } },
         resolvedData,
         timestamp: Date.now()
       })

@@ -91,7 +91,19 @@ export function DocumentPreviewCanvas({
             <TemplateEditProvider
               isEditing={isEditingMode}
               onFieldChange={(key, val) =>
-                setFormData((prev) => ({ ...prev, [key]: val }))}
+                setFormData((prev) => {
+                  const updated = { ...prev, [key]: val };
+                  if (key === "onayaSunulanTarih" || key === "tarih") {
+                    updated.tarih = val;
+                    updated.onayaSunulanTarih = val;
+                    updated.belgeTarihi = val;
+                  }
+                  if (key === "onayTarihi" || key === "olurTarihi") {
+                    updated.onayTarihi = val;
+                    updated.olurTarihi = val;
+                  }
+                  return updated;
+                })}
               personelListesi={personelListesi}
               firmaListesi={firmaListesi}
               firstPageLimit={formData.firstPageLimit}
@@ -104,9 +116,11 @@ export function DocumentPreviewCanvas({
                   firmaListesi:
                     (formData as any).firmaListesi || firmaListesi,
                   tarih:
-                    formData.tarih || formData.onayaSunulanTarih || "",
+                    formData.onayaSunulanTarih || formData.tarih || "",
+                  onayaSunulanTarih:
+                    formData.onayaSunulanTarih || formData.tarih || "",
                   onayTarihi:
-                    formData.onayTarihi || formData.dosyaTarihi || "",
+                    formData.onayTarihi || formData.olurTarihi || formData.dosyaTarihi || "",
                   solLogo: localShowLogoLeft ? formData.solLogo : null,
                   sagLogo: localShowLogoRight ? formData.sagLogo : null,
                   olurYazisi: formData.olurYazisi !== false,

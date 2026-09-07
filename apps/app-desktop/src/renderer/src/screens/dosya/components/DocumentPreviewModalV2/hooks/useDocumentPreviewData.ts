@@ -253,13 +253,12 @@ export function useDocumentPreviewData({
         const combinedFirms = payloadData.firmaListesi || [];
         const items = payloadData.items || [];
         const bids = payloadData.bids || [];
-        const snapshotData = payloadData.savedSnapshot;
 
         setPersonelListesi(personelList || []);
         setFirmaListesi(combinedFirms);
 
         // 1. Compute Base Data with Default Resolutions
-        let baseData = { ...resolved };
+        const baseData: any = { ...resolved };
 
         if (
           resolved.antetSatirlari &&
@@ -288,12 +287,6 @@ export function useDocumentPreviewData({
           baseData.sagLogo = resolvedSagLogo;
         }
 
-        const suffixes = getInstitutionSuffixes(subInstitutionType || "belediye", {
-          label: customSubInstitutionLabel,
-          kurumumuz: customSubInstitutionKurumumuz,
-          kurumu: customSubInstitutionKurumu,
-          kurumlari: customSubInstitutionKurumlari,
-        });
         const activeFirms = fileFirms.length > 0 ? fileFirms : combinedFirms;
         baseData.firmalar = activeFirms;
         baseData.firmaListesi = combinedFirms;
@@ -480,17 +473,17 @@ export function useDocumentPreviewData({
 
         // 2. Fetch direct JSON Snapshot from DB if available
         let snapshotData = payloadData.savedSnapshot;
-        if (!snapshotData && activeDosyaId) {
+        if (activeDosyaId) {
           try {
             const dbSnap = await queryExecutor(
               `SELECT veri_json FROM DATA_DosyaSablonVeri 
                WHERE temin_dosya_id = ? AND (
                  sablon_kodu = ? 
                  OR sablon_kodu = ? 
-                 OR sablon_id = (SELECT id FROM TANIM_Sablon WHERE kod = ? OR dosya_adi = ? OR dosya_adi = ? LIMIT 1)
+                 OR sablon_id = (SELECT id FROM TANIM_Sablon WHERE dosya_adi = ? OR dosya_adi = ? LIMIT 1)
                )
                ORDER BY id DESC LIMIT 1`,
-              [activeDosyaId, resolvedId, `${resolvedId}.html`, resolvedId, `${resolvedId}.html`, resolvedId]
+              [activeDosyaId, resolvedId, `${resolvedId}.html`, `${resolvedId}.html`, `${resolvedId}.html`]
             );
             if (dbSnap && dbSnap.length > 0 && dbSnap[0]?.veri_json) {
               snapshotData = JSON.parse(dbSnap[0].veri_json);
@@ -512,6 +505,17 @@ export function useDocumentPreviewData({
               if (val !== undefined && val !== null) {
                 finalData[key] = val;
               }
+            }
+            const explicitTarih = snapshotData.onayaSunulanTarih || snapshotData.tarih || snapshotData.belgeTarihi;
+            if (explicitTarih) {
+              finalData.tarih = explicitTarih;
+              finalData.onayaSunulanTarih = explicitTarih;
+              finalData.belgeTarihi = explicitTarih;
+            }
+            const explicitOnayTarih = snapshotData.onayTarihi || snapshotData.olurTarihi;
+            if (explicitOnayTarih) {
+              finalData.onayTarihi = explicitOnayTarih;
+              finalData.olurTarihi = explicitOnayTarih;
             }
             if (snapshotData.showLogoLeft !== undefined) {
               activeLogoLeft = Boolean(snapshotData.showLogoLeft);
@@ -623,36 +627,39 @@ export function useDocumentPreviewData({
       const jsonStr = JSON.stringify(dataToSave);
       const sablonRes = await window.electron.ipcRenderer.invoke(
         "db:query",
-        "SELECT id FROM TANIM_Sablon WHERE dosya_adi = ? OR dosya_adi = ? OR kod = ? LIMIT 1",
-        [`${resolvedId}.html`, `${selectedDocId}.html`, resolvedId],
+        "SELECT id FROM TANIM_Sablon WHERE dosya_adi = ? OR dosya_adi = ? LIMIT 1",
+        [`${resolvedId}.html`, `${selectedDocId}.html`],
       );
       let sablonId = sablonRes?.success && sablonRes.data?.length > 0 ? sablonRes.data[0].id : null;
       if (!sablonId) {
         await window.electron.ipcRenderer.invoke(
           "db:query",
-          "INSERT OR IGNORE INTO TANIM_Sablon (kod, ad, dosya_adi, kategori, aktif_mi) VALUES (?, ?, ?, 'genel', 1)",
-          [resolvedId, activeTemplateConf?.name || resolvedId, `${resolvedId}.html`],
+          "INSERT OR IGNORE INTO TANIM_Sablon (ad, dosya_adi, dosya_turu, icerik, kategori, aktif_mi) VALUES (?, ?, 'html', '', 'genel', 1)",
+          [activeTemplateConf?.name || resolvedId, `${resolvedId}.html`],
         );
         const refetch = await window.electron.ipcRenderer.invoke(
           "db:query",
-          "SELECT id FROM TANIM_Sablon WHERE dosya_adi = ? OR kod = ? LIMIT 1",
-          [`${resolvedId}.html`, resolvedId],
+          "SELECT id FROM TANIM_Sablon WHERE dosya_adi = ? LIMIT 1",
+          [`${resolvedId}.html`],
         );
         if (refetch?.success && refetch.data?.length > 0) {
           sablonId = refetch.data[0].id;
         }
       }
 
-      if (sablonId) {
-        await window.electron.ipcRenderer.invoke(
-          "db:query",
-          `INSERT INTO DATA_DosyaSablonVeri (temin_dosya_id, sablon_id, veri_json, guncelleme_tarihi)
-           VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-           ON CONFLICT(temin_dosya_id, sablon_id)
-           DO UPDATE SET veri_json = excluded.veri_json, guncelleme_tarihi = CURRENT_TIMESTAMP`,
-          [activeDosyaId, sablonId, jsonStr],
-        );
-      }
+      // Clean up any old duplicate records for this dosya & sablon
+      await window.electron.ipcRenderer.invoke(
+        "db:query",
+        "DELETE FROM DATA_DosyaSablonVeri WHERE temin_dosya_id = ? AND (sablon_kodu = ? OR sablon_kodu = ? OR (sablon_id IS NOT NULL AND sablon_id = ?))",
+        [activeDosyaId, resolvedId, `${resolvedId}.html`, sablonId],
+      );
+
+      // Insert new authoritative JSON snapshot
+      await window.electron.ipcRenderer.invoke(
+        "db:query",
+        "INSERT INTO DATA_DosyaSablonVeri (temin_dosya_id, sablon_id, sablon_kodu, veri_json, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",
+        [activeDosyaId, sablonId, resolvedId, jsonStr],
+      );
 
       // Update in-memory preload cache so next opens are instantaneous
       documentPreloadService.updateCachedResolvedData(resolvedId, activeDosyaId, dataToSave);
