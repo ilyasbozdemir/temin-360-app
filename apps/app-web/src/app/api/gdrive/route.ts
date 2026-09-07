@@ -1,147 +1,95 @@
-import { NextRequest, NextResponse } from "next/server";
-import { recordRequest } from "@/lib/metrics";
+import { NextRequest, NextResponse } from 'next/server'
+import { listDriveBackups, uploadDriveBackup, deleteDriveFile } from '@/lib/gdrive'
+import { prisma } from '@/lib/prisma'
 
-// GET /api/gdrive - List Google Drive backup files
 export async function GET(req: NextRequest) {
-  const startTime = Date.now();
   try {
-    const authHeader = req.headers.get("authorization");
-    const token = authHeader?.replace("Bearer ", "") ||
-      req.nextUrl.searchParams.get("token");
+    const { searchParams } = new URL(req.url)
+    const folderId = searchParams.get('folderId') || undefined
 
-    if (!token) {
-      recordRequest("GET", "/api/gdrive", 401, 2);
-      return NextResponse.json(
-        { success: false, error: "Google Drive Access Token gereklidir." },
-        { status: 401 },
-      );
+    const gdriveSettings = await prisma.googleDriveAyarlari.findUnique({ where: { id: 1 } })
+
+    const config = {
+      clientId: gdriveSettings?.clientId || undefined,
+      clientSecret: gdriveSettings?.clientSecret || undefined,
+      refreshToken: gdriveSettings?.refreshToken || undefined,
+      folderId: folderId || gdriveSettings?.folderId || undefined
     }
 
-    const query = encodeURIComponent(
-      "trashed = false and (name contains '.dtal' or name contains '.db')",
-    );
-    const res = await fetch(
-      `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,size,modifiedTime,createdTime)&orderBy=modifiedTime%20desc`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
+    const files = await listDriveBackups(config)
 
-    const duration = Math.max(Date.now() - startTime, 15);
-    recordRequest("GET", "/api/gdrive", res.status, duration);
-
-    if (!res.ok) {
-      const errText = await res.text();
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Google Drive API Hatası (${res.status}): ${errText}`,
-        },
-        { status: res.status },
-      );
-    }
-
-    const data = await res.json();
-    return NextResponse.json({ success: true, files: data.files || [] });
+    return NextResponse.json({ success: true, files })
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Bilinmeyen hata";
-    const duration = Math.max(Date.now() - startTime, 15);
-    recordRequest("GET", "/api/gdrive", 500, duration);
-    return NextResponse.json({ success: false, error: msg }, {
-      status: 500,
-    });
+    const message = error instanceof Error ? error.message : 'Google Drive dosyaları listelenirken hata oluştu'
+    return NextResponse.json({ success: false, error: message }, { status: 500 })
   }
 }
 
-// POST /api/gdrive - Upload workspace file to Google Drive
 export async function POST(req: NextRequest) {
-  const startTime = Date.now();
   try {
-    const authHeader = req.headers.get("authorization");
-    const token = authHeader?.replace("Bearer ", "");
-
-    if (!token) {
-      recordRequest("POST", "/api/gdrive", 401, 2);
-      return NextResponse.json(
-        { success: false, error: "Google Drive Access Token gereklidir." },
-        { status: 401 },
-      );
-    }
-
-    const formData = await req.formData();
-    const file = formData.get("file") as File | null;
+    const formData = await req.formData()
+    const file = formData.get('file') as File | null
+    const dosyaIdStr = formData.get('dosyaId') as string | null
 
     if (!file) {
-      recordRequest("POST", "/api/gdrive", 400, 2);
-      return NextResponse.json({
-        success: false,
-        error: "Yüklenecek dosya bulunamadı.",
-      }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Dosya seçilmedi' }, { status: 400 })
     }
 
-    const fileName = file.name || "workspace_backup.dtal";
-    const arrayBuffer = await file.arrayBuffer();
-    const fileBuffer = Buffer.from(arrayBuffer);
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const gdriveSettings = await prisma.googleDriveAyarlari.findUnique({ where: { id: 1 } })
 
-    const boundary = "--------------------------" + Date.now().toString(16);
-    const metadata = JSON.stringify({
-      name: fileName,
-      description: "TEMİN 360 Web Çalışma Dosyası Yedeği",
-    });
-
-    const metadataPart =
-      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n`;
-    const fileHeaderPart =
-      `--${boundary}\r\nContent-Type: application/octet-stream\r\n\r\n`;
-    const closingPart = `\r\n--${boundary}--`;
-
-    const multipartBody = Buffer.concat([
-      Buffer.from(metadataPart, "utf-8"),
-      Buffer.from(fileHeaderPart, "utf-8"),
-      fileBuffer,
-      Buffer.from(closingPart, "utf-8"),
-    ]);
-
-    const res = await fetch(
-      "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": `multipart/related; boundary=${boundary}`,
-        },
-        body: multipartBody,
-      },
-    );
-
-    const duration = Math.max(Date.now() - startTime, 25);
-    recordRequest("POST", "/api/gdrive", res.status, duration);
-
-    if (!res.ok) {
-      const errText = await res.text();
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Google Drive API Yükleme Hatası (${res.status}): ${errText}`,
-        },
-        { status: res.status },
-      );
+    const config = {
+      clientId: gdriveSettings?.clientId || undefined,
+      clientSecret: gdriveSettings?.clientSecret || undefined,
+      refreshToken: gdriveSettings?.refreshToken || undefined,
+      folderId: gdriveSettings?.folderId || undefined
     }
 
-    const uploadedFile = await res.json();
-    return NextResponse.json({
-      success: true,
-      message: `${fileName} Google Drive hesabınıza başarıyla yüklendi.`,
-      fileId: uploadedFile.id,
-    });
+    const uploaded = await uploadDriveBackup(config, file.name, buffer, file.type)
+
+    // Save backup record to PostgreSQL
+    const dosyaId = dosyaIdStr ? parseInt(dosyaIdStr, 10) : null
+    await prisma.yedekKaydi.create({
+      data: {
+        dosyaId: !isNaN(dosyaId as number) ? dosyaId : null,
+        hedef: 'gdrive',
+        dosyaAdi: uploaded.name,
+        boyutBytes: uploaded.size,
+        gdriveFileId: uploaded.id,
+        aciklama: 'Web paneli üzerinden Google Drive bulutuna yüklendi',
+        durum: 'tamamlandi'
+      }
+    })
+
+    return NextResponse.json({ success: true, file: uploaded })
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Bilinmeyen hata";
-    const duration = Math.max(Date.now() - startTime, 25);
-    recordRequest("POST", "/api/gdrive", 500, duration);
-    return NextResponse.json({ success: false, error: msg }, {
-      status: 500,
-    });
+    const message = error instanceof Error ? error.message : 'Dosya Google Drive yüklenirken hata oluştu'
+    return NextResponse.json({ success: false, error: message }, { status: 500 })
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url)
+    const fileId = searchParams.get('fileId')
+
+    if (!fileId) {
+      return NextResponse.json({ success: false, error: 'fileId parametresi gerekli' }, { status: 400 })
+    }
+
+    const gdriveSettings = await prisma.googleDriveAyarlari.findUnique({ where: { id: 1 } })
+
+    const config = {
+      clientId: gdriveSettings?.clientId || undefined,
+      clientSecret: gdriveSettings?.clientSecret || undefined,
+      refreshToken: gdriveSettings?.refreshToken || undefined
+    }
+
+    await deleteDriveFile(config, fileId)
+
+    return NextResponse.json({ success: true, message: 'Dosya Google Drive üzerinden silindi' })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Google Drive dosyası silinirken hata oluştu'
+    return NextResponse.json({ success: false, error: message }, { status: 500 })
   }
 }

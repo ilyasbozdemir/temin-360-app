@@ -21,6 +21,8 @@ COPY apps/app-web ./apps/app-web
 
 # Build @dt/database first so dist/index.js is available
 RUN pnpm --filter @dt/database build
+# Generate Prisma Client
+RUN pnpm --filter app-web prisma:generate
 # Build app-web
 RUN pnpm --filter app-web build
 

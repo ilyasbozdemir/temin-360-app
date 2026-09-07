@@ -1,0 +1,185 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Kullanici {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  adSoyad   String?
+  sifreHash String
+  rol       String   @default("user")
+  aktif     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Kurum {
+  id              Int             @id @default(autoincrement())
+  kurumKodu       String?         @unique
+  kurumAdi        String
+  il              String?
+  ilce            String?
+  vergiNo         String?
+  vergiDairesi    String?
+  telefon         String?
+  eposta          String?
+  aktif           Boolean         @default(true)
+  dosyalar        TeminDosyasi[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model TeminDosyasi {
+  id                    Int                @id @default(autoincrement())
+  kurumId               Int?
+  kurum                 Kurum?             @relation(fields: [kurumId], references: [id], onDelete: SetNull)
+  dosyaNo               String             @unique
+  isAdi                 String
+  alimTuru              String
+  usul                  String             @default("22_d")
+  durum                 String             @default("taslak")
+  yaklasikMaliyet       Decimal?           @db.Decimal(18, 2)
+  sozlesmeBedeli        Decimal?           @db.Decimal(18, 2)
+  harcamaYetkilisi      String?
+  gerceklestirmeGorevli String?
+  dosyaTarihi           DateTime?
+  onayTarihi            DateTime?
+  kazananFirmaId        Int?
+  kazananFirma          Firma?             @relation("KazananFirma", fields: [kazananFirmaId], references: [id], onDelete: SetNull)
+  
+  kalemler              Kalem[]
+  teklifler             KalemTeklif[]
+  belgeler              DosyaBelge[]
+  sablonVerileri        DosyaSablonVeri[]
+  yedekler              YedekKaydi[]
+  
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+}
+
+model Kalem {
+  id              Int           @id @default(autoincrement())
+  dosyaId         Int
+  dosya           TeminDosyasi  @relation(fields: [dosyaId], references: [id], onDelete: Cascade)
+  siraNo          Int           @default(1)
+  malzemeAdi      String
+  aciklama        String?
+  miktar          Decimal       @db.Decimal(14, 4)
+  birim           String
+  tasinirKodu     String?
+  okasKodu        String?
+  teklifler       KalemTeklif[]
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Firma {
+  id                    Int            @id @default(autoincrement())
+  unvan                 String
+  vergiNo               String?        @unique
+  vergiDairesi          String?
+  telefon               String?
+  eposta                String?
+  adres                 String?
+  il                    String?
+  ilce                  String?
+  yetkili               String?
+  yasakliMi             Boolean        @default(false)
+  yasaklikKontrolTarihi DateTime?
+  
+  kazandigiDosyalar     TeminDosyasi[] @relation("KazananFirma")
+  teklifler             KalemTeklif[]
+  
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+}
+
+model KalemTeklif {
+  id           Int          @id @default(autoincrement())
+  dosyaId      Int
+  dosya        TeminDosyasi @relation(fields: [dosyaId], references: [id], onDelete: Cascade)
+  kalemId      Int
+  kalem        Kalem        @relation(fields: [kalemId], references: [id], onDelete: Cascade)
+  firmaId      Int
+  firma        Firma        @relation(fields: [firmaId], references: [id], onDelete: Cascade)
+  birimFiyat   Decimal      @db.Decimal(18, 4)
+  toplamFiyat  Decimal      @db.Decimal(18, 2)
+  paraBirimi   String       @default("TRY")
+  kdvOrani     Int          @default(20)
+  
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@unique([kalemId, firmaId])
+}
+
+model DosyaBelge {
+  id          Int          @id @default(autoincrement())
+  dosyaId     Int
+  dosya       TeminDosyasi @relation(fields: [dosyaId], references: [id], onDelete: Cascade)
+  belgeTuru   String
+  belgeAdi    String
+  dosyaYolu   String?
+  mimeType    String?
+  boyutBytes  Int?
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model DosyaSablonVeri {
+  id          Int          @id @default(autoincrement())
+  dosyaId     Int
+  dosya       TeminDosyasi @relation(fields: [dosyaId], references: [id], onDelete: Cascade)
+  sablonKodu  String
+  veriJson    String       @db.Text
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@unique([dosyaId, sablonKodu])
+}
+
+model YedekKaydi {
+  id              Int           @id @default(autoincrement())
+  dosyaId         Int?
+  dosya           TeminDosyasi? @relation(fields: [dosyaId], references: [id], onDelete: Cascade)
+  hedef           String
+  dosyaAdi        String
+  boyutBytes      Int?
+  gdriveFileId    String?
+  aciklama        String?
+  durum           String        @default("tamamlandi")
+  
+  createdAt       DateTime      @default(now())
+}
+
+model GoogleDriveAyarlari {
+  id                Int       @id @default(1)
+  clientId          String?
+  clientSecret      String?
+  refreshToken      String?
+  folderId          String?
+  autoBackup        Boolean   @default(false)
+  lastBackupTime    DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model ApiLog {
+  id          Int       @id @default(autoincrement())
+  endpoint    String
+  method      String
+  ipAdres     String?
+  statusCode  Int
+  sureMs      Int?
+  hata        String?
+  
+  createdAt   DateTime  @default(now())
+}
