@@ -15,9 +15,8 @@ import { DeveloperTab } from './components/DeveloperTab'
 import { AiTab } from './components/AiTab'
 import { SyncTab } from './components/SyncTab'
 import { GenelTab } from './components/GenelTab'
-import { SupabaseTab } from './components/SupabaseTab'
 
-type TabType = 'genel' | 'smtp' | 'tema' | 'developer' | 'ai' | 'archive' | 'sync' | 'supabase'
+type TabType = 'genel' | 'smtp' | 'tema' | 'developer' | 'ai' | 'archive' | 'sync'
 
 export default function AyarlarScreen(): React.ReactNode {
   const { settings, isLoadingSettings, saveSettings, importSmtp, exportSmtp } = useAyarlarHooks()
@@ -34,8 +33,7 @@ export default function AyarlarScreen(): React.ReactNode {
       tabParam === 'developer' ||
       tabParam === 'ai' ||
       tabParam === 'archive' ||
-      tabParam === 'sync' ||
-      tabParam === 'supabase'
+      tabParam === 'sync'
     ) {
       return tabParam
     }
@@ -52,8 +50,7 @@ export default function AyarlarScreen(): React.ReactNode {
       currentTabParam === 'developer' ||
       currentTabParam === 'ai' ||
       currentTabParam === 'archive' ||
-      currentTabParam === 'sync' ||
-      currentTabParam === 'supabase'
+      currentTabParam === 'sync'
     ) {
       setActiveTab(currentTabParam)
     }
@@ -351,12 +348,10 @@ export default function AyarlarScreen(): React.ReactNode {
                 )}
 
                 {activeTab === 'sync' && <SyncTab />}
-
-                {activeTab === 'supabase' && <SupabaseTab />}
               </div>
 
               {/* SEKMEYİ KAYDET BUTONU */}
-              {activeTab !== 'archive' && activeTab !== 'sync' && activeTab !== 'supabase' && (
+              {activeTab !== 'archive' && activeTab !== 'sync' && (
                 <div className="flex justify-end border-t border-slate-100 dark:border-slate-800 pt-4 mt-6">
                   <Button
                     onClick={() => handleSaveTab(activeTab)}

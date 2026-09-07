@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@dt/database": "workspace:*",
-    "@supabase/supabase-js": "^2.114.0",
     "better-sqlite3": "^12.10.0",
     "js-yaml": "^4.1.1",
     "lucide-react": "^1.16.0",

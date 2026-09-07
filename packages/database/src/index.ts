@@ -199,5 +199,5 @@ export { runMigrations, CURRENT_SCHEMA_VERSION }
 export { TANIM_Placeholder } from './tables/TANIM_Placeholder'
 export { manifests } from './schema-manifest/index'
 export * from './migrate'
-export * from './supabase/client'
+
 

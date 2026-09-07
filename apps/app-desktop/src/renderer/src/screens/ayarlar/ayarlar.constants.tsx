@@ -1,7 +1,5 @@
-import React from 'react'
-import { Settings, Mail, Palette, Bot, Archive, RefreshCw, Code, Cloud } from 'lucide-react'
+import { Settings, Mail, Palette, Bot, Archive, RefreshCw, Code } from 'lucide-react'
 import { InnerMenuItem } from '../../components/ui/InnerMenu'
-
 
 export const menuItems: InnerMenuItem[] = [
   {
@@ -38,12 +36,6 @@ export const menuItems: InnerMenuItem[] = [
     id: 'sync',
     label: 'Web Senkronizasyon',
     icon: <RefreshCw className="w-4 h-4 shrink-0" />
-  },
-  { id: 'div_supabase', label: '', icon: null, isDivider: true },
-  {
-    id: 'supabase',
-    label: 'Supabase & Bulut',
-    icon: <Cloud className="w-4 h-4 shrink-0" />
   },
 
   ...(import.meta.env.DEV

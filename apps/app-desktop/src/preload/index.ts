@@ -109,15 +109,7 @@ const allowedChannels = new Set([
   'updater:check',
   'updater:download',
   'updater:quit-and-install',
-  'updater:set-dev-version',
-  // Supabase / Cloud Integration
-  'supabase:get-config',
-  'supabase:save-config',
-  'supabase:test-connection',
-  'supabase:upload-backup',
-  'supabase:list-backups',
-  'supabase:upload-file',
-  'supabase:get-file-url'
+  'updater:set-dev-version'
 ])
 
 
