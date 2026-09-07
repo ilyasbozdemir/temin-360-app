@@ -1,6 +1,6 @@
 {
   "name": "app-desktop",
-  "version": "1.0.0-beta.95",
+  "version": "1.0.0-beta.96",
   "description": "TEMİN 360 - Kamu Alımları, Doğrudan Temin ve Hakediş Yönetim Sistemi",
   "main": "./out/main/index.js",
   "author": "ilyasbozdemir.dev",

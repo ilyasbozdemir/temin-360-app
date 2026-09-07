@@ -137,10 +137,33 @@ export default function LauncherScreen(): React.ReactNode {
       if (result.success) {
         queryClient.clear()
       } else {
-        alert(`Kurum dosyası açılamadı!\nHata: ${result.error || 'Bilinmeyen hata'}`)
+        const errorMsg = result.error || 'Bilinmeyen hata'
+        if (
+          errorMsg.includes('ENOENT') ||
+          errorMsg.includes('bulunamadı') ||
+          errorMsg.includes('no such file')
+        ) {
+          const remove = window.confirm(
+            `Dosya bulunamadı veya taşınmış:\n${filePath}\n\nBu dosyayı son açılanlar listesinden kaldırmak ister misiniz?`
+          )
+          if (remove) {
+            const updated = await window.electron?.ipcRenderer.invoke(
+              'app:remove-recent-file',
+              filePath
+            )
+            if (Array.isArray(updated)) {
+              setRecentFiles(updated)
+            } else {
+              setRecentFiles((prev) => prev.filter((f) => f.path !== filePath))
+            }
+          }
+        } else {
+          alert(`Kurum dosyası açılamadı!\nHata: ${errorMsg}`)
+        }
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e)
+      alert(`Hata oluştu!\nHata: ${e?.message || 'Bilinmeyen hata'}`)
     }
   }
 
@@ -153,11 +176,14 @@ export default function LauncherScreen(): React.ReactNode {
 
     try {
       const res = await window.electron?.ipcRenderer.invoke('app:remove-recent-file', filePath)
-      if (res?.success) {
+      if (Array.isArray(res)) {
+        setRecentFiles(res)
+      } else {
         setRecentFiles((prev) => prev.filter((file) => file.path !== filePath))
       }
     } catch (err) {
       console.error('Son açılan dosya kaldırılırken hata oluştu:', err)
+      setRecentFiles((prev) => prev.filter((file) => file.path !== filePath))
     }
   }
 
