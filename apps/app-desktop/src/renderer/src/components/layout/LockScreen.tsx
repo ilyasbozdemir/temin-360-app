@@ -186,7 +186,11 @@ export default function LockScreen(): React.JSX.Element {
 
   const handleMinimize = (): void => window.electron?.ipcRenderer.send('window-minimize')
   const handleMaximize = (): void => window.electron?.ipcRenderer.send('window-maximize')
-  const handleClose = (): void => window.electron?.ipcRenderer.send('window-close')
+  const handleClose = (): void => {
+    window.electron?.ipcRenderer.invoke('app:force-quit').catch(() => {
+      window.electron?.ipcRenderer.send('window-close')
+    })
+  }
 
   // Pick a logo: institutionLogo fallback to logoLeft, then logoRight
   const activeLogo = institutionLogo || logoLeft || logoRight

@@ -182,7 +182,11 @@ export default function LauncherScreen(): React.ReactNode {
 
   const handleMinimize = (): void => window.electron?.ipcRenderer.send('window-minimize')
   const handleMaximize = (): void => window.electron?.ipcRenderer.send('window-maximize')
-  const handleClose = (): void => window.electron?.ipcRenderer.send('window-close')
+  const handleClose = (): void => {
+    window.electron?.ipcRenderer.invoke('app:force-quit').catch(() => {
+      window.electron?.ipcRenderer.send('window-close')
+    })
+  }
 
   return (
     <div className="flex items-center justify-center h-screen w-full bg-slate-50 dark:bg-slate-950 p-6 relative transition-colors duration-300">
