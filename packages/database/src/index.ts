@@ -112,9 +112,6 @@ export function initializeDatabase(db: Database.Database, institutionName: strin
     INSERT OR REPLACE INTO settings (key, value) VALUES ('adminTitle', 'Sistem Yöneticisi');
     INSERT OR IGNORE INTO settings (key, value) VALUES ('activeKurumId', '1');
     INSERT OR IGNORE INTO settings (key, value) VALUES ('rates', '[{"id":"1","ad":"Damga Vergisi","oran":"9,48","tur":"binde","hesapKodu":""},{"id":"2","ad":"Karar Pulu","oran":"5,69","tur":"binde","hesapKodu":""},{"id":"3","ad":"KDV (Genel)","oran":"20","tur":"yuzde","hesapKodu":""},{"id":"4","ad":"KDV (İndirimli)","oran":"10","tur":"yuzde","hesapKodu":""},{"id":"5","ad":"KDV (Özel)","oran":"1","tur":"yuzde","hesapKodu":""}]');
-    CREATE INDEX IF NOT EXISTS idx_tasinirkod_tam_kod ON TANIM_TasinirKod(tam_kod);
-    CREATE INDEX IF NOT EXISTS idx_tasinirkod_hesap ON TANIM_TasinirKod(hesap_kodu);
-    CREATE INDEX IF NOT EXISTS idx_okaskod_tam_kod ON TANIM_OkasKod(tam_kod);
   `)
 
   schema.tables.forEach((table: any) => {
@@ -147,6 +144,13 @@ export function initializeDatabase(db: Database.Database, institutionName: strin
       })
     }
   })
+
+  // Indexes must be created after tables are created
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_tasinirkod_tam_kod ON TANIM_TasinirKod(tam_kod);
+    CREATE INDEX IF NOT EXISTS idx_tasinirkod_hesap ON TANIM_TasinirKod(hesap_kodu);
+    CREATE INDEX IF NOT EXISTS idx_okaskod_tam_kod ON TANIM_OkasKod(tam_kod);
+  `)
 
   // Seed default test data in dev environment
   try {
