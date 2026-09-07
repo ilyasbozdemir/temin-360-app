@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import {
   FolderOpen,
+  Folder,
   PlusCircle,
   Building,
   User,
@@ -46,7 +47,9 @@ export default function LauncherScreen(): React.ReactNode {
   const [showPassword, setShowPassword] = useState(false)
 
   // Recent files state
-  const [recentFiles, setRecentFiles] = useState<any[]>([])
+  const [recentFiles, setRecentFiles] = useState<
+    { name: string; path: string; lastOpened: number }[]
+  >([])
 
   React.useEffect(() => {
     // Fetch recent files on mount
@@ -64,11 +67,27 @@ export default function LauncherScreen(): React.ReactNode {
       if (!res.canceled && res.filePath) {
         // Dosya yolundan dosya adını (uzantısız) çıkar
         const fileName = res.filePath.split(/[/\\]/).pop() || 'Yeni Kurum'
-        const projectName = fileName.replace(/\.dt[ma]$/i, '')
+        const projectName = fileName.replace(/\.(hkmp|dtal|dtm|dte)$/i, '')
 
         setPendingFilePath(res.filePath)
         setInstitutionName(projectName)
         setShowCreateModal(true)
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const handleChangeSaveLocation = async (): Promise<void> => {
+    try {
+      const res = await window.electron?.ipcRenderer.invoke('dialog:showSaveDialog')
+      if (!res.canceled && res.filePath) {
+        const fileName = res.filePath.split(/[/\\]/).pop() || 'Yeni Kurum'
+        const projectName = fileName.replace(/\.(hkmp|dtal|dtm|dte)$/i, '')
+        setPendingFilePath(res.filePath)
+        if (!institutionName || institutionName === 'Yeni Kurum' || institutionName === 'Yeni Dosya') {
+          setInstitutionName(projectName)
+        }
       }
     } catch (e) {
       console.error(e)
@@ -325,7 +344,7 @@ export default function LauncherScreen(): React.ReactNode {
           <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
             {recentFiles.map((file) => (
               <div
-                key={file.id}
+                key={file.path}
                 onClick={() => handleOpenRecent(file.path)}
                 className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all group text-left cursor-pointer"
               >
@@ -388,6 +407,32 @@ export default function LauncherScreen(): React.ReactNode {
             </div>
 
             <form onSubmit={handleModalSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 ml-1">
+                  Dosya Kayıt Konumu (.hkmp)
+                </label>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1 min-w-0">
+                    <Folder className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
+                    <input
+                      type="text"
+                      readOnly
+                      value={pendingFilePath || ''}
+                      placeholder="Kayıt konumu seçilmedi..."
+                      title={pendingFilePath || ''}
+                      className="w-full pl-9 pr-3 py-2 bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono text-slate-700 dark:text-slate-300 focus:outline-none truncate cursor-default"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleChangeSaveLocation}
+                    className="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold shrink-0 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
+                  >
+                    Gözat / Değiştir
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 ml-1">
                   Kurum Adı
