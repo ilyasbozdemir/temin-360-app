@@ -154,6 +154,7 @@ export function PiyasaFiyatArastirmasi(): React.JSX.Element {
             invitedFirms={invitedFirms}
             allPoolFirms={allPoolFirms}
             handleAddSingleFirm={handleAddSingleFirm}
+            handleCreateNewFirm={logic.handleCreateNewFirm}
             handleRemoveFirm={handleRemoveFirm}
             items={items}
             bids={bids}

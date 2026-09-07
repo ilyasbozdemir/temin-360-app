@@ -1,8 +1,19 @@
 import React, { useMemo } from "react";
 import {
   AlertCircle,
+  Calculator,
   CheckCircle2,
+  ExternalLink,
+  FileCheck,
+  FileSpreadsheet,
+  FileText,
+  Layers,
+  Mail,
   RotateCcw,
+  Send,
+  Shield,
+  ShieldAlert,
+  ShieldCheck,
   Sparkles,
   Trophy,
 } from "lucide-react";
@@ -38,6 +49,13 @@ interface PiyasaFiyatArastirmasiDashboardProps {
   invitedFirms: any[];
   allPoolFirms?: PoolFirm[];
   handleAddSingleFirm?: (firma: PoolFirm) => void;
+  handleCreateNewFirm?: (firmaData: {
+    unvan: string;
+    vergi_no?: string;
+    telefon?: string;
+    email?: string;
+    sehir?: string;
+  }) => Promise<void>;
   handleRemoveFirm?: (id: number) => void;
   items: any[];
   bids: any;
@@ -73,6 +91,7 @@ export function PiyasaFiyatArastirmasiDashboard({
   invitedFirms,
   allPoolFirms,
   handleAddSingleFirm,
+  handleCreateNewFirm,
   handleRemoveFirm,
   items,
   bids,
@@ -118,7 +137,8 @@ export function PiyasaFiyatArastirmasiDashboard({
           const normKey = normalizeForMatch(key);
           foundSablon = sablons.find((s: any) => {
             const normSablonName = normalizeForMatch(s.ad || s.dosya_adi || "");
-            return normSablonName === normKey;
+            return normSablonName.includes(normKey) ||
+              normKey.includes(normSablonName);
           });
           if (foundSablon) break;
         }
@@ -129,24 +149,35 @@ export function PiyasaFiyatArastirmasiDashboard({
       handleOpenPreviewForSablon(foundSablon, foundSablon.ad);
     } else {
       useGlobalDocumentPreviewStore.getState().openDocument({
-        documentId: cleanTarget,
+        documentId: targetKey,
+        title: targetKey,
         dosyaId: activeDosyaId || undefined,
-        documentTitle: targetKey
-          .replace(/-/g, " ")
-          .replace(/\.html$/, "")
-          .toLocaleUpperCase("tr-TR"),
       });
     }
   };
 
-  const mappedBelgeler = useMemo(() => {
-    if (!stageDocs) return [];
+  const handleOpenEkapSorgu = (firma?: any) => {
+    window.electron?.ipcRenderer.send("window:open-external", {
+      url: "https://ekapv2.kik.gov.tr/sorgulamalar/yasak-sorgulama",
+      title: firma?.unvan
+        ? `${firma.unvan} - EKAP Yasaklılık Sorgulama`
+        : "EKAP Kamu İhale Yasaklı Sorgulama",
+    });
+  };
 
-    // Group and sort by id to determine siraNo sequentially
-    const sortedDocs = [...stageDocs].sort((a, b) => a.id - b.id);
+  const handleOpenEdevletSorgu = () => {
+    window.electron?.ipcRenderer.send("window:open-external", {
+      url: "https://www.turkiye.gov.tr/kik-yasakli-sorgula",
+      title: "e-Devlet KİK Yasaklılık Sorgulama",
+    });
+  };
+
+  const mappedBelgeler: BelgeItem[] = useMemo(() => {
+    if (!stageDocs || stageDocs.length === 0) return [];
+
     const counts: Record<string, number> = {};
 
-    return sortedDocs.map((doc) => {
+    return stageDocs.map((doc) => {
       const isMaliyet = doc.belge_adi === "Yaklaşık Maliyet Cetveli" ||
         doc.belge_adi?.toLowerCase().includes("maliyet");
       const typeId = isMaliyet
@@ -176,7 +207,6 @@ export function PiyasaFiyatArastirmasiDashboard({
     const rawDocName = originalDoc?.belge_adi || belge.belgeAdi || "";
     const normDocName = normalizeForMatch(rawDocName);
 
-    // 1. Check direct name or dosya_adi match
     let found = sablons.find((s: any) => {
       const normSablonName = normalizeForMatch(s.ad || s.dosya_adi || "");
       return normSablonName.includes(normDocName) ||
@@ -185,7 +215,6 @@ export function PiyasaFiyatArastirmasiDashboard({
 
     if (found) return found;
 
-    // 2. Determine target key from belgeTipiId
     const isMaliyet = belge.belgeTipiId === "yaklasik-maliyet" ||
       rawDocName.toLowerCase().includes("maliyet");
     const targetKey = isMaliyet
@@ -280,7 +309,8 @@ export function PiyasaFiyatArastirmasiDashboard({
   const activeWinnerFirma = useMemo(() => {
     if (!manualWinnerFirmaId || !invitedFirms) return null;
     return invitedFirms.find(
-      (f: any) => f.firma_id === manualWinnerFirmaId || f.id === manualWinnerFirmaId,
+      (f: any) =>
+        f.firma_id === manualWinnerFirmaId || f.id === manualWinnerFirmaId,
     );
   }, [manualWinnerFirmaId, invitedFirms]);
 
@@ -289,7 +319,9 @@ export function PiyasaFiyatArastirmasiDashboard({
     let minTotal = Infinity;
     let minFirm: any = null;
     invitedFirms.forEach((f: any) => {
-      if (f.teklif_toplami && f.teklif_toplami > 0 && f.teklif_toplami < minTotal) {
+      if (
+        f.teklif_toplami && f.teklif_toplami > 0 && f.teklif_toplami < minTotal
+      ) {
         minTotal = f.teklif_toplami;
         minFirm = f;
       }
@@ -299,8 +331,7 @@ export function PiyasaFiyatArastirmasiDashboard({
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-300">
-      {/* Top Header Controls Bar */}
-
+      {/* ─── 1. İstekli Firmaların Seçilmesi & Yönetimi ─── */}
       <FiyatIstenenFirmalarınSecilmesi
         title="Fiyat İstenen Firmaların Seçilmesi"
         firms={formattedFirms}
@@ -309,9 +340,12 @@ export function PiyasaFiyatArastirmasiDashboard({
         onSetWinnerFirma={(f) => {
           if (handleSetWinnerFirma) {
             const targetId = ((f.firma_id as number) || f.id);
-            handleSetWinnerFirma(manualWinnerFirmaId === targetId ? null : targetId);
+            handleSetWinnerFirma(
+              manualWinnerFirmaId === targetId ? null : targetId,
+            );
           }
         }}
+        onCreateNewFirm={handleCreateNewFirm}
         onFiyatGir={() => {
           setIsFormOpen(true);
           setActiveFormTab("matrix");
@@ -321,6 +355,19 @@ export function PiyasaFiyatArastirmasiDashboard({
         }}
         onBirimFiyatArastirmasi={() => {
           handleOpenSablonByDosyaAdi("birim-fiyat-arastirmasi");
+        }}
+        onEkapSorgula={handleOpenEkapSorgu}
+        onDagitimMektubu={() => {
+          handleOpenSablonByDosyaAdi("teklif-mektubu-dagitim");
+        }}
+        onKarmaDagitimMektubu={() => {
+          handleOpenSablonByDosyaAdi("teklif-mektubu-dagitim-karma");
+        }}
+        onBosTeklifCetveli={() => {
+          handleOpenSablonByDosyaAdi("birim-fiyat-teklif-cetveli");
+        }}
+        onYasaklilikTutanagi={() => {
+          handleOpenSablonByDosyaAdi("yasaklilik-sorgulama-tutanagi");
         }}
         onFirmaEkle={(firma) => {
           if (handleAddSingleFirm) {
@@ -381,11 +428,10 @@ export function PiyasaFiyatArastirmasiDashboard({
         }
       />
 
-      {/* ─── Kazanan Firma Belirleme & Hızlı Seçim Paneli ─── */}
+      {/* ─── 2. Kazanan Firma Belirleme & Hızlı Seçim Paneli ─── */}
       {invitedFirms && invitedFirms.length > 0 && (
         <div className="rounded-2xl border border-amber-200/80 dark:border-amber-800/60 bg-linear-to-r from-amber-50/70 via-orange-50/40 to-amber-50/70 dark:from-amber-950/20 dark:via-slate-900/40 dark:to-amber-950/20 backdrop-blur-md p-4 shadow-xs">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            {/* Sol Kısım: Başlık & Durum */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-500/15 dark:bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 shadow-xs border border-amber-500/20">
                 <Trophy className="w-5 h-5 text-amber-600 dark:text-amber-400" />
@@ -421,9 +467,7 @@ export function PiyasaFiyatArastirmasiDashboard({
               </div>
             </div>
 
-            {/* Sağ Kısım: Hızlı Seçim ve Otomatik Belirleme Butonları */}
             <div className="flex flex-wrap items-center gap-2">
-              {/* Dropdown ile elle firma seçimi */}
               <div className="relative min-w-[200px]">
                 <select
                   value={manualWinnerFirmaId || ""}
@@ -444,7 +488,6 @@ export function PiyasaFiyatArastirmasiDashboard({
                 </select>
               </div>
 
-              {/* En Düşük Teklifi Otomatik Seç Butonu */}
               {lowestBidFirm && (
                 <button
                   type="button"
@@ -461,7 +504,6 @@ export function PiyasaFiyatArastirmasiDashboard({
                 </button>
               )}
 
-              {/* Temizle / Sıfırla Butonu */}
               {activeWinnerFirma && (
                 <button
                   type="button"
@@ -482,48 +524,184 @@ export function PiyasaFiyatArastirmasiDashboard({
         </div>
       )}
 
-      {dashboardViewMode === "prices"
-        ? (
-          <PricesSummaryDashboard
-            invitedFirms={invitedFirms}
-            items={items}
-            bids={bids}
-            manualWinnerFirmaId={manualWinnerFirmaId}
-            handleSetWinnerFirma={handleSetWinnerFirma}
-            onManageFirmsClick={() => {
-              setIsFormOpen(true);
-              setActiveFormTab("firms");
-            }}
-          />
-        )
-        : (
-          <BelgeListesi
-            title="Hazırlanan Tutanaklar"
-            belgeler={mappedBelgeler}
-            viewMode={docViewMode}
-            onViewModeChange={changeDocViewMode}
-            onView={handleOpenBelgePreview}
-            onOpenExternal={handleOpenExternalForBelge}
-            onPrint={handleQuickPrintForBelge}
-            onEdit={(belge) => {
-              const isMaliyet =
-                belge.belgeTipiId === "yaklasik-maliyet" ||
-                belge.belgeAdi?.toLowerCase().includes("maliyet");
-              handleNewDocument(isMaliyet ? "maliyet" : "tutanak");
-            }}
-            onDelete={(belge) => {
-              if (handleDeleteDocument) {
-                handleDeleteDocument(belge.id);
-              }
-            }}
-            createButtonLabel="Yeni Tutanak / Cetvel Ekle"
-            onCreateBelge={(type) => {
-              const mode = type === "yaklasik-maliyet" ? "maliyet" : "tutanak";
-              handleNewDocument(mode);
-            }}
-            onFiyatGir={() => handleNewDocument("tutanak")}
-          />
-        )}
+      {/* ─── 3. Süreç & Teklif Dağıtım Merkezi (Rehber & Ön Hazırlık Kartları) ─── */}
+      <div className="rounded-2xl border border-indigo-100 dark:border-indigo-900/50 bg-gradient-to-br from-indigo-50/50 via-white to-blue-50/40 dark:from-slate-900 dark:via-slate-950 dark:to-indigo-950/20 p-5 shadow-xs flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-100/80 dark:border-indigo-950/80 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+              <Send className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                <span>Teklif İsteme, Dağıtım & Araştırma İşlemleri</span>
+                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+                  Tutanak Öncesi Dağıtım
+                </span>
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                Piyasa fiyat araştırma tutanağını oluşturmadan önce firmalara teklif mektuplarını dağıtın, teklif cetvelini iletin ve yasaklılık durumlarını kontrol edin.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* 4'lü Süreç & Dağıtım Kartları */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {/* Kart 1: Teklif İsteme Mektubu (Dağıtımlı) */}
+          <div className="flex flex-col justify-between p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs hover:shadow-sm transition-all group">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shrink-0 group-hover:scale-105 transition-transform">
+                <Send className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                  Teklif Mektubu (Dağıtımlı)
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                  Tüm istekli firmaların isimlerinin yer aldığı toplu dağıtım listeli mektup.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleOpenSablonByDosyaAdi("teklif-mektubu-dagitim")}
+              className="mt-3 w-full py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>Dağıtım Mektubunu Aç</span>
+            </button>
+          </div>
+
+          {/* Kart 2: Karma Dağıtım Mektubu */}
+          <div className="flex flex-col justify-between p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-700 shadow-2xs hover:shadow-sm transition-all group">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 shrink-0 group-hover:scale-105 transition-transform">
+                <Layers className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                  Karma Dağıtım Mektubu
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                  Farklı kalem grupları içeren karma alımlar için dağıtım çizelgeli mektup.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleOpenSablonByDosyaAdi("teklif-mektubu-dagitim-karma")}
+              className="mt-3 w-full py-1.5 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Karma Mektubu Aç</span>
+            </button>
+          </div>
+
+          {/* Kart 3: Boş Birim Fiyat Teklif Cetveli */}
+          <div className="flex flex-col justify-between p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-700 shadow-2xs hover:shadow-sm transition-all group">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0 group-hover:scale-105 transition-transform">
+                <FileSpreadsheet className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                  Birim Fiyat Teklif Cetveli
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                  İstekli firmalara tekliflerini doldurmaları için verilecek boş cetvel formu.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleOpenSablonByDosyaAdi("birim-fiyat-teklif-cetveli")}
+              className="mt-3 w-full py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <span>Teklif Cetvelini Aç</span>
+            </button>
+          </div>
+
+          {/* Kart 4: EKAP Yasaklılık Kontrolü & Tutanak */}
+          <div className="flex flex-col justify-between p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-orange-300 dark:hover:border-orange-700 shadow-2xs hover:shadow-sm transition-all group">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 shrink-0 group-hover:scale-105 transition-transform">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                  Yasaklılık Sorgulama & Tutanak
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                  İhale yasağı kontrolü yapın ve yasaklılık sorgulama tutanağını düzenleyin.
+                </p>
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleOpenEkapSorgu()}
+                className="py-1.5 px-2 rounded-lg bg-orange-50 hover:bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300 text-[11px] font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer border border-orange-200 dark:border-orange-800"
+                title="EKAP üzerinden canlı sorgula"
+              >
+                <ExternalLink className="w-3 h-3 text-orange-600" />
+                <span>EKAP Sorgu</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleOpenSablonByDosyaAdi("yasaklilik-sorgulama-tutanagi")}
+                className="py-1.5 px-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-[11px] font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                title="Yasaklılık Sorgulama Tutanağını Aç"
+              >
+                <FileCheck className="w-3 h-3" />
+                <span>Tutanağı Aç</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── 4. Hazırlanan Tutanaklar / Fiyat Matrisi ─── */}
+      {dashboardViewMode === "prices" ? (
+        <PricesSummaryDashboard
+          invitedFirms={invitedFirms}
+          items={items}
+          bids={bids}
+          manualWinnerFirmaId={manualWinnerFirmaId}
+          handleSetWinnerFirma={handleSetWinnerFirma}
+          onManageFirmsClick={() => {
+            setIsFormOpen(true);
+            setActiveFormTab("firms");
+          }}
+        />
+      ) : (
+        <BelgeListesi
+          title="Hazırlanan Tutanaklar"
+          belgeler={mappedBelgeler}
+          viewMode={docViewMode}
+          onViewModeChange={changeDocViewMode}
+          onView={handleOpenBelgePreview}
+          onOpenExternal={handleOpenExternalForBelge}
+          onPrint={handleQuickPrintForBelge}
+          onEdit={(belge) => {
+            const isMaliyet =
+              belge.belgeTipiId === "yaklasik-maliyet" ||
+              belge.belgeAdi?.toLowerCase().includes("maliyet");
+            handleNewDocument(isMaliyet ? "maliyet" : "tutanak");
+          }}
+          onDelete={(belge) => {
+            if (handleDeleteDocument) {
+              handleDeleteDocument(belge.id);
+            }
+          }}
+          createButtonLabel="Yeni Tutanak / Cetvel Ekle"
+          onCreateBelge={(type) => {
+            const mode = type === "yaklasik-maliyet" ? "maliyet" : "tutanak";
+            handleNewDocument(mode);
+          }}
+          onFiyatGir={() => handleNewDocument("tutanak")}
+        />
+      )}
     </div>
   );
 }

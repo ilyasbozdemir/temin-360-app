@@ -356,6 +356,89 @@ export function usePiyasaFiyatArastirmasiLogic() {
     }
   }
 
+  const handleCreateNewFirm = async (firmaData: {
+    unvan: string
+    vergi_no?: string
+    telefon?: string
+    email?: string
+    sehir?: string
+  }): Promise<void> => {
+    const targetDosyaId = activeDosyaId || Number(sessionStorage.getItem('workspace_dosya_id') || 0)
+    if (!firmaData.unvan?.trim()) {
+      alert('Firma unvanı zorunludur.')
+      return
+    }
+    try {
+      let existingId: number | null = null
+      if (firmaData.vergi_no?.trim()) {
+        const checkRes = await window.electron.ipcRenderer.invoke(
+          'db:query',
+          'SELECT id FROM TANIM_Firma WHERE vergi_no = ? LIMIT 1',
+          [firmaData.vergi_no.trim()]
+        )
+        if (checkRes.success && checkRes.data?.length > 0) {
+          existingId = checkRes.data[0].id
+        }
+      }
+
+      if (!existingId) {
+        const countRes = await window.electron.ipcRenderer.invoke(
+          'db:query',
+          'SELECT COUNT(*) as cnt FROM TANIM_Firma'
+        )
+        const nextNum =
+          (countRes.success && countRes.data?.[0]?.cnt ? countRes.data[0].cnt : 0) + 1
+        const firmaKodu = nextNum.toString().padStart(4, '0')
+
+        const insertRes = await window.electron.ipcRenderer.invoke(
+          'db:run',
+          `INSERT INTO TANIM_Firma (firma_kodu, unvan, vergi_no, telefon, email, il, aktif_mi)
+           VALUES (?, ?, ?, ?, ?, ?, 1)`,
+          [
+            firmaKodu,
+            firmaData.unvan.trim(),
+            firmaData.vergi_no?.trim() || '',
+            firmaData.telefon?.trim() || '',
+            firmaData.email?.trim() || '',
+            firmaData.sehir?.trim() || ''
+          ]
+        )
+        if (insertRes.success) {
+          existingId = insertRes.data?.lastInsertRowid || insertRes.lastInsertRowid
+        }
+      }
+
+      if (targetDosyaId && existingId) {
+        const checkLink = await window.electron.ipcRenderer.invoke(
+          'db:query',
+          'SELECT id FROM DATA_TeminFirma WHERE temin_dosya_id = ? AND (firma_id = ? OR unvan = ?) AND aktif_mi = 1',
+          [targetDosyaId, existingId, firmaData.unvan.trim()]
+        )
+        if (!checkLink.success || !checkLink.data?.length) {
+          await window.electron.ipcRenderer.invoke(
+            'db:run',
+            `INSERT INTO DATA_TeminFirma (temin_dosya_id, firma_id, unvan, vergi_no, telefon, email, davet_edildi_mi, teklif_durumu, aktif_mi)
+             VALUES (?, ?, ?, ?, ?, ?, 1, 'Davet Edildi', 1)`,
+            [
+              targetDosyaId,
+              existingId,
+              firmaData.unvan.trim(),
+              firmaData.vergi_no?.trim() || '',
+              firmaData.telefon?.trim() || '',
+              firmaData.email?.trim() || ''
+            ]
+          )
+        }
+      }
+
+      await loadData()
+      emitAppEvent('bids:changed', { dosyaId: targetDosyaId })
+      emitAppEvent('dossier:updated', { dosyaId: targetDosyaId })
+    } catch (err: any) {
+      alert('Firma eklenirken hata oluştu: ' + (err.message || err))
+    }
+  }
+
   const handleAddSingleFirm = async (poolFirm: PoolFirm): Promise<void> => {
     const targetDosyaId = activeDosyaId || Number(sessionStorage.getItem('workspace_dosya_id') || 0)
     if (!targetDosyaId) {
@@ -1077,6 +1160,7 @@ export function usePiyasaFiyatArastirmasiLogic() {
     displaySablons,
     handleBulkAddFirms,
     handleAddSingleFirm,
+    handleCreateNewFirm,
     handleRemoveFirm,
     handlePriceChange,
     getLowestBidInfo,
