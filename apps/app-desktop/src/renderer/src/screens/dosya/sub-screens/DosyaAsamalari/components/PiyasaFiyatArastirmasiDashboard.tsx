@@ -352,11 +352,11 @@ export function PiyasaFiyatArastirmasiDashboard({
           setIsFormOpen(true);
           setActiveFormTab("matrix");
         }}
-        onFiyatPiyasaFormu={() => {
-          handleOpenSablonByDosyaAdi("arastirma-mektubu");
+        onFiyatPiyasaFormu={(firma) => {
+          handleOpenSablonByDosyaAdi("arastirma-mektubu", firma);
         }}
-        onBirimFiyatArastirmasi={() => {
-          handleOpenSablonByDosyaAdi("birim-fiyat-arastirmasi");
+        onBirimFiyatArastirmasi={(firma) => {
+          handleOpenSablonByDosyaAdi("birim-fiyat-teklif-mektubu", firma);
         }}
         onEkapSorgula={handleOpenEkapSorgu}
         onDagitimMektubu={() => {
@@ -365,8 +365,8 @@ export function PiyasaFiyatArastirmasiDashboard({
         onKarmaDagitimMektubu={() => {
           handleOpenSablonByDosyaAdi("teklif-mektubu-dagitim-karma");
         }}
-        onBosTeklifCetveli={() => {
-          handleOpenSablonByDosyaAdi("birim-fiyat-teklif-cetveli");
+        onBosTeklifCetveli={(firma) => {
+          handleOpenSablonByDosyaAdi("birim-fiyat-teklif-cetveli", firma);
         }}
         onYasaklilikTutanagi={() => {
           handleOpenSablonByDosyaAdi("yasaklilik-sorgulama-tutanagi");

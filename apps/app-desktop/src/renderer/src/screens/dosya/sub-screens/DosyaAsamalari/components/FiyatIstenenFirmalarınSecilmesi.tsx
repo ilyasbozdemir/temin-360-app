@@ -71,12 +71,12 @@ export interface FiyatIstenenFirmalarınSecilmesiProps {
   }) => Promise<void>;
   onFirmaCikar?: (firma: Firma) => void;
   onFiyatGir?: () => void;
-  onFiyatPiyasaFormu?: (firma: Firma) => void;
-  onBirimFiyatArastirmasi?: (firma: Firma) => void;
+  onFiyatPiyasaFormu?: (firma?: Firma) => void;
+  onBirimFiyatArastirmasi?: (firma?: Firma) => void;
   onEkapSorgula?: (firma?: Firma) => void;
   onDagitimMektubu?: () => void;
   onKarmaDagitimMektubu?: () => void;
-  onBosTeklifCetveli?: () => void;
+  onBosTeklifCetveli?: (firma?: Firma) => void;
   onYasaklilikTutanagi?: () => void;
   onUnvanKullanToggle?: (firma: Firma, value: boolean) => void;
   onOpenFirmaSecmeModali?: () => void;
@@ -656,6 +656,233 @@ function FirmaMektupMenu({
   );
 }
 
+/* ─── Üst Bar Dağıtım Mektubu & Belgeler Menüsü ──────────────────── */
+interface HeaderDagitimMenuProps {
+  onDagitimMektubu?: () => void;
+  onFiyatPiyasaFormu?: () => void;
+  onBirimFiyatArastirmasi?: () => void;
+  onBosTeklifCetveli?: () => void;
+  onKarmaDagitimMektubu?: () => void;
+  onYasaklilikTutanagi?: () => void;
+}
+
+function HeaderDagitimMenu({
+  onDagitimMektubu,
+  onFiyatPiyasaFormu,
+  onBirimFiyatArastirmasi,
+  onBosTeklifCetveli,
+  onKarmaDagitimMektubu,
+  onYasaklilikTutanagi,
+}: HeaderDagitimMenuProps): React.JSX.Element {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
+
+  const updateCoords = useCallback(() => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const menuWidth = 320;
+      let left = rect.right - menuWidth;
+      if (left < 10) left = 10;
+      let top = rect.bottom + 4;
+      if (top + 340 > window.innerHeight) {
+        top = Math.max(10, rect.top - 340 - 4);
+      }
+      setCoords({ top, left });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    updateCoords();
+    window.addEventListener("resize", updateCoords);
+    window.addEventListener("scroll", updateCoords, true);
+    return () => {
+      window.removeEventListener("resize", updateCoords);
+      window.removeEventListener("scroll", updateCoords, true);
+    };
+  }, [open, updateCoords]);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(target) &&
+        menuRef.current &&
+        !menuRef.current.contains(target)
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const handleAction = (fn?: () => void) => {
+    if (fn) fn();
+    setOpen(false);
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative inline-flex items-center rounded-xl overflow-hidden border border-indigo-200 dark:border-indigo-800 shadow-2xs bg-indigo-50 dark:bg-indigo-950/60"
+    >
+      <button
+        type="button"
+        onClick={() => handleAction(onDagitimMektubu)}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold transition-colors cursor-pointer border-0"
+        title="Tüm firmalara dağıtımlı teklif isteme mektubunu açar"
+      >
+        <Send className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+        <span>Teklif Dağıtım Mektubu</span>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="px-1.5 py-1.5 hover:bg-indigo-100 dark:hover:bg-indigo-900/70 text-indigo-600 dark:text-indigo-400 border-l border-indigo-200 dark:border-indigo-800 transition-colors cursor-pointer border-t-0 border-b-0 border-r-0"
+        title="Tüm Dağıtım ve Boş Teklif Belgeleri"
+      >
+        <ChevronDown className="w-3.5 h-3.5" />
+      </button>
+
+      {open &&
+        coords &&
+        createPortal(
+          <div
+            ref={menuRef}
+            style={{ top: `${coords.top}px`, left: `${coords.left}px` }}
+            className="fixed z-[9999] w-80 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl py-1.5 animate-in fade-in zoom-in-95 duration-100 divide-y divide-slate-100 dark:divide-slate-800"
+          >
+            <div className="px-3.5 py-2 bg-indigo-50/50 dark:bg-indigo-950/40">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+                Teklif Dağıtım & Boş Form İşlemleri
+              </p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                Firmalara dağıtılacak resmi ve boş teklif formları
+              </p>
+            </div>
+
+            <div className="py-1">
+              {onDagitimMektubu && (
+                <button
+                  type="button"
+                  onClick={() => handleAction(onDagitimMektubu)}
+                  className="w-full flex items-start gap-2.5 px-3 py-2 text-left hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 transition-colors cursor-pointer"
+                >
+                  <Send className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      Teklif Dağıtım Mektubu (Dağıtımlı)
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      Tüm firmalara hitaplı ve dağıtım listeli resmi yazı
+                    </div>
+                  </div>
+                </button>
+              )}
+
+              {onFiyatPiyasaFormu && (
+                <button
+                  type="button"
+                  onClick={() => handleAction(onFiyatPiyasaFormu)}
+                  className="w-full flex items-start gap-2.5 px-3 py-2 text-left hover:bg-blue-50/70 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
+                >
+                  <FileText className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      Fiyat Araştırma İsteme Mektubu
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      Teklif isteme resmi yazısı
+                    </div>
+                  </div>
+                </button>
+              )}
+
+              {onBirimFiyatArastirmasi && (
+                <button
+                  type="button"
+                  onClick={() => handleAction(onBirimFiyatArastirmasi)}
+                  className="w-full flex items-start gap-2.5 px-3 py-2 text-left hover:bg-violet-50/70 dark:hover:bg-violet-950/40 transition-colors cursor-pointer"
+                >
+                  <Tag className="w-4 h-4 text-violet-500 shrink-0 mt-0.5" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      Birim Fiyat Teklif Mektubu (Boş / Doldurulabilir)
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      İsteklilerin doldurup imzalayacağı taahhütlü teklif mektubu
+                    </div>
+                  </div>
+                </button>
+              )}
+
+              {onBosTeklifCetveli && (
+                <button
+                  type="button"
+                  onClick={() => handleAction(onBosTeklifCetveli)}
+                  className="w-full flex items-start gap-2.5 px-3 py-2 text-left hover:bg-emerald-50/70 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      Birim Fiyat Teklif Cetveli (Boş Fiyat Tablosu)
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      Firmaların elle birim fiyat dolduracağı boş cetvel
+                    </div>
+                  </div>
+                </button>
+              )}
+
+              {onKarmaDagitimMektubu && (
+                <button
+                  type="button"
+                  onClick={() => handleAction(onKarmaDagitimMektubu)}
+                  className="w-full flex items-start gap-2.5 px-3 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
+                >
+                  <FileText className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      Karma Dağıtım Mektubu & Çizelgesi
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      Çoklu firma dağıtım çizelgesi formatı
+                    </div>
+                  </div>
+                </button>
+              )}
+
+              {onYasaklilikTutanagi && (
+                <button
+                  type="button"
+                  onClick={() => handleAction(onYasaklilikTutanagi)}
+                  className="w-full flex items-start gap-2.5 px-3 py-2 text-left hover:bg-orange-50/70 dark:hover:bg-orange-950/40 transition-colors cursor-pointer"
+                >
+                  <ShieldCheck className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      EKAP Yasaklılık Sorgulama Tutanağı
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      İstekli firmaların yasaklılık sorgu belgesi
+                    </div>
+                  </div>
+                </button>
+              )}
+            </div>
+          </div>,
+          document.body,
+        )}
+    </div>
+  );
+}
+
 /* ─── Satır Kebap Menüsü ─────────────────────────────────────────── */
 interface RowMenuProps {
   firma: Firma;
@@ -955,18 +1182,15 @@ export function FiyatIstenenFirmalarınSecilmesi({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 shrink-0">
-            {/* 1. Dağıtımlı Teklif İsteme Mektubu Hızlı Butonu */}
-            {onDagitimMektubu && (
-              <button
-                type="button"
-                onClick={onDagitimMektubu}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
-                title="Tüm firmalara dağıtımlı teklif isteme mektubunu açar ve hazırlar"
-              >
-                <Send className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                <span>Teklif Dağıtım Mektubu</span>
-              </button>
-            )}
+            {/* 1. Dağıtımlı Teklif İsteme & Dağıtım Belgeleri Menüsü */}
+            <HeaderDagitimMenu
+              onDagitimMektubu={onDagitimMektubu}
+              onFiyatPiyasaFormu={() => onFiyatPiyasaFormu && onFiyatPiyasaFormu()}
+              onBirimFiyatArastirmasi={() => onBirimFiyatArastirmasi && onBirimFiyatArastirmasi()}
+              onBosTeklifCetveli={() => onBosTeklifCetveli && onBosTeklifCetveli()}
+              onKarmaDagitimMektubu={onKarmaDagitimMektubu}
+              onYasaklilikTutanagi={onYasaklilikTutanagi}
+            />
 
             {/* 2. Havuzdan Firma Ekle */}
             <button
