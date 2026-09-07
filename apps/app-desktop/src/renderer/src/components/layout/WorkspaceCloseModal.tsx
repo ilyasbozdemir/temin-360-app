@@ -1,151 +1,145 @@
-import React, { useEffect, useState } from "react";
-import { Modal } from "../ui/Modal";
+import React, { useEffect, useState } from 'react'
+import { Modal } from '../ui/Modal'
 import {
   AlertTriangle,
   Check,
   CheckCircle2,
   CloudUpload,
-  FileText,
   Loader2,
   Mail,
   Save,
-  ShieldCheck,
-} from "lucide-react";
-import { cn } from "../../utils/cn";
+  ShieldCheck
+} from 'lucide-react'
+import { cn } from '../../utils/cn'
 
-export type CloseActionType = "none" | "backup" | "email" | "server" | "gdrive";
+export type CloseActionType = 'none' | 'backup' | 'email' | 'server' | 'gdrive'
 
 interface WorkspaceCloseModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  fileName: string;
-  onConfirm: (
-    actions: CloseActionType[] | CloseActionType,
-  ) => Promise<void>;
+  isOpen: boolean
+  onClose: () => void
+  fileName: string
+  onConfirm: (actions: CloseActionType[] | CloseActionType) => Promise<void>
 }
 
 export function WorkspaceCloseModal({
   isOpen,
   onClose,
   fileName,
-  onConfirm,
+  onConfirm
 }: WorkspaceCloseModalProps): React.JSX.Element {
-  const [settings, setSettings] = useState<Record<string, string>>({});
-  const isMailConfigured = !!settings.smtp_host;
-  const isGDriveConfigured = !!settings.gdriveAccessToken;
-  const isServerConfigured = !!settings.sync_server_url;
+  const [settings, setSettings] = useState<Record<string, string>>({})
+  const isMailConfigured = !!settings.smtp_host
+  const isGDriveConfigured = !!settings.gdriveAccessToken
+  const isServerConfigured = !!settings.sync_server_url
 
-  const [selectedActions, setSelectedActions] = useState<CloseActionType[]>(["backup"]);
-  const [rememberPreference, setRememberPreference] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedActions, setSelectedActions] = useState<CloseActionType[]>([])
+  const [rememberPreference, setRememberPreference] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (isOpen && window.electron?.ipcRenderer) {
       window.electron.ipcRenderer
-        .invoke("db:get-settings")
+        .invoke('db:get-settings')
         .then((s) => {
           if (s) {
-            setSettings(s);
-            
+            setSettings(s)
+
             // Parse saved preferences
-            let initial: CloseActionType[] = [];
-            if (s.closeActionPreference && s.closeActionPreference !== "ask") {
+            let initial: CloseActionType[] = []
+            if (s.closeActionPreference && s.closeActionPreference !== 'ask') {
               try {
-                const parsed = JSON.parse(s.closeActionPreference);
+                const parsed = JSON.parse(s.closeActionPreference)
                 if (Array.isArray(parsed)) {
-                  initial = parsed;
-                } else if (typeof parsed === "string") {
-                  initial = [parsed as CloseActionType];
+                  // Ignore legacy 'backup' default so we don't popup Save As dialog on normal close
+                  initial = parsed.filter((x: string) => x !== 'backup')
+                } else if (typeof parsed === 'string' && parsed !== 'backup') {
+                  initial = [parsed as CloseActionType]
                 }
               } catch {
-                if (typeof s.closeActionPreference === "string") {
-                  initial = s.closeActionPreference.includes(",")
-                    ? (s.closeActionPreference.split(",").map((x) => x.trim()) as CloseActionType[])
-                    : [s.closeActionPreference as CloseActionType];
+                if (typeof s.closeActionPreference === 'string') {
+                  initial = s.closeActionPreference
+                    .split(',')
+                    .map((x) => x.trim())
+                    .filter((x) => x !== 'backup') as CloseActionType[]
                 }
               }
             }
 
-            // If no saved preference or empty, determine sensible defaults
-            if (initial.length === 0 || initial.includes("none")) {
-              if (initial.includes("none")) {
-                setSelectedActions([]);
-              } else {
-                const defaults: CloseActionType[] = [];
-                if (s.gdriveAccessToken) defaults.push("gdrive");
-                if (s.sync_server_url) defaults.push("server");
-                if (defaults.length === 0) defaults.push("backup");
-                setSelectedActions(defaults);
-              }
+            // By default, no extra actions (saves directly in-place without dialogs)
+            if (initial.length === 0 || initial.includes('none')) {
+              setSelectedActions([])
             } else {
-              setSelectedActions(initial);
+              setSelectedActions(initial)
             }
 
-            if (s.closeActionRemember === "true") {
-              setRememberPreference(true);
+            if (s.closeActionRemember === 'true') {
+              setRememberPreference(true)
             }
           }
         })
-        .catch(console.error);
+        .catch(console.error)
     }
-  }, [isOpen]);
+  }, [isOpen])
 
-  const toggleAction = (action: CloseActionType) => {
+  const toggleAction = (action: CloseActionType): void => {
     setSelectedActions((prev) =>
       prev.includes(action) ? prev.filter((a) => a !== action) : [...prev, action]
-    );
-  };
+    )
+  }
 
-  const handleSelectAll = () => {
-    const all: CloseActionType[] = ["backup"];
-    if (isGDriveConfigured) all.push("gdrive");
-    if (isServerConfigured) all.push("server");
-    if (isMailConfigured) all.push("email");
-    setSelectedActions(all);
-  };
+  const handleSelectAll = (): void => {
+    const all: CloseActionType[] = []
+    if (isGDriveConfigured) all.push('gdrive')
+    if (isServerConfigured) all.push('server')
+    if (isMailConfigured) all.push('email')
+    all.push('backup')
+    setSelectedActions(all)
+  }
 
-  const handleClearAll = () => {
-    setSelectedActions([]);
-  };
+  const handleClearAll = (): void => {
+    setSelectedActions([])
+  }
 
-  const handleConfirm = async () => {
-    setLoading(true);
-    setError(null);
+  const handleConfirm = async (): Promise<void> => {
+    setLoading(true)
+    setError(null)
     try {
       const actionsToRun: CloseActionType[] =
-        selectedActions.length > 0 ? selectedActions : ["none"];
+        selectedActions.length > 0 ? selectedActions : ['none']
 
       if (window.electron?.ipcRenderer) {
-        await window.electron.ipcRenderer.invoke("db:save-settings", {
+        await window.electron.ipcRenderer.invoke('db:save-settings', {
           closeActionPreference: JSON.stringify(actionsToRun),
-          closeActionRemember: rememberPreference ? "true" : "false",
-        });
+          closeActionRemember: rememberPreference ? 'true' : 'false'
+        })
       }
 
-      await onConfirm(actionsToRun);
-      onClose();
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || "İşlem gerçekleştirilirken bir hata oluştu.");
+      await onConfirm(actionsToRun)
+      onClose()
+    } catch (err: unknown) {
+      console.error(err)
+      setError(
+        err instanceof Error ? err.message : 'İşlem gerçekleştirilirken bir hata oluştu.'
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  const hasAnyCloudConfigured = isGDriveConfigured || isServerConfigured;
+  const hasAnyCloudConfigured = isGDriveConfigured || isServerConfigured
   const isAllSelected =
-    selectedActions.includes("backup") &&
-    (!isGDriveConfigured || selectedActions.includes("gdrive")) &&
-    (!isServerConfigured || selectedActions.includes("server")) &&
-    (!isMailConfigured || selectedActions.includes("email"));
+    (!isGDriveConfigured || selectedActions.includes('gdrive')) &&
+    (!isServerConfigured || selectedActions.includes('server')) &&
+    (!isMailConfigured || selectedActions.includes('email')) &&
+    selectedActions.includes('backup')
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={loading ? () => {} : onClose}
       title="Çalışma Dosyasını Kapat"
-      description={`${fileName} dosyasını kapatmak üzeresiniz.`}
+      description={`${fileName} dosyasındaki değişiklikler otomatik olarak kaydedilecektir.`}
     >
       <div className="flex flex-col gap-3.5">
         {error && (
@@ -167,15 +161,15 @@ export function WorkspaceCloseModal({
             </span>
           </div>
         ) : !hasAnyCloudConfigured ? (
-          <div className="p-3.5 rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 text-amber-900 dark:text-amber-300 text-xs space-y-1">
-            <div className="font-bold flex items-center gap-1.5 text-amber-700 dark:text-amber-400">
-              <AlertTriangle className="w-4 h-4 shrink-0" />
-              <span>Veri Güvenliği Tavsiyesi</span>
+          <div className="p-3 rounded-2xl bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 text-blue-900 dark:text-blue-300 text-xs space-y-1">
+            <div className="font-bold flex items-center gap-1.5 text-blue-700 dark:text-blue-400">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>Otomatik Dosya Güncelleme</span>
             </div>
             <p className="text-[11px] leading-relaxed opacity-90">
-              Bulut veya sunucu entegrasyonunuz henüz yoksa veri kaybı yaşamamak için{" "}
-              <strong>"Bilgisayara Yerel Yedek Kaydet"</strong> kutucuğunu seçili tutabilir veya{" "}
-              <strong>Google Drive / API Sunucu</strong> entegrasyonlarını aktifleştirebilirsiniz.
+              Yapılan tüm değişiklikler mevcut açık çalışma dosyanıza (<strong>{fileName}</strong>)
+              {' '}doğrudan kaydedilir. İlave bulut veya e-posta yedeklemesi isterseniz aşağıdaki
+              seçenekleri işaretleyebilirsiniz.
             </p>
           </div>
         ) : null}
@@ -183,7 +177,7 @@ export function WorkspaceCloseModal({
         {/* Header & Quick Action Buttons */}
         <div className="flex items-center justify-between gap-2 pt-0.5">
           <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-            Kapatılırken uygulanmasını istediğiniz yedekleme yöntemlerini seçin:
+            İsteğe bağlı ilave yedekleme yöntemleri:
           </p>
           <div className="flex items-center gap-1.5 shrink-0">
             <button
@@ -192,7 +186,7 @@ export function WorkspaceCloseModal({
               onClick={isAllSelected ? handleClearAll : handleSelectAll}
               className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/40 px-2 py-1 rounded-lg transition-colors cursor-pointer"
             >
-              {isAllSelected ? "Seçimi Kaldır" : "Tümünü Seç"}
+              {isAllSelected ? 'Seçimi Kaldır' : 'Tümünü Seç'}
             </button>
           </div>
         </div>
@@ -202,24 +196,26 @@ export function WorkspaceCloseModal({
           {/* Option: Google Drive Cloud Backup (Only if configured) */}
           {isGDriveConfigured && (
             <div
-              onClick={() => !loading && toggleAction("gdrive")}
+              onClick={() => !loading && toggleAction('gdrive')}
               className={cn(
-                "flex items-start gap-3 p-3 rounded-2xl border text-left transition-all cursor-pointer select-none",
-                selectedActions.includes("gdrive")
-                  ? "border-emerald-500/70 bg-emerald-50/40 dark:bg-emerald-950/20 ring-1 ring-emerald-500/30 shadow-xs"
-                  : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/20 dark:bg-slate-900/20 opacity-80",
+                'flex items-start gap-3 p-3 rounded-2xl border text-left transition-all cursor-pointer select-none',
+                selectedActions.includes('gdrive')
+                  ? 'border-emerald-500/70 bg-emerald-50/40 dark:bg-emerald-950/20 ring-1 ring-emerald-500/30 shadow-xs'
+                  : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/20 dark:bg-slate-900/20 opacity-80'
               )}
             >
               <div className="pt-0.5 shrink-0">
                 <div
                   className={cn(
-                    "w-5 h-5 rounded-lg flex items-center justify-center border transition-all",
-                    selectedActions.includes("gdrive")
-                      ? "bg-emerald-600 border-emerald-600 text-white shadow-xs"
-                      : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800",
+                    'w-5 h-5 rounded-lg flex items-center justify-center border transition-all',
+                    selectedActions.includes('gdrive')
+                      ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs'
+                      : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800'
                   )}
                 >
-                  {selectedActions.includes("gdrive") && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                  {selectedActions.includes('gdrive') && (
+                    <Check className="w-3.5 h-3.5 stroke-3" />
+                  )}
                 </div>
               </div>
               <div className="p-2 rounded-xl shrink-0 bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300">
@@ -235,7 +231,7 @@ export function WorkspaceCloseModal({
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-                  Çalışma dosyanızı (.dtal) Google Drive'daki <strong>TEMIN_360_YEDEKLER</strong> klasörünüze yükler ve son 7 sürümü saklar.
+                  Çalışma dosyanızı Google Drive&apos;daki <strong>TEMIN_360_YEDEKLER</strong> klasörünüze yükler ve son 7 sürümü saklar.
                 </p>
               </div>
             </div>
@@ -244,24 +240,26 @@ export function WorkspaceCloseModal({
           {/* Option: Server Backup (Only if configured) */}
           {isServerConfigured && (
             <div
-              onClick={() => !loading && toggleAction("server")}
+              onClick={() => !loading && toggleAction('server')}
               className={cn(
-                "flex items-start gap-3 p-3 rounded-2xl border text-left transition-all cursor-pointer select-none",
-                selectedActions.includes("server")
-                  ? "border-indigo-500/70 bg-indigo-50/40 dark:bg-indigo-950/20 ring-1 ring-indigo-500/30 shadow-xs"
-                  : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/20 dark:bg-slate-900/20 opacity-80",
+                'flex items-start gap-3 p-3 rounded-2xl border text-left transition-all cursor-pointer select-none',
+                selectedActions.includes('server')
+                  ? 'border-indigo-500/70 bg-indigo-50/40 dark:bg-indigo-950/20 ring-1 ring-indigo-500/30 shadow-xs'
+                  : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/20 dark:bg-slate-900/20 opacity-80'
               )}
             >
               <div className="pt-0.5 shrink-0">
                 <div
                   className={cn(
-                    "w-5 h-5 rounded-lg flex items-center justify-center border transition-all",
-                    selectedActions.includes("server")
-                      ? "bg-indigo-600 border-indigo-600 text-white shadow-xs"
-                      : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800",
+                    'w-5 h-5 rounded-lg flex items-center justify-center border transition-all',
+                    selectedActions.includes('server')
+                      ? 'bg-indigo-600 border-indigo-600 text-white shadow-xs'
+                      : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800'
                   )}
                 >
-                  {selectedActions.includes("server") && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                  {selectedActions.includes('server') && (
+                    <Check className="w-3.5 h-3.5 stroke-3" />
+                  )}
                 </div>
               </div>
               <div className="p-2 rounded-xl shrink-0 bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300">
@@ -281,24 +279,26 @@ export function WorkspaceCloseModal({
           {/* Option: Email Backup (Only if configured) */}
           {isMailConfigured && (
             <div
-              onClick={() => !loading && toggleAction("email")}
+              onClick={() => !loading && toggleAction('email')}
               className={cn(
-                "flex items-start gap-3 p-3 rounded-2xl border text-left transition-all cursor-pointer select-none",
-                selectedActions.includes("email")
-                  ? "border-blue-500/70 bg-blue-50/40 dark:bg-blue-950/20 ring-1 ring-blue-500/30 shadow-xs"
-                  : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/20 dark:bg-slate-900/20 opacity-80",
+                'flex items-start gap-3 p-3 rounded-2xl border text-left transition-all cursor-pointer select-none',
+                selectedActions.includes('email')
+                  ? 'border-blue-500/70 bg-blue-50/40 dark:bg-blue-950/20 ring-1 ring-blue-500/30 shadow-xs'
+                  : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/20 dark:bg-slate-900/20 opacity-80'
               )}
             >
               <div className="pt-0.5 shrink-0">
                 <div
                   className={cn(
-                    "w-5 h-5 rounded-lg flex items-center justify-center border transition-all",
-                    selectedActions.includes("email")
-                      ? "bg-blue-600 border-blue-600 text-white shadow-xs"
-                      : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800",
+                    'w-5 h-5 rounded-lg flex items-center justify-center border transition-all',
+                    selectedActions.includes('email')
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
+                      : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800'
                   )}
                 >
-                  {selectedActions.includes("email") && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                  {selectedActions.includes('email') && (
+                    <Check className="w-3.5 h-3.5 stroke-3" />
+                  )}
                 </div>
               </div>
               <div className="p-2 rounded-xl shrink-0 bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300">
@@ -315,26 +315,28 @@ export function WorkspaceCloseModal({
             </div>
           )}
 
-          {/* Option: Local Backup (Always available) */}
+          {/* Option: Local Backup (Optional save-as copy) */}
           <div
-            onClick={() => !loading && toggleAction("backup")}
+            onClick={() => !loading && toggleAction('backup')}
             className={cn(
-              "flex items-start gap-3 p-3 rounded-2xl border text-left transition-all cursor-pointer select-none",
-              selectedActions.includes("backup")
-                ? "border-blue-500/70 bg-blue-50/40 dark:bg-blue-950/20 ring-1 ring-blue-500/30 shadow-xs"
-                : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/20 dark:bg-slate-900/20 opacity-80",
+              'flex items-start gap-3 p-3 rounded-2xl border text-left transition-all cursor-pointer select-none',
+              selectedActions.includes('backup')
+                ? 'border-blue-500/70 bg-blue-50/40 dark:bg-blue-950/20 ring-1 ring-blue-500/30 shadow-xs'
+                : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/20 dark:bg-slate-900/20 opacity-80'
             )}
           >
             <div className="pt-0.5 shrink-0">
               <div
                 className={cn(
-                  "w-5 h-5 rounded-lg flex items-center justify-center border transition-all",
-                  selectedActions.includes("backup")
-                    ? "bg-blue-600 border-blue-600 text-white shadow-xs"
-                    : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800",
+                  'w-5 h-5 rounded-lg flex items-center justify-center border transition-all',
+                  selectedActions.includes('backup')
+                    ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
+                    : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800'
                 )}
               >
-                {selectedActions.includes("backup") && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                {selectedActions.includes('backup') && (
+                  <Check className="w-3.5 h-3.5 stroke-3" />
+                )}
               </div>
             </div>
             <div className="p-2 rounded-xl shrink-0 bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300">
@@ -342,10 +344,10 @@ export function WorkspaceCloseModal({
             </div>
             <div className="flex-1 min-w-0">
               <h4 className="text-xs font-bold text-slate-850 dark:text-slate-150">
-                Bilgisayara Yerel Yedek Kaydet (.dtal)
+                Farklı Konuma Yedek Kopyası Al (Farklı Kaydet)
               </h4>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-                Çalışma dosyanızın (.dtal) güvenli bir kopyasını bilgisayarınızda seçeceğiniz klasöre kaydeder.
+                Mevcut dosyanızı güncellemenin yanı sıra, güvenli bir kopyasını seçeceğiniz başka bir klasöre yedekler.
               </p>
             </div>
           </div>
@@ -353,20 +355,30 @@ export function WorkspaceCloseModal({
 
         {/* Selected Summary Notice */}
         {selectedActions.length === 0 ? (
-          <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2">
-            <FileText className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
             <span>
-              Herhangi bir yedekleme seçilmedi. Dosya yalnızca kaydedilip doğrudan kapatılacaktır.
+              Mevcut çalışma dosyanız (<strong>{fileName}</strong>) güncellenerek kapatılacaktır.
             </span>
           </div>
         ) : (
           <div className="px-3 py-2 rounded-xl bg-slate-100/70 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 text-xs flex items-center justify-between">
             <span className="flex items-center gap-1.5 font-medium">
               <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>{selectedActions.length} adet yedekleme yöntemi seçildi</span>
+              <span>{selectedActions.length} adet ilave yedekleme seçildi</span>
             </span>
             <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-              {selectedActions.map((a) => (a === "gdrive" ? "Drive" : a === "server" ? "Sunucu" : a === "email" ? "E-Posta" : "Yerel")).join(" + ")}
+              {selectedActions
+                .map((a) =>
+                  a === 'gdrive'
+                    ? 'Drive'
+                    : a === 'server'
+                      ? 'Sunucu'
+                      : a === 'email'
+                        ? 'E-Posta'
+                        : 'Farklı Kaydet'
+                )
+                .join(' + ')}
             </span>
           </div>
         )}
@@ -388,8 +400,9 @@ export function WorkspaceCloseModal({
               Bu seçimlerimi hatırla ve dosyayı her kapattığımda otomatik uygula
             </span>
             <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5 leading-relaxed">
-              İşaretlenirse sonraki kapatmalarda bu pencere sorulmadan seçtiğiniz işlemler doğrudan yapılır.
-              Bu ayarı dilediğiniz zaman <strong>Ayarlar &gt; Senkronizasyon</strong> alanından değiştirebilir veya sıfırlayabilirsiniz.
+              İşaretlenirse sonraki kapatmalarda bu pencere sorulmadan seçtiğiniz işlemler doğrudan
+              yapılır. Bu ayarı dilediğiniz zaman <strong>Ayarlar &gt; Senkronizasyon</strong>{' '}
+              alanından değiştirebilir veya sıfırlayabilirsiniz.
             </span>
           </label>
         </div>
@@ -404,37 +417,35 @@ export function WorkspaceCloseModal({
           >
             Vazgeç
           </button>
-          
+
           <button
             type="button"
             disabled={loading}
             onClick={handleConfirm}
             className={cn(
-              "px-5 py-2.5 text-xs font-bold text-white rounded-xl shadow-md cursor-pointer flex items-center gap-2 min-w-[130px] justify-center transition-all",
-              selectedActions.length === 0
-                ? "bg-amber-600 hover:bg-amber-700"
-                : selectedActions.includes("gdrive")
-                ? "bg-emerald-600 hover:bg-emerald-700"
-                : "bg-blue-600 hover:bg-blue-700",
+              'px-5 py-2.5 text-xs font-bold text-white rounded-xl shadow-md cursor-pointer flex items-center gap-2 min-w-32.5 justify-center transition-all',
+              selectedActions.includes('gdrive')
+                ? 'bg-emerald-600 hover:bg-emerald-700'
+                : 'bg-blue-600 hover:bg-blue-700'
             )}
           >
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>İşleniyor...</span>
+                <span>Kaydediliyor...</span>
               </>
             ) : selectedActions.length === 0 ? (
-              <span>Yedeklemeden Kapat</span>
+              <span>Kaydet ve Kapat</span>
             ) : (
               <span>
                 {selectedActions.length === 1
-                  ? "Yedekle ve Kapat"
-                  : `Seçilenleri Yedekle ve Kapat (${selectedActions.length})`}
+                  ? 'Kaydet ve Kapat'
+                  : `Kaydet ve Kapat (${selectedActions.length})`}
               </span>
             )}
           </button>
         </div>
       </div>
     </Modal>
-  );
+  )
 }

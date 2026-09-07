@@ -37,6 +37,11 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
   ipcMain.handle('workspace:close', async () => {
     try {
       closeAllSecondaryWindows()
+      try {
+        workspaceManager.save()
+      } catch (saveErr) {
+        console.error('Auto-save on close error:', saveErr)
+      }
       workspaceManager.close()
       return { success: true }
     } catch (error: any) {
