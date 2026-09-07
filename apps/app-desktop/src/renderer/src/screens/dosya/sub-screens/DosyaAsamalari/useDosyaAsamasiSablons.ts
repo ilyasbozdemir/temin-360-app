@@ -287,7 +287,12 @@ export function useDosyaAsamasiSablons() {
     }
   }
 
-  const handleOpenPreviewForSablon = async (sablon: any, title: string, overrideCtx?: any) => {
+  const handleOpenPreviewForSablon = async (
+    sablon: any,
+    title: string,
+    overrideCtx?: any,
+    selectedFirma?: any
+  ) => {
     const processPath = sablon.route_path || sablon.dosya_adi || ''
     const currentCtx = contextsByPath[processPath] || dosyaContext
     const snapshotCtx = overrideCtx
@@ -310,6 +315,7 @@ export function useDosyaAsamasiSablons() {
       documentId: docId,
       dosyaId: activeDosyaId || undefined,
       documentTitle: title,
+      selectedFirma: selectedFirma || null,
       onClose: () => {
         setPreviewModalOpen(false)
       }

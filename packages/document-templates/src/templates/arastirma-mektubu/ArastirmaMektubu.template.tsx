@@ -229,19 +229,39 @@ export function ArastirmaMektubu({
 
         <div
           style={{
-            marginTop: "15px",
-            marginBottom: "10px",
-            fontWeight: "bold",
+            marginTop: "18px",
+            marginBottom: "14px",
+            textAlign: "center",
             display: "flex",
-            justifyContent: "center",
+            flexDirection: "column",
             alignItems: "center",
+            justifyContent: "center",
+            lineHeight: 1.4,
           }}
         >
-          <EditableField
-            name="sayinIlgili"
-            value={data.sayinIlgili}
-            placeholder="Sayın İlgili,"
-          />
+          <div style={{ fontWeight: "bold", fontSize: "12pt" }}>
+            <EditableField
+              name="sayinIlgili"
+              value={data.sayinIlgili || (data.firmaUnvani ? `Sayın ${data.firmaUnvani}` : "Sayın İlgili,")}
+              placeholder="Sayın [Firma Unvanı] / Sayın İlgili,"
+            />
+          </div>
+          <div style={{ fontSize: "10.5pt", color: "#222", marginTop: "2px", textAlign: "center" }}>
+            <div>
+              <EditableField
+                name="firmaAdresi"
+                value={data.firmaAdresi || data.adres || ""}
+                placeholder="Firma Adresi"
+              />
+            </div>
+            <div style={{ fontWeight: "bold" }}>
+              <EditableField
+                name="firmaSehir"
+                value={data.firmaSehir || data.sehir || ""}
+                placeholder="İlçe / İL"
+              />
+            </div>
+          </div>
         </div>
 
         <div

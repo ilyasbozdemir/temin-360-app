@@ -18,6 +18,7 @@ import {
 } from "../templateResolver";
 import { buildExportFileName } from "../../../../../utils/exportFileName";
 import { documentPreloadService } from "../../../../../services/documentPreloadService";
+import { useGlobalDocumentPreviewStore } from "../../../../../store/globalDocumentPreviewStore";
 
 interface UseDocumentPreviewDataParams {
   isOpen: boolean;
@@ -332,6 +333,40 @@ export function useDocumentPreviewData({
               ? `Yetkili: ${winnerFirm.yetkili_ad_soyad}`
               : "Yüklenici Firma / Yetkilisi";
           }
+        }
+
+        // Seçilen veya hedeflenen istekli firma bilgileri (Mektup ve Teklif formları için)
+        const globalStoreState = useGlobalDocumentPreviewStore.getState();
+        const explicitFirm =
+          globalStoreState.selectedFirma ||
+          globalStoreState.initialData?.selectedFirma ||
+          (propInvitedFirms && propInvitedFirms.length === 1 ? propInvitedFirms[0] : null);
+
+        if (explicitFirm) {
+          const fUnvan = explicitFirm.unvan || explicitFirm.firma_adi || "";
+          const fAdres = explicitFirm.adres || "";
+          const fIlce = explicitFirm.ilce || explicitFirm.semt || "";
+          const fIl = explicitFirm.il || explicitFirm.sehir || "";
+          const fSehir = [fIlce, fIl].filter(Boolean).join(" / ") || fIl;
+          const fVergiNo = explicitFirm.vergi_no || "";
+          const fTelefon = explicitFirm.telefon || "";
+          const fEmail = explicitFirm.email || explicitFirm.eposta || "";
+
+          baseData.selectedFirma = explicitFirm;
+          baseData.firmaUnvani = fUnvan;
+          baseData.sayinIlgili = fUnvan ? `Sayın ${fUnvan}` : "Sayın İlgili,";
+          baseData.firmaAdresi = fAdres;
+          baseData.firmaSehir = fSehir;
+          baseData.firmaVergiNo = fVergiNo;
+          baseData.teklifSahibi = fUnvan;
+          baseData.tebligatAdresi = [fAdres, fSehir].filter(Boolean).join(" ") || fAdres;
+          baseData.vergiNo = fVergiNo;
+          baseData.telefonFaks = fTelefon;
+          baseData.eposta = fEmail;
+        }
+
+        if (globalStoreState.initialData) {
+          Object.assign(baseData, globalStoreState.initialData);
         }
 
         // Teslim süresi

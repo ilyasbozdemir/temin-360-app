@@ -7,12 +7,16 @@ export interface GlobalDocumentPreviewState {
   dosyaId: number | null
   documentTitle: string | null
   invitedFirms: any[]
+  selectedFirma?: any | null
+  initialData?: Record<string, any> | null
   onCloseCallback?: (() => void) | null
   openDocument: (params: {
     documentId: string
     dosyaId?: number | null
     documentTitle?: string
     invitedFirms?: any[]
+    selectedFirma?: any
+    initialData?: Record<string, any>
     startAsBalloon?: boolean
     onClose?: () => void
   }) => void
@@ -28,12 +32,16 @@ export const useGlobalDocumentPreviewStore = create<GlobalDocumentPreviewState>(
   dosyaId: null,
   documentTitle: null,
   invitedFirms: [],
+  selectedFirma: null,
+  initialData: null,
   onCloseCallback: null,
   openDocument: ({
     documentId,
     dosyaId,
     documentTitle,
     invitedFirms = [],
+    selectedFirma = null,
+    initialData = null,
     startAsBalloon = false,
     onClose
   }) =>
@@ -44,6 +52,8 @@ export const useGlobalDocumentPreviewStore = create<GlobalDocumentPreviewState>(
       dosyaId: dosyaId || null,
       documentTitle: documentTitle || null,
       invitedFirms,
+      selectedFirma,
+      initialData,
       onCloseCallback: onClose || null
     }),
   closeDocument: () =>

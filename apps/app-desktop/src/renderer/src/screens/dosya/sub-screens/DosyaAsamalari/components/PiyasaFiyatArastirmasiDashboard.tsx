@@ -106,7 +106,7 @@ export function PiyasaFiyatArastirmasiDashboard({
 }: PiyasaFiyatArastirmasiDashboardProps): React.JSX.Element {
   const { activeDosyaId } = useWorkspaceStore();
 
-  const handleOpenSablonByDosyaAdi = (targetKey: string) => {
+  const handleOpenSablonByDosyaAdi = (targetKey: string, firmData?: any) => {
     const cleanTarget = targetKey.replace(/\.html$/, "").toLowerCase().trim();
     const candidateKeys = SABLON_ALIAS_MAP[cleanTarget] || [cleanTarget];
 
@@ -146,12 +146,14 @@ export function PiyasaFiyatArastirmasiDashboard({
     }
 
     if (foundSablon && handleOpenPreviewForSablon) {
-      handleOpenPreviewForSablon(foundSablon, foundSablon.ad);
+      handleOpenPreviewForSablon(foundSablon, foundSablon.ad, undefined, firmData);
     } else {
       useGlobalDocumentPreviewStore.getState().openDocument({
         documentId: targetKey,
-        documentTitle: targetKey,
+        documentTitle: foundSablon ? foundSablon.ad : targetKey,
         dosyaId: activeDosyaId || undefined,
+        selectedFirma: firmData || null,
+        invitedFirms: invitedFirms || [],
       });
     }
   };
