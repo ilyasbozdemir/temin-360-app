@@ -861,7 +861,33 @@ export class DtmWorkspace {
     }
     const lockPath = filePath + '.lock'
     if (fs.existsSync(lockPath)) {
-      throw new Error('LOCKED|Bu dosya şu anda başka bir pencerede veya programda açık durumda.')
+      try {
+        const lockContent = fs.readFileSync(lockPath, 'utf-8')
+        const pid = parseInt(lockContent.trim(), 10)
+        if (!isNaN(pid) && pid !== process.pid) {
+          let isRunning = false
+          try {
+            process.kill(pid, 0)
+            isRunning = true
+          } catch (e) {
+            isRunning = false
+          }
+          if (!isRunning) {
+            fs.unlinkSync(lockPath)
+          } else {
+            throw new Error(
+              'LOCKED|Bu dosya şu anda başka bir pencerede veya programda açık durumda. Çakışmayı önlemek için önce diğer taraftan kapatmalısınız.'
+            )
+          }
+        } else if (pid === process.pid) {
+          fs.unlinkSync(lockPath)
+        }
+      } catch (err: any) {
+        if (err.message.startsWith('LOCKED|')) throw err
+        throw new Error(
+          'LOCKED|Bu dosya şu anda başka bir pencerede veya programda açık durumda. Çakışmayı önlemek için önce diğer taraftan kapatmalısınız.'
+        )
+      }
     }
 
     try {
@@ -870,63 +896,73 @@ export class DtmWorkspace {
       throw new Error(`Kilit dosyası oluşturulamadı: ${err.message}`)
     }
 
-    this.currentFilePath = filePath
-    this.ensureTempDir()
-
-    const dbPath = path.join(this.tempDir, 'database.sqlite')
-    this.db = new Database(dbPath)
-
-    initializeDatabase(this.db, institutionName)
-
     try {
-      const insertStmt = this.db.prepare(`
-        INSERT OR IGNORE INTO TANIM_TasinirKod (tam_kod, hesap_kodu, duzey_1, duzey_2, duzey_3, duzey_4, duzey_5, aciklama)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `)
-      const seedTx = this.db.transaction((rows: any[]) => {
-        for (const row of rows) {
-          insertStmt.run(
-            row.tam_kod,
-            row.hesap_kodu,
-            row.duzey_1,
-            row.duzey_2,
-            row.duzey_3,
-            row.duzey_4,
-            row.duzey_5,
-            row.aciklama
-          )
-        }
-      })
-      seedTx(tasinirKodlariSeed)
-    } catch (err) {
-      console.error('Tasinir Kodlari tohumlama sirasinda hata:', err)
+      this.currentFilePath = filePath
+      this.ensureTempDir()
+
+      const dbPath = path.join(this.tempDir, 'database.sqlite')
+      this.db = new Database(dbPath)
+
+      initializeDatabase(this.db, institutionName)
+
+      try {
+        const insertStmt = this.db.prepare(`
+          INSERT OR IGNORE INTO TANIM_TasinirKod (tam_kod, hesap_kodu, duzey_1, duzey_2, duzey_3, duzey_4, duzey_5, aciklama)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `)
+        const seedTx = this.db.transaction((rows: any[]) => {
+          for (const row of rows) {
+            insertStmt.run(
+              row.tam_kod,
+              row.hesap_kodu,
+              row.duzey_1,
+              row.duzey_2,
+              row.duzey_3,
+              row.duzey_4,
+              row.duzey_5,
+              row.aciklama
+            )
+          }
+        })
+        seedTx(tasinirKodlariSeed)
+      } catch (err) {
+        console.error('Tasinir Kodlari tohumlama sirasinda hata:', err)
+      }
+
+      const meta: WorkspaceMeta = {
+        dtal_version: '1.0',
+        app_version: app.getVersion(),
+        created_at: new Date().toISOString().split('T')[0],
+        institution: institutionName,
+        schema_version: CURRENT_SCHEMA_VERSION,
+        platform: process.platform,
+        file_version: 1,
+        active_db_file: 'database.sqlite',
+        updated_at: new Date().toISOString(),
+        warnings: []
+      }
+      meta.integrity_hash = calculateIntegrityHash(meta)
+
+      const metaPath = path.join(this.tempDir, 'meta.json')
+      fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2))
+
+      fs.mkdirSync(path.join(this.tempDir, 'attachments'))
+
+      seedTemplates(this.db)
+
+      this.saveWorkspace()
+
+      this.meta = meta
+      return meta
+    } catch (createErr: any) {
+      if (fs.existsSync(lockPath)) {
+        try {
+          fs.unlinkSync(lockPath)
+        } catch (e) {}
+      }
+      this.currentFilePath = null
+      throw createErr
     }
-
-    const meta: WorkspaceMeta = {
-      dtal_version: '1.0',
-      app_version: app.getVersion(),
-      created_at: new Date().toISOString().split('T')[0],
-      institution: institutionName,
-      schema_version: CURRENT_SCHEMA_VERSION,
-      platform: process.platform,
-      file_version: 1,
-      active_db_file: 'database.sqlite',
-      updated_at: new Date().toISOString(),
-      warnings: []
-    }
-    meta.integrity_hash = calculateIntegrityHash(meta)
-
-    const metaPath = path.join(this.tempDir, 'meta.json')
-    fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2))
-
-    fs.mkdirSync(path.join(this.tempDir, 'attachments'))
-
-    seedTemplates(this.db)
-
-    this.saveWorkspace()
-
-    this.meta = meta
-    return meta
   }
 
   public saveWorkspace(): void {

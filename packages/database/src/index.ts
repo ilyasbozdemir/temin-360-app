@@ -149,7 +149,7 @@ export function initializeDatabase(db: Database.Database, institutionName: strin
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_tasinirkod_tam_kod ON TANIM_TasinirKod(tam_kod);
     CREATE INDEX IF NOT EXISTS idx_tasinirkod_hesap ON TANIM_TasinirKod(hesap_kodu);
-    CREATE INDEX IF NOT EXISTS idx_okaskod_tam_kod ON TANIM_OkasKod(tam_kod);
+    CREATE INDEX IF NOT EXISTS idx_okaskod_kod ON TANIM_OkasKod(kod);
   `)
 
   // Seed default test data in dev environment
