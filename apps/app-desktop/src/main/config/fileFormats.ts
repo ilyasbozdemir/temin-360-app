@@ -23,8 +23,18 @@ export const SUPPORTED_FORMATS: FileFormat[] = [
   },
   {
     ext: 'dtal',
-    label: 'TEMİN 360 / DTAL Veri Dosyası (Eski)',
+    label: 'TEMİN 360 Veri Dosyası (Eski .dtal)',
     dialogName: 'TEMİN 360 / DTAL Dosyası (*.dtal)'
+  },
+  {
+    ext: 'dtm',
+    label: 'TEMİN 360 Veri Dosyası (Eski .dtm)',
+    dialogName: 'TEMİN 360 / DTM Dosyası (*.dtm)'
+  },
+  {
+    ext: 'dte',
+    label: 'TEMİN 360 Veri Aktarım Dosyası (.dte)',
+    dialogName: 'TEMİN 360 / DTE Dosyası (*.dte)'
   }
 ]
 

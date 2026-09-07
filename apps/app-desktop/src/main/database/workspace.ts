@@ -7,6 +7,7 @@ import crypto from 'crypto'
 import { initializeDatabase, schema } from './index'
 import { runMigrations, CURRENT_SCHEMA_VERSION, getPendingMigrations } from '@dt/database'
 import tasinirKodlariSeed from './seed/tasinir_kodlari.json'
+import { recentFilesStore } from '../store/recentFiles'
 
 export interface WorkspaceMeta {
   dtal_version: string
@@ -815,18 +816,18 @@ export class DtmWorkspace {
     }
 
     // Otomatik uzantıyı .hkmp yapma mantığı (Eski formatlar için)
-    if (!filePath.toLowerCase().endsWith('.hkmp') && !filePath.toLowerCase().endsWith('.dtal')) {
+    if (!filePath.toLowerCase().endsWith('.hkmp')) {
+      const ext = path.extname(filePath)
+      const fileName = path.basename(filePath)
       const response = dialog.showMessageBoxSync({
         type: 'question',
-        buttons: ['Evet, TEMİN 360 (.hkmp) Formatına Yükselt', 'Hayır, Eski Uzantıda Bırak'],
+        buttons: ['Evet, (.hkmp) Formatına Yükselt (Önerilen)', 'Hayır, Eski Uzantıda Devam Et'],
         defaultId: 0,
-        title: 'Dosya Formatı Güncelleme',
-        message:
-          'Açtığınız dosya eski formattadır. Uygulama verimliliği ve tam uyumluluk için dosyanın yeni TEMİN 360 (.hkmp) formatına yükseltilmesi önerilir.\n\nDosya formatı güncellensin mi?'
+        title: 'Dosya Formatı Yükseltme',
+        message: `"${fileName}" dosyası eski bir formatta (${ext || 'uzantısız'}).\n\nUygulama performansı ve tam uyumluluk için dosyanın yeni TEMİN 360 (.hkmp) formatına yükseltilmesi önerilir.\n\nDosya formatı .hkmp olarak güncellensin mi?`
       })
 
       if (response === 0) {
-        const ext = path.extname(filePath)
         const newFilePath = filePath.substring(0, filePath.length - ext.length) + '.hkmp'
 
         const newLockPath = newFilePath + '.lock'
@@ -842,6 +843,15 @@ export class DtmWorkspace {
             fs.unlinkSync(lockPath)
           }
           this.currentFilePath = newFilePath
+
+          // Son açılanlar listesini güncelle
+          try {
+            recentFilesStore.removeRecentFile(filePath)
+            const instName = meta.institution || path.basename(newFilePath, '.hkmp')
+            recentFilesStore.addRecentFile(newFilePath, instName)
+          } catch (recentErr) {
+            console.error('Son açılanlar güncellenirken hata:', recentErr)
+          }
         } catch (err: any) {
           console.error('Uzantı değiştirilirken hata oluştu:', err)
           // Eğer adlandırma başarısız olursa (ör. izin hatası), en azından orijinal yolda kal
@@ -855,7 +865,7 @@ export class DtmWorkspace {
   }
 
   public createWorkspace(filePath: string, institutionName: string): WorkspaceMeta {
-    if (!filePath.toLowerCase().endsWith('.hkmp') && !filePath.toLowerCase().endsWith('.dtal')) {
+    if (!filePath.toLowerCase().endsWith('.hkmp')) {
       const ext = path.extname(filePath)
       filePath = (ext ? filePath.substring(0, filePath.length - ext.length) : filePath) + '.hkmp'
     }
