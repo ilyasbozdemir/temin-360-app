@@ -633,7 +633,7 @@ export function useDocumentPreviewData({
       let sablonId = sablonRes?.success && sablonRes.data?.length > 0 ? sablonRes.data[0].id : null;
       if (!sablonId) {
         await window.electron.ipcRenderer.invoke(
-          "db:query",
+          "db:run",
           "INSERT OR IGNORE INTO TANIM_Sablon (ad, dosya_adi, dosya_turu, icerik, kategori, aktif_mi) VALUES (?, ?, 'html', '', 'genel', 1)",
           [activeTemplateConf?.name || resolvedId, `${resolvedId}.html`],
         );
@@ -649,15 +649,15 @@ export function useDocumentPreviewData({
 
       // Clean up any old duplicate records for this dosya & sablon
       await window.electron.ipcRenderer.invoke(
-        "db:query",
+        "db:run",
         "DELETE FROM DATA_DosyaSablonVeri WHERE temin_dosya_id = ? AND (sablon_kodu = ? OR sablon_kodu = ? OR (sablon_id IS NOT NULL AND sablon_id = ?))",
         [activeDosyaId, resolvedId, `${resolvedId}.html`, sablonId],
       );
 
-      // Insert new authoritative JSON snapshot
+      // Insert new authoritative JSON snapshot (using db:run so changes persist & save)
       await window.electron.ipcRenderer.invoke(
-        "db:query",
-        "INSERT INTO DATA_DosyaSablonVeri (temin_dosya_id, sablon_id, sablon_kodu, veri_json, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",
+        "db:run",
+        "INSERT OR REPLACE INTO DATA_DosyaSablonVeri (temin_dosya_id, sablon_id, sablon_kodu, veri_json, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",
         [activeDosyaId, sablonId, resolvedId, jsonStr],
       );
 
