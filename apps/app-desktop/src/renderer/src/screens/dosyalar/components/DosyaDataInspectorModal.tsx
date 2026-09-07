@@ -109,7 +109,7 @@ export const DosyaDataInspectorModal: React.FC<DosyaDataInspectorModalProps> = (
         ),
         window.electron.ipcRenderer.invoke(
           "db:query",
-          "SELECT tk.*, p.ad_soyad, p.unvan as personel_unvan, kg.ad as gorev_adi FROM DATA_TeminKomisyon tk LEFT JOIN TANIM_Personel p ON tk.personel_id = p.id LEFT JOIN TANIM_KomisyonGorevi kg ON tk.gorev_kod = kg.kod WHERE tk.temin_dosya_id = ? ORDER BY tk.id ASC",
+          "SELECT tk.*, p.ad_soyad, p.unvan as personel_unvan, tk.gorev as gorev_adi FROM DATA_TeminKomisyon tk LEFT JOIN TANIM_Personel p ON tk.personel_id = p.id WHERE tk.temin_dosya_id = ? ORDER BY tk.id ASC",
           [dosyaId],
         ),
         window.electron.ipcRenderer.invoke(

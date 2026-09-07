@@ -100,7 +100,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   harcamaBirimAdi: '',
   ekapDonemKurali: '',
   isDisclaimerAccepted: false,
-  disableDocumentGuidance: false,
+  disableDocumentGuidance: true,
   unifiedStepperMode: true,
   disclaimerHistory: '[]',
   setDisableDocumentGuidance: (val) => set({ disableDocumentGuidance: val }),
@@ -127,6 +127,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   setMuhasebeBirimAdi: (val) => set({ muhasebeBirimAdi: val }),
   setHarcamaBirimKodu: (val) => set({ harcamaBirimKodu: val }),
   setHarcamaBirimAdi: (val) => set({ harcamaBirimAdi: val }),
+  setEkapDonemKurali: (val) => set({ ekapDonemKurali: val }),
   setDisclaimerHistory: (history) => set({ disclaimerHistory: history }),
   setDisclaimerAccepted: (val) => set({ isDisclaimerAccepted: val }),
   loadSettings: async () => {
@@ -164,7 +165,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         harcamaBirimKodu: settings.harcamaBirimKodu || '',
         harcamaBirimAdi: settings.harcamaBirimAdi || '',
         ekapDonemKurali: settings.ekapDonemKurali || '',
-        disableDocumentGuidance: settings.disableDocumentGuidance === 'true',
+        disableDocumentGuidance: settings.disableDocumentGuidance !== 'false',
         disclaimerHistory: settings.disclaimerHistory || '[]'
         // isDisclaimerAccepted is intentionally not loaded from DB to show it on every app launch
       })
@@ -201,7 +202,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         harcamaBirimKodu: '',
         harcamaBirimAdi: '',
         ekapDonemKurali: '',
-        disableDocumentGuidance: false,
+        disableDocumentGuidance: true,
         disclaimerHistory: '[]',
         isDisclaimerAccepted: false
       })

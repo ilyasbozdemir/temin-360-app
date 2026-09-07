@@ -71,7 +71,7 @@ export default function AyarlarScreen(): React.ReactNode {
   const [smtpSecure, setSmtpSecure] = useState(false)
 
   // Tab: Genel
-  const [disableDocumentGuidance, setDisableDocumentGuidance] = useState(false)
+  const [disableDocumentGuidance, setDisableDocumentGuidance] = useState(true)
   const [unifiedStepperMode, setUnifiedStepperMode] = useState(true)
 
   // Tab: Geliştirici Ayarları
@@ -126,7 +126,7 @@ export default function AyarlarScreen(): React.ReactNode {
         setAiOpenaiApiKey(settings.ai_openai_api_key || '')
         setAiAnthropicApiKey(settings.ai_anthropic_api_key || '')
 
-        setDisableDocumentGuidance(settings.disableDocumentGuidance === 'true')
+        setDisableDocumentGuidance(settings.disableDocumentGuidance !== 'false')
         setUnifiedStepperMode(settings.unifiedStepperMode !== 'false')
       }, 0)
     }

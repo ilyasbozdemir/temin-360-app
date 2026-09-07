@@ -170,7 +170,7 @@ export function useCiktiMerkeziData(activeDosyaId: number | null): UseCiktiMerke
           `SELECT tk.*, 
                   COALESCE(NULLIF(tk.ad_soyad, ''), NULLIF(p.ad_soyad, ''), '') as ad_soyad, 
                   COALESCE(NULLIF(tk.unvan, ''), NULLIF(p.unvan, ''), '') as unvan,
-                  COALESCE(NULLIF(tk.gorevi, ''), 'Üye') as gorevi
+                  COALESCE(NULLIF(tk.gorev, ''), 'Üye') as gorevi
            FROM DATA_TeminKomisyon tk 
            LEFT JOIN TANIM_Personel p ON tk.personel_id = p.id 
            WHERE tk.temin_dosya_id = ?`,

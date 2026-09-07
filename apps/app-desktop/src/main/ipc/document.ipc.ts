@@ -525,7 +525,7 @@ export function registerDocumentIpcHandlers(): void {
 
       // 1. Fetch active personnel list
       const personelListesi = db.prepare(
-        'SELECT id, ad_soyad, unvan, telefon, eposta FROM TANIM_Personel WHERE aktif_mi = 1 ORDER BY ad_soyad ASC'
+        'SELECT id, ad_soyad, unvan, telefon, eposta, birim, sicil_no FROM TANIM_Personel WHERE COALESCE(aktif_mi, 1) = 1 OR aktif_mi = "1" OR aktif_mi = "true" OR aktif_mi IS NULL ORDER BY ad_soyad ASC'
       ).all()
 
       // 2. Fetch institution and app settings
@@ -594,7 +594,7 @@ export function registerDocumentIpcHandlers(): void {
         SELECT tk.*, 
                COALESCE(NULLIF(tk.ad_soyad, ''), NULLIF(p.ad_soyad, ''), '') as resolved_ad_soyad,
                COALESCE(NULLIF(tk.unvan, ''), NULLIF(p.unvan, ''), '') as resolved_unvan,
-               COALESCE(k.ad, tk.komisyon_turu) as komisyon_turu_adi
+               COALESCE(k.ad, '') as komisyon_turu_adi
         FROM DATA_TeminKomisyon tk
         LEFT JOIN TANIM_Personel p ON tk.personel_id = p.id
         LEFT JOIN TANIM_Komisyon k ON tk.komisyon_id = k.id
@@ -604,14 +604,22 @@ export function registerDocumentIpcHandlers(): void {
       // 9. Fetch saved snapshot if exists
       let savedSnapshot: any = null
       if (dosyaId && documentId) {
-        const snapRow = db.prepare(`
-          SELECT veri_json FROM DATA_DosyaSablonVeri 
-          WHERE temin_dosya_id = ? AND sablon_id = (SELECT id FROM TANIM_Sablon WHERE dosya_adi = ? LIMIT 1)
-        `).get(dosyaId, `${documentId}.html`)
-        if (snapRow?.veri_json) {
-          try {
+        const cleanDocId = String(documentId).replace(/\.html$/i, '').trim()
+        try {
+          const snapRow = db.prepare(`
+            SELECT veri_json FROM DATA_DosyaSablonVeri 
+            WHERE temin_dosya_id = ? AND (
+              sablon_kodu = ? 
+              OR sablon_kodu = ?
+              OR sablon_id = (SELECT id FROM TANIM_Sablon WHERE kod = ? OR dosya_adi = ? OR dosya_adi = ? LIMIT 1)
+            )
+            ORDER BY id DESC LIMIT 1
+          `).get(dosyaId, cleanDocId, `${cleanDocId}.html`, cleanDocId, `${cleanDocId}.html`, cleanDocId) as any
+          if (snapRow?.veri_json) {
             savedSnapshot = JSON.parse(snapRow.veri_json)
-          } catch {}
+          }
+        } catch (err) {
+          console.error('[Document IPC] savedSnapshot fetch error:', err)
         }
       }
 
@@ -904,7 +912,7 @@ export function registerDocumentIpcHandlers(): void {
       // 4. Personnel
       const personelListesi = db
         .prepare(
-          'SELECT id, ad_soyad, unvan, telefon, eposta FROM TANIM_Personel WHERE aktif_mi = 1 ORDER BY ad_soyad ASC'
+          'SELECT id, ad_soyad, unvan, telefon, eposta, birim, sicil_no FROM TANIM_Personel WHERE COALESCE(aktif_mi, 1) = 1 OR aktif_mi = "1" OR aktif_mi = "true" OR aktif_mi IS NULL ORDER BY ad_soyad ASC'
         )
         .all()
 
@@ -1009,7 +1017,7 @@ export function registerDocumentIpcHandlers(): void {
           SELECT tk.*, 
                  COALESCE(NULLIF(tk.ad_soyad, ''), NULLIF(p.ad_soyad, ''), '') as resolved_ad_soyad,
                  COALESCE(NULLIF(tk.unvan, ''), NULLIF(p.unvan, ''), '') as resolved_unvan,
-                 COALESCE(k.ad, tk.komisyon_turu) as komisyon_turu_adi
+                 COALESCE(k.ad, '') as komisyon_turu_adi
           FROM DATA_TeminKomisyon tk
           LEFT JOIN TANIM_Personel p ON tk.personel_id = p.id
           LEFT JOIN TANIM_Komisyon k ON tk.komisyon_id = k.id

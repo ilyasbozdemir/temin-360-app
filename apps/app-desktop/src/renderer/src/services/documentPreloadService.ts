@@ -59,6 +59,22 @@ class DocumentPreloadService {
     return cached
   }
 
+  public updateCachedResolvedData(documentId: string, dosyaId: number = 0, resolvedData: any): void {
+    if (!documentId) return
+    const key = this.getKey(documentId, dosyaId)
+    const existing = this.cache.get(key)
+    if (existing) {
+      existing.resolvedData = { ...existing.resolvedData, ...resolvedData }
+      existing.timestamp = Date.now()
+    } else {
+      this.cache.set(key, {
+        payloadData: {},
+        resolvedData,
+        timestamp: Date.now()
+      })
+    }
+  }
+
   public async preloadDocument(
     documentId: string,
     dosyaId: number = 0

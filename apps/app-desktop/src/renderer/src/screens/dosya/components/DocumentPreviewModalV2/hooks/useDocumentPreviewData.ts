@@ -132,6 +132,31 @@ export function useDocumentPreviewData({
 
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const initialSnapshotRef = useRef<string>(
+    initialPreloaded?.resolvedData
+      ? JSON.stringify({
+          ...initialPreloaded.resolvedData,
+          showLogoLeft,
+          showLogoRight,
+          olurYazisi: initialPreloaded.resolvedData.olurYazisi !== false,
+          orientation: "portrait",
+        })
+      : "",
+  );
+
+  const currentSnapshot = JSON.stringify({
+    ...formData,
+    showLogoLeft: localShowLogoLeft,
+    showLogoRight: localShowLogoRight,
+    olurYazisi: formData.olurYazisi !== false,
+    orientation,
+  });
+
+  const isDirty = Boolean(
+    initialSnapshotRef.current &&
+    currentSnapshot !== initialSnapshotRef.current &&
+    !isLoading
+  );
 
   // Auto-scale: belge genişliği A4 = 800px (portrait) / 1131px (landscape)
   // Container'ın içine sığacak şekilde scale hesapla
@@ -213,117 +238,39 @@ export function useDocumentPreviewData({
             if (res && res[0]) setDosyaRecord(res[0]);
           });
         }
-        const personelList = payloadData.personelListesi || [];
+        let personelList = payloadData.personelListesi || [];
+        if (!personelList || personelList.length === 0) {
+          try {
+            personelList = await queryExecutor(
+              "SELECT id, ad_soyad, unvan, telefon, eposta, birim, sicil_no FROM TANIM_Personel WHERE COALESCE(aktif_mi, 1) = 1 OR aktif_mi = '1' OR aktif_mi = 'true' OR aktif_mi IS NULL ORDER BY ad_soyad ASC",
+              []
+            );
+          } catch (e) {
+            console.error("Direct personel query error:", e);
+          }
+        }
         const fileFirms = payloadData.fileFirms || [];
         const combinedFirms = payloadData.firmaListesi || [];
         const items = payloadData.items || [];
         const bids = payloadData.bids || [];
         const snapshotData = payloadData.savedSnapshot;
 
-        setPersonelListesi(personelList);
+        setPersonelListesi(personelList || []);
         setFirmaListesi(combinedFirms);
 
-        let finalData = { ...resolved };
-        if (snapshotData) {
-          try {
-            const savedData = snapshotData;
-            for (const [key, val] of Object.entries(savedData)) {
-              if (val !== undefined && val !== null && val !== "") {
-                if (
-                  key === "antetSatirlari" &&
-                  resolved.antetSatirlari &&
-                  Array.isArray(resolved.antetSatirlari) &&
-                  resolved.antetSatirlari.length > 0
-                ) {
-                  finalData.antetSatirlari = resolved.antetSatirlari;
-                  continue;
-                }
-                if (
-                  key === "ihtiyacKalemleri" &&
-                  resolved.ihtiyacKalemleri &&
-                  Array.isArray(resolved.ihtiyacKalemleri) &&
-                  resolved.ihtiyacKalemleri.length > 0 &&
-                  (!Array.isArray(val) || val.length === 0)
-                ) {
-                  finalData.ihtiyacKalemleri = resolved.ihtiyacKalemleri;
-                  continue;
-                }
-                if (
-                  (key === "komisyon" ||
-                    key === "fiyatKomisyonu" ||
-                    key === "gorevlendirilenler") &&
-                  resolved[key] &&
-                  Array.isArray(resolved[key]) &&
-                  resolved[key].length > 0 &&
-                  (!Array.isArray(val) ||
-                    val.length === 0 ||
-                    val.every(
-                      (c: any) =>
-                        !c.adSoyad || String(c.adSoyad).includes("BELİRTİLMESİ"),
-                    ))
-                ) {
-                  finalData[key] = resolved[key];
-                  continue;
-                }
-                const isSavedPlaceholder =
-                  typeof val === "string" && val.includes("[Belirtilmedi");
-                const isSavedAcme =
-                  typeof val === "string" && val.toUpperCase().includes("ACME");
-                const isSavedAntetPlaceholder =
-                  Array.isArray(val) &&
-                  val.some((s: any) => String(s).includes("[Belirtilmedi"));
-                const hasFreshRealValue =
-                  resolved[key] &&
-                  !String(resolved[key]).includes("[Belirtilmedi");
-
-                if (
-                  (isSavedPlaceholder ||
-                    isSavedAcme ||
-                    isSavedAntetPlaceholder) &&
-                  hasFreshRealValue
-                ) {
-                  continue;
-                }
-                let cleanVal = val;
-                if (typeof cleanVal === "string") {
-                  const str = cleanVal as string;
-                  const jsonMatch = str.match(
-                    /"?[a-zA-Z0-9_]+"?\s*:\s*"([^"]+)"/,
-                  );
-                  const baseStr = jsonMatch ? jsonMatch[1] : str;
-                  cleanVal = baseStr.replace(/^["']|["',]+$/g, "").trim();
-                }
-                finalData[key] = cleanVal;
-              }
-            }
-            if (savedData.showLogoLeft !== undefined) {
-              setLocalShowLogoLeft(Boolean(savedData.showLogoLeft));
-            }
-            if (savedData.showLogoRight !== undefined) {
-              setLocalShowLogoRight(Boolean(savedData.showLogoRight));
-            }
-            if (savedData.olurYazisi !== undefined) {
-              finalData.olurYazisi = savedData.olurYazisi;
-            }
-            if (savedData.orientation) {
-              setOrientation(savedData.orientation);
-            }
-          } catch (e) {
-            console.error("Failed to parse saved snapshot JSON", e);
-          }
-        }
+        // 1. Compute Base Data with Default Resolutions
+        let baseData = { ...resolved };
 
         if (
           resolved.antetSatirlari &&
           Array.isArray(resolved.antetSatirlari) &&
           resolved.antetSatirlari.length > 0
         ) {
-          finalData.antetSatirlari = resolved.antetSatirlari;
+          baseData.antetSatirlari = resolved.antetSatirlari;
         }
 
-        finalData.tarih = finalData.tarih || finalData.onayaSunulanTarih || "";
-        finalData.onayTarihi =
-          finalData.onayTarihi || finalData.dosyaTarihi || "";
+        baseData.tarih = baseData.tarih || baseData.onayaSunulanTarih || "";
+        baseData.onayTarihi = baseData.onayTarihi || baseData.dosyaTarihi || "";
 
         const resolvedSolLogo =
           payloadData.solLogo ||
@@ -335,10 +282,10 @@ export function useDocumentPreviewData({
           payloadData.sagLogo || resolved.sagLogo || logoRight || null;
 
         if (resolvedSolLogo) {
-          finalData.solLogo = resolvedSolLogo;
+          baseData.solLogo = resolvedSolLogo;
         }
         if (resolvedSagLogo) {
-          finalData.sagLogo = resolvedSagLogo;
+          baseData.sagLogo = resolvedSagLogo;
         }
 
         const suffixes = getInstitutionSuffixes(subInstitutionType || "belediye", {
@@ -348,10 +295,10 @@ export function useDocumentPreviewData({
           kurumlari: customSubInstitutionKurumlari,
         });
         const activeFirms = fileFirms.length > 0 ? fileFirms : combinedFirms;
-        finalData.firmalar = activeFirms;
-        finalData.firmaListesi = combinedFirms;
+        baseData.firmalar = activeFirms;
+        baseData.firmaListesi = combinedFirms;
 
-        // 1. Kazanan firmayı tespit et (dosya.firma_id, kazanan_mi, isWinner)
+        // Kazanan firma tespiti
         const winnerFirmaId =
           payloadData.dosya?.firma_id ||
           dosyaRecord?.firma_id ||
@@ -370,63 +317,63 @@ export function useDocumentPreviewData({
         if (winnerFirm && (winnerFirm.unvan || winnerFirm.firma_adi)) {
           const resolvedUnvan = winnerFirm.unvan || winnerFirm.firma_adi;
           if (
-            !finalData.yukleniciFirma ||
-            finalData.yukleniciFirma === "YÜKLENİCİ FİRMA" ||
-            finalData.yukleniciFirma === "İstekli Firma" ||
-            finalData.yukleniciFirma.includes("[Belirtilmedi")
+            !baseData.yukleniciFirma ||
+            baseData.yukleniciFirma === "YÜKLENİCİ FİRMA" ||
+            baseData.yukleniciFirma === "İstekli Firma" ||
+            baseData.yukleniciFirma.includes("[Belirtilmedi")
           ) {
-            finalData.yukleniciFirma = resolvedUnvan;
+            baseData.yukleniciFirma = resolvedUnvan;
           }
-          if (winnerFirm.adres && !finalData.yukleniciAdresi) {
-            finalData.yukleniciAdresi = winnerFirm.adres;
-            finalData.yukleniciIlce = winnerFirm.ilce;
-            finalData.yukleniciIl = winnerFirm.il;
+          if (winnerFirm.adres && !baseData.yukleniciAdresi) {
+            baseData.yukleniciAdresi = winnerFirm.adres;
+            baseData.yukleniciIlce = winnerFirm.ilce;
+            baseData.yukleniciIl = winnerFirm.il;
           }
           if (
-            !finalData.teslimEden_0_adSoyad ||
-            finalData.teslimEden_0_adSoyad === "" ||
-            finalData.teslimEden_0_adSoyad.includes("[Belirtilmedi")
+            !baseData.teslimEden_0_adSoyad ||
+            baseData.teslimEden_0_adSoyad === "" ||
+            baseData.teslimEden_0_adSoyad.includes("[Belirtilmedi")
           ) {
-            finalData.teslimEden_0_adSoyad = resolvedUnvan;
-            finalData.teslimEden_0_unvan = winnerFirm.yetkili_ad_soyad
+            baseData.teslimEden_0_adSoyad = resolvedUnvan;
+            baseData.teslimEden_0_unvan = winnerFirm.yetkili_ad_soyad
               ? `Yetkili: ${winnerFirm.yetkili_ad_soyad}`
               : "Yüklenici Firma / Yetkilisi";
           }
         }
 
-        // Teslim süresi / günü hesaplama - Dosyadan gelen gün sayısı her zaman önceliklidir
+        // Teslim süresi
         const dosyaObj = payloadData.dosya || dosyaRecord || {};
         if (dosyaObj.teslim_gun !== undefined && dosyaObj.teslim_gun !== null && String(dosyaObj.teslim_gun).trim() !== "") {
-          finalData.teslimGun = String(dosyaObj.teslim_gun);
-          finalData.teslimGunu = String(dosyaObj.teslim_gun);
+          baseData.teslimGun = String(dosyaObj.teslim_gun);
+          baseData.teslimGunu = String(dosyaObj.teslim_gun);
         } else if (dosyaObj.teslim_suresi) {
-          finalData.teslimGun = String(dosyaObj.teslim_suresi);
-          finalData.teslimGunu = String(dosyaObj.teslim_suresi);
+          baseData.teslimGun = String(dosyaObj.teslim_suresi);
+          baseData.teslimGunu = String(dosyaObj.teslim_suresi);
         } else if (dosyaObj.teslim_tarihi) {
           const tDate = new Date(dosyaObj.teslim_tarihi);
           const baseDate = dosyaObj.tarih ? new Date(dosyaObj.tarih) : (dosyaObj.dosya_acilis_tarihi ? new Date(dosyaObj.dosya_acilis_tarihi) : new Date());
           const diffDays = Math.ceil((tDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
           if (diffDays > 0 && diffDays < 365) {
-            finalData.teslimGun = String(diffDays);
-            finalData.teslimGunu = String(diffDays);
+            baseData.teslimGun = String(diffDays);
+            baseData.teslimGunu = String(diffDays);
           }
         }
-        if (!finalData.teslimGun) {
-          finalData.teslimGun = "7";
-          finalData.teslimGunu = "7";
+        if (!baseData.teslimGun) {
+          baseData.teslimGun = "7";
+          baseData.teslimGunu = "7";
         }
 
         const baseKalemler =
-          finalData.ihtiyacKalemleri &&
-          Array.isArray(finalData.ihtiyacKalemleri) &&
-          finalData.ihtiyacKalemleri.length > 0
-            ? finalData.ihtiyacKalemleri
+          baseData.ihtiyacKalemleri &&
+          Array.isArray(baseData.ihtiyacKalemleri) &&
+          baseData.ihtiyacKalemleri.length > 0
+            ? baseData.ihtiyacKalemleri
             : items;
 
         if (baseKalemler && Array.isArray(baseKalemler)) {
           let grandTotalNum = 0;
 
-          finalData.ihtiyacKalemleri = baseKalemler.map((kalem: any, idx: number) => {
+          baseData.ihtiyacKalemleri = baseKalemler.map((kalem: any, idx: number) => {
             const miktarNum = Number(kalem.miktar || 1);
             const kalemId = kalem.id || items[idx]?.id || idx + 1;
             let minPrice = Infinity;
@@ -496,7 +443,7 @@ export function useDocumentPreviewData({
           // Build firm totals row
           const firmTotals = activeFirms.map((firm: any) => {
             let firmTotalNum = 0;
-            finalData.ihtiyacKalemleri.forEach((kalem: any) => {
+            baseData.ihtiyacKalemleri.forEach((kalem: any) => {
               const miktarNum = Number(kalem.miktar || 0);
               const tf = (kalem.firmaTeklifleriDetay || []).find(
                 (t: any) => t.firmaId === firm.id || t.firmaUnvan === firm.unvan
@@ -515,25 +462,83 @@ export function useDocumentPreviewData({
             };
           });
 
-          finalData.firmaToplamlari = firmTotals;
-          finalData.firmaToplamlariDetay = firmTotals;
+          baseData.firmaToplamlari = firmTotals;
+          baseData.firmaToplamlariDetay = firmTotals;
 
           if (winnerFirm?.teklif_toplami && Number(winnerFirm.teklif_toplami) > 0) {
-            finalData.genelToplam = Number(winnerFirm.teklif_toplami).toLocaleString("tr-TR", {
+            baseData.genelToplam = Number(winnerFirm.teklif_toplami).toLocaleString("tr-TR", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             });
           } else if (grandTotalNum > 0) {
-            finalData.genelToplam = grandTotalNum.toLocaleString("tr-TR", {
+            baseData.genelToplam = grandTotalNum.toLocaleString("tr-TR", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             });
           }
         }
 
-        setLocalShowLogoLeft(showLogoLeft);
-        setLocalShowLogoRight(showLogoRight);
+        // 2. Fetch direct JSON Snapshot from DB if available
+        let snapshotData = payloadData.savedSnapshot;
+        if (!snapshotData && activeDosyaId) {
+          try {
+            const dbSnap = await queryExecutor(
+              `SELECT veri_json FROM DATA_DosyaSablonVeri 
+               WHERE temin_dosya_id = ? AND (
+                 sablon_kodu = ? 
+                 OR sablon_kodu = ? 
+                 OR sablon_id = (SELECT id FROM TANIM_Sablon WHERE kod = ? OR dosya_adi = ? OR dosya_adi = ? LIMIT 1)
+               )
+               ORDER BY id DESC LIMIT 1`,
+              [activeDosyaId, resolvedId, `${resolvedId}.html`, resolvedId, `${resolvedId}.html`, resolvedId]
+            );
+            if (dbSnap && dbSnap.length > 0 && dbSnap[0]?.veri_json) {
+              snapshotData = JSON.parse(dbSnap[0].veri_json);
+            }
+          } catch (e) {
+            console.error("Direct snapshot query error:", e);
+          }
+        }
+
+        // 3. Overlay Saved Snapshot JSON on top of defaults (User edits are authoritative!)
+        let finalData = { ...baseData };
+        let activeLogoLeft = showLogoLeft;
+        let activeLogoRight = showLogoRight;
+        let activeOrientation: "portrait" | "landscape" = orientation;
+
+        if (snapshotData && typeof snapshotData === "object") {
+          try {
+            for (const [key, val] of Object.entries(snapshotData)) {
+              if (val !== undefined && val !== null) {
+                finalData[key] = val;
+              }
+            }
+            if (snapshotData.showLogoLeft !== undefined) {
+              activeLogoLeft = Boolean(snapshotData.showLogoLeft);
+            }
+            if (snapshotData.showLogoRight !== undefined) {
+              activeLogoRight = Boolean(snapshotData.showLogoRight);
+            }
+            if (snapshotData.orientation) {
+              activeOrientation = snapshotData.orientation;
+            }
+          } catch (e) {
+            console.error("Failed to merge saved snapshot JSON", e);
+          }
+        }
+
+        setLocalShowLogoLeft(activeLogoLeft);
+        setLocalShowLogoRight(activeLogoRight);
+        setOrientation(activeOrientation);
         setFormData(finalData);
+
+        initialSnapshotRef.current = JSON.stringify({
+          ...finalData,
+          showLogoLeft: activeLogoLeft,
+          showLogoRight: activeLogoRight,
+          olurYazisi: finalData.olurYazisi !== false,
+          orientation: activeOrientation,
+        });
       } catch (err) {
         console.error("Error loading V2 template data:", err);
       } finally {
@@ -618,11 +623,27 @@ export function useDocumentPreviewData({
       const jsonStr = JSON.stringify(dataToSave);
       const sablonRes = await window.electron.ipcRenderer.invoke(
         "db:query",
-        "SELECT id FROM TANIM_Sablon WHERE dosya_adi = ? OR dosya_adi = ? LIMIT 1",
-        [`${resolvedId}.html`, `${selectedDocId}.html`],
+        "SELECT id FROM TANIM_Sablon WHERE dosya_adi = ? OR dosya_adi = ? OR kod = ? LIMIT 1",
+        [`${resolvedId}.html`, `${selectedDocId}.html`, resolvedId],
       );
-      if (sablonRes.success && sablonRes.data.length > 0) {
-        const sablonId = sablonRes.data[0].id;
+      let sablonId = sablonRes?.success && sablonRes.data?.length > 0 ? sablonRes.data[0].id : null;
+      if (!sablonId) {
+        await window.electron.ipcRenderer.invoke(
+          "db:query",
+          "INSERT OR IGNORE INTO TANIM_Sablon (kod, ad, dosya_adi, kategori, aktif_mi) VALUES (?, ?, ?, 'genel', 1)",
+          [resolvedId, activeTemplateConf?.name || resolvedId, `${resolvedId}.html`],
+        );
+        const refetch = await window.electron.ipcRenderer.invoke(
+          "db:query",
+          "SELECT id FROM TANIM_Sablon WHERE dosya_adi = ? OR kod = ? LIMIT 1",
+          [`${resolvedId}.html`, resolvedId],
+        );
+        if (refetch?.success && refetch.data?.length > 0) {
+          sablonId = refetch.data[0].id;
+        }
+      }
+
+      if (sablonId) {
         await window.electron.ipcRenderer.invoke(
           "db:query",
           `INSERT INTO DATA_DosyaSablonVeri (temin_dosya_id, sablon_id, veri_json, guncelleme_tarihi)
@@ -631,10 +652,19 @@ export function useDocumentPreviewData({
            DO UPDATE SET veri_json = excluded.veri_json, guncelleme_tarihi = CURRENT_TIMESTAMP`,
           [activeDosyaId, sablonId, jsonStr],
         );
-        usePrintQueueStore.getState().invalidateReadyStatus(activeDosyaId, resolvedId, "Belge içeriği güncellendi");
-        setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 2000);
       }
+
+      // Update in-memory preload cache so next opens are instantaneous
+      documentPreloadService.updateCachedResolvedData(resolvedId, activeDosyaId, dataToSave);
+
+      // Reset dirty state
+      initialSnapshotRef.current = jsonStr;
+
+      // Invalidate ready status in print queue
+      usePrintQueueStore.getState().invalidateReadyStatus(activeDosyaId, resolvedId, "Belge içeriği güncellendi");
+      
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
     } catch (e) {
       console.error("Belge kaydetme hatası:", e);
     } finally {
@@ -884,6 +914,7 @@ export function useDocumentPreviewData({
     isPrinting,
     isSaving,
     saveSuccess,
+    isDirty,
     downloadOpen,
     setDownloadOpen,
     sidebarOpen,

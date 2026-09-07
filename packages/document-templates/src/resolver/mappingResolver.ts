@@ -417,7 +417,7 @@ export async function resolveTemplateData(
         const fileKomQuery = `SELECT tk.*, 
                                      COALESCE(NULLIF(tk.ad_soyad, ''), NULLIF(p.ad_soyad, ''), '') as resolved_ad_soyad,
                                      COALESCE(NULLIF(tk.unvan, ''), NULLIF(p.unvan, ''), '') as resolved_unvan,
-                                     COALESCE(k.ad, tk.komisyon_turu) as komisyon_turu_adi
+                                     COALESCE(k.ad, '') as komisyon_turu_adi
                               FROM DATA_TeminKomisyon tk 
                               LEFT JOIN TANIM_Personel p ON tk.personel_id = p.id 
                               LEFT JOIN TANIM_Komisyon k ON tk.komisyon_id = k.id

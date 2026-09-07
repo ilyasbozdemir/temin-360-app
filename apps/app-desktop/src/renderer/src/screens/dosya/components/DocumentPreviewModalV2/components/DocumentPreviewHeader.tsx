@@ -36,6 +36,7 @@ interface DocumentPreviewHeaderProps {
   setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isSaving: boolean;
   saveSuccess: boolean;
+  isDirty?: boolean;
   handleSaveToDb: () => Promise<void>;
   isPrinting: boolean;
   handlePrint: () => Promise<void>;
@@ -66,6 +67,7 @@ export function DocumentPreviewHeader({
   setSidebarOpen,
   isSaving,
   saveSuccess,
+  isDirty = false,
   handleSaveToDb,
   isPrinting,
   handlePrint,
@@ -241,19 +243,47 @@ export function DocumentPreviewHeader({
           disabled={isSaving}
           className={`px-3.5 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1.5 text-xs cursor-pointer shadow-2xs ${
             saveSuccess
-              ? "bg-emerald-600 text-white"
+              ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/25 ring-2 ring-emerald-500/30"
+              : isSaving
+              ? "bg-blue-600 text-white opacity-90 cursor-wait"
+              : isDirty
+              ? "bg-amber-600 hover:bg-amber-700 text-white shadow-md shadow-amber-600/30 ring-2 ring-amber-400/50"
               : "bg-slate-800 hover:bg-slate-900 text-white dark:bg-slate-700 dark:hover:bg-slate-600"
           }`}
-          title="Belgedeki düzenlemeleri veri tabanına kaydeder"
+          title={
+            isDirty
+              ? "Belgede kaydedilmemiş değişiklikler var. Veritabanına kaydetmek için tıklayın."
+              : "Belgedeki düzenlemeleri veri tabanına kaydeder"
+          }
         >
-          <Save className="w-3.5 h-3.5" />
-          <span>
-            {saveSuccess
-              ? "Kaydedildi!"
-              : isSaving
-              ? "Kaydediliyor..."
-              : "Kaydet"}
-          </span>
+          {saveSuccess ? (
+            <>
+              <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+              <span>Kaydedildi!</span>
+            </>
+          ) : isSaving ? (
+            <>
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-white" />
+              <span>Kaydediliyor...</span>
+            </>
+          ) : isDirty ? (
+            <>
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-200 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+              </span>
+              <Save className="w-3.5 h-3.5" />
+              <span>Kaydet</span>
+              <span className="text-[10px] bg-amber-950/40 text-amber-100 px-1 py-0.5 rounded-md font-semibold">
+                Değişiklik Var
+              </span>
+            </>
+          ) : (
+            <>
+              <Save className="w-3.5 h-3.5" />
+              <span>Kaydet</span>
+            </>
+          )}
         </button>
 
         {/* Send to Print Queue / Ready Flag Button */}

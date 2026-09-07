@@ -57,6 +57,7 @@ export function DocumentPreviewModalV2({
     isPrinting,
     isSaving,
     saveSuccess,
+    isDirty,
     downloadOpen,
     setDownloadOpen,
     sidebarOpen,
@@ -124,6 +125,7 @@ export function DocumentPreviewModalV2({
         setSidebarOpen={setSidebarOpen}
         isSaving={isSaving}
         saveSuccess={saveSuccess}
+        isDirty={isDirty}
         handleSaveToDb={handleSaveToDb}
         isPrinting={isPrinting}
         handlePrint={handlePrint}

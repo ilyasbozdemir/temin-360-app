@@ -766,7 +766,7 @@ export function usePiyasaFiyatArastirmasiLogic() {
             `SELECT tk.*, 
                     COALESCE(NULLIF(tk.ad_soyad, ''), NULLIF(p.ad_soyad, ''), '') as adSoyad,
                     COALESCE(NULLIF(tk.unvan, ''), NULLIF(p.unvan, ''), '') as unvan,
-                    COALESCE(NULLIF(tk.gorevi, ''), NULLIF(k.ad, ''), 'Üye') as gorevi
+                    COALESCE(NULLIF(tk.gorev, ''), NULLIF(k.ad, ''), 'Üye') as gorevi
              FROM DATA_TeminKomisyon tk 
              LEFT JOIN TANIM_Personel p ON tk.personel_id = p.id 
              LEFT JOIN TANIM_Komisyon k ON tk.komisyon_id = k.id
