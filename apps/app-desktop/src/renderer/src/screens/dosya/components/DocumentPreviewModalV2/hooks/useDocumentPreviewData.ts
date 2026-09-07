@@ -855,9 +855,17 @@ export function useDocumentPreviewData({
     const isConfirmed = confirm(
       "Belge üzerindeki tüm verileri veritabanındaki güncel değerlerle sıfırlamak istiyor musunuz? Canlı düzenlemeleriniz kaybolabilir.",
     );
-    if (!isConfirmed || !activeDosyaId) return;
+    if (!isConfirmed || !activeDosyaId || !resolvedId) return;
 
     try {
+      setIsLoading(true);
+      await window.electron.ipcRenderer.invoke(
+        "db:run",
+        "DELETE FROM DATA_DosyaSablonVeri WHERE temin_dosya_id = ? AND (sablon_kodu = ? OR sablon_kodu = ?)",
+        [activeDosyaId, resolvedId, `${resolvedId}.html`],
+      );
+      documentPreloadService.invalidateCache(activeDosyaId);
+
       const queryExecutor = async (
         sql: string,
         params: any[],
@@ -875,23 +883,39 @@ export function useDocumentPreviewData({
 
       const mapping = getDefaultMappingForProcess(resolvedId);
       const resolver = new TemplateResolver(queryExecutor);
-      const resolved = await resolver.resolve(mapping, activeDosyaId);
+      const [payloadRes, resolved] = await Promise.all([
+        window.electron.ipcRenderer.invoke("belge:get-document-payload", {
+          dosyaId: activeDosyaId,
+          documentId: resolvedId,
+        }),
+        resolver.resolve(mapping, activeDosyaId || 0),
+      ]);
 
-      const suffixes = getInstitutionSuffixes(subInstitutionType || "belediye", {
-        label: customSubInstitutionLabel,
-        kurumumuz: customSubInstitutionKurumumuz,
-        kurumu: customSubInstitutionKurumu,
-        kurumlari: customSubInstitutionKurumlari,
-      });
+      const baseData: any = { ...resolved };
+      const defaultDate = baseData.onayaSunulanTarih || baseData.tarih || "";
+      if (defaultDate) {
+        baseData.tarih = defaultDate;
+        baseData.onayaSunulanTarih = defaultDate;
+        baseData.belgeTarihi = defaultDate;
+      }
+      const defaultOnayDate = baseData.onayTarihi || baseData.dosyaTarihi || "";
+      if (defaultOnayDate) {
+        baseData.onayTarihi = defaultOnayDate;
+        baseData.olurTarihi = defaultOnayDate;
+      }
 
-      setFormData({
-        ...resolved,
-        tarih: resolved.tarih || resolved.onayaSunulanTarih || "",
-        onayTarihi: resolved.onayTarihi || resolved.dosyaTarihi || "",
-        kurumumuz: suffixes.kurumumuz,
+      setFormData(baseData);
+      initialSnapshotRef.current = JSON.stringify({
+        ...baseData,
+        showLogoLeft: localShowLogoLeft,
+        showLogoRight: localShowLogoRight,
+        olurYazisi: baseData.olurYazisi !== false,
+        orientation,
       });
     } catch (e) {
       console.error("Failed to refresh template resolution:", e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
