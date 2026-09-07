@@ -7,32 +7,26 @@
     <style>
       body {
         font-family: 'Times New Roman', Times, serif;
-        font-size: 11pt;
+        font-size: 10pt;
         color: #000;
-        line-height: 1.4;
+        line-height: 1.35;
         margin: 0;
         padding: 0;
         background-color: #f5f5f5;
       }
       @page {
         size: A4 portrait;
-        margin: 0.5cm 1.5cm 1.5cm 1.5cm;
+        margin: 0.8cm 1.5cm 1.5cm 1.5cm;
       }
       .page-container {
         max-width: 21cm;
         min-height: 29.7cm;
         margin: 20px auto;
-        padding: 0.8cm 1.5cm 3.5cm 1.5cm;
+        padding: 1cm 1.5cm 2.5cm 1.5cm;
         background: white;
         box-sizing: border-box;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         position: relative;
-        page-break-after: always;
-        break-after: page;
-      }
-      .page-container:last-child {
-        page-break-after: avoid;
-        break-after: avoid;
       }
       .content-body {
         width: 100%;
@@ -43,7 +37,7 @@
         }
         .page-container {
           margin: 0 auto;
-          padding: 0.8cm 1.5cm 3.5cm 1.5cm;
+          padding: 1cm 1.5cm 2.5cm 1.5cm;
           box-shadow: none;
           max-width: none;
           min-height: 29.7cm;
@@ -65,8 +59,8 @@
       .title {
         text-align: center;
         font-weight: bold;
-        font-size: 12.5pt;
-        margin: 8px 0;
+        font-size: 12pt;
+        margin: 6px 0 4px 0;
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
@@ -74,407 +68,215 @@
         text-align: center;
         font-weight: bold;
         font-size: 11pt;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
       }
       .info-table {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         font-size: 9.5pt;
       }
       .info-table td {
         border: 1px solid #000;
-        padding: 4px 8px;
+        padding: 4px 6px;
         vertical-align: middle;
       }
       .info-label {
         font-weight: bold;
-        width: 35%;
-        background-color: #fbfbfb;
+        width: 30%;
+        background-color: #fafafa;
       }
       .info-value {
-        width: 65%;
+        width: 70%;
       }
-      .meta-info-table {
+      .taahhut-box {
+        border: 1px solid #000;
+        padding: 5px 8px;
+        font-size: 8.5pt;
+        text-align: justify;
+        line-height: 1.3;
+        margin-bottom: 8px;
+        background-color: #fff;
+      }
+      .items-table {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 12px;
-        font-size: 10pt;
-      }
-      .meta-info-table td {
-        padding: 3px 0;
-        vertical-align: top;
-      }
-      .aciklama-kutusu {
-        width: 100%;
-        border: 1px solid #000;
-        margin-top: 8px;
-        padding: 6px 10px;
-        box-sizing: border-box;
+        margin-bottom: 6px;
         font-size: 9pt;
-        text-align: justify;
-        line-height: 1.35;
       }
-      .firma-imza-container {
+      .items-table th,
+      .items-table td {
+        border: 1px solid #000;
+        padding: 4px 5px;
+      }
+      .items-table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        text-align: center;
+      }
+      .signature-section {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-top: 16px;
-        page-break-inside: avoid;
-        break-inside: avoid;
+        margin-top: 12px;
+        font-size: 9.5pt;
       }
-      .firma-imza-box {
+      .signature-box {
         text-align: center;
-        width: 240px;
-        font-size: 10pt;
-        line-height: 1.4;
+        min-width: 220px;
+        line-height: 1.3;
         margin-left: auto;
       }
-      .para-birimi-info {
-        text-align: left;
-        font-style: italic;
-        color: #333;
-        font-size: 10pt;
+      .editable {
+        outline: none;
       }
-      .content-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-        font-size: 9.5pt;
-        page-break-inside: auto;
+      .editable:hover {
+        background-color: rgba(0, 0, 0, 0.03);
       }
-      .content-table tr {
-        page-break-inside: avoid;
-        break-inside: avoid;
-      }
-      .content-table th,
-      .content-table td {
-        border: 1px solid #000;
-        padding: 5px 6px;
-        text-align: left;
-      }
-      .content-table th {
-        font-weight: bold;
-        text-align: center;
-        background-color: #f4f4f4;
-      }
-      .tarih-box {
-        text-align: right;
-        font-weight: bold;
-        margin-bottom: 6px;
-        font-size: 10.5pt;
-      }
-      .taahhut-metni {
-        margin-top: 12px;
-        text-align: justify;
-        text-indent: 30px;
-        font-size: 9.5pt;
-        line-height: 1.4;
+      .editable:focus {
+        background-color: rgba(70, 130, 180, 0.1);
       }
     </style>
   </head>
   <body>
-    <!-- ═════════════════════════════════════════════════════════════════ -->
-    <!-- SAYFA 1: BİRİM FİYAT TEKLİF MEKTUBU                                -->
-    <!-- ═════════════════════════════════════════════════════════════════ -->
+    <!-- TEK SAYFA BÜTÜNLEŞİK BİRİM FİYAT TEKLİF MEKTUBU VE CETVELİ -->
     <div class="page-container">
-      <!-- ANTET -->
-      <div class="paged-header" data-slot="top-center">
-        <table
-          style="width: 100%; border-collapse: collapse; margin-bottom: 12px; min-height: 75px"
-        >
-          <tr>
-            <td style="width: 90px; text-align: left; vertical-align: top; padding-top: 0">
-              {{#solLogo}}
-              <img
-                src="{{solLogo}}"
-                alt="Sol Logo"
-                style="max-width: 80px; max-height: 80px; object-fit: contain"
-              />
-              {{/solLogo}}
-            </td>
-
-            <td style="text-align: center; vertical-align: top; padding-top: 0; line-height: 1.3">
-              {{#antetSatirlari}}
-              <div style="font-weight: bold; font-size: 11.5pt">{{.}}</div>
-              {{/antetSatirlari}}
-            </td>
-
-            <td style="width: 90px; text-align: right; vertical-align: top; padding-top: 0">
-              {{#sagLogo}}
-              <img
-                src="{{sagLogo}}"
-                alt="Sağ Logo"
-                style="max-width: 80px; max-height: 80px; object-fit: contain"
-              />
-              {{/sagLogo}}
-            </td>
-          </tr>
-        </table>
-      </div>
-
-      <!-- CONTENT BODY -->
-      <div class="content-body">
-        <div class="tarih-box">{{#dosyaTarihi}}{{dosyaTarihi}}{{/dosyaTarihi}}{{^dosyaTarihi}}{{tarih}}{{/dosyaTarihi}}</div>
-
-        <div class="title">BİRİM FİYAT TEKLİF MEKTUBU</div>
-
-        <div class="subtitle">{{#hitap}}{{hitap}}{{/hitap}}{{^hitap}}{{idareAdi}}{{/hitap}}</div>
-
-        <table class="info-table">
-          <tr>
-            <td class="info-label">İhalenin Adı / İşin Adı</td>
-            <td class="info-value">{{isinAdi}}</td>
-          </tr>
-          <tr>
-            <td class="info-label">Teklif sahibinin adı ve soyadı / ünvanı</td>
-            <td class="info-value">{{teklifSahibi}}</td>
-          </tr>
-          <tr>
-            <td class="info-label">Uyruğu</td>
-            <td class="info-value">{{#uyrugu}}{{uyrugu}}{{/uyrugu}}{{^uyrugu}}T.C.{{/uyrugu}}</td>
-          </tr>
-          <tr>
-            <td class="info-label">TC kimlik numarası (gerçek kişi ise)</td>
-            <td class="info-value">{{tcKimlikNo}}</td>
-          </tr>
-          <tr>
-            <td class="info-label">
-              Tüzel kişi ise, tüm ortakların Adı Soyadı ve T.C. Kimlik numaraları
-            </td>
-            <td class="info-value">{{ortaklarinTcNo}}</td>
-          </tr>
-          <tr>
-            <td class="info-label">Vergi Kimlik Numarası</td>
-            <td class="info-value">{{vergiNo}}</td>
-          </tr>
-          <tr>
-            <td class="info-label">Tebligat adresi</td>
-            <td class="info-value">{{tebligatAdresi}}</td>
-          </tr>
-          <tr>
-            <td class="info-label">Telefon ve Faks numarası</td>
-            <td class="info-value">{{telefonFaks}}</td>
-          </tr>
-          <tr>
-            <td class="info-label">Elektronik posta adresi</td>
-            <td class="info-value">{{eposta}}</td>
-          </tr>
-        </table>
-
-        <!-- AÇIKLAMA / TAAHHÜT METNİ -->
-        {{#aciklama}}
-        <div class="aciklama-kutusu" style="white-space: pre-wrap">{{aciklama}}</div>
-        {{/aciklama}}
-        {{^aciklama}}
-        <div class="aciklama-kutusu">
-          1. Teklifimiz {{#sonTeklifVermeTarihi}}{{sonTeklifVermeTarihi}}{{/sonTeklifVermeTarihi}}{{^sonTeklifVermeTarihi}}teklif verme{{/sonTeklifVermeTarihi}} tarihine kadar geçerlidir.<br />
-          2. Teklifimize Damga Vergisi, Resim Harç, Pul ve Ulaştırma Giderleri dahildir.<br />
-          3. İhale konusu iş için sermayesinin %50'sinden fazlasına sahip olduğumuz başka bir tüzel kişinin bu işe ayrı bir teklif vermediğini beyan ediyoruz.<br />
-          4. Aldığınız herhangi bir teklifi veya en düşük teklifi seçmek zorunda olmadığınızı kabul ediyoruz.<br />
-          5. İhale konusu işle ilgili olmak üzere idarenizce yapılacak/yaptırılacak diğer işlerde idarenizin çıkarlarına aykırı düşecek hiçbir eylem ve oluşum içerisinde olmayacağımızı taahhüt ediyoruz.<br />
-          6. Bu alıma ilişkin malzeme kalemlerine kısmi teklif verilmemiştir.<br />
-          7. 4734 Sayılı Kamu İhale Kanununun 4.maddesindeki "Yerli İstekli" tanımı gereğince yerli istekli durumundayız.<br />
-          8. İhale konusu işin tamamını Teklif Mektubumuzun ekindeki Birim Fiyat Teklif Cetvelinde belirtilen her bir iş kalemi için teklif ettiğimiz birim fiyatları üzerinden KDV HARİÇ bedel karşılığında kabul ve taahhüt ederiz.
-        </div>
-        {{/aciklama}}
-
-        <!-- FİRMA YETKİLİSİ İMZA ALANI -->
-        <div class="firma-imza-container">
-          <div class="para-birimi-info">Para Birimi: Türk Lirası (TL)</div>
-          <div class="firma-imza-box">
-            {{#tarih}}{{tarih}}{{/tarih}}{{^tarih}}……/……/20…{{/tarih}}<br />
-            <span style="font-weight: bold">{{teklifSahibi}}</span><br /><br />
-            Kaşe - İmza
+      <div class="paged-header">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 8px;">
+          <div style="font-weight: bold; font-size: 14pt; color: #cc0000;">
+            {{#if kurumLogo}}<img src="{{kurumLogo}}" style="max-height: 40px;" alt="Logo" />{{else}}ACME{{/if}}
+          </div>
+          <div style="text-align: center; line-height: 1.2;">
+            <div style="font-size: 9pt; font-weight: bold;">T.C.</div>
+            <div style="font-size: 10.5pt; font-weight: bold;">{{#if idareUstBirim}}{{idareUstBirim}}{{else}}SAĞLIK BAKANLIĞI{{/if}}</div>
+            <div style="font-size: 9.5pt; font-weight: bold;">{{#if idareAdi}}{{idareAdi}}{{else}}Ankara İl Sağlık Müdürlüğü{{/if}}</div>
+            <div style="font-size: 8.5pt;">{{#if altBirim}}{{altBirim}}{{else}}Destek Hizmetleri Başkanlığı (Satınalma Birimi){/if}}</div>
+          </div>
+          <div style="font-weight: bold; font-size: 14pt; color: #cc0000;">
+            {{#if kurumLogo}}<img src="{{kurumLogo}}" style="max-height: 40px;" alt="Logo" />{{else}}ACME{{/if}}
           </div>
         </div>
       </div>
 
-      <!-- KURUM İLETİŞİM -->
-      {{^kurumIci}}
-      <div class="paged-footer">
-        <div style="border-top: 1px solid #c00; margin-bottom: 4px"></div>
-        <table
-          style="
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 8pt;
-            color: #333;
-            line-height: 1.2;
-          "
-        >
-          <tr>
-            <td style="text-align: left; vertical-align: top">
-              Adres: {{kurumAdres}}<br />
-              Elektronik Ağ: {{kurumWeb}}<br />
-              E-Posta: {{kurumEposta}}<br />
-              KEP: {{kurumKep}}
-            </td>
-            <td style="text-align: right; vertical-align: top">
-              Bilgi İçin: {{hazirlayanPersonelAdi}}<br />
-              {{hazirlayanPersonelUnvan}}<br />
-              Telefon No: {{hazirlayanTelefon}}
-            </td>
-          </tr>
-        </table>
-      </div>
-      {{/kurumIci}}
-    </div>
-
-    <!-- ═════════════════════════════════════════════════════════════════ -->
-    <!-- SAYFA 2: BİRİM FİYAT TEKLİF CETVELİ                                -->
-    <!-- ═════════════════════════════════════════════════════════════════ -->
-    <div class="page-container">
-      <!-- ANTET -->
-      <div class="paged-header" data-slot="top-center">
-        <table
-          style="width: 100%; border-collapse: collapse; margin-bottom: 12px; min-height: 75px"
-        >
-          <tr>
-            <td style="width: 90px; text-align: left; vertical-align: top; padding-top: 0">
-              {{#solLogo}}
-              <img
-                src="{{solLogo}}"
-                alt="Sol Logo"
-                style="max-width: 80px; max-height: 80px; object-fit: contain"
-              />
-              {{/solLogo}}
-            </td>
-
-            <td style="text-align: center; vertical-align: top; padding-top: 0; line-height: 1.3">
-              {{#antetSatirlari}}
-              <div style="font-weight: bold; font-size: 11.5pt">{{.}}</div>
-              {{/antetSatirlari}}
-            </td>
-
-            <td style="width: 90px; text-align: right; vertical-align: top; padding-top: 0">
-              {{#sagLogo}}
-              <img
-                src="{{sagLogo}}"
-                alt="Sağ Logo"
-                style="max-width: 80px; max-height: 80px; object-fit: contain"
-              />
-              {{/sagLogo}}
-            </td>
-          </tr>
-        </table>
-      </div>
-
       <div class="content-body">
-        <div class="title">BİRİM FİYAT TEKLİF CETVELİ</div>
+        <div style="text-align: right; font-weight: bold; margin-bottom: 4px; font-size: 9.5pt;">
+          <span class="editable" data-field="dosyaTarihi">{{#if dosyaTarihi}}{{dosyaTarihi}}{{else if tarih}}{{tarih}}{{else}}07.09.2026{{/if}}</span>
+        </div>
 
-        <table class="meta-info-table">
-          <tr>
-            <td style="width: 200px; font-weight: bold">İdarenin Adı</td>
-            <td>: {{idareAdi}}</td>
-          </tr>
-          <tr>
-            <td style="font-weight: bold">Doğrudan Temin Numarası</td>
-            <td>: {{#dogrudanTeminNo}}{{dogrudanTeminNo}}{{/dogrudanTeminNo}}{{^dogrudanTeminNo}}{{dosyaNo}}{{/dogrudanTeminNo}}</td>
-          </tr>
-          <tr>
-            <td style="font-weight: bold">İşin Adı</td>
-            <td>: {{isinAdi}}</td>
-          </tr>
-        </table>
+        <div class="title">BİRİM FİYAT TEKLİF MEKTUBU VE CETVELİ</div>
+        <div class="subtitle">
+          <span class="editable" data-field="hitap">{{#if hitap}}{{hitap}}{{else if idareAdi}}{{idareAdi}}{{else}}KURUM / MAKAM ADINA{{/if}}</span>
+        </div>
 
-        <!-- CETVEL TABLOSU (FİRMALARIN ELLE DOLDURMASI İÇİN BOŞ ALANLAR) -->
-        <table class="content-table">
-          <thead>
-            <tr>
-              <th style="width: 7%; text-align: center">Sıra No</th>
-              <th style="width: 38%">Mal/Hizmet Kaleminin Adı ve Kısa Açıklaması</th>
-              <th style="width: 20%">Özelliği</th>
-              <th style="width: 10%; text-align: center">Birimi</th>
-              <th style="width: 10%; text-align: center">Miktarı</th>
-              <th style="width: 15%; text-align: center">Birim Fiyatı (TL)</th>
-              <th style="width: 15%; text-align: center">Tutarı (TL)</th>
-            </tr>
-          </thead>
+        <table class="info-table">
           <tbody>
-            {{#ihtiyacKalemleri}}
             <tr>
-              <td style="text-align: center">{{siraNo}}</td>
-              <td>{{malzemeAdi}}</td>
-              <td>{{ozelligi}}</td>
-              <td style="text-align: center">{{birimi}}</td>
-              <td style="text-align: right">{{miktar}}</td>
-              <td style="text-align: right">{{#birimFiyat}}{{birimFiyat}} ₺{{/birimFiyat}}</td>
-              <td style="text-align: right; height: 30px">{{#tutar}}{{tutar}} ₺{{/tutar}}</td>
-            </tr>
-            {{/ihtiyacKalemleri}}
-            {{^ihtiyacKalemleri}}
-            <tr>
-              <td colspan="7" style="text-align: center; font-style: italic">Kalem bulunamadı</td>
-            </tr>
-            {{/ihtiyacKalemleri}}
-
-            <!-- TOPLAM SATIRI -->
-            <tr>
-              <td
-                colspan="5"
-                style="border: none; text-align: left; padding: 8px 0; font-style: italic"
-              >
-                Para birimi: TL
+              <td class="info-label">İşin Adı / Konusu</td>
+              <td class="info-value">
+                <span class="editable" data-field="isinAdi">{{#if isinAdi}}{{isinAdi}}{{else if dosyaKonusu}}{{dosyaKonusu}}{{else}}-{{/if}}</span>
               </td>
-              <td
-                style="text-align: center; font-weight: bold; border: 1px solid #000; padding: 6px"
-              >
-                Toplam Tutar (K.D.V. Hariç)
+            </tr>
+            <tr>
+              <td class="info-label">Teklif Sahibinin Adı / Ünvanı</td>
+              <td class="info-value">
+                <span class="editable" data-field="teklifSahibi">{{#if teklifSahibi}}{{teklifSahibi}}{{else if firmaUnvani}}{{firmaUnvani}}{{else}}-{{/if}}</span>
               </td>
-              <td style="border: 1px solid #000; height: 32px; text-align: right">
-                {{#toplamTutar}}{{toplamTutar}} ₺{{/toplamTutar}}
+            </tr>
+            <tr>
+              <td class="info-label">T.C. / Vergi Kimlik No</td>
+              <td class="info-value">
+                <span class="editable" data-field="vergiNo">{{#if vergiNo}}{{vergiNo}}{{else if firmaVergiNo}}{{firmaVergiNo}}{{else if tcKimlikNo}}{{tcKimlikNo}}{{else}}-{{/if}}</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="info-label">Tebligat Adresi / İletişim</td>
+              <td class="info-value">
+                <span class="editable" data-field="tebligatAdresi">{{#if tebligatAdresi}}{{tebligatAdresi}}{{else if firmaAdresi}}{{firmaAdresi}}{{else}}-{{/if}}</span>
               </td>
             </tr>
           </tbody>
         </table>
 
-        <!-- TAAHHÜT METNİ -->
-        <div class="taahhut-metni">
-          {{#taahhutMetni}}{{taahhutMetni}}{{/taahhutMetni}}
-          {{^taahhutMetni}}Yukarıda belirtilen ve idarenizce satın alınacak olan malların / hizmetlerin cinsi, özellikleri, miktarı ve diğer şartlarını okudum. KDV hariç yukarıda yazılı toplam bedelle vermeyi kabul ve taahhüt ediyorum.{{/taahhutMetni}}
+        <div class="taahhut-box">
+          {{#if aciklama}}
+          <div class="editable" data-field="aciklama">{{aciklama}}</div>
+          {{else}}
+          <div>
+            1. Yukarıda adı ve konusu belirtilen işe / alıma ait tüm şartları okudum ve aynen kabul ettim.<br />
+            2. Teklifimiz teklif tarihinden itibaren geçerli olup teklifimize Damga Vergisi, Harç, Nakliye ve Sigorta giderleri dahildir.<br />
+            3. Alıma konu işin / malların tamamını aşağıdaki Birim Fiyat Teklif Cetvelinde belirttiğimiz birim fiyatlar üzerinden KDV HARİÇ bedel karşılığında vermeyi kabul ve taahhüt ederiz.
+          </div>
+          {{/if}}
         </div>
 
-        <!-- FİRMA YETKİLİSİ İMZA ALANI -->
-        <div class="firma-imza-container" style="margin-top: 25px">
-          <div class="para-birimi-info">Para Birimi: Türk Lirası (TL)</div>
-          <div class="firma-imza-box">
-            {{#tarih}}{{tarih}}{{/tarih}}{{^tarih}}……/……/20…{{/tarih}}<br />
-            <span style="font-weight: bold">{{teklifSahibi}}</span><br /><br />
-            Kaşe - İmza
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th style="width: 6%;">S.No</th>
+              <th style="width: 38%; text-align: left;">Mal/Hizmet Kaleminin Adı ve Kısa Açıklaması</th>
+              <th style="width: 18%; text-align: left;">Özelliği</th>
+              <th style="width: 9%;">Birimi</th>
+              <th style="width: 9%;">Miktarı</th>
+              <th style="width: 10%;">Birim Fiyat (TL)</th>
+              <th style="width: 10%;">Tutarı (TL)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#if ihtiyacKalemleri}}
+              {{#each ihtiyacKalemleri}}
+              <tr>
+                <td style="text-align: center;">{{#if siraNo}}{{siraNo}}{{else}}{{@index_1}}{{/if}}</td>
+                <td style="text-align: left;">{{malzemeAdi}}</td>
+                <td style="text-align: left;">{{#if ozelligi}}{{ozelligi}}{{else}}-{{/if}}</td>
+                <td style="text-align: center;">{{#if birimi}}{{birimi}}{{else}}-{{/if}}</td>
+                <td style="text-align: right;">{{miktar}}</td>
+                <td style="text-align: right;">{{#if birimFiyat}}{{birimFiyat}} ₺{{/if}}</td>
+                <td style="text-align: right;">{{#if tutar}}{{tutar}} ₺{{/if}}</td>
+              </tr>
+              {{/each}}
+            {{else}}
+              <tr>
+                <td style="text-align: center;">1</td>
+                <td>-</td>
+                <td>-</td>
+                <td style="text-align: center;">-</td>
+                <td style="text-align: right;">-</td>
+                <td style="text-align: right;"></td>
+                <td style="text-align: right;"></td>
+              </tr>
+            {{/if}}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="5" style="border: none; text-align: left; padding: 4px 0; font-style: italic;">Para birimi: TL</td>
+              <td style="border: 1px solid #000; text-align: center; font-weight: bold; background-color: #f2f2f2;">Toplam Tutar (KDV Hariç)</td>
+              <td style="border: 1px solid #000; height: 26px; text-align: right; font-weight: bold;">
+                <span class="editable" data-field="toplamTutar">{{#if toplamTutar}}{{toplamTutar}} ₺{{/if}}</span>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="signature-section">
+          <div style="font-style: italic; color: #333; font-size: 9pt;">
+            Para Birimi: Türk Lirası (TL)
+          </div>
+          <div class="signature-box">
+            <div class="editable" data-field="tarih">{{#if tarih}}{{tarih}}{{else if dosyaTarihi}}{{dosyaTarihi}}{{else}}07.09.2026{{/if}}</div>
+            <div style="margin-top: 4px; font-weight: bold;">
+              <span class="editable" data-field="teklifSahibi">{{#if teklifSahibi}}{{teklifSahibi}}{{else if firmaUnvani}}{{firmaUnvani}}{{else}}Firma / Yetkili Adı{{/if}}</span>
+            </div>
+            <div style="margin-top: 16px;">Kaşe - İmza</div>
           </div>
         </div>
       </div>
 
-      <!-- KURUM İLETİŞİM -->
-      {{^kurumIci}}
       <div class="paged-footer">
-        <div style="border-top: 1px solid #c00; margin-bottom: 4px"></div>
-        <table
-          style="
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 8pt;
-            color: #333;
-            line-height: 1.2;
-          "
-        >
-          <tr>
-            <td style="text-align: left; vertical-align: top">
-              Adres: {{kurumAdres}}<br />
-              Elektronik Ağ: {{kurumWeb}}<br />
-              E-Posta: {{kurumEposta}}<br />
-              KEP: {{kurumKep}}
-            </td>
-            <td style="text-align: right; vertical-align: top">
-              Bilgi İçin: {{hazirlayanPersonelAdi}}<br />
-              {{hazirlayanPersonelUnvan}}<br />
-              Telefon No: {{hazirlayanTelefon}}
-            </td>
-          </tr>
-        </table>
+        <div style="display: flex; justify-content: space-between; font-size: 8pt; color: #666; border-top: 1px solid #ccc; padding-top: 4px;">
+          <div>4734 Sayılı KİK Doğrudan Temin Formu</div>
+          <div>Sayfa 1 / 1</div>
+        </div>
       </div>
-      {{/kurumIci}}
     </div>
   </body>
 </html>

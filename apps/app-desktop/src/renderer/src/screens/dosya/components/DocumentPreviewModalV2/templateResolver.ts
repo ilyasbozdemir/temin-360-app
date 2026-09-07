@@ -247,6 +247,8 @@ export const TEMPLATE_ALIASES: Record<string, string> = {
   "fiyatarastirmamektubu": "fiyat-arastirma-mektubu",
   "fiyat-arastirma": "fiyat-arastirma-mektubu",
   "fiyat-arastirmasi": "fiyat-arastirma-mektubu",
+  "teklif-mektubu-dagitim-karma": "fiyat-arastirma-mektubu",
+  "dagitim-cizelgesi-karma": "fiyat-arastirma-mektubu",
   "birim-fiyat-teklif-mektubu": "birim-fiyat-teklif-mektubu",
   "birimfiyatteklifmektubu": "birim-fiyat-teklif-mektubu",
   "birim-fiyat-teklif-cetveli": "birim-fiyat-teklif-mektubu",
@@ -254,9 +256,13 @@ export const TEMPLATE_ALIASES: Record<string, string> = {
   "teklifmektubu": "birim-fiyat-teklif-mektubu",
   "arastirma-mektubu": "arastirma-mektubu",
   "arastirmamektubu": "arastirma-mektubu",
-  "teklif-mektubu-dagitim-cizelgesi": "birim-fiyat-teklif-mektubu",
-  "dagitim-cizelgesi": "birim-fiyat-teklif-mektubu",
-  "dagitim-cizelgesi-karma": "birim-fiyat-teklif-mektubu",
+  "teklif-mektubu-dagitim": "arastirma-mektubu",
+  "teklif-mektubu-dagitim-cizelgesi": "arastirma-mektubu",
+  "dagitim-cizelgesi": "arastirma-mektubu",
+  "yasaklilik-sorgulama-tutanagi": "piyasa-fiyat-arastirma-gorevlendirmesi",
+  "yasaklilik-sorgulama": "piyasa-fiyat-arastirma-gorevlendirmesi",
+  "yasaklilik": "piyasa-fiyat-arastirma-gorevlendirmesi",
+  "ekap-yasaklilik": "piyasa-fiyat-arastirma-gorevlendirmesi",
 
   // Piyasa Fiyat Araştırma & Yaklaşık Maliyet
   "piyasa-fiyat-arastirma-tutanagi": "piyasa-fiyat-arastirma-tutanagi",
@@ -434,21 +440,33 @@ export function resolveTemplateConfig(
       resolvedId = "komisyon-gorevlendirme-onayi";
     }
   } else if (
+    cleanKey.includes("yasak")
+  ) {
+    resolvedId = "piyasa-fiyat-arastirma-gorevlendirmesi";
+  } else if (
     cleanKey.includes("yaklasik") ||
     cleanKey.includes("maliyet") ||
-    cleanKey.includes("son-alim") ||
-    cleanKey.includes("cetvel")
+    cleanKey.includes("son-alim")
   ) {
     resolvedId = "yaklasik-maliyet-cetveli";
   } else if (
-    cleanKey.includes("piyasa") ||
-    cleanKey.includes("tutanak")
+    cleanKey.includes("tutanak") ||
+    (cleanKey.includes("piyasa") && !cleanKey.includes("mektup"))
   ) {
     resolvedId = "piyasa-fiyat-arastirma-tutanagi";
   } else if (
+    cleanKey.includes("arastirma") ||
+    cleanKey.includes("dagitim")
+  ) {
+    if (cleanKey.includes("karma")) {
+      resolvedId = "fiyat-arastirma-mektubu";
+    } else {
+      resolvedId = "arastirma-mektubu";
+    }
+  } else if (
     cleanKey.includes("teklif") ||
     cleanKey.includes("birim-fiyat") ||
-    cleanKey.includes("dagitim")
+    cleanKey.includes("cetvel")
   ) {
     resolvedId = "birim-fiyat-teklif-mektubu";
   } else if (

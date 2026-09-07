@@ -2,7 +2,6 @@ import React from "react";
 import { DocumentLayout } from "../../document/DocumentLayout";
 import { EditableField } from "../../document/EditableField";
 import { DateEditableField } from "../../document/ApprovalSignature";
-import { TableRowSplitDivider } from "../../document/TableRowSplitDivider";
 import { BirimFiyatTeklifMektubuType } from "./BirimFiyatTeklifMektubu.schema";
 
 interface BirimFiyatTeklifMektubuProps {
@@ -17,63 +16,62 @@ export function BirimFiyatTeklifMektubu({
   orientation = "portrait",
 }: BirimFiyatTeklifMektubuProps) {
   const items = data.ihtiyacKalemleri || [];
-  const firstPageLimit = data.firstPageLimit ? Number(data.firstPageLimit) : 14;
-  const isMultiPageCetvel = items.length > firstPageLimit;
-  const cetvelPage1Items = isMultiPageCetvel ? items.slice(0, firstPageLimit) : items;
-  const cetvelPage2Items = isMultiPageCetvel ? items.slice(firstPageLimit) : [];
+  const firstPageLimit = data.firstPageLimit ? Number(data.firstPageLimit) : 10;
+  const isMultiPage = items.length > firstPageLimit;
+  const page1Items = isMultiPage ? items.slice(0, firstPageLimit) : items;
+  const page2Items = isMultiPage ? items.slice(firstPageLimit) : [];
+  const totalPages = isMultiPage ? 2 : 1;
 
-  const totalPages = isMultiPageCetvel ? 3 : 2;
-
-  const renderCetvelTableHead = () => (
+  const renderTableHead = () => (
     <thead>
       <tr style={{ backgroundColor: "#f2f2f2" }}>
-        <th style={{ border: "1px solid #000", padding: "6px", width: "7%", textAlign: "center", fontWeight: "bold" }}>
-          Sıra No
+        <th style={{ border: "1px solid #000", padding: "5px 4px", width: "6%", textAlign: "center", fontWeight: "bold" }}>
+          S.No
         </th>
-        <th style={{ border: "1px solid #000", padding: "6px", width: "38%", textAlign: "left", fontWeight: "bold" }}>
+        <th style={{ border: "1px solid #000", padding: "5px 6px", width: "36%", textAlign: "left", fontWeight: "bold" }}>
           Mal/Hizmet Kaleminin Adı ve Kısa Açıklaması
         </th>
-        <th style={{ border: "1px solid #000", padding: "6px", width: "20%", textAlign: "left", fontWeight: "bold" }}>
+        <th style={{ border: "1px solid #000", padding: "5px 6px", width: "18%", textAlign: "left", fontWeight: "bold" }}>
           Özelliği
         </th>
-        <th style={{ border: "1px solid #000", padding: "6px", width: "10%", textAlign: "center", fontWeight: "bold" }}>
+        <th style={{ border: "1px solid #000", padding: "5px 4px", width: "10%", textAlign: "center", fontWeight: "bold" }}>
           Birimi
         </th>
-        <th style={{ border: "1px solid #000", padding: "6px", width: "10%", textAlign: "center", fontWeight: "bold" }}>
+        <th style={{ border: "1px solid #000", padding: "5px 4px", width: "10%", textAlign: "center", fontWeight: "bold" }}>
           Miktarı
         </th>
-        <th style={{ border: "1px solid #000", padding: "6px", width: "15%", textAlign: "center", fontWeight: "bold" }}>
-          Birim Fiyatı (TL)
+        <th style={{ border: "1px solid #000", padding: "5px 4px", width: "10%", textAlign: "center", fontWeight: "bold" }}>
+          Birim Fiyat (TL)
         </th>
-        <th style={{ border: "1px solid #000", padding: "6px", width: "15%", textAlign: "center", fontWeight: "bold" }}>
+        <th style={{ border: "1px solid #000", padding: "5px 4px", width: "10%", textAlign: "center", fontWeight: "bold" }}>
           Tutarı (TL)
         </th>
       </tr>
     </thead>
   );
 
-  const renderCetvelTableRows = (rowItems: typeof items, startIndex = 0) => (
+  const renderTableRows = (rowItems: typeof items, startIndex = 0) => (
     <tbody>
       {rowItems.length > 0 ? (
         rowItems.map((item, idx) => {
           const rowNum = startIndex + idx + 1;
           return (
             <tr key={idx}>
-              <td style={{ border: "1px solid #000", padding: "6px", textAlign: "center" }}>
+              <td style={{ border: "1px solid #000", padding: "4px", textAlign: "center" }}>
                 {item.siraNo || rowNum}
               </td>
-              <td style={{ border: "1px solid #000", padding: "6px" }}>{item.malzemeAdi}</td>
-              <td style={{ border: "1px solid #000", padding: "6px" }}>{item.ozelligi || "-"}</td>
-              <td style={{ border: "1px solid #000", padding: "6px", textAlign: "center" }}>
+              <td style={{ border: "1px solid #000", padding: "4px 6px" }}>{item.malzemeAdi}</td>
+              <td style={{ border: "1px solid #000", padding: "4px 6px" }}>{item.ozelligi || "-"}</td>
+              <td style={{ border: "1px solid #000", padding: "4px", textAlign: "center" }}>
                 {item.birimi || "-"}
               </td>
-              <td style={{ border: "1px solid #000", padding: "6px", textAlign: "right" }}>
+              <td style={{ border: "1px solid #000", padding: "4px", textAlign: "right" }}>
                 {item.miktar}
               </td>
-              <td style={{ border: "1px solid #000", padding: "6px", textAlign: "right" }}>
+              <td style={{ border: "1px solid #000", padding: "4px", textAlign: "right" }}>
                 {item.birimFiyat ? `${item.birimFiyat} ₺` : ""}
               </td>
-              <td style={{ border: "1px solid #000", padding: "6px", textAlign: "right" }}>
+              <td style={{ border: "1px solid #000", padding: "4px", textAlign: "right" }}>
                 {item.tutar ? `${item.tutar} ₺` : ""}
               </td>
             </tr>
@@ -95,7 +93,7 @@ export function BirimFiyatTeklifMektubu({
   return (
     <>
       {/* ═══════════════════════════════════════════════════════════════════════ */}
-      {/* SAYFA 1: BİRİM FİYAT TEKLİF MEKTUBU                                    */}
+      {/* SAYFA 1: BİRİM FİYAT TEKLİF MEKTUBU VE CETVELİ (BÜTÜNLEŞİK)            */}
       {/* ═══════════════════════════════════════════════════════════════════════ */}
       <DocumentLayout
         data={data as any}
@@ -108,13 +106,13 @@ export function BirimFiyatTeklifMektubu({
         <div
           style={{
             width: "100%",
-            fontSize: "11pt",
+            fontSize: "10pt",
             color: "#000",
             fontFamily: "'Times New Roman', Times, serif",
-            lineHeight: 1.4,
+            lineHeight: 1.35,
           }}
         >
-          <div style={{ textAlign: "right", fontWeight: "bold", marginBottom: "8px" }}>
+          <div style={{ textAlign: "right", fontWeight: "bold", marginBottom: "4px" }}>
             <DateEditableField name="dosyaTarihi" value={data.dosyaTarihi || data.tarih} placeholder="GG.AA.YYYY" />
           </div>
 
@@ -122,16 +120,16 @@ export function BirimFiyatTeklifMektubu({
             style={{
               textAlign: "center",
               fontWeight: "bold",
-              fontSize: "12.5pt",
-              margin: "6px 0",
+              fontSize: "12pt",
+              margin: "4px 0",
               textTransform: "uppercase",
               letterSpacing: "0.5px",
             }}
           >
-            BİRİM FİYAT TEKLİF MEKTUBU
+            BİRİM FİYAT TEKLİF MEKTUBU VE CETVELİ
           </div>
 
-          <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "11.5pt", marginBottom: "12px" }}>
+          <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "11pt", marginBottom: "8px" }}>
             <EditableField
               name="hitap"
               value={data.hitap || data.idareAdi || "KURUM / MAKAM ADI"}
@@ -139,203 +137,90 @@ export function BirimFiyatTeklifMektubu({
             />
           </div>
 
-          <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "12px", fontSize: "10pt" }}>
+          {/* TEKLİF VE FİRMA BİLGİLERİ TABLOSU */}
+          <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "8px", fontSize: "9.5pt" }}>
             <tbody>
               <tr>
-                <td style={{ border: "1px solid #000", padding: "5px 8px", fontWeight: "bold", width: "35%" }}>
-                  İhalenin Adı / İşin Adı
+                <td style={{ border: "1px solid #000", padding: "4px 6px", fontWeight: "bold", width: "30%", backgroundColor: "#fafafa" }}>
+                  İşin Adı / Konusu
                 </td>
-                <td style={{ border: "1px solid #000", padding: "5px 8px", width: "65%" }}>
+                <td style={{ border: "1px solid #000", padding: "4px 6px", width: "70%" }}>
                   <EditableField name="isinAdi" value={data.isinAdi || data.dosyaKonusu} placeholder="İşin Adı" />
                 </td>
               </tr>
               <tr>
-                <td style={{ border: "1px solid #000", padding: "5px 8px", fontWeight: "bold" }}>
-                  Teklif sahibinin adı ve soyadı / ünvanı
+                <td style={{ border: "1px solid #000", padding: "4px 6px", fontWeight: "bold", backgroundColor: "#fafafa" }}>
+                  Teklif Sahibinin Adı / Ünvanı
                 </td>
-                <td style={{ border: "1px solid #000", padding: "5px 8px" }}>
+                <td style={{ border: "1px solid #000", padding: "4px 6px" }}>
                   <EditableField name="teklifSahibi" value={data.teklifSahibi || data.firmaUnvani} placeholder="Teklif Sahibi" />
                 </td>
               </tr>
               <tr>
-                <td style={{ border: "1px solid #000", padding: "5px 8px", fontWeight: "bold" }}>Uyruğu</td>
-                <td style={{ border: "1px solid #000", padding: "5px 8px" }}>
-                  <EditableField name="uyrugu" value={data.uyrugu || "T.C."} placeholder="Uyruğu" />
+                <td style={{ border: "1px solid #000", padding: "4px 6px", fontWeight: "bold", backgroundColor: "#fafafa" }}>
+                  T.C. / Vergi Kimlik No
+                </td>
+                <td style={{ border: "1px solid #000", padding: "4px 6px" }}>
+                  <EditableField name="vergiNo" value={data.vergiNo || data.firmaVergiNo || data.tcKimlikNo} placeholder="Vergi / TC Kimlik No" />
                 </td>
               </tr>
               <tr>
-                <td style={{ border: "1px solid #000", padding: "5px 8px", fontWeight: "bold" }}>
-                  TC kimlik numarası (gerçek kişi ise)
+                <td style={{ border: "1px solid #000", padding: "4px 6px", fontWeight: "bold", backgroundColor: "#fafafa" }}>
+                  Tebligat Adresi / İletişim
                 </td>
-                <td style={{ border: "1px solid #000", padding: "5px 8px" }}>
-                  <EditableField name="tcKimlikNo" value={data.tcKimlikNo} placeholder="TC Kimlik No" />
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: "1px solid #000", padding: "5px 8px", fontWeight: "bold" }}>
-                  Tüzel kişi ise, tüm ortakların Adı Soyadı ve T.C. Kimlik numaraları
-                </td>
-                <td style={{ border: "1px solid #000", padding: "5px 8px" }}>
-                  <EditableField name="ortaklarinTcNo" value={data.ortaklarinTcNo} placeholder="Ortakların TC Kimlik No" />
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: "1px solid #000", padding: "5px 8px", fontWeight: "bold" }}>
-                  Vergi Kimlik Numarası
-                </td>
-                <td style={{ border: "1px solid #000", padding: "5px 8px" }}>
-                  <EditableField name="vergiNo" value={data.vergiNo || data.firmaVergiNo} placeholder="Vergi Kimlik No" />
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: "1px solid #000", padding: "5px 8px", fontWeight: "bold" }}>Tebligat adresi</td>
-                <td style={{ border: "1px solid #000", padding: "5px 8px" }}>
-                  <EditableField name="tebligatAdresi" value={data.tebligatAdresi || data.firmaAdresi} placeholder="Tebligat Adresi" />
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: "1px solid #000", padding: "5px 8px", fontWeight: "bold" }}>
-                  Telefon ve Faks numarası
-                </td>
-                <td style={{ border: "1px solid #000", padding: "5px 8px" }}>
-                  <EditableField name="telefonFaks" value={data.telefonFaks || data.telefon} placeholder="Telefon / Faks" />
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: "1px solid #000", padding: "5px 8px", fontWeight: "bold" }}>
-                  Elektronik posta adresi
-                </td>
-                <td style={{ border: "1px solid #000", padding: "5px 8px" }}>
-                  <EditableField name="eposta" value={data.eposta || data.email} placeholder="E-Posta" />
+                <td style={{ border: "1px solid #000", padding: "4px 6px" }}>
+                  <EditableField
+                    name="tebligatAdresi"
+                    value={
+                      data.tebligatAdresi ||
+                      [data.firmaAdresi, data.telefon || data.telefonFaks, data.eposta || data.email].filter(Boolean).join(" - ")
+                    }
+                    placeholder="Adres / Telefon / E-posta"
+                  />
                 </td>
               </tr>
             </tbody>
           </table>
 
-          {/* AÇIKLAMA / TAAHHÜT METNİ */}
+          {/* TAAHHÜT METNİ */}
           <div
             style={{
               border: "1px solid #000",
-              padding: "7px 10px",
-              fontSize: "9.5pt",
+              padding: "5px 8px",
+              fontSize: "8.5pt",
               textAlign: "justify",
-              lineHeight: 1.35,
-              marginTop: "8px",
+              lineHeight: 1.3,
+              marginBottom: "8px",
+              backgroundColor: "#fff",
             }}
           >
             {data.aciklama ? (
               <EditableField name="aciklama" value={data.aciklama} multiline placeholder="Taahhüt Açıklaması" />
             ) : (
               <div>
-                1. Teklifimiz teklif verme tarihine kadar geçerlidir.
+                1. Yukarıda adı ve konusu belirtilen işe / alıma ait tüm şartları okudum ve aynen kabul ettim.
                 <br />
-                2. Teklifimize Damga Vergisi, Resim Harç, Pul ve Ulaştırma Giderleri dahildir.
+                2. Teklifimiz teklif tarihinden itibaren geçerli olup teklifimize Damga Vergisi, Harç, Nakliye ve Sigorta giderleri dahildir.
                 <br />
-                3. İhale konusu iş için sermayesinin %50'sinden fazlasına sahip olduğumuz başka bir tüzel kişinin bu işe ayrı bir teklif vermediğini beyan ediyoruz.
-                <br />
-                4. Aldığınız herhangi bir teklifi veya en düşük teklifi seçmek zorunda olmadığınızı kabul ediyoruz.
-                <br />
-                5. İhale konusu işle ilgili olmak üzere idarenizce yapılacak/yaptırılacak diğer işlerde idarenizin çıkarlarına aykırı düşecek hiçbir eylem ve oluşum içerisinde olmayacağımızı taahhüt ediyoruz.
-                <br />
-                6. Bu alıma ilişkin malzeme kalemlerine kısmi teklif verilmemiştir.
-                <br />
-                7. 4734 Sayılı Kamu İhale Kanununun 4.maddesindeki "Yerli İstekli" tanımı gereğince yerli istekli durumundayız.
-                <br />
-                8. İhale konusu işin tamamını Teklif Mektubumuzun ekindeki Birim Fiyat Teklif Cetvelinde belirtilen her bir iş kalemi için teklif ettiğimiz birim fiyatları üzerinden KDV HARİÇ bedel karşılığında kabul ve taahhüt ederiz.
+                3. Alıma konu işin / malların tamamını aşağıdaki Birim Fiyat Teklif Cetvelinde belirttiğimiz birim fiyatlar üzerinden KDV HARİÇ bedel karşılığında vermeyi kabul ve taahhüt ederiz.
               </div>
             )}
           </div>
 
-          {/* FİRMA YETKİLİSİ İMZA ALANI */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              marginTop: "20px",
-              paddingTop: "5px",
-            }}
-          >
-            <div style={{ fontStyle: "italic", color: "#333", fontSize: "10.5pt" }}>
-              Para Birimi: Türk Lirası (TL)
-            </div>
-            <div style={{ textAlign: "center", minWidth: "220px", fontSize: "10.5pt", lineHeight: 1.4, marginLeft: "auto" }}>
-              <DateEditableField name="tarih" value={data.tarih || data.dosyaTarihi} placeholder="……/……/20…" />
-              <div style={{ marginTop: "4px", fontWeight: "bold" }}>
-                {data.teklifSahibi || data.firmaUnvani || "Firma / Yetkili Adı"}
-              </div>
-              <div style={{ marginTop: "20px" }}>Kaşe - İmza</div>
-            </div>
-          </div>
-        </div>
-      </DocumentLayout>
-
-      {/* ═══════════════════════════════════════════════════════════════════════ */}
-      {/* SAYFA 2: BİRİM FİYAT TEKLİF CETVELİ                                    */}
-      {/* ═══════════════════════════════════════════════════════════════════════ */}
-      <DocumentLayout
-        data={data as any}
-        hideFooter={false}
-        pageSize={pageSize}
-        orientation={orientation}
-        pageNumber={2}
-        totalPages={totalPages}
-        hideHeader={false}
-      >
-        <div
-          style={{
-            width: "100%",
-            fontSize: "11pt",
-            color: "#000",
-            fontFamily: "'Times New Roman', Times, serif",
-            lineHeight: 1.4,
-          }}
-        >
-          <div
-            style={{
-              textAlign: "center",
-              fontWeight: "bold",
-              fontSize: "12.5pt",
-              marginBottom: "12px",
-              textTransform: "uppercase",
-              letterSpacing: "0.5px",
-            }}
-          >
-            BİRİM FİYAT TEKLİF CETVELİ
-          </div>
-
-          {/* ÜST METADATA BİLGİLERİ */}
-          <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "14px", fontSize: "10pt" }}>
-            <tbody>
-              <tr>
-                <td style={{ width: "200px", fontWeight: "bold", padding: "3px 0" }}>İdarenin Adı</td>
-                <td style={{ padding: "3px 0" }}>: {data.idareAdi || "İdare Adı"}</td>
-              </tr>
-              <tr>
-                <td style={{ fontWeight: "bold", padding: "3px 0" }}>Doğrudan Temin Numarası</td>
-                <td style={{ padding: "3px 0" }}>: {data.dogrudanTeminNo || data.dosyaNo || "-"}</td>
-              </tr>
-              <tr>
-                <td style={{ fontWeight: "bold", padding: "3px 0" }}>İşin Adı</td>
-                <td style={{ padding: "3px 0" }}>: {data.isinAdi || data.dosyaKonusu || "-"}</td>
-              </tr>
-            </tbody>
-          </table>
-
           {/* CETVEL TABLOSU */}
-          <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "8px", fontSize: "10pt" }}>
-            {renderCetvelTableHead()}
-            {renderCetvelTableRows(cetvelPage1Items, 0)}
-            {!isMultiPageCetvel && (
+          <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "6px", fontSize: "9pt" }}>
+            {renderTableHead()}
+            {renderTableRows(page1Items, 0)}
+            {!isMultiPage && (
               <tfoot>
                 <tr>
-                  <td colSpan={5} style={{ border: "none", textAlign: "left", padding: "8px 0", fontStyle: "italic" }}>
+                  <td colSpan={5} style={{ border: "none", textAlign: "left", padding: "6px 0", fontStyle: "italic", fontSize: "9pt" }}>
                     Para birimi: TL
                   </td>
-                  <td style={{ border: "1px solid #000", padding: "6px", textAlign: "center", fontWeight: "bold" }}>
-                    Toplam Tutar (K.D.V. Hariç)
+                  <td style={{ border: "1px solid #000", padding: "4px", textAlign: "center", fontWeight: "bold", backgroundColor: "#f2f2f2" }}>
+                    Toplam Tutar (KDV Hariç)
                   </td>
-                  <td style={{ border: "1px solid #000", padding: "6px", height: "32px", textAlign: "right" }}>
+                  <td style={{ border: "1px solid #000", padding: "4px", height: "26px", textAlign: "right", fontWeight: "bold" }}>
                     {data.toplamTutar ? `${data.toplamTutar} ₺` : ""}
                   </td>
                 </tr>
@@ -343,83 +228,70 @@ export function BirimFiyatTeklifMektubu({
             )}
           </table>
 
-          {/* TAAHHÜT / AÇIKLAMA NOTU & İMZA BLOĞU (Eğer sayfa 2'de bitiyorsa) */}
-          {!isMultiPageCetvel && (
-            <>
-              <div
-                style={{
-                  marginTop: "16px",
-                  fontSize: "9.5pt",
-                  textAlign: "justify",
-                  textIndent: "30px",
-                  lineHeight: 1.4,
-                }}
-              >
-                Yukarıda belirtilen ve idarenizce satın alınacak olan malların / hizmetlerin cinsi, özellikleri, miktarı ve diğer şartlarını okudum. KDV hariç yukarıda yazılı toplam bedelle vermeyi kabul ve taahhüt ediyorum.
+          {/* İMZA BLOĞU (Eğer sayfa 1'de bitiyorsa) */}
+          {!isMultiPage && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                marginTop: "12px",
+                paddingTop: "4px",
+              }}
+            >
+              <div style={{ fontStyle: "italic", color: "#333", fontSize: "9pt" }}>
+                Para Birimi: Türk Lirası (TL)
               </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  marginTop: "24px",
-                }}
-              >
-                <div style={{ fontStyle: "italic", color: "#333", fontSize: "10.5pt" }}>
-                  Para Birimi: Türk Lirası (TL)
+              <div style={{ textAlign: "center", minWidth: "220px", fontSize: "9.5pt", lineHeight: 1.3, marginLeft: "auto" }}>
+                <DateEditableField name="tarih" value={data.tarih || data.dosyaTarihi} placeholder="……/……/20…" />
+                <div style={{ marginTop: "4px", fontWeight: "bold" }}>
+                  {data.teklifSahibi || data.firmaUnvani || "Firma / Yetkili Adı"}
                 </div>
-                <div style={{ textAlign: "center", minWidth: "220px", fontSize: "10.5pt", lineHeight: 1.4, marginLeft: "auto" }}>
-                  <DateEditableField name="tarih" value={data.tarih || data.dosyaTarihi} placeholder="……/……/20…" />
-                  <div style={{ marginTop: "4px", fontWeight: "bold" }}>
-                    {data.teklifSahibi || data.firmaUnvani || "Firma veya Kişinin Adı Soyadı / Kaşe"}
-                  </div>
-                  <div style={{ marginTop: "20px" }}>İmza / Kaşe</div>
-                </div>
+                <div style={{ marginTop: "16px" }}>Kaşe - İmza</div>
               </div>
-            </>
+            </div>
           )}
         </div>
       </DocumentLayout>
 
       {/* ═══════════════════════════════════════════════════════════════════════ */}
-      {/* SAYFA 3 (Eğer kalem sayısı fazla ise): CETVEL DEVAMI                    */}
+      {/* SAYFA 2 (Sadece kalem sayısı 10'dan fazla ise devreye girer)             */}
       {/* ═══════════════════════════════════════════════════════════════════════ */}
-      {isMultiPageCetvel && (
+      {isMultiPage && (
         <DocumentLayout
           data={data as any}
           hideFooter={false}
           pageSize={pageSize}
           orientation={orientation}
-          pageNumber={3}
-          totalPages={3}
+          pageNumber={2}
+          totalPages={2}
           hideHeader={true}
         >
           <div
             style={{
               width: "100%",
-              fontSize: "11pt",
+              fontSize: "10pt",
               color: "#000",
               fontFamily: "'Times New Roman', Times, serif",
-              lineHeight: 1.4,
+              lineHeight: 1.35,
             }}
           >
-            <div style={{ fontWeight: "bold", fontSize: "11.5pt", marginBottom: "10px" }}>
-              Birim Fiyat Teklif Cetveli (Devamı)
+            <div style={{ fontWeight: "bold", fontSize: "11pt", marginBottom: "8px", textAlign: "center" }}>
+              BİRİM FİYAT TEKLİF CETVELİ (DEVAMI)
             </div>
 
-            <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "8px", fontSize: "10pt" }}>
-              {renderCetvelTableHead()}
-              {renderCetvelTableRows(cetvelPage2Items, firstPageLimit)}
+            <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "6px", fontSize: "9pt" }}>
+              {renderTableHead()}
+              {renderTableRows(page2Items, firstPageLimit)}
               <tfoot>
                 <tr>
-                  <td colSpan={5} style={{ border: "none", textAlign: "left", padding: "8px 0", fontStyle: "italic" }}>
+                  <td colSpan={5} style={{ border: "none", textAlign: "left", padding: "6px 0", fontStyle: "italic", fontSize: "9pt" }}>
                     Para birimi: TL
                   </td>
-                  <td style={{ border: "1px solid #000", padding: "6px", textAlign: "center", fontWeight: "bold" }}>
-                    Toplam Tutar (K.D.V. Hariç)
+                  <td style={{ border: "1px solid #000", padding: "4px", textAlign: "center", fontWeight: "bold", backgroundColor: "#f2f2f2" }}>
+                    Toplam Tutar (KDV Hariç)
                   </td>
-                  <td style={{ border: "1px solid #000", padding: "6px", height: "32px", textAlign: "right" }}>
+                  <td style={{ border: "1px solid #000", padding: "4px", height: "26px", textAlign: "right", fontWeight: "bold" }}>
                     {data.toplamTutar ? `${data.toplamTutar} ₺` : ""}
                   </td>
                 </tr>
@@ -428,33 +300,21 @@ export function BirimFiyatTeklifMektubu({
 
             <div
               style={{
-                marginTop: "16px",
-                fontSize: "9.5pt",
-                textAlign: "justify",
-                textIndent: "30px",
-                lineHeight: 1.4,
-              }}
-            >
-              Yukarıda belirtilen ve idarenizce satın alınacak olan malların / hizmetlerin cinsi, özellikleri, miktarı ve diğer şartlarını okudum. KDV hariç yukarıda yazılı toplam bedelle vermeyi kabul ve taahhüt ediyorum.
-            </div>
-
-            <div
-              style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "flex-start",
-                marginTop: "24px",
+                marginTop: "16px",
               }}
             >
-              <div style={{ fontStyle: "italic", color: "#333", fontSize: "10.5pt" }}>
+              <div style={{ fontStyle: "italic", color: "#333", fontSize: "9pt" }}>
                 Para Birimi: Türk Lirası (TL)
               </div>
-              <div style={{ textAlign: "center", minWidth: "220px", fontSize: "10.5pt", lineHeight: 1.4, marginLeft: "auto" }}>
+              <div style={{ textAlign: "center", minWidth: "220px", fontSize: "9.5pt", lineHeight: 1.3, marginLeft: "auto" }}>
                 <DateEditableField name="tarih" value={data.tarih || data.dosyaTarihi} placeholder="……/……/20…" />
                 <div style={{ marginTop: "4px", fontWeight: "bold" }}>
-                  {data.teklifSahibi || data.firmaUnvani || "Firma veya Kişinin Adı Soyadı / Kaşe"}
+                  {data.teklifSahibi || data.firmaUnvani || "Firma / Yetkili Adı"}
                 </div>
-                <div style={{ marginTop: "20px" }}>İmza / Kaşe</div>
+                <div style={{ marginTop: "16px" }}>Kaşe - İmza</div>
               </div>
             </div>
           </div>
