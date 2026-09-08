@@ -48,7 +48,7 @@ export function PageWrapper(): React.ReactNode {
     else if (path.startsWith('/malzemeler/yeni')) {
       title += ' - Yeni Kayıt (Mal/Hizmet/Yapım İşi)'
     } else if (path.startsWith('/malzemeler')) {
-      title += ' - Kayıtlı Mal / Hizmet / Yapım İşleri Listesi'
+      title += ' - Mal, Hizmet & Yapım Kataloğu'
     } else if (path.startsWith('/kurum')) title += ' - Kurum Bilgileri'
     else if (path.startsWith('/profil')) title += ' — Kullanıcı Profili'
     else if (path.startsWith('/hakedis')) {

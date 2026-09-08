@@ -23,6 +23,8 @@ import DegiskenlerScreen from '../../screens/sablonlar/degiskenler.screen'
 import RaporlarScreen from '../../screens/raporlar/index.screen'
 import OkasKodScreen from '../../screens/okaskod/index.screen'
 import PozlarScreen from '../../screens/pozlar/index.screen'
+import YeniPozScreen from '../../screens/pozlar/yeni.screen'
+import PozDetayScreen from '../../screens/pozlar/detay.screen'
 import OlcuBirimleriScreen from '../../screens/olcubirimleri/index.screen'
 import YeniMalzemeScreen from '../../screens/malzemeler/yeni.screen'
 import YeniDosyaScreen from '../../screens/dosyalar/yeni.screen'
@@ -61,6 +63,8 @@ export const routeComponents: Record<string, React.ComponentType> = {
   '/raporlar': RaporlarScreen,
   '/okaskod': OkasKodScreen,
   '/pozlar': PozlarScreen,
+  '/pozlar/yeni': YeniPozScreen,
+  '/pozlar/detay': PozDetayScreen,
   '/mevzuat': MevzuatScreen,
   '/changelog': ChangelogScreen,
   '/import': ImportScreen,

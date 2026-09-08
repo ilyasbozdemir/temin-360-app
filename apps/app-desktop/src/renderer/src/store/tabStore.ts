@@ -40,8 +40,8 @@ export function getTabLabel(fullPath: string): string {
   if (path.startsWith(APP_ROUTES.AYARLAR)) return 'Ayarlar'
   if (path.startsWith(APP_ROUTES.BIRIMLER)) return 'Birim Yönetimi'
   if (path.startsWith(APP_ROUTES.AMBAR)) return 'Ambar Tanımları'
-  if (path.startsWith(APP_ROUTES.YENI_MALZEME)) return 'Yeni Kayıt (Mal/Hizmet/Yapım İşi)'
-  if (path.startsWith(APP_ROUTES.MALZEMELER)) return 'Kayıtlı Mal / Hizmet / Yapım İşleri Listesi'
+  if (path.startsWith(APP_ROUTES.YENI_MALZEME)) return 'Yeni Kalem Tanımla (Mal/Hizmet/Yapım)'
+  if (path.startsWith(APP_ROUTES.MALZEMELER)) return 'Mal, Hizmet & Yapım Kataloğu'
   if (path.startsWith(APP_ROUTES.KURUM)) {
     const query = fullPath.split('?')[1] || ''
     const searchParams = new URLSearchParams(query)
@@ -89,6 +89,8 @@ export function getTabLabel(fullPath: string): string {
   if (path.startsWith(APP_ROUTES.TEMA)) return 'Tema Ayarları'
   if (path.startsWith(APP_ROUTES.TASINIR_KOD)) return 'Taşınır Kodları'
   if (path.startsWith(APP_ROUTES.OKAS_KOD)) return 'OKAS Kodları'
+  if (path.startsWith(APP_ROUTES.YENI_POZ)) return 'Birim Fiyat Pozu Tanımla / Düzenle'
+  if (path.startsWith(APP_ROUTES.POZ_DETAY)) return 'Poz Detayı & Birim Fiyatları'
   if (path.startsWith(APP_ROUTES.POZLAR)) return 'Birim Fiyat Pozları'
   if (path.startsWith(APP_ROUTES.SABLONLAR)) return 'Şablon Yönetimi'
   if (path.startsWith(APP_ROUTES.DEGISKENLER)) return 'Şablon Değişkenleri'

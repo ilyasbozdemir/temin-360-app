@@ -86,7 +86,8 @@ node_modules/
 *.db
 *.db-journal
 *.sqlite
-data/
+/data/
+!src/**/data/
 *.xlsx
 *.xls
 *.csv

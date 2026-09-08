@@ -118,7 +118,12 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     { name: 'meslek_kodu', def: 'TEXT' },
     { name: 'fiyat_donemi', def: 'TEXT' },
     { name: 'gorsel_url', def: 'TEXT' },
-    { name: 'gorseller', def: 'TEXT' }
+    { name: 'gorseller', def: 'TEXT' },
+    { name: 'eski_poz_no', def: 'TEXT' },
+    { name: 'fasikul', def: 'TEXT' },
+    { name: 'poz_tipi', def: "TEXT DEFAULT 'Analiz'" },
+    { name: 'birim_fiyatlar', def: 'TEXT' },
+    { name: 'birim_fiyat', def: 'REAL DEFAULT 0' }
   ]
   for (const c of kalemExtendedColumns) {
     try {

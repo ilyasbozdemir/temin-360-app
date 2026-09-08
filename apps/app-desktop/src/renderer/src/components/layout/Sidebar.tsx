@@ -106,7 +106,7 @@ const menuGroups: MenuGroup[] = [
         icon: PackageSearch,
         children: [
           {
-            name: "Mal/Hizmet/Yapım İşleri Listesi",
+            name: "Mal, Hizmet & Yapım Kataloğu",
             path: "/malzemeler",
             icon: PackageSearch,
           },

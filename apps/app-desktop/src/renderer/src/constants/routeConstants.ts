@@ -33,6 +33,8 @@ export const APP_ROUTES = {
   YENI_MALZEME: '/malzemeler/yeni',
   TASINIR_KOD: '/tasinirkod',
   POZLAR: '/pozlar',
+  POZ_DETAY: '/pozlar/detay',
+  YENI_POZ: '/pozlar/yeni',
   OLCU_BIRIMLERI: '/olcubirimleri',
   KURUM: '/kurum',
   PROFIL: '/profil',

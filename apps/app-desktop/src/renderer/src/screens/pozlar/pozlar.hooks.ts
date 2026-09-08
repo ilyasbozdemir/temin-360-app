@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+export interface PozFiyatGecmisi {
+  donem: string
+  fiyat: number
+  tarih?: string
+}
+
 export interface PozItem {
   id?: number
   eski_id?: string
@@ -9,16 +15,21 @@ export interface PozItem {
   birim: string
   olcu_birimi?: string
   poz_no: string
-  poz_yili?: number
-  poz_tanimi?: string
-  poz_grubu_ref_id?: string
-  yapi_sinifi?: string
-  fiyat_donemi?: string
-  okas_kodu?: string
-  kategori?: string
-  poz_kurumu?: string
-  ozelligi?: string
-  notlar?: string
+  eski_poz_no?: string | null
+  fasikul?: string | null
+  poz_tipi?: string | null
+  poz_yili?: number | null
+  poz_tanimi?: string | null
+  poz_grubu_ref_id?: string | null
+  yapi_sinifi?: string | null
+  fiyat_donemi?: string | null
+  okas_kodu?: string | null
+  kategori?: string | null
+  poz_kurumu?: string | null
+  ozelligi?: string | null
+  notlar?: string | null
+  birim_fiyat?: number | null
+  birim_fiyatlar?: string | null
   kdv_orani?: number
   aktif_mi?: number
 }
@@ -49,10 +60,10 @@ export function usePozlarHooks() {
       const sql = `
         INSERT INTO TANIM_Kalem (
           barkod_id, kalem_adi, tipi, birim, olcu_birimi,
-          poz_no, poz_yili, poz_tanimi, poz_grubu_ref_id,
+          poz_no, eski_poz_no, fasikul, poz_tipi, poz_yili, poz_tanimi, poz_grubu_ref_id,
           yapi_sinifi, fiyat_donemi, okas_kodu, kategori,
-          ozelligi, notlar, kdv_orani, aktif_mi
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ozelligi, notlar, birim_fiyat, birim_fiyatlar, kdv_orani, aktif_mi
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `
       const params = [
         barkod,
@@ -61,6 +72,9 @@ export function usePozlarHooks() {
         kayit.birim || 'm²',
         kayit.birim || 'm²',
         kayit.poz_no,
+        kayit.eski_poz_no || null,
+        kayit.fasikul || null,
+        kayit.poz_tipi || 'Analiz',
         kayit.poz_yili || new Date().getFullYear(),
         kayit.poz_tanimi || kayit.kalem_adi || '',
         kayit.poz_grubu_ref_id || null,
@@ -70,6 +84,8 @@ export function usePozlarHooks() {
         kayit.poz_kurumu || kayit.kategori || 'ÇŞB',
         kayit.ozelligi || kayit.poz_tanimi || null,
         kayit.notlar || null,
+        Number(kayit.birim_fiyat) || 0,
+        kayit.birim_fiyatlar || null,
         kayit.kdv_orani ?? 20,
         kayit.aktif_mi ?? 1
       ]
@@ -79,6 +95,7 @@ export function usePozlarHooks() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['poz_listesi'] })
+      queryClient.invalidateQueries({ queryKey: ['kalemler'] })
       queryClient.invalidateQueries({ queryKey: ['malzemeler'] })
     }
   })
@@ -91,6 +108,9 @@ export function usePozlarHooks() {
           birim = ?,
           olcu_birimi = ?,
           poz_no = ?,
+          eski_poz_no = ?,
+          fasikul = ?,
+          poz_tipi = ?,
           poz_yili = ?,
           poz_tanimi = ?,
           poz_grubu_ref_id = ?,
@@ -99,7 +119,11 @@ export function usePozlarHooks() {
           okas_kodu = ?,
           kategori = ?,
           ozelligi = ?,
-          notlar = ?
+          notlar = ?,
+          birim_fiyat = ?,
+          birim_fiyatlar = ?,
+          kdv_orani = ?,
+          aktif_mi = ?
         WHERE id = ?
       `
       const params = [
@@ -107,6 +131,9 @@ export function usePozlarHooks() {
         data.birim || 'm²',
         data.birim || 'm²',
         data.poz_no,
+        data.eski_poz_no || null,
+        data.fasikul || null,
+        data.poz_tipi || 'Analiz',
         data.poz_yili || new Date().getFullYear(),
         data.poz_tanimi || data.kalem_adi || '',
         data.poz_grubu_ref_id || null,
@@ -116,6 +143,10 @@ export function usePozlarHooks() {
         data.poz_kurumu || data.kategori || 'ÇŞB',
         data.ozelligi || data.poz_tanimi || null,
         data.notlar || null,
+        Number(data.birim_fiyat) || 0,
+        data.birim_fiyatlar || null,
+        data.kdv_orani ?? 20,
+        data.aktif_mi ?? 1,
         id
       ]
       const res = await window.electron.ipcRenderer.invoke('db:run', sql, params)
@@ -124,6 +155,7 @@ export function usePozlarHooks() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['poz_listesi'] })
+      queryClient.invalidateQueries({ queryKey: ['kalemler'] })
       queryClient.invalidateQueries({ queryKey: ['malzemeler'] })
     }
   })
