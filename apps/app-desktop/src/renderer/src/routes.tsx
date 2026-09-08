@@ -1,4 +1,5 @@
 import {
+  createHashHistory,
   createRootRoute,
   createRoute,
   createRouter,
@@ -28,6 +29,7 @@ import SablonlarScreen from "./screens/sablonlar/index.screen";
 import DegiskenlerScreen from "./screens/sablonlar/degiskenler.screen";
 import RaporlarScreen from "./screens/raporlar/index.screen";
 import OkasKodScreen from "./screens/okaskod/index.screen";
+import PozlarScreen from "./screens/pozlar/index.screen";
 import OlcuBirimleriScreen from "./screens/olcubirimleri/index.screen";
 import YeniMalzemeScreen from "./screens/malzemeler/yeni.screen";
 import YeniDosyaScreen from "./screens/dosyalar/yeni.screen";
@@ -142,6 +144,12 @@ const okasKodRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.OKAS_KOD,
   component: OkasKodScreen,
+});
+
+const pozlarRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: APP_ROUTES.POZLAR,
+  component: PozlarScreen,
 });
 
 const mevzuatRoute = createRoute({
@@ -331,6 +339,7 @@ const routeTree = rootRoute.addChildren([
   ciktiMerkeziDashboardRoute,
   raporlarRoute,
   okasKodRoute,
+  pozlarRoute,
   mevzuatRoute,
   changelogRoute,
   importRoute,
@@ -360,7 +369,12 @@ const routeTree = rootRoute.addChildren([
   yardimRoute,
 ]);
 
-export const router = createRouter({ routeTree });
+const hashHistory = createHashHistory();
+
+export const router = createRouter({
+  routeTree,
+  history: hashHistory,
+});
 
 declare module "@tanstack/react-router" {
   interface Register {

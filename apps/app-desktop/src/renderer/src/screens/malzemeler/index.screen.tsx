@@ -4,6 +4,7 @@ import { APP_ROUTES } from '../../constants/routeConstants'
 import {
   FileText,
   FolderTree,
+  HardHat,
   ListFilter,
   PackageSearch,
   Plus,
@@ -235,16 +236,19 @@ export default function MalzemelerScreen(): React.JSX.Element {
           <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 rounded-lg text-xs text-blue-700 dark:text-blue-300 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             <div className="flex-1">
               <p className="mb-1">
-                💡 <strong>İpucu:</strong> Güncel Taşınır Kodları listesine ulaşmak için{' '}
-                <a
-                  href="https://muhasebat.hmb.gov.tr/tasinir-kod-listesi"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline font-semibold hover:text-blue-800 dark:hover:text-blue-200"
-                >
-                  Muhasebat Genel Müdürlüğü
-                </a>{' '}
-                sayfasını ziyaret edebilirsiniz.
+                💡 <strong>İpucu:</strong> Mal alımlarında{' '}
+                <Link to="/tasinirkod" className="underline font-semibold hover:text-blue-800 dark:hover:text-blue-200">
+                  Taşınır Kodları
+                </Link>
+                , Hizmet alımlarında{' '}
+                <Link to="/okaskod" className="underline font-semibold hover:text-blue-800 dark:hover:text-blue-200">
+                  OKAS Kodları
+                </Link>
+                , Yapım işlerinde ise{' '}
+                <Link to={APP_ROUTES.POZLAR} className="underline font-semibold hover:text-blue-800 dark:hover:text-blue-200">
+                  Birim Fiyat Poz Kitapları
+                </Link>{' '}
+                üzerinden hızlıca seçim yapıp kalemlerinizi oluşturabilirsiniz.
               </p>
               <p>
                 📣 Uygulama altyapımız bu kodları tamamen desteklemektedir. Hazır malzeme listesi ve
@@ -294,22 +298,31 @@ export default function MalzemelerScreen(): React.JSX.Element {
               uniqueCol="barkod_id"
               onImportSuccess={() => window.location.reload()}
             />
-            <Link to="/tasinirkod" className="shrink-0">
+            <Link to="/tasinirkod" className="shrink-0" title="Taşınır Kodları Rehberi (Mal Alımları)">
               <Button
                 variant="outline"
-                className="w-full gap-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 flex items-center px-4 py-2 text-sm justify-center"
+                className="w-full gap-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 hover:border-emerald-300 dark:hover:border-emerald-800 flex items-center px-3.5 py-2 text-sm justify-center transition-colors"
               >
                 <FolderTree className="w-4 h-4 text-emerald-600 shrink-0" />{' '}
-                <span className="whitespace-nowrap">Taşınır Kodları</span>
+                <span className="whitespace-nowrap font-medium">Taşınır Kodları</span>
               </Button>
             </Link>
-            <Link to="/okaskod" className="shrink-0">
+            <Link to="/okaskod" className="shrink-0" title="OKAS Kodları Rehberi (Hizmet Alımları)">
               <Button
                 variant="outline"
-                className="w-full gap-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 flex items-center px-4 py-2 text-sm justify-center"
+                className="w-full gap-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:border-indigo-300 dark:hover:border-indigo-800 flex items-center px-3.5 py-2 text-sm justify-center transition-colors"
               >
                 <Tag className="w-4 h-4 text-indigo-600 shrink-0" />{' '}
-                <span className="whitespace-nowrap">OKAS Kodları</span>
+                <span className="whitespace-nowrap font-medium">OKAS Kodları</span>
+              </Button>
+            </Link>
+            <Link to={APP_ROUTES.POZLAR} className="shrink-0" title="Birim Fiyat Pozları Kitapları (Yapım İşleri)">
+              <Button
+                variant="outline"
+                className="w-full gap-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:border-amber-300 dark:hover:border-amber-800 flex items-center px-3.5 py-2 text-sm justify-center transition-colors"
+              >
+                <HardHat className="w-4 h-4 text-amber-600 shrink-0" />{' '}
+                <span className="whitespace-nowrap font-medium">Birim Fiyat Pozları</span>
               </Button>
             </Link>
             <Link to="/malzemeler/yeni" className="shrink-0">
@@ -324,47 +337,71 @@ export default function MalzemelerScreen(): React.JSX.Element {
 
       {/* İstatistik Kartları */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0">
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+        <button
+          type="button"
+          onClick={() => setActiveTab('Mal')}
+          className={cn(
+            'p-5 rounded-2xl bg-white dark:bg-slate-900 border text-left shadow-sm flex items-center gap-4 transition-all hover:shadow-md hover:border-blue-400 cursor-pointer',
+            activeTab === 'Mal' ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/20' : 'border-slate-200 dark:border-slate-800'
+          )}
+        >
           <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-450 flex items-center justify-center shrink-0">
             <Tag className="w-6 h-6" />
           </div>
-          <div>
-            <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">
-              Mal Alımı (Malzeme)
+          <div className="flex-1">
+            <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider flex items-center justify-between">
+              <span>Mal Alımı (Malzeme)</span>
+              <span className="text-blue-600 text-[10px] font-medium lowercase">Taşınır Kodlu</span>
             </div>
             <div className="text-xl font-bold text-slate-800 dark:text-slate-100 mt-0.5">
               {kalemList.filter((m) => m.tipi === 'Mal').length} Kalem
             </div>
           </div>
-        </div>
+        </button>
 
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+        <button
+          type="button"
+          onClick={() => setActiveTab('Hizmet')}
+          className={cn(
+            'p-5 rounded-2xl bg-white dark:bg-slate-900 border text-left shadow-sm flex items-center gap-4 transition-all hover:shadow-md hover:border-emerald-400 cursor-pointer',
+            activeTab === 'Hizmet' ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/20' : 'border-slate-200 dark:border-slate-800'
+          )}
+        >
           <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-450 flex items-center justify-center shrink-0">
             <FileText className="w-6 h-6" />
           </div>
-          <div>
-            <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">
-              Hizmet Alımı
+          <div className="flex-1">
+            <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider flex items-center justify-between">
+              <span>Hizmet Alımı</span>
+              <span className="text-emerald-600 text-[10px] font-medium lowercase">OKAS Kodlu</span>
             </div>
             <div className="text-xl font-bold text-slate-800 dark:text-slate-100 mt-0.5">
               {kalemList.filter((m) => m.tipi?.startsWith('Hizmet')).length} Kalem
             </div>
           </div>
-        </div>
+        </button>
 
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+        <button
+          type="button"
+          onClick={() => setActiveTab('Yapım')}
+          className={cn(
+            'p-5 rounded-2xl bg-white dark:bg-slate-900 border text-left shadow-sm flex items-center gap-4 transition-all hover:shadow-md hover:border-amber-400 cursor-pointer',
+            activeTab === 'Yapım' ? 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-50/20' : 'border-slate-200 dark:border-slate-800'
+          )}
+        >
           <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-450 flex items-center justify-center shrink-0">
-            <PackageSearch className="w-6 h-6" />
+            <HardHat className="w-6 h-6" />
           </div>
-          <div>
-            <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">
-              Yapım İşi
+          <div className="flex-1">
+            <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider flex items-center justify-between">
+              <span>Yapım İşi</span>
+              <span className="text-amber-600 text-[10px] font-medium lowercase">Poz / İmalat</span>
             </div>
             <div className="text-xl font-bold text-slate-800 dark:text-slate-100 mt-0.5">
               {kalemList.filter((m) => m.tipi === 'Yapım').length} Kalem
             </div>
           </div>
-        </div>
+        </button>
       </div>
 
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col flex-1 overflow-hidden min-h-[400px]">

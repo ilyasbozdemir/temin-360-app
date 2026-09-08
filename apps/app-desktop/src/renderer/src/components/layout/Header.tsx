@@ -387,6 +387,10 @@ export function Header(): React.JSX.Element {
           onClick: () => navigate({ to: "/okaskod" }),
         },
         {
+          label: "Birim Fiyat Pozları",
+          onClick: () => navigate({ to: "/pozlar" }),
+        },
+        {
           label: "Ölçü Birimleri",
           onClick: () => navigate({ to: "/olcubirimleri" }),
         },

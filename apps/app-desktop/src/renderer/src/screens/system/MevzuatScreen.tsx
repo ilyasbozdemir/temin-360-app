@@ -1,5 +1,13 @@
 import React, { useState } from 'react'
-import { BookOpen, Calculator, Coins, FileCode, FileText, Scale } from 'lucide-react'
+import {
+  BookOpen,
+  Calculator,
+  Coins,
+  FileCode,
+  FileText,
+  Library,
+  Scale
+} from 'lucide-react'
 import { InnerMenu, InnerMenuItem } from '../../components/ui/InnerMenu'
 import { KikLimitleriSection } from './KikLimitleriSection'
 import { OranlarTab } from './tabs/OranlarTab'
@@ -8,17 +16,25 @@ import { FiyatFarkiTab } from './tabs/FiyatFarkiTab'
 import { AsamalarTab } from './tabs/AsamalarTab'
 import { BentlerTab } from './tabs/BentlerTab'
 import { ButceKodlariTab } from './tabs/ButceKodlariTab'
+import { MevzuatKutuphanesiTab } from './tabs/MevzuatKutuphanesiTab'
 
 export function MevzuatScreen(): React.JSX.Element {
   const [activeTab, setActiveTab] = useState<
-    'limitler' | 'oranlar' | 'mali' | 'butcekodlari' | 'asamalar' | 'bentler' | 'fiyatfarki'
+    'kutuphane' | 'limitler' | 'oranlar' | 'mali' | 'butcekodlari' | 'asamalar' | 'bentler' | 'fiyatfarki'
   >(() => {
     const params = new URLSearchParams(window.location.search)
     const t = params.get('tab')
-    return (t as any) || 'limitler'
+    return (t as any) || 'kutuphane'
   })
 
   const menuItems: InnerMenuItem[] = [
+    {
+      id: 'kutuphane',
+      label: 'Mevzuat Kütüphanesi',
+      description: 'Kanun, yönetmelik, tebliğler',
+      icon: <Library className="w-4 h-4 shrink-0 text-teal-600 dark:text-teal-400" />
+    },
+    { id: 'div0', label: '', icon: null, isDivider: true },
     {
       id: 'limitler',
       label: 'KİK Kanun Limitleri',
@@ -91,6 +107,7 @@ export function MevzuatScreen(): React.JSX.Element {
 
         {/* SAĞ PANEL */}
         <div className="lg:col-span-9 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm min-h-[450px] flex flex-col overflow-y-auto max-h-[calc(100vh-220px)] custom-scrollbar flex-1">
+          {activeTab === 'kutuphane' && <MevzuatKutuphanesiTab />}
           {activeTab === 'limitler' && (
             <div className="p-6">
               <KikLimitleriSection />

@@ -210,12 +210,24 @@ function createWindow(): void {
     }
   })
 
+  let quitRequestTimeout: NodeJS.Timeout | null = null
+
   mainWindow.on('close', (event) => {
     if (isForceQuitting) return
     const currentFile = workspaceManager.getCurrentFilePath()
-    if (currentFile) {
+    if (currentFile && !mainWindow.webContents.isCrashed() && !mainWindow.webContents.isDestroyed()) {
       event.preventDefault()
       mainWindow.webContents.send('app:quit-request')
+
+      // Güvenlik: Eğer renderer donmuşsa veya yanıt vermiyorsa 2.5 saniye sonra zorla kapat
+      if (quitRequestTimeout) clearTimeout(quitRequestTimeout)
+      quitRequestTimeout = setTimeout(() => {
+        writeLog('WARN', 'Renderer quit response timed out, forcing window close')
+        isForceQuitting = true
+        if (!mainWindow.isDestroyed()) {
+          mainWindow.close()
+        }
+      }, 2500)
     }
   })
 
@@ -333,6 +345,19 @@ function createWindow(): void {
   })
   mainWindow.webContents.on('render-process-gone', (_event, details) => {
     console.error('Renderer process gone:', details)
+  })
+
+  mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
+    writeLog('WARN', 'Main window did-fail-load, recovering index.html', {
+      errorCode,
+      errorDescription,
+      validatedURL
+    })
+    if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+      mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+    } else {
+      mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    }
   })
 
   // HMR for renderer base on electron-vite cli.
@@ -550,10 +575,23 @@ if (!gotTheLock && !isMultiInstance) {
         const isCommandOrControl = input.control || input.meta
 
         if (isCommandOrControl && isR) {
-          if (input.shift) {
-            window.webContents.reloadIgnoringCache()
+          if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+            if (input.shift) {
+              window.webContents.reloadIgnoringCache()
+            } else {
+              window.webContents.reload()
+            }
           } else {
-            window.webContents.reload()
+            // Production packaged app safe reload
+            const currentURL = window.webContents.getURL()
+            if (currentURL.startsWith('file://')) {
+              const hashIndex = currentURL.indexOf('#')
+              const hashPart = hashIndex !== -1 ? currentURL.substring(hashIndex + 1) : ''
+              const indexFile = join(__dirname, '../renderer/index.html')
+              window.loadFile(indexFile, { hash: hashPart })
+            } else {
+              window.webContents.reload()
+            }
           }
           event.preventDefault()
         } else if (isCommandOrControl && isF) {

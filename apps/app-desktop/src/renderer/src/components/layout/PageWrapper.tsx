@@ -7,7 +7,7 @@ import { Footer } from './Footer'
 import { TabsBar } from './TabsBar'
 import { useWorkspaceStore } from '../../store/workspaceStore'
 import { useSettingsStore } from '../../store/settingsStore'
-import { getTabLabel, useTabStore } from '../../store/tabStore'
+import { getTabLabel, normalizePath, useTabStore } from '../../store/tabStore'
 import LauncherScreen from '../../screens/launcher/index.screen'
 import LockScreen from './LockScreen'
 import { DisclaimerModal } from '../modals/DisclaimerModal'
@@ -631,7 +631,7 @@ export function PageWrapper(): React.ReactNode {
 
               if (isExpired) return null
 
-              const cleanPath = tab.path.split('?')[0].split('#')[0]
+              const cleanPath = normalizePath(tab.path).split('?')[0]
               const Component = routeComponents[cleanPath]
               if (!Component) return null
 

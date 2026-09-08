@@ -18,8 +18,19 @@ interface TabState {
   clearDosyaTabs: () => void
 }
 
+export function normalizePath(rawPath: string): string {
+  if (!rawPath) return '/'
+  let p = rawPath
+  if (p.includes('#')) {
+    const parts = p.split('#')
+    p = parts[1] || '/'
+  }
+  if (!p.startsWith('/')) p = '/' + p
+  return p
+}
+
 export function getTabLabel(fullPath: string): string {
-  const path = fullPath.split('?')[0]
+  const path = normalizePath(fullPath).split('?')[0]
   if (path === APP_ROUTES.DASHBOARD) return 'Gösterge Paneli'
   if (path === APP_ROUTES.YENI_DOSYA) return 'Yeni Doğrudan Temin Dosyası'
   if (path.startsWith(APP_ROUTES.DOSYALAR)) return 'Doğrudan Temin'
@@ -78,6 +89,7 @@ export function getTabLabel(fullPath: string): string {
   if (path.startsWith(APP_ROUTES.TEMA)) return 'Tema Ayarları'
   if (path.startsWith(APP_ROUTES.TASINIR_KOD)) return 'Taşınır Kodları'
   if (path.startsWith(APP_ROUTES.OKAS_KOD)) return 'OKAS Kodları'
+  if (path.startsWith(APP_ROUTES.POZLAR)) return 'Birim Fiyat Pozları'
   if (path.startsWith(APP_ROUTES.SABLONLAR)) return 'Şablon Yönetimi'
   if (path.startsWith(APP_ROUTES.DEGISKENLER)) return 'Şablon Değişkenleri'
   if (path.startsWith(APP_ROUTES.KOMISYON_DETAY)) return 'Komisyon Detayı'
@@ -97,7 +109,8 @@ export const useTabStore = create<TabState>((set, get) => ({
   tabs: [{ path: APP_ROUTES.DASHBOARD, label: 'Gösterge Paneli' }],
   activeTabPath: APP_ROUTES.DASHBOARD,
 
-  addTab: (path) => {
+  addTab: (rawPath) => {
+    const path = normalizePath(rawPath)
     if (!path || path.startsWith('/launcher') || path.startsWith('/lockscreen')) return
 
     const { tabs } = get()

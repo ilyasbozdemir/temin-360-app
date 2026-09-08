@@ -22,6 +22,7 @@ import SablonlarScreen from '../../screens/sablonlar/index.screen'
 import DegiskenlerScreen from '../../screens/sablonlar/degiskenler.screen'
 import RaporlarScreen from '../../screens/raporlar/index.screen'
 import OkasKodScreen from '../../screens/okaskod/index.screen'
+import PozlarScreen from '../../screens/pozlar/index.screen'
 import OlcuBirimleriScreen from '../../screens/olcubirimleri/index.screen'
 import YeniMalzemeScreen from '../../screens/malzemeler/yeni.screen'
 import YeniDosyaScreen from '../../screens/dosyalar/yeni.screen'
@@ -59,6 +60,7 @@ export const routeComponents: Record<string, React.ComponentType> = {
   '/taslakyonetim': TaslakYoneticisi,
   '/raporlar': RaporlarScreen,
   '/okaskod': OkasKodScreen,
+  '/pozlar': PozlarScreen,
   '/mevzuat': MevzuatScreen,
   '/changelog': ChangelogScreen,
   '/import': ImportScreen,
@@ -86,5 +88,6 @@ export const routeComponents: Record<string, React.ComponentType> = {
   '/hakedis': HarcamaMerkeziScreen,
   '/harcama-merkezi': HarcamaMerkeziScreen,
   '/dt-surec-akisi': DTSurecAkisiScreen,
+  '/surec-akisi': DTSurecAkisiScreen,
   '/yardim': YardimScreen
 }

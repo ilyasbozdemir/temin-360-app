@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   BarChart3,
+  BookOpen,
   Building2,
   ChevronDown,
   ChevronLeft,
@@ -111,6 +112,7 @@ const menuGroups: MenuGroup[] = [
           },
           { name: "Taşınır Kodları", path: "/tasinirkod", icon: FolderTree },
           { name: "OKAS Kodları", path: "/okaskod", icon: Tag },
+          { name: "Birim Fiyat Pozları", path: "/pozlar", icon: BookOpen },
           { name: "Ölçü Birimleri", path: "/olcubirimleri", icon: Ruler },
         ],
       },

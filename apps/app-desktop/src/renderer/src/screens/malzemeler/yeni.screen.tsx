@@ -1,189 +1,223 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
+  Activity,
   ArrowLeft,
+  Barcode,
+  BookOpen,
+  Bot,
+  Briefcase,
+  Building2,
+  Calendar,
+  Check,
+  CheckCircle2,
+  Database,
+  Edit2,
+  FileImage,
+  Globe,
+  Image as ImageIcon,
+  Layers,
+  Link2,
+  Loader2,
+  PackageSearch,
+  PlusCircle,
   Save,
   Search,
-  PackageSearch,
-  Barcode,
-  Database,
-  Activity,
-  Edit2,
-  Bot,
-  Loader2,
-  PlusCircle,
-  Image as ImageIcon,
-  Trash2,
-  Upload,
-  Layers,
-  Calendar,
-  Building2,
-  Briefcase,
   Sparkles,
-  CheckCircle2
+  Trash2,
+  Upload
 } from 'lucide-react'
-import { Link, useNavigate, useSearch } from '@tanstack/react-router'
-import { useMalzemelerHooks, Kalem } from './malzemeler.hooks'
-import { useOlcuBirimleri, BIRIM_KATEGORILERI } from '../olcubirimleri/olcubirimleri.hooks'
-import { useOkasKodHooks } from '../okaskod/okaskod.hooks'
-import { useTasinirKodHooks } from '../tasinirkod/tasinirkod.hooks'
-import { cn } from '../../utils/cn'
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { Kalem, useMalzemelerHooks } from "./malzemeler.hooks";
+import {
+  BIRIM_KATEGORILERI,
+  useOlcuBirimleri,
+} from "../olcubirimleri/olcubirimleri.hooks";
+import { useOkasKodHooks } from "../okaskod/okaskod.hooks";
+import { useTasinirKodHooks } from "../tasinirkod/tasinirkod.hooks";
+import { cn } from "../../utils/cn";
+import { PozSecimModal, SelectedPozData } from "./components/PozSecimModal";
+import { getDinamikFiyatDonemleri } from "./components/pozKitaplari.data";
 
 const HIZMET_SINIFLARI = [
-  'Temizlik Hizmetleri',
-  'Özel Güvenlik Hizmetleri',
-  'Personel Çalıştırma / Destek Hizmetleri',
-  'Danışmanlık ve Müşavirlik',
-  'Yazılım, Bilişim ve Donanım Bakım',
-  'Araç Kiralama ve Taşıma',
-  'Yemek ve Organizasyon',
-  'Bakım, Onarım ve Teknik Servis',
-  'Sigorta ve Ekspertiz',
-  'Diğer Hizmet Alımları'
-]
+  "Temizlik Hizmetleri",
+  "Özel Güvenlik Hizmetleri",
+  "Personel Çalıştırma / Destek Hizmetleri",
+  "Danışmanlık ve Müşavirlik",
+  "Yazılım, Bilişim ve Donanım Bakım",
+  "Araç Kiralama ve Taşıma",
+  "Yemek ve Organizasyon",
+  "Bakım, Onarım ve Teknik Servis",
+  "Sigorta ve Ekspertiz",
+  "Diğer Hizmet Alımları",
+];
 
 const YAPI_SINIFLARI = [
-  'I-A / I-B (Geçici Yapılar, Basit Depolar)',
-  'II-A / II-B (Küçük Sanayi, Hangarlar)',
-  'III-A / III-B (Okullar, İdari Binalar, Konutlar)',
-  'IV-A / IV-B / IV-C (Hastaneler, Büyük Kamu Binaları)',
-  'V-A / V-B / V-C / V-D (Kompleks Tesisler, Üniversiteler)',
-  'İnşaat İmalatları',
-  'Mekanik Tesisat',
-  'Elektrik Tesisatı',
-  'Peyzaj ve Çevre Düzenleme',
-  'Altyapı ve Yol İşleri'
-]
+  "I-A / I-B (Geçici Yapılar, Basit Depolar)",
+  "II-A / II-B (Küçük Sanayi, Hangarlar)",
+  "III-A / III-B (Okullar, İdari Binalar, Konutlar)",
+  "IV-A / IV-B / IV-C (Hastaneler, Büyük Kamu Binaları)",
+  "V-A / V-B / V-C / V-D (Kompleks Tesisler, Üniversiteler)",
+  "İnşaat İmalatları",
+  "Mekanik Tesisat",
+  "Elektrik Tesisatı",
+  "Peyzaj ve Çevre Düzenleme",
+  "Altyapı ve Yol İşleri",
+];
 
 export default function YeniMalzemeScreen(): React.JSX.Element {
-  const search: any = useSearch({ strict: false })
-  const editId = search?.id ? Number(search.id) : null
+  const search: any = useSearch({ strict: false });
+  const editId = search?.id ? Number(search.id) : null;
 
-  const navigate = useNavigate()
-  const { addKalem, updateKalem, kalemList } = useMalzemelerHooks()
-  const { data: birimler = [] } = useOlcuBirimleri()
-  const { okasKodList, isLoading: isOkasLoading } = useOkasKodHooks()
-  const { tasinirKodList, isLoading: isTasinirLoading } = useTasinirKodHooks()
+  const navigate = useNavigate();
+  const { addKalem, updateKalem, kalemList } = useMalzemelerHooks();
+  const { data: birimler = [] } = useOlcuBirimleri();
+  const { okasKodList, isLoading: isOkasLoading } = useOkasKodHooks();
+  const { tasinirKodList, isLoading: isTasinirLoading } = useTasinirKodHooks();
 
   const generateBarcode = () =>
-    Math.floor(1000000000000 + Math.random() * 9000000000000).toString()
+    Math.floor(1000000000000 + Math.random() * 9000000000000).toString();
 
   // Form State
   const [formData, setFormData] = useState<Partial<Kalem>>(() => ({
-    tipi: 'Mal',
-    birim: 'Adet',
-    mensei: 'Yerli',
+    tipi: "Mal",
+    birim: "Adet",
+    mensei: "Yerli",
     kdv_orani: 20,
     aktif_mi: 1,
     personel_asgari_fark_oran: 0,
-    fiyat_donemi: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
+    fiyat_donemi: `${new Date().getFullYear()}-${
+      String(new Date().getMonth() + 1).padStart(2, "0")
+    }`,
     poz_yili: new Date().getFullYear(),
-    barkod_id: generateBarcode()
-  }))
+    barkod_id: generateBarcode(),
+  }));
 
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [imageInputMode, setImageInputMode] = useState<'upload' | 'url'>('upload')
+  const [customImageUrl, setCustomImageUrl] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     document.title = editId
-      ? 'Mal/Hizmet/Yapım İşi Düzenle - DT'
-      : 'Mal/Hizmet/Yapım İşi Ekle - DT'
+      ? "Mal/Hizmet/Yapım İşi Düzenle - DT"
+      : "Mal/Hizmet/Yapım İşi Ekle - DT";
     if (editId && kalemList.length > 0) {
-      const existing = kalemList.find((k) => k.id === editId)
+      const existing = kalemList.find((k) => k.id === editId);
       if (existing) {
         setFormData({
           ...existing,
-          tipi: existing.tipi?.startsWith('Hizmet')
-            ? 'Hizmet'
-            : existing.tipi === 'Yapım'
-              ? 'Yapım'
-              : 'Mal'
-        })
+          tipi: existing.tipi?.startsWith("Hizmet")
+            ? "Hizmet"
+            : existing.tipi === "Yapım"
+            ? "Yapım"
+            : "Mal",
+        });
       }
     }
-  }, [editId, kalemList])
+  }, [editId, kalemList]);
 
-  const [isOkasModalOpen, setIsOkasModalOpen] = useState(false)
-  const [isTasinirModalOpen, setIsTasinirModalOpen] = useState(false)
+  const [isOkasModalOpen, setIsOkasModalOpen] = useState(false);
+  const [isTasinirModalOpen, setIsTasinirModalOpen] = useState(false);
+  const [isPozModalOpen, setIsPozModalOpen] = useState(false);
 
-  const [isEditingBarkod, setIsEditingBarkod] = useState(false)
-  const [barkodError, setBarkodError] = useState('')
+  const handleSelectPoz = (data: SelectedPozData) => {
+    setFormData((prev) => ({
+      ...prev,
+      poz_no: data.poz_no,
+      kalem_adi: prev.kalem_adi && prev.kalem_adi !== "Yeni Kalem" ? prev.kalem_adi : data.kalem_adi,
+      poz_tanimi: data.poz_tanimi || data.kalem_adi,
+      birim: data.birim || prev.birim || "m²",
+      olcu_birimi: data.birim || prev.olcu_birimi || "m²",
+      yapi_sinifi: data.yapi_sinifi || prev.yapi_sinifi,
+      okas_kodu: data.okas_kodu || prev.okas_kodu,
+      poz_yili: data.poz_yili || prev.poz_yili || new Date().getFullYear(),
+      fiyat_donemi: data.fiyat_donemi || prev.fiyat_donemi || "2026/1",
+      ozelligi: data.ozelligi || prev.ozelligi || data.poz_tanimi
+    }));
+  };
+
+  const [isEditingBarkod, setIsEditingBarkod] = useState(false);
+  const [barkodError, setBarkodError] = useState("");
 
   const checkBarkod = async (barkod: string) => {
-    if (!barkod) return
+    if (!barkod) return;
     try {
       const res = await window.electron.ipcRenderer.invoke(
-        'db:query',
-        'SELECT id FROM TANIM_Kalem WHERE barkod_id = ? AND id != ?',
-        [barkod, editId || 0]
-      )
+        "db:query",
+        "SELECT id FROM TANIM_Kalem WHERE barkod_id = ? AND id != ?",
+        [barkod, editId || 0],
+      );
       if (res.success && res.data && res.data.length > 0) {
-        setBarkodError('Bu Barkod / ID sistemde zaten kayıtlı!')
+        setBarkodError("Bu Barkod / ID sistemde zaten kayıtlı!");
       } else {
-        setBarkodError('')
+        setBarkodError("");
       }
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-  }
+  };
 
-  const [okasSearch, setOkasSearch] = useState('')
-  const [tasinirSearch, setTasinirSearch] = useState('')
+  const [okasSearch, setOkasSearch] = useState("");
+  const [tasinirSearch, setTasinirSearch] = useState("");
 
   const filteredOkas = okasKodList
     .filter(
       (k) =>
         k.kod.includes(okasSearch) ||
-        (k.aciklama || '').toLowerCase().includes(okasSearch.toLowerCase())
+        (k.aciklama || "").toLowerCase().includes(okasSearch.toLowerCase()),
     )
-    .slice(0, 50)
+    .slice(0, 50);
 
   const filteredTasinir = tasinirKodList
     .filter(
       (k) =>
         k.tam_kod.includes(tasinirSearch) ||
-        (k.aciklama || '').toLowerCase().includes(tasinirSearch.toLowerCase())
+        (k.aciklama || "").toLowerCase().includes(tasinirSearch.toLowerCase()),
     )
-    .slice(0, 50)
+    .slice(0, 50);
 
-  const [isAiGeneratingOkas, setIsAiGeneratingOkas] = useState(false)
+  const [isAiGeneratingOkas, setIsAiGeneratingOkas] = useState(false);
 
   const handleAiOkasSuggest = async () => {
     if (!formData.kalem_adi) {
-      alert('Lütfen önce Mal/Hizmet/Yapım Adı alanını doldurunuz.')
-      return
+      alert("Lütfen önce Mal/Hizmet/Yapım Adı alanını doldurunuz.");
+      return;
     }
 
-    setIsAiGeneratingOkas(true)
+    setIsAiGeneratingOkas(true);
     try {
-      const prompt = `Aşağıdaki malzeme/hizmet/yapım işi için en uygun OKAS (Ortak Kamu Alımları Sözlüğü) kodunu ve kısa bir açıklamasını öner. Yalnızca şu formatta cevap ver: "KOD: AÇIKLAMA". Örnek: "15010101: A4 Kağıt". Tanım: ${formData.kalem_adi}`
-      const res = await window.api.aiGenerate({ prompt })
+      const prompt =
+        `Aşağıdaki malzeme/hizmet/yapım işi için en uygun OKAS (Ortak Kamu Alımları Sözlüğü) kodunu ve kısa bir açıklamasını öner. Yalnızca şu formatta cevap ver: "KOD: AÇIKLAMA". Örnek: "15010101: A4 Kağıt". Tanım: ${formData.kalem_adi}`;
+      const res = await window.api.aiGenerate({ prompt });
 
       if (res.success && res.data) {
-        const text = res.data.trim()
-        const codeMatch = text.match(/^([\d.]+)/)
+        const text = res.data.trim();
+        const codeMatch = text.match(/^([\d.]+)/);
         if (codeMatch && codeMatch[1]) {
-          setFormData({ ...formData, okas_kodu: codeMatch[1] })
-          alert(`Yapay Zeka Önerisi:\n\n${text}`)
+          setFormData({ ...formData, okas_kodu: codeMatch[1] });
+          alert(`Yapay Zeka Önerisi:\n\n${text}`);
         } else {
-          alert(`Yapay Zeka Önerisi:\n\n${text}\n\nLütfen listeden doğrulayarak seçin.`)
+          alert(
+            `Yapay Zeka Önerisi:\n\n${text}\n\nLütfen listeden doğrulayarak seçin.`,
+          );
         }
       } else {
-        alert('AI Hatası: ' + (res.error || 'Bilinmeyen hata'))
+        alert("AI Hatası: " + (res.error || "Bilinmeyen hata"));
       }
     } catch (err: any) {
-      alert('AI İsteği sırasında hata oluştu: ' + err.message)
+      alert("AI İsteği sırasında hata oluştu: " + err.message);
     } finally {
-      setIsAiGeneratingOkas(false)
+      setIsAiGeneratingOkas(false);
     }
-  }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (file.size > 2 * 1024 * 1024) {
-      alert('Görsel boyutu en fazla 2 MB olmalıdır.')
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Görsel boyutu en fazla 5 MB olmalıdır.')
       return
     }
 
@@ -195,66 +229,96 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
     reader.readAsDataURL(file)
   }
 
+  const handleApplyImageUrl = () => {
+    const url = customImageUrl.trim()
+    if (!url) {
+      alert('Lütfen geçerli bir görsel URL adresi giriniz.')
+      return
+    }
+    setFormData((prev) => ({ ...prev, gorsel_url: url }))
+    setCustomImageUrl('')
+  }
+
+  const handleImageDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    const file = e.dataTransfer.files?.[0]
+    if (file && file.type.startsWith('image/')) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Görsel boyutu en fazla 5 MB olmalıdır.')
+        return
+      }
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const base64 = event.target?.result as string
+        setFormData((prev) => ({ ...prev, gorsel_url: base64 }))
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const handleSave = async (stayOpen: boolean = false) => {
     if (!formData.kalem_adi || !formData.barkod_id) {
-      alert('Lütfen zorunlu alanları (Adı, Kodu/Barkodu) doldurunuz.')
-      return
+      alert("Lütfen zorunlu alanları (Adı, Kodu/Barkodu) doldurunuz.");
+      return;
     }
 
     if (barkodError && !editId) {
-      alert('Barkod hatasını düzeltmeden kaydedemezsiniz!')
-      return
+      alert("Barkod hatasını düzeltmeden kaydedemezsiniz!");
+      return;
     }
 
-    setIsSaving(true)
+    setIsSaving(true);
     try {
       const dataToSave = {
         ...formData,
-        tipi:
-          formData.tipi === 'Hizmet'
-            ? formData.is_personel
-              ? 'Hizmet, Personel'
-              : 'Hizmet, Diğer'
-            : formData.tipi || 'Mal',
-        birim: formData.olcu_birimi || formData.birim || 'Adet'
-      }
+        tipi: formData.tipi === "Hizmet"
+          ? formData.is_personel ? "Hizmet, Personel" : "Hizmet, Diğer"
+          : formData.tipi || "Mal",
+        birim: formData.olcu_birimi || formData.birim || "Adet",
+      };
 
       if (editId) {
-        await updateKalem({ ...dataToSave, id: editId } as any)
-        setToastMessage('Kayıt başarıyla güncellendi!')
+        await updateKalem({ ...dataToSave, id: editId } as any);
+        setToastMessage("Kayıt başarıyla güncellendi!");
       } else {
-        await addKalem(dataToSave)
-        setToastMessage('Yeni kalem başarıyla kaydedildi!')
+        await addKalem(dataToSave);
+        setToastMessage("Yeni kalem başarıyla kaydedildi!");
       }
 
       if (stayOpen) {
         // Reset form for next entry
         setFormData({
-          tipi: formData.tipi || 'Mal',
-          birim: 'Adet',
-          mensei: 'Yerli',
+          tipi: formData.tipi || "Mal",
+          birim: "Adet",
+          mensei: "Yerli",
           kdv_orani: 20,
           aktif_mi: 1,
           personel_asgari_fark_oran: 0,
-          fiyat_donemi: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
+          fiyat_donemi: `${new Date().getFullYear()}-${
+            String(new Date().getMonth() + 1).padStart(2, "0")
+          }`,
           poz_yili: new Date().getFullYear(),
-          barkod_id: generateBarcode()
-        })
+          barkod_id: generateBarcode(),
+        });
         if (editId) {
-          navigate({ to: '/malzemeler/yeni' } as any)
+          navigate({ to: "/malzemeler/yeni" } as any);
         }
-        setTimeout(() => setToastMessage(null), 4000)
+        setTimeout(() => setToastMessage(null), 4000);
       } else {
-        navigate({ to: '/malzemeler' })
+        navigate({ to: "/malzemeler" });
       }
     } catch (err: any) {
-      alert('Kaydedilirken hata oluştu: ' + err.message)
+      alert("Kaydedilirken hata oluştu: " + err.message);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
-  const selectedType = formData.tipi === 'Yapım' ? 'Yapım' : formData.tipi === 'Hizmet' ? 'Hizmet' : 'Mal'
+  const selectedType = formData.tipi === "Yapım"
+    ? "Yapım"
+    : formData.tipi === "Hizmet"
+    ? "Hizmet"
+    : "Mal";
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50/50 dark:bg-slate-900/50 animate-in fade-in duration-300">
@@ -278,18 +342,23 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
             </Link>
             <div>
               <h1 className="text-2xl font-bold text-slate-850 dark:text-white flex items-center gap-2.5">
-                <PackageSearch className="text-blue-600 dark:text-blue-400" size={26} />
-                {editId ? 'Kaydı Düzenle' : 'Yeni Kayıt'} (Mal / Hizmet / Yapım İşi)
+                <PackageSearch
+                  className="text-blue-600 dark:text-blue-400"
+                  size={26}
+                />
+                {editId ? "Kaydı Düzenle" : "Yeni Kayıt"}{" "}
+                (Mal / Hizmet / Yapım İşi)
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Yaklaşık maliyet ve teklif süreçleri için doğrudan temin kalemi tanımlayın
+                Yaklaşık maliyet ve teklif süreçleri için doğrudan temin kalemi
+                tanımlayın
               </p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
             <button
-              onClick={() => navigate({ to: '/malzemeler' })}
+              onClick={() => navigate({ to: "/malzemeler" })}
               className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
             >
               İptal
@@ -312,8 +381,10 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
               disabled={isSaving}
               className="px-5 py-2 text-xs font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-sm hover:shadow-md flex items-center gap-1.5"
             >
-              {isSaving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
-              {editId ? 'Değişiklikleri Kaydet' : 'Kaydet ve Kapat'}
+              {isSaving
+                ? <Loader2 size={15} className="animate-spin" />
+                : <Save size={15} />}
+              {editId ? "Değişiklikleri Kaydet" : "Kaydet ve Kapat"}
             </button>
           </div>
         </div>
@@ -330,20 +401,21 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <button
                 type="button"
-                onClick={() => setFormData({ ...formData, tipi: 'Mal', is_personel: 0 })}
+                onClick={() =>
+                  setFormData({ ...formData, tipi: "Mal", is_personel: 0 })}
                 className={cn(
-                  'flex items-center gap-3.5 p-4 rounded-xl border-2 transition-all text-left cursor-pointer',
-                  selectedType === 'Mal'
-                    ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-950/20 text-blue-900 dark:text-blue-200 shadow-sm ring-1 ring-blue-500/20'
-                    : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/50 dark:bg-slate-950/20 text-slate-700 dark:text-slate-300'
+                  "flex items-center gap-3.5 p-4 rounded-xl border-2 transition-all text-left cursor-pointer",
+                  selectedType === "Mal"
+                    ? "border-blue-600 bg-blue-50/50 dark:bg-blue-950/20 text-blue-900 dark:text-blue-200 shadow-sm ring-1 ring-blue-500/20"
+                    : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/50 dark:bg-slate-950/20 text-slate-700 dark:text-slate-300",
                 )}
               >
                 <div
                   className={cn(
-                    'w-10 h-10 rounded-lg flex items-center justify-center font-bold text-base shrink-0',
-                    selectedType === 'Mal'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                    "w-10 h-10 rounded-lg flex items-center justify-center font-bold text-base shrink-0",
+                    selectedType === "Mal"
+                      ? "bg-blue-600 text-white"
+                      : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400",
                   )}
                 >
                   <PackageSearch className="w-5 h-5" />
@@ -358,20 +430,20 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
 
               <button
                 type="button"
-                onClick={() => setFormData({ ...formData, tipi: 'Hizmet' })}
+                onClick={() => setFormData({ ...formData, tipi: "Hizmet" })}
                 className={cn(
-                  'flex items-center gap-3.5 p-4 rounded-xl border-2 transition-all text-left cursor-pointer',
-                  selectedType === 'Hizmet'
-                    ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-900 dark:text-indigo-200 shadow-sm ring-1 ring-indigo-500/20'
-                    : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/50 dark:bg-slate-950/20 text-slate-700 dark:text-slate-300'
+                  "flex items-center gap-3.5 p-4 rounded-xl border-2 transition-all text-left cursor-pointer",
+                  selectedType === "Hizmet"
+                    ? "border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-900 dark:text-indigo-200 shadow-sm ring-1 ring-indigo-500/20"
+                    : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/50 dark:bg-slate-950/20 text-slate-700 dark:text-slate-300",
                 )}
               >
                 <div
                   className={cn(
-                    'w-10 h-10 rounded-lg flex items-center justify-center font-bold text-base shrink-0',
-                    selectedType === 'Hizmet'
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                    "w-10 h-10 rounded-lg flex items-center justify-center font-bold text-base shrink-0",
+                    selectedType === "Hizmet"
+                      ? "bg-indigo-600 text-white"
+                      : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400",
                   )}
                 >
                   <Briefcase className="w-5 h-5" />
@@ -386,20 +458,21 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
 
               <button
                 type="button"
-                onClick={() => setFormData({ ...formData, tipi: 'Yapım', is_personel: 0 })}
+                onClick={() =>
+                  setFormData({ ...formData, tipi: "Yapım", is_personel: 0 })}
                 className={cn(
-                  'flex items-center gap-3.5 p-4 rounded-xl border-2 transition-all text-left cursor-pointer',
-                  selectedType === 'Yapım'
-                    ? 'border-amber-600 bg-amber-50/50 dark:bg-amber-950/20 text-amber-900 dark:text-amber-200 shadow-sm ring-1 ring-amber-500/20'
-                    : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/50 dark:bg-slate-950/20 text-slate-700 dark:text-slate-300'
+                  "flex items-center gap-3.5 p-4 rounded-xl border-2 transition-all text-left cursor-pointer",
+                  selectedType === "Yapım"
+                    ? "border-amber-600 bg-amber-50/50 dark:bg-amber-950/20 text-amber-900 dark:text-amber-200 shadow-sm ring-1 ring-amber-500/20"
+                    : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/50 dark:bg-slate-950/20 text-slate-700 dark:text-slate-300",
                 )}
               >
                 <div
                   className={cn(
-                    'w-10 h-10 rounded-lg flex items-center justify-center font-bold text-base shrink-0',
-                    selectedType === 'Yapım'
-                      ? 'bg-amber-600 text-white'
-                      : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                    "w-10 h-10 rounded-lg flex items-center justify-center font-bold text-base shrink-0",
+                    selectedType === "Yapım"
+                      ? "bg-amber-600 text-white"
+                      : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400",
                   )}
                 >
                   <Building2 className="w-5 h-5" />
@@ -418,18 +491,21 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <Barcode className="text-blue-600 dark:text-blue-400" size={20} />
+                <Barcode
+                  className="text-blue-600 dark:text-blue-400"
+                  size={20}
+                />
                 <h2 className="text-base font-bold text-slate-800 dark:text-white">
                   Kimlik & Sınıflandırma
                 </h2>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                  {selectedType === 'Mal'
-                    ? '📦 Mal Kalemi'
-                    : selectedType === 'Hizmet'
-                      ? '💼 Hizmet Kalemi'
-                      : '🏗️ Yapım Kalemi'}
+                  {selectedType === "Mal"
+                    ? "📦 Mal Kalemi"
+                    : selectedType === "Hizmet"
+                    ? "💼 Hizmet Kalemi"
+                    : "🏗️ Yapım Kalemi"}
                 </span>
               </div>
             </div>
@@ -439,107 +515,185 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-                    Barkod / Benzersiz ID <span className="text-red-500">*</span>
+                    Barkod / Benzersiz ID{" "}
+                    <span className="text-red-500">*</span>
                   </label>
-                  {!isEditingBarkod ? (
-                    <div
-                      onClick={() => setIsEditingBarkod(true)}
-                      className="cursor-pointer group flex items-center justify-between px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-400 transition-colors"
-                      title="Değiştirmek için tıklayın"
-                    >
-                      <span
-                        className={`font-mono text-base tracking-wider ${
-                          barkodError
-                            ? 'text-red-600 font-bold'
-                            : 'text-slate-800 dark:text-slate-200 font-bold'
-                        }`}
+                  {!isEditingBarkod
+                    ? (
+                      <div
+                        onClick={() => setIsEditingBarkod(true)}
+                        className="cursor-pointer group flex items-center justify-between px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-400 transition-colors"
+                        title="Değiştirmek için tıklayın"
                       >
-                        {formData.barkod_id}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                          <Edit2 size={12} /> Düzenle
-                        </span>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setFormData((prev) => ({ ...prev, barkod_id: generateBarcode() }))
-                            setBarkodError('')
-                          }}
-                          className="text-[10px] bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-100"
+                        <span
+                          className={`font-mono text-base tracking-wider ${
+                            barkodError
+                              ? "text-red-600 font-bold"
+                              : "text-slate-800 dark:text-slate-200 font-bold"
+                          }`}
                         >
-                          Yeni Üret
-                        </button>
+                          {formData.barkod_id}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                            <Edit2 size={12} /> Düzenle
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFormData((prev) => ({
+                                ...prev,
+                                barkod_id: generateBarcode(),
+                              }));
+                              setBarkodError("");
+                            }}
+                            className="text-[10px] bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-100"
+                          >
+                            Yeni Üret
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <input
-                      type="text"
-                      autoFocus
-                      value={formData.barkod_id || ''}
-                      onChange={(e) => {
-                        setFormData({ ...formData, barkod_id: e.target.value })
-                        setBarkodError('')
-                      }}
-                      onBlur={(e) => {
-                        setIsEditingBarkod(false)
-                        checkBarkod(e.target.value)
-                      }}
-                      className={`w-full px-3.5 py-2 bg-white dark:bg-slate-950 border ${
-                        barkodError ? 'border-red-500' : 'border-slate-300 dark:border-slate-700'
-                      } rounded-xl text-slate-900 dark:text-white font-mono text-base tracking-wider font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
-                    />
-                  )}
-                  {barkodError ? (
-                    <p className="text-xs text-red-500 mt-1 font-medium">{barkodError}</p>
-                  ) : (
-                    <p className="text-[11px] text-slate-400 mt-1">
-                      Doğrudan temin ve teklif fişlerinde bu tekil numarayla takip edilir.
-                    </p>
-                  )}
+                    )
+                    : (
+                      <input
+                        type="text"
+                        autoFocus
+                        value={formData.barkod_id || ""}
+                        onChange={(e) => {
+                          setFormData({
+                            ...formData,
+                            barkod_id: e.target.value,
+                          });
+                          setBarkodError("");
+                        }}
+                        onBlur={(e) => {
+                          setIsEditingBarkod(false);
+                          checkBarkod(e.target.value);
+                        }}
+                        className={`w-full px-3.5 py-2 bg-white dark:bg-slate-950 border ${
+                          barkodError
+                            ? "border-red-500"
+                            : "border-slate-300 dark:border-slate-700"
+                        } rounded-xl text-slate-900 dark:text-white font-mono text-base tracking-wider font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
+                      />
+                    )}
+                  {barkodError
+                    ? (
+                      <p className="text-xs text-red-500 mt-1 font-medium">
+                        {barkodError}
+                      </p>
+                    )
+                    : (
+                      <p className="text-[11px] text-slate-400 mt-1">
+                        Doğrudan temin ve teklif fişlerinde bu tekil numarayla
+                        takip edilir.
+                      </p>
+                    )}
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-                    {selectedType === 'Mal'
-                      ? 'Mal / Malzeme Adı'
-                      : selectedType === 'Hizmet'
-                        ? 'Hizmet İşinin Adı / Tanımı'
-                        : 'Yapım İşi / İmalat Adı'}{' '}
+                    {selectedType === "Mal"
+                      ? "Mal / Malzeme Adı"
+                      : selectedType === "Hizmet"
+                      ? "Hizmet İşinin Adı / Tanımı"
+                      : "Yapım İşi / İmalat Adı"}{" "}
                     <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
-                    value={formData.kalem_adi || ''}
-                    onChange={(e) => setFormData({ ...formData, kalem_adi: e.target.value })}
+                    value={formData.kalem_adi || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, kalem_adi: e.target.value })}
                     className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder={
-                      selectedType === 'Mal'
-                        ? 'Örn: A4 Fotokopi Kağıdı 80gr 500lü Paket'
-                        : selectedType === 'Hizmet'
-                          ? 'Örn: Hizmet Binası 12 Aylık Genel Temizlik Hizmeti'
-                          : 'Örn: Hizmet Binası Çatı İzolasyon ve Çinko Dere Onarımı'
-                    }
+                    placeholder={selectedType === "Mal"
+                      ? "Örn: A4 Fotokopi Kağıdı 80gr 500lü Paket"
+                      : selectedType === "Hizmet"
+                      ? "Örn: Hizmet Binası 12 Aylık Genel Temizlik Hizmeti"
+                      : "Örn: Hizmet Binası Çatı İzolasyon ve Çinko Dere Onarımı"}
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                      Fiyat Araştırma Dönemi
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                        Fiyat Araştırma Dönemi
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        Birim Fiyat / KİK
+                      </span>
                     </label>
-                    <input
-                      type="text"
-                      value={formData.fiyat_donemi || ''}
-                      onChange={(e) => setFormData({ ...formData, fiyat_donemi: e.target.value })}
-                      placeholder="Örn: 2026-08 veya 2026/8"
-                      className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-800 dark:text-slate-200"
-                    />
-                    <p className="text-[10px] text-slate-400 mt-1">
-                      KİK piyasa araştırması güncellik kontrolü için
-                    </p>
+                    <div className="flex gap-1.5">
+                      <input
+                        type="text"
+                        value={formData.fiyat_donemi || ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            fiyat_donemi: e.target.value,
+                          })}
+                        placeholder={selectedType === "Yapım"
+                          ? "Örn: 2026/1"
+                          : "Örn: 2026-08"}
+                        className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-slate-200"
+                      />
+                    </div>
+                    {/* Hızlı Dönem Seçimi */}
+                    <div className="flex items-center gap-1 mt-1.5 flex-wrap">
+                      <span className="text-[10px] text-slate-400">Hızlı:</span>
+                      {selectedType === "Yapım"
+                        ? (
+                          <>
+                            {[
+                              `${new Date().getFullYear()}/1`,
+                              `${new Date().getFullYear()}/2`,
+                              `${new Date().getFullYear()}`,
+                              `${new Date().getFullYear() - 1}`,
+                            ].map((p) => (
+                              <button
+                                key={p}
+                                type="button"
+                                onClick={() =>
+                                  setFormData({
+                                    ...formData,
+                                    fiyat_donemi: p,
+                                    poz_yili: parseInt(p, 10) ||
+                                      new Date().getFullYear(),
+                                  })}
+                                className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 hover:bg-blue-100 dark:hover:bg-blue-900 border border-slate-200 dark:border-slate-700 text-[10px] font-mono font-bold text-slate-700 dark:text-slate-300 transition-colors"
+                              >
+                                {p}
+                              </button>
+                            ))}
+                          </>
+                        )
+                        : (
+                          <>
+                            {[
+                              `${new Date().getFullYear()}-${
+                                String(new Date().getMonth() + 1).padStart(
+                                  2,
+                                  "0",
+                                )
+                              }`,
+                              `${new Date().getFullYear()} Yılı`,
+                            ].map((p) => (
+                              <button
+                                key={p}
+                                type="button"
+                                onClick={() =>
+                                  setFormData({ ...formData, fiyat_donemi: p })}
+                                className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 hover:bg-blue-100 dark:hover:bg-blue-900 border border-slate-200 dark:border-slate-700 text-[10px] font-mono font-bold text-slate-700 dark:text-slate-300 transition-colors"
+                              >
+                                {p}
+                              </button>
+                            ))}
+                          </>
+                        )}
+                    </div>
                   </div>
 
                   <div>
@@ -551,12 +705,13 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                         <button
                           key={rate}
                           type="button"
-                          onClick={() => setFormData({ ...formData, kdv_orani: rate })}
+                          onClick={() =>
+                            setFormData({ ...formData, kdv_orani: rate })}
                           className={cn(
-                            'flex-1 py-1.5 rounded-lg text-xs font-bold border transition-colors',
+                            "flex-1 py-1.5 rounded-lg text-xs font-bold border transition-colors",
                             formData.kdv_orani === rate
-                              ? 'bg-blue-600 text-white border-blue-600'
-                              : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100'
+                              ? "bg-blue-600 text-white border-blue-600"
+                              : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100",
                           )}
                         >
                           %{rate}
@@ -569,7 +724,7 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
 
               {/* Sağ Sütun: Tür Bazlı Kodlar & AI */}
               <div className="space-y-4">
-                {selectedType === 'Mal' && (
+                {selectedType === "Mal" && (
                   <>
                     <div>
                       <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
@@ -578,10 +733,12 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                       <div className="flex gap-2">
                         <input
                           type="text"
-                          value={formData.tasinir_kodu || ''}
+                          value={formData.tasinir_kodu || ""}
                           onChange={(e) =>
-                            setFormData({ ...formData, tasinir_kodu: e.target.value })
-                          }
+                            setFormData({
+                              ...formData,
+                              tasinir_kodu: e.target.value,
+                            })}
                           className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white"
                           placeholder="Örn: 150.01.01.01"
                         />
@@ -598,13 +755,17 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
 
                     <div>
                       <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-                        OKAS Kodu
+                        OKAS Kodu (CPV)
                       </label>
                       <div className="flex gap-2">
                         <input
                           type="text"
-                          value={formData.okas_kodu || ''}
-                          onChange={(e) => setFormData({ ...formData, okas_kodu: e.target.value })}
+                          value={formData.okas_kodu || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              okas_kodu: e.target.value,
+                            })}
                           className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white"
                           placeholder="Örn: 30192700"
                         />
@@ -622,11 +783,9 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                           disabled={isAiGeneratingOkas}
                           className="px-3 py-2 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 rounded-xl hover:bg-purple-100 transition-colors flex items-center gap-1.5 shrink-0 border border-purple-200 dark:border-purple-800 text-xs font-semibold disabled:opacity-50"
                         >
-                          {isAiGeneratingOkas ? (
-                            <Loader2 size={14} className="animate-spin" />
-                          ) : (
-                            <Sparkles size={14} />
-                          )}
+                          {isAiGeneratingOkas
+                            ? <Loader2 size={14} className="animate-spin" />
+                            : <Sparkles size={14} />}
                           AI Öneri
                         </button>
                       </div>
@@ -634,52 +793,143 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                   </>
                 )}
 
-                {selectedType === 'Yapım' && (
+                {selectedType === "Yapım" && (
                   <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-                          Bakanlık Poz No <span className="text-amber-600">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.poz_no || ''}
-                          onChange={(e) => setFormData({ ...formData, poz_no: e.target.value })}
-                          placeholder="Örn: 15.150.1002"
-                          className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-slate-200"
-                        />
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-amber-50/80 to-orange-50/40 dark:from-amber-950/30 dark:to-orange-950/20 border border-amber-200/80 dark:border-amber-800/50 space-y-4 shadow-xs">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-amber-200/50 dark:border-amber-900/30">
+                        <span className="text-xs font-bold text-amber-950 dark:text-amber-300 flex items-center gap-1.5">
+                          <Building2 className="w-4 h-4 text-amber-600" /> Poz ve İmalat Sınıflandırması
+                        </span>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setIsPozModalOpen(true)}
+                            className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold shadow-xs transition-all flex items-center gap-1"
+                          >
+                            <BookOpen size={13} /> Resmî Poz Kitapları
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIsPozModalOpen(true)}
+                            className="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-amber-50 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700 rounded-lg text-xs font-bold shadow-xs transition-all flex items-center gap-1"
+                          >
+                            <Sparkles size={13} /> Özel Poz Tanımla
+                          </button>
+                        </div>
                       </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-                          Poz Kitabı Yılı
-                        </label>
-                        <input
-                          type="number"
-                          value={formData.poz_yili || new Date().getFullYear()}
-                          onChange={(e) =>
-                            setFormData({ ...formData, poz_yili: Number(e.target.value) })
-                          }
-                          className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-800 dark:text-slate-200"
-                        />
+
+                      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                        {/* Poz Numarası */}
+                        <div className="sm:col-span-5">
+                          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Poz Numarası <span className="text-amber-600">*</span>
+                          </label>
+                          <div className="flex gap-1.5">
+                            <input
+                              type="text"
+                              value={formData.poz_no || ""}
+                              onChange={(e) =>
+                                setFormData({
+                                  ...formData,
+                                  poz_no: e.target.value,
+                                })}
+                              placeholder="Örn: 15.150.1002 veya ÖZEL.01"
+                              className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-amber-500/40"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setIsPozModalOpen(true)}
+                              className="px-2.5 py-2 bg-amber-100 dark:bg-amber-900/40 text-amber-900 dark:text-amber-200 hover:bg-amber-200 rounded-xl text-xs font-bold shrink-0 transition-colors"
+                              title="Poz Kütüphanesinden Seç"
+                            >
+                              <Search size={14} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Fiyat Araştırma Dönemi */}
+                        <div className="sm:col-span-4">
+                          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Fiyat Araştırma Dönemi
+                          </label>
+                          <input
+                            type="text"
+                            list="yeni-fiyat-donem-list"
+                            value={formData.fiyat_donemi || `${formData.poz_yili || new Date().getFullYear()}/1`}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                fiyat_donemi: e.target.value,
+                              })}
+                            placeholder={`Örn: ${formData.poz_yili || new Date().getFullYear()}/1`}
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-amber-500"
+                          />
+                          <datalist id="yeni-fiyat-donem-list">
+                            {getDinamikFiyatDonemleri(formData.poz_yili || new Date().getFullYear()).map((d) => (
+                              <option key={d.kod} value={d.kod}>
+                                {d.etiket}
+                              </option>
+                            ))}
+                          </datalist>
+                        </div>
+
+                        {/* Poz Kitabı Yılı */}
+                        <div className="sm:col-span-3">
+                          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Poz / Bülten Yılı
+                          </label>
+                          <input
+                            type="number"
+                            value={formData.poz_yili || new Date().getFullYear()}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                poz_yili: Number(e.target.value),
+                              })}
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-800 dark:text-slate-200 text-center font-bold"
+                          />
+                        </div>
                       </div>
                     </div>
 
+                    {/* OKAS Kodu for Yapım İşi */}
                     <div>
                       <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-                        Poz Grubu Kalıcı Referans ID
+                        OKAS Kodu (İnşaat / İmalat CPV)
                       </label>
-                      <input
-                        type="text"
-                        value={formData.poz_grubu_ref_id || ''}
-                        onChange={(e) =>
-                          setFormData({ ...formData, poz_grubu_ref_id: e.target.value })
-                        }
-                        placeholder="Örn: YPM-IZOLASYON-CATI (Yıllar arası fiyat/kod takibi için)"
-                        className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-800 dark:text-slate-200"
-                      />
-                      <p className="text-[10px] text-slate-400 mt-1">
-                        Bakanlık poz numarası yıllık değişse dahi kalıcı referansla geçmişe bağlanır.
-                      </p>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={formData.okas_kodu || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              okas_kodu: e.target.value,
+                            })}
+                          className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white"
+                          placeholder="Örn: 45000000 veya 45261210"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setIsOkasModalOpen(true)}
+                          className="px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-200 transition-colors flex items-center gap-1.5 shrink-0 border border-slate-200 dark:border-slate-700 text-xs font-semibold"
+                        >
+                          <Search size={14} />
+                          Listeden
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleAiOkasSuggest}
+                          disabled={isAiGeneratingOkas}
+                          className="px-3 py-2 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 rounded-xl hover:bg-purple-100 transition-colors flex items-center gap-1.5 shrink-0 border border-purple-200 dark:border-purple-800 text-xs font-semibold disabled:opacity-50"
+                        >
+                          {isAiGeneratingOkas
+                            ? <Loader2 size={14} className="animate-spin" />
+                            : <Sparkles size={14} />}
+                          AI Öneri
+                        </button>
+                      </div>
                     </div>
 
                     <div>
@@ -687,8 +937,12 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                         Yapı Sınıfı / İmalat Grubu
                       </label>
                       <select
-                        value={formData.yapi_sinifi || ''}
-                        onChange={(e) => setFormData({ ...formData, yapi_sinifi: e.target.value })}
+                        value={formData.yapi_sinifi || ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            yapi_sinifi: e.target.value,
+                          })}
                         className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200"
                       >
                         <option value="">(Seçiniz veya Genel Yapım)</option>
@@ -699,20 +953,39 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                         ))}
                       </select>
                     </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
+                        Poz Grubu Kalıcı Referans ID
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.poz_grubu_ref_id || ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            poz_grubu_ref_id: e.target.value,
+                          })}
+                        placeholder="Örn: YPM-IZOLASYON-CATI (Yıllar arası fiyat/kod takibi için)"
+                        className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-800 dark:text-slate-200"
+                      />
+                    </div>
                   </>
                 )}
 
-                {selectedType === 'Hizmet' && (
+                {selectedType === "Hizmet" && (
                   <>
                     <div>
                       <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
                         Hizmet Sınıflandırması
                       </label>
                       <select
-                        value={formData.hizmet_sinifi || ''}
+                        value={formData.hizmet_sinifi || ""}
                         onChange={(e) =>
-                          setFormData({ ...formData, hizmet_sinifi: e.target.value })
-                        }
+                          setFormData({
+                            ...formData,
+                            hizmet_sinifi: e.target.value,
+                          })}
                         className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200"
                       >
                         <option value="">(Hizmet Sınıfı Seçiniz)</option>
@@ -724,6 +997,45 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                       </select>
                     </div>
 
+                    {/* OKAS Kodu for Hizmet */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
+                        OKAS Kodu (Hizmet CPV)
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={formData.okas_kodu || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              okas_kodu: e.target.value,
+                            })}
+                          className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white"
+                          placeholder="Örn: 90910000 veya 79713000"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setIsOkasModalOpen(true)}
+                          className="px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-200 transition-colors flex items-center gap-1.5 shrink-0 border border-slate-200 dark:border-slate-700 text-xs font-semibold"
+                        >
+                          <Search size={14} />
+                          Listeden
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleAiOkasSuggest}
+                          disabled={isAiGeneratingOkas}
+                          className="px-3 py-2 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 rounded-xl hover:bg-purple-100 transition-colors flex items-center gap-1.5 shrink-0 border border-purple-200 dark:border-purple-800 text-xs font-semibold disabled:opacity-50"
+                        >
+                          {isAiGeneratingOkas
+                            ? <Loader2 size={14} className="animate-spin" />
+                            : <Sparkles size={14} />}
+                          AI Öneri
+                        </button>
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
@@ -731,8 +1043,9 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                         </label>
                         <input
                           type="text"
-                          value={formData.sure || ''}
-                          onChange={(e) => setFormData({ ...formData, sure: e.target.value })}
+                          value={formData.sure || ""}
+                          onChange={(e) =>
+                            setFormData({ ...formData, sure: e.target.value })}
                           placeholder="Örn: 12 Ay, 30 Gün"
                           className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200"
                         />
@@ -745,71 +1058,85 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                         <input
                           type="number"
                           min="0"
-                          value={formData.personel_sayisi || ''}
+                          value={formData.personel_sayisi || ""}
                           onChange={(e) =>
                             setFormData({
                               ...formData,
-                              personel_sayisi: e.target.value ? Number(e.target.value) : null
-                            })
-                          }
+                              personel_sayisi: e.target.value
+                                ? Number(e.target.value)
+                                : null,
+                            })}
                           placeholder="Örn: 3"
                           className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200"
                         />
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 p-3 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-xl">
-                      <input
-                        type="checkbox"
-                        id="is_personel_check"
-                        checked={!!formData.is_personel}
-                        onChange={(e) =>
-                          setFormData({ ...formData, is_personel: e.target.checked ? 1 : 0 })
-                        }
-                        className="rounded border-indigo-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
-                      />
-                      <label
-                        htmlFor="is_personel_check"
-                        className="text-xs font-semibold text-indigo-900 dark:text-indigo-200 cursor-pointer"
-                      >
-                        Personel Çalıştırılmasına Dayalı Hizmet Alımı (Asgari Ücret Farkı Tablosu)
-                      </label>
-                    </div>
-
-                    {formData.is_personel === 1 && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-indigo-50/30 rounded-xl border border-indigo-100">
-                        <div>
-                          <label className="block text-[11px] font-semibold text-indigo-900 mb-1">
-                            İŞKUR / Meslek Kodu
-                          </label>
+                    {/* Personel Çalıştırılacaksa Ücretlendirme Box */}
+                    <div className="p-3.5 bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200/80 dark:border-indigo-800/60 rounded-xl space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <label
+                          htmlFor="is_personel_check"
+                          className="flex items-center gap-2.5 text-xs font-bold text-indigo-950 dark:text-indigo-200 cursor-pointer"
+                        >
                           <input
-                            type="text"
-                            value={formData.meslek_kodu || ''}
-                            onChange={(e) =>
-                              setFormData({ ...formData, meslek_kodu: e.target.value })
-                            }
-                            placeholder="Örn: 9112.01"
-                            className="w-full px-3 py-1.5 bg-white border border-indigo-200 rounded-lg text-xs"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[11px] font-semibold text-indigo-900 mb-1">
-                            Asgari Ücret Fark Oranı (%)
-                          </label>
-                          <input
-                            type="number"
-                            value={formData.personel_asgari_fark_oran || 0}
+                            type="checkbox"
+                            id="is_personel_check"
+                            checked={!!formData.is_personel}
                             onChange={(e) =>
                               setFormData({
                                 ...formData,
-                                personel_asgari_fark_oran: Number(e.target.value)
-                              })
-                            }
-                            className="w-full px-3 py-1.5 bg-white border border-indigo-200 rounded-lg text-xs"
+                                is_personel: e.target.checked ? 1 : 0,
+                              })}
+                            className="rounded border-indigo-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
                           />
-                        </div>
+                          <span>Personel çalıştırılacaksa ücretlendirme</span>
+                        </label>
+
+                        {formData.is_personel === 1 && (
+                          <div className="flex items-center gap-1.5 text-xs font-semibold text-indigo-900 dark:text-indigo-200 pl-6 sm:pl-0">
+                            <span>Asgari Ücret / Brüt Asgari Ücretin %</span>
+                            <input
+                              type="number"
+                              value={formData.personel_asgari_fark_oran ?? 0}
+                              onChange={(e) =>
+                                setFormData({
+                                  ...formData,
+                                  personel_asgari_fark_oran:
+                                    parseFloat(e.target.value) || 0,
+                                })}
+                              className="w-16 px-2 py-1 bg-white dark:bg-slate-900 border border-indigo-300 dark:border-indigo-700 rounded-lg text-xs font-bold font-mono text-center text-indigo-900 dark:text-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            />
+                            <span>fazlası</span>
+                          </div>
+                        )}
                       </div>
-                    )}
+
+                      {formData.is_personel === 1 && (
+                        <div className="pt-2 border-t border-indigo-100 dark:border-indigo-900/40 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[11px] font-semibold text-indigo-900 dark:text-indigo-300 mb-1">
+                              İŞKUR / Meslek Kodu
+                            </label>
+                            <input
+                              type="text"
+                              value={formData.meslek_kodu || ""}
+                              onChange={(e) =>
+                                setFormData({
+                                  ...formData,
+                                  meslek_kodu: e.target.value,
+                                })}
+                              placeholder="Örn: 9112.01 (Temizlik Görevlisi)"
+                              className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-800 rounded-lg text-xs text-slate-800 dark:text-slate-200"
+                            />
+                          </div>
+                          <div className="flex items-center text-[11px] text-slate-500 dark:text-slate-400 pt-4">
+                            KİK Fiyat Farkı ve Asgari Ücret Tespit Komisyonu
+                            katsayıları ile otomatik hesaplanır.
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </>
                 )}
               </div>
@@ -821,7 +1148,10 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
             {/* Sol: Birim & Menşei & Notlar (2 Sütun Genişlik) */}
             <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 space-y-5">
               <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100 dark:border-slate-800">
-                <Database className="text-blue-600 dark:text-blue-400" size={18} />
+                <Database
+                  className="text-blue-600 dark:text-blue-400"
+                  size={18}
+                />
                 <h3 className="text-sm font-bold text-slate-800 dark:text-white">
                   Ölçü Birimi & Teknik Özellikler
                 </h3>
@@ -833,77 +1163,87 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                     Ölçü Birimi <span className="text-red-500">*</span>
                   </label>
                   <select
-                    value={formData.birim || 'Adet'}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        birim: e.target.value,
-                        olcu_birimi: e.target.value
-                      })
-                    }
+                    value={formData.birim || "Adet"}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      birim: e.target.value,
+                      olcu_birimi: e.target.value,
+                    })}
                     className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {/* Türe Göre Önerilen Resmi Birimler */}
-                    {selectedType === 'Yapım' ? (
-                      <optgroup label="⭐ Yapım İşi İçin Sık Kullanılanlar">
-                        <option value="m²">Metrekare (m²)</option>
-                        <option value="m³">Metreküp (m³)</option>
-                        <option value="mt">Metretül / Metre (mt)</option>
-                        <option value="ton">Ton (ton)</option>
-                        <option value="kg">Kilogram (kg)</option>
-                        <option value="Adet">Adet (Adet)</option>
-                        <option value="Set">Set / Takım (Set)</option>
-                        <option value="Götürü">Götürü Bedel (Götürü)</option>
-                      </optgroup>
-                    ) : selectedType === 'Hizmet' ? (
-                      <optgroup label="⭐ Hizmet Alımı İçin Sık Kullanılanlar">
-                        <option value="kişi/ay">Kişi Başı Aylık (kişi/ay)</option>
-                        <option value="kişi/gün">Kişi Başı Günlük (kişi/gün)</option>
-                        <option value="kişi/saat">Kişi Başı Saatlik (kişi/saat)</option>
-                        <option value="Ay">Ay (Ay)</option>
-                        <option value="Gün">Gün (Gün)</option>
-                        <option value="Saat">Saat (saat)</option>
-                        <option value="Sefer">Sefer / Uçuş / Tur (Sefer)</option>
-                        <option value="Adet">Adet (Adet)</option>
-                        <option value="Götürü">Götürü Bedel (Götürü)</option>
-                      </optgroup>
-                    ) : (
-                      <optgroup label="⭐ Mal Alımı İçin Sık Kullanılanlar">
-                        <option value="Adet">Adet (Adet)</option>
-                        <option value="kg">Kilogram (kg)</option>
-                        <option value="lt">Litre (lt)</option>
-                        <option value="m">Metre (m)</option>
-                        <option value="m²">Metrekare (m²)</option>
-                        <option value="Paket">Paket (Paket)</option>
-                        <option value="Koli">Koli (Koli)</option>
-                        <option value="Kutu">Kutu (Kutu)</option>
-                        <option value="Takım">Takım / Set (Takım)</option>
-                        <option value="Ton">Ton (Ton)</option>
-                      </optgroup>
-                    )}
+                    {selectedType === "Yapım"
+                      ? (
+                        <optgroup label="⭐ Yapım İşi İçin Sık Kullanılanlar">
+                          <option value="m²">Metrekare (m²)</option>
+                          <option value="m³">Metreküp (m³)</option>
+                          <option value="mt">Metretül / Metre (mt)</option>
+                          <option value="ton">Ton (ton)</option>
+                          <option value="kg">Kilogram (kg)</option>
+                          <option value="Adet">Adet (Adet)</option>
+                          <option value="Set">Set / Takım (Set)</option>
+                          <option value="Götürü">Götürü Bedel (Götürü)</option>
+                        </optgroup>
+                      )
+                      : selectedType === "Hizmet"
+                      ? (
+                        <optgroup label="⭐ Hizmet Alımı İçin Sık Kullanılanlar">
+                          <option value="kişi/ay">
+                            Kişi Başı Aylık (kişi/ay)
+                          </option>
+                          <option value="kişi/gün">
+                            Kişi Başı Günlük (kişi/gün)
+                          </option>
+                          <option value="kişi/saat">
+                            Kişi Başı Saatlik (kişi/saat)
+                          </option>
+                          <option value="Ay">Ay (Ay)</option>
+                          <option value="Gün">Gün (Gün)</option>
+                          <option value="Saat">Saat (saat)</option>
+                          <option value="Sefer">
+                            Sefer / Uçuş / Tur (Sefer)
+                          </option>
+                          <option value="Adet">Adet (Adet)</option>
+                          <option value="Götürü">Götürü Bedel (Götürü)</option>
+                        </optgroup>
+                      )
+                      : (
+                        <optgroup label="⭐ Mal Alımı İçin Sık Kullanılanlar">
+                          <option value="Adet">Adet (Adet)</option>
+                          <option value="kg">Kilogram (kg)</option>
+                          <option value="lt">Litre (lt)</option>
+                          <option value="m">Metre (m)</option>
+                          <option value="m²">Metrekare (m²)</option>
+                          <option value="Paket">Paket (Paket)</option>
+                          <option value="Koli">Koli (Koli)</option>
+                          <option value="Kutu">Kutu (Kutu)</option>
+                          <option value="Takım">Takım / Set (Takım)</option>
+                          <option value="Ton">Ton (Ton)</option>
+                        </optgroup>
+                      )}
 
                     {/* Veritabanı Ölçü Birimleri Havuzundan Kategorili Liste */}
                     {BIRIM_KATEGORILERI.map((kategori) => {
                       const categoryUnits = birimler.filter(
-                        (b) => b.aktif_mi && (b.kategori || 'Diğer') === kategori
-                      )
-                      if (categoryUnits.length === 0) return null
+                        (b) =>
+                          b.aktif_mi && (b.kategori || "Diğer") === kategori,
+                      );
+                      if (categoryUnits.length === 0) return null;
                       return (
                         <optgroup key={kategori} label={`📁 ${kategori}`}>
                           {categoryUnits.map((b) => {
-                            const unitValue = b.kisa_ad || b.sembol || b.ad
-                            const unitLabel =
-                              b.kisa_ad && b.kisa_ad !== b.ad
-                                ? `${b.ad} (${b.kisa_ad})`
-                                : b.ad
+                            const unitValue = b.kisa_ad || b.sembol || b.ad;
+                            const unitLabel = b.kisa_ad && b.kisa_ad !== b.ad
+                              ? `${b.ad} (${b.kisa_ad})`
+                              : b.ad;
                             return (
                               <option key={b.id} value={unitValue}>
                                 {unitLabel}
                               </option>
-                            )
+                            );
                           })}
                         </optgroup>
-                      )
+                      );
                     })}
                   </select>
                 </div>
@@ -913,8 +1253,9 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                     Menşei / Üretim
                   </label>
                   <select
-                    value={formData.mensei || 'Yerli'}
-                    onChange={(e) => setFormData({ ...formData, mensei: e.target.value })}
+                    value={formData.mensei || "Yerli"}
+                    onChange={(e) =>
+                      setFormData({ ...formData, mensei: e.target.value })}
                     className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="Yerli">🇹🇷 Yerli Malı</option>
@@ -929,14 +1270,12 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                   Özelliği / Teknik Şartname & Poz Açıklaması
                 </label>
                 <textarea
-                  value={formData.ozelligi || formData.poz_tanimi || ''}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      ozelligi: e.target.value,
-                      poz_tanimi: e.target.value
-                    })
-                  }
+                  value={formData.ozelligi || formData.poz_tanimi || ""}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    ozelligi: e.target.value,
+                    poz_tanimi: e.target.value,
+                  })}
                   className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[90px] resize-y"
                   placeholder="Teknik detaylar, marka/model gereksinimleri veya işçilik tarifleri..."
                 />
@@ -948,8 +1287,9 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                 </label>
                 <input
                   type="text"
-                  value={formData.notlar || ''}
-                  onChange={(e) => setFormData({ ...formData, notlar: e.target.value })}
+                  value={formData.notlar || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, notlar: e.target.value })}
                   placeholder="Satın alma birimi için iç notlar..."
                   className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200"
                 />
@@ -959,11 +1299,41 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
             {/* Sağ: Kalem Görseli & Fotoğraf */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex flex-col justify-between">
               <div>
-                <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
-                  <ImageIcon className="text-blue-600 dark:text-blue-400" size={18} />
-                  <h3 className="text-sm font-bold text-slate-800 dark:text-white">
-                    Kalem Görseli / Fotoğraf
-                  </h3>
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="text-blue-600 dark:text-blue-400" size={18} />
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-white">
+                      Kalem Görseli / Fotoğraf
+                    </h3>
+                  </div>
+
+                  {/* Mode Tabs */}
+                  <div className="flex items-center p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-[11px] font-semibold border border-slate-200 dark:border-slate-700">
+                    <button
+                      type="button"
+                      onClick={() => setImageInputMode('upload')}
+                      className={cn(
+                        'px-2 py-1 rounded-md transition-all flex items-center gap-1',
+                        imageInputMode === 'upload'
+                          ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                      )}
+                    >
+                      <Upload size={12} /> Dosya (Base64)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setImageInputMode('url')}
+                      className={cn(
+                        'px-2 py-1 rounded-md transition-all flex items-center gap-1',
+                        imageInputMode === 'url'
+                          ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                      )}
+                    >
+                      <Globe size={12} /> Web URL
+                    </button>
+                  </div>
                 </div>
 
                 <input
@@ -980,45 +1350,92 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                       src={formData.gorsel_url}
                       alt="Kalem Görseli"
                       className="w-full h-44 object-contain rounded-lg"
+                      onError={(e) => {
+                        ;(e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24"><text y="18" font-size="16">⚠️ Görsel Yüklenemedi</text></svg>'
+                      }}
                     />
-                    <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                    {/* Badge */}
+                    <div className="absolute top-3 left-3">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900/80 text-white backdrop-blur-xs shadow-xs border border-white/20">
+                        {formData.gorsel_url.startsWith('data:') ? (
+                          <>
+                            <FileImage size={10} /> Base64 Yerel
+                          </>
+                        ) : (
+                          <>
+                            <Globe size={10} /> Harici URL
+                          </>
+                        )}
+                      </span>
+                    </div>
+
+                    <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="p-2 bg-white text-slate-800 rounded-lg hover:bg-slate-100 text-xs font-semibold flex items-center gap-1"
+                        className="p-2 bg-white text-slate-800 rounded-lg hover:bg-slate-100 text-xs font-semibold flex items-center gap-1 shadow-xs"
                       >
-                        <Upload size={14} /> Değiştir
+                        <Upload size={14} /> Dosya Değiştir
                       </button>
                       <button
                         type="button"
                         onClick={() => setFormData((prev) => ({ ...prev, gorsel_url: null }))}
-                        className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-xs font-semibold flex items-center gap-1"
+                        className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-xs font-semibold flex items-center gap-1 shadow-xs"
                       >
                         <Trash2 size={14} /> Kaldır
                       </button>
                     </div>
                   </div>
-                ) : (
+                ) : imageInputMode === 'upload' ? (
                   <div
                     onClick={() => fileInputRef.current?.click()}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={handleImageDrop}
                     className="h-44 border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-600 rounded-xl flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-colors bg-slate-50/50 dark:bg-slate-800/20 group"
                   >
                     <div className="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                       <Upload size={20} />
                     </div>
                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      Görsel Yüklemek İçin Tıklayın
+                      Görsel Seçin veya Sürükleyin
                     </span>
                     <span className="text-[10px] text-slate-400 mt-0.5">
-                      PNG, JPG veya WEBP (Maksimum 2MB)
+                      PNG, JPG, WEBP (Base64 olarak veritabanında saklanır)
                     </span>
+                  </div>
+                ) : (
+                  <div className="h-44 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col justify-center p-4 bg-slate-50/50 dark:bg-slate-800/20 space-y-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        Görsel Web URL Adresi
+                      </label>
+                      <div className="flex gap-1.5">
+                        <input
+                          type="url"
+                          value={customImageUrl}
+                          onChange={(e) => setCustomImageUrl(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleApplyImageUrl()}
+                          placeholder="https://example.com/resim.jpg"
+                          className="flex-1 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleApplyImageUrl}
+                          className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-all shrink-0"
+                        >
+                          Bağla
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-slate-400">
+                      Doğrudan web sitesinden veya kurumsal bulut deposundan görsel bağlantısı kullanabilirsiniz.
+                    </p>
                   </div>
                 )}
               </div>
 
               <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 leading-relaxed">
-                💡 Kalem görseli, yaklaşık maliyet cetvellerinde ve piyasa araştırma mektuplarında
-                isteğe bağlı olarak gösterilebilir.
+                💡 Kalem görseli hem yerel Base64 veri hem de harici Web URL formatında saklanabilir. Yaklaşık maliyet ve teklif fişlerinde otomatik kullanılır.
               </div>
             </div>
           </div>
@@ -1030,7 +1447,7 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in">
           <div
             className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800"
-            style={{ maxHeight: '80vh' }}
+            style={{ maxHeight: "80vh" }}
           >
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
@@ -1060,29 +1477,37 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
               </div>
             </div>
             <div className="flex-1 overflow-y-auto p-3 min-h-[300px] space-y-1">
-              {isOkasLoading ? (
-                <div className="p-8 text-center text-slate-500 text-xs">Yükleniyor...</div>
-              ) : filteredOkas.length === 0 ? (
-                <div className="p-8 text-center text-slate-400 text-xs">Kayıt bulunamadı.</div>
-              ) : (
-                filteredOkas.map((k) => (
-                  <button
-                    key={k.id}
-                    onClick={() => {
-                      setFormData({ ...formData, okas_kodu: k.kod })
-                      setIsOkasModalOpen(false)
-                    }}
-                    className="w-full text-left p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 flex flex-col sm:flex-row sm:items-center gap-3 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
-                  >
-                    <span className="font-mono text-xs font-bold bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 px-2 py-0.5 rounded shrink-0">
-                      {k.kod}
-                    </span>
-                    <span className="text-xs text-slate-700 dark:text-slate-300 line-clamp-2">
-                      {k.aciklama}
-                    </span>
-                  </button>
-                ))
-              )}
+              {isOkasLoading
+                ? (
+                  <div className="p-8 text-center text-slate-500 text-xs">
+                    Yükleniyor...
+                  </div>
+                )
+                : filteredOkas.length === 0
+                ? (
+                  <div className="p-8 text-center text-slate-400 text-xs">
+                    Kayıt bulunamadı.
+                  </div>
+                )
+                : (
+                  filteredOkas.map((k) => (
+                    <button
+                      key={k.id}
+                      onClick={() => {
+                        setFormData({ ...formData, okas_kodu: k.kod });
+                        setIsOkasModalOpen(false);
+                      }}
+                      className="w-full text-left p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 flex flex-col sm:flex-row sm:items-center gap-3 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+                    >
+                      <span className="font-mono text-xs font-bold bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 px-2 py-0.5 rounded shrink-0">
+                        {k.kod}
+                      </span>
+                      <span className="text-xs text-slate-700 dark:text-slate-300 line-clamp-2">
+                        {k.aciklama}
+                      </span>
+                    </button>
+                  ))
+                )}
             </div>
           </div>
         </div>
@@ -1093,11 +1518,12 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in">
           <div
             className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800"
-            style={{ maxHeight: '80vh' }}
+            style={{ maxHeight: "80vh" }}
           >
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                <Search size={18} className="text-emerald-600" /> Taşınır Kodu Seçin
+                <Search size={18} className="text-emerald-600" />{" "}
+                Taşınır Kodu Seçin
               </h3>
               <button
                 onClick={() => setIsTasinirModalOpen(false)}
@@ -1123,33 +1549,50 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
               </div>
             </div>
             <div className="flex-1 overflow-y-auto p-3 min-h-[300px] space-y-1">
-              {isTasinirLoading ? (
-                <div className="p-8 text-center text-slate-500 text-xs">Yükleniyor...</div>
-              ) : filteredTasinir.length === 0 ? (
-                <div className="p-8 text-center text-slate-400 text-xs">Kayıt bulunamadı.</div>
-              ) : (
-                filteredTasinir.map((k) => (
-                  <button
-                    key={k.id}
-                    onClick={() => {
-                      setFormData({ ...formData, tasinir_kodu: k.tam_kod })
-                      setIsTasinirModalOpen(false)
-                    }}
-                    className="w-full text-left p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 flex flex-col sm:flex-row sm:items-center gap-3 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
-                  >
-                    <span className="font-mono text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-2 py-0.5 rounded shrink-0">
-                      {k.tam_kod}
-                    </span>
-                    <span className="text-xs text-slate-700 dark:text-slate-300 line-clamp-2">
-                      {k.aciklama}
-                    </span>
-                  </button>
-                ))
-              )}
+              {isTasinirLoading
+                ? (
+                  <div className="p-8 text-center text-slate-500 text-xs">
+                    Yükleniyor...
+                  </div>
+                )
+                : filteredTasinir.length === 0
+                ? (
+                  <div className="p-8 text-center text-slate-400 text-xs">
+                    Kayıt bulunamadı.
+                  </div>
+                )
+                : (
+                  filteredTasinir.map((k) => (
+                    <button
+                      key={k.id}
+                      onClick={() => {
+                        setFormData({ ...formData, tasinir_kodu: k.tam_kod });
+                        setIsTasinirModalOpen(false);
+                      }}
+                      className="w-full text-left p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 flex flex-col sm:flex-row sm:items-center gap-3 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+                    >
+                      <span className="font-mono text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-2 py-0.5 rounded shrink-0">
+                        {k.tam_kod}
+                      </span>
+                      <span className="text-xs text-slate-700 dark:text-slate-300 line-clamp-2">
+                        {k.aciklama}
+                      </span>
+                    </button>
+                  ))
+                )}
             </div>
           </div>
         </div>
       )}
+
+      {/* Poz Seçim & Özel Poz Modal */}
+      <PozSecimModal
+        isOpen={isPozModalOpen}
+        onClose={() => setIsPozModalOpen(false)}
+        onSelectPoz={handleSelectPoz}
+        currentPozNo={formData.poz_no || ''}
+        currentYear={formData.poz_yili || new Date().getFullYear()}
+      />
     </div>
-  )
+  );
 }
