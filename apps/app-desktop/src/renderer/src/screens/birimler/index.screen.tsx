@@ -10,6 +10,7 @@ import { BirimDetail } from './components/BirimDetail'
 import { BirimGrid } from './components/BirimGrid'
 import { BirimList } from './components/BirimList'
 import { BirimModal } from './components/BirimModal'
+import { ExcelActions } from '../../components/ui/ExcelActions'
 
 const emptyBirim: BirimInput = {
   birim_adi: '',
@@ -178,6 +179,11 @@ export default function BirimlerScreen({
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <ExcelActions
+            tableName="TANIM_Birim"
+            title="Birimler"
+            uniqueCol="id"
+          />
           <ViewToggle viewMode={dataViewMode} onChange={setDataViewMode} />
           <Button
             onClick={openModal}

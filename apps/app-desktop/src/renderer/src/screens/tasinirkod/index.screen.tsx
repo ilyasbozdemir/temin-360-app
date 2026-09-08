@@ -6,13 +6,12 @@ import {
   Search,
   Hash,
   AlertCircle,
-  ExternalLink,
-  FileUp,
-  Download
+  ExternalLink
 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Modal } from '../../components/ui/Modal'
+import { ExcelActions } from '../../components/ui/ExcelActions'
 import { useTasinirKodHooks } from './tasinirkod.hooks'
 import { cn } from '../../utils/cn'
 
@@ -23,38 +22,6 @@ export default function TasinirKodScreen(): React.JSX.Element {
   const [aciklama, setAciklama] = useState('')
   const [search, setSearch] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isImporting, setIsImporting] = useState(false)
-  const [isExportingTemplate, setIsExportingTemplate] = useState(false)
-
-  const handleExportTemplate = async () => {
-    try {
-      setIsExportingTemplate(true)
-      const res = await window.electron.ipcRenderer.invoke('db:export-tasinir-template')
-      if (!res.success && res.error !== 'İptal edildi') {
-        alert('Şablon dışa aktarımında hata: ' + res.error)
-      }
-    } catch (error: any) {
-      alert('Hata: ' + error.message)
-    } finally {
-      setIsExportingTemplate(false)
-    }
-  }
-
-  const handleImportExcel = async () => {
-    try {
-      setIsImporting(true)
-      const res = await window.electron.ipcRenderer.invoke('db:import-tasinir-excel')
-      if (res.success) {
-        alert(`${res.count} adet taşınır kodu başarıyla içeri aktarıldı!`)
-      } else if (res.error !== 'İptal edildi') {
-        alert('İçe aktarım sırasında hata oluştu: ' + res.error)
-      }
-    } catch (error: any) {
-      alert('Hata: ' + error.message)
-    } finally {
-      setIsImporting(false)
-    }
-  }
 
   const handleOpenModal = () => {
     setTamKod('')
@@ -68,14 +35,14 @@ export default function TasinirKodScreen(): React.JSX.Element {
 
     const parts = tamKod.trim().split('.')
     const hesapKodu = parts[0] || ''
-    const d1 = parts[1] || null
-    const d2 = parts[2] || null
-    const d3 = parts[3] || null
-    const d4 = parts[4] || null
-    const d5 = parts[5] || null
+    const d1 = parts[1] || ''
+    const d2 = parts[2] || ''
+    const d3 = parts[3] || ''
+    const d4 = parts[4] || ''
+    const d5 = parts[5] || ''
 
-    if (!hesapKodu) {
-      alert('Geçerli bir kod giriniz (Örn: 150.01)')
+    if (hesapKodu !== '150' && hesapKodu !== '253' && hesapKodu !== '255') {
+      alert('Ana hesap kodu 150, 253 veya 255 olmalıdır.')
       return
     }
 
@@ -83,11 +50,11 @@ export default function TasinirKodScreen(): React.JSX.Element {
       await addTasinirKod({
         tam_kod: tamKod.trim(),
         hesap_kodu: hesapKodu,
-        duzey_1: d1,
-        duzey_2: d2,
-        duzey_3: d3,
-        duzey_4: d4,
-        duzey_5: d5,
+        duzey_1: d1 || null,
+        duzey_2: d2 || null,
+        duzey_3: d3 || null,
+        duzey_4: d4 || null,
+        duzey_5: d5 || null,
         aciklama: aciklama.trim()
       })
       setIsModalOpen(false)
@@ -137,23 +104,13 @@ export default function TasinirKodScreen(): React.JSX.Element {
               Kayıtlı Kod
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              onClick={handleExportTemplate}
-              disabled={isExportingTemplate}
-              variant="outline"
-              className="gap-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 flex items-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm flex-1 sm:flex-initial justify-center"
-            >
-              <Download className="w-4 h-4" /> Şablon İndir
-            </Button>
-            <Button
-              onClick={handleImportExcel}
-              disabled={isImporting}
-              className="gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-md flex items-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm flex-1 sm:flex-initial justify-center"
-            >
-              <FileUp className="w-4 h-4" />{' '}
-              {isImporting ? 'Aktarılıyor...' : "Excel'den İçe Aktar"}
-            </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <ExcelActions
+              tableName="TANIM_TasinirKod"
+              title="Taşınır Kodları"
+              uniqueCol="tam_kod"
+              onImportSuccess={() => window.location.reload()}
+            />
             <Button
               onClick={handleOpenModal}
               className="gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-md flex items-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm w-full sm:w-auto justify-center"

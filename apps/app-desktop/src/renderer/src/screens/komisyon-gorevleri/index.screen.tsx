@@ -3,8 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ClipboardCheck, Search, Plus } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
-
 import { Modal } from '../../components/ui/Modal'
+import { ExcelActions } from '../../components/ui/ExcelActions'
 
 export default function KomisyonGorevleriScreen({
   isSubComponent = false
@@ -116,12 +116,20 @@ export default function KomisyonGorevleriScreen({
             Komisyonlarda personellere atanabilecek unvan ve görevleri yönetin.
           </p>
         </div>
-        <Button
-          onClick={handleAdd}
-          className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20 rounded-xl px-4 py-2 text-sm font-semibold transition-all"
-        >
-          <Plus className="w-4 h-4" /> Yeni Görev Ekle
-        </Button>
+        <div className="flex items-center gap-3">
+          <ExcelActions
+            tableName="TANIM_KomisyonGorevi"
+            title="Komisyon Görevleri"
+            uniqueCol="id"
+            onImportSuccess={() => queryClient.invalidateQueries({ queryKey: ['komisyon_gorevleri'] })}
+          />
+          <Button
+            onClick={handleAdd}
+            className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20 rounded-xl px-4 py-2 text-sm font-semibold transition-all"
+          >
+            <Plus className="w-4 h-4" /> Yeni Görev Ekle
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-8 items-start flex-1 min-h-0">

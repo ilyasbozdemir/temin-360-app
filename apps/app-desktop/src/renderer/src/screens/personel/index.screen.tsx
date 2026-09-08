@@ -26,6 +26,7 @@ import {
 } from 'lucide-react'
 
 import { DataViewMode, ViewToggle } from '../../components/ui/ViewToggle'
+import { ExcelActions } from '../../components/ui/ExcelActions'
 
 type ScreenState = 'list' | 'view' | 'form'
 
@@ -634,6 +635,11 @@ export default function PersonelScreen({
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <ExcelActions
+            tableName="TANIM_Personel"
+            title="Personeller"
+            uniqueCol="id"
+          />
           <ViewToggle viewMode={dataViewMode} onChange={setDataViewMode} />
           <Button
             onClick={(e) => openForm(e)}

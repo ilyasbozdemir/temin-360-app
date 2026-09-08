@@ -21,6 +21,7 @@ import { TANIM_TasinirKod } from './tables/TANIM_TasinirKod'
 import { TANIM_OkasKod } from './tables/TANIM_OkasKod'
 import { TANIM_KodSozlugu } from './tables/TANIM_KodSozlugu'
 import { TANIM_OlcuBirimi } from './tables/TANIM_OlcuBirimi'
+import { TANIM_BirimDonusum } from './tables/TANIM_BirimDonusum'
 import { TANIM_KomisyonGorevi } from './tables/TANIM_KomisyonGorevi'
 import { TANIM_Komisyon } from './tables/TANIM_Komisyon'
 import { TANIM_KomisyonUye } from './tables/TANIM_KomisyonUye'
@@ -53,6 +54,7 @@ const rawTables = [
   TANIM_OkasKod,
   TANIM_Kalem,
   TANIM_OlcuBirimi,
+  TANIM_BirimDonusum,
   TANIM_AlimTuru,
   TANIM_Sablon,
   TANIM_Placeholder,
@@ -197,6 +199,8 @@ export function initializeDatabase(db: Database.Database, institutionName: strin
 
 export { runMigrations, CURRENT_SCHEMA_VERSION }
 export { TANIM_Placeholder } from './tables/TANIM_Placeholder'
+export { TANIM_OlcuBirimi } from './tables/TANIM_OlcuBirimi'
+export { TANIM_BirimDonusum } from './tables/TANIM_BirimDonusum'
 export { manifests } from './schema-manifest/index'
 export * from './migrate'
 

@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { APP_ROUTES } from '../../constants/routeConstants'
 import {
-  Download,
   FileText,
   FolderTree,
   ListFilter,
@@ -10,10 +9,10 @@ import {
   Plus,
   Search,
   Tag,
-  Trash2,
-  Upload
+  Trash2
 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
+import { ExcelActions } from '../../components/ui/ExcelActions'
 import { Kalem, useMalzemelerHooks } from './malzemeler.hooks'
 import { cn } from '../../utils/cn'
 import { DataViewMode, ViewToggle } from '../../components/ui/ViewToggle'
@@ -140,38 +139,7 @@ export default function MalzemelerScreen(): React.JSX.Element {
     }
   }
 
-  const handleImport = async () => {
-    if (
-      !window.confirm(
-        'ÖNERİ: Ürünlerin ID ve Barkod çakışması yaşamaması için, manuel malzeme girişlerinden ÖNCE Excel aktarımını yapmanız tavsiye edilir.\n\nExcel\'deki "Barkod_ID" mevcut ise mevcut kayıtlar güncellenir, yoksa yeni olarak eklenir.\n\nAktarıma devam edilsin mi?'
-      )
-    ) {
-      return
-    }
 
-    try {
-      const res = await window.electron.ipcRenderer.invoke('db:import-kalem-excel')
-      if (res.success) {
-        alert(`İçe aktarma başarılı. ${res.count} kalem güncellendi/eklendi.`)
-        window.location.reload()
-      } else if (res.error !== 'İptal edildi') {
-        alert('İçe aktarma hatası: ' + res.error)
-      }
-    } catch (e: any) {
-      alert('Hata: ' + e.message)
-    }
-  }
-
-  const handleExportExcel = async () => {
-    try {
-      const res = await window.electron.ipcRenderer.invoke('db:export-kalem-excel')
-      if (res.error && res.error !== 'İptal edildi') {
-        alert('Excel dışa aktarma hatası: ' + res.error)
-      }
-    } catch (e: any) {
-      alert('Hata: ' + e.message)
-    }
-  }
 
   const filteredList = kalemList.filter((m) => {
     const matchesSearch =
@@ -320,24 +288,12 @@ export default function MalzemelerScreen(): React.JSX.Element {
                 </span>
               </Button>
             )}
-            <Button
-              variant="outline"
-              onClick={handleExportExcel}
-              className="gap-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 flex items-center px-4 py-2 text-sm justify-center"
-              title="Tüm verileri Excel olarak indir"
-            >
-              <Download className="w-4 h-4 text-blue-600 shrink-0" />{' '}
-              <span className="whitespace-nowrap">Excel Dışa Aktar</span>
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleImport}
-              className="gap-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 flex items-center px-4 py-2 text-sm justify-center"
-              title="Excel'den toplu kalem yükle"
-            >
-              <Upload className="w-4 h-4 text-orange-600 shrink-0" />{' '}
-              <span className="whitespace-nowrap">Excel İçe Aktar</span>
-            </Button>
+            <ExcelActions
+              tableName="TANIM_Kalem"
+              title="Malzemeler / Kalemler"
+              uniqueCol="barkod_id"
+              onImportSuccess={() => window.location.reload()}
+            />
             <Link to="/tasinirkod" className="shrink-0">
               <Button
                 variant="outline"

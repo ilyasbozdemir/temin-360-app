@@ -3,6 +3,7 @@ import { AmbarInput, useAmbarHooks } from "./ambar.hooks";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Modal } from "../../components/ui/Modal";
+import { ExcelActions } from "../../components/ui/ExcelActions";
 import {
   Archive,
   ChevronDown,
@@ -141,17 +142,24 @@ export default function AmbarScreen({
             tanımlayın.
           </p>
         </div>
-        <Button
-          onClick={() => {
-            setEditId(null);
-            setForm({ ...emptyAmbar });
-            setShowExtraFields(false);
-            setIsModalOpen(true);
-          }}
-          className="gap-2 bg-blue-600 hover:bg-blue-700 shadow-md flex items-center px-4 py-2 text-sm shrink-0"
-        >
-          <Plus className="w-4 h-4" /> Yeni Ambar Deposu
-        </Button>
+        <div className="flex items-center gap-3">
+          <ExcelActions
+            tableName="TANIM_Ambar"
+            title="Ambarlar"
+            uniqueCol="id"
+          />
+          <Button
+            onClick={() => {
+              setEditId(null);
+              setForm({ ...emptyAmbar });
+              setShowExtraFields(false);
+              setIsModalOpen(true);
+            }}
+            className="gap-2 bg-blue-600 hover:bg-blue-700 shadow-md flex items-center px-4 py-2 text-sm shrink-0"
+          >
+            <Plus className="w-4 h-4" /> Yeni Ambar Deposu
+          </Button>
+        </div>
       </div>
 
       {/* İSTATİSTİK KARTLARI */}

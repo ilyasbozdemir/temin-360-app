@@ -640,6 +640,165 @@ export function registerDbIpcHandlers(): void {
     }
   })
 
+  // 16. Generic Table Excel Export
+  ipcMain.handle('db:export-table-excel', async (_, tableName: string, customFileName?: string) => {
+    try {
+      const db = workspaceManager.getDb()
+      const rows = db.prepare(`SELECT * FROM ${tableName}`).all() as any[]
+
+      const defaultName = customFileName || `${tableName.replace('TANIM_', '')}_Listesi.xlsx`
+      const { canceled, filePath } = await dialog.showSaveDialog({
+        title: `${tableName} Dışa Aktar (Excel)`,
+        defaultPath: defaultName,
+        filters: [{ name: 'Excel Dosyası', extensions: ['xlsx'] }]
+      })
+      if (canceled || !filePath) return { success: false, error: 'İptal edildi' }
+
+      const ws = XLSX.utils.json_to_sheet(rows)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, tableName.replace('TANIM_', '').slice(0, 31))
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
+      fs.writeFileSync(filePath, buffer)
+
+      return { success: true, filePath, count: rows.length }
+    } catch (err: any) {
+      return { success: false, error: err.message }
+    }
+  })
+
+  // 17. Generic Table Excel Template Download
+  ipcMain.handle('db:export-table-template', async (_, tableName: string, customFileName?: string) => {
+    try {
+      const db = workspaceManager.getDb()
+      const tableInfo = db.prepare(`PRAGMA table_info(${tableName})`).all() as { name: string; type: string; pk: number }[]
+      
+      const columns = tableInfo.filter(c => c.name !== 'created_at' && c.name !== 'updated_at')
+      
+      const sampleRow = db.prepare(`SELECT * FROM ${tableName} LIMIT 1`).get() as any
+      const templateData: any[] = []
+      
+      if (sampleRow) {
+        const rowData: Record<string, any> = {}
+        for (const col of columns) {
+          rowData[col.name] = sampleRow[col.name] ?? ''
+        }
+        templateData.push(rowData)
+      } else {
+        const rowData: Record<string, any> = {}
+        for (const col of columns) {
+          rowData[col.name] = col.pk ? 1 : (col.type === 'INTEGER' || col.type === 'REAL' ? 0 : 'Örnek Veri')
+        }
+        templateData.push(rowData)
+      }
+
+      const defaultName = customFileName || `${tableName.replace('TANIM_', '')}_Sablonu.xlsx`
+      const { canceled, filePath } = await dialog.showSaveDialog({
+        title: `${tableName} Şablon İndir (Excel)`,
+        defaultPath: defaultName,
+        filters: [{ name: 'Excel Dosyası', extensions: ['xlsx'] }]
+      })
+      if (canceled || !filePath) return { success: false, error: 'İptal edildi' }
+
+      const ws = XLSX.utils.json_to_sheet(templateData)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Sablon')
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
+      fs.writeFileSync(filePath, buffer)
+
+      return { success: true, filePath }
+    } catch (err: any) {
+      return { success: false, error: err.message }
+    }
+  })
+
+  // 18. Generic Table Excel Import with Override / Upsert support
+  ipcMain.handle('db:import-table-excel', async (_, tableName: string, options: { uniqueCol?: string } = {}) => {
+    try {
+      const { canceled, filePaths } = await dialog.showOpenDialog({
+        title: `${tableName} Excel Dosyası Seç`,
+        filters: [{ name: 'Excel Dosyası', extensions: ['xlsx', 'xls', 'csv'] }],
+        properties: ['openFile']
+      })
+      if (canceled || !filePaths || filePaths.length === 0) {
+        return { success: false, error: 'İptal edildi' }
+      }
+
+      const workbook = XLSX.readFile(filePaths[0])
+      const sheetName = workbook.SheetNames[0]
+      const rawRows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]) as any[]
+
+      if (!rawRows || rawRows.length === 0) {
+        return { success: false, error: 'Excel dosyasında veri bulunamadı.' }
+      }
+
+      const db = workspaceManager.getDb()
+      const tableInfo = db.prepare(`PRAGMA table_info(${tableName})`).all() as { name: string; type: string; pk: number }[]
+      const validColNames = tableInfo.map(c => c.name)
+      const pkCol = tableInfo.find(c => c.pk === 1)?.name || 'id'
+      const uniqueCol = options.uniqueCol || pkCol
+
+      let insertedCount = 0
+      let updatedCount = 0
+
+      const transaction = db.transaction((rows: any[]) => {
+        for (const row of rows) {
+          const rowKeys = Object.keys(row)
+          const matchedData: Record<string, any> = {}
+
+          for (const col of validColNames) {
+            if (col === 'created_at' || col === 'updated_at') continue
+            const foundKey = rowKeys.find(k => {
+              const cleanK = k.trim().toLowerCase().replace(/[\s_-]/g, '')
+              const cleanCol = col.toLowerCase().replace(/[\s_-]/g, '')
+              return cleanK === cleanCol || cleanK.includes(cleanCol) || cleanCol.includes(cleanK)
+            })
+            if (foundKey && row[foundKey] !== undefined && row[foundKey] !== null) {
+              matchedData[col] = row[foundKey]
+            }
+          }
+
+          if (Object.keys(matchedData).length === 0) continue
+
+          let existing = null
+          if (matchedData[uniqueCol] !== undefined && matchedData[uniqueCol] !== null && String(matchedData[uniqueCol]).trim() !== '') {
+            existing = db.prepare(`SELECT * FROM ${tableName} WHERE "${uniqueCol}" = ?`).get(matchedData[uniqueCol])
+          }
+
+          if (existing) {
+            // Update / Override
+            const updateCols = Object.keys(matchedData).filter(c => c !== pkCol)
+            if (updateCols.length > 0) {
+              const setClause = updateCols.map(c => `"${c}" = ?`).join(', ')
+              const params = updateCols.map(c => matchedData[c])
+              params.push((existing as any)[pkCol])
+              db.prepare(`UPDATE ${tableName} SET ${setClause} WHERE "${pkCol}" = ?`).run(...params)
+              updatedCount++
+            }
+          } else {
+            // Insert
+            const insertCols = Object.keys(matchedData)
+            const placeholders = insertCols.map(() => '?').join(', ')
+            const params = insertCols.map(c => matchedData[c])
+            db.prepare(`INSERT INTO ${tableName} (${insertCols.map(c => `"${c}"`).join(', ')}) VALUES (${placeholders})`).run(...params)
+            insertedCount++
+          }
+        }
+      })
+
+      transaction(rawRows)
+      workspaceManager.save()
+
+      return {
+        success: true,
+        count: insertedCount + updatedCount,
+        inserted: insertedCount,
+        updated: updatedCount
+      }
+    } catch (err: any) {
+      return { success: false, error: err.message }
+    }
+  })
+
   // 16. JSON Toplu Veri İçe Aktarma (ImportScreen)
   ipcMain.handle(
     'db:bulk-import',

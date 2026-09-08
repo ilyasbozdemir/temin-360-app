@@ -10,6 +10,7 @@ import { FirmaDetail } from './components/FirmaDetail'
 import { FirmaGrid } from './components/FirmaGrid'
 import { FirmaList } from './components/FirmaList'
 import { FirmaModal } from './components/FirmaModal'
+import { ExcelActions } from '../../components/ui/ExcelActions'
 
 const emptyFirma: FirmaInput = {
   firma_kodu: '',
@@ -143,6 +144,11 @@ export default function FirmalarScreen(): React.JSX.Element {
               Kayıtlı Firma
             </div>
           </div>
+          <ExcelActions
+            tableName="TANIM_Firma"
+            title="Firmalar"
+            uniqueCol="id"
+          />
           <Button
             onClick={openAddModal}
             className="gap-2 bg-blue-600 hover:bg-blue-700 shadow-md flex items-center px-4 py-2 text-sm"

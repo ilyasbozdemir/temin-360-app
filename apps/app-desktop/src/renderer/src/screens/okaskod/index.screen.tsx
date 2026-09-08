@@ -6,13 +6,12 @@ import {
   Search,
   Hash,
   AlertCircle,
-  ExternalLink,
-  FileUp,
-  Download
+  ExternalLink
 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Modal } from '../../components/ui/Modal'
+import { ExcelActions } from '../../components/ui/ExcelActions'
 import { useOkasKodHooks } from './okaskod.hooks'
 import { cn } from '../../utils/cn'
 
@@ -108,46 +107,14 @@ export default function OkasKodScreen(): React.JSX.Element {
   const [aciklama, setAciklama] = useState('')
   const [search, setSearch] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isImporting, setIsImporting] = useState(false)
-  const [isExportingTemplate, setIsExportingTemplate] = useState(false)
 
-  const handleExportTemplate = async () => {
-    try {
-      setIsExportingTemplate(true)
-      const res = await window.electron.ipcRenderer.invoke('db:export-okas-template')
-      if (!res.success && res.error !== 'İptal edildi') {
-        alert('Şablon dışa aktarımında hata: ' + res.error)
-      }
-    } catch (error: any) {
-      alert('Hata: ' + error.message)
-    } finally {
-      setIsExportingTemplate(false)
-    }
-  }
-
-  const handleImportExcel = async () => {
-    try {
-      setIsImporting(true)
-      const res = await window.electron.ipcRenderer.invoke('db:import-okas-excel')
-      if (res.success) {
-        alert(`${res.count} adet OKAS kodu başarıyla içeri aktarıldı!`)
-      } else if (res.error !== 'İptal edildi') {
-        alert('İçe aktarım sırasında hata oluştu: ' + res.error)
-      }
-    } catch (error: any) {
-      alert('Hata: ' + error.message)
-    } finally {
-      setIsImporting(false)
-    }
-  }
-
-  const handleOpenModal = () => {
+  const handleOpenModal = (): void => {
     setKod('')
     setAciklama('')
     setIsModalOpen(true)
   }
 
-  const handleKaydet = async () => {
+  const handleKaydet = async (): Promise<void> => {
     const cleanKod = kod.replace(/\D/g, '').slice(0, 8)
     if (!cleanKod || cleanKod.length < 2) {
       alert('Geçerli bir OKAS kodu girin (en az 2 hane).')
@@ -183,7 +150,7 @@ export default function OkasKodScreen(): React.JSX.Element {
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 overflow-hidden">
       {/* Header */}
-      <div className="flex-shrink-0 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+      <div className="shrink-0 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
         <div className="flex flex-col md:flex-row md:items-center justify-between px-6 py-4 gap-4">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center shrink-0">
@@ -207,23 +174,13 @@ export default function OkasKodScreen(): React.JSX.Element {
                 Kayıtlı Kod
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                onClick={handleExportTemplate}
-                disabled={isExportingTemplate}
-                variant="outline"
-                className="gap-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 flex items-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm flex-1 sm:flex-initial justify-center"
-              >
-                <Download className="w-4 h-4" /> Şablon İndir
-              </Button>
-              <Button
-                onClick={handleImportExcel}
-                disabled={isImporting}
-                className="gap-2 bg-indigo-600 hover:bg-indigo-700 shadow-md flex items-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm flex-1 sm:flex-initial justify-center"
-              >
-                <FileUp className="w-4 h-4" />{' '}
-                {isImporting ? 'Aktarılıyor...' : "Excel'den İçe Aktar"}
-              </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <ExcelActions
+                tableName="TANIM_OkasKod"
+                title="OKAS Kodları"
+                uniqueCol="kod"
+                onImportSuccess={() => window.location.reload()}
+              />
               <Button
                 onClick={handleOpenModal}
                 className="gap-2 bg-blue-600 hover:bg-blue-700 shadow-md flex items-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm w-full sm:w-auto justify-center"
