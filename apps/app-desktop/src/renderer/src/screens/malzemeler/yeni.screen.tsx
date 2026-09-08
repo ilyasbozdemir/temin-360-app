@@ -23,7 +23,7 @@ import {
 } from 'lucide-react'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { useMalzemelerHooks, Kalem } from './malzemeler.hooks'
-import { useOlcuBirimleri } from '../olcubirimleri/olcubirimleri.hooks'
+import { useOlcuBirimleri, BIRIM_KATEGORILERI } from '../olcubirimleri/olcubirimleri.hooks'
 import { useOkasKodHooks } from '../okaskod/okaskod.hooks'
 import { useTasinirKodHooks } from '../tasinirkod/tasinirkod.hooks'
 import { cn } from '../../utils/cn'
@@ -843,38 +843,68 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                     }
                     className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
+                    {/* Türe Göre Önerilen Resmi Birimler */}
                     {selectedType === 'Yapım' ? (
-                      <>
-                        <option value="m²">m² (Metrekare)</option>
-                        <option value="m³">m³ (Metreküp)</option>
-                        <option value="mt">mt / m (Metre - Uzunluk)</option>
-                        <option value="ton">ton (Ton)</option>
-                        <option value="kg">kg (Kilogram)</option>
-                        <option value="Adet">Adet</option>
-                        <option value="Set">Set / Takım</option>
-                        <option value="Götürü">Götürü Bedel</option>
-                      </>
+                      <optgroup label="⭐ Yapım İşi İçin Sık Kullanılanlar">
+                        <option value="m²">Metrekare (m²)</option>
+                        <option value="m³">Metreküp (m³)</option>
+                        <option value="mt">Metretül / Metre (mt)</option>
+                        <option value="ton">Ton (ton)</option>
+                        <option value="kg">Kilogram (kg)</option>
+                        <option value="Adet">Adet (Adet)</option>
+                        <option value="Set">Set / Takım (Set)</option>
+                        <option value="Götürü">Götürü Bedel (Götürü)</option>
+                      </optgroup>
                     ) : selectedType === 'Hizmet' ? (
-                      <>
-                        <option value="kişi/ay">kişi/ay (Kişi Başı Aylık)</option>
-                        <option value="kişi/gün">kişi/gün</option>
-                        <option value="kişi/saat">kişi/saat</option>
-                        <option value="Ay">Ay</option>
-                        <option value="Gün">Gün</option>
-                        <option value="Saat">Saat</option>
-                        <option value="Sefer">Sefer / Uçuş / Tur</option>
-                        <option value="Adet">Adet</option>
-                        <option value="Götürü">Götürü</option>
-                      </>
-                    ) : null}
+                      <optgroup label="⭐ Hizmet Alımı İçin Sık Kullanılanlar">
+                        <option value="kişi/ay">Kişi Başı Aylık (kişi/ay)</option>
+                        <option value="kişi/gün">Kişi Başı Günlük (kişi/gün)</option>
+                        <option value="kişi/saat">Kişi Başı Saatlik (kişi/saat)</option>
+                        <option value="Ay">Ay (Ay)</option>
+                        <option value="Gün">Gün (Gün)</option>
+                        <option value="Saat">Saat (saat)</option>
+                        <option value="Sefer">Sefer / Uçuş / Tur (Sefer)</option>
+                        <option value="Adet">Adet (Adet)</option>
+                        <option value="Götürü">Götürü Bedel (Götürü)</option>
+                      </optgroup>
+                    ) : (
+                      <optgroup label="⭐ Mal Alımı İçin Sık Kullanılanlar">
+                        <option value="Adet">Adet (Adet)</option>
+                        <option value="kg">Kilogram (kg)</option>
+                        <option value="lt">Litre (lt)</option>
+                        <option value="m">Metre (m)</option>
+                        <option value="m²">Metrekare (m²)</option>
+                        <option value="Paket">Paket (Paket)</option>
+                        <option value="Koli">Koli (Koli)</option>
+                        <option value="Kutu">Kutu (Kutu)</option>
+                        <option value="Takım">Takım / Set (Takım)</option>
+                        <option value="Ton">Ton (Ton)</option>
+                      </optgroup>
+                    )}
 
-                    {birimler
-                      .filter((b) => b.aktif_mi)
-                      .map((b) => (
-                        <option key={b.id} value={b.ad}>
-                          {b.ad}
-                        </option>
-                      ))}
+                    {/* Veritabanı Ölçü Birimleri Havuzundan Kategorili Liste */}
+                    {BIRIM_KATEGORILERI.map((kategori) => {
+                      const categoryUnits = birimler.filter(
+                        (b) => b.aktif_mi && (b.kategori || 'Diğer') === kategori
+                      )
+                      if (categoryUnits.length === 0) return null
+                      return (
+                        <optgroup key={kategori} label={`📁 ${kategori}`}>
+                          {categoryUnits.map((b) => {
+                            const unitValue = b.kisa_ad || b.sembol || b.ad
+                            const unitLabel =
+                              b.kisa_ad && b.kisa_ad !== b.ad
+                                ? `${b.ad} (${b.kisa_ad})`
+                                : b.ad
+                            return (
+                              <option key={b.id} value={unitValue}>
+                                {unitLabel}
+                              </option>
+                            )
+                          })}
+                        </optgroup>
+                      )
+                    })}
                   </select>
                 </div>
 
