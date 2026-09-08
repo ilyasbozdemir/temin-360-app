@@ -238,9 +238,8 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
           poz_yili: new Date().getFullYear(),
           barkod_id: generateBarcode()
         })
-        setBarkodError('')
         if (editId) {
-          navigate({ to: '/malzemeler/yeni' as any, search: {} })
+          navigate({ to: '/malzemeler/yeni' } as any)
         }
         setTimeout(() => setToastMessage(null), 4000)
       } else {
