@@ -11,8 +11,6 @@ import {
   Sparkles,
   Star,
   CheckCircle2,
-  XCircle,
-  TrendingUp,
   Scale,
   Maximize2,
   Clock,
@@ -36,6 +34,7 @@ import {
 } from './olcubirimleri.hooks'
 import { cn } from '../../utils/cn'
 import { ExcelActions } from '../../components/ui/ExcelActions'
+import { BirimSelect } from './components/BirimSelect'
 
 export default function OlcuBirimleriScreen(): React.JSX.Element {
   const { data: birimler = [], isLoading: isBirimLoading } = useOlcuBirimleri()
@@ -58,10 +57,21 @@ export default function OlcuBirimleriScreen(): React.JSX.Element {
   const [isDonusumModalOpen, setIsDonusumModalOpen] = useState(false)
   const [editingDonusum, setEditingDonusum] = useState<Partial<BirimDonusum> | null>(null)
 
-  // Converter widget state
+  // Converter widget state - derive sensible defaults if not explicitly selected
+  const defaultFromId = useMemo(() => {
+    return (birimler.find((b) => b.ad === 'Kilogram') || birimler[0])?.id || 1
+  }, [birimler])
+
+  const defaultToId = useMemo(() => {
+    return (birimler.find((b) => b.ad === 'Gram') || birimler[1] || birimler[0])?.id || 2
+  }, [birimler])
+
   const [calcAmount, setCalcAmount] = useState<number>(1)
-  const [calcFromId, setCalcFromId] = useState<number | null>(null)
-  const [calcToId, setCalcToId] = useState<number | null>(null)
+  const [calcFromIdState, setCalcFromId] = useState<number | null>(null)
+  const [calcToIdState, setCalcToId] = useState<number | null>(null)
+
+  const calcFromId = calcFromIdState ?? defaultFromId
+  const calcToId = calcToIdState ?? defaultToId
 
   // Filtered unit list
   const filteredBirimler = useMemo(() => {
@@ -91,20 +101,6 @@ export default function OlcuBirimleriScreen(): React.JSX.Element {
       )
     })
   }, [donusumler, searchQuery])
-
-  // Set default converter units when birimler load
-  React.useEffect(() => {
-    if (birimler.length > 0) {
-      if (!calcFromId) {
-        const kg = birimler.find((b) => b.ad === 'Kilogram') || birimler[0]
-        setCalcFromId(kg.id)
-      }
-      if (!calcToId) {
-        const gr = birimler.find((b) => b.ad === 'Gram') || (birimler[1] ? birimler[1] : birimler[0])
-        setCalcToId(gr.id)
-      }
-    }
-  }, [birimler, calcFromId, calcToId])
 
   // Calculate live conversion result
   const conversionResult = useMemo(() => {
@@ -158,9 +154,11 @@ export default function OlcuBirimleriScreen(): React.JSX.Element {
 
   // Handlers for Donusum
   const handleAddNewDonusum = () => {
+    const defaultK = birimler[0]?.id || 1
+    const defaultH = birimler[1]?.id || (birimler[0]?.id ? birimler[0].id + 1 : 2)
     setEditingDonusum({
-      kaynak_birim_id: birimler[0]?.id || 1,
-      hedef_birim_id: birimler[1]?.id || 2,
+      kaynak_birim_id: defaultK,
+      hedef_birim_id: defaultH,
       donusum_faktoru: 1.0,
       formul: '',
       ters_formul: '',
@@ -179,6 +177,59 @@ export default function OlcuBirimleriScreen(): React.JSX.Element {
     if (confirm('Bu dönüşüm kuralını silmek istediğinize emin misiniz?')) {
       deleteDonusumMutation.mutate(id)
     }
+  }
+
+  const handleDonusumBirimChange = (type: 'kaynak' | 'hedef', unitId: number) => {
+    if (!editingDonusum) return
+    const next: Partial<BirimDonusum> = {
+      ...editingDonusum,
+      [type === 'kaynak' ? 'kaynak_birim_id' : 'hedef_birim_id']: unitId
+    }
+
+    // Auto-calculate suggested factor if both are in same category
+    const kId = type === 'kaynak' ? unitId : (next.kaynak_birim_id || 0)
+    const hId = type === 'hedef' ? unitId : (next.hedef_birim_id || 0)
+    const kUnit = birimler.find((b) => b.id === kId)
+    const hUnit = birimler.find((b) => b.id === hId)
+
+    if (
+      kUnit &&
+      hUnit &&
+      kUnit.kategori === hUnit.kategori &&
+      kUnit.donusum_faktoru &&
+      hUnit.donusum_faktoru &&
+      !next.formul
+    ) {
+      const calculatedFactor = Number((kUnit.donusum_faktoru / hUnit.donusum_faktoru).toFixed(8))
+      next.donusum_faktoru = calculatedFactor
+      if (!next.aciklama || next.aciklama.includes('dönüşümü') || next.aciklama === '') {
+        next.aciklama = `1 ${kUnit.ad} = ${calculatedFactor} ${hUnit.ad} dönüşümü`
+      }
+    }
+
+    setEditingDonusum(next)
+  }
+
+  const handleSwapModalDonusum = () => {
+    if (!editingDonusum) return
+    const oldKaynak = editingDonusum.kaynak_birim_id
+    const oldHedef = editingDonusum.hedef_birim_id
+    if (!oldKaynak || !oldHedef) return
+
+    const kUnit = birimler.find((b) => b.id === oldHedef)
+    const hUnit = birimler.find((b) => b.id === oldKaynak)
+    let factor = editingDonusum.donusum_faktoru
+    if (factor && factor > 0) {
+      factor = Number((1 / factor).toFixed(8))
+    }
+
+    setEditingDonusum({
+      ...editingDonusum,
+      kaynak_birim_id: oldHedef,
+      hedef_birim_id: oldKaynak,
+      donusum_faktoru: factor,
+      aciklama: kUnit && hUnit && factor ? `1 ${kUnit.ad} = ${factor} ${hUnit.ad} dönüşümü` : editingDonusum.aciklama
+    })
   }
 
   const handleSaveDonusum = (e: React.FormEvent) => {
@@ -592,9 +643,9 @@ export default function OlcuBirimleriScreen(): React.JSX.Element {
               </div>
 
               {/* Input row */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+              <div className="grid grid-cols-1 md:grid-cols-11 gap-3 items-end">
                 {/* Amount */}
-                <div className="md:col-span-4 flex flex-col gap-1.5">
+                <div className="md:col-span-3 flex flex-col gap-1.5">
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Miktar</label>
                   <input
                     type="number"
@@ -607,27 +658,22 @@ export default function OlcuBirimleriScreen(): React.JSX.Element {
                 </div>
 
                 {/* From Unit */}
-                <div className="md:col-span-3 flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Kaynak Birim</label>
-                  <select
-                    value={calcFromId || ''}
-                    onChange={(e) => setCalcFromId(Number(e.target.value))}
-                    className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/40 focus:outline-none"
-                  >
-                    {birimler.map((b) => (
-                      <option key={b.id} value={b.id}>
-                        {b.ad} {b.kisa_ad ? `(${b.kisa_ad})` : ''} — {b.kategori}
-                      </option>
-                    ))}
-                  </select>
+                <div className="md:col-span-3">
+                  <BirimSelect
+                    label="Kaynak Birim"
+                    birimler={birimler}
+                    value={calcFromId}
+                    onChange={(id) => setCalcFromId(id)}
+                    placeholder="Kaynak birim..."
+                  />
                 </div>
 
                 {/* Swap Button */}
-                <div className="md:col-span-2 flex items-center justify-center pt-5">
+                <div className="md:col-span-1 flex items-center justify-center pb-1">
                   <button
                     type="button"
                     onClick={handleSwapConverter}
-                    className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors shadow-xs"
+                    className="p-2.5 rounded-xl bg-slate-100 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-colors shadow-xs border border-slate-200 dark:border-slate-700"
                     title="Birimleri Değiştir (Swap)"
                   >
                     <ArrowRightLeft className="w-4 h-4" />
@@ -635,19 +681,15 @@ export default function OlcuBirimleriScreen(): React.JSX.Element {
                 </div>
 
                 {/* To Unit */}
-                <div className="md:col-span-3 flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Hedef Birim</label>
-                  <select
-                    value={calcToId || ''}
-                    onChange={(e) => setCalcToId(Number(e.target.value))}
-                    className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/40 focus:outline-none"
-                  >
-                    {birimler.map((b) => (
-                      <option key={b.id} value={b.id}>
-                        {b.ad} {b.kisa_ad ? `(${b.kisa_ad})` : ''} — {b.kategori}
-                      </option>
-                    ))}
-                  </select>
+                <div className="md:col-span-4">
+                  <BirimSelect
+                    label="Hedef Birim"
+                    birimler={birimler}
+                    value={calcToId}
+                    preferredCategory={birimler.find((b) => b.id === calcFromId)?.kategori}
+                    onChange={(id) => setCalcToId(id)}
+                    placeholder="Hedef birim..."
+                  />
                 </div>
               </div>
 
@@ -965,49 +1007,85 @@ export default function OlcuBirimleriScreen(): React.JSX.Element {
             </div>
 
             <form onSubmit={handleSaveDonusum} className="flex-1 overflow-y-auto p-6 space-y-4 text-xs">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Kaynak & Hedef Birim Picker Row */}
+              <div className="grid grid-cols-1 md:grid-cols-11 gap-3 items-end p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80">
                 {/* Kaynak Birim */}
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Kaynak Birim <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    required
-                    value={editingDonusum.kaynak_birim_id || ''}
-                    onChange={(e) =>
-                      setEditingDonusum({ ...editingDonusum, kaynak_birim_id: Number(e.target.value) })
-                    }
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-bold focus:ring-2 focus:ring-blue-500/40 focus:outline-none"
+                <div className="md:col-span-5">
+                  <BirimSelect
+                    label="Kaynak Birim *"
+                    birimler={birimler}
+                    value={editingDonusum.kaynak_birim_id}
+                    onChange={(id) => handleDonusumBirimChange('kaynak', id)}
+                    placeholder="Kaynak birim seçin..."
+                  />
+                </div>
+
+                {/* Swap Button */}
+                <div className="md:col-span-1 flex items-center justify-center pb-1">
+                  <button
+                    type="button"
+                    onClick={handleSwapModalDonusum}
+                    className="p-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 border border-slate-200 dark:border-slate-700 hover:border-blue-300 transition-all shadow-xs"
+                    title="Kaynak ve Hedef Birimi Değiştir (Swap)"
                   >
-                    {birimler.map((b) => (
-                      <option key={b.id} value={b.id}>
-                        {b.ad} {b.kisa_ad ? `(${b.kisa_ad})` : ''}
-                      </option>
-                    ))}
-                  </select>
+                    <ArrowRightLeft className="w-4 h-4" />
+                  </button>
                 </div>
 
                 {/* Hedef Birim */}
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Hedef Birim <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    required
-                    value={editingDonusum.hedef_birim_id || ''}
-                    onChange={(e) =>
-                      setEditingDonusum({ ...editingDonusum, hedef_birim_id: Number(e.target.value) })
+                <div className="md:col-span-5">
+                  <BirimSelect
+                    label="Hedef Birim *"
+                    birimler={birimler}
+                    value={editingDonusum.hedef_birim_id}
+                    preferredCategory={
+                      birimler.find((b) => b.id === editingDonusum.kaynak_birim_id)?.kategori
                     }
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-bold focus:ring-2 focus:ring-blue-500/40 focus:outline-none"
-                  >
-                    {birimler.map((b) => (
-                      <option key={b.id} value={b.id}>
-                        {b.ad} {b.kisa_ad ? `(${b.kisa_ad})` : ''}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(id) => handleDonusumBirimChange('hedef', id)}
+                    placeholder="Hedef birim seçin..."
+                  />
                 </div>
+              </div>
 
+              {/* Dynamic Live Formula Preview Badge */}
+              {editingDonusum.kaynak_birim_id && editingDonusum.hedef_birim_id && (
+                <div className="p-3 rounded-xl bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-blue-600 dark:text-blue-400 font-bold">Kural Özeti:</span>
+                    <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+                      1 {birimler.find((b) => b.id === editingDonusum.kaynak_birim_id)?.ad} ={' '}
+                      {editingDonusum.formul
+                        ? editingDonusum.formul
+                        : `${editingDonusum.donusum_faktoru ?? 1} ${birimler.find((b) => b.id === editingDonusum.hedef_birim_id)?.ad}`}
+                    </span>
+                  </div>
+                  {/* Quick Preset multipliers */}
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] text-slate-400">Hızlı Faktör:</span>
+                    {[1000, 100, 10, 0.001, 0.01].map((f) => (
+                      <button
+                        key={f}
+                        type="button"
+                        onClick={() => {
+                          const k = birimler.find((b) => b.id === editingDonusum.kaynak_birim_id)
+                          const h = birimler.find((b) => b.id === editingDonusum.hedef_birim_id)
+                          setEditingDonusum({
+                            ...editingDonusum,
+                            donusum_faktoru: f,
+                            aciklama: k && h ? `1 ${k.ad} = ${f} ${h.ad} dönüşümü` : editingDonusum.aciklama
+                          })
+                        }}
+                        className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 hover:bg-blue-100 dark:hover:bg-blue-900 border border-slate-200 dark:border-slate-700 font-mono text-[10px] font-bold text-slate-700 dark:text-slate-300 transition-colors"
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Other Fields Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Dönüşüm Faktörü */}
                 <div className="md:col-span-2">
                   <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
