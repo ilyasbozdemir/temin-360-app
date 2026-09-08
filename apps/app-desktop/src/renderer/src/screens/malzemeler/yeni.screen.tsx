@@ -71,6 +71,7 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
   const [formData, setFormData] = useState<Partial<Kalem>>(() => ({
     tipi: 'Mal',
     birim: 'Adet',
+    mensei: 'Yerli',
     kdv_orani: 20,
     aktif_mi: 1,
     personel_asgari_fark_oran: 0,
@@ -231,6 +232,7 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
         setFormData({
           tipi: formData.tipi || 'Mal',
           birim: 'Adet',
+          mensei: 'Yerli',
           kdv_orani: 20,
           aktif_mi: 1,
           personel_asgari_fark_oran: 0,
@@ -881,13 +883,13 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                     Menşei / Üretim
                   </label>
                   <select
-                    value={formData.mensei || ''}
+                    value={formData.mensei || 'Yerli'}
                     onChange={(e) => setFormData({ ...formData, mensei: e.target.value })}
                     className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">(Belirtilmemiş)</option>
                     <option value="Yerli">🇹🇷 Yerli Malı</option>
                     <option value="İthal">🌍 İthal Ürün / Yabancı</option>
+                    <option value="">(Belirtilmemiş)</option>
                   </select>
                 </div>
               </div>
