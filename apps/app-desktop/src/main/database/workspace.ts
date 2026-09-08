@@ -103,6 +103,32 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     // Ignored if column already exists
   }
 
+  // Explicit migration for TANIM_Kalem and DATA_TeminKalem extended columns
+  const kalemExtendedColumns = [
+    { name: 'poz_no', def: 'TEXT' },
+    { name: 'poz_yili', def: 'INTEGER' },
+    { name: 'poz_tanimi', def: 'TEXT' },
+    { name: 'poz_grubu_ref_id', def: 'TEXT' },
+    { name: 'olcu_birimi', def: 'TEXT' },
+    { name: 'yapi_sinifi', def: 'TEXT' },
+    { name: 'hizmet_kodu', def: 'TEXT' },
+    { name: 'hizmet_sinifi', def: 'TEXT' },
+    { name: 'sure', def: 'TEXT' },
+    { name: 'personel_sayisi', def: 'INTEGER' },
+    { name: 'meslek_kodu', def: 'TEXT' },
+    { name: 'fiyat_donemi', def: 'TEXT' },
+    { name: 'gorsel_url', def: 'TEXT' },
+    { name: 'gorseller', def: 'TEXT' }
+  ]
+  for (const c of kalemExtendedColumns) {
+    try {
+      db.exec(`ALTER TABLE TANIM_Kalem ADD COLUMN "${c.name}" ${c.def};`)
+    } catch {}
+    try {
+      db.exec(`ALTER TABLE DATA_TeminKalem ADD COLUMN "${c.name}" ${c.def};`)
+    } catch {}
+  }
+
   for (const table of schema.tables as any[]) {
     try {
       const tableInfo = db.prepare(`PRAGMA table_info(${table.name})`).all() as any[]

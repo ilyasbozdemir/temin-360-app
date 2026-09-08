@@ -38,12 +38,28 @@ export function MalzemeListCard({
         />
       </div>
 
-      <div className="flex flex-col sm:flex-row flex-1 gap-3 sm:items-center pr-16">
+      <div className="flex items-center flex-1 gap-3 pr-16">
+        {item.gorsel_url ? (
+          <div className="w-10 h-10 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 shrink-0 bg-slate-100 dark:bg-slate-900">
+            <img src={item.gorsel_url} alt={item.kalem_adi} className="w-full h-full object-cover" />
+          </div>
+        ) : null}
+
         <div className="flex flex-col gap-1 min-w-[120px]">
           <span className="font-mono font-bold text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wide">
             ID: {item.barkod_id}
           </span>
           <div className="flex gap-1 flex-wrap">
+            {item.poz_no && (
+              <span className="w-fit font-mono font-bold text-[10px] text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 border border-amber-200/50 dark:border-amber-800/30 px-1.5 py-0.5 rounded">
+                POZ: {item.poz_no}
+              </span>
+            )}
+            {item.hizmet_sinifi && (
+              <span className="w-fit font-medium text-[10px] text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 border border-purple-200/50 dark:border-purple-800/30 px-1.5 py-0.5 rounded truncate max-w-[120px]">
+                {item.hizmet_sinifi}
+              </span>
+            )}
             {item.tasinir_kodu && (
               <span className="w-fit font-mono font-bold text-[10px] text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100/20 dark:border-emerald-900/10 px-1.5 py-0.5 rounded">
                 T: {item.tasinir_kodu}
@@ -61,10 +77,15 @@ export function MalzemeListCard({
           {item.kalem_adi}
         </h4>
 
-        <div className="flex items-center gap-4 text-[11px] text-slate-500 dark:text-slate-400 min-w-[150px] justify-end">
+        <div className="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 min-w-[160px] justify-end">
+          {item.fiyat_donemi && (
+            <span className="font-mono text-[10px] text-slate-400">
+              {item.fiyat_donemi}
+            </span>
+          )}
           <span className="font-semibold text-slate-600 dark:text-slate-300">{item.tipi}</span>
           <span className="font-semibold text-slate-600 dark:text-slate-300 bg-slate-200/50 dark:bg-slate-800/50 px-2 py-1 rounded">
-            Birim: {item.birim}
+            {item.birim}
           </span>
         </div>
       </div>

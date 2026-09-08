@@ -14,6 +14,18 @@ const allowedChannels = new Set([
   'db:check-auth-setup',
   'db:setup-auth',
   'db:login',
+  'db:export-kalem-excel',
+  'db:import-kalem-excel',
+  'db:export-tasinir-template',
+  'db:import-tasinir-excel',
+  'db:export-okas-template',
+  'db:import-okas-excel',
+  'db:get-schema-dict',
+  'db:resetPlaceholders',
+  // Archive & Year Summary
+  'db:get-year-summary',
+  'db:close-year-records',
+  'db:archive-old-records',
   // Workspace
   'workspace:create',
   'workspace:open',

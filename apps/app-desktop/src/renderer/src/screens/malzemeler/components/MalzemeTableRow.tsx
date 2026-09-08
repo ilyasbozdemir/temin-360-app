@@ -40,12 +40,22 @@ export function MalzemeTableRow({
       </td>
       <td className="px-4 py-3 text-[10px] whitespace-nowrap">
         <div className="flex flex-col gap-1">
+          {item.poz_no ? (
+            <span className="font-mono font-bold text-amber-700 dark:text-amber-400">
+              POZ: {item.poz_no}
+            </span>
+          ) : null}
+          {item.hizmet_sinifi ? (
+            <span className="font-medium text-purple-700 dark:text-purple-400">
+              {item.hizmet_sinifi}
+            </span>
+          ) : null}
           {item.tasinir_kodu ? (
             <span className="font-mono text-emerald-700 dark:text-emerald-400">
               T: {item.tasinir_kodu}
             </span>
           ) : (
-            <span className="text-slate-400">-</span>
+            !item.poz_no && !item.hizmet_sinifi && <span className="text-slate-400">-</span>
           )}
           {item.okas_kodu ? (
             <span className="font-mono text-indigo-700 dark:text-indigo-400">
@@ -55,10 +65,17 @@ export function MalzemeTableRow({
         </div>
       </td>
       <td
-        className="px-4 py-3 text-sm font-medium text-slate-800 dark:text-slate-200 max-w-[300px] truncate"
+        className="px-4 py-3 text-sm font-medium text-slate-800 dark:text-slate-200 max-w-[300px]"
         title={item.kalem_adi}
       >
-        {item.kalem_adi}
+        <div className="flex items-center gap-2">
+          {item.gorsel_url ? (
+            <div className="w-7 h-7 rounded border border-slate-200 dark:border-slate-800 shrink-0 bg-slate-100 dark:bg-slate-900 overflow-hidden">
+              <img src={item.gorsel_url} alt="" className="w-full h-full object-cover" />
+            </div>
+          ) : null}
+          <span className="truncate">{item.kalem_adi}</span>
+        </div>
       </td>
       <td className="px-4 py-3 text-xs text-slate-650 dark:text-slate-300 whitespace-nowrap">
         {item.tipi}
