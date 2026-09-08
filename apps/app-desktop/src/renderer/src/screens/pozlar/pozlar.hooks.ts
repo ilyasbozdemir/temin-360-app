@@ -176,10 +176,65 @@ export function usePozlarHooks() {
     }
   })
 
+  const bulkAddPozMutation = useMutation({
+    mutationFn: async (items: Omit<PozItem, 'id'>[]) => {
+      let successCount = 0
+      for (const kayit of items) {
+        if (!kayit.poz_no?.trim() && !kayit.kalem_adi?.trim()) continue
+        const barkod = kayit.barkod_id || generateBarcode()
+        const sql = `
+          INSERT INTO TANIM_Kalem (
+            barkod_id, kalem_adi, tipi, birim, olcu_birimi,
+            poz_no, eski_poz_no, fasikul, poz_tipi, poz_yili, poz_tanimi, poz_grubu_ref_id,
+            yapi_sinifi, fiyat_donemi, okas_kodu, kategori,
+            ozelligi, notlar, birim_fiyat, birim_fiyatlar, kdv_orani, aktif_mi
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `
+        const params = [
+          barkod,
+          kayit.kalem_adi || kayit.poz_tanimi || kayit.poz_no,
+          'Yapım',
+          kayit.birim || 'm²',
+          kayit.birim || 'm²',
+          kayit.poz_no,
+          kayit.eski_poz_no || null,
+          kayit.fasikul || null,
+          kayit.poz_tipi || 'Analiz',
+          kayit.poz_yili || new Date().getFullYear(),
+          kayit.poz_tanimi || kayit.kalem_adi || '',
+          kayit.poz_grubu_ref_id || null,
+          kayit.yapi_sinifi || null,
+          kayit.fiyat_donemi || `${new Date().getFullYear()}/1`,
+          kayit.okas_kodu || null,
+          kayit.poz_kurumu || kayit.kategori || 'ÇŞB',
+          kayit.ozelligi || kayit.poz_tanimi || null,
+          kayit.notlar || null,
+          Number(kayit.birim_fiyat) || 0,
+          typeof kayit.birim_fiyatlar === 'string'
+            ? kayit.birim_fiyatlar
+            : kayit.birim_fiyatlar
+              ? JSON.stringify(kayit.birim_fiyatlar)
+              : null,
+          kayit.kdv_orani ?? 20,
+          kayit.aktif_mi ?? 1
+        ]
+        const res = await window.electron.ipcRenderer.invoke('db:run', sql, params)
+        if (res.success) successCount++
+      }
+      return { successCount, total: items.length }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['poz_listesi'] })
+      queryClient.invalidateQueries({ queryKey: ['kalemler'] })
+      queryClient.invalidateQueries({ queryKey: ['malzemeler'] })
+    }
+  })
+
   return {
     pozList,
     isLoading,
     addPoz: addPozMutation.mutateAsync,
+    bulkAddPoz: bulkAddPozMutation.mutateAsync,
     updatePoz: updatePozMutation.mutateAsync,
     deletePoz: deletePozMutation.mutateAsync
   }

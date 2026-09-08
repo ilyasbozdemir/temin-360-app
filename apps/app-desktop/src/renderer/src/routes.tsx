@@ -32,6 +32,7 @@ import OkasKodScreen from "./screens/okaskod/index.screen";
 import PozlarScreen from "./screens/pozlar/index.screen";
 import YeniPozScreen from "./screens/pozlar/yeni.screen";
 import PozDetayScreen from "./screens/pozlar/detay.screen";
+import TopluPozEkleScreen from "./screens/pozlar/toplu.screen";
 import OlcuBirimleriScreen from "./screens/olcubirimleri/index.screen";
 import YeniMalzemeScreen from "./screens/malzemeler/yeni.screen";
 import YeniDosyaScreen from "./screens/dosyalar/yeni.screen";
@@ -164,6 +165,12 @@ const pozDetayRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.POZ_DETAY,
   component: PozDetayScreen,
+});
+
+const topluPozRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: APP_ROUTES.TOPLU_POZ_EKLE,
+  component: TopluPozEkleScreen,
 });
 
 const mevzuatRoute = createRoute({
@@ -356,6 +363,7 @@ const routeTree = rootRoute.addChildren([
   pozlarRoute,
   yeniPozRoute,
   pozDetayRoute,
+  topluPozRoute,
   mevzuatRoute,
   changelogRoute,
   importRoute,

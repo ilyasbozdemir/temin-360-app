@@ -90,6 +90,7 @@ export function getTabLabel(fullPath: string): string {
   if (path.startsWith(APP_ROUTES.TASINIR_KOD)) return 'Taşınır Kodları'
   if (path.startsWith(APP_ROUTES.OKAS_KOD)) return 'OKAS Kodları'
   if (path.startsWith(APP_ROUTES.YENI_POZ)) return 'Birim Fiyat Pozu Tanımla / Düzenle'
+  if (path.startsWith(APP_ROUTES.TOPLU_POZ_EKLE)) return 'Toplu Poz Ekle & GitHub Eşitle'
   if (path.startsWith(APP_ROUTES.POZ_DETAY)) return 'Poz Detayı & Birim Fiyatları'
   if (path.startsWith(APP_ROUTES.POZLAR)) return 'Birim Fiyat Pozları'
   if (path.startsWith(APP_ROUTES.SABLONLAR)) return 'Şablon Yönetimi'

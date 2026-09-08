@@ -7,6 +7,7 @@ import {
   Edit2,
   Eye,
   Filter,
+  FileSpreadsheet,
   Layers,
   Link2,
   Plus,
@@ -108,6 +109,15 @@ export default function PozlarScreen() {
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
+          <Button
+            variant="outline"
+            onClick={() => navigate({ to: APP_ROUTES.TOPLU_POZ_EKLE })}
+            className="border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10 gap-2 shadow-xs"
+          >
+            <FileSpreadsheet size={16} className="text-amber-600 dark:text-amber-400" />
+            <span>Toplu Poz Ekle & GitHub Eşitle</span>
+          </Button>
+
           <ExcelActions
             tableName="TANIM_Kalem"
             customFileName="Birim_Fiyat_Pozlari"

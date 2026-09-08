@@ -35,6 +35,7 @@ export const APP_ROUTES = {
   POZLAR: '/pozlar',
   POZ_DETAY: '/pozlar/detay',
   YENI_POZ: '/pozlar/yeni',
+  TOPLU_POZ_EKLE: '/pozlar/toplu',
   OLCU_BIRIMLERI: '/olcubirimleri',
   KURUM: '/kurum',
   PROFIL: '/profil',
