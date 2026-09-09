@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   AlertTriangle,
   ArrowLeft,
@@ -237,6 +237,30 @@ export default function YeniPozScreen(): React.JSX.Element {
 
   const [isSaving, setIsSaving] = useState(false)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false)
+
+  // Dirty-state: başlangıç verilerini sakla, değişiklik kontrolü için
+  const initialFormRef = useRef<string>('')
+  const initialFiyatRef = useRef<string>('')
+
+  const isDirty = useMemo(() => {
+    return (
+      JSON.stringify(formData) !== initialFormRef.current ||
+      JSON.stringify(fiyatListesi) !== initialFiyatRef.current
+    )
+  }, [formData, fiyatListesi])
+
+  const handleNavigateBack = useCallback(() => {
+    navigate({ to: APP_ROUTES.POZLAR })
+  }, [navigate])
+
+  const handleTryClose = useCallback(() => {
+    if (!isDirty) {
+      handleNavigateBack()
+    } else {
+      setShowUnsavedModal(true)
+    }
+  }, [isDirty, handleNavigateBack])
 
   // Edit modunda mevcut poz verisini doldur
   useEffect(() => {
@@ -282,6 +306,15 @@ export default function YeniPozScreen(): React.JSX.Element {
         }
       }
     }
+    // Başlangıç snapshot'ını güncelle (edit mod verileri yüklendikten sonra)
+    // Küçük bir timeout ile state settle olmasını bekle
+    setTimeout(() => {
+      initialFormRef.current = JSON.stringify(
+        editId && pozList.find((p) => p.id === editId)
+          ? { ...pozList.find((p) => p.id === editId) }
+          : formData
+      )
+    }, 50)
   }, [editId, pozList])
 
   // Dinamik Dönem Listesi
@@ -417,6 +450,9 @@ export default function YeniPozScreen(): React.JSX.Element {
         showToast('Yeni birim fiyat pozu ve fiyat geçmişi kaydedildi.')
       }
 
+      // Kayıt sonrası dirty state sıfırla ve geri dön
+      initialFormRef.current = JSON.stringify(formData)
+      initialFiyatRef.current = JSON.stringify(fiyatListesi)
       setTimeout(() => {
         navigate({ to: APP_ROUTES.POZLAR })
       }, 600)
@@ -437,12 +473,64 @@ export default function YeniPozScreen(): React.JSX.Element {
         </div>
       )}
 
+      {/* Kaydedilmemiş Değişiklikler Uyarı Modalı */}
+      {showUnsavedModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-6 max-w-sm w-full mx-4 animate-in zoom-in-95">
+            <div className="flex items-start gap-4 mb-5">
+              <div className="p-2.5 rounded-xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 shrink-0">
+                <AlertTriangle size={22} />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1">
+                  Kaydedilmemiş Değişiklikler
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Formda kaydedilmemiş değişiklikler var. Çıkarsanız yaptığınız değişiklikler kaybolacak.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setShowUnsavedModal(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                Geri Dön
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUnsavedModal(false)
+                  handleSubmit({ preventDefault: () => {} } as React.FormEvent)
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white transition-colors flex items-center gap-1.5"
+              >
+                <Save size={13} />
+                Kaydet ve Çık
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUnsavedModal(false)
+                  handleNavigateBack()
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-700 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white transition-colors"
+              >
+                Kaydetme, Çık
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {/* Üst Bar / Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
         <div className="flex items-center gap-4">
           <button
             type="button"
-            onClick={() => navigate({ to: APP_ROUTES.POZLAR })}
+            onClick={handleTryClose}
             className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition-colors"
             title="Poz Listesine Geri Dön"
           >
@@ -469,11 +557,11 @@ export default function YeniPozScreen(): React.JSX.Element {
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate({ to: APP_ROUTES.POZLAR })}
+            onClick={handleTryClose}
             className="gap-2 text-xs"
           >
             <RotateCcw size={14} />
-            <span>Vazgeç</span>
+            {isDirty ? <span className="text-amber-600 dark:text-amber-400">Değişiklikleri Geri Al</span> : <span>Kapat</span>}
           </Button>
 
           <Button
