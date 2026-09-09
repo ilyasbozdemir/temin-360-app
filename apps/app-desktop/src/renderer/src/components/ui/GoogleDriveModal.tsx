@@ -61,7 +61,8 @@ export function GoogleDriveModal(
   const fetchDriveFiles = async (currentToken?: string) => {
     const rawToken = currentToken !== undefined ? currentToken : token;
     const useToken = rawToken
-      ? rawToken.trim().replace(/^["']|["']$/g, "").replace(/^Bearer\s+/i, "").replace(/[\r\n\s]+/g, "")
+      ? rawToken.trim().replace(/^["']|["']$/g, "").replace(/^Bearer\s+/i, "")
+        .replace(/[\r\n\s]+/g, "")
       : "";
 
     setIsLoadingList(true);
@@ -148,12 +149,17 @@ export function GoogleDriveModal(
   }, [isOpen]);
 
   const handleStartGoogleOAuth = async () => {
-    const cleanClientId = clientId.trim().replace(/^["']|["']$/g, "").replace(/[\r\n\s]+/g, "");
-    const cleanClientSecret = clientSecret.trim().replace(/^["']|["']$/g, "").replace(/[\r\n\s]+/g, "");
+    const cleanClientId = clientId.trim().replace(/^["']|["']$/g, "").replace(
+      /[\r\n\s]+/g,
+      "",
+    );
+    const cleanClientSecret = clientSecret.trim().replace(/^["']|["']$/g, "")
+      .replace(/[\r\n\s]+/g, "");
 
     if (!cleanClientId || !cleanClientSecret) {
       setStatusMsg({
-        text: "Lütfen önce Client ID ve Client Secret alanlarını doldurun veya 'client_secret.json Yükle' butonunu kullanın.",
+        text:
+          "Lütfen önce Client ID ve Client Secret alanlarını doldurun veya 'client_secret.json Yükle' butonunu kullanın.",
         type: "error",
       });
       return;
@@ -161,15 +167,19 @@ export function GoogleDriveModal(
 
     setIsAuthenticating(true);
     setStatusMsg({
-      text: "Tarayıcınız açılıyor... Lütfen açılan sayfada Google hesabınızı seçip Temin 360'a izin verin.",
+      text:
+        "Tarayıcınız açılıyor... Lütfen açılan sayfada Google hesabınızı seçip Temin 360'a izin verin.",
       type: "info",
     });
 
     try {
-      const res = await window.electron.ipcRenderer.invoke("workspace:start-gdrive-oauth", {
-        clientId: cleanClientId,
-        clientSecret: cleanClientSecret,
-      });
+      const res = await window.electron.ipcRenderer.invoke(
+        "workspace:start-gdrive-oauth",
+        {
+          clientId: cleanClientId,
+          clientSecret: cleanClientSecret,
+        },
+      );
 
       if (res.success) {
         if (res.accessToken) {
@@ -180,7 +190,8 @@ export function GoogleDriveModal(
         }
         setIsSavedToken(true);
         setStatusMsg({
-          text: "🎉 Google Hesabınız başarıyla bağlandı! Kalıcı yetki alındı, yedekleme sistemi anında aktif edildi.",
+          text:
+            "🎉 Google Hesabınız başarıyla bağlandı! Kalıcı yetki alındı, yedekleme sistemi anında aktif edildi.",
           type: "success",
         });
         fetchDriveFiles(res.accessToken);
@@ -292,13 +303,15 @@ export function GoogleDriveModal(
       if (cleanRefresh || cleanToken) {
         setIsSavedToken(true);
         setStatusMsg({
-          text: "✅ Google Cloud API bilgileri ve Yetki Anahtarı kaydedildi! Kalıcı mod aktif.",
+          text:
+            "✅ Google Cloud API bilgileri ve Yetki Anahtarı kaydedildi! Kalıcı mod aktif.",
           type: "success",
         });
         fetchDriveFiles(cleanToken || undefined);
       } else {
         setStatusMsg({
-          text: "✅ Client ID ve Secret kaydedildi. Şimdi aşağıdaki 'Google ile Oturum Aç & Drive'a Bağlan' butonuna basarak tek tıkla yetki alabilirsiniz.",
+          text:
+            "✅ Client ID ve Secret kaydedildi. Şimdi aşağıdaki 'Google ile Oturum Aç & Drive'a Bağlan' butonuna basarak tek tıkla yetki alabilirsiniz.",
           type: "info",
         });
       }
@@ -351,7 +364,8 @@ export function GoogleDriveModal(
     ).replace(/[\r\n\s]+/g, "");
     if (!cleanToken && !refreshToken && !isSavedToken) {
       setStatusMsg({
-        text: "Lütfen önce yukarıdaki 'Google ile Oturum Aç' butonuyla bağlanın veya token tanımlayın.",
+        text:
+          "Lütfen önce yukarıdaki 'Google ile Oturum Aç' butonuyla bağlanın veya token tanımlayın.",
         type: "error",
       });
       return;
@@ -521,7 +535,7 @@ export function GoogleDriveModal(
       onClose={onClose}
       title="Google Drive Bulut Entegrasyonu"
       description="Google hesabınızla giriş yaparak çalışma dosyalarınızı buluta yedekleyin veya mevcut yedeklerinizi indirin."
-      className="max-w-2xl"
+      className="max-w-7xl"
     >
       <div className="space-y-5">
         {/* Google Authentication Method Selection & Setup */}
@@ -706,20 +720,31 @@ export function GoogleDriveModal(
                   disabled={isAuthenticating || !clientId || !clientSecret}
                   className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-xs shadow-md hover:shadow-lg transition-all cursor-pointer"
                 >
-                  {isAuthenticating ? (
-                    <>
-                      <RefreshCw size={15} className="animate-spin" />
-                      <span>Google Girişi Bekleniyor (Tarayıcınızı Kontrol Edin)...</span>
-                    </>
-                  ) : (
-                    <>
-                      <LogIn size={15} />
-                      <span>Google Hesabı ile Oturum Aç & Yetkilendir (Tek Tıkla Kalıcı)</span>
-                    </>
-                  )}
+                  {isAuthenticating
+                    ? (
+                      <>
+                        <RefreshCw size={15} className="animate-spin" />
+                        <span>
+                          Google Girişi Bekleniyor (Tarayıcınızı Kontrol
+                          Edin)...
+                        </span>
+                      </>
+                    )
+                    : (
+                      <>
+                        <LogIn size={15} />
+                        <span>
+                          Google Hesabı ile Oturum Aç & Yetkilendir (Tek Tıkla
+                          Kalıcı)
+                        </span>
+                      </>
+                    )}
                 </Button>
                 <p className="text-[10px] text-center text-slate-600 dark:text-slate-400 leading-snug">
-                  ✨ <strong>24 saat sınırı yok:</strong> Butona tıkladığınızda tarayıcınız açılır; Google hesabınıza onay verdiğinizde kalıcı yetki otomatik alınır ve yedekleme butonları anında aktif olur.
+                  ✨ <strong>24 saat sınırı yok:</strong>{" "}
+                  Butona tıkladığınızda tarayıcınız açılır; Google hesabınıza
+                  onay verdiğinizde kalıcı yetki otomatik alınır ve yedekleme
+                  butonları anında aktif olur.
                 </p>
               </div>
 
@@ -752,7 +777,8 @@ export function GoogleDriveModal(
                     onClick={handleOpenGoogleAuth}
                     className="text-[10px] text-blue-600 dark:text-blue-400 font-bold hover:underline flex items-center gap-1"
                   >
-                    <ExternalLink size={11} /> OAuth Playground ile Manuel Kod Üretme Rehberi
+                    <ExternalLink size={11} />{" "}
+                    OAuth Playground ile Manuel Kod Üretme Rehberi
                   </button>
                   <Button
                     type="button"
@@ -947,88 +973,82 @@ export function GoogleDriveModal(
                   {files.map((file, index) => (
                     <div
                       key={file.id}
-                      className="p-3 flex items-center justify-between gap-3 hover:bg-slate-50 dark:hover:bg-slate-900/60 transition-colors"
+                      className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50 dark:hover:bg-slate-900/60 transition-colors"
                     >
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 shrink-0">
+                      <div className="flex items-start gap-3 min-w-0 flex-1">
+                        <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5">
                           <FileSpreadsheet size={18} />
                         </div>
-                        <div className="min-w-0 flex-1">
+                        <div className="min-w-0 flex-1 space-y-1">
                           <div className="flex items-center gap-2">
                             <span
-                              className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate"
+                              className="text-xs font-bold text-slate-900 dark:text-slate-100 break-all select-all leading-snug"
                               title={file.name}
                             >
                               {file.name}
                             </span>
+                          </div>
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-2">
                             {index === 0 && (
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shrink-0">
+                              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shrink-0">
                                 En Güncel Sürüm
                               </span>
                             )}
-                            <span className="text-[10px] font-medium px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0">
+                            <span className="text-[9px] font-medium px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0">
                               Sürüm #{files.length - index}
                             </span>
-                          </div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-3">
-                            <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-slate-300">
-                              <Clock size={12} className="text-slate-400" />
+                            <span className="text-slate-300 dark:text-slate-700">•</span>
+                            <span className="flex items-center gap-1 font-medium text-slate-600 dark:text-slate-300">
+                              <Clock size={11} className="text-slate-400" />
                               {formatDate(file.modifiedTime)}
                             </span>
-                            <span>•</span>
+                            <span className="text-slate-300 dark:text-slate-700">•</span>
                             <span>Boyut: {formatFileSize(file.size)}</span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5 shrink-0">
+                      <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
                         <Button
                           onClick={() => handleDownloadFile(file, true)}
-                          disabled={downloadingId === file.id ||
-                            deletingId === file.id}
+                          disabled={downloadingId === file.id || deletingId === file.id}
                           title="Bu bulut yedeğini doğrudan mevcut aktif çalışma dosyanızın üzerine yazar ve anında geri yükler."
-                          className="bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-600 hover:text-white text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold px-2.5 py-1.5 rounded-lg shrink-0 transition-colors flex items-center gap-1"
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg shrink-0 transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
                         >
-                          {downloadingId === file.id
-                            ? (
-                              <>
-                                <RefreshCw size={12} className="animate-spin" />
-                                {" "}
-                                Yükleniyor...
-                              </>
-                            )
-                            : (
-                              <>
-                                <Download size={12} /> Aktif Dosyaya Geri Yükle
-                              </>
-                            )}
+                          {downloadingId === file.id ? (
+                            <>
+                              <RefreshCw size={12} className="animate-spin" />
+                              <span>Geri Yükleniyor...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Download size={13} />
+                              <span>Aktif Dosyaya Aç</span>
+                            </>
+                          )}
                         </Button>
 
                         <Button
                           onClick={() => handleDownloadFile(file, false)}
-                          disabled={downloadingId === file.id ||
-                            deletingId === file.id}
+                          disabled={downloadingId === file.id || deletingId === file.id}
                           title="Masaüstüne yeni bir dosya olarak indir ve aç"
-                          className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-medium px-2 py-1.5 rounded-lg shrink-0 transition-colors flex items-center gap-1"
+                          className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-medium px-2.5 py-1.5 rounded-lg shrink-0 transition-colors flex items-center gap-1 cursor-pointer"
                         >
-                          <FolderDown size={12} /> Masaüstüne İndir
+                          <FolderDown size={13} />
+                          <span>Masaüstüne İndir</span>
                         </Button>
 
                         <Button
                           onClick={() => handleDeleteFile(file)}
-                          disabled={downloadingId === file.id ||
-                            deletingId === file.id}
+                          disabled={downloadingId === file.id || deletingId === file.id}
                           title="Bu yedeği Google Drive'dan sil"
-                          className="bg-slate-100 dark:bg-slate-800 hover:bg-rose-600 hover:text-white text-slate-500 dark:text-slate-400 text-xs font-bold p-1.5 rounded-lg shrink-0 transition-colors"
+                          className="bg-slate-100 dark:bg-slate-800 hover:bg-rose-600 hover:text-white text-slate-500 dark:text-slate-400 text-xs font-bold p-1.5 rounded-lg shrink-0 transition-colors cursor-pointer"
                         >
-                          {deletingId === file.id
-                            ? (
-                              <RefreshCw
-                                size={12}
-                                className="animate-spin text-rose-500"
-                              />
-                            )
-                            : <Trash2 size={13} />}
+                          {deletingId === file.id ? (
+                            <RefreshCw size={12} className="animate-spin text-rose-500" />
+                          ) : (
+                            <Trash2 size={13} />
+                          )}
                         </Button>
                       </div>
                     </div>
