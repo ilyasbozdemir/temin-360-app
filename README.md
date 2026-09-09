@@ -10,15 +10,24 @@ Sistemdeki tüm resmi evrak ve tutanak şablonları açık kaynaklı ve modüler
 
 ---
 
-## 📌 HAKİM Ne Demektir? (Kurumsal İsim Açılımı)
+## 📌 TEMİN 360 Ne Demektir? (Kurumsal İsim Açılımı)
 
-| Harf  | Kavram            | Kapsam ve Açıklama                                                                                                                                        |
-| :---: | :---------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **H** | **Hakediş**       | Yapım ve Hizmet İşleri, Pursantaj Oranları, Yeşil Defter, Fiyat Farkı Hesabı (TÜİK Endeksli), İhzarat Tutanağı, Şantiye Ataşmanı ve Sayıştay Kesintileri. |
-| **A** | **Alım**          | Mal Alımları, Teknik Şartname, Taşınır Kayıt Yönetim Sistemi (TKYS / TİF), Ambar Girişleri, Muayene ve Kabul Komisyon Kararları.                          |
-| **K** | **Kamu**          | 5018 Sayılı Kanun, Harcama Yetkilisi Onayları, Gerçekleştirme Görevlisi Kontrolleri ve İller Bankası (İLBANK) Tip Şartname Standartları.                  |
-| **İ** | **İhale & Temin** | 4734 Sayılı KİK Kapsamında **Doğrudan Temin (Md. 22/a-d)**, Pazarlık Usulü (Md. 21/b-f) ve Açık İhale Usulü (Md. 19).                                     |
-| **M** | **Mali Yönetim**  | Bütçe Takibi, %10 KİK Sınırı Denetimi (Md. 62/ı), Ödeme Emri Belgesi (MİF), Vergi/SGK Borcu Yoktur Doğrulaması ve İcmal Raporları.                        |
+| Kelime / Kavram | Kapsam ve Açıklama |
+| :-------------- | :----------------- |
+| **TEMİN** | Kamu kurumlarının mal, hizmet ve yapım işleri temin süreçlerinin tamamını kapsar: Doğrudan Temin (Md. 22/a-d), Pazarlık Usulü (Md. 21/b-f) ve Açık İhale Usulü (Md. 19). |
+| **360°** | Sürecin başından (İhtiyaç & Lüzum Müzekkeresi) sonuna kadar (Muayene & Kabul, Ödeme Emri, Hakediş, Arşiv) **tam 360 derece** kesintisiz dijital kapsam. |
+
+### 360° Kapsam Detayları
+
+| Aşama | Kapsanan İş Adımları |
+| :---- | :------------------- |
+| 🗂️ **1. İhtiyaç & Planlama** | Lüzum Müzekkeresi, İhtiyaç Talep Formu, Yaklaşık Maliyet Cetveli, Bütçe Sorgusu |
+| 📊 **2. Piyasa Araştırması** | Fiyat İsteme Mektupları, Fiyat Teklifleri, Karşılaştırmalı Piyasa Araştırma Tutanağı |
+| 📋 **3. Onay & Sözleşme** | Doğrudan Temin / İhale Onay Belgesi, Sözleşme Taslağı, EKAP Bildirimi |
+| 📦 **4. Muayene & Kabul** | Muayene Kabul Tutanağı, Taşınır İşlem Fişi (TİF), Ambar Stok Girişi, Fatura & İrsaliye |
+| 💰 **5. Ödeme & Hakediş** | Harcama Talimatı, Ödeme Emri Belgesi (MİF), Yapım İşleri Hakediş, Fiyat Farkı, Sayıştay Kesintileri |
+| 🏛️ **6. Mali Yönetim** | %10 KİK Sınırı Denetimi (Md. 62/ı), Vergi/SGK Borcu Yoktur, İcmal Raporları |
+| 📁 **7. Arşiv & Çıktı** | Barkodlu PDF Üretimi, Klasör İndeksi, Dizi Pusulası, Resmî Belge Arşivleme |
 
 ---
 
