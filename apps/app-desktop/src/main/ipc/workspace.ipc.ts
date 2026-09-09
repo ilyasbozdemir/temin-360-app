@@ -93,6 +93,210 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
     }
   })
 
+  // Shared Google Drive Token Refresh Helper (DB'den dinamik okunur, asla hardcoded değil)
+  const tryRefreshToken = async (db: any): Promise<string | null> => {
+    try {
+      const refreshRow = db
+        .prepare("SELECT value FROM settings WHERE key = 'gdriveRefreshToken'")
+        .get() as { value?: string }
+      const refreshToken = refreshRow?.value
+      if (!refreshToken) return null
+
+      const clientIdRow = db
+        .prepare("SELECT value FROM settings WHERE key = 'gdriveClientId'")
+        .get() as { value?: string }
+      const clientSecretRow = db
+        .prepare("SELECT value FROM settings WHERE key = 'gdriveClientSecret'")
+        .get() as { value?: string }
+
+      const clientId = clientIdRow?.value?.trim()
+      const clientSecret = clientSecretRow?.value?.trim()
+
+      if (!clientId || !clientSecret) {
+        console.warn('[Google Drive] gdriveClientId veya gdriveClientSecret ayarlanmamış. Token otomatik yenilenemiyor.')
+        return null
+      }
+
+      const cleanRefresh = String(refreshToken).trim().replace(/^["']|["']$/g, '').replace(/[\r\n\s]+/g, '')
+
+      const res = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          client_id: clientId,
+          client_secret: clientSecret,
+          refresh_token: cleanRefresh,
+          grant_type: 'refresh_token'
+        }).toString()
+      })
+
+      if (res.ok) {
+        const data = (await res.json()) as { access_token?: string }
+        if (data.access_token) {
+          db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('gdriveAccessToken', ?)")
+            .run(data.access_token)
+          console.log('[Google Drive] Access token otomatik yenilendi.')
+          return data.access_token
+        }
+      } else {
+        const errText = await res.text()
+        console.warn('[Google Drive] Refresh token isteği başarısız:', res.status, errText)
+      }
+    } catch (err) {
+      console.error('[Google Drive] Token yenileme hatası:', err)
+    }
+    return null
+  }
+
+  // Tek tıkla yerel OAuth loopback akışı (Tarayıcı açıp yetkiyi otomatik alır)
+  ipcMain.handle('workspace:start-gdrive-oauth', async (_, args?: { clientId?: string; clientSecret?: string }) => {
+    try {
+      const db = workspaceManager.getDb()
+      let clientId = args?.clientId?.trim()
+      let clientSecret = args?.clientSecret?.trim()
+
+      if (!clientId) {
+        const clientIdRow = db.prepare("SELECT value FROM settings WHERE key = 'gdriveClientId'").get() as { value?: string }
+        clientId = clientIdRow?.value?.trim()
+      }
+      if (!clientSecret) {
+        const clientSecretRow = db.prepare("SELECT value FROM settings WHERE key = 'gdriveClientSecret'").get() as { value?: string }
+        clientSecret = clientSecretRow?.value?.trim()
+      }
+
+      if (!clientId || !clientSecret) {
+        return {
+          success: false,
+          error: 'Önce Google Cloud Client ID ve Client Secret alanlarını doldurun veya client_secret.json yükleyin.'
+        }
+      }
+
+      // Güncel değerleri veritabanına kaydet
+      try {
+        db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('gdriveClientId', ?)").run(clientId)
+        db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('gdriveClientSecret', ?)").run(clientSecret)
+      } catch (dbSaveErr) {
+        console.warn('Could not save client id/secret before oauth:', dbSaveErr)
+      }
+
+      const http = await import('http')
+      const { shell } = await import('electron')
+
+      return new Promise((resolve) => {
+        let isResolved = false
+        let port = 0
+
+        const server = http.createServer(async (req, res) => {
+          try {
+            const reqUrl = new URL(req.url || '', `http://127.0.0.1:${port}`)
+            const code = reqUrl.searchParams.get('code')
+            const error = reqUrl.searchParams.get('error')
+
+            if (error) {
+              res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
+              res.end('<h2>❌ Giriş İptal Edildi.</h2><p>Bu sekmeyi kapatıp uygulamaya dönebilirsiniz.</p>')
+              server.close()
+              if (!isResolved) {
+                isResolved = true
+                resolve({ success: false, error: `Google Yetkilendirme Hatası: ${error}` })
+              }
+              return
+            }
+
+            if (code) {
+              res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
+              res.end(`
+                <!DOCTYPE html>
+                <html>
+                <head><meta charset="utf-8"><title>Temin 360 - Bağlantı Başarılı</title></head>
+                <body style="font-family: system-ui, -apple-system, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #0f172a; color: #f8fafc; text-align: center;">
+                  <div style="background: #1e293b; padding: 40px 60px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 1px solid #334155;">
+                    <div style="font-size: 50px; margin-bottom: 10px;">🎉</div>
+                    <h2 style="color: #38bdf8; margin: 0 0 10px 0;">Google Drive Bağlantısı Başarılı!</h2>
+                    <p style="color: #94a3b8; font-size: 14px; margin: 0 0 20px 0;">Yetkilendirme tamamlandı. Bu sekmeyi kapatıp Temin 360 uygulamasına dönebilirsiniz.</p>
+                  </div>
+                </body>
+                </html>
+              `)
+              server.close()
+
+              // Exchange authorization code for tokens
+              const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                  code,
+                  client_id: clientId,
+                  client_secret: clientSecret,
+                  redirect_uri: `http://127.0.0.1:${port}`,
+                  grant_type: 'authorization_code'
+                }).toString()
+              })
+
+              if (!tokenRes.ok) {
+                const errText = await tokenRes.text()
+                if (!isResolved) {
+                  isResolved = true
+                  resolve({ success: false, error: `Token alma hatası (${tokenRes.status}): ${errText}` })
+                }
+                return
+              }
+
+              const tokenData = (await tokenRes.json()) as { access_token?: string; refresh_token?: string }
+              if (tokenData.access_token) {
+                db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('gdriveAccessToken', ?)").run(tokenData.access_token)
+              }
+              if (tokenData.refresh_token) {
+                db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('gdriveRefreshToken', ?)").run(tokenData.refresh_token)
+              }
+
+              if (!isResolved) {
+                isResolved = true
+                resolve({
+                  success: true,
+                  accessToken: tokenData.access_token,
+                  refreshToken: tokenData.refresh_token
+                })
+              }
+            }
+          } catch (e: any) {
+            server.close()
+            if (!isResolved) {
+              isResolved = true
+              resolve({ success: false, error: e.message })
+            }
+          }
+        })
+
+        server.listen(0, '127.0.0.1', () => {
+          const addr = server.address()
+          port = typeof addr === 'object' && addr ? addr.port : 0
+          const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
+            clientId
+          )}&redirect_uri=${encodeURIComponent(
+            `http://127.0.0.1:${port}`
+          )}&response_type=code&scope=${encodeURIComponent(
+            'https://www.googleapis.com/auth/drive.file'
+          )}&access_type=offline&prompt=consent`
+
+          shell.openExternal(authUrl)
+        })
+
+        // Timeout after 3 minutes if user didn't finish
+        setTimeout(() => {
+          if (!isResolved) {
+            isResolved = true
+            try { server.close() } catch {}
+            resolve({ success: false, error: 'Oturum açma işlemi zaman aşımına uğradı (3 dakika).' })
+          }
+        }, 180000)
+      })
+    } catch (error: any) {
+      console.error('Google OAuth loopback error:', error)
+      return { success: false, error: error.message }
+    }
+  })
+
   ipcMain.handle('workspace:backup-gdrive', async (_, args?: { token?: string }) => {
     try {
       const filePath = workspaceManager.getCurrentFilePath()
@@ -118,10 +322,29 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
       const fileData = fs.readFileSync(filePath)
 
       if (token) {
-        const cleanToken = String(token).trim().replace(/^["']|["']$/g, '').replace(/^Bearer\s+/i, '').replace(/[\r\n\s]+/g, '')
-        
-        // Ensure dedicated app folder exists
-        const folderId = await getOrCreateAppFolder(cleanToken)
+        let cleanToken = String(token).trim().replace(/^["']|["']$/g, '').replace(/^Bearer\s+/i, '').replace(/[\r\n\s]+/g, '')
+
+        // 401 durumunda refresh token ile otomatik yenile
+        let folderId: string
+        try {
+          folderId = await getOrCreateAppFolder(cleanToken)
+        } catch (err: any) {
+          if (err.message?.includes('GDRIVE_TOKEN_EXPIRED')) {
+            console.log('[Google Drive] Token expire, refresh deneniyor...')
+            const newToken = await tryRefreshToken(db)
+            if (newToken) {
+              cleanToken = newToken
+              folderId = await getOrCreateAppFolder(cleanToken)
+            } else {
+              return {
+                success: false,
+                error: 'Google Drive erişim jetonu süresi dolmuş. Lütfen yeni Access Token girin ya da Refresh Token ve API ayarlarınızı kontrol edin.'
+              }
+            }
+          } else {
+            throw err
+          }
+        }
 
         // Versioned timestamped filename: e.g. Acme_2026-09-06_17-46.dtal
         const now = new Date()
@@ -266,20 +489,34 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
     const query = encodeURIComponent(
       `mimeType = 'application/vnd.google-apps.folder' and name = '${folderName}' and trashed = false`
     )
+
+    // 1. Klasörü ara
     const searchRes = await fetch(
       `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)`,
-      {
-        headers: { Authorization: `Bearer ${token}` }
-      }
+      { headers: { Authorization: `Bearer ${token}` } }
     )
+
+    if (searchRes.status === 401) {
+      throw new Error(
+        'GDRIVE_TOKEN_EXPIRED: Google Drive erişim jetonu (access token) süresi dolmuş veya geçersiz. ' +
+        'Lütfen Google OAuth Playground (developers.google.com/oauthplayground) adresinden yeni bir access_token alıp ' +
+        'Ayarlar > Google Drive bölümünden güncelleyin. OAuth token\'ları yaklaşık 1 saat geçerlidir.'
+      )
+    }
+
     if (searchRes.ok) {
       const data = (await searchRes.json()) as { files?: Array<{ id: string; name: string }> }
       if (data.files && data.files.length > 0) {
+        console.log(`[Google Drive] ${folderName} klasörü bulundu:`, data.files[0].id)
         return data.files[0].id
       }
+    } else {
+      const errText = await searchRes.text()
+      throw new Error(`Google Drive klasör arama hatası (${searchRes.status}): ${errText}`)
     }
 
-    // Create folder if not found
+    // 2. Klasör bulunamadıysa oluştur
+    console.log(`[Google Drive] ${folderName} bulunamadı, oluşturuluyor...`)
     const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
       method: 'POST',
       headers: {
@@ -293,19 +530,28 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
       })
     })
 
+    if (createRes.status === 401) {
+      throw new Error(
+        'GDRIVE_TOKEN_EXPIRED: Google Drive erişim jetonu (access token) süresi dolmuş veya geçersiz. ' +
+        'Lütfen Google OAuth Playground adresinden yeni bir access_token alıp Ayarlar > Google Drive bölümünden güncelleyin.'
+      )
+    }
+
     if (createRes.ok) {
       const folderData = (await createRes.json()) as { id: string }
+      console.log(`[Google Drive] ${folderName} klasörü oluşturuldu:`, folderData.id)
       return folderData.id
     }
 
-    throw new Error('Google Drive üzerinde TEMIN_360_YEDEKLER klasörü oluşturulamadı.')
+    const errText = await createRes.text()
+    throw new Error(`Google Drive klasörü oluşturulamadı (${createRes.status}): ${errText}`)
   }
 
   ipcMain.handle('workspace:list-gdrive-files', async (_, args?: { token?: string }) => {
     try {
+      const db = workspaceManager.getDb()
       let token = args?.token
       if (!token) {
-        const db = workspaceManager.getDb()
         try {
           const row = db
             .prepare("SELECT value FROM settings WHERE key = 'gdriveAccessToken'")
@@ -323,10 +569,30 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
         }
       }
 
-      const cleanToken = String(token).trim().replace(/^["']|["']$/g, '').replace(/^Bearer\s+/i, '').replace(/[\r\n\s]+/g, '')
-      const folderId = await getOrCreateAppFolder(cleanToken)
+      let cleanToken = String(token).trim().replace(/^["']|["']$/g, '').replace(/^Bearer\s+/i, '').replace(/[\r\n\s]+/g, '')
+      let folderId: string
+      try {
+        folderId = await getOrCreateAppFolder(cleanToken)
+      } catch (err: any) {
+        if (err.message?.includes('GDRIVE_TOKEN_EXPIRED') || err.message?.includes('401')) {
+          console.log('[Google Drive list] Token expire, refresh deneniyor...')
+          const newToken = await tryRefreshToken(db)
+          if (newToken) {
+            cleanToken = newToken
+            folderId = await getOrCreateAppFolder(cleanToken)
+          } else {
+            return {
+              success: false,
+              error: 'Google Drive erişim jetonunun süresi dolmuş veya geçersiz. Lütfen yeni Access Token girin ya da Refresh Token ve API ayarlarınızı kontrol edin.'
+            }
+          }
+        } else {
+          throw err
+        }
+      }
+
       const query = encodeURIComponent(`'${folderId}' in parents and trashed = false`)
-      const res = await fetch(
+      let res = await fetch(
         `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,size,mimeType,modifiedTime,createdTime)&orderBy=createdTime%20desc`,
         {
           headers: {
@@ -334,6 +600,21 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
           }
         }
       )
+
+      if (res.status === 401) {
+        const newToken = await tryRefreshToken(db)
+        if (newToken) {
+          cleanToken = newToken
+          res = await fetch(
+            `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,size,mimeType,modifiedTime,createdTime)&orderBy=createdTime%20desc`,
+            {
+              headers: {
+                Authorization: `Bearer ${cleanToken}`
+              }
+            }
+          )
+        }
+      }
 
       if (!res.ok) {
         const errText = await res.text()

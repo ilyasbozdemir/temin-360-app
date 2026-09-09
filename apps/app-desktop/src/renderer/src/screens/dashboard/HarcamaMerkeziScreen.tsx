@@ -78,8 +78,9 @@ export default function HarcamaMerkeziScreen(): React.JSX.Element {
         "Dizi Pusulası, İcmal & Sayıştay Denetim Kapakları",
         "Kesintiler (Stopaj %5, Damga Vergisi %0.948, Ceza)",
       ],
-      actionLabel: "Yapım İşi / Hakediş Başlat",
-      actionPath: "/dosyalar/yeni",
+      actionLabel: "Hakediş Modülünü Aç",
+      actionPath: "/hakedis",
+      isBeta: true,
     },
     {
       id: "mal",
@@ -104,6 +105,7 @@ export default function HarcamaMerkeziScreen(): React.JSX.Element {
       ],
       actionLabel: "Mal Alımı Süreci Başlat",
       actionPath: "/dosyalar/yeni",
+      isBeta: false,
     },
     {
       id: "hizmet",
@@ -127,7 +129,8 @@ export default function HarcamaMerkeziScreen(): React.JSX.Element {
         "Hizmet Hakediş İcmali & Vezne Ödeme Emri",
       ],
       actionLabel: "Hizmet Hakedişi Başlat",
-      actionPath: "/dosyalar/yeni",
+      actionPath: "/hakedis",
+      isBeta: true,
     },
     {
       id: "dogrudan_temin",
@@ -141,7 +144,7 @@ export default function HarcamaMerkeziScreen(): React.JSX.Element {
         "from-indigo-500/10 via-indigo-500/5 to-transparent border-indigo-500/30",
       headerBg: "bg-indigo-600",
       description:
-        "İhale yapılmaksızın harcama yetkilisince görevlendirilen kişi/komisyon tarafından piyasadan en uygun fiyatla yapılan hızlı kamu alımları.",
+        "İhale yapılmaksızın harcama yetkilisince görevlendirilen kişi/komisyon tarafından piyasadan en uygun fiyatla yapılan hızlı kamu alımları (yalnızca mal alımı).",
       features: [
         "Lüzum Müzekkeresi & İhtiyaç Talep Formu",
         "Yaklaşık Maliyet Cetveli (Birim Fiyat Teklifli)",
@@ -152,6 +155,7 @@ export default function HarcamaMerkeziScreen(): React.JSX.Element {
       ],
       actionLabel: "Doğrudan Temin Başlat",
       actionPath: "/dosyalar/yeni",
+      isBeta: false,
     },
   ];
 
@@ -318,9 +322,16 @@ export default function HarcamaMerkeziScreen(): React.JSX.Element {
 
                 {/* Card Bottom CTA Button */}
                 <div className="mt-6 pt-4 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400 font-mono">
-                    Mevzuat Standardı: <strong>4734 / 4735 KİK</strong>
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      Mevzuat: <strong>4734 / 4735 KİK</strong>
+                    </span>
+                    {mod.isBeta && (
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-widest bg-rose-500/15 text-rose-400 border border-rose-500/30">
+                        BETA
+                      </span>
+                    )}
+                  </div>
                   <Link to={mod.actionPath}>
                     <Button className="bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white text-xs font-bold py-2 px-4 rounded-xl flex items-center gap-1.5 shadow-xs cursor-pointer">
                       {mod.actionLabel} <ArrowRight className="w-3.5 h-3.5" />
@@ -586,9 +597,21 @@ export default function HarcamaMerkeziScreen(): React.JSX.Element {
               <span className="text-[11px] text-slate-400">
                 Kanun Referansı: <strong>4734 Sayılı KİK Madde 18-22</strong>
               </span>
-              <Link to="/dosyalar/yeni">
-                <Button className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-1.5 px-4 rounded-xl cursor-pointer">
-                  Bu Alımı Başlat <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              <Link
+                to={simulatedBudget <= activeLimit
+                  ? "/dosyalar/yeni"
+                  : "/hakedis"}
+              >
+                <Button className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-1.5 px-4 rounded-xl cursor-pointer flex items-center gap-1">
+                  {simulatedBudget <= activeLimit ? "Doğrudan Temin Başlat" : (
+                    <>
+                      İhale Modülü{" "}
+                      <span className="px-1 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-rose-500/20 text-rose-300 border border-rose-500/30 ml-1">
+                        BETA
+                      </span>
+                    </>
+                  )}
+                  <ArrowRight className="w-3.5 h-3.5 ml-1" />
                 </Button>
               </Link>
             </div>
@@ -866,10 +889,19 @@ export default function HarcamaMerkeziScreen(): React.JSX.Element {
             </p>
 
             <div className="flex items-center gap-3 pt-2">
-              <Link to="/dosyalar/yeni">
-                <Button className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 px-5 rounded-xl shadow-md cursor-pointer">
-                  Bu Süreçle Dosya Oluştur{" "}
-                  <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              <Link
+                to={wizardSelection.alimTuru === "dogrudan_temin"
+                  ? "/dosyalar/yeni"
+                  : "/hakedis"}
+              >
+                <Button className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 px-5 rounded-xl shadow-md cursor-pointer flex items-center gap-1.5">
+                  Bu Süreçle Dosya Oluştur
+                  {wizardSelection.alimTuru !== "dogrudan_temin" && (
+                    <span className="px-1 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                      BETA
+                    </span>
+                  )}
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
               </Link>
               <Button
