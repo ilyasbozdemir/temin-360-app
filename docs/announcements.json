@@ -1,9 +1,23 @@
 [
   {
-    "id": "v1.0.0-beta.86",
-    "title": "TEMİN 360 v1.0.0-beta.86 Yayında! 🎉",
-    "content": "Doğrudan Temin & İhale modları, responsive taşma menüsü ve dev seed altyapısı yayında.",
-    "date": "2026-08-08",
+    "id": "v1.0.0-beta.106",
+    "title": "TEMİN 360 v1.0.0-beta.106 Yayında! 🚀",
+    "content": "Poz yönetim grid'i ve GitHub üzerinden canlı JSON senkronizasyonu, poz detay ekranı, mal/hizmet/yapım ekleme-düzenleme ekranları, birim dönüştürücü ve Excel içe/dışa aktarım iyileştirmeleri yayında.",
+    "date": "2026-09-09",
     "type": "success"
+  },
+  {
+    "id": "v1.0.0-beta.105",
+    "title": "TEMİN 360 v1.0.0-beta.105",
+    "content": "Poz detay ekranı eklendi, eski/yeni poz bağlantısı ve mevzuat verisi desteği getirildi. Mal/Hizmet/Yapım kalemleri için oluşturma ve düzenleme ekranları tamamlandı.",
+    "date": "2026-09-05",
+    "type": "info"
+  },
+  {
+    "id": "v1.0.0-beta.86",
+    "title": "TEMİN 360 v1.0.0-beta.86",
+    "content": "Doğrudan Temin & İhale modları, responsive taşma menüsü ve dev seed altyapısı yayına alındı.",
+    "date": "2026-08-08",
+    "type": "info"
   }
 ]
