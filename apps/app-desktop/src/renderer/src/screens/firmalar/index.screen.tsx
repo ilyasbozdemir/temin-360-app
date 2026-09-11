@@ -107,15 +107,67 @@ export default function FirmalarScreen(): React.JSX.Element {
     }
   }
 
-  const filtered = firmalar.filter((f) => {
-    if (!searchQuery.trim()) return true
-    const q = searchQuery.toLowerCase()
-    return (
-      f.unvan?.toLowerCase().includes(q) ||
-      f.firma_kodu?.toLowerCase().includes(q) ||
-      f.vergi_no?.toLowerCase().includes(q) ||
-      f.il?.toLowerCase().includes(q)
-    )
+  const [procurementFilter, setProcurementFilter] = useState<'all' | 'dogrudan_temin' | 'ihale'>(() => {
+    const saved = localStorage.getItem('temin_procurement_mode')
+    return (saved as 'dogrudan_temin' | 'ihale') || 'dogrudan_temin'
+  })
+
+  React.useEffect(() => {
+    const handleMode = (e: any) => {
+      if (e.detail?.mode) {
+        setProcurementFilter(e.detail.mode)
+      }
+    }
+    window.addEventListener('procurement-mode-change', handleMode)
+    return () => window.removeEventListener('procurement-mode-change', handleMode)
+  }, [])
+
+  const filtered = firmalar.filter((f: any) => {
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase()
+      const matches =
+        f.unvan?.toLowerCase().includes(q) ||
+        f.firma_kodu?.toLowerCase().includes(q) ||
+        f.vergi_no?.toLowerCase().includes(q) ||
+        f.il?.toLowerCase().includes(q) ||
+        f.istigal_konusu?.toLowerCase().includes(q)
+      if (!matches) return false
+    }
+
+    if (procurementFilter === 'all') return true
+    const text = `${f.istigal_konusu || ''} ${f.unvan || ''}`.toLowerCase()
+    if (procurementFilter === 'ihale') {
+      // İhale Müteahhitleri / Yüklenicileri
+      return (
+        text.includes('inşaat') ||
+        text.includes('taahhüt') ||
+        text.includes('yapı') ||
+        text.includes('mühendislik') ||
+        text.includes('mimarlık') ||
+        text.includes('ihale') ||
+        text.includes('proje') ||
+        text.includes('hafriyat') ||
+        text.includes('aş') ||
+        text.includes('a.ş') ||
+        text.includes('sanayi')
+      )
+    }
+    if (procurementFilter === 'dogrudan_temin') {
+      // Doğrudan Temin Tedarikçileri / Esnaf / Hizmet
+      return (
+        text.includes('kırtasiye') ||
+        text.includes('gıda') ||
+        text.includes('temizlik') ||
+        text.includes('medikal') ||
+        text.includes('onarım') ||
+        text.includes('servis') ||
+        text.includes('ticaret') ||
+        text.includes('ltd') ||
+        text.includes('hizmet') ||
+        !text.includes('inşaat')
+      )
+    }
+    return true
   })
 
   if (viewingFirma) {
@@ -129,19 +181,19 @@ export default function FirmalarScreen(): React.JSX.Element {
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3 text-slate-855 dark:text-slate-100">
             <Building2 className="w-8 h-8 text-blue-600" />
-            İstekli Firma Yönetimi & CRM
+            İstekli & Yüklenici Firma Yönetimi {procurementFilter === 'dogrudan_temin' ? '(Doğrudan Temin)' : procurementFilter === 'ihale' ? '(İhale Müteahhitleri)' : ''}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
-            Tedarikçi firmaların performans skoru, kara liste durumları ve iletişim geçmişini yönetin.
+            Tedarikçi firmaların performans skoru, KİK kara liste durumları ve teklif geçmişini yönetin.
           </p>
         </div>
         <div className="flex items-center gap-4 sm:gap-6 shrink-0">
           <div className="text-right border-r border-slate-200 dark:border-slate-800 pr-6 hidden sm:block">
             <div className="text-2xl font-bold text-slate-800 dark:text-slate-100">
-              {firmalar.length}
+              {filtered.length} / {firmalar.length}
             </div>
             <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">
-              Kayıtlı Firma
+              Listelenen Firma
             </div>
           </div>
           <ExcelActions
@@ -156,6 +208,59 @@ export default function FirmalarScreen(): React.JSX.Element {
             <Plus className="w-4 h-4" /> Yeni Firma Ekle
           </Button>
         </div>
+      </div>
+
+      {/* ARAMA, USUL SEÇİCİ VE GÖRÜNÜM KONTROLLERİ */}
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="relative flex-1 max-w-md">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Input
+            type="text"
+            placeholder="Firma unvanı, vergi no veya il ara..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl w-full text-sm"
+          />
+        </div>
+
+        {/* 3'lü Süreç Usulü Filtresi */}
+        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-semibold">
+          <button
+            type="button"
+            onClick={() => setProcurementFilter('all')}
+            className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              procurementFilter === 'all'
+                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs font-bold'
+                : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            Tüm Firmalar ({firmalar.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setProcurementFilter('dogrudan_temin')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              procurementFilter === 'dogrudan_temin'
+                ? 'bg-blue-600 text-white shadow-xs font-bold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400'
+            }`}
+          >
+            <span>🛒 Doğrudan Temin İsteklileri</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setProcurementFilter('ihale')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              procurementFilter === 'ihale'
+                ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400'
+            }`}
+          >
+            <span>🏛️ İhale Müteahhitleri</span>
+          </button>
+        </div>
+
+        <ViewToggle viewMode={dataViewMode} onChange={setDataViewMode} />
       </div>
 
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col flex-1 overflow-hidden min-h-[400px]">

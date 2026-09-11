@@ -6,7 +6,8 @@ import {
   FileCode,
   FileText,
   Library,
-  Scale
+  Scale,
+  TrendingUp
 } from 'lucide-react'
 import { InnerMenu, InnerMenuItem } from '../../components/ui/InnerMenu'
 import { KikLimitleriSection } from './KikLimitleriSection'
@@ -17,10 +18,19 @@ import { AsamalarTab } from './tabs/AsamalarTab'
 import { BentlerTab } from './tabs/BentlerTab'
 import { ButceKodlariTab } from './tabs/ButceKodlariTab'
 import { MevzuatKutuphanesiTab } from './tabs/MevzuatKutuphanesiTab'
+import { YiUfeEndeksTab } from './tabs/YiUfeEndeksTab'
 
 export function MevzuatScreen(): React.JSX.Element {
   const [activeTab, setActiveTab] = useState<
-    'kutuphane' | 'limitler' | 'oranlar' | 'mali' | 'butcekodlari' | 'asamalar' | 'bentler' | 'fiyatfarki'
+    | 'kutuphane'
+    | 'limitler'
+    | 'oranlar'
+    | 'mali'
+    | 'butcekodlari'
+    | 'asamalar'
+    | 'bentler'
+    | 'fiyatfarki'
+    | 'yi-ufe'
   >(() => {
     const params = new URLSearchParams(window.location.search)
     const t = params.get('tab')
@@ -52,6 +62,12 @@ export function MevzuatScreen(): React.JSX.Element {
       label: 'Fiyat Farkı Katsayıları',
       description: 'Kararname endeksleri',
       icon: <Coins className="w-4 h-4 shrink-0" />
+    },
+    {
+      id: 'yi-ufe',
+      label: 'Yİ-ÜFE Endeksleri (TÜİK)',
+      description: '1994-2026 Fiyat Farkı & Değerleme',
+      icon: <TrendingUp className="w-4 h-4 shrink-0 text-indigo-600 dark:text-indigo-400" />
     },
     { id: 'div1', label: '', icon: null, isDivider: true },
     {
@@ -118,6 +134,11 @@ export function MevzuatScreen(): React.JSX.Element {
           {activeTab === 'fiyatfarki' && (
             <div className="p-6">
               <FiyatFarkiTab />
+            </div>
+          )}
+          {activeTab === 'yi-ufe' && (
+            <div className="p-6">
+              <YiUfeEndeksTab />
             </div>
           )}
           {activeTab === 'butcekodlari' && (

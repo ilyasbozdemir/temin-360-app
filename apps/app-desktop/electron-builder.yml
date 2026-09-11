@@ -1,14 +1,19 @@
 appId: dev.ilyasbozdemir.temin360
 productName: TEMİN 360
 fileAssociations:
-  - ext: hkmp
+  - ext: temin
     name: TEMİN 360 Proje Dosyası
-    description: TEMİN 360 Proje Dosyası
+    description: TEMİN 360 Proje Dosyası (*.temin)
     role: Editor
     icon: build/icon.png
   - ext: dtal
     name: TEMİN 360 / DTAL Dosyası (Eski)
-    description: TEMİN 360 Veri Dosyası
+    description: TEMİN 360 Veri Dosyası (*.dtal)
+    role: Editor
+    icon: build/icon.png
+  - ext: hkmp
+    name: Hakim Pro Dosyası (Eski)
+    description: Eski Hakim Pro Proje Dosyası (*.hkmp)
     role: Editor
     icon: build/icon.png
 directories:

@@ -45,12 +45,21 @@ interface WorkspaceState {
 }
 
 export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
-  activeFilePath: sessionStorage.getItem('workspace_path') || null,
-  fileName: sessionStorage.getItem('workspace_path')
-    ? sessionStorage.getItem('workspace_path')!.split('\\').pop()?.split('/').pop() ||
-      'Bilinmeyen Dosya'
-    : 'Veri Dosyası Seçilmedi',
-  isAuthenticated: sessionStorage.getItem('workspace_auth') === 'true',
+  activeFilePath:
+    sessionStorage.getItem('workspace_path') ||
+    localStorage.getItem('workspace_path') ||
+    null,
+  fileName:
+    (sessionStorage.getItem('workspace_path') || localStorage.getItem('workspace_path'))
+      ? (sessionStorage.getItem('workspace_path') || localStorage.getItem('workspace_path'))!
+          .split('\\')
+          .pop()
+          ?.split('/')
+          .pop() || 'Bilinmeyen Dosya'
+      : 'Veri Dosyası Seçilmedi',
+  isAuthenticated:
+    sessionStorage.getItem('workspace_auth') === 'true' ||
+    localStorage.getItem('workspace_auth') === 'true',
   activeDosyaId: sessionStorage.getItem('workspace_dosya_id')
     ? parseInt(sessionStorage.getItem('workspace_dosya_id')!, 10)
     : null,
@@ -144,7 +153,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
           actualFilePath
             .split(/[/\\]/)
             .pop()
-            ?.replace(/\.(hkmp|dtal|dtm|dte)$/i, '') ||
+            ?.replace(/\.(temin|hkmp|dtal|dtm|dte)$/i, '') ||
           'Bilinmeyen Kurum'
         window.electron.ipcRenderer
           .invoke('app:add-recent-file', actualFilePath, nameWithoutExt)
@@ -179,6 +188,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         sessionStorage.setItem('workspace_path', actualFilePath)
         sessionStorage.setItem('workspace_auth', 'true')
         sessionStorage.removeItem('workspace_dosya_id')
+        localStorage.setItem('workspace_path', actualFilePath)
+        localStorage.setItem('workspace_auth', 'true')
         set({
           activeFilePath: actualFilePath,
           fileName: actualFilePath.split(/[/\\]/).pop() || 'Bilinmeyen Dosya',
@@ -193,7 +204,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
           actualFilePath
             .split(/[/\\]/)
             .pop()
-            ?.replace(/\.(hkmp|dtal|dtm|dte)$/i, '') ||
+            ?.replace(/\.(temin|hkmp|dtal|dtm|dte)$/i, '') ||
           'Bilinmeyen Kurum'
         window.electron.ipcRenderer
           .invoke('app:add-recent-file', actualFilePath, nameWithoutExt)
@@ -213,6 +224,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     sessionStorage.removeItem('workspace_path')
     sessionStorage.removeItem('workspace_auth')
     sessionStorage.removeItem('workspace_dosya_id')
+    localStorage.removeItem('workspace_path')
+    localStorage.removeItem('workspace_auth')
     set({
       activeFilePath: null,
       fileName: 'Veri Dosyası Seçilmedi',

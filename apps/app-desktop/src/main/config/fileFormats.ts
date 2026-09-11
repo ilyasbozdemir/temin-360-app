@@ -16,10 +16,15 @@ export interface FileFormat {
 
 export const SUPPORTED_FORMATS: FileFormat[] = [
   {
-    ext: 'hkmp',
+    ext: 'temin',
     label: 'TEMİN 360 Proje Dosyası',
-    dialogName: 'TEMİN 360 Dosyası (*.hkmp)',
+    dialogName: 'TEMİN 360 Dosyası (*.temin)',
     isDefault: true
+  },
+  {
+    ext: 'hkmp',
+    label: 'Hakim Pro Dosyası (Eski .hkmp)',
+    dialogName: 'Hakim Pro Dosyası (*.hkmp)'
   },
   {
     ext: 'dtal',

@@ -62,7 +62,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
       const { filePath: destPath } = await dialog.showSaveDialog(win!, {
         title: 'Yedek Dosyasını Kaydet',
         defaultPath: basename(filePath),
-        filters: [{ name: 'TEMİN 360 Proje Dosyası (*.hkmp, *.dtal)', extensions: ['hkmp', 'dtal'] }]
+        filters: [{ name: 'TEMİN 360 Proje Dosyası (*.temin, *.hkmp, *.dtal)', extensions: ['temin', 'hkmp', 'dtal'] }]
       })
 
       if (!destPath) {
@@ -352,10 +352,11 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
         const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
         const timeStr = `${pad(now.getHours())}-${pad(now.getMinutes())}`
         const rawBase = fileName
+          .replace(/\.temin$/i, '')
           .replace(/\.dtal$/i, '')
           .replace(/\.hkmp$/i, '')
           .replace(/_\d{4}[-_.]\d{2}[-_.]\d{2}(?:[-_.]\d{2}[-_.]\d{2})?$/, '')
-        const backupFileName = `${rawBase}_${dateStr}_${timeStr}.dtal`
+        const backupFileName = `${rawBase}_${dateStr}_${timeStr}.temin`
 
         // Construct multipart boundary for metadata + binary payload
         const boundary = '--------------------------' + Date.now().toString(16)
@@ -458,7 +459,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
   async function pruneOldBackups(token: string, folderId: string, maxVersions = 7): Promise<void> {
     try {
       const query = encodeURIComponent(
-        `'${folderId}' in parents and trashed = false and (name contains '.dtal' or name contains '.hkmp')`
+        `'${folderId}' in parents and trashed = false and (name contains '.temin' or name contains '.dtal' or name contains '.hkmp')`
       )
       const res = await fetch(
         `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,createdTime)&orderBy=createdTime%20desc`,
@@ -622,10 +623,10 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
       }
 
       const data = (await res.json()) as any
-      // Strict security filter: only allow .dtal / .hkmp files inside TEMIN_360_YEDEKLER folder
+      // Strict security filter: only allow .temin / .dtal / .hkmp files inside TEMIN_360_YEDEKLER folder
       const validFiles = (data.files || []).filter(
         (f: any) =>
-          (f.name.endsWith('.dtal') || f.name.endsWith('.hkmp')) &&
+          (f.name.endsWith('.temin') || f.name.endsWith('.dtal') || f.name.endsWith('.hkmp')) &&
           f.mimeType !== 'application/vnd.google-apps.folder'
       )
 
@@ -665,9 +666,9 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
 
         const cleanToken = String(token).trim().replace(/^["']|["']$/g, '').replace(/^Bearer\s+/i, '').replace(/[\r\n\s]+/g, '')
         
-        // Security check: Only permit .dtal and .hkmp files
-        if (!args.fileName.endsWith('.dtal') && !args.fileName.endsWith('.hkmp')) {
-          throw new Error('Güvenlik Koruması: Sadece geçerli .dtal çalışma alanı yedekleri indirilebilir.')
+        // Security check: Only permit .temin, .dtal and .hkmp files
+        if (!args.fileName.endsWith('.temin') && !args.fileName.endsWith('.dtal') && !args.fileName.endsWith('.hkmp')) {
+          throw new Error('Güvenlik Koruması: Sadece geçerli .temin / .dtal çalışma alanı yedekleri indirilebilir.')
         }
 
         // Verify file belongs strictly to TEMIN_360_YEDEKLER folder
@@ -726,7 +727,9 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
           const defaultPath = require('path').join(
             require('os').homedir(),
             'Desktop',
-            args.fileName.endsWith('.dtal') ? args.fileName : `${args.fileName}.dtal`
+            args.fileName.endsWith('.temin') || args.fileName.endsWith('.dtal') || args.fileName.endsWith('.hkmp')
+              ? args.fileName
+              : `${args.fileName}.temin`
           )
           fs.writeFileSync(defaultPath, buffer)
           targetPath = defaultPath

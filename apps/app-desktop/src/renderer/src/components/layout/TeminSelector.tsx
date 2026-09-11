@@ -41,6 +41,8 @@ export function TeminSelector(): React.JSX.Element {
     )
   })
 
+  const isDt = procurementMode === 'dogrudan_temin'
+
   // Alt Kategori Filtresi
   const [subFilter, setSubFilter] = useState<string>('mode_default')
 
@@ -101,7 +103,6 @@ export function TeminSelector(): React.JSX.Element {
     d.temin_no?.toUpperCase().startsWith('İH-') ||
     d.temin_no?.toUpperCase().startsWith('IH-')
 
-  const isDt = procurementMode === 'dogrudan_temin'
 
   // Dinamik filtreleme
   const filteredDosyalar = dosyalar.filter((d) => {

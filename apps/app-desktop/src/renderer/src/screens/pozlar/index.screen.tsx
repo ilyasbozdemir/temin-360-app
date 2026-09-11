@@ -15,11 +15,13 @@ import {
   Sparkles,
   Tag,
   Trash2,
+  TrendingUp,
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { ExcelActions } from "../../components/ui/ExcelActions";
+import { YiUfePriceBadge } from "../../components/ui/YiUfePriceBadge";
 import { PozItem, usePozlarHooks } from "./pozlar.hooks";
 import { POZ_KURUMLARI } from "../malzemeler/components/pozKitaplari.data";
 import { APP_ROUTES } from "../../constants/routeConstants";
@@ -109,6 +111,16 @@ export default function PozlarScreen() {
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
+          <Button
+            variant="outline"
+            onClick={() => navigate({ to: "/mevzuat", search: { tab: "yi-ufe" } as any })}
+            className="border-blue-500/40 text-blue-700 dark:text-blue-300 hover:bg-blue-500/10 gap-2 shadow-xs"
+            title="TÜİK Yİ-ÜFE Endeksleri & Geçmiş Fiyatları Güncelleme Simülatörü"
+          >
+            <TrendingUp size={16} className="text-blue-600 dark:text-blue-400" />
+            <span>Yİ-ÜFE Endeksleri</span>
+          </Button>
+
           <Button
             variant="outline"
             onClick={() => navigate({ to: APP_ROUTES.TOPLU_POZ_EKLE })}
@@ -429,15 +441,26 @@ export default function PozlarScreen() {
                         <td className="p-3.5 text-right font-mono font-bold text-slate-900 dark:text-white">
                           {Number(item.birim_fiyat || 0) > 0
                             ? (
-                              <span className="text-emerald-600 dark:text-emerald-400">
-                                {Number(item.birim_fiyat).toLocaleString(
-                                  "tr-TR",
-                                  {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                  },
-                                )} TL
-                              </span>
+                              <div className="flex flex-col items-end gap-1">
+                                <span className="text-emerald-600 dark:text-emerald-400">
+                                  {Number(item.birim_fiyat).toLocaleString(
+                                    "tr-TR",
+                                    {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2,
+                                    },
+                                  )} TL
+                                </span>
+                                {item.poz_yili && Number(item.poz_yili) < 2026 && (
+                                  <YiUfePriceBadge
+                                    price={Number(item.birim_fiyat)}
+                                    year={Number(item.poz_yili)}
+                                    month={1}
+                                    title={item.kalem_adi || item.poz_tanimi || undefined}
+                                    compact
+                                  />
+                                )}
+                              </div>
                             )
                             : (
                               <span className="text-slate-400 text-[11px]">

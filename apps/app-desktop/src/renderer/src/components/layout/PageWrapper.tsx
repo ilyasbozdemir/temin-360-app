@@ -427,9 +427,20 @@ export function PageWrapper(): React.ReactNode {
     // Initial fetch of DB name if any (in case backend already has an open DB on soft reload)
     window.electron?.ipcRenderer.invoke('db:get-settings').then(async (res) => {
       const dbIsOpen = res && res.institutionName && !res.institutionName.includes('Hata')
-      if (!dbIsOpen && activeFilePath) {
-        const result = await openWorkspace(activeFilePath)
+      const targetPath = activeFilePath || localStorage.getItem('workspace_path')
+      if (!dbIsOpen && targetPath) {
+        const result = await openWorkspace(targetPath)
         if (result.success) queryClient.clear()
+      } else if (!dbIsOpen) {
+        try {
+          const recent = await window.electron?.ipcRenderer.invoke('app:get-recent-files')
+          if (recent && recent.length > 0 && recent[0]?.path) {
+            const result = await openWorkspace(recent[0].path)
+            if (result.success) queryClient.clear()
+          }
+        } catch (e) {
+          console.warn('Otomatik son dosya yukleme basarisiz:', e)
+        }
       }
     })
 

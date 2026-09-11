@@ -49,7 +49,7 @@ export function Header(): React.JSX.Element {
     );
   });
 
-  // Mod geçiş animasyonu ve bildirim durumu
+  const isDt = procurementMode === "dogrudan_temin";
   const [switchFeedback, setSwitchFeedback] = useState<string | null>(null);
 
   const handleModeChange = (mode: "dogrudan_temin" | "ihale"): void => {
@@ -115,6 +115,7 @@ export function Header(): React.JSX.Element {
 
   const handleClose = (): void =>
     window.electron?.ipcRenderer.send("window-close");
+
 
   const menus = [
     {
@@ -342,59 +343,112 @@ export function Header(): React.JSX.Element {
         },
       ]),
     {
-      name: "Sistem Tanımları",
-      items: [
-        {
-          label: "Kurum Bilgileri",
-          onClick: () => navigate({ to: "/kurum" }),
-        },
-        {
-          label: "Birim Yönetimi",
-          onClick: () => navigate({ to: "/birimler" }),
-        },
-        {
-          label: "Personel Yönetimi",
-          onClick: () => navigate({ to: "/personel" }),
-        },
-        {
-          label: "Komisyon Yönetimi",
-          onClick: () => navigate({ to: "/komisyonlar" }),
-        },
-        {
-          label: "Görev Tanımları",
-          onClick: () => navigate({ to: "/komisyon-gorevleri" }),
-        },
-        {
-          label: "Ambar Yönetimi",
-          onClick: () => navigate({ to: "/ambar" }),
-        },
-        { divider: true },
-        {
-          label: "İstekli Firma Yönetimi",
-          onClick: () => navigate({ to: "/firmalar" }),
-        },
-        { divider: true },
-        {
-          label: "Mal/Hizmet/Yapım İşleri Listesi",
-          onClick: () => navigate({ to: "/malzemeler" }),
-        },
-        {
-          label: "Taşınır Kodları",
-          onClick: () => navigate({ to: "/tasinirkod" }),
-        },
-        {
-          label: "OKAS Kodları",
-          onClick: () => navigate({ to: "/okaskod" }),
-        },
-        {
-          label: "Birim Fiyat Pozları",
-          onClick: () => navigate({ to: "/pozlar" }),
-        },
-        {
-          label: "Ölçü Birimleri",
-          onClick: () => navigate({ to: "/olcubirimleri" }),
-        },
-      ],
+      name: isDt ? "Sistem Tanımları (Doğrudan Temin)" : "Sistem Tanımları (İhale)",
+      items: isDt
+        ? [
+          {
+            label: "🛒 Kurum & Harcama Birimi Bilgileri",
+            onClick: () => navigate({ to: "/kurum" }),
+          },
+          {
+            label: "🛒 Doğrudan Temin Birimleri",
+            onClick: () => navigate({ to: "/birimler" }),
+          },
+          {
+            label: "🛒 Harcama Yetkilileri & Personel",
+            onClick: () => navigate({ to: "/personel" }),
+          },
+          {
+            label: "🛒 Piyasa Fiyat Araştırma Görevlileri",
+            onClick: () => navigate({ to: "/komisyonlar" }),
+          },
+          {
+            label: "🛒 Muayene & Kabul Komisyonları",
+            onClick: () => navigate({ to: "/komisyonlar" }),
+          },
+          {
+            label: "🛒 Görev & Yetki Tanımları",
+            onClick: () => navigate({ to: "/komisyon-gorevleri" }),
+          },
+          { divider: true },
+          {
+            label: "🛒 Doğrudan Temin İstekli Firmaları",
+            onClick: () => navigate({ to: "/firmalar" }),
+          },
+          {
+            label: "🛒 Mal / Hizmet / Tüketim Listesi",
+            onClick: () => navigate({ to: "/malzemeler" }),
+          },
+          {
+            label: "🛒 Taşınır Kodları & Ölçü Birimleri",
+            onClick: () => navigate({ to: "/tasinirkod" }),
+          },
+          {
+            label: "🛒 Ambar & Depo Tanımları",
+            onClick: () => navigate({ to: "/ambar" }),
+          },
+          {
+            label: "📈 Yİ-ÜFE Endeksleri (TÜİK & hakedis.org)",
+            onClick: () => navigate({ to: "/mevzuat", search: { tab: "yi-ufe" } as any }),
+          },
+          { divider: true },
+          {
+            label: "🏛️ İhale Tanımlarına Geç (Pozlar & OKAS)",
+            onClick: () => handleModeChange("ihale"),
+          },
+        ]
+        : [
+          {
+            label: "🏛️ İdare & İhale Makamı Bilgileri",
+            onClick: () => navigate({ to: "/kurum" }),
+          },
+          {
+            label: "🏛️ İhale / İhale Kayıt Birimleri (EKAP)",
+            onClick: () => navigate({ to: "/birimler" }),
+          },
+          {
+            label: "🏛️ İhale Yetkilileri & Raportörler",
+            onClick: () => navigate({ to: "/personel" }),
+          },
+          {
+            label: "🏛️ İhale Komisyonları (KİK Md. 6 - Asıl/Yedek)",
+            onClick: () => navigate({ to: "/komisyonlar" }),
+          },
+          {
+            label: "🏛️ Muayene, Denetim ve Kabul Heyetleri",
+            onClick: () => navigate({ to: "/komisyonlar" }),
+          },
+          {
+            label: "🏛️ Komisyon Görev ve Yetki Matrisi",
+            onClick: () => navigate({ to: "/komisyon-gorevleri" }),
+          },
+          { divider: true },
+          {
+            label: "🏛️ İhale İsteklileri & Müteahhit Firmalar",
+            onClick: () => navigate({ to: "/firmalar" }),
+          },
+          {
+            label: "🏛️ ÇŞB Birim Fiyat Pozları (Yapım & Onarım)",
+            onClick: () => navigate({ to: "/pozlar" }),
+          },
+          {
+            label: "🏛️ OKAS (Kamu Alımları Sözlüğü) Kodları",
+            onClick: () => navigate({ to: "/okaskod" }),
+          },
+          {
+            label: "🏛️ İhale Eşik Değerleri ve Limit Parametreleri",
+            onClick: () => navigate({ to: "/mevzuat" }),
+          },
+          {
+            label: "📈 Yİ-ÜFE Fiyat Farkı & Değerleme Endeksleri",
+            onClick: () => navigate({ to: "/mevzuat", search: { tab: "yi-ufe" } as any }),
+          },
+          { divider: true },
+          {
+            label: "🛒 Doğrudan Temin Tanımlarına Geç (22/d)",
+            onClick: () => handleModeChange("dogrudan_temin"),
+          },
+        ],
     },
     {
       name: "Yönetim & Yardım",
@@ -406,6 +460,10 @@ export function Header(): React.JSX.Element {
         {
           label: "Mevzuat ve Parametreler",
           onClick: () => navigate({ to: "/mevzuat" }),
+        },
+        {
+          label: "📈 TÜİK Yİ-ÜFE Endeksleri & Değerleme",
+          onClick: () => navigate({ to: "/mevzuat", search: { tab: "yi-ufe" } as any }),
         },
         {
           label: "Şablon & Kategori Yönetimi",
@@ -457,8 +515,6 @@ export function Header(): React.JSX.Element {
       ],
     },
   ];
-
-  const isDt = procurementMode === "dogrudan_temin";
 
   // Ekran daraldıkça menülerin taşmasını önleyen dinamik hesaplama
   const maxVisibleMenus = (() => {

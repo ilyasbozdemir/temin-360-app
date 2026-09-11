@@ -58,7 +58,47 @@ export default function DashboardScreenV2(): React.JSX.Element {
   } = useSettingsStore();
 
   const { activeDosyaId, setActiveDosyaId } = useWorkspaceStore();
-  const { stats, isLoading } = useDashboardStats();
+
+  // Mod Seçici Durumu: 'dogrudan_temin' (KİK 22), 'ihale' (KİK 19/21) veya 'all'
+  const [procurementMode, setProcurementMode] = useState<
+    "dogrudan_temin" | "ihale" | "all"
+  >(() => {
+    return (
+      (localStorage.getItem("temin_procurement_mode") as
+        | "dogrudan_temin"
+        | "ihale") || "dogrudan_temin"
+    );
+  });
+
+  const isDt = procurementMode === "dogrudan_temin";
+  const isIhale = procurementMode === "ihale";
+
+  // Header veya diğer bileşenlerden gelen mod değişimlerini dinle
+  useEffect(() => {
+    const handleModeChange = (e: any): void => {
+      if (e.detail?.mode) {
+        setProcurementMode(e.detail.mode);
+      }
+    };
+    window.addEventListener("procurement-mode-change", handleModeChange);
+    return () => {
+      window.removeEventListener("procurement-mode-change", handleModeChange);
+    };
+  }, []);
+
+  const switchProcurementMode = (mode: "dogrudan_temin" | "ihale" | "all"): void => {
+    setProcurementMode(mode);
+    if (mode !== "all") {
+      localStorage.setItem("temin_procurement_mode", mode);
+      window.dispatchEvent(
+        new CustomEvent("procurement-mode-change", {
+          detail: { mode },
+        }),
+      );
+    }
+  };
+
+  const { stats, isLoading } = useDashboardStats(procurementMode);
   const { announcements, isLoading: isAnnouncementsLoading } =
     useAnnouncements();
   const { dosyalar } = useDosyalarHooks();
@@ -387,30 +427,114 @@ export default function DashboardScreenV2(): React.JSX.Element {
     return "text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700";
   }
 
+
   return (
     <div className="flex flex-col gap-6 w-full max-w-[1650px] mx-auto pb-12 animate-in fade-in slide-in-from-bottom-3 duration-500 text-slate-800 dark:text-slate-100">
-      {/* 1. TEMİN 360 KOMUTA MERKEZİ HERO HEADER */}
-      <div className="relative overflow-hidden rounded-3xl bg-slate-900 dark:bg-slate-950 text-white p-7 md:p-8 shadow-xl border border-slate-800">
+      
+      {/* 0. SAYFA TEPESİ: ÇALIŞMA ALANI & USUL SEÇİCİ SEGMENTLİ KONTROL PANELİ */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-2 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="flex items-center gap-2.5 px-3 py-1">
+          <div className={`p-2 rounded-xl ${isDt ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' : isIhale ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'}`}>
+            {isDt ? <Zap className="w-5 h-5" /> : isIhale ? <Gavel className="w-5 h-5" /> : <Layers className="w-5 h-5" />}
+          </div>
+          <div>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Aktif Çalışma Alanı & Süreç Usulü
+            </div>
+            <div className="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">
+              <span>{isDt ? '🛒 Doğrudan Temin (KİK Md. 22/d)' : isIhale ? '🏛️ Kamu İhale Süreçleri (KİK 19/21 & Hakediş)' : '🌐 Konsolide Görünüm (Tüm Alımlar)'}</span>
+              <span className={`inline-block w-2 h-2 rounded-full animate-pulse ${isDt ? 'bg-blue-500' : isIhale ? 'bg-indigo-500' : 'bg-emerald-500'}`} />
+            </div>
+          </div>
+        </div>
+
+        {/* 3'lü Segment Mod Butonları */}
+        <div className="inline-flex p-1 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold shrink-0">
+          <button
+            type="button"
+            onClick={() => switchProcurementMode("dogrudan_temin")}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg transition-all cursor-pointer ${
+              isDt
+                ? "bg-blue-600 text-white shadow-md shadow-blue-600/30 scale-[1.02]"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800"
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5" />
+            <span>Doğrudan Temin (22/d)</span>
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+              isDt ? 'bg-blue-700 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+            }`}>
+              {stats.dogrudanTeminSayisi || 0}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => switchProcurementMode("ihale")}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg transition-all cursor-pointer ${
+              isIhale
+                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30 scale-[1.02]"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800"
+            }`}
+          >
+            <Gavel className="w-3.5 h-3.5" />
+            <span>İhale Süreçleri (19/21)</span>
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+              isIhale ? 'bg-indigo-700 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+            }`}>
+              {stats.ihaleDosyaSayisi || 0}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => switchProcurementMode("all")}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all cursor-pointer ${
+              procurementMode === "all"
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30 scale-[1.02]"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800"
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span>Tüm Alımlar</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 1. TEMİN 360 KOMUTA MERKEZİ HERO HEADER (SEÇİLEN MODA GÖRE DİNAMİK) */}
+      <div className={`relative overflow-hidden rounded-3xl text-white p-7 md:p-8 shadow-xl border transition-all duration-500 ${
+        isIhale 
+          ? 'bg-linear-to-br from-slate-950 via-slate-900 to-indigo-950/80 border-indigo-800/50' 
+          : 'bg-linear-to-br from-slate-950 via-slate-900 to-blue-950/80 border-slate-800'
+      }`}>
         {/* Dekoratif Glow Işıkları */}
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-blue-600/25 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 -ml-20 -mb-20 w-80 h-80 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
+        <div className={`absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full blur-3xl pointer-events-none transition-all duration-500 ${
+          isIhale ? 'bg-indigo-600/30' : 'bg-blue-600/25'
+        }`} />
+        <div className={`absolute bottom-0 left-1/3 -ml-20 -mb-20 w-80 h-80 rounded-full blur-3xl pointer-events-none transition-all duration-500 ${
+          isIhale ? 'bg-purple-600/25' : 'bg-indigo-600/20'
+        }`} />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-3 max-w-3xl">
             <div className="flex flex-wrap items-center gap-2.5">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase bg-blue-500/20 text-blue-300 border border-blue-400/30">
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
-                TEMİN 360 • Komuta & Karar Destek Merkezi
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase border ${
+                isIhale
+                  ? 'bg-indigo-500/20 text-indigo-300 border-indigo-400/30'
+                  : 'bg-blue-500/20 text-blue-300 border-blue-400/30'
+              }`}>
+                {isIhale ? <Gavel className="w-3.5 h-3.5 text-indigo-400" /> : <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />}
+                {isIhale ? 'KAMU İHALE MERKEZİ • KİK 19/21 & HAKEDİŞ YÖNETİMİ' : 'DOĞRUDAN TEMİN PORTALI • KİK 22/d HARCAMA YÖNETİMİ'}
               </span>
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                 <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                4734 / 22-d & 5018 Mevzuat Uyumlu
+                {isIhale ? '4734 Kamu İhale & 4735 Sözleşmeler Kanunu' : '4734 / 22-d & 5018 Sayılı Mali Yönetim Uyumlu'}
               </span>
               <span className="text-xs text-slate-400">{currentDate}</span>
             </div>
 
             <div>
-              <div className="text-xs font-bold tracking-wider uppercase text-blue-400 mb-1">
+              <div className={`text-xs font-bold tracking-wider uppercase mb-1 ${isIhale ? 'text-indigo-400' : 'text-blue-400'}`}>
                 {greeting},
               </div>
               <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
@@ -422,7 +546,7 @@ export default function DashboardScreenV2(): React.JSX.Element {
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-white/10 text-slate-200 border border-white/10 shadow-xs">
                   {adminTitle && !adminTitle.includes("YÖNETİCİ")
                     ? adminTitle
-                    : "Harcama Yetkilisi / Şube Müdürü"}
+                    : isIhale ? "İhale Yetkilisi / Şube Müdürü" : "Harcama Yetkilisi / Şube Müdürü"}
                 </span>
               </div>
               <p className="text-sm text-slate-300 mt-2 leading-relaxed max-w-2xl">
@@ -431,22 +555,23 @@ export default function DashboardScreenV2(): React.JSX.Element {
                     ? institutionName
                     : "Kurum İdaresi"}
                 </strong>{" "}
-                bünyesindeki doğrudan temin süreçleri, yaklaşık maliyet
-                analizleri, KİK limit kontrolleri ve Sayıştay denetim kriterleri
-                tek ekranda yönetiliyor.
+                {isIhale
+                  ? "bünyesindeki Açık İhale (KİK 19), Pazarlık Usulü (KİK 21), yaklaşık maliyet hesaplamaları, ihale komisyon kararları, sözleşme ve ara/kesin hakediş işlemleri tek ekranda yönetiliyor."
+                  : "bünyesindeki doğrudan temin süreçleri (22/d), piyasa fiyat araştırmaları, KİK eşik limit kontrolleri, onay belgeleri ve harcama talimatları tek ekranda yönetiliyor."}
               </p>
             </div>
           </div>
 
-          {/* Hızlı Aksiyon Butonları - Düzenli 2x2 Grid / Alt Alta & Dengeli Alan */}
+          {/* Hızlı Aksiyon Butonları - MODA GÖRE DİNAMİK */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full lg:w-[390px] shrink-0">
             <button
               type="button"
               onClick={() => {
                 setSelectedFileForAI({
-                  temin_no: "GENEL-ASISTAN",
-                  konu:
-                    "Kamu Satın Alma, Doğrudan Temin ve Hakediş Karar Desteği",
+                  temin_no: isIhale ? "İHALE-ASISTAN" : "TEMIN-ASISTAN",
+                  konu: isIhale
+                    ? "Kamu İhale Mevzuatı (KİK 19/21), Şartname ve Hakediş Karar Desteği"
+                    : "Doğrudan Temin (KİK 22/d), Piyasa Araştırması ve Harcama Karar Desteği",
                   yaklasik_maliyet: stats.toplamYaklasikMaliyet,
                 });
                 setShowAIModal(true);
@@ -459,38 +584,66 @@ export default function DashboardScreenV2(): React.JSX.Element {
               </span>
             </button>
 
-            <Link to="/dosyalar/yeni" className="w-full">
-              <button
-                type="button"
-                className="w-full bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-blue-900/30 border border-blue-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
-              >
-                <Plus className="w-4 h-4" />
-                <span className="font-extrabold tracking-wide">
-                  + Yeni Temin (22)
-                </span>
-              </button>
-            </Link>
+            {isIhale ? (
+              <Link to="/harcama-merkezi" className="w-full">
+                <button
+                  type="button"
+                  className="w-full bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-indigo-900/30 border border-indigo-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span className="font-extrabold tracking-wide">
+                    + Yeni İhale (19/21)
+                  </span>
+                </button>
+              </Link>
+            ) : (
+              <Link to="/dosyalar/yeni" className="w-full">
+                <button
+                  type="button"
+                  className="w-full bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-blue-900/30 border border-blue-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span className="font-extrabold tracking-wide">
+                    + Yeni Temin (22)
+                  </span>
+                </button>
+              </Link>
+            )}
 
-            <Link to="/harcama-merkezi" className="w-full">
-              <button
-                type="button"
-                className="w-full bg-linear-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-amber-900/30 border border-amber-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
-              >
-                <Gavel className="w-4 h-4" />
-                <span className="font-extrabold tracking-wide">
-                  Harcama & Hakediş
-                </span>
-              </button>
-            </Link>
+            {isIhale ? (
+              <Link to="/hakedis" className="w-full">
+                <button
+                  type="button"
+                  className="w-full bg-linear-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-amber-900/30 border border-amber-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
+                >
+                  <Gavel className="w-4 h-4" />
+                  <span className="font-extrabold tracking-wide">
+                    İhale & Hakediş
+                  </span>
+                </button>
+              </Link>
+            ) : (
+              <Link to="/harcama-merkezi" className="w-full">
+                <button
+                  type="button"
+                  className="w-full bg-linear-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-blue-900/30 border border-blue-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
+                >
+                  <FileText className="w-4 h-4" />
+                  <span className="font-extrabold tracking-wide">
+                    Piyasa Araştırması
+                  </span>
+                </button>
+              </Link>
+            )}
 
             <Link to="/dosyalar" className="w-full">
               <button
                 type="button"
                 className="w-full bg-slate-800/90 hover:bg-slate-700 text-slate-100 hover:text-white border border-slate-700/90 font-bold py-2.5 px-3.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
               >
-                <FileSpreadsheet className="w-4 h-4 text-blue-400" />
+                <FileSpreadsheet className={`w-4 h-4 ${isIhale ? 'text-indigo-400' : 'text-blue-400'}`} />
                 <span className="font-bold">
-                  Tüm Dosyalar ({dosyalar.length})
+                  {isIhale ? `İhale Dosyaları (${stats.ihaleDosyaSayisi || 0})` : `Temin Dosyaları (${stats.dogrudanTeminSayisi || 0})`}
                 </span>
               </button>
             </Link>
@@ -522,19 +675,108 @@ export default function DashboardScreenV2(): React.JSX.Element {
         )}
       </div>
 
+      {/* 2. SÜREÇ & USUL MODU SEÇİCİ (DOĞRUDAN TEMİN vs İHALE SÜREÇLERİ) */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-2.5 sm:p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+        <div className="flex items-center gap-2 px-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse" />
+          <span className="text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300">
+            Aktif Görünüm Modu:
+          </span>
+        </div>
+
+        <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700/80">
+          <button
+            type="button"
+            onClick={() => switchProcurementMode("dogrudan_temin")}
+            className={cn(
+              "px-3.5 py-2 rounded-lg text-xs font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer",
+              procurementMode === "dogrudan_temin"
+                ? "bg-blue-600 text-white shadow-md shadow-blue-600/30 scale-[1.02]"
+                : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/60"
+            )}
+          >
+            <span className="w-2 h-2 rounded-full bg-blue-300 inline-block" />
+            <span>Doğrudan Temin (22/d)</span>
+            {stats.dogrudanTeminSayisi > 0 && (
+              <span className={cn(
+                "text-[10px] px-1.5 py-0.2 rounded-full font-bold",
+                procurementMode === "dogrudan_temin"
+                  ? "bg-blue-800/80 text-white"
+                  : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+              )}>
+                {stats.dogrudanTeminSayisi}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => switchProcurementMode("ihale")}
+            className={cn(
+              "px-3.5 py-2 rounded-lg text-xs font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer",
+              procurementMode === "ihale"
+                ? "bg-purple-600 text-white shadow-md shadow-purple-600/30 scale-[1.02]"
+                : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/60"
+            )}
+          >
+            <span className="w-2 h-2 rounded-full bg-purple-300 inline-block" />
+            <span>İhale Süreçleri (19/21)</span>
+            {(stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi) > 0 && (
+              <span className={cn(
+                "text-[10px] px-1.5 py-0.2 rounded-full font-bold",
+                procurementMode === "ihale"
+                  ? "bg-purple-800/80 text-white"
+                  : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+              )}>
+                {stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => switchProcurementMode("all")}
+            className={cn(
+              "px-3.5 py-2 rounded-lg text-xs font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer",
+              procurementMode === "all"
+                ? "bg-slate-900 text-white dark:bg-slate-700 shadow-md scale-[1.02]"
+                : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/60"
+            )}
+          >
+            <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
+            <span>Tüm Alımlar (Konsolide)</span>
+          </button>
+        </div>
+      </div>
+
       {/* 2. TEMİN 360 5 TEMEL DİREK (PILLARS) İNTERAKTİF NAVİGASYON MATRİSİ */}
       <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 md:p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-sm border border-blue-200 dark:border-blue-900/60 shadow-xs">
-              🏛️
+            <div className={cn(
+              "w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm border shadow-xs",
+              procurementMode === "dogrudan_temin"
+                ? "bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/60"
+                : procurementMode === "ihale"
+                ? "bg-purple-100 dark:bg-purple-950/80 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-900/60"
+                : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700"
+            )}>
+              {procurementMode === "dogrudan_temin" ? "📑" : procurementMode === "ihale" ? "⚖️" : "🏛️"}
             </div>
             <div>
               <h2 className="text-base md:text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                TEMİN 360 Entegre Kamu Satın Alma & Hakediş Mimarisi
+                {procurementMode === "dogrudan_temin"
+                  ? "TEMİN 360 Doğrudan Temin Süreç Mimarisi (KİK Md. 22)"
+                  : procurementMode === "ihale"
+                  ? "TEMİN 360 İhale & Hakediş Süreç Yönetimi (KİK Md. 19 / 21)"
+                  : "TEMİN 360 Entegre Kamu Satın Alma & Hakediş Mimarisi"}
               </h2>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                Uçtan uca doğrudan temin ve hakediş yaşam döngüsü kontrol paneli
+                {procurementMode === "dogrudan_temin"
+                  ? "4734 Sayılı Kanun Madde 22/d piyasa fiyat araştırması, teklif mektupları ve hızlı onay süreci kontrol paneli"
+                  : procurementMode === "ihale"
+                  ? "Açık ihale (Md. 19), Pazarlık usulü (Md. 21), pursantaj cetvelleri ve hakediş ödeme yaşam döngüsü kontrol paneli"
+                  : "Uçtan uca doğrudan temin ve hakediş yaşam döngüsü kontrol paneli"}
               </p>
             </div>
           </div>
@@ -685,7 +927,290 @@ export default function DashboardScreenV2(): React.JSX.Element {
         </div>
       </div>
 
-      {/* 3. ANA KPI & METRİK KARTLARI */}
+      {/* 3. USUL / TÜR BAZLI ÖZET BANT */}
+      <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        {/* Başlık */}
+        <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 flex items-center justify-center border border-indigo-200 dark:border-indigo-900/50">
+              <Scale className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <div>
+              <h2 className="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">
+                Usule Göre Temin Dağılımı
+              </h2>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                4734 Sayılı KİK kapsamındaki tüm usullerin anlık özeti
+              </p>
+            </div>
+          </div>
+          <Link to="/dosyalar">
+            <button type="button" className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer">
+              Tümünü Gör <ChevronRight className="w-3 h-3" />
+            </button>
+          </Link>
+        </div>
+
+        {/* 4'lü Kart Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-slate-100 dark:divide-slate-800">
+
+          {/* Doğrudan Temin */}
+          <div
+            onClick={() => switchProcurementMode("dogrudan_temin")}
+            className={cn(
+              "p-4 md:p-5 transition-all cursor-pointer relative",
+              procurementMode === "dogrudan_temin"
+                ? "bg-blue-50/90 dark:bg-blue-950/40 ring-2 ring-inset ring-blue-500/80 shadow-inner"
+                : "hover:bg-blue-50/60 dark:hover:bg-blue-950/20"
+            )}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
+                <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
+                Doğrudan Temin
+              </span>
+              <div className="flex items-center gap-1">
+                {procurementMode === "dogrudan_temin" && (
+                  <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-600 text-white shadow-xs">
+                    Aktif
+                  </span>
+                )}
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900/50">
+                  Md. 22
+                </span>
+              </div>
+            </div>
+            <div className="flex items-end justify-between gap-2">
+              <div>
+                <div className="text-2xl font-black text-slate-900 dark:text-white">
+                  {isLoading ? (
+                    <span className="inline-block w-8 h-7 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+                  ) : stats.dogrudanTeminSayisi}
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">dosya</div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-black text-blue-600 dark:text-blue-400 font-mono">
+                  {isLoading ? "..." : formatCurrency(stats.dogrudanTeminMaliyet)}
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">yaklaşık maliyet</div>
+              </div>
+            </div>
+            {/* Mini progress bar */}
+            <div className="mt-3 w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+              <div
+                style={{
+                  width: `${
+                    (stats.dogrudanTeminSayisi + stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi) > 0
+                      ? Math.round((stats.dogrudanTeminSayisi / (stats.dogrudanTeminSayisi + stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi)) * 100)
+                      : 0
+                  }%`
+                }}
+                className="h-full bg-blue-500 rounded-full transition-all duration-700"
+              />
+            </div>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-medium">
+              % {
+                (stats.dogrudanTeminSayisi + stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi) > 0
+                  ? Math.round((stats.dogrudanTeminSayisi / (stats.dogrudanTeminSayisi + stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi)) * 100)
+                  : 0
+              } toplam alım içinde
+            </div>
+          </div>
+
+          {/* Açık İhale */}
+          <div
+            onClick={() => switchProcurementMode("ihale")}
+            className={cn(
+              "p-4 md:p-5 transition-all cursor-pointer relative",
+              procurementMode === "ihale"
+                ? "bg-amber-50/90 dark:bg-amber-950/40 ring-2 ring-inset ring-amber-500/80 shadow-inner"
+                : "hover:bg-amber-50/60 dark:hover:bg-amber-950/20"
+            )}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
+                Açık İhale
+              </span>
+              <div className="flex items-center gap-1">
+                {procurementMode === "ihale" && (
+                  <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-600 text-white shadow-xs">
+                    Aktif Mod
+                  </span>
+                )}
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50">
+                  Md. 19
+                </span>
+              </div>
+            </div>
+            <div className="flex items-end justify-between gap-2">
+              <div>
+                <div className="text-2xl font-black text-slate-900 dark:text-white">
+                  {isLoading ? (
+                    <span className="inline-block w-8 h-7 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+                  ) : stats.acikIhaleSayisi}
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">dosya</div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-black text-amber-600 dark:text-amber-400 font-mono">
+                  {isLoading ? "..." : formatCurrency(stats.acikIhaleMaliyet)}
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">yaklaşık maliyet</div>
+              </div>
+            </div>
+            <div className="mt-3 w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+              <div
+                style={{
+                  width: `${
+                    (stats.dogrudanTeminSayisi + stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi) > 0
+                      ? Math.round((stats.acikIhaleSayisi / (stats.dogrudanTeminSayisi + stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi)) * 100)
+                      : 0
+                  }%`
+                }}
+                className="h-full bg-amber-500 rounded-full transition-all duration-700"
+              />
+            </div>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-medium">
+              % {
+                (stats.dogrudanTeminSayisi + stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi) > 0
+                  ? Math.round((stats.acikIhaleSayisi / (stats.dogrudanTeminSayisi + stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi)) * 100)
+                  : 0
+              } toplam alım içinde
+            </div>
+          </div>
+
+          {/* Pazarlık Usulü */}
+          <div
+            onClick={() => switchProcurementMode("ihale")}
+            className={cn(
+              "p-4 md:p-5 transition-all cursor-pointer relative",
+              procurementMode === "ihale"
+                ? "bg-purple-50/90 dark:bg-purple-950/40 ring-2 ring-inset ring-purple-500/80 shadow-inner"
+                : "hover:bg-purple-50/60 dark:hover:bg-purple-950/20"
+            )}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-purple-600 dark:text-purple-400">
+                <span className="w-2 h-2 rounded-full bg-purple-500 inline-block" />
+                Pazarlık Usulü
+              </span>
+              <div className="flex items-center gap-1">
+                {procurementMode === "ihale" && (
+                  <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-purple-600 text-white shadow-xs">
+                    Aktif Mod
+                  </span>
+                )}
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-900/50">
+                  Md. 21
+                </span>
+              </div>
+            </div>
+            <div className="flex items-end justify-between gap-2">
+              <div>
+                <div className="text-2xl font-black text-slate-900 dark:text-white">
+                  {isLoading ? (
+                    <span className="inline-block w-8 h-7 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+                  ) : stats.pazarlikSayisi}
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">dosya</div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-black text-purple-600 dark:text-purple-400 font-mono">
+                  {isLoading ? "..." : formatCurrency(stats.pazarlikMaliyet)}
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">yaklaşık maliyet</div>
+              </div>
+            </div>
+            <div className="mt-3 w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+              <div
+                style={{
+                  width: `${
+                    (stats.dogrudanTeminSayisi + stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi) > 0
+                      ? Math.round((stats.pazarlikSayisi / (stats.dogrudanTeminSayisi + stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi)) * 100)
+                      : 0
+                  }%`
+                }}
+                className="h-full bg-purple-500 rounded-full transition-all duration-700"
+              />
+            </div>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-medium">
+              % {
+                (stats.dogrudanTeminSayisi + stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi) > 0
+                  ? Math.round((stats.pazarlikSayisi / (stats.dogrudanTeminSayisi + stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi)) * 100)
+                  : 0
+              } toplam alım içinde
+            </div>
+          </div>
+
+          {/* Hakediş / Yapım */}
+          <div
+            onClick={() => switchProcurementMode("ihale")}
+            className={cn(
+              "p-4 md:p-5 transition-all cursor-pointer relative",
+              procurementMode === "ihale"
+                ? "bg-emerald-50/90 dark:bg-emerald-950/40 ring-2 ring-inset ring-emerald-500/80 shadow-inner"
+                : "hover:bg-emerald-50/60 dark:hover:bg-emerald-950/20"
+            )}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                Hakediş / Yapım
+              </span>
+              <div className="flex items-center gap-1">
+                {procurementMode === "ihale" && (
+                  <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-600 text-white shadow-xs">
+                    Aktif Mod
+                  </span>
+                )}
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50">
+                  Yapım İşi
+                </span>
+              </div>
+            </div>
+            <div className="flex items-end justify-between gap-2">
+              <div>
+                <div className="text-2xl font-black text-slate-900 dark:text-white">
+                  {isLoading ? (
+                    <span className="inline-block w-8 h-7 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+                  ) : stats.hakediseSayisi}
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">dosya</div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                  {isLoading ? "..." : formatCurrency(stats.hakediseMaliyet)}
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">yaklaşık maliyet</div>
+              </div>
+            </div>
+            <div className="mt-3 w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+              <div
+                style={{
+                  width: `${
+                    (stats.dogrudanTeminSayisi + stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi) > 0
+                      ? Math.round((stats.hakediseSayisi / (stats.dogrudanTeminSayisi + stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi)) * 100)
+                      : 0
+                  }%`
+                }}
+                className="h-full bg-emerald-500 rounded-full transition-all duration-700"
+              />
+            </div>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-medium">
+              % {
+                (stats.dogrudanTeminSayisi + stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi) > 0
+                  ? Math.round((stats.hakediseSayisi / (stats.dogrudanTeminSayisi + stats.acikIhaleSayisi + stats.pazarlikSayisi + stats.hakediseSayisi)) * 100)
+                  : 0
+              } toplam alım içinde
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* 4. ANA KPI & METRİK KARTLARI */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* Kart 1: Toplam Yaklaşık Maliyet & Bütçe */}
         <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-blue-300 dark:hover:border-slate-700 transition-all flex flex-col justify-between">
@@ -890,7 +1415,7 @@ export default function DashboardScreenV2(): React.JSX.Element {
               <div>
                 <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                   <Layers className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  Canlı Süreç Akış Hattı (Dosya Pipeline)
+                  Canlı Süreç Akış Hattı
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Hazırlıktan kabul ve ödemeye kadar doğrudan temin dosyaları

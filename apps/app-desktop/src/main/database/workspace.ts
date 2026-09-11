@@ -7,6 +7,7 @@ import crypto from 'crypto'
 import { initializeDatabase, schema } from './index'
 import { runMigrations, CURRENT_SCHEMA_VERSION, getPendingMigrations } from '@dt/database'
 import tasinirKodlariSeed from './seed/tasinir_kodlari.json'
+import yiUfeSeed from './seed/yi_ufe_endeksleri.json'
 import { recentFilesStore } from '../store/recentFiles'
 
 export interface WorkspaceMeta {
@@ -222,6 +223,43 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
       }
     }
   } catch {}
+
+  // Ensure TANIM_YiUfeEndeks exists and is seeded
+  try {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS TANIM_YiUfeEndeks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        yil INTEGER NOT NULL,
+        ay INTEGER NOT NULL,
+        ay_adi TEXT NOT NULL,
+        endeks REAL NOT NULL,
+        aylik_degisim REAL,
+        yillik_degisim REAL,
+        kaynak TEXT DEFAULT 'TÜİK / hakedis.org',
+        aciklama TEXT,
+        olusturulma_tarihi DATETIME DEFAULT CURRENT_TIMESTAMP,
+        guncellenme_tarihi DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(yil, ay)
+      );
+    `)
+
+    const ufeCount = db.prepare('SELECT COUNT(*) as cnt FROM TANIM_YiUfeEndeks').get() as { cnt: number }
+    if (ufeCount.cnt === 0 && (yiUfeSeed as any)?.monthly) {
+      const insertUfe = db.prepare(`
+        INSERT OR IGNORE INTO TANIM_YiUfeEndeks (yil, ay, ay_adi, endeks, kaynak)
+        VALUES (?, ?, ?, ?, ?)
+      `)
+      const insertMany = db.transaction((rows: any[]) => {
+        for (const r of rows) {
+          insertUfe.run(r.yil, r.ay, r.ay_adi, r.endeks, 'TÜİK / hakedis.org')
+        }
+      })
+      insertMany((yiUfeSeed as any).monthly)
+      console.log(`[Schema Self-Healing] Seeded ${(yiUfeSeed as any).monthly.length} Yİ-ÜFE monthly records into TANIM_YiUfeEndeks`)
+    }
+  } catch (e: any) {
+    console.error('[Schema Self-Healing] TANIM_YiUfeEndeks initialization failed:', e.message)
+  }
 
   for (const table of schema.tables as any[]) {
     try {

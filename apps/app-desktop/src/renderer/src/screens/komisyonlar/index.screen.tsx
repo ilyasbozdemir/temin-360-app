@@ -95,6 +95,22 @@ export default function KomisyonlarScreen({
     }
   })
 
+  const [procurementFilter, setProcurementFilter] = useState<'all' | 'dogrudan_temin' | 'ihale'>(() => {
+    const saved = localStorage.getItem('temin_procurement_mode')
+    return (saved as 'dogrudan_temin' | 'ihale') || 'dogrudan_temin'
+  })
+
+  // Global mod değişimini dinle
+  React.useEffect(() => {
+    const handleMode = (e: any) => {
+      if (e.detail?.mode) {
+        setProcurementFilter(e.detail.mode)
+      }
+    }
+    window.addEventListener('procurement-mode-change', handleMode)
+    return () => window.removeEventListener('procurement-mode-change', handleMode)
+  }, [])
+
   const getIconForTur = (ad: string) => {
     if (ad.toLowerCase().includes('fiyat')) {
       return <FileSearch className="w-4 h-4 shrink-0" />
@@ -105,9 +121,45 @@ export default function KomisyonlarScreen({
     return <ShieldCheck className="w-4 h-4 shrink-0" />
   }
 
-  const filteredKomisyonlar = komisyonlar.filter((k: any) =>
-    k.ad.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const isKomisyonMatchingMode = (k: any, mode: 'all' | 'dogrudan_temin' | 'ihale'): boolean => {
+    if (mode === 'all') return true
+    const text = `${k.ad || ''} ${k.aciklama || ''}`.toLowerCase()
+    if (mode === 'dogrudan_temin') {
+      // Doğrudan Temin Komisyonları
+      return (
+        text.includes('fiyat') ||
+        text.includes('piyasa') ||
+        text.includes('doğrudan') ||
+        text.includes('temin') ||
+        text.includes('22') ||
+        text.includes('maliyet') ||
+        text.includes('muayene') ||
+        text.includes('kabul') ||
+        text.includes('teslim')
+      )
+    }
+    if (mode === 'ihale') {
+      // İhale Komisyonları & Muayene Kabul
+      return (
+        text.includes('ihale') ||
+        text.includes('pazarlık') ||
+        text.includes('şartname') ||
+        text.includes('kik') ||
+        text.includes('hakediş') ||
+        text.includes('muayene') ||
+        text.includes('kabul') ||
+        text.includes('tespit') ||
+        !text.includes('22')
+      )
+    }
+    return true
+  }
+
+  const filteredKomisyonlar = komisyonlar.filter((k: any) => {
+    const matchesSearch = k.ad.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesMode = isKomisyonMatchingMode(k, procurementFilter)
+    return matchesSearch && matchesMode
+  })
 
   return (
     <div
@@ -121,10 +173,10 @@ export default function KomisyonlarScreen({
         <div>
           <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
             <Users className="w-6 h-6 text-blue-500" />
-            Komisyon Yönetimi
+            Komisyon Yönetimi {procurementFilter === 'dogrudan_temin' ? '(Doğrudan Temin)' : procurementFilter === 'ihale' ? '(İhale Süreçleri)' : ''}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Kurum içi görevlendirilecek komisyon asil ve yedek üyelerini buradan yönetebilirsiniz.
+            Kurum içi görevlendirilecek komisyon asil ve yedek üyelerini (KİK 22/d Fiyat Araştırma & KİK 19/21 İhale Heyetleri) buradan yönetebilirsiniz.
           </p>
         </div>
 
@@ -143,7 +195,7 @@ export default function KomisyonlarScreen({
 
       <div className="grid grid-cols-1 gap-8 items-start flex-1 min-h-0">
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm min-h-[450px] flex flex-col overflow-hidden relative">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
             <div className="relative flex-1 max-w-md">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <Input
@@ -154,12 +206,53 @@ export default function KomisyonlarScreen({
                 className="pl-9 pr-4 py-2 w-full bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl text-sm"
               />
             </div>
-            <Button
-              variant="outline"
-              className="gap-2 rounded-xl text-slate-600 dark:text-slate-300"
-            >
-              <Filter className="w-4 h-4" /> Filtrele
-            </Button>
+
+            {/* Süreç Usulü Mod Filtreleyici */}
+            <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setProcurementFilter('all')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  procurementFilter === 'all'
+                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs font-bold'
+                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                Tümü ({komisyonlar.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setProcurementFilter('dogrudan_temin')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  procurementFilter === 'dogrudan_temin'
+                    ? 'bg-blue-600 text-white shadow-xs font-bold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400'
+                }`}
+              >
+                <span>🛒 Doğrudan Temin</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                  procurementFilter === 'dogrudan_temin' ? 'bg-blue-700 text-white' : 'bg-slate-200 dark:bg-slate-800'
+                }`}>
+                  {komisyonlar.filter((k: any) => isKomisyonMatchingMode(k, 'dogrudan_temin')).length}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setProcurementFilter('ihale')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  procurementFilter === 'ihale'
+                    ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400'
+                }`}
+              >
+                <span>🏛️ İhale Komisyonları</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                  procurementFilter === 'ihale' ? 'bg-indigo-700 text-white' : 'bg-slate-200 dark:bg-slate-800'
+                }`}>
+                  {komisyonlar.filter((k: any) => isKomisyonMatchingMode(k, 'ihale')).length}
+                </span>
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50/50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-800/50 rounded-xl flex flex-col p-6">
