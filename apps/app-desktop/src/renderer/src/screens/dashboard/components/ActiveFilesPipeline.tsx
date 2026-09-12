@@ -53,7 +53,7 @@ export const ActiveFilesPipeline: React.FC<ActiveFilesPipelineProps> = ({
               </h4>
               <p className="text-xs text-slate-450 dark:text-slate-500 max-w-sm mt-1 mx-auto leading-relaxed">
                 Süreç başlatmak için ilk satın alma talebinizi ("dosyaKonusu":
-                "LÜZUM MÜZEKKERESİ",) girerek doğrudan temin dosyasını başlatın.
+                "Lüzum Müzekkeresi",) girerek doğrudan temin dosyasını başlatın.
               </p>
             </div>
             <Link to="/dosyalar/yeni">

@@ -7,7 +7,7 @@ export const LuzumMuzekkeresiMapping: ProcessMapping = {
     aciklama: 'Dosyanın antet satırları'
   },
   dosyaKonusu: {
-    deger: 'LÜZUM MÜZEKKERESİ',
+    deger: 'Lüzum Müzekkeresi',
     aciklama: 'Belge Başlığı / Konusu'
   },
   evrakSayisi: {

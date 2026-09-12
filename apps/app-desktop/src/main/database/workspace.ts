@@ -439,9 +439,9 @@ const TEMPLATE_NAMES: Record<string, string> = {
     'KOMİSYON GÖREVLENDİRME ONAYI (MUAYENE VE KABUL VE FİYAT ARAŞTIRMASI)',
   'komisyon-gorevlendirme-onayi-eki':
     'KOMİSYON GÖREVLENDİRME ONAYI EKİ (MUAYENE VE KABUL VE FİYAT ARAŞTIRMASI)',
-  'luzum-muzekkeresi': 'LÜZUM MÜZEKKERESİ',
-  'luzum-muzekkeresi-onay-eki': 'LÜZUM MÜZEKKERESİ ONAY EKİ',
-  'luzum-muzekkeresi-teslim-tesellum': 'LÜZUM MÜZEKKERESİ TESLİM TESELLÜM',
+  'luzum-muzekkeresi': 'Lüzum Müzekkeresi',
+  'luzum-muzekkeresi-onay-eki': 'Lüzum Müzekkeresi ONAY EKİ',
+  'luzum-muzekkeresi-teslim-tesellum': 'Lüzum Müzekkeresi TESLİM TESELLÜM',
   'son-alim-fiyat-cetveli': 'SON ALIM FİYAT CETVELİ',
   'arastirma-mektubu': 'ARAŞTIRMA MEKTUBU',
   'birim-fiyat-teklif-cetveli': 'BİRİM FİYAT TEKLİF CETVELİ',

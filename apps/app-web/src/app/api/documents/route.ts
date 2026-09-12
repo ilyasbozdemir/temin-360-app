@@ -11,7 +11,7 @@ export async function GET() {
     },
     {
       id: 2,
-      name: "LÜZUM MÜZEKKERESİ",
+      name: "Lüzum Müzekkeresi",
       category: "1-ihtiyac-tespiti-ve-baslangic",
     },
     {
