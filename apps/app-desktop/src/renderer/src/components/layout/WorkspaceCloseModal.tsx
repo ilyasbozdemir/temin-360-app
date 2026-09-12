@@ -36,9 +36,27 @@ export function WorkspaceCloseModal({
   const [rememberPreference, setRememberPreference] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [changesInfo, setChangesInfo] = useState<{
+    hasChanges: boolean
+    hasGdriveChanges: boolean
+    hasEmailChanges: boolean
+  }>({ hasChanges: false, hasGdriveChanges: false, hasEmailChanges: false })
 
   useEffect(() => {
     if (isOpen && window.electron?.ipcRenderer) {
+      window.electron.ipcRenderer
+        .invoke('workspace:check-changes')
+        .then((res) => {
+          if (res?.success) {
+            setChangesInfo({
+              hasChanges: !!res.hasChanges,
+              hasGdriveChanges: !!res.hasGdriveChanges,
+              hasEmailChanges: !!res.hasEmailChanges
+            })
+          }
+        })
+        .catch(console.error)
+
       window.electron.ipcRenderer
         .invoke('db:get-settings')
         .then((s) => {
@@ -199,6 +217,19 @@ export function WorkspaceCloseModal({
           </div>
         )}
 
+        {/* Değişiklik yok akıllı koruma bildirimi */}
+        {!changesInfo.hasChanges && !changesInfo.hasGdriveChanges && (
+          <div className="p-3 rounded-2xl bg-blue-50/70 dark:bg-blue-950/20 border border-blue-200/80 dark:border-blue-800/40 text-blue-900 dark:text-blue-300 text-xs flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 font-medium">
+              <CheckCircle2 className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+              <span>Dosyada güncelleme bulunmuyor. Gereksiz Google Drive ve e-posta gönderimleri atlanacaktır.</span>
+            </div>
+            <span className="text-[10px] bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-2 py-0.5 rounded-full font-bold shrink-0">
+              Güncel
+            </span>
+          </div>
+        )}
+
         {/* Cloud active notice */}
         {isGDriveConfigured ? (
           <div className="p-3 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 text-emerald-900 dark:text-emerald-300 text-xs flex items-center justify-between gap-2">
@@ -276,12 +307,20 @@ export function WorkspaceCloseModal({
                   <h4 className="text-xs font-bold text-slate-850 dark:text-slate-150">
                     Google Drive Bulutuna Yedekle
                   </h4>
-                  <span className="text-[9px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-extrabold px-1.5 py-0.5 rounded">
-                    ÖNERİLEN
-                  </span>
+                  {changesInfo.hasGdriveChanges ? (
+                    <span className="text-[9px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-extrabold px-1.5 py-0.5 rounded">
+                      ÖNERİLEN
+                    </span>
+                  ) : (
+                    <span className="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold px-1.5 py-0.5 rounded">
+                      GÜNCEL (ATLANIR)
+                    </span>
+                  )}
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-                  Çalışma dosyanızı Google Drive&apos;daki <strong>TEMIN_360_YEDEKLER</strong> klasörünüze yükler ve son 7 sürümü saklar.
+                  {changesInfo.hasGdriveChanges
+                    ? <>Çalışma dosyanızı Google Drive&apos;daki <strong>TEMIN_360_YEDEKLER</strong> klasörünüze yükler ve son 7 sürümü saklar.</>
+                    : <>Dosyada son yedeklemeden bu yana değişiklik yapılmadığı için gereksiz yükleme yapılmaz.</>}
                 </p>
               </div>
             </div>
@@ -355,11 +394,20 @@ export function WorkspaceCloseModal({
                 <Mail className="w-4 h-4" />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-xs font-bold text-slate-850 dark:text-slate-150">
-                  E-Posta ile Yedek Gönder
-                </h4>
+                <div className="flex items-center gap-2">
+                  <h4 className="text-xs font-bold text-slate-850 dark:text-slate-150">
+                    E-Posta ile Yedek Gönder
+                  </h4>
+                  {!changesInfo.hasEmailChanges && (
+                    <span className="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold px-1.5 py-0.5 rounded">
+                      GÜNCEL (ATLANIR)
+                    </span>
+                  )}
+                </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-                  Dosyayı SMTP sunucunuz üzerinden kayıtlı yedek e-posta adresinize ek dosya olarak postalar.
+                  {changesInfo.hasEmailChanges
+                    ? 'Dosyayı SMTP sunucunuz üzerinden kayıtlı yedek e-posta adresinize ek dosya olarak postalar.'
+                    : 'Dosyada değişiklik yapılmadığı için dışarı gereksiz e-posta gönderimi yapılmaz.'}
                 </p>
               </div>
             </div>

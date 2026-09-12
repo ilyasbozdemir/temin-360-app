@@ -833,6 +833,7 @@ export class DtmWorkspace {
   private db: Database.Database | null = null
   private currentFilePath: string | null = null
   private meta: WorkspaceMeta | null = null
+  private initialHash: string = ''
 
   constructor() {
     this.tempDir = path.join(app.getPath('userData'), 'dtm_temp', Date.now().toString())
@@ -1068,6 +1069,7 @@ export class DtmWorkspace {
     }
 
     this.meta = meta
+    this.initialHash = this.calculateCurrentHash()
     return meta
   }
 
@@ -1170,6 +1172,7 @@ export class DtmWorkspace {
       this.saveWorkspace()
 
       this.meta = meta
+      this.initialHash = this.calculateCurrentHash()
       return meta
     } catch (createErr: any) {
       if (fs.existsSync(lockPath)) {
@@ -1310,6 +1313,79 @@ export class DtmWorkspace {
     return this.currentFilePath
   }
 
+  public calculateCurrentHash(): string {
+    if (!this.db || !this.tempDir) return ''
+    try {
+      try {
+        this.db.pragma('wal_checkpoint(TRUNCATE)')
+      } catch {}
+      const dbPath = path.join(this.tempDir, 'database.sqlite')
+      if (!fs.existsSync(dbPath)) return ''
+      const content = fs.readFileSync(dbPath)
+      const hash = crypto.createHash('sha256').update(content)
+      const attachDir = path.join(this.tempDir, 'attachments')
+      if (fs.existsSync(attachDir)) {
+        const files = fs.readdirSync(attachDir)
+        for (const f of files.sort()) {
+          const fPath = path.join(attachDir, f)
+          try {
+            const stat = fs.statSync(fPath)
+            hash.update(`${f}:${stat.size}:${stat.mtimeMs}`)
+          } catch {}
+        }
+      }
+      return hash.digest('hex')
+    } catch (e) {
+      console.error('Error calculating workspace hash:', e)
+      return ''
+    }
+  }
+
+  public hasChanges(target: 'gdrive' | 'email' | 'any' = 'any'): boolean {
+    if (!this.db || !this.currentFilePath) return false
+    const current = this.calculateCurrentHash()
+    if (!current) return false
+
+    if (target === 'gdrive') {
+      try {
+        const row = this.db
+          .prepare("SELECT value FROM settings WHERE key = 'lastGdriveSyncHash'")
+          .get() as { value?: string }
+        if (row?.value) {
+          return row.value !== current
+        }
+      } catch {}
+      return current !== this.initialHash
+    }
+
+    if (target === 'email') {
+      try {
+        const row = this.db
+          .prepare("SELECT value FROM settings WHERE key = 'lastEmailSyncHash'")
+          .get() as { value?: string }
+        if (row?.value) {
+          return row.value !== current
+        }
+      } catch {}
+      return current !== this.initialHash
+    }
+
+    return current !== this.initialHash
+  }
+
+  public markSynced(target: 'gdrive' | 'email'): void {
+    if (!this.db) return
+    const current = this.calculateCurrentHash()
+    if (!current) return
+    try {
+      const key = target === 'gdrive' ? 'lastGdriveSyncHash' : 'lastEmailSyncHash'
+      this.db.prepare(`INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)`).run(key, current)
+      console.log(`[Workspace] Marked ${target} synced with hash: ${current.substring(0, 8)}...`)
+    } catch (err) {
+      console.error(`Failed to mark ${target} synced:`, err)
+    }
+  }
+
   private ensureTempDir() {
     if (fs.existsSync(this.tempDir)) {
       fs.rmSync(this.tempDir, { recursive: true, force: true })
@@ -1333,6 +1409,18 @@ export const workspaceManager = {
   },
   save: () => {
     if (activeWorkspace) activeWorkspace.saveWorkspace()
+  },
+  hasChanges: (target?: 'gdrive' | 'email' | 'any') => {
+    if (!activeWorkspace) return false
+    return activeWorkspace.hasChanges(target)
+  },
+  markSynced: (target: 'gdrive' | 'email') => {
+    if (!activeWorkspace) return
+    activeWorkspace.markSynced(target)
+  },
+  getCurrentHash: () => {
+    if (!activeWorkspace) return ''
+    return activeWorkspace.calculateCurrentHash()
   },
   close: () => {
     if (activeWorkspace) {

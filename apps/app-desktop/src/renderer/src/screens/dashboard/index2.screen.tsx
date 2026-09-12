@@ -502,17 +502,17 @@ export default function DashboardScreenV2(): React.JSX.Element {
       </div>
 
       {/* 1. TEMİN 360 KOMUTA MERKEZİ HERO HEADER (SEÇİLEN MODA GÖRE DİNAMİK) */}
-      <div className={`relative overflow-hidden rounded-3xl text-white p-7 md:p-8 shadow-xl border transition-all duration-500 ${
+      <div className={`relative overflow-hidden rounded-3xl p-7 md:p-8 shadow-xs border transition-all duration-500 ${
         isIhale 
-          ? 'bg-linear-to-br from-slate-950 via-slate-900 to-indigo-950/80 border-indigo-800/50' 
-          : 'bg-linear-to-br from-slate-950 via-slate-900 to-blue-950/80 border-slate-800'
+          ? 'bg-linear-to-br from-indigo-50/90 via-white to-slate-50/80 border-indigo-100 dark:bg-linear-to-br dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/80 dark:border-indigo-800/50 text-slate-800 dark:text-white' 
+          : 'bg-linear-to-br from-blue-50/90 via-white to-slate-50/80 border-blue-100 dark:bg-linear-to-br dark:from-slate-950 dark:via-slate-900 dark:to-blue-950/80 dark:border-slate-800 text-slate-800 dark:text-white'
       }`}>
         {/* Dekoratif Glow Işıkları */}
-        <div className={`absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full blur-3xl pointer-events-none transition-all duration-500 ${
-          isIhale ? 'bg-indigo-600/30' : 'bg-blue-600/25'
+        <div className={`absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full blur-3xl pointer-events-none transition-all duration-500 opacity-30 dark:opacity-100 ${
+          isIhale ? 'bg-indigo-300 dark:bg-indigo-600/30' : 'bg-blue-300 dark:bg-blue-600/25'
         }`} />
-        <div className={`absolute bottom-0 left-1/3 -ml-20 -mb-20 w-80 h-80 rounded-full blur-3xl pointer-events-none transition-all duration-500 ${
-          isIhale ? 'bg-purple-600/25' : 'bg-indigo-600/20'
+        <div className={`absolute bottom-0 left-1/3 -ml-20 -mb-20 w-80 h-80 rounded-full blur-3xl pointer-events-none transition-all duration-500 opacity-25 dark:opacity-100 ${
+          isIhale ? 'bg-purple-300 dark:bg-purple-600/25' : 'bg-indigo-300 dark:bg-indigo-600/20'
         }`} />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -520,37 +520,37 @@ export default function DashboardScreenV2(): React.JSX.Element {
             <div className="flex flex-wrap items-center gap-2.5">
               <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase border ${
                 isIhale
-                  ? 'bg-indigo-500/20 text-indigo-300 border-indigo-400/30'
-                  : 'bg-blue-500/20 text-blue-300 border-blue-400/30'
+                  ? 'bg-indigo-100/90 text-indigo-700 border-indigo-200/80 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-400/30'
+                  : 'bg-blue-100/90 text-blue-700 border-blue-200/80 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-400/30'
               }`}>
-                {isIhale ? <Gavel className="w-3.5 h-3.5 text-indigo-400" /> : <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />}
+                {isIhale ? <Gavel className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" /> : <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
                 {isIhale ? 'KAMU İHALE MERKEZİ • KİK 19/21 & HAKEDİŞ YÖNETİMİ' : 'DOĞRUDAN TEMİN PORTALI • KİK 22/d HARCAMA YÖNETİMİ'}
               </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-100/90 text-emerald-800 border border-emerald-200/80 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                 {isIhale ? '4734 Kamu İhale & 4735 Sözleşmeler Kanunu' : '4734 / 22-d & 5018 Sayılı Mali Yönetim Uyumlu'}
               </span>
-              <span className="text-xs text-slate-400">{currentDate}</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400">{currentDate}</span>
             </div>
 
             <div>
-              <div className={`text-xs font-bold tracking-wider uppercase mb-1 ${isIhale ? 'text-indigo-400' : 'text-blue-400'}`}>
+              <div className={`text-xs font-bold tracking-wider uppercase mb-1 ${isIhale ? 'text-indigo-600 dark:text-indigo-400' : 'text-blue-600 dark:text-blue-400'}`}>
                 {greeting},
               </div>
               <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-white">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
                   {adminName && !adminName.includes("YÖNETİCİ")
                     ? adminName
                     : (adminUsername || "İdare Yöneticisi")}
                 </h1>
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-white/10 text-slate-200 border border-white/10 shadow-xs">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-white/10 shadow-2xs">
                   {adminTitle && !adminTitle.includes("YÖNETİCİ")
                     ? adminTitle
                     : isIhale ? "İhale Yetkilisi / Şube Müdürü" : "Harcama Yetkilisi / Şube Müdürü"}
                 </span>
               </div>
-              <p className="text-sm text-slate-300 mt-2 leading-relaxed max-w-2xl">
-                <strong className="text-white font-semibold">
+              <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 leading-relaxed max-w-2xl">
+                <strong className="text-slate-900 dark:text-white font-semibold">
                   {institutionName && !institutionName.includes("KURUM")
                     ? institutionName
                     : "Kurum İdaresi"}
@@ -576,7 +576,7 @@ export default function DashboardScreenV2(): React.JSX.Element {
                 });
                 setShowAIModal(true);
               }}
-              className="w-full bg-linear-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-purple-900/30 border border-purple-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
+              className="w-full bg-linear-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-purple-900/20 border border-purple-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
             >
               <Sparkles className="w-4 h-4 text-purple-200 animate-spin" />
               <span className="font-extrabold tracking-wide">
@@ -588,7 +588,7 @@ export default function DashboardScreenV2(): React.JSX.Element {
               <Link to="/harcama-merkezi" className="w-full">
                 <button
                   type="button"
-                  className="w-full bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-indigo-900/30 border border-indigo-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
+                  className="w-full bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-indigo-900/20 border border-indigo-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
                 >
                   <Plus className="w-4 h-4" />
                   <span className="font-extrabold tracking-wide">
@@ -600,7 +600,7 @@ export default function DashboardScreenV2(): React.JSX.Element {
               <Link to="/dosyalar/yeni" className="w-full">
                 <button
                   type="button"
-                  className="w-full bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-blue-900/30 border border-blue-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
+                  className="w-full bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-blue-900/20 border border-blue-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
                 >
                   <Plus className="w-4 h-4" />
                   <span className="font-extrabold tracking-wide">
@@ -614,7 +614,7 @@ export default function DashboardScreenV2(): React.JSX.Element {
               <Link to="/hakedis" className="w-full">
                 <button
                   type="button"
-                  className="w-full bg-linear-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-amber-900/30 border border-amber-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
+                  className="w-full bg-linear-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-amber-900/20 border border-amber-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
                 >
                   <Gavel className="w-4 h-4" />
                   <span className="font-extrabold tracking-wide">
@@ -626,7 +626,7 @@ export default function DashboardScreenV2(): React.JSX.Element {
               <Link to="/harcama-merkezi" className="w-full">
                 <button
                   type="button"
-                  className="w-full bg-linear-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-blue-900/30 border border-blue-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
+                  className="w-full bg-linear-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-blue-900/20 border border-blue-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
                 >
                   <FileText className="w-4 h-4" />
                   <span className="font-extrabold tracking-wide">
@@ -639,9 +639,9 @@ export default function DashboardScreenV2(): React.JSX.Element {
             <Link to="/dosyalar" className="w-full">
               <button
                 type="button"
-                className="w-full bg-slate-800/90 hover:bg-slate-700 text-slate-100 hover:text-white border border-slate-700/90 font-bold py-2.5 px-3.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
+                className="w-full bg-white hover:bg-slate-50 dark:bg-slate-800/90 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-100 hover:text-slate-900 dark:hover:text-white border border-slate-200/90 dark:border-slate-700/90 font-bold py-2.5 px-3.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
               >
-                <FileSpreadsheet className={`w-4 h-4 ${isIhale ? 'text-indigo-400' : 'text-blue-400'}`} />
+                <FileSpreadsheet className={`w-4 h-4 ${isIhale ? 'text-indigo-600 dark:text-indigo-400' : 'text-blue-600 dark:text-blue-400'}`} />
                 <span className="font-bold">
                   {isIhale ? `İhale Dosyaları (${stats.ihaleDosyaSayisi || 0})` : `Temin Dosyaları (${stats.dogrudanTeminSayisi || 0})`}
                 </span>
@@ -652,22 +652,22 @@ export default function DashboardScreenV2(): React.JSX.Element {
 
         {/* Akıllı Durum Uyarıları (Smart Alerts) */}
         {smartAlerts.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-amber-950/40 -mx-7 md:-mx-8 -mb-7 md:-mb-8 px-7 md:px-8 py-3.5 border-t-amber-500/30">
-            <div className="flex items-center gap-2.5 text-amber-200 text-xs font-medium">
-              <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+          <div className="mt-6 pt-4 border-t border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-amber-50/90 dark:bg-amber-950/40 -mx-7 md:-mx-8 -mb-7 md:-mb-8 px-7 md:px-8 py-3.5 border-t-amber-300/50 dark:border-t-amber-500/30">
+            <div className="flex items-center gap-2.5 text-amber-900 dark:text-amber-200 text-xs font-medium">
+              <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
               <span>
-                <strong className="text-amber-300 font-bold">
+                <strong className="text-amber-700 dark:text-amber-300 font-bold">
                   Sistem Uyarısı:
                 </strong>{" "}
                 {smartAlerts[0].title} —{" "}
-                <span className="text-slate-200">{smartAlerts[0].message}</span>
+                <span className="text-slate-700 dark:text-slate-200">{smartAlerts[0].message}</span>
               </span>
             </div>
             <Link
               to={smartAlerts[0].actionLink as any}
               search={smartAlerts[0].actionSearch as any}
             >
-              <button className="text-xs font-bold text-amber-300 hover:text-amber-100 underline flex items-center gap-1 cursor-pointer shrink-0">
+              <button className="text-xs font-bold text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 underline flex items-center gap-1 cursor-pointer shrink-0">
                 {smartAlerts[0].actionText} <ChevronRight className="w-3 h-3" />
               </button>
             </Link>

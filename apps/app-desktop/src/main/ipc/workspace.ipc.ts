@@ -311,13 +311,23 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
     }
   })
 
-  ipcMain.handle('workspace:backup-gdrive', async (_, args?: { token?: string }) => {
+  ipcMain.handle('workspace:backup-gdrive', async (_, args?: { token?: string; force?: boolean }) => {
     try {
       const filePath = workspaceManager.getCurrentFilePath()
       if (!filePath) {
         return { success: false, error: 'Aktif bir çalışma dosyası bulunamadı!' }
       }
       workspaceManager.save()
+
+      // Dosyada güncelleme/değişiklik yoksa gereksiz Google Drive yüklemesi yapma
+      if (!args?.force && !workspaceManager.hasChanges('gdrive')) {
+        console.log('[Google Drive] Dosyada değişiklik bulunmadığı için yükleme atlandı.')
+        return {
+          success: true,
+          skipped: true,
+          message: 'Dosyada son yedeklemeden bu yana herhangi bir değişiklik yapılmadığı için Google Drive yüklemesi atlandı.'
+        }
+      }
 
       const db = workspaceManager.getDb()
       let token = args?.token
@@ -450,6 +460,8 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
         } catch (dbErr) {
           console.error('Failed to log backup history in DB:', dbErr)
         }
+
+        workspaceManager.markSynced('gdrive')
 
         return {
           success: true,
@@ -821,13 +833,23 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
     }
   )
 
-  ipcMain.handle('workspace:backup-email', async () => {
+  ipcMain.handle('workspace:backup-email', async (_, args?: { force?: boolean }) => {
     try {
       const filePath = workspaceManager.getCurrentFilePath()
       if (!filePath) {
         return { success: false, error: 'Aktif bir çalışma dosyası bulunamadı!' }
       }
       workspaceManager.save()
+
+      // Dosyada güncelleme/değişiklik yoksa gereksiz e-posta gönderimi yapma
+      if (!args?.force && !workspaceManager.hasChanges('email')) {
+        console.log('[Email Backup] Dosyada değişiklik bulunmadığı için e-posta gönderimi atlandı.')
+        return {
+          success: true,
+          skipped: true,
+          message: 'Dosyada son gönderimden bu yana herhangi bir değişiklik bulunmadığı için e-posta gönderimi atlandı.'
+        }
+      }
 
       const db = workspaceManager.getDb()
       const hostRow = db.prepare("SELECT value FROM settings WHERE key = 'smtpHost'").get() as {
@@ -885,10 +907,31 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
         ]
       })
 
+      workspaceManager.markSynced('email')
       return { success: true, email: receiver }
     } catch (error: any) {
       console.error('Email backup error:', error)
       return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('workspace:check-changes', async () => {
+    try {
+      return {
+        success: true,
+        hasChanges: workspaceManager.hasChanges('any'),
+        hasGdriveChanges: workspaceManager.hasChanges('gdrive'),
+        hasEmailChanges: workspaceManager.hasChanges('email'),
+        currentHash: workspaceManager.getCurrentHash()
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+        hasChanges: false,
+        hasGdriveChanges: false,
+        hasEmailChanges: false
+      }
     }
   })
 
