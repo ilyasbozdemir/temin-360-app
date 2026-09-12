@@ -18,6 +18,7 @@ import { FindInPage } from './FindInPage'
 import { WorkspaceCloseModal } from './WorkspaceCloseModal'
 import { GoogleDriveModal } from '../ui/GoogleDriveModal'
 import { GlobalDocumentPreviewHost } from './GlobalDocumentPreviewHost'
+import { useAppEventListener } from '../../utils/appEvents'
 
 
 
@@ -242,14 +243,39 @@ export function PageWrapper(): React.ReactNode {
     }
   }
 
+  // Otomatik Arka Plan Google Drive Senkronizasyonu (Dosyaya yeni bir şey eklendiğinde veya güncellendiğinde)
+  const autoSyncTimerRef = useRef<NodeJS.Timeout | null>(null)
+  useAppEventListener(['dossier:created', 'dossier:updated'], () => {
+    if (autoSyncTimerRef.current) clearTimeout(autoSyncTimerRef.current)
+    autoSyncTimerRef.current = setTimeout(async () => {
+      try {
+        const s = await window.electron?.ipcRenderer?.invoke('db:get-settings')
+        if (s?.gdriveAccessToken) {
+          console.log('[Auto-Sync] Veri değişikliği algılandı, Google Drive bulutuna arka planda eşitleniyor...')
+          await window.electron?.ipcRenderer?.invoke('workspace:backup-gdrive')
+        }
+      } catch (e) {
+        console.warn('[Auto-Sync] Arka plan senkronizasyonu ertelendi:', e)
+      }
+    }, 5000)
+  })
+
   useEffect(() => {
     const handleQuitRequest = async () => {
       setIsQuittingApp(true)
+      // Ana sürecin agresif zaman aşımını iptal et, kullanıcının seçimi bekleniyor
+      window.electron?.ipcRenderer.send('app:cancel-quit-timeout')
       try {
         const s = await window.electron?.ipcRenderer?.invoke('db:get-settings')
+        const hasGDrive = !!s?.gdriveAccessToken || (!!s?.gdriveClientId && !!s?.gdriveClientSecret)
         if (s?.closeActionRemember === 'true' && s?.closeActionPreference && s.closeActionPreference !== 'ask') {
           const actions = parseSavedClosePreferences(s.closeActionPreference)
-          if (actions.length > 0) {
+          // Eğer Google Drive bağlıysa ve tercihlerde yoksa/none ise sessizce atlama, kullanıcıya modalı aç
+          if (hasGDrive && (!actions.includes('gdrive') || actions.includes('none'))) {
+            setIsCloseModalOpen(true)
+            return
+          }
+          if (actions.length > 0 && !actions.includes('none')) {
             await handleConfirmClose(actions, true)
             return
           }
@@ -262,11 +288,17 @@ export function PageWrapper(): React.ReactNode {
 
     const handleCloseRequest = async () => {
       setIsQuittingApp(false)
+      window.electron?.ipcRenderer.send('app:cancel-quit-timeout')
       try {
         const s = await window.electron?.ipcRenderer?.invoke('db:get-settings')
+        const hasGDrive = !!s?.gdriveAccessToken || (!!s?.gdriveClientId && !!s?.gdriveClientSecret)
         if (s?.closeActionRemember === 'true' && s?.closeActionPreference && s.closeActionPreference !== 'ask') {
           const actions = parseSavedClosePreferences(s.closeActionPreference)
-          if (actions.length > 0) {
+          if (hasGDrive && (!actions.includes('gdrive') || actions.includes('none'))) {
+            setIsCloseModalOpen(true)
+            return
+          }
+          if (actions.length > 0 && !actions.includes('none')) {
             await handleConfirmClose(actions, false)
             return
           }
@@ -292,6 +324,7 @@ export function PageWrapper(): React.ReactNode {
       if (removeQuitListener) removeQuitListener()
       window.removeEventListener('workspace-close-request', handleCloseRequest)
       window.removeEventListener('open-gdrive-modal', handleOpenGDrive)
+      if (autoSyncTimerRef.current) clearTimeout(autoSyncTimerRef.current)
     }
   }, [closeWorkspace, isQuittingApp, queryClient])
 

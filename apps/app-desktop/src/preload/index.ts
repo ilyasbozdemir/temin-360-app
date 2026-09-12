@@ -37,6 +37,7 @@ const allowedChannels = new Set([
   // Workspace
   'workspace:create',
   'workspace:open',
+  'workspace:save',
   'workspace:close',
   'workspace:get-meta',
   'workspace:backup',
@@ -130,7 +131,8 @@ const allowedChannels = new Set([
   'updater:check',
   'updater:download',
   'updater:quit-and-install',
-  'updater:set-dev-version'
+  'updater:set-dev-version',
+  'app:cancel-quit-timeout'
 ])
 
 

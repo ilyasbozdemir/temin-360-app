@@ -219,7 +219,7 @@ function createWindow(): void {
       event.preventDefault()
       mainWindow.webContents.send('app:quit-request')
 
-      // Güvenlik: Eğer renderer donmuşsa veya yanıt vermiyorsa 2.5 saniye sonra zorla kapat
+      // Güvenlik: Kullanıcının modalı görmesi ve bulut yüklemesinin tamamlanması için 5 dakika (300sn) güvenlik süresi
       if (quitRequestTimeout) clearTimeout(quitRequestTimeout)
       quitRequestTimeout = setTimeout(() => {
         writeLog('WARN', 'Renderer quit response timed out, forcing window close')
@@ -227,7 +227,14 @@ function createWindow(): void {
         if (!mainWindow.isDestroyed()) {
           mainWindow.close()
         }
-      }, 2500)
+      }, 300000)
+    }
+  })
+
+  ipcMain.on('app:cancel-quit-timeout', () => {
+    if (quitRequestTimeout) {
+      clearTimeout(quitRequestTimeout)
+      quitRequestTimeout = null
     }
   })
 

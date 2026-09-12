@@ -4,8 +4,9 @@ import {
   Calendar,
   CheckCircle2,
   ExternalLink,
+  Info,
   Plus,
-  RefreshCw,
+  RotateCcw,
   Search,
   Sparkles,
   TrendingUp,
@@ -13,16 +14,55 @@ import {
 } from 'lucide-react'
 import {
   AY_ISIMLERI,
-  MonthlyEndeksRecord,
   YearEndeksGroup,
   yiUfeService
 } from '../../../services/yiUfeService'
+import { useWorkspaceStore } from '../../../store/workspaceStore'
+import { useDosyalarHooks } from '../../dosyalar/dosyalar.hooks'
 
 export function YiUfeEndeksTab(): React.JSX.Element {
   const [dataVersion, setDataVersion] = useState(0)
   const [yearGroups, setYearGroups] = useState<YearEndeksGroup[]>([])
   const [searchYear, setSearchYear] = useState('')
   const [selectedDecade, setSelectedDecade] = useState<'ALL' | '2020s' | '2010s' | '2000s' | '1990s'>('ALL')
+
+  // Aktif Dosya ve Varsayılan Yıl Entegrasyonu
+  const { activeDosyaId } = useWorkspaceStore()
+  const { dosyalar } = useDosyalarHooks()
+  const activeDosya = useMemo(
+    () => (activeDosyaId ? dosyalar.find((d) => d.id === activeDosyaId) : undefined),
+    [dosyalar, activeDosyaId]
+  )
+
+  const currentYear = useMemo(() => new Date().getFullYear(), [])
+
+  // Aktif dosya açıksa dosyanın bütçe yılı / açılış yılı, değilse cari takvim yılı
+  const defaultBaseYear = useMemo(() => {
+    if (activeDosya?.butce_yili) {
+      return Number(activeDosya.butce_yili)
+    }
+    if (activeDosya?.dosya_acilis_tarihi) {
+      const parsed = new Date(activeDosya.dosya_acilis_tarihi).getFullYear()
+      if (!isNaN(parsed) && parsed > 1990) return parsed
+    }
+    if (activeDosya?.temin_tarihi) {
+      const parsed = new Date(activeDosya.temin_tarihi).getFullYear()
+      if (!isNaN(parsed) && parsed > 1990) return parsed
+    }
+    return currentYear
+  }, [activeDosya, currentYear])
+
+  const defaultBaseMonth = useMemo(() => {
+    if (activeDosya?.dosya_acilis_tarihi) {
+      const m = new Date(activeDosya.dosya_acilis_tarihi).getMonth() + 1
+      if (!isNaN(m) && m >= 1 && m <= 12) return m
+    }
+    if (activeDosya?.temin_tarihi) {
+      const m = new Date(activeDosya.temin_tarihi).getMonth() + 1
+      if (!isNaN(m) && m >= 1 && m <= 12) return m
+    }
+    return 1
+  }, [activeDosya])
 
   // Modal Durumları
   const [showAddModal, setShowAddModal] = useState(false)
@@ -32,11 +72,13 @@ export function YiUfeEndeksTab(): React.JSX.Element {
   const [modalAciklama, setModalAciklama] = useState('')
   const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null)
 
-  // Canlı Simülatör State
+  // Canlı Simülatör State (Kullanıcı elle değiştirmediği sürece varsayılan bütçe yılı / cari yıl aktiftir)
   const [simTutar, setSimTutar] = useState('100000')
-  const [simBaseYil, setSimBaseYil] = useState(2024)
-  const [simBaseAy, setSimBaseAy] = useState(1)
-  const [simTargetYil, setSimTargetYil] = useState(2026)
+  const [userBaseYil, setUserBaseYil] = useState<number | null>(null)
+  const [userBaseAy, setUserBaseAy] = useState<number | null>(null)
+  const simBaseYil = userBaseYil ?? defaultBaseYear
+  const simBaseAy = userBaseAy ?? defaultBaseMonth
+  const [simTargetYil, setSimTargetYil] = useState(currentYear)
   const [simTargetAy, setSimTargetAy] = useState(8)
 
   useEffect(() => {
@@ -98,6 +140,17 @@ export function YiUfeEndeksTab(): React.JSX.Element {
       return true
     })
   }, [yearGroups, searchYear, selectedDecade])
+
+  const allYearOptions = useMemo(() => {
+    const list = yearGroups.map((g) => g.yil)
+    if (!list.includes(defaultBaseYear)) {
+      list.push(defaultBaseYear)
+    }
+    if (!list.includes(currentYear)) {
+      list.push(currentYear)
+    }
+    return Array.from(new Set(list)).sort((a, b) => b - a)
+  }, [yearGroups, defaultBaseYear, currentYear])
 
   const openAddForMonth = (yil: number, ay: number, currentVal?: number | null) => {
     setModalYil(yil)
@@ -273,26 +326,76 @@ export function YiUfeEndeksTab(): React.JSX.Element {
             </div>
 
             {/* Baz Tarih (Yıl & Ay) */}
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Baz Dönem (Alım/İhale Tarihi - Y0)
-              </label>
-              <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1.5 sm:col-span-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Baz Dönem (Alım/İhale Tarihi - Y0)
+                </label>
+                {simBaseYil !== defaultBaseYear && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUserBaseYil(null)
+                      setUserBaseAy(null)
+                    }}
+                    className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer transition-colors"
+                    title="Varsayılan yıla geri dön"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>Varsayılana Dön ({defaultBaseYear})</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Varsayılan Değer Uyarı & Bilgi Rozeti */}
+              <div
+                className={`p-2.5 rounded-xl text-xs flex items-start gap-2 border transition-all ${
+                  activeDosya
+                    ? 'bg-blue-50/80 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/50 text-blue-900 dark:text-blue-200'
+                    : 'bg-amber-50/80 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/50 text-amber-900 dark:text-amber-200'
+                }`}
+              >
+                <Info
+                  className={`w-4 h-4 mt-0.5 shrink-0 ${
+                    activeDosya ? 'text-blue-600 dark:text-blue-400' : 'text-amber-600 dark:text-amber-400'
+                  }`}
+                />
+                <div className="space-y-0.5 leading-snug">
+                  <span className="font-bold block text-[11px]">
+                    {activeDosya
+                      ? '⚡ Varsayılan Seçim: Aktif Dosya Bütçe Yılı'
+                      : '⚡ Varsayılan Seçim: Cari Takvim Yılı'}
+                  </span>
+                  <p className="text-[11px] opacity-90">
+                    {activeDosya ? (
+                      <>
+                        Açık olan <strong>{activeDosya.temin_no ? `[${activeDosya.temin_no}]` : ''} {activeDosya.konu || 'çalışma dosyanızın'}</strong> bütçe yılı (<strong>{defaultBaseYear}</strong>) otomatik varsayılan baz dönem olarak seçilmiştir.
+                      </>
+                    ) : (
+                      <>
+                        Şu anda açık bir çalışma dosyası bulunmadığı için cari yıl (<strong>{defaultBaseYear}</strong>) varsayılan baz dönem olarak ayarlanmıştır.
+                      </>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 pt-0.5">
                 <select
                   value={simBaseYil}
-                  onChange={(e) => setSimBaseYil(parseInt(e.target.value, 10))}
-                  className="px-2.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none"
+                  onChange={(e) => setUserBaseYil(parseInt(e.target.value, 10))}
+                  className="px-2.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
-                  {yearGroups.map((g) => (
-                    <option key={g.yil} value={g.yil}>
-                      {g.yil}
+                  {allYearOptions.map((y) => (
+                    <option key={y} value={y}>
+                      {y} {y === defaultBaseYear ? ' (Varsayılan)' : ''}
                     </option>
                   ))}
                 </select>
                 <select
                   value={simBaseAy}
-                  onChange={(e) => setSimBaseAy(parseInt(e.target.value, 10))}
-                  className="px-2.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none"
+                  onChange={(e) => setUserBaseAy(parseInt(e.target.value, 10))}
+                  className="px-2.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
                   {AY_ISIMLERI.map((name, idx) => (
                     <option key={idx + 1} value={idx + 1}>
@@ -307,7 +410,7 @@ export function YiUfeEndeksTab(): React.JSX.Element {
             </div>
 
             {/* Hedef Tarih (Güncelleme Tarihi - Yn) */}
-            <div className="space-y-1">
+            <div className="space-y-1 sm:col-span-2">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                 Hedef Dönem (Güncel Tarih - Yn)
               </label>
@@ -317,9 +420,9 @@ export function YiUfeEndeksTab(): React.JSX.Element {
                   onChange={(e) => setSimTargetYil(parseInt(e.target.value, 10))}
                   className="px-2.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none"
                 >
-                  {yearGroups.map((g) => (
-                    <option key={g.yil} value={g.yil}>
-                      {g.yil}
+                  {allYearOptions.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
                     </option>
                   ))}
                 </select>

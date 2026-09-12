@@ -66,12 +66,21 @@ export function WorkspaceCloseModal({
               }
             }
 
-            // By default, no extra actions (saves directly in-place without dialogs)
-            if (initial.length === 0 || initial.includes('none')) {
-              setSelectedActions([])
-            } else {
-              setSelectedActions(initial)
+            const hasGDrive = !!s.gdriveAccessToken || (!!s.gdriveClientId && !!s.gdriveClientSecret)
+            let chosen: CloseActionType[] = []
+
+            if (initial.length > 0 && !initial.includes('none')) {
+              chosen = initial
+            } else if (hasGDrive) {
+              // Google Drive hesabı bağlıysa mutlaka varsayılan olarak seçili gelmeli
+              chosen = ['gdrive']
             }
+
+            if (hasGDrive && !chosen.includes('gdrive') && (!s.closeActionPreference || s.closeActionPreference === 'ask')) {
+              chosen.push('gdrive')
+            }
+
+            setSelectedActions(chosen)
 
             if (s.closeActionRemember === 'true') {
               setRememberPreference(true)
@@ -81,6 +90,34 @@ export function WorkspaceCloseModal({
         .catch(console.error)
     }
   }, [isOpen])
+
+  const [isReauthenticating, setIsReauthenticating] = useState(false)
+
+  const handleOAuthReconnect = async (): Promise<void> => {
+    setIsReauthenticating(true)
+    setError(null)
+    try {
+      const res = await window.electron.ipcRenderer.invoke('workspace:start-gdrive-oauth')
+      if (res?.success) {
+        setLoading(true)
+        const uploadRes = await window.electron.ipcRenderer.invoke('workspace:backup-gdrive')
+        if (uploadRes?.success) {
+          await onConfirm(['gdrive'])
+          onClose()
+          return
+        } else {
+          setError(uploadRes?.error || 'Yükleme başarısız oldu.')
+        }
+      } else {
+        setError(res?.error || 'Google yetkilendirme işlemi tamamlanamadı.')
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Bağlantı hatası oluştu.')
+    } finally {
+      setIsReauthenticating(false)
+      setLoading(false)
+    }
+  }
 
   const toggleAction = (action: CloseActionType): void => {
     setSelectedActions((prev) =>
@@ -143,9 +180,22 @@ export function WorkspaceCloseModal({
     >
       <div className="flex flex-col gap-3.5">
         {error && (
-          <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 text-red-800 dark:text-red-400 text-xs flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0 text-red-600 dark:text-red-500" />
-            <span>{error}</span>
+          <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 text-red-800 dark:text-red-400 text-xs flex flex-col gap-2.5">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-red-600 dark:text-red-500" />
+              <span>{error}</span>
+            </div>
+            {(error.includes('Google Drive') || error.includes('jeton') || error.includes('OAuth') || error.includes('token') || error.includes('süresi dolmuş')) && (
+              <button
+                type="button"
+                onClick={handleOAuthReconnect}
+                disabled={isReauthenticating}
+                className="self-start px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-[11px] font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+              >
+                {isReauthenticating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CloudUpload className="w-3.5 h-3.5" />}
+                <span>Google ile Tek Tıkla Yeniden Bağlan ve Gönder</span>
+              </button>
+            )}
           </div>
         )}
 
@@ -355,11 +405,14 @@ export function WorkspaceCloseModal({
 
         {/* Selected Summary Notice */}
         {selectedActions.length === 0 ? (
-          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-            <span>
-              Mevcut çalışma dosyanız (<strong>{fileName}</strong>) güncellenerek kapatılacaktır.
-            </span>
+          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs flex items-start gap-2.5">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+            <div className="space-y-0.5">
+              <span className="font-bold block">Hiçbir yedekleme yöntemi seçilmedi!</span>
+              <p className="text-[11px] opacity-90 leading-relaxed">
+                Google Drive veya e-posta yedeklemesi seçilmediği için dosyanız buluta gönderilmeyecektir. Yalnızca yerel çalışma dosyanız (<strong>{fileName}</strong>) güncellenecektir.
+              </p>
+            </div>
           </div>
         ) : (
           <div className="px-3 py-2 rounded-xl bg-slate-100/70 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 text-xs flex items-center justify-between">
@@ -423,19 +476,31 @@ export function WorkspaceCloseModal({
             disabled={loading}
             onClick={handleConfirm}
             className={cn(
-              'px-5 py-2.5 text-xs font-bold text-white rounded-xl shadow-md cursor-pointer flex items-center gap-2 min-w-32.5 justify-center transition-all',
+              'px-5 py-2.5 text-xs font-bold text-white rounded-xl shadow-md cursor-pointer flex items-center gap-2 min-w-36 justify-center transition-all',
               selectedActions.includes('gdrive')
                 ? 'bg-emerald-600 hover:bg-emerald-700'
-                : 'bg-blue-600 hover:bg-blue-700'
+                : selectedActions.length === 0
+                  ? 'bg-amber-600 hover:bg-amber-700'
+                  : 'bg-blue-600 hover:bg-blue-700'
             )}
           >
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Kaydediliyor...</span>
+                <span>
+                  {selectedActions.includes('gdrive')
+                    ? "Google Drive'a Gönderiliyor..."
+                    : 'Kaydediliyor...'}
+                </span>
               </>
             ) : selectedActions.length === 0 ? (
-              <span>Kaydet ve Kapat</span>
+              <span>Yedek Almadan Kapat</span>
+            ) : selectedActions.includes('gdrive') ? (
+              <span>
+                {selectedActions.length === 1
+                  ? "Google Drive'a Gönder & Kapat"
+                  : `Drive & Diğerleri (${selectedActions.length})`}
+              </span>
             ) : (
               <span>
                 {selectedActions.length === 1

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import {
   BookOpen,
   Calculator,
@@ -10,6 +10,7 @@ import {
   TrendingUp
 } from 'lucide-react'
 import { InnerMenu, InnerMenuItem } from '../../components/ui/InnerMenu'
+import { useLocation, useNavigate } from '@tanstack/react-router'
 import { KikLimitleriSection } from './KikLimitleriSection'
 import { OranlarTab } from './tabs/OranlarTab'
 import { MaliTab } from './tabs/MaliTab'
@@ -20,22 +21,64 @@ import { ButceKodlariTab } from './tabs/ButceKodlariTab'
 import { MevzuatKutuphanesiTab } from './tabs/MevzuatKutuphanesiTab'
 import { YiUfeEndeksTab } from './tabs/YiUfeEndeksTab'
 
+type MevzuatTabType =
+  | 'kutuphane'
+  | 'limitler'
+  | 'oranlar'
+  | 'mali'
+  | 'butcekodlari'
+  | 'asamalar'
+  | 'bentler'
+  | 'fiyatfarki'
+  | 'yi-ufe'
+
 export function MevzuatScreen(): React.JSX.Element {
-  const [activeTab, setActiveTab] = useState<
-    | 'kutuphane'
-    | 'limitler'
-    | 'oranlar'
-    | 'mali'
-    | 'butcekodlari'
-    | 'asamalar'
-    | 'bentler'
-    | 'fiyatfarki'
-    | 'yi-ufe'
-  >(() => {
-    const params = new URLSearchParams(window.location.search)
-    const t = params.get('tab')
-    return (t as any) || 'kutuphane'
-  })
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  function isValidTab(val: string): val is MevzuatTabType {
+    return [
+      'kutuphane',
+      'limitler',
+      'oranlar',
+      'mali',
+      'butcekodlari',
+      'asamalar',
+      'bentler',
+      'fiyatfarki',
+      'yi-ufe'
+    ].includes(val)
+  }
+
+  // Hash veya search params üzerinden tab parametresini çözümle
+  const parseTabParam = (): MevzuatTabType => {
+    const searchObj = location.search as Record<string, unknown> | string | undefined
+    if (searchObj && typeof searchObj === 'object' && 'tab' in searchObj) {
+      const val = String(searchObj.tab)
+      if (isValidTab(val)) return val
+    }
+    if (typeof searchObj === 'string' && searchObj) {
+      const p = new URLSearchParams(searchObj)
+      const val = p.get('tab')
+      if (val && isValidTab(val)) return val
+    }
+    if (typeof window !== 'undefined' && window.location.hash.includes('?')) {
+      const query = window.location.hash.slice(window.location.hash.indexOf('?'))
+      const p = new URLSearchParams(query)
+      const val = p.get('tab')
+      if (val && isValidTab(val)) return val
+    }
+    return 'kutuphane'
+  }
+
+  const activeTab = parseTabParam()
+
+  const handleTabChange = (tabId: string): void => {
+    navigate({
+      to: '/mevzuat',
+      search: (prev: any) => ({ ...prev, tab: tabId })
+    })
+  }
 
   const menuItems: InnerMenuItem[] = [
     {
@@ -118,7 +161,7 @@ export function MevzuatScreen(): React.JSX.Element {
           className="lg:col-span-3 shrink-0"
           items={menuItems}
           activeId={activeTab}
-          onChange={(id) => setActiveTab(id as any)}
+          onChange={handleTabChange}
         />
 
         {/* SAĞ PANEL */}

@@ -34,6 +34,20 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
     }
   )
 
+  ipcMain.handle('workspace:save', async () => {
+    try {
+      const filePath = workspaceManager.getCurrentFilePath()
+      if (!filePath) {
+        return { success: false, error: 'Aktif bir çalışma dosyası bulunamadı!' }
+      }
+      workspaceManager.save()
+      return { success: true, message: 'Çalışma dosyası başarıyla kaydedildi.' }
+    } catch (error: any) {
+      console.error('Save workspace error:', error)
+      return { success: false, error: error.message }
+    }
+  })
+
   ipcMain.handle('workspace:close', async () => {
     try {
       closeAllSecondaryWindows()

@@ -71,6 +71,49 @@ export function Header(): React.JSX.Element {
     }, 2400);
   };
 
+  const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
+
+  const handleSaveAndSync = async (): Promise<void> => {
+    try {
+      setSaveFeedback("💾 Dosya kaydediliyor...");
+      const saveRes = await window.electron?.ipcRenderer.invoke("workspace:save");
+      if (!saveRes?.success) {
+        throw new Error(saveRes?.error || "Dosya kaydedilemedi.");
+      }
+
+      // Google Drive yapılandırılmış mı kontrol et
+      const s = await window.electron?.ipcRenderer.invoke("db:get-settings");
+      if (s?.gdriveAccessToken) {
+        setSaveFeedback("☁️ Google Drive bulutuna yedekleniyor...");
+        const gdriveRes = await window.electron?.ipcRenderer.invoke("workspace:backup-gdrive");
+        if (gdriveRes?.success) {
+          setSaveFeedback("✓ Kaydedildi ve Google Drive'a başarıyla yedeklendi");
+        } else {
+          setSaveFeedback(`⚠️ Kaydedildi, ancak bulut: ${gdriveRes?.error || 'Yetki hatası'}`);
+        }
+      } else {
+        setSaveFeedback("✓ Çalışma dosyası başarıyla kaydedildi");
+      }
+    } catch (e: any) {
+      setSaveFeedback(`❌ Kaydetme hatası: ${e.message}`);
+    } finally {
+      setTimeout(() => {
+        setSaveFeedback(null);
+      }, 3500);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent): void => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        handleSaveAndSync();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const handleCloseWorkspace = async (): Promise<void> => {
     window.dispatchEvent(new CustomEvent("workspace-close-request"));
   };
@@ -132,6 +175,10 @@ export function Header(): React.JSX.Element {
         {
           label: "Veri Dosyası Detayları (.dtal)",
           onClick: () => navigate({ to: "/dosya" }),
+        },
+        {
+          label: "💾 Değişiklikleri Kaydet & Drive'a Gönder (Ctrl+S)",
+          onClick: handleSaveAndSync,
         },
         {
           label: "Kullanıcı Profili",
@@ -437,7 +484,7 @@ export function Header(): React.JSX.Element {
           },
           {
             label: "🏛️ İhale Eşik Değerleri ve Limit Parametreleri",
-            onClick: () => navigate({ to: "/mevzuat" }),
+            onClick: () => navigate({ to: "/mevzuat", search: { tab: "limitler" } as any }),
           },
           {
             label: "📈 Yİ-ÜFE Fiyat Farkı & Değerleme Endeksleri",
@@ -459,7 +506,7 @@ export function Header(): React.JSX.Element {
         },
         {
           label: "Mevzuat ve Parametreler",
-          onClick: () => navigate({ to: "/mevzuat" }),
+          onClick: () => navigate({ to: "/mevzuat", search: { tab: "kutuphane" } as any }),
         },
         {
           label: "📈 TÜİK Yİ-ÜFE Endeksleri & Değerleme",
@@ -889,6 +936,12 @@ export function Header(): React.JSX.Element {
           )
           : <div className="min-w-[280px] shrink-0 hidden lg:block"></div>}
       </div>
+
+      {saveFeedback && (
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 z-50 px-4 py-1.5 rounded-full shadow-lg text-xs font-medium bg-slate-900/95 dark:bg-slate-800 text-white backdrop-blur border border-slate-700 flex items-center gap-2 pointer-events-none transition-all duration-300">
+          <span>{saveFeedback}</span>
+        </div>
+      )}
     </header>
   );
 }
