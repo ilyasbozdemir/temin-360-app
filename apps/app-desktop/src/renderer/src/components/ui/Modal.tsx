@@ -9,9 +9,10 @@ interface ModalProps {
   children: React.ReactNode
   description?: string
   className?: string
+  footer?: React.ReactNode
 }
 
-export function Modal({ isOpen, onClose, title, description, children, className }: ModalProps) {
+export function Modal({ isOpen, onClose, title, description, children, className, footer }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -71,7 +72,14 @@ export function Modal({ isOpen, onClose, title, description, children, className
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[70vh] custom-scrollbar">{children}</div>
+        <div className="p-6 overflow-y-auto max-h-[70vh] custom-scrollbar flex-1">{children}</div>
+
+        {/* Fixed Footer */}
+        {footer && (
+          <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   )

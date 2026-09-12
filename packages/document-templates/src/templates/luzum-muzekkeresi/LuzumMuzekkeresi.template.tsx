@@ -140,8 +140,8 @@ export function LuzumMuzekkeresi({
                   Söz konusu ihtiyacın 4734 sayılı Kanunun{" "}
                   <EditableField
                     name="maddeNo"
-                    value={data.maddeNo || "22/d"}
-                    placeholder="22/d"
+                    value={data.maddeNo || "ilgili"}
+                    placeholder="ilgili"
                   />{" "}
                   maddesine göre temini için gereğini olurlarınıza arz ederim.
                 </div>
@@ -149,6 +149,10 @@ export function LuzumMuzekkeresi({
                 <PersonelCard
                   adSoyad={data.talepEdenPersonelAdi}
                   unvan={data.talepEdenPersonelUnvan}
+                  nameField="talepEdenPersonelAdi"
+                  unvanField="talepEdenPersonelUnvan"
+                  placeholderName="Talep Eden Adı Soyadı"
+                  placeholderUnvan="Talep Eden Unvanı"
                   align="right"
                   marginTop={20}
                   marginBottom={30}
@@ -170,25 +174,86 @@ export function LuzumMuzekkeresi({
               data={pageItems}
               emptyMessage="Kalem bulunamadı"
               striped={false}
-              startIndex={pageIdx === 0 ? 0 : limits.firstPage + (pageIdx - 1) * limits.middle}
+              startIndex={pageIdx === 0
+                ? 0
+                : limits.firstPage + (pageIdx - 1) * limits.middle}
               currentSplitIndex={fLimit ? Number(fLimit) : null}
             />
 
-
             {isLastPage && (
-              data.olurYazisi !== false
-                ? (
-                  <div style={{ marginTop: "auto" }}>
-                    <ApprovalSignature
-                      title={data.olurBaslik || "OLUR"}
-                      date={data.onayTarihi || data.tarih || data.dosyaTarihi}
-                      adSoyad={data.onaylayanPersonelAdi}
-                      unvan={data.onaylayanPersonelUnvan}
-                      showSpace={true}
+              <>
+                {data.isinAciklamasi && (
+                  <div
+                    style={{
+                      marginTop: "15px",
+                      marginBottom: "15px",
+                      textAlign: "justify",
+                      fontSize: "11pt",
+                      lineHeight: 1.5,
+                      pageBreakInside: "avoid",
+                    }}
+                  >
+                    <EditableField
+                      name="isinAciklamasi"
+                      value={data.isinAciklamasi}
+                      placeholder="İşin Açıklaması..."
+                      multiline
                     />
                   </div>
-                )
-                : <EditableOlurPlaceholder />
+                )}
+
+                {data.hasAciklamaMaddeleri &&
+                  Array.isArray(data.aciklamaMaddeleri) && (
+                  <div
+                    style={{
+                      marginTop: "15px",
+                      marginBottom: "15px",
+                      textAlign: "justify",
+                      fontSize: "11pt",
+                      lineHeight: 1.5,
+                      pageBreakInside: "avoid",
+                    }}
+                  >
+                    <ol style={{ margin: 0, paddingLeft: "20px" }}>
+                      {data.aciklamaMaddeleri.map((madde: any, idx: number) => (
+                        <li
+                          key={idx}
+                          style={{ marginBottom: "6px", paddingLeft: "5px" }}
+                        >
+                          {madde.maddeMetni ||
+                            (typeof madde === "string" ? madde : "")}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+
+                <PersonelCard
+                  adSoyad={data.hazirlayanPersonelAdi}
+                  unvan={data.hazirlayanPersonelUnvan}
+                  nameField="hazirlayanPersonelAdi"
+                  unvanField="hazirlayanPersonelUnvan"
+                  placeholderName="Hazırlayan Adı Soyadı"
+                  placeholderUnvan="Hazırlayan Unvanı"
+                  align="right"
+                  marginTop={20}
+                  marginBottom={20}
+                />
+
+                {data.olurYazisi !== false
+                  ? (
+                    <div style={{ marginTop: "auto" }}>
+                      <ApprovalSignature
+                        title={data.olurBaslik || "OLUR"}
+                        date={data.onayTarihi || data.tarih || data.dosyaTarihi}
+                        adSoyad={data.onaylayanPersonelAdi}
+                        unvan={data.onaylayanPersonelUnvan}
+                        showSpace={true}
+                      />
+                    </div>
+                  )
+                  : <EditableOlurPlaceholder />}
+              </>
             )}
           </DocumentLayout>
         );

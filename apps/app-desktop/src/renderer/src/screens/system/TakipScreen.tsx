@@ -30,7 +30,7 @@ import { useWorkspaceStore } from '../../store/workspaceStore'
 import { useTabStore } from '../../store/tabStore'
 import { useDosyalarHooks } from '../dosyalar/dosyalar.hooks'
 import { Button } from '../../components/ui/Button'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { logActivity } from '../../utils/logger'
 import { emitAppEvent, useAppEventListener } from '../../utils/appEvents'
 
@@ -263,7 +263,7 @@ export function TakipScreen(): React.JSX.Element {
   })
 
   // Fallback stages if db is empty
-  const stages =
+  const rawStages =
     dbAsamalar.length > 0
       ? dbAsamalar
       : [
@@ -288,6 +288,22 @@ export function TakipScreen(): React.JSX.Element {
             aciklama: 'Mal/hizmet teslimatı, muayene kabulü ve fatura ödeme adımı.'
           }
         ]
+
+  // Deduplicate by asama_sira so we never get duplicate step numbers (e.g. duplicate step 4)
+  const stages = useMemo(() => {
+    const map = new Map<number, any>()
+    for (const item of rawStages) {
+      if (!map.has(item.asama_sira)) {
+        map.set(item.asama_sira, item)
+      } else {
+        const existing = map.get(item.asama_sira)
+        if ((item.asama_adi?.length || 0) > (existing?.asama_adi?.length || 0)) {
+          map.set(item.asama_sira, item)
+        }
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => a.asama_sira - b.asama_sira)
+  }, [rawStages])
 
   const STAGE_ROUTES: Record<number, string> = {
     1: '/dosya/hazirlik-ve-ihtiyac',
@@ -391,11 +407,13 @@ export function TakipScreen(): React.JSX.Element {
       </div>
 
       {activeDosya ? (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* LEFT: STEPPER & STAGE TIMELINE */}
-          <div className="lg:col-span-8 space-y-6">
-            {/* ACTIVE FILE SUMMARY & ACTIONS PANEL */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xs space-y-6">
+        <div className="space-y-6">
+          {/* TOP SECTION: 12-COL GRID FOR SUMMARY (8 COLS) & ACTIONS/DATES (4 COLS) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* LEFT: ACTIVE FILE SUMMARY & ACTIONS PANEL */}
+            <div className="lg:col-span-8 space-y-6">
+              {/* ACTIVE FILE SUMMARY & ACTIONS PANEL */}
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xs space-y-6">
               {/* Dossier Basic Info */}
               <div className="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-slate-100 dark:border-slate-800">
                 <div className="space-y-1.5 flex-1 min-w-[260px]">
@@ -723,8 +741,217 @@ export function TakipScreen(): React.JSX.Element {
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* PROCESS PROGRESS BAR */}
+          {/* RIGHT COLUMN: DOSYA GÜNCELLEME & TARİHLER ve İMZA TAKİBİ */}
+          <div className="lg:col-span-4 space-y-6">
+            {/* DOSYA GÜNCELLEME & TARİHLER PANELİ */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
+              <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <Calendar className="w-5 h-5 text-blue-600" />
+                <div>
+                  <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                    Dosya Durumu & İşlem Tarihleri
+                  </h3>
+                  <p className="text-[10px] text-slate-500">
+                    Süreç milat tarihlerini ve dosya durumunu buradan kaydedip güncelleyebilirsiniz.
+                  </p>
+                </div>
+              </div>
+
+              <form onSubmit={handleUpdateDosya} className="space-y-3.5">
+                {/* Durum */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                    Dosya Durumu
+                  </label>
+                  <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 dark:text-slate-150 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+                  >
+                    <option value="devam_ediyor">Devam Ediyor</option>
+                    <option value="tamamlandi">Tamamlandı</option>
+                    <option value="iptal">İptal Edildi</option>
+                  </select>
+                </div>
+
+                {/* Grid for Dates */}
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Dosya Açılış Tarihi */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                      Açılış Tarihi
+                    </label>
+                    <input
+                      type="date"
+                      value={acilisTarihi}
+                      onChange={(e) => setAcilisTarihi(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-150 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+                    />
+                  </div>
+
+                  {/* Son Teklif Verme Tarihi */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                      Son Teklif Tarihi
+                    </label>
+                    <input
+                      type="date"
+                      value={sonTeklifTarihi}
+                      onChange={(e) => setSonTeklifTarihi(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-150 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+                    />
+                  </div>
+
+                  {/* Karar / Temin Tarihi */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                      Sözleşme/Karar Tarihi
+                    </label>
+                    <input
+                      type="date"
+                      value={teminTarihi}
+                      onChange={(e) => setTeminTarihi(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-150 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+                    />
+                  </div>
+
+                  {/* Tahmini Teslim Tarihi */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                      Teslim Tarihi
+                    </label>
+                    <input
+                      type="date"
+                      value={teslimTarihi}
+                      onChange={(e) => setTeslimTarihi(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-150 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Notlar */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                    Süreç Notları
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={notlar}
+                    onChange={(e) => setNotlar(e.target.value)}
+                    placeholder="Dosyaya özel notlar girin..."
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-150 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none resize-none"
+                  />
+                </div>
+
+                {/* Save button and state message */}
+                <div className="pt-2 flex items-center justify-between gap-3">
+                  <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400">
+                    {saveMessage}
+                  </span>
+                  <button
+                    type="submit"
+                    disabled={saveLoading}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer ml-auto"
+                  >
+                    {saveLoading ? (
+                      <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <Save className="w-3.5 h-3.5" />
+                    )}
+                    Kaydet
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
+              {/* UPLOAD SIGNED DOCUMENTS SECTION */}
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <FileCheck className="w-5 h-5 text-indigo-500" />
+                <div>
+                  <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                    Üretilen Belgeler ve İmza Takibi
+                  </h3>
+                  <p className="text-[10px] text-slate-500">
+                    Sistemden üretilmiş dosyaların ıslak imzalı kopyalarını buradan takip
+                    edebilirsiniz.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {dbBelgeler.length === 0 ? (
+                  <div className="p-3 text-xs text-slate-500 text-center italic bg-slate-50 dark:bg-slate-900 rounded-lg">
+                    Henüz bu dosya için belge üretilmemiş.
+                  </div>
+                ) : (
+                  dbBelgeler.map((belge) => (
+                    <div
+                      key={belge.id}
+                      className={`flex items-center justify-between p-2.5 rounded-lg border transition-colors duration-200 ${
+                        belge.is_signed
+                          ? 'bg-emerald-50/30 border-emerald-100 dark:bg-emerald-950/10 dark:border-emerald-900/30'
+                          : 'bg-slate-50/50 border-slate-200 dark:bg-slate-900 dark:border-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`w-2 h-2 rounded-full transition-colors duration-200 ${
+                            belge.is_signed ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'
+                          }`}
+                        />
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                          {belge.belge_adi}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={belge.is_signed ? 'true' : 'false'}
+                        onClick={() => handleToggleSign(belge.id, belge.is_signed)}
+                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 cursor-pointer ${
+                          belge.is_signed
+                            ? 'bg-emerald-500 focus:ring-emerald-400'
+                            : 'bg-slate-300 dark:bg-slate-600 focus:ring-slate-400'
+                        }`}
+                        title={belge.is_signed ? 'İmzayı kaldır' : 'İmzalandı olarak işaretle'}
+                      >
+                        <span
+                          className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                            belge.is_signed ? 'translate-x-4' : 'translate-x-0.5'
+                          }`}
+                        />
+                      </button>
+                      <span
+                        className={`text-[10px] font-bold flex items-center gap-1 min-w-[70px] justify-end ${
+                          belge.is_signed
+                            ? 'text-emerald-600 dark:text-emerald-500'
+                            : 'text-amber-600 dark:text-amber-400'
+                        }`}
+                      >
+                        {belge.is_signed ? (
+                          <>
+                            <CheckCircle2 className="w-3.5 h-3.5" /> İmzalandı
+                          </>
+                        ) : (
+                          <>
+                            <Clock className="w-3.5 h-3.5" /> Bekliyor
+                          </>
+                        )}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* LOWER SECTIONS: FULL WIDTH */}
+        <div className="space-y-6">
+          {/* PROCESS PROGRESS BAR */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-2 border-b border-slate-100 dark:border-slate-800/60">
                 <h3 className="text-sm font-bold text-slate-800 dark:text-slate-250 flex items-center gap-2">
@@ -824,7 +1051,7 @@ export function TakipScreen(): React.JSX.Element {
                   olarak doldurulur. Süreç boyunca yaptığınız her giriş anında evraklara yansır.
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-2">
                   <div className="p-3.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/60 rounded-2xl flex gap-3">
                     <span className="text-base select-none">💡</span>
                     <div className="space-y-1">
@@ -881,7 +1108,7 @@ export function TakipScreen(): React.JSX.Element {
             </div>
 
             {/* MALZEMELER VE FİRMALAR GRİDİ */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Malzemeler */}
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
@@ -1210,211 +1437,6 @@ export function TakipScreen(): React.JSX.Element {
                   </div>
                 )
               })}
-            </div>
-          </div>
-
-          {/* RIGHT COLUMN */}
-          <div className="lg:col-span-4 space-y-6">
-            {/* DOSYA GÜNCELLEME & TARİHLER PANELİ */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
-              <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-                <Calendar className="w-5 h-5 text-blue-600" />
-                <div>
-                  <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                    Dosya Durumu & İşlem Tarihleri
-                  </h3>
-                  <p className="text-[10px] text-slate-500">
-                    Süreç milat tarihlerini ve dosya durumunu buradan kaydedip güncelleyebilirsiniz.
-                  </p>
-                </div>
-              </div>
-
-              <form onSubmit={handleUpdateDosya} className="space-y-3.5">
-                {/* Durum */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-                    Dosya Durumu
-                  </label>
-                  <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 dark:text-slate-150 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                  >
-                    <option value="devam_ediyor">Devam Ediyor</option>
-                    <option value="tamamlandi">Tamamlandı</option>
-                    <option value="iptal">İptal Edildi</option>
-                  </select>
-                </div>
-
-                {/* Grid for Dates */}
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Dosya Açılış Tarihi */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-                      Açılış Tarihi
-                    </label>
-                    <input
-                      type="date"
-                      value={acilisTarihi}
-                      onChange={(e) => setAcilisTarihi(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-150 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                    />
-                  </div>
-
-                  {/* Son Teklif Verme Tarihi */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-                      Son Teklif Tarihi
-                    </label>
-                    <input
-                      type="date"
-                      value={sonTeklifTarihi}
-                      onChange={(e) => setSonTeklifTarihi(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-150 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                    />
-                  </div>
-
-                  {/* Karar / Temin Tarihi */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-                      Sözleşme/Karar Tarihi
-                    </label>
-                    <input
-                      type="date"
-                      value={teminTarihi}
-                      onChange={(e) => setTeminTarihi(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-150 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                    />
-                  </div>
-
-                  {/* Tahmini Teslim Tarihi */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-                      Teslim Tarihi
-                    </label>
-                    <input
-                      type="date"
-                      value={teslimTarihi}
-                      onChange={(e) => setTeslimTarihi(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-150 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Notlar */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-                    Süreç Notları
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={notlar}
-                    onChange={(e) => setNotlar(e.target.value)}
-                    placeholder="Dosyaya özel notlar girin..."
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-150 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none resize-none"
-                  />
-                </div>
-
-                {/* Save button and state message */}
-                <div className="pt-2 flex items-center justify-between gap-3">
-                  <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400">
-                    {saveMessage}
-                  </span>
-                  <button
-                    type="submit"
-                    disabled={saveLoading}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer ml-auto"
-                  >
-                    {saveLoading ? (
-                      <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                      <Save className="w-3.5 h-3.5" />
-                    )}
-                    Kaydet
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
-              {/* UPLOAD SIGNED DOCUMENTS SECTION */}
-              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-                <FileCheck className="w-5 h-5 text-indigo-500" />
-                <div>
-                  <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                    Üretilen Belgeler ve İmza Takibi
-                  </h3>
-                  <p className="text-[10px] text-slate-500">
-                    Sistemden üretilmiş dosyaların ıslak imzalı kopyalarını buradan takip
-                    edebilirsiniz.
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                {dbBelgeler.length === 0 ? (
-                  <div className="p-3 text-xs text-slate-500 text-center italic bg-slate-50 dark:bg-slate-900 rounded-lg">
-                    Henüz bu dosya için belge üretilmemiş.
-                  </div>
-                ) : (
-                  dbBelgeler.map((belge) => (
-                    <div
-                      key={belge.id}
-                      className={`flex items-center justify-between p-2.5 rounded-lg border transition-colors duration-200 ${
-                        belge.is_signed
-                          ? 'bg-emerald-50/30 border-emerald-100 dark:bg-emerald-950/10 dark:border-emerald-900/30'
-                          : 'bg-slate-50/50 border-slate-200 dark:bg-slate-900 dark:border-slate-800'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-2 h-2 rounded-full transition-colors duration-200 ${
-                            belge.is_signed ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'
-                          }`}
-                        />
-                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                          {belge.belge_adi}
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        role="switch"
-                        aria-checked={belge.is_signed ? 'true' : 'false'}
-                        onClick={() => handleToggleSign(belge.id, belge.is_signed)}
-                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 cursor-pointer ${
-                          belge.is_signed
-                            ? 'bg-emerald-500 focus:ring-emerald-400'
-                            : 'bg-slate-300 dark:bg-slate-600 focus:ring-slate-400'
-                        }`}
-                        title={belge.is_signed ? 'İmzayı kaldır' : 'İmzalandı olarak işaretle'}
-                      >
-                        <span
-                          className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-sm transition-transform duration-200 ${
-                            belge.is_signed ? 'translate-x-4' : 'translate-x-0.5'
-                          }`}
-                        />
-                      </button>
-                      <span
-                        className={`text-[10px] font-bold flex items-center gap-1 min-w-[70px] justify-end ${
-                          belge.is_signed
-                            ? 'text-emerald-600 dark:text-emerald-500'
-                            : 'text-amber-600 dark:text-amber-400'
-                        }`}
-                      >
-                        {belge.is_signed ? (
-                          <>
-                            <CheckCircle2 className="w-3.5 h-3.5" /> İmzalandı
-                          </>
-                        ) : (
-                          <>
-                            <Clock className="w-3.5 h-3.5" /> Bekliyor
-                          </>
-                        )}
-                      </span>
-                    </div>
-                  ))
-                )}
-              </div>
             </div>
           </div>
         </div>

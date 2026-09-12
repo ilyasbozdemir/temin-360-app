@@ -10,6 +10,16 @@ export const LuzumTeslimTesellumMapping: ProcessMapping = {
     deger: 'TESLİM TESELLÜM BELGESİ',
     aciklama: 'Belgenin konusu'
   },
+  solLogo: {
+    tablo: 'TANIM_Kurum',
+    sutun: 'logo_sol',
+    aciklama: 'Sol Logo / Amblem'
+  },
+  sagLogo: {
+    tablo: 'TANIM_Kurum',
+    sutun: 'logo_sag',
+    aciklama: 'Sağ Logo / Amblem'
+  },
   evrakSayisi: {
     aciklama: 'E-DETSİS-SDP-NO standart formatına uygun resmi evrak sayısı (örn: E-10234521-934.01-0001)'
   },

@@ -2,6 +2,7 @@ import React from "react";
 import { ChevronLeft, Edit3, FileText, Layers, Sliders } from "lucide-react";
 import { IhtiyacListesiType } from "@temin360/document-templates";
 import { TemplateOptionItem } from "../templateResolver";
+import { useSettingsStore } from "../../../../../store/settingsStore";
 
 interface DocumentPreviewSidebarProps {
   sidebarOpen: boolean;
@@ -374,7 +375,17 @@ export function DocumentPreviewSidebar({
             <input
               type="checkbox"
               checked={localShowLogoLeft}
-              onChange={(e) => setLocalShowLogoLeft(e.target.checked)}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setLocalShowLogoLeft(checked);
+                if (checked) {
+                  const store = useSettingsStore.getState();
+                  const fallback = store.logoLeft || store.institutionLogo || null;
+                  if (fallback && (!formData.solLogo || String(formData.solLogo).trim() === "")) {
+                    setFormData((prev: any) => ({ ...prev, solLogo: fallback }));
+                  }
+                }
+              }}
               className="w-4 h-4 text-blue-600 rounded cursor-pointer"
             />
           </label>
@@ -387,7 +398,17 @@ export function DocumentPreviewSidebar({
             <input
               type="checkbox"
               checked={localShowLogoRight}
-              onChange={(e) => setLocalShowLogoRight(e.target.checked)}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setLocalShowLogoRight(checked);
+                if (checked) {
+                  const store = useSettingsStore.getState();
+                  const fallback = store.logoRight || null;
+                  if (fallback && (!formData.sagLogo || String(formData.sagLogo).trim() === "")) {
+                    setFormData((prev: any) => ({ ...prev, sagLogo: fallback }));
+                  }
+                }
+              }}
               className="w-4 h-4 text-blue-600 rounded cursor-pointer"
             />
           </label>

@@ -195,6 +195,58 @@ export function WorkspaceCloseModal({
       onClose={loading ? () => {} : onClose}
       title="Çalışma Dosyasını Kapat"
       description={`${fileName} dosyasındaki değişiklikler otomatik olarak kaydedilecektir.`}
+      className="max-w-2xl"
+      footer={
+        <div className="flex items-center justify-between w-full">
+          <button
+            type="button"
+            disabled={loading}
+            onClick={onClose}
+            className="px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer disabled:opacity-50 transition-colors"
+          >
+            Vazgeç
+          </button>
+
+          <button
+            type="button"
+            disabled={loading}
+            onClick={handleConfirm}
+            className={cn(
+              'px-5 py-2.5 text-xs font-bold text-white rounded-xl shadow-md cursor-pointer flex items-center gap-2 min-w-48 justify-center transition-all',
+              selectedActions.includes('gdrive')
+                ? 'bg-emerald-600 hover:bg-emerald-700'
+                : selectedActions.length === 0
+                  ? 'bg-amber-600 hover:bg-amber-700'
+                  : 'bg-blue-600 hover:bg-blue-700'
+            )}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>
+                  {selectedActions.includes('gdrive')
+                    ? "Google Drive'a Gönderiliyor..."
+                    : 'Kaydediliyor...'}
+                </span>
+              </>
+            ) : selectedActions.length === 0 ? (
+              <span>Yedek Almadan Kapat</span>
+            ) : selectedActions.includes('gdrive') ? (
+              <span>
+                {selectedActions.length === 1
+                  ? "Google Drive'a Gönder & Kapat"
+                  : `Drive & Diğerleri (${selectedActions.length})`}
+              </span>
+            ) : (
+              <span>
+                {selectedActions.length === 1
+                  ? 'Kaydet ve Kapat'
+                  : `Kaydet ve Kapat (${selectedActions.length})`}
+              </span>
+            )}
+          </button>
+        </div>
+      }
     >
       <div className="flex flex-col gap-3.5">
         {error && (
@@ -506,57 +558,6 @@ export function WorkspaceCloseModal({
               alanından değiştirebilir veya sıfırlayabilirsiniz.
             </span>
           </label>
-        </div>
-
-        {/* Footer Actions */}
-        <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-3.5 mt-1">
-          <button
-            type="button"
-            disabled={loading}
-            onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-850 cursor-pointer disabled:opacity-50"
-          >
-            Vazgeç
-          </button>
-
-          <button
-            type="button"
-            disabled={loading}
-            onClick={handleConfirm}
-            className={cn(
-              'px-5 py-2.5 text-xs font-bold text-white rounded-xl shadow-md cursor-pointer flex items-center gap-2 min-w-36 justify-center transition-all',
-              selectedActions.includes('gdrive')
-                ? 'bg-emerald-600 hover:bg-emerald-700'
-                : selectedActions.length === 0
-                  ? 'bg-amber-600 hover:bg-amber-700'
-                  : 'bg-blue-600 hover:bg-blue-700'
-            )}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>
-                  {selectedActions.includes('gdrive')
-                    ? "Google Drive'a Gönderiliyor..."
-                    : 'Kaydediliyor...'}
-                </span>
-              </>
-            ) : selectedActions.length === 0 ? (
-              <span>Yedek Almadan Kapat</span>
-            ) : selectedActions.includes('gdrive') ? (
-              <span>
-                {selectedActions.length === 1
-                  ? "Google Drive'a Gönder & Kapat"
-                  : `Drive & Diğerleri (${selectedActions.length})`}
-              </span>
-            ) : (
-              <span>
-                {selectedActions.length === 1
-                  ? 'Kaydet ve Kapat'
-                  : `Kaydet ve Kapat (${selectedActions.length})`}
-              </span>
-            )}
-          </button>
         </div>
       </div>
     </Modal>

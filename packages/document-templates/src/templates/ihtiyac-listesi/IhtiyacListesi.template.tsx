@@ -140,8 +140,8 @@ export function IhtiyacListesi({
                   Söz konusu ihtiyacın 4734 sayılı Kamu İhale Kanununun{" "}
                   <EditableField
                     name="maddeNo"
-                    value={data.maddeNo || "22/d"}
-                    placeholder="22/d"
+                    value={data.maddeNo || "ilgili"}
+                    placeholder="ilgili"
                   />{" "}
                   maddesine göre temini için gereğini olurlarınıza arz ederim.
                 </div>
@@ -170,27 +170,28 @@ export function IhtiyacListesi({
               data={pageItems}
               emptyMessage="Kalem bulunamadı"
               striped={false}
-              startIndex={pageIdx === 0 ? 0 : limits.firstPage + (pageIdx - 1) * limits.middle}
+              startIndex={pageIdx === 0
+                ? 0
+                : limits.firstPage + (pageIdx - 1) * limits.middle}
               currentSplitIndex={fLimit ? Number(fLimit) : null}
             />
 
-
             {isLastPage && (
-              data.olurYazisi !== false ? (
-                <div style={{ marginTop: "auto" }}>
-                  <ApprovalSignature
-                    title={(data as any).olurBaslik || "OLUR"}
-                    date={data.onayTarihi || data.dosyaTarihi || data.tarih ||
-                      data.onayaSunulanTarih}
-                    adSoyad={data.onaylayanPersonelAdi}
-                    unvan={data.onaylayanPersonelUnvan}
-                    showSpace={true}
-                    marginTop={40}
-                  />
-                </div>
-              ) : (
-                <EditableOlurPlaceholder />
-              )
+              data.olurYazisi !== false
+                ? (
+                  <div style={{ marginTop: "auto" }}>
+                    <ApprovalSignature
+                      title={(data as any).olurBaslik || "OLUR"}
+                      date={data.onayTarihi || data.dosyaTarihi || data.tarih ||
+                        data.onayaSunulanTarih}
+                      adSoyad={data.onaylayanPersonelAdi}
+                      unvan={data.onaylayanPersonelUnvan}
+                      showSpace={true}
+                      marginTop={40}
+                    />
+                  </div>
+                )
+                : <EditableOlurPlaceholder />
             )}
           </DocumentLayout>
         );

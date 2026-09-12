@@ -808,6 +808,16 @@ export function registerDocumentIpcHandlers(): void {
       const harcamaBirimi =
         birimAntet || (dosya as any)?.harcama_birimi || settingsMap.spendingUnit || (dosya as any)?.konu || 'HARCAMA BİRİMİ'
 
+      const hazirlayanPersonel = (personelListesi as any[]).find(
+        (p: any) => p.id === (dosya as any)?.hazirlayan_personel_id
+      )
+      const talepEdenPersonel = (personelListesi as any[]).find(
+        (p: any) => p.id === (dosya as any)?.talep_eden_personel_id
+      )
+      const onaylayanPersonel = (personelListesi as any[]).find(
+        (p: any) => p.id === (dosya as any)?.onay_personel_id
+      )
+
       const resolvedContext = {
         kurumAdi,
         harcamaBirimi,
@@ -815,6 +825,14 @@ export function registerDocumentIpcHandlers(): void {
         birimAnteti: birimAntet,
         antetEkSatir: birimAntet,
         antetSatirlari,
+        hazirlayanPersonelAdi: hazirlayanPersonel?.ad_soyad || '',
+        hazirlayanPersonelUnvan: hazirlayanPersonel?.unvan || '',
+        hazirlayanTelefon: hazirlayanPersonel?.telefon || '',
+        talepEdenPersonelAdi: talepEdenPersonel?.ad_soyad || '',
+        talepEdenPersonelUnvan: talepEdenPersonel?.unvan || '',
+        talepEdenTelefon: talepEdenPersonel?.telefon || '',
+        onaylayanPersonelAdi: onaylayanPersonel?.ad_soyad || '',
+        onaylayanPersonelUnvan: onaylayanPersonel?.unvan || '',
         antetSatir1: antetSatirlari[0] || '',
         antetSatir2: antetSatirlari[1] || '',
         antetSatir3: antetSatirlari[2] || '',

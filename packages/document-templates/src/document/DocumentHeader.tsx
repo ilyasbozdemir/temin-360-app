@@ -34,6 +34,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = (
           <img
             src={data.solLogo}
             alt="Sol Logo"
+            referrerPolicy="no-referrer"
             style={{
               maxWidth: "80px",
               maxHeight: "80px",
@@ -102,6 +103,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = (
           <img
             src={data.sagLogo}
             alt="Sağ Logo"
+            referrerPolicy="no-referrer"
             style={{
               maxWidth: "80px",
               maxHeight: "80px",

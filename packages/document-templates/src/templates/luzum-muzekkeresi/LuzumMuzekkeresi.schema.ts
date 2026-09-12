@@ -24,6 +24,10 @@ export const LuzumMuzekkeresiSchema = z.object({
   solLogo: z.any().optional(),
   sagLogo: z.any().optional(),
   kurumIci: z.any().optional(),
+  isinAciklamasi: z.any().optional(),
+  aciklamaMaddeleri: z.any().optional(),
+  hasAciklamaMaddeleri: z.any().optional(),
+  olurYazisi: z.any().optional(),
 }).catchall(z.any());
 
 export type LuzumMuzekkeresiType = z.infer<typeof LuzumMuzekkeresiSchema>;

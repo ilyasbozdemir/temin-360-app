@@ -10,6 +10,16 @@ export const LuzumMuzekkeresiMapping: ProcessMapping = {
     deger: 'Lüzum Müzekkeresi',
     aciklama: 'Belge Başlığı / Konusu'
   },
+  solLogo: {
+    tablo: 'TANIM_Kurum',
+    sutun: 'logo_sol',
+    aciklama: 'Sol Logo / Amblem'
+  },
+  sagLogo: {
+    tablo: 'TANIM_Kurum',
+    sutun: 'logo_sag',
+    aciklama: 'Sağ Logo / Amblem'
+  },
   evrakSayisi: {
     aciklama: 'E-DETSİS-SDP-NO standart formatına uygun resmi evrak sayısı (örn: E-10234521-934.01-0001)'
   },
@@ -129,6 +139,20 @@ export const LuzumMuzekkeresiMapping: ProcessMapping = {
     sutun: 'dosya_acilis_tarihi',
     varsayilan: new Date().toLocaleDateString('tr-TR'),
     aciklama: 'OLUR / Onay tarihi'
+  },
+  hazirlayanPersonelAdi: {
+    tablo: 'DATA_TeminDosyasi',
+    sutun: 'hazirlayan_personel_id',
+    iliskiliTablo: 'TANIM_Personel',
+    iliskiliSutun: 'ad_soyad',
+    aciklama: 'Hazırlayan Personel Adı Soyadı'
+  },
+  hazirlayanPersonelUnvan: {
+    tablo: 'DATA_TeminDosyasi',
+    sutun: 'hazirlayan_personel_id',
+    iliskiliTablo: 'TANIM_Personel',
+    iliskiliSutun: 'unvan',
+    aciklama: 'Hazırlayan Personel Unvanı'
   },
   talepEdenPersonelAdi: {
     tablo: 'DATA_TeminDosyasi',

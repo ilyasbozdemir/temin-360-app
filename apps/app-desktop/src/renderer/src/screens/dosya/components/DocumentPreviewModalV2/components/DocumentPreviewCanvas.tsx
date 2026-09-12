@@ -8,6 +8,7 @@ import {
 import { TemplateErrorBoundary } from "../TemplateErrorBoundary";
 import { Personel } from "../types";
 import { TemplateOptionItem } from "../templateResolver";
+import { useSettingsStore } from "../../../../../store/settingsStore";
 
 interface DocumentPreviewCanvasProps {
   isLoading?: boolean;
@@ -121,8 +122,17 @@ export function DocumentPreviewCanvas({
                     formData.onayaSunulanTarih || formData.tarih || "",
                   onayTarihi:
                     formData.onayTarihi || formData.olurTarihi || formData.dosyaTarihi || "",
-                  solLogo: localShowLogoLeft ? formData.solLogo : null,
-                  sagLogo: localShowLogoRight ? formData.sagLogo : null,
+                  solLogo: localShowLogoLeft
+                    ? ((formData.solLogo && String(formData.solLogo).trim() !== "" ? formData.solLogo : null) ||
+                       useSettingsStore.getState().logoLeft ||
+                       useSettingsStore.getState().institutionLogo ||
+                       null)
+                    : null,
+                  sagLogo: localShowLogoRight
+                    ? ((formData.sagLogo && String(formData.sagLogo).trim() !== "" ? formData.sagLogo : null) ||
+                       useSettingsStore.getState().logoRight ||
+                       null)
+                    : null,
                   olurYazisi: formData.olurYazisi !== false,
                   orientation,
                 },

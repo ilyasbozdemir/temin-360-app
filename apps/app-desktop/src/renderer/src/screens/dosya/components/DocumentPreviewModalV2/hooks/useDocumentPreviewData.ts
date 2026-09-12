@@ -272,14 +272,60 @@ export function useDocumentPreviewData({
         baseData.tarih = baseData.tarih || baseData.onayaSunulanTarih || "";
         baseData.onayTarihi = baseData.onayTarihi || baseData.dosyaTarihi || "";
 
+        const dosyaObj = payloadData.dosya || dosyaRecord || {};
+        const ctx = payloadData.resolvedContext || {};
+
+        if (!baseData.hazirlayanPersonelAdi) {
+          baseData.hazirlayanPersonelAdi = ctx.hazirlayanPersonelAdi || "";
+          baseData.hazirlayanPersonelUnvan = ctx.hazirlayanPersonelUnvan || "";
+          if (!baseData.hazirlayanPersonelAdi && dosyaObj.hazirlayan_personel_id) {
+            const hp = (personelList || []).find((p: any) => p.id === dosyaObj.hazirlayan_personel_id);
+            if (hp) {
+              baseData.hazirlayanPersonelAdi = hp.ad_soyad;
+              baseData.hazirlayanPersonelUnvan = hp.unvan || "";
+            }
+          }
+        }
+
+        if (!baseData.talepEdenPersonelAdi) {
+          baseData.talepEdenPersonelAdi = ctx.talepEdenPersonelAdi || "";
+          baseData.talepEdenPersonelUnvan = ctx.talepEdenPersonelUnvan || "";
+          if (!baseData.talepEdenPersonelAdi && dosyaObj.talep_eden_personel_id) {
+            const tp = (personelList || []).find((p: any) => p.id === dosyaObj.talep_eden_personel_id);
+            if (tp) {
+              baseData.talepEdenPersonelAdi = tp.ad_soyad;
+              baseData.talepEdenPersonelUnvan = tp.unvan || "";
+            }
+          }
+        }
+
+        if (!baseData.onaylayanPersonelAdi) {
+          baseData.onaylayanPersonelAdi = ctx.onaylayanPersonelAdi || "";
+          baseData.onaylayanPersonelUnvan = ctx.onaylayanPersonelUnvan || "";
+          if (!baseData.onaylayanPersonelAdi && dosyaObj.onay_personel_id) {
+            const op = (personelList || []).find((p: any) => p.id === dosyaObj.onay_personel_id);
+            if (op) {
+              baseData.onaylayanPersonelAdi = op.ad_soyad;
+              baseData.onaylayanPersonelUnvan = op.unvan || "";
+            }
+          }
+        }
+
+        const storeSettings = useSettingsStore.getState();
         const resolvedSolLogo =
-          payloadData.solLogo ||
-          resolved.solLogo ||
+          (payloadData.solLogo && String(payloadData.solLogo).trim() !== "" ? payloadData.solLogo : null) ||
+          (resolved.solLogo && String(resolved.solLogo).trim() !== "" ? resolved.solLogo : null) ||
           logoLeft ||
           institutionLogo ||
+          storeSettings.logoLeft ||
+          storeSettings.institutionLogo ||
           null;
         const resolvedSagLogo =
-          payloadData.sagLogo || resolved.sagLogo || logoRight || null;
+          (payloadData.sagLogo && String(payloadData.sagLogo).trim() !== "" ? payloadData.sagLogo : null) ||
+          (resolved.sagLogo && String(resolved.sagLogo).trim() !== "" ? resolved.sagLogo : null) ||
+          logoRight ||
+          storeSettings.logoRight ||
+          null;
 
         if (resolvedSolLogo) {
           baseData.solLogo = resolvedSolLogo;
@@ -370,7 +416,6 @@ export function useDocumentPreviewData({
         }
 
         // Teslim süresi
-        const dosyaObj = payloadData.dosya || dosyaRecord || {};
         if (dosyaObj.teslim_gun !== undefined && dosyaObj.teslim_gun !== null && String(dosyaObj.teslim_gun).trim() !== "") {
           baseData.teslimGun = String(dosyaObj.teslim_gun);
           baseData.teslimGunu = String(dosyaObj.teslim_gun);
@@ -538,6 +583,12 @@ export function useDocumentPreviewData({
           try {
             for (const [key, val] of Object.entries(snapshotData)) {
               if (val !== undefined && val !== null) {
+                if (key === "solLogo" && (!val || String(val).trim() === "")) {
+                  continue;
+                }
+                if (key === "sagLogo" && (!val || String(val).trim() === "")) {
+                  continue;
+                }
                 finalData[key] = val;
               }
             }
@@ -564,6 +615,13 @@ export function useDocumentPreviewData({
           } catch (e) {
             console.error("Failed to merge saved snapshot JSON", e);
           }
+        }
+
+        if (!finalData.solLogo && resolvedSolLogo) {
+          finalData.solLogo = resolvedSolLogo;
+        }
+        if (!finalData.sagLogo && resolvedSagLogo) {
+          finalData.sagLogo = resolvedSagLogo;
         }
 
         setLocalShowLogoLeft(activeLogoLeft);
@@ -652,8 +710,24 @@ export function useDocumentPreviewData({
     if (!activeDosyaId || !resolvedId) return;
     setIsSaving(true);
     try {
+      const storeSettings = useSettingsStore.getState();
+      const activeSolLogo =
+        formData.solLogo ||
+        logoLeft ||
+        institutionLogo ||
+        storeSettings.logoLeft ||
+        storeSettings.institutionLogo ||
+        null;
+      const activeSagLogo =
+        formData.sagLogo ||
+        logoRight ||
+        storeSettings.logoRight ||
+        null;
+
       const dataToSave = {
         ...formData,
+        solLogo: localShowLogoLeft ? activeSolLogo : null,
+        sagLogo: localShowLogoRight ? activeSagLogo : null,
         showLogoLeft: localShowLogoLeft,
         showLogoRight: localShowLogoRight,
         olurYazisi: formData.olurYazisi !== false,
@@ -717,6 +791,20 @@ export function useDocumentPreviewData({
   // 5. HTML compiler
   const getCompiledHtml = (): string => {
     if (!ActiveComponent) return "";
+    const storeSettings = useSettingsStore.getState();
+    const activeSolLogo =
+      formData.solLogo ||
+      logoLeft ||
+      institutionLogo ||
+      storeSettings.logoLeft ||
+      storeSettings.institutionLogo ||
+      null;
+    const activeSagLogo =
+      formData.sagLogo ||
+      logoRight ||
+      storeSettings.logoRight ||
+      null;
+
     const bodyHtml = renderToString(
       React.createElement(
         TemplateEditProvider,
@@ -733,8 +821,8 @@ export function useDocumentPreviewData({
             firmaListesi,
             tarih: formData.tarih || formData.onayaSunulanTarih || "",
             onayTarihi: formData.onayTarihi || formData.dosyaTarihi || "",
-            solLogo: localShowLogoLeft ? formData.solLogo : null,
-            sagLogo: localShowLogoRight ? formData.sagLogo : null,
+            solLogo: localShowLogoLeft ? activeSolLogo : null,
+            sagLogo: localShowLogoRight ? activeSagLogo : null,
             olurYazisi: formData.olurYazisi !== false,
             orientation,
           },
