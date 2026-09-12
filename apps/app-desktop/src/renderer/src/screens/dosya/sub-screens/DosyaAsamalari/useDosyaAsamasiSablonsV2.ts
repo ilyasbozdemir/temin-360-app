@@ -71,8 +71,8 @@ export const SABLON_GRUPLARI: Record<string, { grup: string; etiket: string; sir
     siralama: 1
   },
 
-  // ── "dosyaKonusu": "LÜZUM MÜZEKKERESİ", ailesi
-  'luzum-muzekkeresi': { grup: 'luzum-muzekkeresi', etiket: '"dosyaKonusu": "LÜZUM MÜZEKKERESİ",', siralama: 0 },
+  // ── Lüzum Müzekkeresi ailesi
+  'luzum-muzekkeresi': { grup: 'luzum-muzekkeresi', etiket: 'Lüzum Müzekkeresi', siralama: 0 },
   'luzum-muzekkeresi-onay-eki': { grup: 'luzum-muzekkeresi', etiket: 'Onay Eki', siralama: 1 },
   'luzum-muzekkeresi-teslim-tesellum': {
     grup: 'luzum-muzekkeresi',

@@ -521,13 +521,14 @@ export const MetadataBlock: React.FC<MetadataBlockProps> = ({
       style={{
         display: "flex",
         justifyContent: "space-between",
-        marginBottom: "20px",
-        paddingBottom: showBorder ? "10px" : 0,
+        alignItems: "flex-start",
+        marginBottom: "16px",
+        paddingBottom: showBorder ? "8px" : 0,
         borderBottom: showBorder ? `1px solid #ccc` : "none",
         pageBreakInside: "avoid",
       }}
     >
-      <div style={{ maxWidth: "50%" }}>
+      <div style={{ maxWidth: "65%", flex: "1 1 auto" }}>
         <table
           style={{
             border: "none",
@@ -535,38 +536,39 @@ export const MetadataBlock: React.FC<MetadataBlockProps> = ({
             margin: 0,
             fontSize: "11pt",
             borderSpacing: 0,
+            width: "100%",
           }}
         >
           <tbody>
             {evrakSayisi !== undefined && (
               <tr>
-                <td style={{ verticalAlign: "top", padding: 0, width: "45px" }}>
+                <td style={{ verticalAlign: "top", padding: "1px 0", width: "45px" }}>
                   <strong>Sayı</strong>
                 </td>
-                <td style={{ verticalAlign: "top", padding: "0 5px 0 0" }}>
+                <td style={{ verticalAlign: "top", padding: "1px 5px 1px 0", width: "10px" }}>
                   <strong>:</strong>
                 </td>
-                <td style={{ verticalAlign: "top", padding: 0 }}>
+                <td style={{ verticalAlign: "top", padding: "1px 0" }}>
                   <EditableField name="evrakSayisi" value={evrakSayisi} />
                 </td>
               </tr>
             )}
             {dosyaKonusu !== undefined && (
               <tr>
-                <td style={{ verticalAlign: "top", padding: 0, width: "45px" }}>
+                <td style={{ verticalAlign: "top", padding: "1px 0", width: "45px" }}>
                   <strong>Konu</strong>
                 </td>
-                <td style={{ verticalAlign: "top", padding: "0 5px 0 0" }}>
+                <td style={{ verticalAlign: "top", padding: "1px 5px 1px 0", width: "10px" }}>
                   <strong>:</strong>
                 </td>
                 <td
                   style={{
                     verticalAlign: "top",
-                    padding: 0,
+                    padding: "1px 0",
                     textAlign: "justify",
                   }}
                 >
-                  <EditableField name="dosyaKonusu" value={cleanKonu} />
+                  <EditableField name="dosyaKonusu" value={cleanKonu} style={{ width: "100%" }} />
                 </td>
               </tr>
             )}
@@ -575,7 +577,7 @@ export const MetadataBlock: React.FC<MetadataBlockProps> = ({
       </div>
 
       {displayTarih !== undefined && (
-        <div style={{ fontSize: "11pt", textAlign: "right" }}>
+        <div style={{ fontSize: "11pt", textAlign: "right", whiteSpace: "nowrap", flexShrink: 0, paddingLeft: "16px", paddingTop: "1px" }}>
           <strong>Tarih:</strong>{" "}
           <DateEditableField name="onayaSunulanTarih" value={displayTarih} />
         </div>

@@ -503,11 +503,11 @@ const TEMPLATE_GROUPS: Array<{
       { dosya_adi: 'ihtiyac-talep-formu', etiket: 'Talep Formu' }
     ]
   },
-  // "dosyaKonusu": "LÜZUM MÜZEKKERESİ", ailesi
+  // Lüzum Müzekkeresi ailesi
   {
     grup: 'luzum-muzekkeresi',
     sablonlar: [
-      { dosya_adi: 'luzum-muzekkeresi', etiket: '"dosyaKonusu": "LÜZUM MÜZEKKERESİ",' },
+      { dosya_adi: 'luzum-muzekkeresi', etiket: 'Lüzum Müzekkeresi' },
       { dosya_adi: 'luzum-muzekkeresi-onay-eki', etiket: 'Onay Eki' },
       { dosya_adi: 'luzum-muzekkeresi-teslim-tesellum', etiket: 'Teslim Tesellüm' }
     ]

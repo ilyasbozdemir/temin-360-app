@@ -94,8 +94,7 @@ export function CiktiMerkezi(): React.JSX.Element {
     if (lower.includes("sözleşme tasarısı")) {
       return "/dosya/siparis-ve-sozlesme";
     }
-    if (lower.includes("harcama pusulası")) return "/dosya/kabul-ve-odeme";
-    if (lower.includes('"dosyaKonusu": "LÜZUM MÜZEKKERESİ",')) {
+    if (lower.includes("lüzum müzekkeresi")) {
       return "/dosya/hazirlik-ve-ihtiyac";
     }
     return null;

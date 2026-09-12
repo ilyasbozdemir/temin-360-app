@@ -78,7 +78,7 @@ export const DocumentLayout = React.forwardRef<
           height: "auto",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
+          justifyContent: "flex-start",
           margin: totalPages && totalPages > 1 && !isLastPage ? "0 auto 40px auto" : "0 auto",
           padding:
             `${margins.top}cm ${margins.right}cm ${margins.bottom}cm ${margins.left}cm`,
@@ -140,12 +140,23 @@ export const DocumentLayout = React.forwardRef<
         )}
 
         {/* İÇERİK */}
-        <div style={{ marginTop: "20px", paddingBottom: "2.5cm" }} className="document-content">
+        <div
+          style={{
+            marginTop: "10px",
+            paddingBottom: hideFooter || data?.kurumIci ? "1cm" : "2.5cm",
+            flex: "1 0 auto",
+          }}
+          className="document-content"
+        >
           {children}
         </div>
 
         {/* FOOTER */}
-        {!hideFooter && !data?.kurumIci && <DocumentFooter data={data} />}
+        {!hideFooter && !data?.kurumIci && (
+          <div style={{ marginTop: "auto", width: "100%" }}>
+            <DocumentFooter data={data} />
+          </div>
+        )}
 
         {/* DİNAMİK SAYFA NUMARASI (Yalnızca 1 sayfadan fazla ise gösterilir) */}
         {pageNumber !== undefined && totalPages !== undefined && totalPages > 1 && (

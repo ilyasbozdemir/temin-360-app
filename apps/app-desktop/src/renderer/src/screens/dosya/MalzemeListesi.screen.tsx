@@ -905,7 +905,7 @@ export function MalzemeListesi(): React.JSX.Element {
           <div className="flex flex-col items-center justify-center text-center p-6 text-slate-400">
             <FileText className="w-8 h-8 text-slate-300 dark:text-slate-700 mb-2" />
             <p className="text-xs">
-              "dosyaKonusu": "LÜZUM MÜZEKKERESİ",nde malzeme tablosunun altında görünecek herhangi bir özel şart
+              Lüzum Müzekkeresinde malzeme tablosunun altında görünecek herhangi bir özel şart
               eklenmemiş.
             </p>
           </div>

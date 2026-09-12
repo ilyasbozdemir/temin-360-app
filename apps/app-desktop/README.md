@@ -118,7 +118,7 @@ belgeler:
 
 - Doğrudan Temin Onay Belgesi
 - Yaklaşık Maliyet Hesap Cetveli ve Görevlendirme Yazısı
-- İhtiyaç Listesi ve Talep Yazısı ("dosyaKonusu": "LÜZUM MÜZEKKERESİ",)
+- İhtiyaç Listesi ve Talep Yazısı (Lüzum Müzekkeresi)
 - Firmalardan Teklif İsteme Yazısı
 - Piyasa Araştırma Tutanağı
 - Geçmiş Alımlar Tutanağı

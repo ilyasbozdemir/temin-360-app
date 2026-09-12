@@ -34,8 +34,8 @@ const getSablonDescription = (cleanName: string) => {
   if (lower.includes("ihtiyaç listesi") || lower.includes("ihtiyaç talep")) {
     return "Malzeme ve hizmet alımları için talep edilen kalemlerin ihtiyaç listesini ve talep formunu hazırlar.";
   }
-  if (lower.includes('"dosyaKonusu": "LÜZUM MÜZEKKERESİ",')) {
-    return 'İhtiyacın temini için gerekli gerekçeleri içeren "dosyaKonusu": "LÜZUM MÜZEKKERESİ", belgesini ve onay eklerini döker.';
+  if (lower.includes("lüzum müzekkeresi")) {
+    return "İhtiyacın temini için gerekli gerekçeleri içeren Lüzum Müzekkeresi belgesini ve onay eklerini döker.";
   }
   if (lower.includes("son alım")) {
     return "Daha önce yapılan benzer alımların listesini, fiyat analizini ve cetvelini içeren dökümandır.";

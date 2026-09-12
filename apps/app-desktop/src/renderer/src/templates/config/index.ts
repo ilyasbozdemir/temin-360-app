@@ -48,7 +48,7 @@ const IhtiyacListesiConfig: TemplateConfig = {
 
 const LuzumMuzekkeresiConfig: TemplateConfig = {
   id: 'luzum-muzekkeresi',
-  name: '"dosyaKonusu": "LÜZUM MÜZEKKERESİ",',
+  name: 'Lüzum Müzekkeresi',
   category: 'İhtiyaç Listesi & Maliyet & Onay',
   version: '1.5',
   schema: z.record(z.string(), z.any()), // TODO: Özel schema yazılacak
@@ -98,7 +98,7 @@ export function initializeTemplates(): void {
   console.log('✅ İhtiyaç Listesi kaydedildi')
 
   templateManager.registerTemplate(LuzumMuzekkeresiConfig)
-  console.log('✅ "dosyaKonusu": "LÜZUM MÜZEKKERESİ", kaydedildi')
+  console.log('✅ Lüzum Müzekkeresi kaydedildi')
 
   templateManager.registerTemplate(HarcamaTalimatiConfig)
   console.log('✅ Harcama Talimatı kaydedildi')

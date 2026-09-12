@@ -62,7 +62,7 @@ export default function TaslakYoneticisi(): React.JSX.Element {
       const saved = localStorage.getItem("global_starred_docs");
       return saved
         ? JSON.parse(saved)
-        : ["İhtiyaç Listesi", '"dosyaKonusu": "LÜZUM MÜZEKKERESİ",'];
+        : ["İhtiyaç Listesi", "Lüzum Müzekkeresi"];
     } catch {
       return [];
     }

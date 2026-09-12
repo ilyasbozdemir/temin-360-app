@@ -35,7 +35,7 @@ Bu dosyada Doğrudan Temin (DT) Masaüstü Uygulaması'nın her sürümünde yap
   komutuyla versions.json güncelleme, commit, tag oluşturma ve push işlemleri
   tek komutla yapılabilir. `--dry-run`, `--no-push`, `--patch`, `--message`
   flag'leri desteklenir.
-- "dosyaKonusu": "LÜZUM MÜZEKKERESİ",, Lüzum Onay Eki, Teslim Tesellüm ve Son
+- Lüzum Müzekkeresi, Lüzum Onay Eki, Teslim Tesellüm ve Son
   Alım Fiyat Cetveli mapping dosyaları eklendi.
 - Şablon dosya adı ↔ kategori eşleştirme sabiti (`sablonKategorileri.ts`)
   eklendi.

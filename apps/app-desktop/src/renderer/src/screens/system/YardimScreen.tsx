@@ -40,7 +40,7 @@ const DOCUMENTS = [
         id: "dogrudan_temin_islem_sureci",
         title: "Doğrudan Temin İşlem Süreci",
         description:
-          'Doğrudan temin alım sürecinin adım adım tüm aşamaları ("dosyaKonusu": "LÜZUM MÜZEKKERESİ",nden ödeme emrine).',
+          'Doğrudan temin alım sürecinin adım adım tüm aşamaları (Lüzum Müzekkeresinden ödeme emrine).',
         file: "dta-res://docs/dogrudan_temin_islem_sureci.doc",
       },
       {
@@ -178,7 +178,7 @@ const DogrudanTeminSurecAkisi = () => {
       role: "İhtiyaç Sahibi Birim",
       desc: "Harcama birimi fiili ihtiyacı tespit eder.",
       action:
-        '“Şuna ihtiyacım var” diyerek İhtiyaç Listesi / Talep Formu ("dosyaKonusu": "LÜZUM MÜZEKKERESİ",) oluşturur ve süreci başlatır.',
+        '“Şuna ihtiyacım var” diyerek İhtiyaç Listesi / Talep Formu (Lüzum Müzekkeresi) oluşturur ve süreci başlatır.',
       bg:
         "from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/10 border-blue-200 dark:border-blue-900/50",
       text: "text-blue-700 dark:text-blue-400",
@@ -245,7 +245,7 @@ const DogrudanTeminSurecAkisi = () => {
     {
       title: "1- İHTİYAÇ OLUŞTU (TALEP / LÜZUM MÜZEKKERESİ)",
       desc:
-        'İhtiyaç sahibi birim tarafından alımı talep edilen mal veya hizmet belirlenir ve "dosyaKonusu": "LÜZUM MÜZEKKERESİ", ile resmi satın alma süreci tetiklenir.',
+        'İhtiyaç sahibi birim tarafından alımı talep edilen mal veya hizmet belirlenir ve Lüzum Müzekkeresi ile resmi satın alma süreci tetiklenir.',
     },
     {
       title: "2- DOĞRUDAN TEMİN ONAYI ALINDI",
@@ -275,7 +275,7 @@ const DogrudanTeminSurecAkisi = () => {
     {
       title: "7- MUAYENE VE KABUL TUTANAĞI",
       desc:
-        '🔎 "Komisyon kontrol etti, uygun buldu."\nMuayene ve kabul komisyonu üyeleri tarafından teslim edilen malların veya hizmetin teknik şartlara, "dosyaKonusu": "LÜZUM MÜZEKKERESİ",ne uygun olup olmadığı kontrol edilerek kabul edilir.',
+        '🔎 "Komisyon kontrol etti, uygun buldu."\nMuayene ve kabul komisyonu üyeleri tarafından teslim edilen malların veya hizmetin teknik şartlara, Lüzum Müzekkeresine uygun olup olmadığı kontrol edilerek kabul edilir.',
     },
     {
       title: "8- FATURA DÜZENLENDİ",
