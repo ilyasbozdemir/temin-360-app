@@ -142,8 +142,8 @@ export const DocumentLayout = React.forwardRef<
         {/* İÇERİK */}
         <div
           style={{
-            marginTop: "10px",
-            paddingBottom: hideFooter || data?.kurumIci ? "1cm" : "2.5cm",
+            marginTop: hideHeader ? "0px" : "10px",
+            paddingBottom: hideFooter || data?.kurumIci ? "0.2cm" : "2.5cm",
             flex: "1 0 auto",
           }}
           className="document-content"

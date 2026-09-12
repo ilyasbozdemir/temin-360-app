@@ -218,12 +218,13 @@ export const PersonelCard: React.FC<PersonelCardProps> = ({
       <div
         style={{
           textAlign: "center",
-          minWidth: "220px",
-          lineHeight: 1.8,
+          minWidth: "180px",
+          maxWidth: "100%",
+          lineHeight: 1.45,
         }}
       >
         {isEditing && (
-          <div style={{ marginBottom: "6px" }}>
+          <div style={{ marginBottom: "3px" }}>
             <select
               value={selectedValue}
               onChange={(e) => {

@@ -8,12 +8,16 @@ interface HarcamaTalimatiProps {
   data?: Partial<HarcamaTalimatiType> & Record<string, any>;
   pageSize?: "A4" | "A3";
   orientation?: "portrait" | "landscape";
+  hideHeader?: boolean;
+  hideFooter?: boolean;
 }
 
 export function HarcamaTalimati({
   data = {},
   pageSize = "A4",
   orientation = "portrait",
+  hideHeader,
+  hideFooter,
 }: HarcamaTalimatiProps) {
   const renderArrayOrString = (val: any, fallback = "-") => {
     if (!val) return fallback;
@@ -28,10 +32,25 @@ export function HarcamaTalimati({
     ? `${data.yaklasikMaliyet} ₺`
     : "-";
 
+  const shouldHideHeader =
+    hideHeader !== undefined
+      ? hideHeader
+      : (data as any)?.hideHeader !== undefined
+      ? (data as any).hideHeader
+      : true;
+
+  const shouldHideFooter =
+    hideFooter !== undefined
+      ? hideFooter
+      : (data as any)?.hideFooter !== undefined
+      ? (data as any).hideFooter
+      : true;
+
   return (
     <DocumentLayout
       data={data as any}
-      hideFooter={false}
+      hideHeader={shouldHideHeader}
+      hideFooter={shouldHideFooter}
       pageSize={pageSize}
       orientation={orientation}
       pageNumber={1}
@@ -41,9 +60,10 @@ export function HarcamaTalimati({
         <table
           style={{
             width: "100%",
+            tableLayout: "fixed",
             borderCollapse: "collapse",
             border: "1px solid #000",
-            marginBottom: "10px",
+            marginBottom: "6px",
           }}
         >
           <tbody>
@@ -55,9 +75,9 @@ export function HarcamaTalimati({
                   border: "1px solid #000",
                   textAlign: "center",
                   fontWeight: "bold",
-                  fontSize: "12pt",
+                  fontSize: "11.5pt",
                   textTransform: "uppercase",
-                  padding: "8px",
+                  padding: "6px",
                   backgroundColor: "#fff",
                 }}
               >
@@ -67,17 +87,17 @@ export function HarcamaTalimati({
 
             {/* Sayı and Tarih */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "50%", fontWeight: "bold", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "50%", fontWeight: "bold", padding: "4px 7px" }}>
                 Sayı: <EditableField name="evrakSayisi" value={data.evrakSayisi} placeholder="E-00000000-934.01-0001" />
               </td>
-              <td style={{ border: "1px solid #000", width: "50%", fontWeight: "bold", textAlign: "right", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "50%", fontWeight: "bold", textAlign: "right", padding: "4px 7px" }}>
                 Tarih: <DateEditableField name="tarih" value={data.tarih} placeholder="GG.AA.YYYY" />
               </td>
             </tr>
 
             {/* Harcama Talebinde Bulunan Birim */}
             <tr>
-              <td colSpan={2} style={{ border: "1px solid #000", fontWeight: "bold", padding: "6px 8px 2px 8px" }}>
+              <td colSpan={2} style={{ border: "1px solid #000", fontWeight: "bold", padding: "4px 7px 2px 7px" }}>
                 Harcama Talebinde Bulunan Birim:
               </td>
             </tr>
@@ -88,8 +108,8 @@ export function HarcamaTalimati({
                   border: "1px solid #000",
                   textAlign: "center",
                   fontWeight: "bold",
-                  fontSize: "11pt",
-                  padding: "6px",
+                  fontSize: "10.5pt",
+                  padding: "5px 7px",
                   textTransform: "uppercase",
                 }}
               >
@@ -106,9 +126,9 @@ export function HarcamaTalimati({
                   textAlign: "center",
                   fontWeight: "bold",
                   backgroundColor: "#fff",
-                  fontSize: "10.5pt",
+                  fontSize: "10pt",
                   textTransform: "uppercase",
-                  padding: "6px",
+                  padding: "5px",
                 }}
               >
                 YAPILACAK HARCAMANIN
@@ -117,90 +137,90 @@ export function HarcamaTalimati({
 
             {/* Gerekçe ve hukuki dayanak */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
                 Gerekçesi ve Hukuki Dayanağı
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "65%", padding: "4px 7px" }}>
                 <EditableField name="gerekce" value={data.gerekce} multiline placeholder="Gerekçe" />
               </td>
             </tr>
 
             {/* Konusu / Nev'i / Niteliği */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
                 Konusu / Nev'i / Niteliği
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", fontWeight: "bold", padding: "6px 8px" }}>
-                <EditableField name="isAdi" value={data.isAdi || data.konu} placeholder="İşin Adı" />
+              <td style={{ border: "1px solid #000", width: "65%", fontWeight: "bold", padding: "4px 7px" }}>
+                <EditableField name="isAdi" value={data.isAdi || data.konu} placeholder="İşin Adı" style={{ width: "100%" }} />
               </td>
             </tr>
 
             {/* Miktarı */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
                 Miktarı
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "65%", padding: "4px 7px" }}>
                 <EditableField name="miktar" value={data.miktar} placeholder="Miktar" />
               </td>
             </tr>
 
             {/* Gerçekleştirme Süresi */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
                 Gerçekleştirme Süresi
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "65%", padding: "4px 7px" }}>
                 <EditableField name="sure" value={data.sure} placeholder="Gerçekleştirme Süresi" />
               </td>
             </tr>
 
             {/* Gerçekleştirme Usulü */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
                 Gerçekleştirme Usulü
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "65%", padding: "4px 7px" }}>
                 <EditableField name="teminSekli" value={data.teminSekli} placeholder="Gerçekleştirme Usulü" />
               </td>
             </tr>
 
             {/* Tutarı veya yaklaşık bedeli */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
                 Tutarı veya Yaklaşık Bedeli
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "65%", padding: "4px 7px" }}>
                 {formattedYaklasikMaliyet}
               </td>
             </tr>
 
             {/* Kullanılabilir ödenek tutarı */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
                 Kullanılabilir Ödenek Tutarı
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "65%", padding: "4px 7px" }}>
                 <EditableField name="odenekTutari" value={data.odenekTutari ? String(data.odenekTutari) : ""} placeholder="Kullanılabilir Ödenek Tutarı" />
               </td>
             </tr>
 
             {/* Ödeneğin bütçe tertibi */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
                 Ödeneğin Bütçe Tertibi
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "65%", padding: "4px 7px" }}>
                 {renderArrayOrString(data.butceTertibi)}
               </td>
             </tr>
 
             {/* Gerçekleştirme görevlileri */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
                 Gerçekleştirme Görevlileri
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", padding: "6px 8px" }}>
+              <td style={{ border: "1px solid #000", width: "65%", padding: "4px 7px" }}>
                 {renderArrayOrString(
                   data.gerceklestirmeGorevlileri,
                   data.hazirlayanPersonelAdi
@@ -219,9 +239,9 @@ export function HarcamaTalimati({
                   textAlign: "center",
                   fontWeight: "bold",
                   backgroundColor: "#fff",
-                  fontSize: "10.5pt",
+                  fontSize: "10pt",
                   textTransform: "uppercase",
-                  padding: "6px",
+                  padding: "4px",
                 }}
               >
                 AÇIKLAMALAR
@@ -232,10 +252,9 @@ export function HarcamaTalimati({
                 colSpan={2}
                 style={{
                   border: "1px solid #000",
-                  minHeight: "80px",
-                  fontSize: "10pt",
+                  fontSize: "9.5pt",
                   textAlign: "justify",
-                  padding: "8px 10px",
+                  padding: "5px 7px",
                   whiteSpace: "pre-wrap",
                 }}
               >
@@ -249,6 +268,7 @@ export function HarcamaTalimati({
         <table
           style={{
             width: "100%",
+            tableLayout: "fixed",
             borderCollapse: "collapse",
             border: "1px solid #000",
           }}
@@ -262,9 +282,9 @@ export function HarcamaTalimati({
                   textAlign: "center",
                   fontWeight: "bold",
                   backgroundColor: "#fff",
-                  fontSize: "10.5pt",
+                  fontSize: "10pt",
                   textTransform: "uppercase",
-                  padding: "4px",
+                  padding: "3px",
                 }}
               >
                 ONAY
@@ -276,10 +296,10 @@ export function HarcamaTalimati({
                   border: "1px solid #000",
                   borderBottom: "none",
                   width: "50%",
-                  height: "60px",
                   verticalAlign: "top",
-                  padding: "8px",
+                  padding: "5px 7px",
                   textAlign: "justify",
+                  fontSize: "9pt",
                 }}
               >
                 Yukarıda belirtilen harcamanın yaptırılması için harcama yetkilisi mutemedi{" "}
@@ -291,12 +311,11 @@ export function HarcamaTalimati({
                   border: "1px solid #000",
                   borderBottom: "none",
                   width: "50%",
-                  height: "60px",
                   verticalAlign: "middle",
                   textAlign: "center",
-                  padding: "8px",
+                  padding: "5px 7px",
                   fontWeight: "bold",
-                  fontSize: "11pt",
+                  fontSize: "10.5pt",
                 }}
               >
                 OLUR
@@ -308,12 +327,12 @@ export function HarcamaTalimati({
                   border: "1px solid #000",
                   borderTop: "none",
                   width: "50%",
-                  padding: "15px 10px",
+                  padding: "6px 8px",
                   textAlign: "center",
                   verticalAlign: "top",
                 }}
               >
-                <div>
+                <div style={{ fontSize: "9.5pt" }}>
                   Teklif Eden Yetkili<br />
                   <DateEditableField name="sunumTarihi" value={data.sunumTarihi || data.tarih} placeholder="GG.AA.YYYY" />
                 </div>
@@ -324,7 +343,7 @@ export function HarcamaTalimati({
                   unvanField="hazirlayanPersonelUnvan"
                   placeholderName="Hazırlayan Adı Soyadı"
                   placeholderUnvan="Unvanı"
-                  marginTop={10}
+                  marginTop={4}
                   marginBottom={0}
                 />
               </td>
@@ -333,12 +352,12 @@ export function HarcamaTalimati({
                   border: "1px solid #000",
                   borderTop: "none",
                   width: "50%",
-                  padding: "15px 10px",
+                  padding: "6px 8px",
                   textAlign: "center",
                   verticalAlign: "top",
                 }}
               >
-                <div>
+                <div style={{ fontSize: "9.5pt" }}>
                   Harcama Yetkilisi<br />
                   <DateEditableField name="olurTarihi" value={data.olurTarihi || data.onayTarihi || data.tarih} placeholder="GG.AA.YYYY" />
                 </div>
@@ -349,7 +368,7 @@ export function HarcamaTalimati({
                   unvanField="onaylayanPersonelUnvan"
                   placeholderName="Onaylayan Adı Soyadı"
                   placeholderUnvan="Unvanı"
-                  marginTop={10}
+                  marginTop={4}
                   marginBottom={0}
                 />
               </td>

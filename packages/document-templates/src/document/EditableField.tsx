@@ -99,6 +99,7 @@ export function EditableField({
     verticalAlign: "baseline",
     transition: "background-color 0.15s ease, border-color 0.15s ease",
     boxSizing: "border-box",
+    maxWidth: "100%",
     ...style,
   };
 
@@ -117,6 +118,7 @@ export function EditableField({
         style={{
           ...baseStyle,
           width: "100%",
+          maxWidth: "100%",
           resize: "vertical",
           display: "block",
           lineHeight: "1.4",
@@ -152,6 +154,7 @@ export function EditableField({
       style={{
         ...baseStyle,
         display: "inline-block",
+        maxWidth: "100%",
         width: style.width || calculatedWidth,
       }}
       className={className}
