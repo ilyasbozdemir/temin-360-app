@@ -334,6 +334,22 @@ export function useDocumentPreviewData({
           baseData.sagLogo = resolvedSagLogo;
         }
 
+        if (!baseData.fiyatKomisyonu || (Array.isArray(baseData.fiyatKomisyonu) && baseData.fiyatKomisyonu.length === 0)) {
+          if (ctx.fiyatKomisyonu && ctx.fiyatKomisyonu.length > 0) {
+            baseData.fiyatKomisyonu = ctx.fiyatKomisyonu;
+          }
+        }
+        if (!baseData.muayeneKomisyonu || (Array.isArray(baseData.muayeneKomisyonu) && baseData.muayeneKomisyonu.length === 0)) {
+          if (ctx.muayeneKomisyonu && ctx.muayeneKomisyonu.length > 0) {
+            baseData.muayeneKomisyonu = ctx.muayeneKomisyonu;
+          }
+        }
+        if (!baseData.komisyon || (Array.isArray(baseData.komisyon) && baseData.komisyon.length === 0)) {
+          if (ctx.komisyon && ctx.komisyon.length > 0) {
+            baseData.komisyon = ctx.komisyon;
+          }
+        }
+
         const activeFirms = fileFirms.length > 0 ? fileFirms : combinedFirms;
         baseData.firmalar = activeFirms;
         baseData.firmaListesi = combinedFirms;

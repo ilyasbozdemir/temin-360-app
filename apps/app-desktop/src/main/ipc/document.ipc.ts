@@ -590,7 +590,7 @@ export function registerDocumentIpcHandlers(): void {
       ).all(dosyaId) : []
 
       // 8. Fetch commissions
-      const komisyonlar = dosyaId ? db.prepare(`
+      let komisyonlar = dosyaId ? db.prepare(`
         SELECT tk.*, 
                COALESCE(NULLIF(tk.ad_soyad, ''), NULLIF(p.ad_soyad, ''), '') as resolved_ad_soyad,
                COALESCE(NULLIF(tk.unvan, ''), NULLIF(p.unvan, ''), '') as resolved_unvan,
@@ -600,6 +600,26 @@ export function registerDocumentIpcHandlers(): void {
         LEFT JOIN TANIM_Komisyon k ON tk.komisyon_id = k.id
         WHERE tk.temin_dosya_id = ?
       `).all(dosyaId) : []
+
+      // Otomatik Fallback: Eğer dosyaya özel komisyon onaylanmamışsa, genel Komisyon Ayarlarından (TANIM_Komisyon) aktif üyeleri getir
+      if (!komisyonlar || komisyonlar.length === 0) {
+        try {
+          komisyonlar = db.prepare(`
+            SELECT u.*, 
+                   COALESCE(NULLIF(p.ad_soyad, ''), '') as resolved_ad_soyad,
+                   COALESCE(NULLIF(p.unvan, ''), '') as resolved_unvan,
+                   COALESCE(k.ad, '') as komisyon_turu_adi,
+                   COALESCE(g.ad, 'Üye') as gorev
+            FROM TANIM_KomisyonUye u
+            JOIN TANIM_Komisyon k ON u.komisyon_id = k.id
+            LEFT JOIN TANIM_Personel p ON u.personel_id = p.id
+            LEFT JOIN TANIM_KomisyonGorevi g ON u.gorev_id = g.id
+            WHERE (k.aktif_mi = 1 OR k.aktif_mi IS NULL)
+          `).all()
+        } catch (komErr) {
+          console.error('[Document IPC] TANIM_Komisyon fallback error:', komErr)
+        }
+      }
 
       // 9. Fetch saved snapshot if exists
       let savedSnapshot: any = null
@@ -868,7 +888,38 @@ export function registerDocumentIpcHandlers(): void {
         komisyon: komisyonlar.map((k: any) => ({
           adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
           unvan: k.resolved_unvan || k.unvan || '',
-          gorevi: k.gorevi || 'Üye'
+          gorevi: k.gorev || k.gorevi || 'Üye',
+          pozisyonu: k.resolved_unvan || k.unvan || ''
+        })),
+        fiyatKomisyonu: (komisyonlar.filter((k: any) => {
+          const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
+          return !kt || kt.includes('fiyat') || kt.includes('piyasa') || kt.includes('araştırma') || kt.includes('arastirma')
+        }).length > 0
+          ? komisyonlar.filter((k: any) => {
+              const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
+              return !kt || kt.includes('fiyat') || kt.includes('piyasa') || kt.includes('araştırma') || kt.includes('arastirma')
+            })
+          : komisyonlar
+        ).map((k: any) => ({
+          adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
+          unvan: k.resolved_unvan || k.unvan || '',
+          gorevi: k.gorev || k.gorevi || 'Üye',
+          pozisyonu: k.resolved_unvan || k.unvan || ''
+        })),
+        muayeneKomisyonu: (komisyonlar.filter((k: any) => {
+          const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
+          return kt.includes('muayene') || kt.includes('kabul')
+        }).length > 0
+          ? komisyonlar.filter((k: any) => {
+              const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
+              return kt.includes('muayene') || kt.includes('kabul')
+            })
+          : komisyonlar
+        ).map((k: any) => ({
+          adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
+          unvan: k.resolved_unvan || k.unvan || '',
+          gorevi: k.gorev || k.gorevi || 'Üye',
+          pozisyonu: k.resolved_unvan || k.unvan || ''
         }))
       }
 
