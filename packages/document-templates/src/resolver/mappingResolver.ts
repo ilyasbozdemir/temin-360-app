@@ -633,6 +633,20 @@ export async function resolveTemplateData(
             }
           } catch (e) {}
         }
+
+        // Smart normalization for alimTuru so it doesn't just say 'mal' or 'yapim'
+        if (sablonDegiskeni === 'alimTuru' || (effectiveRule.tablo === 'DATA_TeminDosyasi' && effectiveRule.sutun === 'tur')) {
+          const raw = String(rawValue || '').trim().toLowerCase();
+          if (raw === 'mal' || raw === 'malzeme') {
+            rawValue = 'mal alımı';
+          } else if (raw === 'hizmet') {
+            rawValue = 'hizmet alımı';
+          } else if (raw === 'yapim' || raw === 'yapım' || raw === 'yapim_isi') {
+            rawValue = 'yapım işi';
+          } else if (raw === 'danismanlik' || raw === 'danışmanlık') {
+            rawValue = 'danışmanlık hizmet alımı';
+          }
+        }
         
         // Dynamic fallback for aciklama / isinAciklamasi if empty in DATA_TeminDosyasi
         if ((sablonDegiskeni === 'aciklama' || sablonDegiskeni === 'isinAciklamasi') && (!rawValue || String(rawValue).trim() === '')) {

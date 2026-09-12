@@ -13,14 +13,21 @@ interface KomisyonGorevlendirmeOnayiProps {
   data?: Partial<KomisyonGorevlendirmeOnayiType> & Record<string, any>;
   pageSize?: "A4" | "A3";
   orientation?: "portrait" | "landscape";
+  hideHeader?: boolean;
+  hideFooter?: boolean;
 }
 
 export function KomisyonGorevlendirmeOnayi({
   data = {},
   pageSize = "A4",
   orientation = "portrait",
+  hideHeader = false,
+  hideFooter = true,
 }: KomisyonGorevlendirmeOnayiProps) {
-  const fiyatUyeleri = data.fiyatKomisyonu || [];
+  const fiyatUyeleri =
+    data.fiyatKomisyonu && data.fiyatKomisyonu.length > 0
+      ? data.fiyatKomisyonu
+      : data.gorevliler || [];
   const muayeneUyeleri = data.muayeneKomisyonu || [];
 
   const mainHeaderTitle =
@@ -33,7 +40,8 @@ export function KomisyonGorevlendirmeOnayi({
   return (
     <DocumentLayout
       data={data as any}
-      hideFooter={false}
+      hideHeader={hideHeader}
+      hideFooter={hideFooter}
       pageSize={pageSize}
       orientation={orientation}
       pageNumber={1}
@@ -152,6 +160,7 @@ export function KomisyonGorevlendirmeOnayi({
         <table
           style={{
             width: "100%",
+            tableLayout: "fixed",
             borderCollapse: "collapse",
             marginBottom: "10px",
             fontSize: "9pt",
@@ -199,16 +208,16 @@ export function KomisyonGorevlendirmeOnayi({
           </thead>
           <tbody>
             {fiyatUyeleri.length > 0 ? (
-              fiyatUyeleri.map((u, idx) => (
+              fiyatUyeleri.map((u: any, idx: number) => (
                 <tr key={idx}>
                   <td style={{ border: "1px solid #000", padding: "3px 6px" }}>
                     {u.gorevi || "Üye"}
                   </td>
                   <td style={{ border: "1px solid #000", padding: "3px 6px", fontWeight: "bold" }}>
-                    {u.adSoyad}
+                    {u.adSoyad || u.adi}
                   </td>
                   <td style={{ border: "1px solid #000", padding: "3px 6px" }}>
-                    {u.unvan}
+                    {u.unvan || u.unvani}
                   </td>
                 </tr>
               ))
@@ -247,6 +256,7 @@ export function KomisyonGorevlendirmeOnayi({
         <table
           style={{
             width: "100%",
+            tableLayout: "fixed",
             borderCollapse: "collapse",
             marginBottom: "10px",
             fontSize: "9pt",
@@ -294,16 +304,16 @@ export function KomisyonGorevlendirmeOnayi({
           </thead>
           <tbody>
             {muayeneUyeleri.length > 0 ? (
-              muayeneUyeleri.map((u, idx) => (
+              muayeneUyeleri.map((u: any, idx: number) => (
                 <tr key={idx}>
                   <td style={{ border: "1px solid #000", padding: "3px 6px" }}>
                     {u.gorevi || "Üye"}
                   </td>
                   <td style={{ border: "1px solid #000", padding: "3px 6px", fontWeight: "bold" }}>
-                    {u.adSoyad}
+                    {u.adSoyad || u.adi}
                   </td>
                   <td style={{ border: "1px solid #000", padding: "3px 6px" }}>
-                    {u.unvan}
+                    {u.unvan || u.unvani}
                   </td>
                 </tr>
               ))

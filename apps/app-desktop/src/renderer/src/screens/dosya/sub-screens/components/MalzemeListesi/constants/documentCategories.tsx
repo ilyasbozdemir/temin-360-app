@@ -149,7 +149,7 @@ export function buildDocumentCategories(
       items: [
         {
           id: "gorevlendirmeOnayi",
-          label: "Görevlendirme Onayı",
+          label: "Fiyat Araştırma ve Muayene Kom.",
           icon: FileCheck,
           iconColorClass: "text-blue-500",
           onClick: onGorevlendirmeOnayi,
