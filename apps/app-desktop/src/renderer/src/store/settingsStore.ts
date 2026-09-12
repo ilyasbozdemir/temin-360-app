@@ -63,6 +63,8 @@ interface SettingsState {
   setDisclaimerAccepted: (val: boolean) => void
   setShowLogoLeft: (val: boolean) => void
   setShowLogoRight: (val: boolean) => void
+  isAiConfigured: boolean
+  aiProvider: string
   loadSettings: () => Promise<void>
 }
 
@@ -103,6 +105,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   disableDocumentGuidance: true,
   unifiedStepperMode: true,
   disclaimerHistory: '[]',
+  isAiConfigured: false,
+  aiProvider: 'gemini',
   setDisableDocumentGuidance: (val) => set({ disableDocumentGuidance: val }),
   setUnifiedStepperMode: (val) => set({ unifiedStepperMode: val }),
   setShowLogoLeft: (val) => set({ showLogoLeft: val }),
@@ -133,6 +137,20 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   loadSettings: async () => {
     try {
       const settings = await window.electron.ipcRenderer.invoke('db:get-settings')
+      const aiProvider = settings.ai_provider || 'gemini'
+      const activeAiKey =
+        aiProvider === 'gemini'
+          ? settings.ai_gemini_api_key
+          : aiProvider === 'openai'
+            ? settings.ai_openai_api_key
+            : settings.ai_anthropic_api_key
+      const isAiConfigured = Boolean(
+        activeAiKey?.trim() ||
+        settings.ai_gemini_api_key?.trim() ||
+        settings.ai_openai_api_key?.trim() ||
+        settings.ai_anthropic_api_key?.trim()
+      )
+
       set({
         activeKurumId: parseInt(settings.activeKurumId || '1', 10) || 1,
         institutionName: settings.institutionName || 'Kurum Adı Bulunamadı',
@@ -166,7 +184,9 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         harcamaBirimAdi: settings.harcamaBirimAdi || '',
         ekapDonemKurali: settings.ekapDonemKurali || '',
         disableDocumentGuidance: settings.disableDocumentGuidance !== 'false',
-        disclaimerHistory: settings.disclaimerHistory || '[]'
+        disclaimerHistory: settings.disclaimerHistory || '[]',
+        isAiConfigured,
+        aiProvider
         // isDisclaimerAccepted is intentionally not loaded from DB to show it on every app launch
       })
     } catch (error) {
@@ -204,7 +224,9 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         ekapDonemKurali: '',
         disableDocumentGuidance: true,
         disclaimerHistory: '[]',
-        isDisclaimerAccepted: false
+        isDisclaimerAccepted: false,
+        isAiConfigured: false,
+        aiProvider: 'gemini'
       })
     }
   }

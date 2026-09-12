@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { cn } from "../../../../../utils/cn";
 import { Modal } from "../../../../../components/ui/Modal";
+import { useSettingsStore } from "../../../../../store/settingsStore";
 
 export function MalzemeEkleModal({
   state,
@@ -19,6 +20,7 @@ export function MalzemeEkleModal({
   state: any;
   activeDosya?: any;
 }): React.JSX.Element {
+  const { isAiConfigured } = useSettingsStore();
   const isYapim =
     activeDosya?.tur === "yapim_isi" ||
     activeDosya?.tur === "yapim" ||
@@ -569,21 +571,23 @@ export function MalzemeEkleModal({
                   ? "Hizmet Şartnamesi & Kapsamı"
                   : "Teknik Şartname / Açıklama"}
               </label>
-              <button
-                type="button"
-                onClick={handleAiAçiklama}
-                disabled={(!kalemAdi && !searchQuery) || aiLoading}
-                className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 px-2.5 py-1 rounded-full hover:bg-blue-100 transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-xs"
-              >
-                <Sparkles className="w-3 h-3 text-blue-500 animate-pulse" />
-                {aiLoading
-                  ? "AI Üretiyor..."
-                  : isYapim
-                  ? "AI Poz & İmalat Tarifi"
-                  : isHizmet
-                  ? "AI Hizmet Şartnamesi"
-                  : "AI Şartname Önerisi"}
-              </button>
+              {isAiConfigured && (
+                <button
+                  type="button"
+                  onClick={handleAiAçiklama}
+                  disabled={(!kalemAdi && !searchQuery) || aiLoading}
+                  className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 px-2.5 py-1 rounded-full hover:bg-blue-100 transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-xs"
+                >
+                  <Sparkles className="w-3 h-3 text-blue-500 animate-pulse" />
+                  {aiLoading
+                    ? "AI Üretiyor..."
+                    : isYapim
+                    ? "AI Poz & İmalat Tarifi"
+                    : isHizmet
+                    ? "AI Hizmet Şartnamesi"
+                    : "AI Şartname Önerisi"}
+                </button>
+              )}
             </div>
             <textarea
               value={aciklama}

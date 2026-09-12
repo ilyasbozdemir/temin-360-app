@@ -179,14 +179,14 @@ export function useDashboardStats(filterMode: 'dogrudan_temin' | 'ihale' | 'all'
       // 8. İhalelere Katılan Firma Sayısı
       const katilanFirmaRes = await window.electron.ipcRenderer.invoke(
         'db:query',
-        `SELECT COUNT(DISTINCT firma_id) as count FROM DATA_TeminFirma WHERE dosya_id IN (SELECT id FROM DATA_TeminDosyasi WHERE (is_deleted = 0 OR is_deleted IS NULL)${modeFilter})`
+        `SELECT COUNT(DISTINCT firma_id) as count FROM DATA_TeminFirma WHERE temin_dosya_id IN (SELECT id FROM DATA_TeminDosyasi WHERE (is_deleted = 0 OR is_deleted IS NULL)${modeFilter})`
       )
       const ihalelereKatilanFirmaSayisi = katilanFirmaRes.data?.[0]?.count || 0
 
       // 9. İhale Edilen Kalem / Malzeme Sayısı
       const malzemeRes = await window.electron.ipcRenderer.invoke(
         'db:query',
-        `SELECT COUNT(*) as count FROM DATA_TeminKalem WHERE dosya_id IN (SELECT id FROM DATA_TeminDosyasi WHERE (is_deleted = 0 OR is_deleted IS NULL)${modeFilter})`
+        `SELECT COUNT(*) as count FROM DATA_TeminKalem WHERE temin_dosya_id IN (SELECT id FROM DATA_TeminDosyasi WHERE (is_deleted = 0 OR is_deleted IS NULL)${modeFilter})`
       )
       const ihaleEdilenMalzemeSayisi = malzemeRes.data?.[0]?.count || 0
 

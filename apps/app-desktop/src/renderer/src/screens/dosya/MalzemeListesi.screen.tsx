@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useWorkspaceStore } from '../../store/workspaceStore'
+import { useSettingsStore } from '../../store/settingsStore'
 import {
   ArrowDown,
   ArrowUp,
@@ -17,6 +18,7 @@ import { Modal } from '../../components/ui/Modal'
 import { SubScreen } from './SubScreen'
 
 export function MalzemeListesi(): React.JSX.Element {
+  const { isAiConfigured } = useSettingsStore()
   const { activeDosyaId } = useWorkspaceStore()
   const [items, setItems] = useState<any[]>([])
   const [units, setUnits] = useState<any[]>([])
@@ -652,14 +654,16 @@ export function MalzemeListesi(): React.JSX.Element {
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide">
                   Açıklama (Opsiyonel)
                 </label>
-                <button
-                  type="button"
-                  onClick={handleAiAçiklama}
-                  disabled={(!kalemAdi && !searchQuery) || aiLoading}
-                  className="text-[9px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 px-2 py-0.5 rounded-full hover:bg-blue-100 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  {aiLoading ? 'Düşünüyor...' : '✨ AI Önerisi'}
-                </button>
+                {isAiConfigured && (
+                  <button
+                    type="button"
+                    onClick={handleAiAçiklama}
+                    disabled={(!kalemAdi && !searchQuery) || aiLoading}
+                    className="text-[9px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 px-2 py-0.5 rounded-full hover:bg-blue-100 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    {aiLoading ? 'Düşünüyor...' : '✨ AI Önerisi'}
+                  </button>
+                )}
               </div>
               <textarea
                 value={aciklama}
