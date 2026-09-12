@@ -6,6 +6,7 @@ import { NetworkSyncModal } from "../network/NetworkSyncModal";
 import { useWorkspaceStore } from "../../store/workspaceStore";
 import { useSettingsStore } from "../../store/settingsStore";
 import { useTabStore } from "../../store/tabStore";
+import { GoogleDriveFooterWidget } from "./GoogleDriveFooterWidget";
 
 export function Footer(): React.JSX.Element {
   const { activeMeta, activeDosyaId, fileName } = useWorkspaceStore();
@@ -109,6 +110,10 @@ export function Footer(): React.JSX.Element {
             </span>
           </>
         )}
+      </div>
+
+      <div className="flex items-center justify-center">
+        <GoogleDriveFooterWidget />
       </div>
 
       <div className="flex items-center space-x-2 relative" ref={aboutRef}>
