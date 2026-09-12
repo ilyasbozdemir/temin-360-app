@@ -6,7 +6,6 @@ import {
   Edit,
   ExternalLink,
   Eye,
-  FileCode,
   Lock,
   MoreVertical,
   Sliders,
@@ -15,6 +14,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { cn } from "../../../utils/cn";
+import { useTabStore } from "../../../store/tabStore";
 import { DosyaDataInspectorModal } from "./DosyaDataInspectorModal";
 
 export interface DosyaActionMenuProps {
@@ -49,6 +49,7 @@ export function DosyaActionMenu({
   handleOpenMaliyetAyarlari,
 }: DosyaActionMenuProps) {
   const navigate = useNavigate();
+  const { addTab } = useTabStore();
   const [showInspector, setShowInspector] = useState(false);
   const isOpen = openMenuId === dosya.id;
 
@@ -116,6 +117,19 @@ export function DosyaActionMenu({
             >
               <Eye size={13} className="text-blue-500" />{" "}
               Tüm Ayarları & Verileri İncele (View)
+            </button>
+
+            <button
+              onClick={() => {
+                setOpenMenuId(null);
+                const route = `/dosya/kunye?id=${dosya.id}`;
+                addTab(route);
+                navigate({ to: route });
+              }}
+              className="w-full text-left px-3 py-1.5 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center gap-2"
+            >
+              <ExternalLink size={13} className="text-blue-500" />{" "}
+              Dosya Künyesi (Sekmede Aç)
             </button>
 
             {dosya.is_deleted !== 1 && handleOpenMaliyetAyarlari && (

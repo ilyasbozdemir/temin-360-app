@@ -83,6 +83,7 @@ export function getTabLabel(fullPath: string): string {
   if (path.startsWith(APP_ROUTES.IMZALI_BELGELER)) return 'İmzalı Belgeler'
   if (path.startsWith(APP_ROUTES.HAKEDIS)) return 'Hakediş & Süreç Yönetimi'
   if (path.startsWith(APP_ROUTES.HARCAMA_MERKEZI)) return 'Harcama Merkezi & İhale'
+  if (path.startsWith(APP_ROUTES.DOSYA_KUNYE)) return 'Dosya Künyesi & İnceleme'
   if (path.startsWith(APP_ROUTES.DOSYA_DETAY)) return 'Dosya Detayları'
   if (path.startsWith(APP_ROUTES.TAKIP)) return 'Takip & Durum'
   if (path.startsWith(APP_ROUTES.RAPORLAR)) return 'Raporlar'

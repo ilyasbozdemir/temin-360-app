@@ -37,6 +37,7 @@ import OlcuBirimleriScreen from "./screens/olcubirimleri/index.screen";
 import YeniMalzemeScreen from "./screens/malzemeler/yeni.screen";
 import YeniDosyaScreen from "./screens/dosyalar/yeni.screen";
 import KomisyonDetayScreen from "./screens/komisyonlar/detay.screen";
+import DosyaDataInspectorScreen from "./screens/dosyalar/DosyaDataInspectorScreen";
 
 const rootRoute = createRootRoute({
   component: PageWrapper,
@@ -269,6 +270,12 @@ const dosyaRoute = createRoute({
   component: TakipScreen,
 });
 
+const dosyaKunyeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: APP_ROUTES.DOSYA_KUNYE,
+  component: DosyaDataInspectorScreen,
+});
+
 // Dosya Aşamaları
 const hazirlikVeIhtiyacRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -379,6 +386,7 @@ const routeTree = rootRoute.addChildren([
   kurumRoute,
   profilRoute,
   dosyaRoute,
+  dosyaKunyeRoute,
   hazirlikVeIhtiyacRoute,
   piyasaFiyatArastirmasiRoute,
   siparisVeSozlesmeRoute,
