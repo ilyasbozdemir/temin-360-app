@@ -4,6 +4,7 @@ export const DATA_TIF = {
   columns: [
     { name: 'id', type: 'INTEGER', primaryKey: true, autoIncrement: true },
     { name: 'temin_dosya_id', type: 'INTEGER', notNull: true, description: 'Temin dosyası FK' },
+    { name: 'dosya_id', type: 'INTEGER', description: 'Geriye dönük uyumluluk için temin_dosya_id alias' },
     { name: 'ambar_id', type: 'INTEGER', notNull: true, description: 'Ambar FK' },
     { name: 'fis_no', type: 'TEXT', description: 'Fiş numarası (otomatik üretilir)' },
     { name: 'fis_tarihi', type: 'TEXT', description: 'Fiş tarihi (YYYY-MM-DD)' },

@@ -10,7 +10,8 @@ export function IhaleVeTeklifFinansalSection(
 ): React.JSX.Element {
   const { formData, setFormData, limitType, getIhaleSekliExplanation } = props;
 
-  const { isAiConfigured } = useSettingsStore();
+  const isAiConfigured = useSettingsStore((state) => state.isAiConfigured);
+  const loadSettings = useSettingsStore((state) => state.loadSettings);
   const { activeDosyaId } = useWorkspaceStore();
   const { dosyalar } = useDosyalarHooks();
   const activeDosya = dosyalar.find((d) => d.id === activeDosyaId);
@@ -18,6 +19,10 @@ export function IhaleVeTeklifFinansalSection(
     "Ortalama fiyat esasına göre";
 
   const [isAiChecking, setIsAiChecking] = useState(false);
+
+  React.useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
 
   const handleAiCheckType = async () => {
     if (!formData.konu) {

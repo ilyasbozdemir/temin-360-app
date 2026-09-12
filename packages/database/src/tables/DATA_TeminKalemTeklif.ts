@@ -4,6 +4,7 @@ export const DATA_TeminKalemTeklif = {
   columns: [
     { name: 'id', type: 'INTEGER', primaryKey: true, autoIncrement: true },
     { name: 'temin_dosya_id', type: 'INTEGER', notNull: true, description: 'Temin Dosya ID' },
+    { name: 'dosya_id', type: 'INTEGER', description: 'Geriye dönük uyumluluk için temin_dosya_id alias' },
     { name: 'temin_kalem_id', type: 'INTEGER', notNull: true, description: 'Temin Kalem ID' },
     { name: 'temin_firma_id', type: 'INTEGER', notNull: true, description: 'Temin Firma ID' },
     { name: 'birim_fiyat', type: 'REAL', notNull: true, default: 0, description: 'Birim Fiyat' },

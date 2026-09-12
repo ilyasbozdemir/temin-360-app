@@ -15,6 +15,11 @@ export const DATA_TeminKalem = {
       notNull: true,
       description: 'Bağlı Olduğu Dosya ID'
     },
+    {
+      name: 'dosya_id',
+      type: 'INTEGER',
+      description: 'Geriye dönük uyumluluk için temin_dosya_id alias'
+    },
     { name: 'barkod_id', type: 'TEXT', description: 'Barkod ID' },
     { name: 'tasinir_kodu', type: 'TEXT', description: 'Taşınır Kodu' },
     { name: 'okas_kodu', type: 'TEXT', description: 'OKAS Kodu' },

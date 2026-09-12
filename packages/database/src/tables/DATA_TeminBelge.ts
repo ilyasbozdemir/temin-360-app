@@ -4,6 +4,7 @@ export const DATA_TeminBelge = {
   columns: [
     { name: 'id', type: 'INTEGER', primaryKey: true, autoIncrement: true },
     { name: 'temin_dosya_id', type: 'INTEGER', notNull: true, description: 'Temin Dosya ID' },
+    { name: 'dosya_id', type: 'INTEGER', description: 'Geriye dönük uyumluluk için temin_dosya_id alias' },
     { name: 'belge_adi', type: 'TEXT', notNull: true, description: 'Belge Adi' },
     { name: 'sablon_id', type: 'INTEGER', description: 'Sablon ID' },
     { name: 'dosya_yolu', type: 'TEXT', description: 'Dosya Yolu' },

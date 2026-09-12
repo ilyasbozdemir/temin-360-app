@@ -4,6 +4,7 @@ export const DATA_DosyaSablonVeri = {
   columns: [
     { name: 'id', type: 'INTEGER', primaryKey: true, autoIncrement: true },
     { name: 'temin_dosya_id', type: 'INTEGER', notNull: true, description: 'Temin Dosyası ID' },
+    { name: 'dosya_id', type: 'INTEGER', description: 'Geriye dönük uyumluluk için temin_dosya_id alias' },
     { name: 'sablon_id', type: 'INTEGER', description: 'Şablon ID (TANIM_Sablon referansı)' },
     { name: 'sablon_kodu', type: 'TEXT', description: 'Şablon Kodu / Slug (Örn: dogrudan-temin-sozlesmesi)' },
     { name: 'veri_json', type: 'TEXT', notNull: true, description: 'Anlık Görüntü JSON verisi' },

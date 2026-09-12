@@ -104,6 +104,55 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     // Ignored if column already exists
   }
 
+  // Explicit backward-compatibility alias: Ensure dosya_id exists and stays in sync with temin_dosya_id on all child tables
+  const dosyaChildTables = [
+    'DATA_TeminKalem',
+    'DATA_TeminFirma',
+    'DATA_TeminKomisyon',
+    'DATA_TeminBelge',
+    'DATA_TeminKalemTeklif',
+    'DATA_DosyaSablonVeri',
+    'DATA_TIF'
+  ]
+  for (const tbl of dosyaChildTables) {
+    try {
+      db.exec(`ALTER TABLE ${tbl} ADD COLUMN dosya_id INTEGER;`)
+      console.log(`[Schema Self-Healing] Explicitly added ${tbl}.dosya_id alias column`)
+    } catch {
+      // Column already exists
+    }
+    try {
+      db.exec(
+        `UPDATE ${tbl} SET dosya_id = temin_dosya_id WHERE dosya_id IS NULL AND temin_dosya_id IS NOT NULL;`
+      )
+      db.exec(
+        `UPDATE ${tbl} SET temin_dosya_id = dosya_id WHERE temin_dosya_id IS NULL AND dosya_id IS NOT NULL;`
+      )
+    } catch {}
+    try {
+      db.exec(`
+        CREATE TRIGGER IF NOT EXISTS trg_${tbl}_sync_dosya_id_ins
+        AFTER INSERT ON ${tbl}
+        BEGIN
+          UPDATE ${tbl} SET 
+            dosya_id = COALESCE(NEW.dosya_id, NEW.temin_dosya_id),
+            temin_dosya_id = COALESCE(NEW.temin_dosya_id, NEW.dosya_id)
+          WHERE id = NEW.id;
+        END;
+      `)
+      db.exec(`
+        CREATE TRIGGER IF NOT EXISTS trg_${tbl}_sync_dosya_id_upd
+        AFTER UPDATE OF dosya_id, temin_dosya_id ON ${tbl}
+        BEGIN
+          UPDATE ${tbl} SET 
+            dosya_id = COALESCE(NEW.dosya_id, NEW.temin_dosya_id),
+            temin_dosya_id = COALESCE(NEW.temin_dosya_id, NEW.dosya_id)
+          WHERE id = NEW.id;
+        END;
+      `)
+    } catch {}
+  }
+
   // Explicit migration for TANIM_Kalem and DATA_TeminKalem extended columns
   const kalemExtendedColumns = [
     { name: 'poz_no', def: 'TEXT' },

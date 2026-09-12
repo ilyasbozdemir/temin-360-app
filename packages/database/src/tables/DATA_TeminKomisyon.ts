@@ -15,6 +15,11 @@ export const DATA_TeminKomisyon = {
       notNull: true,
       description: 'Bağlı Olduğu Dosya ID'
     },
+    {
+      name: 'dosya_id',
+      type: 'INTEGER',
+      description: 'Geriye dönük uyumluluk için temin_dosya_id alias'
+    },
     { name: 'komisyon_id', type: 'INTEGER', notNull: true, description: 'Komisyon ID' }, // Hangi tip komisyon (Fiyat Araştırma, Muayene Kabul vb)
     { name: 'personel_id', type: 'INTEGER', notNull: true, description: 'Personel ID' },
     { name: 'ad_soyad', type: 'TEXT', notNull: true, description: 'Üyenin Adı Soyadı' },

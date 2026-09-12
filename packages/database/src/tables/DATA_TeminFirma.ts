@@ -15,6 +15,11 @@ export const DATA_TeminFirma = {
       notNull: true,
       description: 'Bağlı Olduğu Dosya ID'
     },
+    {
+      name: 'dosya_id',
+      type: 'INTEGER',
+      description: 'Geriye dönük uyumluluk için temin_dosya_id alias'
+    },
     { name: 'firma_id', type: 'INTEGER', notNull: true, description: 'Firma ID' },
     { name: 'unvan', type: 'TEXT', notNull: true, description: 'Firma Unvanı' },
     { name: 'vergi_no', type: 'TEXT', description: 'Vergi Kimlik Numarası / TCKN' },

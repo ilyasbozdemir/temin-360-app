@@ -16,7 +16,8 @@ function isSchemaError(error: any): boolean {
 
 export async function withSchemaRetry<T>(
   fn: () => Promise<T>,
-  repairSchema?: () => Promise<void>
+  repairSchema?: () => Promise<void>,
+  sqlQuery?: string
 ): Promise<T> {
   try {
     return await fn()
@@ -30,7 +31,9 @@ export async function withSchemaRetry<T>(
       throw error
     }
 
-    console.warn('[schemaRetry] Column/Table missing detected. Triggering schema auto-repair...', error?.message)
+    console.warn(
+      `[schemaRetry] Column/Table missing detected. Triggering schema auto-repair... Error: ${error?.message} | Query: ${sqlQuery || 'unknown'}`
+    )
 
     // Reuse in-flight repair promise to prevent race conditions during concurrent queries
     if (!repairInFlight) {

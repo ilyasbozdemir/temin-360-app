@@ -17,10 +17,14 @@ export function registerDbIpcHandlers(): void {
         return { success: true, data: rows }
       }
 
-      return await withSchemaRetry(executeQuery, async () => {
-        const db = workspaceManager.getDb()
-        ensureSchemaIntegrity(db)
-      })
+      return await withSchemaRetry(
+        executeQuery,
+        async () => {
+          const db = workspaceManager.getDb()
+          ensureSchemaIntegrity(db)
+        },
+        sql
+      )
     } catch (error: any) {
       return { success: false, error: error.message }
     }
@@ -38,10 +42,14 @@ export function registerDbIpcHandlers(): void {
         return { success: true, lastInsertRowid: info.lastInsertRowid, changes: info.changes }
       }
 
-      return await withSchemaRetry(executeRun, async () => {
-        const db = workspaceManager.getDb()
-        ensureSchemaIntegrity(db)
-      })
+      return await withSchemaRetry(
+        executeRun,
+        async () => {
+          const db = workspaceManager.getDb()
+          ensureSchemaIntegrity(db)
+        },
+        sql
+      )
     } catch (error: any) {
       return { success: false, error: error.message }
     }
@@ -60,10 +68,14 @@ export function registerDbIpcHandlers(): void {
         return { success: true, lastInsertRowid: info.lastInsertRowid, changes: info.changes }
       }
 
-      return await withSchemaRetry(executeStmt, async () => {
-        const db = workspaceManager.getDb()
-        ensureSchemaIntegrity(db)
-      })
+      return await withSchemaRetry(
+        executeStmt,
+        async () => {
+          const db = workspaceManager.getDb()
+          ensureSchemaIntegrity(db)
+        },
+        sql
+      )
     } catch (error: any) {
       return { success: false, error: error.message }
     }
