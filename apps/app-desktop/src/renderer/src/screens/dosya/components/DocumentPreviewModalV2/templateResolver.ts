@@ -175,6 +175,14 @@ export const TEMPLATE_OPTIONS: TemplateOptionItem[] = [
     categoryLabel: "Muayene & Kabul & Ödeme",
     description: "Ödeme ve muayene kabul belgesi",
   },
+  {
+    id: "muayene-kabul-komisyonu",
+    name: "MuayeneKabulKomisyonu",
+    title: "Muayene ve Kabul Komisyonu Görevlendirmesi",
+    category: "4-kabul-ve-odeme-islemleri",
+    categoryLabel: "Muayene & Kabul & Ödeme",
+    description: "Muayene ve kabul işlemlerini yürütecek komisyon görevlendirme onayı",
+  },
 ];
 
 export const TEMPLATE_ALIASES: Record<string, string> = {
@@ -240,9 +248,9 @@ export const TEMPLATE_ALIASES: Record<string, string> = {
   "yaklasik-maliyet-tespit-komisyonu": "komisyon-gorevlendirme-onayi",
   "yaklasik-maliyet-komisyonu": "komisyon-gorevlendirme-onayi",
   "yaklasikmaliyetkomisyonu": "komisyon-gorevlendirme-onayi",
-  "muayene-kabul-komisyonu": "komisyon-gorevlendirme-onayi",
-  "muayene-kabul-ve-tespit-komisyonu": "komisyon-gorevlendirme-onayi",
-  "muayenekabulkomisyonu": "komisyon-gorevlendirme-onayi",
+  "muayene-kabul-komisyonu": "muayene-kabul-komisyonu",
+  "muayene-kabul-ve-tespit-komisyonu": "muayene-kabul-komisyonu",
+  "muayenekabulkomisyonu": "muayene-kabul-komisyonu",
   "fiyat-arastirma-komisyonu": "piyasa-fiyat-arastirma-gorevlendirmesi",
   "fiyatarastirmakomisyonu": "piyasa-fiyat-arastirma-gorevlendirmesi",
   "komisyon-gorevlendirme-onayi-eki": "komisyon-gorevlendirme-onayi-eki",
@@ -441,6 +449,8 @@ export function resolveTemplateConfig(
   ) {
     if (cleanKey.includes("piyasa")) {
       resolvedId = "piyasa-fiyat-arastirma-gorevlendirmesi";
+    } else if (cleanKey.includes("muayene") || cleanKey.includes("kabul")) {
+      resolvedId = "muayene-kabul-komisyonu";
     } else if (cleanKey.includes("ek") || cleanKey.includes("onay-eki")) {
       resolvedId = "komisyon-gorevlendirme-onayi-eki";
     } else {

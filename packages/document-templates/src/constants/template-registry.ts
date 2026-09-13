@@ -56,6 +56,12 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     supportsOlur: false,
   },
   {
+    id: "muayene-kabul-komisyonu",
+    name: "MuayeneKabulKomisyonu",
+    category: "4-kabul-ve-odeme-islemleri",
+    supportsOlur: true,
+  },
+  {
     id: "fiyat-arastirma-mektubu",
     name: "FiyatArastirmaMektubu",
     category: "2-piyasa-fiyat-arastirmasi",

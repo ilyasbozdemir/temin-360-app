@@ -91,6 +91,8 @@ export const V2_TEMPLATES_NAMES = [
   'sozlesme',
   'sozlesmeye-davet',
   'sozlesmedavet',
+  'muayene-kabul-komisyonu',
+  'muayenekabulkomisyonu',
 ]
 
 export function isV2Template(dosyaAdiOrTitle?: string | null): boolean {

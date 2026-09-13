@@ -31,6 +31,7 @@ export * from "./templates/kabul-edilen-teklif";
 export * from "./templates/dogrudan-temin-sonuc-onay-belgesi";
 export * from "./templates/dogrudan-temin-sozlesmesi";
 export * from "./templates/sozlesmeye-davet";
+export * from "./templates/muayene-kabul-komisyonu";
 
 // Mapping Resolver
 export * from "./resolver/types";

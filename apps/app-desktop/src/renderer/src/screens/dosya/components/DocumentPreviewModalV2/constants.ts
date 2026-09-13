@@ -25,4 +25,5 @@ export const V2_TEMPLATES_MAP: Record<string, TemplateComponentType> = {
   DogrudanTeminSonucOnayBelgesi: Templates.DogrudanTeminSonucOnayBelgesi as TemplateComponentType,
   DogrudanTeminSozlesmesi: Templates.DogrudanTeminSozlesmesi as TemplateComponentType,
   SozlesmeyeDavet: Templates.SozlesmeyeDavet as TemplateComponentType,
+  MuayeneKabulKomisyonu: Templates.MuayeneKabulKomisyonu as TemplateComponentType,
 };
