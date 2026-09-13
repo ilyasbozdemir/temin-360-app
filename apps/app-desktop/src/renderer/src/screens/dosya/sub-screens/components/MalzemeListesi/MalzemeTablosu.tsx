@@ -11,11 +11,16 @@ import {
   Package,
   Plus,
   Trash2,
+  UserCheck,
   Users,
   X,
 } from "lucide-react";
 import { cn } from "../../../../../utils/cn";
 import { MalzemeTabloPopover } from "./components/MalzemeTabloPopover";
+import {
+  KomisyonAtamaModal,
+  KomisyonType,
+} from "./components/KomisyonAtamaModal";
 import { useSettingsStore } from "../../../../../store/settingsStore";
 import { PrintDropdownButtonV2 } from "@renderer/screens/dosya/components/PrintDropdownButtonV2";
 import { normalizeForMatch } from "../../DosyaAsamalari/useDosyaAsamasiSablonsV2";
@@ -74,8 +79,11 @@ export function MalzemeTablosu({
 
   // Çoklu komisyon seçimi — değerler DB'den gelen id (number)
   const [selectedKomisyonlar, setSelectedKomisyonlar] = useState<number[]>([]);
-  // Komisyon paneli açık/kapalı
-  const [komisyonPanelOpen, setKomisyonPanelOpen] = useState(false);
+  // Komisyon Atama Modal state'leri
+  const [komisyonModalOpen, setKomisyonModalOpen] = useState(false);
+  const [komisyonModalType, setKomisyonModalType] = useState<KomisyonType>(
+    "yaklasik_maliyet",
+  );
 
   // Checkbox ve toplu işlem state'leri
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -362,27 +370,62 @@ export function MalzemeTablosu({
 
   useEffect(() => {
     if (activeDosyaId && dbKomisyonlar.length > 0) {
-      const saved = localStorage.getItem(
-        `dta_selected_komisyonlar_${activeDosyaId}`,
-      );
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setSelectedKomisyonlar(parsed);
-            return;
-          }
-        } catch {
-          /* ignore */
-        }
-      }
-      // İlki tüm dosyalarda varsayılan olarak aktif
-      const defaultKomisyon = [dbKomisyonlar[0].id];
-      setSelectedKomisyonlar(defaultKomisyon);
+      // Tüm komisyonlar varsayılan olarak aktif (true)
+      const allKomisyonIds = dbKomisyonlar.map((k) => k.id);
+      setSelectedKomisyonlar(allKomisyonIds);
       localStorage.setItem(
         `dta_selected_komisyonlar_${activeDosyaId}`,
-        JSON.stringify(defaultKomisyon),
+        JSON.stringify(allKomisyonIds),
       );
+
+      // Veritabanında DATA_TeminKomisyon kayıtlarını otomatik doldur (tüm komisyonlar varsayılan aktif)
+      (async () => {
+        try {
+          const checkRes = await (window as any).electron.ipcRenderer.invoke(
+            "db:query",
+            "SELECT COUNT(*) as cnt FROM DATA_TeminKomisyon WHERE temin_dosya_id = ?",
+            [activeDosyaId],
+          );
+          const count = checkRes.data?.[0]?.cnt || 0;
+          if (count === 0) {
+            for (const komisyonData of dbKomisyonlar) {
+              const res = await (window as any).electron.ipcRenderer.invoke(
+                "db:query",
+                `SELECT u.*, p.ad_soyad, p.unvan, g.ad as gorev_adi 
+                 FROM TANIM_KomisyonUye u 
+                 JOIN TANIM_Personel p ON u.personel_id = p.id 
+                 JOIN TANIM_KomisyonGorevi g ON u.gorev_id = g.id 
+                 WHERE u.komisyon_id = ?`,
+                [komisyonData.id],
+              );
+              if (res.success && res.data) {
+                for (const member of res.data) {
+                  await (window as any).electron.ipcRenderer.invoke(
+                    "db:run",
+                    `INSERT INTO DATA_TeminKomisyon 
+                     (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [
+                      activeDosyaId,
+                      komisyonData.id,
+                      member.personel_id,
+                      member.ad_soyad,
+                      member.unvan || null,
+                      member.gorev_adi === "Komisyon Başkanı"
+                        ? "Başkan"
+                        : "Üye",
+                      member.asil_mi === 1 ? "Asil" : "Yedek",
+                      komisyonData.ad,
+                    ],
+                  );
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.error("Komisyon otomatik senkronizasyon hatası:", e);
+        }
+      })();
     }
   }, [activeDosyaId, dbKomisyonlar]);
 
@@ -438,7 +481,6 @@ export function MalzemeTablosu({
         JSON.stringify(seciliKomisyonIdleri),
       );
       setSelectedKomisyonlar(seciliKomisyonIdleri);
-      setKomisyonPanelOpen(false);
     } catch (e: any) {
       alert("Komisyon güncellenirken hata oluştu: " + e.message);
     }
@@ -556,7 +598,8 @@ export function MalzemeTablosu({
       // 1. Exact match on dosya_adi (with or without .html)
       for (const key of candidateKeys) {
         foundSablon = sablons.find((s: any) => {
-          const fileBase = (s.dosya_adi || "").replace(/\.html$/, "").toLowerCase().trim();
+          const fileBase = (s.dosya_adi || "").replace(/\.html$/, "")
+            .toLowerCase().trim();
           return fileBase === key;
         });
         if (foundSablon) break;
@@ -600,8 +643,7 @@ export function MalzemeTablosu({
     }
   };
 
-  const isYapim =
-    activeDosya?.tur === "yapim_isi" ||
+  const isYapim = activeDosya?.tur === "yapim_isi" ||
     activeDosya?.tur === "yapim" ||
     activeDosya?.ihale_tipi === "Hakediş";
   const isHizmet = activeDosya?.tur === "hizmet";
@@ -648,7 +690,7 @@ export function MalzemeTablosu({
         sablons: sablons,
       });
     } catch (err: any) {
-      alert("Master Excel raporu hazırlanırken hata oluştu: " + err.message);
+      alert("Dosya Excel raporu hazırlanırken hata oluştu: " + err.message);
     } finally {
       setIsExportingMasterExcel(false);
     }
@@ -673,10 +715,10 @@ export function MalzemeTablosu({
             onClick={handleExportMasterExcel}
             disabled={isExportingMasterExcel}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-emerald-500/20 cursor-pointer"
-            title="Tüm Doğrudan Temin Sürecini, Şablonları ve Kalemleri Excel (XLSX) Formatında İndir"
+            title="Doğrudan Temin Dosya Excel Raporunu (.xlsx) İndir"
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
-            {isExportingMasterExcel ? "Hazırlanıyor..." : "Master Excel İndir"}
+            {isExportingMasterExcel ? "Hazırlanıyor..." : "Dosya Excel Raporu"}
           </button>
 
           <button
@@ -685,6 +727,30 @@ export function MalzemeTablosu({
           >
             <HistoryIcon className="w-3.5 h-3.5" />
             Son Alım Fiyat Cetveli
+          </button>
+
+          <button
+            onClick={() => {
+              setKomisyonModalType("yaklasik_maliyet");
+              setKomisyonModalOpen(true);
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-indigo-500/20 cursor-pointer"
+            title="Yaklaşık Maliyet Tespit Komisyonu Personel Atamaları ve Onay Yazısı"
+          >
+            <Users className="w-3.5 h-3.5" />
+            Maliyet Komisyonu
+          </button>
+
+          <button
+            onClick={() => {
+              setKomisyonModalType("muayene_kabul");
+              setKomisyonModalOpen(true);
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-sky-500/20 cursor-pointer"
+            title="Muayene Kabul ve Tespit Komisyonu Personel Atamaları ve Onay Yazısı"
+          >
+            <UserCheck className="w-3.5 h-3.5" />
+            Muayene Kabul Komisyonu
           </button>
 
           <button
@@ -731,7 +797,6 @@ export function MalzemeTablosu({
             onExcelImport={handleExcelImport}
             onDownloadTemplate={handleDownloadTemplate}
             onExportToLibrary={handleExportToLibrary}
-            onKomisyonSettings={() => setKomisyonPanelOpen(true)}
             disableDocumentGuidance={disableDocumentGuidance}
             onIhtiyacListesi={() =>
               handleOpenSablonByDosyaAdi("ihtiyac-listesi")}
@@ -755,10 +820,14 @@ export function MalzemeTablosu({
               handleOpenSablonByDosyaAdi(
                 "piyasa-fiyat-arastirma-gorevlendirmesi",
               )}
-            onYaklasikMaliyetKomisyonu={() =>
-              handleOpenSablonByDosyaAdi("yaklasik-maliyet-tespit-komisyonu")}
-            onMuayeneKabulKomisyonu={() =>
-              handleOpenSablonByDosyaAdi("muayene-kabul-komisyonu")}
+            onYaklasikMaliyetKomisyonu={() => {
+              setKomisyonModalType("yaklasik_maliyet");
+              setKomisyonModalOpen(true);
+            }}
+            onMuayeneKabulKomisyonu={() => {
+              setKomisyonModalType("muayene_kabul");
+              setKomisyonModalOpen(true);
+            }}
             onSonAlimCetveli={() =>
               handleOpenSablonByDosyaAdi("son-alim-fiyat-cetveli")}
             onOnayBelgesi={() =>
@@ -784,17 +853,30 @@ export function MalzemeTablosu({
                 </span>
               </div>
               <p className="text-[11.5px] leading-relaxed text-slate-600 dark:text-slate-300">
-                • <strong>Lüzum Müzekkeresi Onay Eki (Ek-1):</strong> Talep edilen malzeme/ihtiyaç listesi ve onay tablosu <u>Ek-1</u> olarak düzenlenir, Lüzum Müzekkeresi ile harcama yetkilisine sunulur.
+                • <strong>Lüzum Müzekkeresi Onay Eki (Ek-1):</strong>{" "}
+                Talep edilen malzeme/ihtiyaç listesi ve onay tablosu <u>Ek-1</u>
+                {" "}
+                olarak düzenlenir, Lüzum Müzekkeresi ile harcama yetkilisine
+                sunulur.
                 <br />
-                • <strong>Komisyon Görevlendirme Onayı Eki (Ek-2):</strong> Fiyat araştırması ve muayene-kabul işlemlerini yürütecek görevli personellerin unvan ve görev listesi <u>Ek-2</u> olarak görevlendirme onayına bağlanır.
+                • <strong>Komisyon Görevlendirme Onayı Eki (Ek-2):</strong>{" "}
+                Fiyat araştırması ve muayene-kabul işlemlerini yürütecek görevli
+                personellerin unvan ve görev listesi <u>Ek-2</u>{" "}
+                olarak görevlendirme onayına bağlanır.
                 <br />
-                • <strong>Harcama Talimatı / Onay Belgesi:</strong> İhtiyaçlar ve görevliler netleştikten sonra 4734 Sayılı Kanun (Md. 22) kapsamında doğrudan temin alım sürecini resmi olarak başlatan temel idari belgedir.
+                • <strong>Harcama Talimatı / Onay Belgesi:</strong>{" "}
+                İhtiyaçlar ve görevliler netleştikten sonra 4734 Sayılı Kanun
+                (Md. 22) kapsamında doğrudan temin alım sürecini resmi olarak
+                başlatan temel idari belgedir.
               </p>
               <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-blue-100/70 dark:border-blue-900/30">
-                <span className="text-[10.5px] font-bold text-slate-500 dark:text-slate-400">Hızlı Belge Erişimi:</span>
+                <span className="text-[10.5px] font-bold text-slate-500 dark:text-slate-400">
+                  Hızlı Belge Erişimi:
+                </span>
                 <button
                   type="button"
-                  onClick={() => handleOpenSablonByDosyaAdi("luzum-muzekkeresi-onay-eki")}
+                  onClick={() =>
+                    handleOpenSablonByDosyaAdi("luzum-muzekkeresi-onay-eki")}
                   className="inline-flex items-center gap-1 px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer shadow-xs"
                 >
                   <FileText className="w-3 h-3 text-blue-500" />
@@ -802,7 +884,10 @@ export function MalzemeTablosu({
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleOpenSablonByDosyaAdi("komisyon-gorevlendirme-onayi-eki")}
+                  onClick={() =>
+                    handleOpenSablonByDosyaAdi(
+                      "komisyon-gorevlendirme-onayi-eki",
+                    )}
                   className="inline-flex items-center gap-1 px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer shadow-xs"
                 >
                   <Users className="w-3 h-3 text-blue-500" />
@@ -819,123 +904,6 @@ export function MalzemeTablosu({
               </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Komisyon Onay Belgeleri Paneli */}
-      {komisyonPanelOpen && (
-        <div className="mx-4 mb-4">
-          {(() => {
-            const isDisabled = !!ciktiLoading;
-
-            return (
-              <div className="mt-1.5 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm space-y-4 animate-in fade-in slide-in-from-top-1">
-                {/* Görevlendirilecek Komisyonlar — DB'den dinamik */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      Görevlendirilecek Komisyonlar
-                    </p>
-                    {dbKomisyonlar.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const next = selectedKomisyonlar.length === dbKomisyonlar.length
-                            ? []
-                            : dbKomisyonlar.map((k) => k.id);
-                          setSelectedKomisyonlar(next);
-                          if (activeDosyaId) {
-                            localStorage.setItem(
-                              `dta_selected_komisyonlar_${activeDosyaId}`,
-                              JSON.stringify(next),
-                            );
-                          }
-                        }}
-                        className="text-[11px] text-blue-600 hover:text-blue-700 dark:text-blue-400 font-semibold cursor-pointer"
-                      >
-                        {selectedKomisyonlar.length === dbKomisyonlar.length
-                          ? "Seçimi Kaldır"
-                          : "Tümünü Seç"}
-                      </button>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    {dbKomisyonlar.length === 0
-                      ? (
-                        <div className="text-xs text-slate-400 italic px-2 py-1">
-                          Komisyon bulunamadı. "Komisyon Yönetimi" ekranından
-                          komisyon ekleyiniz.
-                        </div>
-                      )
-                      : (
-                        dbKomisyonlar.map((k) => (
-                          <label
-                            key={k.id}
-                            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl border cursor-pointer transition-all ${
-                              selectedKomisyonlar.includes(k.id)
-                                ? "border-blue-500 bg-blue-50/60 dark:bg-blue-900/20 shadow-sm shadow-blue-500/10"
-                                : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40"
-                            }`}
-                          >
-                            <input
-                              type="checkbox"
-                              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 cursor-pointer"
-                              checked={selectedKomisyonlar.includes(k.id)}
-                              onChange={(e) => {
-                                const next = e.target.checked
-                                  ? [...selectedKomisyonlar, k.id]
-                                  : selectedKomisyonlar.filter((v) =>
-                                    v !== k.id
-                                  );
-                                setSelectedKomisyonlar(next);
-                                if (activeDosyaId) {
-                                  localStorage.setItem(
-                                    `dta_selected_komisyonlar_${activeDosyaId}`,
-                                    JSON.stringify(next),
-                                  );
-                                }
-                              }}
-                            />
-                            <span
-                              className={`text-xs font-semibold ${
-                                selectedKomisyonlar.includes(k.id)
-                                  ? "text-blue-700 dark:text-blue-400"
-                                  : "text-slate-700 dark:text-slate-300"
-                              }`}
-                            >
-                              {k.ad}
-                            </span>
-                          </label>
-                        ))
-                      )}
-                  </div>
-                </div>
-
-                {/* Aksiyon Butonları */}
-                <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <button
-                    type="button"
-                    onClick={() => setKomisyonPanelOpen(false)}
-                    className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer font-bold"
-                  >
-                    Kapat
-                  </button>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      disabled={isDisabled}
-                      onClick={() =>
-                        handleKomisyonlarOnayla(selectedKomisyonlar)}
-                      className="flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <Check className="w-3.5 h-3.5" />
-                      Görevlendirmeyi Onayla
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
         </div>
       )}
 
@@ -1152,6 +1120,14 @@ export function MalzemeTablosu({
             </table>
           </div>
         )}
+
+      <KomisyonAtamaModal
+        isOpen={komisyonModalOpen}
+        onClose={() => setKomisyonModalOpen(false)}
+        initialType={komisyonModalType}
+        activeDosyaId={activeDosyaId}
+        onOpenDocument={(doc) => handleOpenSablonByDosyaAdi(doc)}
+      />
     </div>
   );
 }

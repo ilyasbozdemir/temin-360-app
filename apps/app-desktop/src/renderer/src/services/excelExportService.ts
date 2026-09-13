@@ -44,49 +44,42 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   // -------------------------------------------------------------------------
   const FONT_FAMILY = 'Times New Roman'
 
-  // Başlık ve Vurgu Dolguları (Sade, Kurumsal Koyu Gri / Lacivert ve Soft Gri)
+  // Başlık ve Vurgu Dolguları (Resmi, Sade, Renksiz / Açık Gri Standart)
   const headerFillOfficial: ExcelJS.Fill = {
     type: 'pattern',
     pattern: 'solid',
-    fgColor: { argb: 'FF1F2937' } // Koyu Kurumsal Slate (Gri/Siyah)
+    fgColor: { argb: 'FFE5E7EB' } // Sade Kurumsal Açık Gri (Yazıcı Dostu & Resmi)
   }
 
   const subHeaderFillOfficial: ExcelJS.Fill = {
     type: 'pattern',
     pattern: 'solid',
-    fgColor: { argb: 'FF374151' } // Orta Koyu Slate
+    fgColor: { argb: 'FFF3F4F6' } // Çok Açık Resmi Gri
   }
 
   const softGrayFill: ExcelJS.Fill = {
     type: 'pattern',
     pattern: 'solid',
-    fgColor: { argb: 'FFF3F4F6' } // Açık Soft Gri
+    fgColor: { argb: 'FFF9FAFB' } // Açık Soft Zemin Grisi
   }
 
   const zebraFill: ExcelJS.Fill = {
     type: 'pattern',
     pattern: 'solid',
-    fgColor: { argb: 'FFFAFAFA' } // Çok Hafif Kırık Beyaz
+    fgColor: { argb: 'FFFFFFFF' } // Sade Düz Beyaz
   }
 
   const softHighlightFill: ExcelJS.Fill = {
     type: 'pattern',
     pattern: 'solid',
-    fgColor: { argb: 'FFE5E7EB' } // Vurgulu Satır Grisi
+    fgColor: { argb: 'FFF3F4F6' } // Vurgulu Satır Grisi
   }
 
-  // Kenarlıklar
+  // Kenarlıklar (Resmi Çizgili & Net)
   const thinBorder: Partial<ExcelJS.Borders> = {
     top: { style: 'thin', color: { argb: 'FF9CA3AF' } },
     left: { style: 'thin', color: { argb: 'FF9CA3AF' } },
     bottom: { style: 'thin', color: { argb: 'FF9CA3AF' } },
-    right: { style: 'thin', color: { argb: 'FF9CA3AF' } }
-  }
-
-  const mediumBorder: Partial<ExcelJS.Borders> = {
-    top: { style: 'medium', color: { argb: 'FF1F2937' } },
-    left: { style: 'thin', color: { argb: 'FF9CA3AF' } },
-    bottom: { style: 'medium', color: { argb: 'FF1F2937' } },
     right: { style: 'thin', color: { argb: 'FF9CA3AF' } }
   }
 
@@ -98,10 +91,10 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   }
 
   const boxBorder: Partial<ExcelJS.Borders> = {
-    top: { style: 'medium', color: { argb: 'FF1F2937' } },
-    left: { style: 'medium', color: { argb: 'FF1F2937' } },
-    bottom: { style: 'medium', color: { argb: 'FF1F2937' } },
-    right: { style: 'medium', color: { argb: 'FF1F2937' } }
+    top: { style: 'medium', color: { argb: 'FF374151' } },
+    left: { style: 'medium', color: { argb: 'FF374151' } },
+    bottom: { style: 'medium', color: { argb: 'FF374151' } },
+    right: { style: 'medium', color: { argb: 'FF374151' } }
   }
 
   const dosyaNoStr = formatDosyaNo(dosya)
@@ -142,6 +135,15 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   // SAYFA 1: SÜREÇ TAKİBİ & GENEL BÜTÇE KONTROLÜ
   // =========================================================================
   const wsDash = workbook.addWorksheet('Süreç Takibi & Özet', {
+    pageSetup: {
+      paperSize: 9, // A4
+      orientation: 'portrait',
+      fitToPage: true,
+      fitToWidth: 1,
+      fitToHeight: 0,
+      margins: { left: 0.5, right: 0.5, top: 0.6, bottom: 0.6, header: 0.3, footer: 0.3 },
+      showGridLines: true
+    },
     views: [{ showGridLines: true }]
   })
 
@@ -159,14 +161,14 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   wsDash.mergeCells('B2:F2')
   const titleCell = wsDash.getCell('B2')
   titleCell.value = `${kurumAdi} - ${birimAdi}`
-  titleCell.font = { name: FONT_FAMILY, size: 13, bold: true, color: { argb: 'FFFFFFFF' } }
+  titleCell.font = { name: FONT_FAMILY, size: 13, bold: true, color: { argb: 'FF000000' } }
   titleCell.alignment = { vertical: 'middle', horizontal: 'center' }
   titleCell.fill = headerFillOfficial
 
   wsDash.mergeCells('B3:F3')
   const subTitleCell = wsDash.getCell('B3')
-  subTitleCell.value = `4734 SAYILI KAMU İHALE KANUNU DOĞRUDAN TEMİN MASTER DOSYA RAPORU`
-  subTitleCell.font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FFE5E7EB' } }
+  subTitleCell.value = `4734 SAYILI KAMU İHALE KANUNU DOĞRUDAN TEMİN DOSYA EXCEL RAPORU`
+  subTitleCell.font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FF374151' } }
   subTitleCell.alignment = { vertical: 'middle', horizontal: 'center' }
   subTitleCell.fill = subHeaderFillOfficial
 
@@ -177,7 +179,7 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   wsDash.mergeCells('B5:F5')
   const infoHeader = wsDash.getCell('B5')
   infoHeader.value = '1. DOSYA VE DOĞRUDAN TEMİN GENEL BİLGİLERİ'
-  infoHeader.font = { name: FONT_FAMILY, size: 11, bold: true, color: { argb: 'FFFFFFFF' } }
+  infoHeader.font = { name: FONT_FAMILY, size: 11, bold: true, color: { argb: 'FF000000' } }
   infoHeader.fill = subHeaderFillOfficial
   infoHeader.alignment = { vertical: 'middle', indent: 1 }
   wsDash.getRow(5).height = 24
@@ -240,7 +242,7 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   wsDash.mergeCells(`B${curRow}:F${curRow}`)
   const esikHeader = wsDash.getCell(`B${curRow}`)
   esikHeader.value = '2. 2026 YILI KİK BÜTÇE LİMİTİ VE EŞİK DEĞER KONTROLÜ (Md. 22/d)'
-  esikHeader.font = { name: FONT_FAMILY, size: 11, bold: true, color: { argb: 'FFFFFFFF' } }
+  esikHeader.font = { name: FONT_FAMILY, size: 11, bold: true, color: { argb: 'FF000000' } }
   esikHeader.fill = subHeaderFillOfficial
   esikHeader.alignment = { vertical: 'middle', indent: 1 }
   wsDash.getRow(curRow).height = 24
@@ -326,7 +328,7 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   wsDash.mergeCells(`B${curRow}:F${curRow}`)
   const finHeader = wsDash.getCell(`B${curRow}`)
   finHeader.value = '3. FİNANSAL GÖSTERGELER VE KDV TEVKİFAT MATRİSİ (CANLI FORMÜLLÜ)'
-  finHeader.font = { name: FONT_FAMILY, size: 11, bold: true, color: { argb: 'FFFFFFFF' } }
+  finHeader.font = { name: FONT_FAMILY, size: 11, bold: true, color: { argb: 'FF000000' } }
   finHeader.fill = subHeaderFillOfficial
   finHeader.alignment = { vertical: 'middle', indent: 1 }
   wsDash.getRow(curRow).height = 24
@@ -412,7 +414,7 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   wsDash.mergeCells(`B${curRow}:F${curRow}`)
   const stHeader = wsDash.getCell(`B${curRow}`)
   stHeader.value = '4. DOĞRUDAN TEMİN MEVZUAT SÜREÇ ADIMLARI VE İLERLEME DURUMU'
-  stHeader.font = { name: FONT_FAMILY, size: 11, bold: true, color: { argb: 'FFFFFFFF' } }
+  stHeader.font = { name: FONT_FAMILY, size: 11, bold: true, color: { argb: 'FF000000' } }
   stHeader.fill = subHeaderFillOfficial
   stHeader.alignment = { vertical: 'middle', indent: 1 }
   wsDash.getRow(curRow).height = 24
@@ -455,6 +457,15 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   // SAYFA 2: KALEMLER & MALİYET CETVELİ (MASTER VERİ TABLOSU)
   // =========================================================================
   const wsKalem = workbook.addWorksheet(kalemlerSheetName, {
+    pageSetup: {
+      paperSize: 9, // A4
+      orientation: 'landscape',
+      fitToPage: true,
+      fitToWidth: 1,
+      fitToHeight: 0,
+      margins: { left: 0.4, right: 0.4, top: 0.5, bottom: 0.5, header: 0.3, footer: 0.3 },
+      showGridLines: true
+    },
     views: [{ state: 'frozen', ySplit: 4, showGridLines: true }]
   })
 
@@ -476,7 +487,7 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   wsKalem.mergeCells('A1:K1')
   const kTitle = wsKalem.getCell('A1')
   kTitle.value = `${dosyaNoStr} - İHTİYAÇ, MALZEME VE İMALAT LİSTESİ CETVELİ`
-  kTitle.font = { name: FONT_FAMILY, size: 12, bold: true, color: { argb: 'FFFFFFFF' } }
+  kTitle.font = { name: FONT_FAMILY, size: 12, bold: true, color: { argb: 'FF000000' } }
   kTitle.fill = headerFillOfficial
   kTitle.alignment = { vertical: 'middle', horizontal: 'center' }
   wsKalem.getRow(1).height = 26
@@ -484,7 +495,7 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   wsKalem.mergeCells('A2:K2')
   const kSub = wsKalem.getCell('A2')
   kSub.value = `İşin Adı: ${dosyaKonusu} | Alım Türü: ${turLabel} | İdare: ${kurumAdi}`
-  kSub.font = { name: FONT_FAMILY, size: 10, color: { argb: 'FFE5E7EB' } }
+  kSub.font = { name: FONT_FAMILY, size: 10, color: { argb: 'FF374151' } }
   kSub.fill = subHeaderFillOfficial
   kSub.alignment = { vertical: 'middle', horizontal: 'center' }
   wsKalem.getRow(2).height = 20
@@ -508,7 +519,7 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   kalemHeaders.forEach((h, idx) => {
     const c = kHeaderRow.getCell(idx + 1)
     c.value = h
-    c.font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FFFFFFFF' } }
+    c.font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FF000000' } }
     c.fill = subHeaderFillOfficial
     c.border = thinBorder
     c.alignment = {
@@ -612,6 +623,15 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   // SAYFA 3: TEKLİFLER & PİYASA FİYAT ARAŞTIRMASI MATRİSİ
   // =========================================================================
   const wsTeklif = workbook.addWorksheet('Teklifler & Piyasa', {
+    pageSetup: {
+      paperSize: 9, // A4
+      orientation: 'landscape',
+      fitToPage: true,
+      fitToWidth: 1,
+      fitToHeight: 0,
+      margins: { left: 0.4, right: 0.4, top: 0.5, bottom: 0.5, header: 0.3, footer: 0.3 },
+      showGridLines: true
+    },
     views: [{ state: 'frozen', ySplit: 4, showGridLines: true }]
   })
 
@@ -638,7 +658,7 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   wsTeklif.mergeCells(`A1:${lastColLetter}1`)
   const tTitle = wsTeklif.getCell('A1')
   tTitle.value = `${dosyaNoStr} - PİYASA FİYAT ARAŞTIRMASI VE TEKLİF KARŞILAŞTIRMA CETVELİ`
-  tTitle.font = { name: FONT_FAMILY, size: 12, bold: true, color: { argb: 'FFFFFFFF' } }
+  tTitle.font = { name: FONT_FAMILY, size: 12, bold: true, color: { argb: 'FF000000' } }
   tTitle.fill = headerFillOfficial
   tTitle.alignment = { vertical: 'middle', horizontal: 'center' }
   wsTeklif.getRow(1).height = 26
@@ -646,7 +666,7 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   wsTeklif.mergeCells(`A2:${lastColLetter}2`)
   const tSub = wsTeklif.getCell('A2')
   tSub.value = `4734 Sayılı Kanun Madde 22/d Uyarınca Alınan Birim Fiyat Teklifleri ve En Avantajlı Fiyat Tespiti (${effectiveFirms.length} İstekli)`
-  tSub.font = { name: FONT_FAMILY, size: 10, color: { argb: 'FFE5E7EB' } }
+  tSub.font = { name: FONT_FAMILY, size: 10, color: { argb: 'FF374151' } }
   tSub.fill = subHeaderFillOfficial
   tSub.alignment = { vertical: 'middle', horizontal: 'center' }
   wsTeklif.getRow(2).height = 20
@@ -668,7 +688,7 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   tHeaders.forEach((th, idx) => {
     const c = tHeaderRow.getCell(idx + 1)
     c.value = th
-    c.font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FFFFFFFF' } }
+    c.font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FF000000' } }
     c.fill = subHeaderFillOfficial
     c.border = thinBorder
     c.alignment = {
@@ -704,7 +724,6 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
       const unitCol = colCursor
       const totCol = colCursor + 1
       const unitColLetter = getColumnLetter(unitCol)
-      const totColLetter = getColumnLetter(totCol)
       firmUnitColLetters.push(unitColLetter)
 
       const fBid = Number(
@@ -796,7 +815,8 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
       fitToPage: true,
       fitToWidth: 1,
       fitToHeight: 0,
-      margins: { left: 0.5, right: 0.5, top: 0.6, bottom: 0.6, header: 0.3, footer: 0.3 }
+      margins: { left: 0.5, right: 0.5, top: 0.6, bottom: 0.6, header: 0.3, footer: 0.3 },
+      showGridLines: true
     },
     views: [{ showGridLines: true }]
   })
@@ -922,7 +942,8 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
       fitToPage: true,
       fitToWidth: 1,
       fitToHeight: 0,
-      margins: { left: 0.5, right: 0.5, top: 0.6, bottom: 0.6, header: 0.3, footer: 0.3 }
+      margins: { left: 0.5, right: 0.5, top: 0.6, bottom: 0.6, header: 0.3, footer: 0.3 },
+      showGridLines: true
     },
     views: [{ showGridLines: true }]
   })
@@ -1015,7 +1036,8 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
       fitToPage: true,
       fitToWidth: 1,
       fitToHeight: 0,
-      margins: { left: 0.5, right: 0.5, top: 0.5, bottom: 0.5, header: 0.3, footer: 0.3 }
+      margins: { left: 0.5, right: 0.5, top: 0.5, bottom: 0.5, header: 0.3, footer: 0.3 },
+      showGridLines: true
     },
     views: [{ showGridLines: true }]
   })
@@ -1132,6 +1154,15 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   // SAYFA 7: GÖREVLENDİRME & KOMİSYON LİSTESİ
   // =========================================================================
   const wsKom = workbook.addWorksheet('Komisyon ve Görevliler', {
+    pageSetup: {
+      paperSize: 9, // A4
+      orientation: 'portrait',
+      fitToPage: true,
+      fitToWidth: 1,
+      fitToHeight: 0,
+      margins: { left: 0.5, right: 0.5, top: 0.6, bottom: 0.6, header: 0.3, footer: 0.3 },
+      showGridLines: true
+    },
     views: [{ showGridLines: true }]
   })
 
@@ -1147,7 +1178,7 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   wsKom.mergeCells('A1:F1')
   const komTitle = wsKom.getCell('A1')
   komTitle.value = `${dosyaNoStr} - DOĞRUDAN TEMİN GÖREVLENDİRME VE KOMİSYON LİSTESİ`
-  komTitle.font = { name: FONT_FAMILY, size: 12, bold: true, color: { argb: 'FFFFFFFF' } }
+  komTitle.font = { name: FONT_FAMILY, size: 12, bold: true, color: { argb: 'FF000000' } }
   komTitle.fill = headerFillOfficial
   komTitle.alignment = { vertical: 'middle', horizontal: 'center' }
   wsKom.getRow(1).height = 26
@@ -1158,7 +1189,7 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   komHeaders.forEach((kh, idx) => {
     const c = komHeaderRow.getCell(idx + 1)
     c.value = kh
-    c.font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FFFFFFFF' } }
+    c.font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FF000000' } }
     c.fill = subHeaderFillOfficial
     c.border = thinBorder
     c.alignment = { vertical: 'middle', horizontal: idx === 0 ? 'center' : 'left' }
@@ -1220,6 +1251,15 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   // SAYFA 8: KİK ŞABLON & BELGE ENVANTERİ
   // =========================================================================
   const wsSablon = workbook.addWorksheet('Belge ve Şablon Envanteri', {
+    pageSetup: {
+      paperSize: 9, // A4
+      orientation: 'landscape',
+      fitToPage: true,
+      fitToWidth: 1,
+      fitToHeight: 0,
+      margins: { left: 0.4, right: 0.4, top: 0.5, bottom: 0.5, header: 0.3, footer: 0.3 },
+      showGridLines: true
+    },
     views: [{ showGridLines: true }]
   })
 
@@ -1235,7 +1275,7 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   wsSablon.mergeCells('A1:F1')
   const sabTitle = wsSablon.getCell('A1')
   sabTitle.value = `${dosyaNoStr} - 4734 SAYILI KİK DOĞRUDAN TEMİN STANDART ŞABLON VE EVRAK ENVANTERİ`
-  sabTitle.font = { name: FONT_FAMILY, size: 12, bold: true, color: { argb: 'FFFFFFFF' } }
+  sabTitle.font = { name: FONT_FAMILY, size: 12, bold: true, color: { argb: 'FF000000' } }
   sabTitle.fill = headerFillOfficial
   sabTitle.alignment = { vertical: 'middle', horizontal: 'center' }
   wsSablon.getRow(1).height = 26
@@ -1253,7 +1293,7 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   sabHeaders.forEach((sh, idx) => {
     const c = sabHeaderRow.getCell(idx + 1)
     c.value = sh
-    c.font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FFFFFFFF' } }
+    c.font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FF000000' } }
     c.fill = subHeaderFillOfficial
     c.border = thinBorder
     c.alignment = { vertical: 'middle', horizontal: idx === 0 ? 'center' : 'left' }
@@ -1316,7 +1356,7 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
 
   const downloadFileName = buildExportFileName({
     dosya,
-    belgeAdi: 'Master_Excel_Raporu',
+    belgeAdi: 'Dosya_Excel_Raporu',
     extension: 'xlsx'
   })
 

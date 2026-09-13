@@ -346,7 +346,7 @@ export function buildTableActionItems(
     },
     {
       id: "exportMasterExcel",
-      label: "Master Excel Çıktısı Al (.xlsx)",
+      label: "Dosya Excel Raporu (.xlsx)",
       icon: FileSpreadsheet,
       iconColorClass: "text-emerald-600 font-semibold",
       onClick: (props as any).onExportMasterExcel,
@@ -371,13 +371,6 @@ export function buildTableActionItems(
       icon: BookOpen,
       iconColorClass: "text-amber-500",
       onClick: onExportToLibrary,
-    },
-    {
-      id: "komisyonSettings",
-      label: "Komisyon Ayarları",
-      icon: Users,
-      iconColorClass: "text-indigo-500",
-      onClick: onKomisyonSettings,
     },
     {
       id: "istekliFirmaSettings",
