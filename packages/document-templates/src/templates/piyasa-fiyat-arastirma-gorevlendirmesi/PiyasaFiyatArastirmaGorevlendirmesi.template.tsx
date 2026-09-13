@@ -162,7 +162,7 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
             textIndent: "40px",
             textAlign: "justify",
             marginTop: "30px",
-            marginBottom: "30px",
+            marginBottom: "0px",
             lineHeight: 1.6,
           }}
         >

@@ -357,28 +357,34 @@ export function MalzemeTablosu({
 
       return allCommissions;
     },
-    enabled: komisyonPanelOpen,
     staleTime: 30_000,
   });
 
   useEffect(() => {
-    if (activeDosyaId) {
+    if (activeDosyaId && dbKomisyonlar.length > 0) {
       const saved = localStorage.getItem(
         `dta_selected_komisyonlar_${activeDosyaId}`,
       );
-      const timer = setTimeout(() => {
-        if (saved) {
-          try {
-            setSelectedKomisyonlar(JSON.parse(saved));
-          } catch {
-            /* ignore */
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setSelectedKomisyonlar(parsed);
+            return;
           }
+        } catch {
+          /* ignore */
         }
-      }, 0);
-      return () => clearTimeout(timer);
+      }
+      // İlki tüm dosyalarda varsayılan olarak aktif
+      const defaultKomisyon = [dbKomisyonlar[0].id];
+      setSelectedKomisyonlar(defaultKomisyon);
+      localStorage.setItem(
+        `dta_selected_komisyonlar_${activeDosyaId}`,
+        JSON.stringify(defaultKomisyon),
+      );
     }
-    return;
-  }, [activeDosyaId]);
+  }, [activeDosyaId, dbKomisyonlar]);
 
   // Çoklu komisyon onaylama — seçilen komisyon ID'lerine göre DB'yi güncelle
   const handleKomisyonlarOnayla = async (
@@ -834,10 +840,15 @@ export function MalzemeTablosu({
                       <button
                         type="button"
                         onClick={() => {
-                          if (selectedKomisyonlar.length === dbKomisyonlar.length) {
-                            setSelectedKomisyonlar([]);
-                          } else {
-                            setSelectedKomisyonlar(dbKomisyonlar.map((k) => k.id));
+                          const next = selectedKomisyonlar.length === dbKomisyonlar.length
+                            ? []
+                            : dbKomisyonlar.map((k) => k.id);
+                          setSelectedKomisyonlar(next);
+                          if (activeDosyaId) {
+                            localStorage.setItem(
+                              `dta_selected_komisyonlar_${activeDosyaId}`,
+                              JSON.stringify(next),
+                            );
                           }
                         }}
                         className="text-[11px] text-blue-600 hover:text-blue-700 dark:text-blue-400 font-semibold cursor-pointer"
@@ -877,6 +888,12 @@ export function MalzemeTablosu({
                                     v !== k.id
                                   );
                                 setSelectedKomisyonlar(next);
+                                if (activeDosyaId) {
+                                  localStorage.setItem(
+                                    `dta_selected_komisyonlar_${activeDosyaId}`,
+                                    JSON.stringify(next),
+                                  );
+                                }
                               }}
                             />
                             <span
