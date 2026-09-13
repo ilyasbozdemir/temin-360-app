@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   BarChart3,
@@ -9,6 +9,7 @@ import {
   ChevronRight,
   Database,
   FileText,
+  FolderOpen,
   FolderTree,
   Hammer,
   HelpCircle,
@@ -199,7 +200,24 @@ export function Sidebar(): React.JSX.Element {
     });
   };
 
-  const finalMenuGroups = menuGroups;
+  const finalMenuGroups: MenuGroup[] = useMemo(() => {
+    if (!activeDosyaId) return menuGroups;
+    return menuGroups.map((group) => {
+      if (group.title === "Süreç Yönetimi") {
+        const activeItem: MenuItem = {
+          name: "Aktif Dosya (Süreç Takip)",
+          path: "/takip",
+          icon: FolderOpen,
+          badge: "AÇIK",
+        };
+        return {
+          ...group,
+          items: [activeItem, ...group.items],
+        };
+      }
+      return group;
+    });
+  }, [activeDosyaId]);
 
   return (
     <div

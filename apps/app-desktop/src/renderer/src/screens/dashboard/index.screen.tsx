@@ -11,11 +11,10 @@ import {
 } from './dashboard.hooks'
 import { useDosyalarHooks } from '../dosyalar/dosyalar.hooks'
 import { AITextGeneratorModal } from '../../components/ui/AITextGeneratorModal'
-import { TakipScreen } from '../system/TakipScreen'
 import { useAyarlarHooks } from '../ayarlar/ayarlar.hooks'
 
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, FileText, Plus } from 'lucide-react'
+import { FileText, Plus } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 
 // Subcomponents
@@ -278,10 +277,6 @@ export default function DashboardScreen(): React.JSX.Element {
       localStorage.setItem('dta_notified_syslog_keys', JSON.stringify(newNotifiedKeys))
     }
   }, [smartAlerts, isMailConfigured, isLoading, isAnnouncementsLoading])
-
-  if (activeDosyaId) {
-    return <TakipScreen />
-  }
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto pb-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
