@@ -15,6 +15,7 @@ import {
   FileSpreadsheet,
   FileText,
   Gavel,
+  KeyRound,
   Landmark,
   Layers,
   PieChart,
@@ -24,6 +25,7 @@ import {
   ShieldCheck,
   Sparkles,
   Users,
+  X,
   Zap,
 } from "lucide-react";
 
@@ -104,8 +106,14 @@ export default function DashboardScreenV2(): React.JSX.Element {
   const { dosyalar } = useDosyalarHooks();
   const { settings } = useAyarlarHooks();
   const isMailConfigured = !!settings.smtp_host;
+  const isAiConfigured = Boolean(
+    settings.ai_gemini_api_key?.trim() ||
+    settings.ai_openai_api_key?.trim() ||
+    settings.ai_anthropic_api_key?.trim()
+  );
 
   const [showAIModal, setShowAIModal] = useState(false);
+  const [showAiMissingModal, setShowAiMissingModal] = useState(false);
   const [selectedFileForAI, setSelectedFileForAI] = useState<any>(null);
   const [activePillar, setActivePillar] = useState<
     "T" | "E" | "M" | "I" | "N"
@@ -564,25 +572,44 @@ export default function DashboardScreenV2(): React.JSX.Element {
 
           {/* Hızlı Aksiyon Butonları - MODA GÖRE DİNAMİK */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full lg:w-[390px] shrink-0">
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedFileForAI({
-                  temin_no: isIhale ? "İHALE-ASISTAN" : "TEMIN-ASISTAN",
-                  konu: isIhale
-                    ? "Kamu İhale Mevzuatı (KİK 19/21), Şartname ve Hakediş Karar Desteği"
-                    : "Doğrudan Temin (KİK 22/d), Piyasa Araştırması ve Harcama Karar Desteği",
-                  yaklasik_maliyet: stats.toplamYaklasikMaliyet,
-                });
-                setShowAIModal(true);
-              }}
-              className="w-full bg-linear-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-purple-900/20 border border-purple-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
-            >
-              <Sparkles className="w-4 h-4 text-purple-200 animate-spin" />
-              <span className="font-extrabold tracking-wide">
-                TEMİN 360 AI
-              </span>
-            </button>
+            {isAiConfigured ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedFileForAI({
+                    temin_no: isIhale ? "İHALE-ASISTAN" : "TEMIN-ASISTAN",
+                    konu: isIhale
+                      ? "Kamu İhale Mevzuatı (KİK 19/21), Şartname ve Hakediş Karar Desteği"
+                      : "Doğrudan Temin (KİK 22/d), Piyasa Araştırması ve Harcama Karar Desteği",
+                    yaklasik_maliyet: stats.toplamYaklasikMaliyet,
+                  });
+                  setShowAIModal(true);
+                }}
+                className="w-full bg-linear-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2.5 px-3.5 rounded-xl shadow-md shadow-purple-900/20 border border-purple-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
+              >
+                <Sparkles className="w-4 h-4 text-purple-200 animate-spin" />
+                <span className="font-extrabold tracking-wide">
+                  TEMİN 360 AI
+                </span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowAiMissingModal(true)}
+                className="w-full bg-slate-100/90 hover:bg-slate-200/90 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium py-2.5 px-3 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-amber-400/80 dark:hover:border-amber-500/80 flex items-center justify-between gap-1.5 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.98] text-xs group"
+                title="TEMİN 360 AI (API Anahtarı Gerekli - Tanımlamak için tıklayın)"
+              >
+                <div className="flex items-center gap-1.5 truncate">
+                  <KeyRound className="w-3.5 h-3.5 text-amber-500 shrink-0 group-hover:scale-110 transition-transform" />
+                  <span className="font-bold text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white truncate">
+                    TEMİN 360 AI
+                  </span>
+                </div>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800 shrink-0">
+                  API Key Gerekli
+                </span>
+              </button>
+            )}
 
             {isIhale ? (
               <Link to="/harcama-merkezi" className="w-full">
@@ -1460,13 +1487,30 @@ export default function DashboardScreenV2(): React.JSX.Element {
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
+                                if (!isAiConfigured) {
+                                  setShowAiMissingModal(true);
+                                  return;
+                                }
                                 setSelectedFileForAI(dosya);
                                 setShowAIModal(true);
                               }}
-                              className="p-2 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-purple-600 dark:text-purple-300 transition-colors cursor-pointer border border-purple-200 dark:border-purple-800"
-                              title="TEMİN 360 AI Süreç Tavsiyesi Al"
+                              className={cn(
+                                "p-2 rounded-xl transition-all cursor-pointer border",
+                                isAiConfigured
+                                  ? "bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-purple-600 dark:text-purple-300 border-purple-200 dark:border-purple-800"
+                                  : "bg-slate-100 hover:bg-amber-50 dark:bg-slate-800/80 dark:hover:bg-amber-950/30 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 border-dashed border-slate-300 dark:border-slate-700 hover:border-amber-400/60"
+                              )}
+                              title={
+                                isAiConfigured
+                                  ? "TEMİN 360 AI Süreç Tavsiyesi Al"
+                                  : "TEMİN 360 AI (API Anahtarı Gerekli - Yapılandırmak için tıklayın)"
+                              }
                             >
-                              <Sparkles className="w-3.5 h-3.5" />
+                              {isAiConfigured ? (
+                                <Sparkles className="w-3.5 h-3.5" />
+                              ) : (
+                                <KeyRound className="w-3.5 h-3.5 text-amber-500/80" />
+                              )}
                             </button>
                             <button
                               type="button"
@@ -1567,18 +1611,38 @@ export default function DashboardScreenV2(): React.JSX.Element {
           <div className="p-6 rounded-3xl bg-slate-900 dark:bg-slate-950 text-white shadow-md border border-slate-800 relative overflow-hidden">
             <div className="absolute top-0 right-0 -mr-10 -mt-10 w-36 h-36 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
 
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-xl bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
-                <Bot className="w-4 h-4 text-purple-300" />
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
+                  <Bot className="w-4 h-4 text-purple-300" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black uppercase tracking-wider text-purple-200">
+                    TEMİN 360 AI Karar Desteği
+                  </h4>
+                  <span className="text-[10px] text-purple-300/80">
+                    4734 Sayılı Kanun & KİK Mevzuatı
+                  </span>
+                </div>
               </div>
-              <div>
-                <h4 className="text-xs font-black uppercase tracking-wider text-purple-200">
-                  TEMİN 360 AI Karar Desteği
-                </h4>
-                <span className="text-[10px] text-purple-300/80">
-                  4734 Sayılı Kanun & KİK Mevzuatı
+
+              {isAiConfigured ? (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Aktif
                 </span>
-              </div>
+              ) : (
+                <Link
+                  to="/ayarlar"
+                  search={{ tab: "ai" } as any}
+                  className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 flex items-center gap-1 cursor-pointer transition-colors shrink-0"
+                  title="API Anahtarı Tanımlamak İçin Ayarlar'a Git"
+                >
+                  <KeyRound className="w-2.5 h-2.5" />
+                  <span>API Key Gerekli</span>
+                  <ArrowRight className="w-2.5 h-2.5" />
+                </Link>
+              )}
             </div>
 
             <p className="text-xs text-slate-300 leading-relaxed mb-4">
@@ -1587,9 +1651,35 @@ export default function DashboardScreenV2(): React.JSX.Element {
               mevzuata tam uyumlu olarak otomatik oluşturun.
             </p>
 
+            {!isAiConfigured && (
+              <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2.5 text-xs text-amber-200">
+                <KeyRound className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-bold text-amber-300 text-[11px]">
+                    Yapay Zeka Servisi Yapılandırılmadı
+                  </p>
+                  <p className="text-[11px] text-amber-200/80 leading-relaxed">
+                    Mevzuat analizi ve karar desteğini aktifleştirmek için API anahtarınızı tanımlayın.
+                  </p>
+                  <Link
+                    to="/ayarlar"
+                    search={{ tab: "ai" } as any}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-300 hover:text-amber-200 underline pt-0.5"
+                  >
+                    <span>Ayarlar &rarr; Yapay Zeka sekmesine git &rarr;</span>
+                  </Link>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <button
+                type="button"
                 onClick={() => {
+                  if (!isAiConfigured) {
+                    setShowAiMissingModal(true);
+                    return;
+                  }
                   setSelectedFileForAI({
                     temin_no: "MEVZUAT-REHBERI",
                     konu:
@@ -1598,14 +1688,24 @@ export default function DashboardScreenV2(): React.JSX.Element {
                   });
                   setShowAIModal(true);
                 }}
-                className="w-full text-left p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-purple-100 transition-colors flex items-center justify-between cursor-pointer"
+                className={cn(
+                  "w-full text-left p-2.5 rounded-xl border text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer",
+                  isAiConfigured
+                    ? "bg-slate-800/80 hover:bg-slate-800 border-slate-700 text-purple-100"
+                    : "bg-slate-800/40 hover:bg-slate-800/80 border-slate-700/60 text-slate-300 hover:text-purple-100"
+                )}
               >
                 <span>💡 22/d Eşik Limit ve KDV Kuralları</span>
                 <ChevronRight className="w-3.5 h-3.5 text-purple-300" />
               </button>
 
               <button
+                type="button"
                 onClick={() => {
+                  if (!isAiConfigured) {
+                    setShowAiMissingModal(true);
+                    return;
+                  }
                   setSelectedFileForAI({
                     temin_no: "DENETIM-KONTROL",
                     konu:
@@ -1614,7 +1714,12 @@ export default function DashboardScreenV2(): React.JSX.Element {
                   });
                   setShowAIModal(true);
                 }}
-                className="w-full text-left p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-purple-100 transition-colors flex items-center justify-between cursor-pointer"
+                className={cn(
+                  "w-full text-left p-2.5 rounded-xl border text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer",
+                  isAiConfigured
+                    ? "bg-slate-800/80 hover:bg-slate-800 border-slate-700 text-purple-100"
+                    : "bg-slate-800/40 hover:bg-slate-800/80 border-slate-700/60 text-slate-300 hover:text-purple-100"
+                )}
               >
                 <span>🛡️ Sayıştay Denetim Kontrol Listesi</span>
                 <ChevronRight className="w-3.5 h-3.5 text-purple-300" />
@@ -1689,6 +1794,86 @@ export default function DashboardScreenV2(): React.JSX.Element {
           }}
           systemInstruction="Sen yetkin bir TEMİN 360 Kamu Satın Alma, Doğrudan Temin, Harcama ve Hakediş (4734 ve 5018 Sayılı Kanunlar) mevzuat uzmanı ve karar destek asistanısın. Kullanıcıya net, Sayıştay denetim standartlarına uygun, pratik ve yasal tavsiyeler ver. ÖNEMLİ GİZLİLİK KURALI: Eğer kullanıcıdan gelen metin içinde belirli bir Kurum Adı, Belediye, Kişi Adı-Soyadı, TC No veya açık adres geçiyorsa; cevabında bu özel isimleri asla açıkça kullanma, '[İlgili Kurum]' veya '[İlgili Kişi]' şeklinde sansürle (maskele)."
         />
+      )}
+
+      {/* 6. AI YAPILANDIRILMAMIŞ / API KEY EKSİK BİLGİLENDİRME MODALI */}
+      {showAiMissingModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200"
+          onClick={() => setShowAiMissingModal(false)}
+        >
+          <div
+            className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 relative overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="absolute top-0 right-0 -mr-12 -mt-12 w-32 h-32 bg-amber-500/15 rounded-full blur-2xl pointer-events-none" />
+
+            <button
+              type="button"
+              onClick={() => setShowAiMissingModal(false)}
+              className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 shadow-xs">
+                <KeyRound className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  TEMİN 360 AI
+                </h3>
+                <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+                  API Anahtarı Yapılandırılmadı
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+              <p>
+                <strong className="text-slate-900 dark:text-white">TEMİN 360 AI Karar Desteği</strong>, doğrudan temin (22/d) ve ihale süreçlerinizde mevzuat kontrolü, piyasa araştırması ve onay belgesi gerekçeleri oluşturmak için yapay zeka servislerinden faydalanır.
+              </p>
+
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-2">
+                <div className="flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-200 text-xs">
+                  <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                  <span>Desteklenen Servis Sağlayıcıları:</span>
+                </div>
+                <ul className="list-disc list-inside text-slate-500 dark:text-slate-400 text-[11px] space-y-1 pl-1">
+                  <li><strong>Google Gemini</strong> (Önerilen - Ücretsiz / Düşük Maliyet)</li>
+                  <li><strong>OpenAI ChatGPT</strong> (GPT-4o / GPT-4o-mini)</li>
+                  <li><strong>Anthropic Claude</strong> (Claude 3.5 Sonnet)</li>
+                </ul>
+              </div>
+
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                🔒 API anahtarınız yalnızca sizin yerel bilgisayarınızda güvenle saklanır, harici sunucularla paylaşılmaz.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setShowAiMissingModal(false)}
+                className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                Kapat
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAiMissingModal(false);
+                  navigate({ to: "/ayarlar", search: { tab: "ai" } as any });
+                }}
+                className="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-md shadow-purple-900/20 transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>Ayarlar'a Git & API Key Ekle</span>
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
