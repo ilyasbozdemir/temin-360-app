@@ -1167,7 +1167,6 @@ export const devSeedService = {
     const komisyonlar = [
       { id: 1, ad: 'Piyasa Fiyat Araştırması Komisyonu', aciklama: 'Piyasa Fiyat Araştırma ve Teklif Değerlendirme Komisyonu' },
       { id: 2, ad: 'Muayene ve Kabul Komisyonu', aciklama: 'Taşınır Mal Muayene, Kabul ve Muayene Raporu Komisyonu' },
-      { id: 3, ad: 'Doğrudan Temin Değerlendirme Komisyonu', aciklama: 'Teklif ve Şartname İnceleme Komisyonu' }
     ]
 
     for (const k of komisyonlar) {

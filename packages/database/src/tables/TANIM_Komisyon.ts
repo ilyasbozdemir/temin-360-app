@@ -21,7 +21,6 @@ export const TANIM_Komisyon = {
   ],
   constraints: ['UNIQUE(ad)'],
   initialData: [
-    { ad: 'Fiyat Araştırma Komisyonu' },
     { ad: 'Yaklaşık Maliyet Tespit Komisyonu' },
     { ad: 'Muayene Kabul ve Tespit Komisyonu' }
   ]
