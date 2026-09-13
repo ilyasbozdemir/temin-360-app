@@ -100,3 +100,24 @@
     background-color: theme('colors.slate.600');
   }
 }
+
+/* ==========================================================================
+   ELECTRON FRAMELESS WINDOW INTERACTIVE CONTROLS FOCUS & CLICK FIX
+   Ensures all inputs, textareas, selects and buttons can receive mouse focus,
+   caret placement, and text selection without window-drag interference.
+   ========================================================================== */
+input,
+textarea,
+select,
+[contenteditable="true"] {
+  -webkit-app-region: no-drag !important;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+
+button,
+a,
+[role="button"] {
+  -webkit-app-region: no-drag !important;
+}
+

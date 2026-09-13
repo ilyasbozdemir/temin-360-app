@@ -13,10 +13,12 @@ export const DosyaDataInspectorScreen: React.FC = () => {
   const [dosya, setDosya] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // 1) Tab path or window location param
+  // 1) Tab path or window location / hash param
   const tabParams = new URLSearchParams(activeTabPath.split("?")[1] || "");
   const searchParams = new URLSearchParams(window.location.search);
-  const paramIdStr = tabParams.get("id") || searchParams.get("id");
+  const hashQuery = window.location.hash.split("?")[1] || "";
+  const hashParams = new URLSearchParams(hashQuery);
+  const paramIdStr = tabParams.get("id") || hashParams.get("id") || searchParams.get("id");
   const targetId = paramIdStr ? parseInt(paramIdStr, 10) : activeDosyaId;
 
   useEffect(() => {

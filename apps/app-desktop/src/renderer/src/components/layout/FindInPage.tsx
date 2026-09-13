@@ -136,7 +136,8 @@ export function FindInPage(): React.JSX.Element | null {
           value={query}
           onChange={handleQueryChange}
           onKeyDown={handleInputKeyDown}
-          className="w-40 sm:w-56 text-xs bg-transparent border-none outline-none text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
+          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+          className="w-40 sm:w-56 text-xs bg-transparent border-none outline-none text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 select-text"
         />
       </div>
 

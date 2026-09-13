@@ -18,6 +18,7 @@ export const DosyaDataInspectorModal: React.FC<DosyaDataInspectorModalProps> = (
   return createPortal(
     <div
       className="fixed inset-0 z-[99999] flex items-center justify-center bg-slate-950/75 backdrop-blur-sm p-4 sm:p-6 animate-in fade-in duration-200"
+      style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
       onClick={onClose}
     >
       <DosyaInspectorView dosya={dosya} mode="modal" onClose={onClose} />

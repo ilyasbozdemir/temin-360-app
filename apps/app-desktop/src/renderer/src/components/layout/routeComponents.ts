@@ -29,6 +29,7 @@ import TopluPozEkleScreen from '../../screens/pozlar/toplu.screen'
 import OlcuBirimleriScreen from '../../screens/olcubirimleri/index.screen'
 import YeniMalzemeScreen from '../../screens/malzemeler/yeni.screen'
 import YeniDosyaScreen from '../../screens/dosyalar/yeni.screen'
+import DosyaDataInspectorScreen from '../../screens/dosyalar/DosyaDataInspectorScreen'
 import KomisyonlarScreen from '../../screens/komisyonlar/index.screen'
 import KomisyonDetayScreen from '../../screens/komisyonlar/detay.screen'
 import KomisyonGorevleriScreen from '../../screens/komisyon-gorevleri/index.screen'
@@ -79,6 +80,7 @@ export const routeComponents: Record<string, React.ComponentType> = {
   '/tasinirkod': TasinirKodScreen,
   '/kurum': KurumScreen,
   '/profil': ProfilScreen,
+  '/dosya/kunye': DosyaDataInspectorScreen,
   '/dosya': TakipScreen,
   '/dosya/hazirlik-ve-ihtiyac': HazirlikVeIhtiyac,
   '/dosya/piyasa-fiyat-arastirmasi': PiyasaFiyatArastirmasi,
