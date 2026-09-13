@@ -355,10 +355,7 @@ export function MalzemeTablosu({
           : [],
       }));
 
-      // 1. Adım olduğu için Muayene komisyonlarını bu listede göstermiyoruz
-      return allCommissions.filter((k: any) =>
-        !k.ad.toLowerCase().includes("muayene")
-      );
+      return allCommissions;
     },
     enabled: komisyonPanelOpen,
     staleTime: 30_000,
@@ -519,6 +516,28 @@ export function MalzemeTablosu({
         "dogrudan-temin-onay-belgesi",
         "idare-onay-belgesi",
         "onay-belgesi",
+      ],
+      "komisyon-gorevlendirme-onayi": [
+        "komisyon-gorevlendirme-onayi",
+        "gorevlendirme-onayi",
+        "yaklasik-maliyet-tespit-komisyonu",
+        "piyasa-fiyat-arastirma-gorevlendirmesi",
+      ],
+      "yaklasik-maliyet-tespit-komisyonu": [
+        "yaklasik-maliyet-tespit-komisyonu",
+        "komisyon-gorevlendirme-onayi",
+        "gorevlendirme-onayi",
+        "yaklasik-maliyet-cetveli",
+      ],
+      "muayene-kabul-komisyonu": [
+        "muayene-kabul-komisyonu",
+        "muayene-kabul-ve-tespit-komisyonu",
+        "komisyon-gorevlendirme-onayi",
+      ],
+      "komisyon-gorevlendirme-onayi-eki": [
+        "komisyon-gorevlendirme-onayi-eki",
+        "gorevlendirme-onay-eki",
+        "komisyon-atama-onay-eki",
       ],
     };
 
@@ -732,6 +751,8 @@ export function MalzemeTablosu({
               )}
             onYaklasikMaliyetKomisyonu={() =>
               handleOpenSablonByDosyaAdi("yaklasik-maliyet-tespit-komisyonu")}
+            onMuayeneKabulKomisyonu={() =>
+              handleOpenSablonByDosyaAdi("muayene-kabul-komisyonu")}
             onSonAlimCetveli={() =>
               handleOpenSablonByDosyaAdi("son-alim-fiyat-cetveli")}
             onOnayBelgesi={() =>
@@ -796,92 +817,108 @@ export function MalzemeTablosu({
       )}
 
       {/* Komisyon Onay Belgeleri Paneli */}
-      {items.length > 0 && activeDosya?.tur === "mal" && (
+      {komisyonPanelOpen && (
         <div className="mx-4 mb-4">
-          {/* Açılan Panel */}
-          {komisyonPanelOpen &&
-            (() => {
-              const isDisabled = ciktiLoading ||
-                selectedKomisyonlar.length === 0;
+          {(() => {
+            const isDisabled = !!ciktiLoading;
 
-              return (
-                <div className="mt-1.5 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm space-y-4 animate-in fade-in slide-in-from-top-1">
-                  {/* Görevlendirilecek Komisyonlar — DB'den dinamik */}
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+            return (
+              <div className="mt-1.5 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm space-y-4 animate-in fade-in slide-in-from-top-1">
+                {/* Görevlendirilecek Komisyonlar — DB'den dinamik */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                       Görevlendirilecek Komisyonlar
                     </p>
-                    <div className="space-y-2">
-                      {dbKomisyonlar.length === 0
-                        ? (
-                          <div className="text-xs text-slate-400 italic px-2 py-1">
-                            Komisyon bulunamadı. "Komisyon Yönetimi" ekranından
-                            komisyon ekleyiniz.
-                          </div>
-                        )
-                        : (
-                          dbKomisyonlar.map((k) => (
-                            <label
-                              key={k.id}
-                              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl border cursor-pointer transition-all ${
-                                selectedKomisyonlar.includes(k.id)
-                                  ? "border-blue-500 bg-blue-50/60 dark:bg-blue-900/20 shadow-sm shadow-blue-500/10"
-                                  : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40"
-                              }`}
-                            >
-                              <input
-                                type="checkbox"
-                                className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 cursor-pointer"
-                                checked={selectedKomisyonlar.includes(k.id)}
-                                onChange={(e) => {
-                                  const next = e.target.checked
-                                    ? [...selectedKomisyonlar, k.id]
-                                    : selectedKomisyonlar.filter((v) =>
-                                      v !== k.id
-                                    );
-                                  setSelectedKomisyonlar(next);
-                                }}
-                              />
-                              <span
-                                className={`text-xs font-semibold ${
-                                  selectedKomisyonlar.includes(k.id)
-                                    ? "text-blue-700 dark:text-blue-400"
-                                    : "text-slate-700 dark:text-slate-300"
-                                }`}
-                              >
-                                {k.ad}
-                              </span>
-                            </label>
-                          ))
-                        )}
-                    </div>
-                  </div>
-
-                  {/* Aksiyon Butonları */}
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
-                    <button
-                      type="button"
-                      onClick={() => setKomisyonPanelOpen(false)}
-                      className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer font-bold"
-                    >
-                      Kapat
-                    </button>
-                    <div className="flex items-center gap-2">
+                    {dbKomisyonlar.length > 0 && (
                       <button
                         type="button"
-                        disabled={isDisabled}
-                        onClick={() =>
-                          handleKomisyonlarOnayla(selectedKomisyonlar)}
-                        className="flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={() => {
+                          if (selectedKomisyonlar.length === dbKomisyonlar.length) {
+                            setSelectedKomisyonlar([]);
+                          } else {
+                            setSelectedKomisyonlar(dbKomisyonlar.map((k) => k.id));
+                          }
+                        }}
+                        className="text-[11px] text-blue-600 hover:text-blue-700 dark:text-blue-400 font-semibold cursor-pointer"
                       >
-                        <Check className="w-3.5 h-3.5" />
-                        Görevlendirmeyi Onayla
+                        {selectedKomisyonlar.length === dbKomisyonlar.length
+                          ? "Seçimi Kaldır"
+                          : "Tümünü Seç"}
                       </button>
-                    </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    {dbKomisyonlar.length === 0
+                      ? (
+                        <div className="text-xs text-slate-400 italic px-2 py-1">
+                          Komisyon bulunamadı. "Komisyon Yönetimi" ekranından
+                          komisyon ekleyiniz.
+                        </div>
+                      )
+                      : (
+                        dbKomisyonlar.map((k) => (
+                          <label
+                            key={k.id}
+                            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl border cursor-pointer transition-all ${
+                              selectedKomisyonlar.includes(k.id)
+                                ? "border-blue-500 bg-blue-50/60 dark:bg-blue-900/20 shadow-sm shadow-blue-500/10"
+                                : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 cursor-pointer"
+                              checked={selectedKomisyonlar.includes(k.id)}
+                              onChange={(e) => {
+                                const next = e.target.checked
+                                  ? [...selectedKomisyonlar, k.id]
+                                  : selectedKomisyonlar.filter((v) =>
+                                    v !== k.id
+                                  );
+                                setSelectedKomisyonlar(next);
+                              }}
+                            />
+                            <span
+                              className={`text-xs font-semibold ${
+                                selectedKomisyonlar.includes(k.id)
+                                  ? "text-blue-700 dark:text-blue-400"
+                                  : "text-slate-700 dark:text-slate-300"
+                              }`}
+                            >
+                              {k.ad}
+                            </span>
+                          </label>
+                        ))
+                      )}
                   </div>
                 </div>
-              );
-            })()}
+
+                {/* Aksiyon Butonları */}
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setKomisyonPanelOpen(false)}
+                    className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer font-bold"
+                  >
+                    Kapat
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={isDisabled}
+                      onClick={() =>
+                        handleKomisyonlarOnayla(selectedKomisyonlar)}
+                      className="flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      Görevlendirmeyi Onayla
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       )}
 

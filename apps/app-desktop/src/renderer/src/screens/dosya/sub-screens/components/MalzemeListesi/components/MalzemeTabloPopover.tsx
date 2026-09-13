@@ -125,6 +125,9 @@ export function MalzemeTabloPopover(
                 <DropdownMenuItem
                   key={item.id}
                   onClick={item.onClick}
+                  onSelect={() => {
+                    if (item.onClick) item.onClick();
+                  }}
                   className={item.itemClassName}
                 >
                   <ItemIcon
@@ -163,7 +166,13 @@ export function MalzemeTabloPopover(
                     {cat.items.map((item) => {
                       const ItemIcon = item.icon;
                       return (
-                        <DropdownMenuItem key={item.id} onClick={item.onClick}>
+                        <DropdownMenuItem
+                          key={item.id}
+                          onClick={item.onClick}
+                          onSelect={() => {
+                            if (item.onClick) item.onClick();
+                          }}
+                        >
                           <ItemIcon
                             className={`w-3.5 h-3.5 mr-2 ${
                               item.iconColorClass || ""

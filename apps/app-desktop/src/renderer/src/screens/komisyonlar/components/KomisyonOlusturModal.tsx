@@ -17,7 +17,7 @@ interface KomisyonOlusturModalProps {
 const KOMISYON_SABLONLARI = {
   fiyat_arastirma: {
     dbId: 1, // TANIM_Komisyon.id — sabit beklenen ID
-    label: 'Fiyat Araştırma ve Yaklaşık Maliyet Tespit Komisyonu',
+    label: 'Yaklaşık Maliyet Tespit Komisyonu',
     roller: [
       'Harcama Yetkilisi',
       'Satın Alma Harcama Yetkilisi',
@@ -32,8 +32,8 @@ const KOMISYON_SABLONLARI = {
     ]
   },
   muayene_kabul: {
-    dbId: 3, // TANIM_Komisyon.id — sabit beklenen ID
-    label: 'Muayene Kabul ve Teslim Alma Komisyonu',
+    dbId: 2, // TANIM_Komisyon.id — sabit beklenen ID (TANIM_Komisyon.ts initialData ile uyumlu)
+    label: 'Muayene Kabul ve Tespit Komisyonu',
     roller: ['Komisyon Başkanı', 'Üye', 'Üye', 'Üye', 'Üye', 'Üye', 'Üye', 'Üye', 'Üye']
   }
 } as const
@@ -79,47 +79,70 @@ export function KomisyonOlusturModal({
             roller: readonly string[]
           }
 
-          // Komisyon var mı kontrol et
-          const check = await ipc.invoke('db:query', 'SELECT id FROM TANIM_Komisyon WHERE id = ?', [
-            s.dbId
-          ])
-
-          if (check.success && check.data && check.data.length > 0) continue // zaten var
-
-          // Yok — oluştur (INSERT OR IGNORE ile id'yi koru)
-          await ipc.invoke(
-            'db:run',
-            'INSERT OR IGNORE INTO TANIM_Komisyon (id, ad) VALUES (?, ?)',
+          // Komisyon var mı kontrol et (ID veya Ad ile)
+          const check = await ipc.invoke(
+            'db:query',
+            'SELECT id, ad FROM TANIM_Komisyon WHERE id = ? OR ad = ?',
             [s.dbId, s.label]
           )
 
-          // Her rol için TANIM_KomisyonGorevi bul/oluştur ve TANIM_KomisyonUye ekle
-          for (const rolAd of s.roller) {
-            // Görev var mı?
-            let gorevId: number | null = null
-            const gorevCheck = await ipc.invoke(
-              'db:query',
-              'SELECT id FROM TANIM_KomisyonGorevi WHERE ad = ? LIMIT 1',
-              [rolAd]
+          let targetKomisyonId = s.dbId
+          if (check.success && check.data && check.data.length > 0) {
+            targetKomisyonId = check.data[0].id
+            // Eski isimle kalmışsa doğru standart isme güncelle
+            if (check.data[0].ad !== s.label) {
+              await ipc.invoke('db:run', 'UPDATE TANIM_Komisyon SET ad = ? WHERE id = ?', [
+                s.label,
+                targetKomisyonId
+              ])
+            }
+          } else {
+            // Yok — oluştur (INSERT OR IGNORE ile id'yi koru)
+            await ipc.invoke(
+              'db:run',
+              'INSERT OR IGNORE INTO TANIM_Komisyon (id, ad) VALUES (?, ?)',
+              [s.dbId, s.label]
             )
-            if (gorevCheck.success && gorevCheck.data && gorevCheck.data.length > 0) {
-              gorevId = gorevCheck.data[0].id
-            } else {
-              // Yeni gorev kaydet
-              const gorevIns = await ipc.invoke(
-                'db:run',
-                'INSERT INTO TANIM_KomisyonGorevi (ad, aktif_mi) VALUES (?, 1)',
+          }
+
+          // Komisyonda üye kaydı var mı kontrol et
+          const existingUyeCheck = await ipc.invoke(
+            'db:query',
+            'SELECT id FROM TANIM_KomisyonUye WHERE komisyon_id = ? LIMIT 1',
+            [targetKomisyonId]
+          )
+
+          if (
+            !existingUyeCheck.success ||
+            !existingUyeCheck.data ||
+            existingUyeCheck.data.length === 0
+          ) {
+            // Her rol için TANIM_KomisyonGorevi bul/oluştur ve TANIM_KomisyonUye ekle
+            for (const rolAd of s.roller) {
+              let gorevId: number | null = null
+              const gorevCheck = await ipc.invoke(
+                'db:query',
+                'SELECT id FROM TANIM_KomisyonGorevi WHERE ad = ? LIMIT 1',
                 [rolAd]
               )
-              if (gorevIns.success) gorevId = gorevIns.lastInsertRowid
-            }
+              if (gorevCheck.success && gorevCheck.data && gorevCheck.data.length > 0) {
+                gorevId = gorevCheck.data[0].id
+              } else {
+                const gorevIns = await ipc.invoke(
+                  'db:run',
+                  'INSERT INTO TANIM_KomisyonGorevi (ad, aktif_mi) VALUES (?, 1)',
+                  [rolAd]
+                )
+                if (gorevIns.success) gorevId = gorevIns.lastInsertRowid
+              }
 
-            if (gorevId !== null) {
-              await ipc.invoke(
-                'db:run',
-                'INSERT INTO TANIM_KomisyonUye (komisyon_id, gorev_id, personel_id, asil_mi) VALUES (?, ?, NULL, 1)',
-                [s.dbId, gorevId]
-              )
+              if (gorevId !== null) {
+                await ipc.invoke(
+                  'db:run',
+                  'INSERT INTO TANIM_KomisyonUye (komisyon_id, gorev_id, personel_id, asil_mi) VALUES (?, ?, NULL, 1)',
+                  [targetKomisyonId, gorevId]
+                )
+              }
             }
           }
         }

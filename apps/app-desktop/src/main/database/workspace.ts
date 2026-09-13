@@ -429,6 +429,23 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
   } catch (err: any) {
     console.error('Error migrating legacy snapshots:', err.message)
   }
+
+  // Normalize default direct procurement commissions
+  try {
+    const checkKomisyon = db
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='TANIM_Komisyon'")
+      .get()
+    if (checkKomisyon) {
+      db.exec(`
+        UPDATE TANIM_Komisyon SET ad = 'Yaklaşık Maliyet Tespit Komisyonu' WHERE ad = 'Fiyat Araştırma ve Yaklaşık Maliyet Tespit Komisyonu';
+        UPDATE TANIM_Komisyon SET ad = 'Muayene Kabul ve Tespit Komisyonu' WHERE ad = 'Muayene Kabul ve Teslim Alma Komisyonu';
+        INSERT OR IGNORE INTO TANIM_Komisyon (id, ad, aktif_mi) VALUES (1, 'Yaklaşık Maliyet Tespit Komisyonu', 1);
+        INSERT OR IGNORE INTO TANIM_Komisyon (id, ad, aktif_mi) VALUES (2, 'Muayene Kabul ve Tespit Komisyonu', 1);
+      `)
+    }
+  } catch (err: any) {
+    console.error('Error normalizing default commissions:', err.message)
+  }
 }
 
 const TEMPLATE_NAMES: Record<string, string> = {

@@ -82,8 +82,8 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
   {
     id: "piyasa-fiyat-arastirma-gorevlendirmesi",
     name: "PiyasaFiyatArastirmaGorevlendirmesi",
-    category: "2-piyasa-fiyat-arastirmasi",
-    supportsOlur: false,
+    category: "1-ihtiyac-tespiti-ve-baslangic",
+    supportsOlur: true,
   },
   {
     id: "yaklasik-maliyet-cetveli",

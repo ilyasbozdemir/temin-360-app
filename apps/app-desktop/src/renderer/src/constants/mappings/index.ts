@@ -132,7 +132,12 @@ export function getDefaultMappingForProcess(processPath: string): ProcessMapping
   }
 
   // Komisyon ve harcama belgeleri
-  if (cleanPath === 'komisyon-gorevlendirme-onayi' || cleanPath === 'fiyat-arastirma') {
+  if (
+    cleanPath === 'komisyon-gorevlendirme-onayi' ||
+    cleanPath === 'fiyat-arastirma' ||
+    cleanPath === 'yaklasik-maliyet-tespit-komisyonu' ||
+    cleanPath === 'yaklasik-maliyet-komisyonu'
+  ) {
     return KomisyonGorevlendirmeOnayiMapping
   }
   if (cleanPath === 'komisyon-gorevlendirme-onayi-eki') {

@@ -81,6 +81,14 @@ export const TEMPLATE_OPTIONS: TemplateOptionItem[] = [
     categoryLabel: "Hazırlık & İhtiyaç",
     description: "Görevlendirilen personellerin liste eki",
   },
+  {
+    id: 'piyasa-fiyat-arastirma-gorevlendirmesi',
+    name: 'PiyasaFiyatArastirmaGorevlendirmesi',
+    title: 'Piyasa Fiyat Araştırma Görevlendirmesi',
+    category: '1-ihtiyac-tespiti-ve-baslangic',
+    categoryLabel: 'Hazırlık & İhtiyaç',
+    description: 'Fiyat araştırması görevlendirme yazısı'
+  },
 
   // 2. Piyasa Fiyat Araştırması
   {
@@ -114,14 +122,6 @@ export const TEMPLATE_OPTIONS: TemplateOptionItem[] = [
     category: "2-piyasa-fiyat-arastirmasi",
     categoryLabel: "Teklifler & Piyasa",
     description: "Tüm tekliflerin karşılaştırıldığı ve en avantajlı teklifin belirlendiği tutanak",
-  },
-  {
-    id: "piyasa-fiyat-arastirma-gorevlendirmesi",
-    name: "PiyasaFiyatArastirmaGorevlendirmesi",
-    title: "Piyasa Fiyat Araştırma Görevlendirmesi",
-    category: "2-piyasa-fiyat-arastirmasi",
-    categoryLabel: "Teklifler & Piyasa",
-    description: "Fiyat araştırması görevlendirme yazısı",
   },
   {
     id: "yaklasik-maliyet-cetveli",
@@ -237,6 +237,14 @@ export const TEMPLATE_ALIASES: Record<string, string> = {
   "komisyon-onayi": "komisyon-gorevlendirme-onayi",
   "komisyon-karari": "komisyon-gorevlendirme-onayi",
   "ihale-komisyon-karari": "komisyon-gorevlendirme-onayi",
+  "yaklasik-maliyet-tespit-komisyonu": "komisyon-gorevlendirme-onayi",
+  "yaklasik-maliyet-komisyonu": "komisyon-gorevlendirme-onayi",
+  "yaklasikmaliyetkomisyonu": "komisyon-gorevlendirme-onayi",
+  "muayene-kabul-komisyonu": "komisyon-gorevlendirme-onayi",
+  "muayene-kabul-ve-tespit-komisyonu": "komisyon-gorevlendirme-onayi",
+  "muayenekabulkomisyonu": "komisyon-gorevlendirme-onayi",
+  "fiyat-arastirma-komisyonu": "piyasa-fiyat-arastirma-gorevlendirmesi",
+  "fiyatarastirmakomisyonu": "piyasa-fiyat-arastirma-gorevlendirmesi",
   "komisyon-gorevlendirme-onayi-eki": "komisyon-gorevlendirme-onayi-eki",
   "komisyongorevlendirmeonayieki": "komisyon-gorevlendirme-onayi-eki",
   "komisyon-onay-eki": "komisyon-gorevlendirme-onayi-eki",
@@ -312,7 +320,6 @@ export const TEMPLATE_ALIASES: Record<string, string> = {
   "harcamapusulasi": "harcama-pusulasi",
   "pusula": "harcama-pusulasi",
   "muayene-kabul-tutanagi": "harcama-pusulasi",
-  "muayene-kabul-komisyonu": "harcama-pusulasi",
   "muayene-kabul": "harcama-pusulasi",
   "kabul-tutanagi": "harcama-pusulasi",
   "hizmet-isleri-kabul-tutanagi": "harcama-pusulasi",
