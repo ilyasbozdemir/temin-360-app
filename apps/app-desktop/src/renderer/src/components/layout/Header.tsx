@@ -4,8 +4,6 @@ import {
   ChevronRight,
   ClipboardList,
   DownloadCloud,
-  FileText,
-  Gavel,
   Moon,
   MoreHorizontal,
   Printer,
@@ -781,50 +779,6 @@ export function Header(): React.JSX.Element {
           className="flex items-center space-x-2 pr-36"
           style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
         >
-          {/* Kompakt, Premium Segmented Mod Seçici */}
-          <div className="flex items-center bg-slate-200/80 dark:bg-slate-800/80 p-0.5 rounded-lg border border-slate-300/60 dark:border-slate-700/60 text-[11px] font-medium mr-1.5 shadow-2xs transition-all">
-            <button
-              onClick={() => handleModeChange("dogrudan_temin")}
-              title="Doğrudan Temin (KİK Md. 22)"
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all cursor-pointer ${
-                isDt
-                  ? "bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 font-semibold shadow-xs ring-1 ring-blue-500/20"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
-              }`}
-            >
-              <FileText
-                className={`w-3.5 h-3.5 ${
-                  isDt ? "text-blue-600 dark:text-blue-400" : ""
-                }`}
-              />
-              <span>Doğrudan Temin</span>
-              {isDt && (
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-              )}
-            </button>
-            <button
-              onClick={() => handleModeChange("ihale")}
-              title="Açık İhale (Md. 19) & Pazarlık Usulü (Md. 21)"
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all cursor-pointer ${
-                !isDt
-                  ? "bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 font-semibold shadow-xs ring-1 ring-indigo-500/20"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
-              }`}
-            >
-              <Gavel
-                className={`w-3.5 h-3.5 ${
-                  !isDt ? "text-indigo-600 dark:text-indigo-400" : ""
-                }`}
-              />
-              <span>İhale Süreçleri</span>
-              {!isDt && (
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-              )}
-            </button>
-          </div>
-
-          <div className="h-4 w-[1px] bg-slate-300/60 dark:bg-slate-700/60 mx-0.5" />
-
           {/* Bulut Senkronizasyon Popover */}
           <SyncPopover />
 
@@ -885,8 +839,11 @@ export function Header(): React.JSX.Element {
       >
         {/* Sol: İnce ve Şık Aktif Çalışma Modu Rozeti */}
         <div className="w-[280px] shrink-0 hidden lg:flex items-center">
-          <div
-            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium transition-all duration-300 border ${
+          <button
+            type="button"
+            onClick={() => handleModeChange(isDt ? "ihale" : "dogrudan_temin")}
+            title="Süreç modunu değiştirmek için tıklayın (Doğrudan Temin ↔ İhale Süreçleri)"
+            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium transition-all duration-300 border cursor-pointer hover:opacity-85 ${
               isDt
                 ? "bg-blue-50/90 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/40"
                 : "bg-indigo-50/90 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200/60 dark:border-indigo-800/40"
@@ -902,7 +859,7 @@ export function Header(): React.JSX.Element {
                 ? "Doğrudan Temin (Md. 22)"
                 : "İhale İşlemleri (Md. 19 / 21)"}
             </span>
-          </div>
+          </button>
         </div>
 
         {/* Orta: Temin Seçici */}

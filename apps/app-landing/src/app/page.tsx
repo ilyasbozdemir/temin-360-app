@@ -73,13 +73,21 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [copiedDocker, setCopiedDocker] = useState(false);
 
-  // Dynamic Web App Link (Dev vs Prod Demo)
-  const webAppUrl = process.env.NEXT_PUBLIC_APP_URL ||
-    (typeof window !== "undefined" &&
-        window.location.hostname !== "localhost" &&
-        window.location.hostname !== "127.0.0.1"
-      ? "https://temin360app.demo.ilyasbozdemir.dev"
-      : "https://temin360app.demo.ilyasbozdemir.dev");
+  // Dynamic Web App Link (Local Dev vs Remote Demo)
+  const [webAppUrl, setWebAppUrl] = useState(
+    process.env.NEXT_PUBLIC_APP_URL || "https://temin360app.demo.ilyasbozdemir.dev"
+  );
+
+  useEffect(() => {
+    const isLocal =
+      typeof window !== "undefined" &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1");
+    const target =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      (isLocal ? "http://localhost:3000" : "https://temin360app.demo.ilyasbozdemir.dev");
+    setWebAppUrl((prev) => (prev !== target ? target : prev));
+  }, []);
 
   // GitHub Latest Release states
   const [latestRelease, setLatestRelease] = useState<{
@@ -619,7 +627,7 @@ export default function Home() {
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                   Çevrimdışı yapılan değişiklikler ağa bağlanıldığı anda merkezi
-                  Docker/Web sunucusuna veya Google Drive'a otomatik aktarılır.
+                  Docker/Web sunucusuna veya Google Drive&apos;a otomatik aktarılır.
                 </p>
               </div>
             </div>
@@ -691,17 +699,22 @@ export default function Home() {
               <pre className="p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800 font-mono text-[11px] sm:text-xs text-emerald-400 overflow-x-auto leading-relaxed">
 {`version: '3.8'
 services:
-  temin360-server:
-    image: ilyasbozdemir/temin360-sync:latest
-    container_name: temin360-hub
+  # PostgreSQL Veritabanı
+  db:
+    image: postgres:16-alpine
+    container_name: temin360-postgres
     ports:
-      - "3000:3000"
+      - "5432:5432"
     environment:
-      - NODE_ENV=production
-      - DB_STORAGE=/data/temin360.db
+      POSTGRES_DB: temin360_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: temin360pass
     volumes:
-      - ./temin-data:/data
-    restart: always`}
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  pgdata:`}
               </pre>
 
               <div className="text-xs text-slate-400 leading-relaxed">

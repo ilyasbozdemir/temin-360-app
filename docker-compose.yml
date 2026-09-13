@@ -1,15 +1,15 @@
 version: "3.8"
 
 services:
-  # 1. PostgreSQL Database Service
+  # 1. PostgreSQL Database Service (Local & Server)
   db:
     image: postgres:16-alpine
     container_name: temin360-postgres
     restart: always
     environment:
-      POSTGRES_DB: temin360_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: temin360pass
+      POSTGRES_DB: ${POSTGRES_DB:-temin360_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-temin360pass}
     ports:
       - "5432:5432"
     volumes:
@@ -21,7 +21,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # 2. TEMİN 360 API Gateway & Web App (Port 3000)
+  # 2. TEMİN 360 Web Application & API (Next.js + Prisma + PostgreSQL)
   web:
     build:
       context: .
@@ -39,7 +39,7 @@ services:
       db:
         condition: service_healthy
 
-  # 3. TEMİN 360 Landing & Promotion Portal (Port 3001)
+  # 3. TEMİN 360 Landing & Tanıtım Portalı (Port 3001)
   landing:
     build:
       context: .

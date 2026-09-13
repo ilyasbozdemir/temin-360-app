@@ -7,82 +7,147 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// 1. KULLANICI & YETKİLENDİRME
 model Kullanici {
   id        Int      @id @default(autoincrement())
+  kurumId   Int?
+  kurum     Kurum?   @relation(fields: [kurumId], references: [id], onDelete: SetNull)
   email     String   @unique
   adSoyad   String?
   sifreHash String
-  rol       String   @default("user")
+  rol       String   @default("user") // admin, user, viewer
   aktif     Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+// 2. KURUM & İDARİ ANTET (Multi-Tenancy Temeli)
 model Kurum {
-  id              Int             @id @default(autoincrement())
-  kurumKodu       String?         @unique
-  kurumAdi        String
-  il              String?
-  ilce            String?
-  vergiNo         String?
-  vergiDairesi    String?
-  telefon         String?
-  eposta          String?
-  aktif           Boolean         @default(true)
-  dosyalar        TeminDosyasi[]
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id             Int                   @id @default(autoincrement())
+  kurumKodu      String?               @unique
+  kurumAdi       String
+  il             String?
+  ilce           String?
+  vergiNo        String?
+  vergiDairesi   String?
+  telefon        String?
+  eposta         String?
+  adres          String?
+  logoUrl        String?
+  aktif          Boolean               @default(true)
+  kullanicilar   Kullanici[]
+  birimler       Birim[]
+  personeller    Personel[]
+  firmalar       Firma[]
+  dosyalar       TeminDosyasi[]
+  apiKeys        ApiKey[]
+  gdriveAyarlari GoogleDriveAyarlari[]
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
 }
 
+// 3. KURUM BİRİMLERİ (TANIM_Birim)
+model Birim {
+  id        Int            @id @default(autoincrement())
+  kurumId   Int?
+  kurum     Kurum?         @relation(fields: [kurumId], references: [id], onDelete: SetNull)
+  birimAdi  String
+  kod       String?
+  aktif     Boolean        @default(true)
+  dosyalar  TeminDosyasi[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+// 4. PERSONEL & GÖREVLİLER (TANIM_Personel)
+model Personel {
+  id               Int           @id @default(autoincrement())
+  kurumId          Int?
+  kurum            Kurum?        @relation(fields: [kurumId], references: [id], onDelete: SetNull)
+  adSoyad          String
+  unvan            String?
+  gorev            String?
+  tcKimlikNo       String?
+  telefon          String?
+  eposta           String?
+  aktif            Boolean       @default(true)
+  komisyonGorevler KomisyonUye[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+// 5. DOĞRUDAN TEMİN & İHALE DOSYASI (DATA_TeminDosyasi)
 model TeminDosyasi {
-  id                    Int                @id @default(autoincrement())
+  id                    Int               @id @default(autoincrement())
   kurumId               Int?
-  kurum                 Kurum?             @relation(fields: [kurumId], references: [id], onDelete: SetNull)
-  dosyaNo               String             @unique
+  kurum                 Kurum?            @relation(fields: [kurumId], references: [id], onDelete: SetNull)
+  birimId               Int?
+  birim                 Birim?            @relation(fields: [birimId], references: [id], onDelete: SetNull)
+  dosyaNo               String
   isAdi                 String
-  alimTuru              String
-  usul                  String             @default("22_d")
-  durum                 String             @default("taslak")
-  yaklasikMaliyet       Decimal?           @db.Decimal(18, 2)
-  sozlesmeBedeli        Decimal?           @db.Decimal(18, 2)
+  alimTuru              String            @default("mal") // mal, hizmet, yapim_isi, danismanlik
+  usul                  String            @default("22_d") // 22_a, 22_b, 22_c, 22_d, ihale_19, ihale_21
+  durum                 String            @default("taslak") // taslak, aktif, tamamlandi, iptal_edildi
+  yil                   Int               @default(2026)
+  yaklasikMaliyet       Decimal?          @db.Decimal(18, 2)
+  sozlesmeBedeli        Decimal?          @db.Decimal(18, 2)
+  kdvOrani              Int               @default(20)
+  teklifSozlesmeTuru    String            @default("Birim Fiyat")
+  sozlesmeYapilacakMi   Boolean           @default(false)
+  kismiTeklifMi         Boolean           @default(false)
+  
   harcamaYetkilisi      String?
   gerceklestirmeGorevli String?
-  dosyaTarihi           DateTime?
+  piyasaArastirmaGorevli String?
+  
+  acilisTarihi          DateTime?
+  sonTeklifTarihi       DateTime?
   onayTarihi            DateTime?
+  teslimTarihi          DateTime?
+  
   kazananFirmaId        Int?
-  kazananFirma          Firma?             @relation("KazananFirma", fields: [kazananFirmaId], references: [id], onDelete: SetNull)
+  kazananFirma          Firma?            @relation("KazananFirma", fields: [kazananFirmaId], references: [id], onDelete: SetNull)
   
   kalemler              Kalem[]
   teklifler             KalemTeklif[]
+  komisyon              KomisyonUye[]
   belgeler              DosyaBelge[]
   sablonVerileri        DosyaSablonVeri[]
   yedekler              YedekKaydi[]
   
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  @@unique([kurumId, dosyaNo])
 }
 
+// 6. MALZEME / HİZMET / İŞ KALEMLERİ (DATA_TeminKalem)
 model Kalem {
-  id              Int           @id @default(autoincrement())
-  dosyaId         Int
-  dosya           TeminDosyasi  @relation(fields: [dosyaId], references: [id], onDelete: Cascade)
-  siraNo          Int           @default(1)
-  malzemeAdi      String
-  aciklama        String?
-  miktar          Decimal       @db.Decimal(14, 4)
-  birim           String
-  tasinirKodu     String?
-  okasKodu        String?
-  teklifler       KalemTeklif[]
+  id               Int           @id @default(autoincrement())
+  dosyaId          Int
+  dosya            TeminDosyasi  @relation(fields: [dosyaId], references: [id], onDelete: Cascade)
+  siraNo           Int           @default(1)
+  malzemeAdi       String
+  aciklama         String?
+  miktar           Decimal       @db.Decimal(14, 4)
+  birim            String        @default("Adet")
+  yaklasikBirimFiyat Decimal?    @db.Decimal(18, 4)
+  yaklasikToplam   Decimal?      @db.Decimal(18, 2)
+  tasinirKodu      String?
+  okasKodu         String?
+  teklifler        KalemTeklif[]
   
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 }
 
+// 7. İSTEKLİ FİRMALAR (TANIM_Firma & DATA_TeminFirma)
 model Firma {
   id                    Int            @id @default(autoincrement())
+  kurumId               Int?
+  kurum                 Kurum?         @relation(fields: [kurumId], references: [id], onDelete: SetNull)
   unvan                 String
-  vergiNo               String?        @unique
+  vergiNo               String?
   vergiDairesi          String?
   telefon               String?
   eposta                String?
@@ -100,6 +165,7 @@ model Firma {
   updatedAt             DateTime       @updatedAt
 }
 
+// 8. TEKLİF MATRİSİ (DATA_TeminKalemTeklif)
 model KalemTeklif {
   id           Int          @id @default(autoincrement())
   dosyaId      Int
@@ -119,6 +185,23 @@ model KalemTeklif {
   @@unique([kalemId, firmaId])
 }
 
+// 9. KOMİSYON ÜYELERİ (DATA_TeminKomisyon)
+model KomisyonUye {
+  id          Int          @id @default(autoincrement())
+  dosyaId     Int
+  dosya       TeminDosyasi @relation(fields: [dosyaId], references: [id], onDelete: Cascade)
+  personelId  Int?
+  personel    Personel?    @relation(fields: [personelId], references: [id], onDelete: SetNull)
+  adSoyad     String
+  unvan       String?
+  gorev       String       @default("üye") // baskan, uye, yedek_uye
+  siraNo      Int          @default(1)
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+// 10. DOSYA BELGELERİ (DATA_DosyaBelgeler)
 model DosyaBelge {
   id          Int          @id @default(autoincrement())
   dosyaId     Int
@@ -133,6 +216,7 @@ model DosyaBelge {
   updatedAt   DateTime     @updatedAt
 }
 
+// 11. ŞABLON VERİ DEPOSU (DATA_DosyaSablonVeri)
 model DosyaSablonVeri {
   id          Int          @id @default(autoincrement())
   dosyaId     Int
@@ -146,6 +230,33 @@ model DosyaSablonVeri {
   @@unique([dosyaId, sablonKodu])
 }
 
+// 12. API GÜVENLİĞİ & ERİŞİM ANAHTARLARI
+model ApiKey {
+  id          String    @id @default(uuid())
+  kurumId     Int?
+  kurum       Kurum?    @relation(fields: [kurumId], references: [id], onDelete: SetNull)
+  key         String    @unique
+  name        String
+  scope       String    @default("admin") // admin, readonly, sync
+  aktif       Boolean   @default(true)
+  lastUsedAt  DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+// 13. API LOGLARI
+model ApiLog {
+  id          Int       @id @default(autoincrement())
+  endpoint    String
+  method      String
+  ipAdres     String?
+  statusCode  Int
+  sureMs      Int?
+  hata        String?
+  
+  createdAt   DateTime  @default(now())
+}
+
+// 14. GOOGLE DRIVE VE YEDEKLEME MODELLERİ
 model YedekKaydi {
   id              Int           @id @default(autoincrement())
   dosyaId         Int?
@@ -161,7 +272,9 @@ model YedekKaydi {
 }
 
 model GoogleDriveAyarlari {
-  id                Int       @id @default(1)
+  id                Int       @id @default(autoincrement())
+  kurumId           Int?
+  kurum             Kurum?    @relation(fields: [kurumId], references: [id], onDelete: Cascade)
   clientId          String?
   clientSecret      String?
   refreshToken      String?
@@ -170,16 +283,4 @@ model GoogleDriveAyarlari {
   lastBackupTime    DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
-}
-
-model ApiLog {
-  id          Int       @id @default(autoincrement())
-  endpoint    String
-  method      String
-  ipAdres     String?
-  statusCode  Int
-  sureMs      Int?
-  hata        String?
-  
-  createdAt   DateTime  @default(now())
 }

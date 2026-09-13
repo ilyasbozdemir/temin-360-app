@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -12,47 +13,79 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "TEMİN 360 - Yeni Nesil Süreç, İhale & Hakediş Yönetim Sistemi",
-  description:
-    "4734 Sayılı Kamu İhale Kanunu ve 5018 standartlarında doğrudan temin, piyasa fiyat araştırması ve hakediş yönetiminde hibrit masaüstü & bulut iş asistanı.",
-  keywords: [
-    "Doğrudan Temin",
-    "4734 Sayılı Kanun",
-    "Kamu İhale",
-    "Piyasa Fiyat Araştırması",
-    "Hakediş",
-    "TEMİN 360",
-    "İlyas Bozdemir",
-  ],
-  authors: [{ name: "İlyas Bozdemir", url: "https://www.linkedin.com/in/ilyasbozdemir/" }],
-  metadataBase: new URL("https://temin360.ilyasbozdemir.dev"),
-  openGraph: {
-    title: "TEMİN 360 - Kamu Satın Alma & Hakediş Mimarisi",
+export async function generateMetadata(): Promise<Metadata> {
+  let host = "";
+  try {
+    const headersList = await headers();
+    host = (headersList.get("host") || "").toLowerCase();
+  } catch {
+    host = "";
+  }
+
+  const isDemoDomain =
+    host.includes("temin360app.demo.ilyasbozdemir.dev") ||
+    host.includes("demo.ilyasbozdemir.dev") ||
+    process.env.NO_INDEX === "true" ||
+    process.env.NEXT_PUBLIC_NO_INDEX === "true" ||
+    process.env.ENVIRONMENT === "demo";
+
+  return {
+    title: "TEMİN 360 - Yeni Nesil Süreç, İhale & Hakediş Yönetim Sistemi",
     description:
-      "Masaüstünün yerel işlem hızı ile bulutun senkronizasyon gücünü birleştiren hibrit ihale ve temin asistanı.",
-    url: "https://temin360.ilyasbozdemir.dev",
-    siteName: "TEMİN 360",
-    images: [
-      {
-        url: "/dashboard-preview.png",
-        width: 1920,
-        height: 1080,
-        alt: "TEMİN 360 Komuta & Karar Destek Merkezi",
-      },
+      "4734 Sayılı Kamu İhale Kanunu ve 5018 standartlarında doğrudan temin, piyasa fiyat araştırması ve hakediş yönetiminde hibrit masaüstü & bulut iş asistanı.",
+    keywords: [
+      "Doğrudan Temin",
+      "4734 Sayılı Kanun",
+      "Kamu İhale",
+      "Piyasa Fiyat Araştırması",
+      "Hakediş",
+      "TEMİN 360",
+      "İlyas Bozdemir",
     ],
-    locale: "tr_TR",
-    type: "website",
-  },
-  icons: {
-    icon: [
-      { url: "/icon.png", type: "image/png" },
-      { url: "/favicon.ico", sizes: "any" },
-    ],
-    shortcut: "/icon.png",
-    apple: "/icon.png",
-  },
-};
+    authors: [{ name: "İlyas Bozdemir", url: "https://www.linkedin.com/in/ilyasbozdemir/" }],
+    metadataBase: new URL("https://temin360.ilyasbozdemir.dev"),
+    robots: isDemoDomain
+      ? {
+          index: false,
+          follow: false,
+          nocache: true,
+          googleBot: {
+            index: false,
+            follow: false,
+            noimageindex: true,
+          },
+        }
+      : {
+          index: true,
+          follow: true,
+        },
+    openGraph: {
+      title: "TEMİN 360 - Kamu Satın Alma & Hakediş Mimarisi",
+      description:
+        "Masaüstünün yerel işlem hızı ile bulutun senkronizasyon gücünü birleştiren hibrit ihale ve temin asistanı.",
+      url: "https://temin360.ilyasbozdemir.dev",
+      siteName: "TEMİN 360",
+      images: [
+        {
+          url: "/dashboard-preview.png",
+          width: 1920,
+          height: 1080,
+          alt: "TEMİN 360 Komuta & Karar Destek Merkezi",
+        },
+      ],
+      locale: "tr_TR",
+      type: "website",
+    },
+    icons: {
+      icon: [
+        { url: "/icon.png", type: "image/png" },
+        { url: "/favicon.ico", sizes: "any" },
+      ],
+      shortcut: "/icon.png",
+      apple: "/icon.png",
+    },
+  };
+}
 
 export default function RootLayout({
   children,

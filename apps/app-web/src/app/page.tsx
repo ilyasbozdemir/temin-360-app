@@ -671,6 +671,16 @@ export default function Home(): React.JSX.Element {
         </div>
 
         <div className="flex items-center gap-2 md:gap-3">
+          {/* PostgreSQL & Prisma Dosyalar Link */}
+          <a
+            href="/dosyalar"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-sm transition-all"
+            title="PostgreSQL / Prisma Dosya Yönetimi"
+          >
+            <Database className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">PostgreSQL Dosyalar</span>
+          </a>
+
           {/* Refresh Data Button */}
           <button
             onClick={fetchLiveStats}
@@ -811,6 +821,17 @@ export default function Home(): React.JSX.Element {
             <Cpu className="w-4 h-4 shrink-0" />
             {!isSidebarCollapsed && <span>Masaüstü Entegrasyonu</span>}
           </button>
+
+          <a
+            href="/dosyalar"
+            className={`w-full flex items-center rounded-2xl text-xs font-bold transition-all cursor-pointer bg-linear-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/20 hover:from-blue-500 hover:to-indigo-500 ${
+              isSidebarCollapsed ? "justify-center p-3" : "gap-3 px-4 py-3"
+            }`}
+            title="PostgreSQL / Prisma Dosya Yönetimi"
+          >
+            <Database className="w-4 h-4 shrink-0" />
+            {!isSidebarCollapsed && <span>PostgreSQL Dosyalar</span>}
+          </a>
         </aside>
 
         {/* Mobile Menu Backdrop */}
