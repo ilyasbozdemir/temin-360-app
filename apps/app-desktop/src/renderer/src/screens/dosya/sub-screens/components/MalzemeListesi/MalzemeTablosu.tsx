@@ -714,55 +714,60 @@ export function MalzemeTablosu({
           <button
             onClick={handleExportMasterExcel}
             disabled={isExportingMasterExcel}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-emerald-500/20 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 h-8.5 rounded-xl text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/60 transition-all shadow-2xs hover:shadow-xs cursor-pointer disabled:opacity-50 active:scale-98"
             title="Doğrudan Temin Dosya Excel Raporunu (.xlsx) İndir"
           >
-            <FileSpreadsheet className="w-3.5 h-3.5" />
-            {isExportingMasterExcel ? "Hazırlanıyor..." : "Dosya Excel Raporu"}
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>{isExportingMasterExcel ? "Hazırlanıyor..." : "Excel Raporu"}</span>
           </button>
 
           <button
             onClick={() => handleOpenSablonByDosyaAdi("son-alim-fiyat-cetveli")}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-cyan-500/20 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 h-8.5 rounded-xl text-xs font-semibold bg-amber-50 hover:bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:hover:bg-amber-900/60 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60 transition-all shadow-2xs hover:shadow-xs cursor-pointer active:scale-98"
+            title="Son Alım Fiyat Cetveli & Geçmiş Alım Fiyatları"
           >
-            <HistoryIcon className="w-3.5 h-3.5" />
-            Son Alım Fiyat Cetveli
+            <HistoryIcon className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+            <span>Son Alım Fiyatları</span>
           </button>
 
-          <button
-            onClick={() => {
-              setKomisyonModalType("yaklasik_maliyet");
-              setKomisyonModalOpen(true);
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-indigo-500/20 cursor-pointer"
-            title="Yaklaşık Maliyet Tespit Komisyonu Personel Atamaları ve Onay Yazısı"
-          >
-            <Users className="w-3.5 h-3.5" />
-            Maliyet Komisyonu
-          </button>
+          <div className="flex items-center rounded-xl bg-slate-100/80 dark:bg-slate-800/60 p-0.5 border border-slate-200/80 dark:border-slate-700/60 gap-0.5">
+            <button
+              onClick={() => {
+                setKomisyonModalType("yaklasik_maliyet");
+                setKomisyonModalOpen(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 h-7.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50/80 dark:hover:bg-slate-600 transition-all shadow-2xs cursor-pointer active:scale-98"
+              title="Yaklaşık Maliyet Tespit Komisyonu Personel Atamaları ve Onay Yazısı"
+            >
+              <Users className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+              <span>Maliyet Komisyonu</span>
+            </button>
 
-          <button
-            onClick={() => {
-              setKomisyonModalType("muayene_kabul");
-              setKomisyonModalOpen(true);
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-sky-500/20 cursor-pointer"
-            title="Muayene Kabul ve Tespit Komisyonu Personel Atamaları ve Onay Yazısı"
-          >
-            <UserCheck className="w-3.5 h-3.5" />
-            Muayene Kabul Komisyonu
-          </button>
+            <button
+              onClick={() => {
+                setKomisyonModalType("muayene_kabul");
+                setKomisyonModalOpen(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 h-7.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-sky-700 dark:text-sky-300 hover:bg-sky-50/80 dark:hover:bg-slate-600 transition-all shadow-2xs cursor-pointer active:scale-98"
+              title="Muayene Kabul ve Tespit Komisyonu Personel Atamaları ve Onay Yazısı"
+            >
+              <UserCheck className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
+              <span>Muayene Kabul</span>
+            </button>
+          </div>
 
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 h-8.5 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 shadow-xs hover:shadow-sm transition-all cursor-pointer active:scale-98"
           >
-            <Plus className="w-3.5 h-3.5" />
-            {isYapim
-              ? "Poz / İmalat Ekle"
-              : isHizmet
-              ? "Hizmet Kalemi Ekle"
-              : "İhtiyaç Kalemi Ekle"}
+            <Plus className="w-3.5 h-3.5 stroke-[2.5] shrink-0" />
+            <span>
+              {isYapim
+                ? "Poz / İmalat Ekle"
+                : isHizmet
+                ? "Hizmet Kalemi Ekle"
+                : "İhtiyaç Kalemi Ekle"}
+            </span>
           </button>
 
           {!disableDocumentGuidance && combinedSablons.length > 0 &&
