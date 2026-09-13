@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AlertCircle, Eye, Plus, Search, Trash2, Users } from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
@@ -15,8 +15,7 @@ interface KomisyonOlusturModalProps {
 // Hazır komisyon şablonları (initial roller)
 // Bu veriler hem UI şablonu hem de DB seed kaynağı
 const KOMISYON_SABLONLARI = {
-  fiyat_arastirma: {
-    dbId: 1, // TANIM_Komisyon.id — sabit beklenen ID
+  yaklasik_maliyet: {
     label: 'Yaklaşık Maliyet Tespit Komisyonu',
     roller: [
       'Harcama Yetkilisi',
@@ -32,7 +31,6 @@ const KOMISYON_SABLONLARI = {
     ]
   },
   muayene_kabul: {
-    dbId: 2, // TANIM_Komisyon.id — sabit beklenen ID (TANIM_Komisyon.ts initialData ile uyumlu)
     label: 'Muayene Kabul ve Tespit Komisyonu',
     roller: ['Komisyon Başkanı', 'Üye', 'Üye', 'Üye', 'Üye', 'Üye', 'Üye', 'Üye', 'Üye']
   }
@@ -63,96 +61,6 @@ export function KomisyonOlusturModal({
   const [seciliSablonlar, setSeciliSablonlar] = useState<number[]>([])
   const [aramaAcik, setAramaAcik] = useState<number | null>(null) // hangi satırın araması açık
   const [sablonArama, setSablonArama] = useState('')
-
-  // Modal açılınca default komisyonları DB'ye seed et (yoksa oluştur)
-  useEffect(() => {
-    if (!isOpen) return
-
-    const seedKomisyonlar = async () => {
-      try {
-        const ipc = (window as any).electron.ipcRenderer
-
-        for (const [, sablon] of Object.entries(KOMISYON_SABLONLARI)) {
-          const s = sablon as {
-            dbId: number
-            label: string
-            roller: readonly string[]
-          }
-
-          // Komisyon var mı kontrol et (ID veya Ad ile)
-          const check = await ipc.invoke(
-            'db:query',
-            'SELECT id, ad FROM TANIM_Komisyon WHERE id = ? OR ad = ?',
-            [s.dbId, s.label]
-          )
-
-          let targetKomisyonId = s.dbId
-          if (check.success && check.data && check.data.length > 0) {
-            targetKomisyonId = check.data[0].id
-            // Eski isimle kalmışsa doğru standart isme güncelle
-            if (check.data[0].ad !== s.label) {
-              await ipc.invoke('db:run', 'UPDATE TANIM_Komisyon SET ad = ? WHERE id = ?', [
-                s.label,
-                targetKomisyonId
-              ])
-            }
-          } else {
-            // Yok — oluştur (INSERT OR IGNORE ile id'yi koru)
-            await ipc.invoke(
-              'db:run',
-              'INSERT OR IGNORE INTO TANIM_Komisyon (id, ad) VALUES (?, ?)',
-              [s.dbId, s.label]
-            )
-          }
-
-          // Komisyonda üye kaydı var mı kontrol et
-          const existingUyeCheck = await ipc.invoke(
-            'db:query',
-            'SELECT id FROM TANIM_KomisyonUye WHERE komisyon_id = ? LIMIT 1',
-            [targetKomisyonId]
-          )
-
-          if (
-            !existingUyeCheck.success ||
-            !existingUyeCheck.data ||
-            existingUyeCheck.data.length === 0
-          ) {
-            // Her rol için TANIM_KomisyonGorevi bul/oluştur ve TANIM_KomisyonUye ekle
-            for (const rolAd of s.roller) {
-              let gorevId: number | null = null
-              const gorevCheck = await ipc.invoke(
-                'db:query',
-                'SELECT id FROM TANIM_KomisyonGorevi WHERE ad = ? LIMIT 1',
-                [rolAd]
-              )
-              if (gorevCheck.success && gorevCheck.data && gorevCheck.data.length > 0) {
-                gorevId = gorevCheck.data[0].id
-              } else {
-                const gorevIns = await ipc.invoke(
-                  'db:run',
-                  'INSERT INTO TANIM_KomisyonGorevi (ad, aktif_mi) VALUES (?, 1)',
-                  [rolAd]
-                )
-                if (gorevIns.success) gorevId = gorevIns.lastInsertRowid
-              }
-
-              if (gorevId !== null) {
-                await ipc.invoke(
-                  'db:run',
-                  'INSERT INTO TANIM_KomisyonUye (komisyon_id, gorev_id, personel_id, asil_mi) VALUES (?, ?, NULL, 1)',
-                  [targetKomisyonId, gorevId]
-                )
-              }
-            }
-          }
-        }
-      } catch (e) {
-        console.warn('Komisyon seed hatası:', e)
-      }
-    }
-
-    seedKomisyonlar()
-  }, [isOpen])
 
   // DB'deki görevler (unvan eşleştirmesi için)
   const { data: gorevler = [] } = useQuery({
@@ -350,32 +258,69 @@ export function KomisyonOlusturModal({
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      if (!ad) throw new Error('Lütfen komisyon adı giriniz.')
+      const trimmedAd = ad.trim()
+      if (!trimmedAd) throw new Error('Lütfen komisyon adı giriniz.')
 
-      // gorevId eksik satırlar için DB'de yoksa gorev kaydı oluşturabiliriz veya hata ver
-      const eksikGorevler = uyeler.filter((u) => !u.gorevId && u.unvan)
+      // gorevId eksik satırlar için DB'de yoksa gorev kaydı oluştur
+      const eksikGorevler = uyeler.filter((u) => !u.gorevId && u.unvan && u.unvan.trim())
       if (eksikGorevler.length > 0) {
-        // Eksik görevler için DB'ye ekle
         for (const u of eksikGorevler) {
-          const gRes = await window.electron.ipcRenderer.invoke(
+          const uUnvan = u.unvan.trim()
+          const exRes = await window.electron.ipcRenderer.invoke(
             'db:query',
-            'INSERT INTO TANIM_KomisyonGorevi (ad, aktif_mi) VALUES (?, 1)',
-            [u.unvan]
+            'SELECT id FROM TANIM_KomisyonGorevi WHERE LOWER(TRIM(ad)) = LOWER(TRIM(?))',
+            [uUnvan]
           )
-          if (gRes.success) {
-            u.gorevId = gRes.lastInsertRowid
+          if (exRes.success && exRes.data && exRes.data.length > 0) {
+            u.gorevId = exRes.data[0].id
           } else {
-            // Eğer UNIQUE constraint gibi bir nedenle eklenemediyse var olanı bul
-            const exRes = await window.electron.ipcRenderer.invoke(
-              'db:query',
-              'SELECT id FROM TANIM_KomisyonGorevi WHERE ad = ?',
-              [u.unvan]
+            const gRes = await window.electron.ipcRenderer.invoke(
+              'db:run',
+              'INSERT INTO TANIM_KomisyonGorevi (ad, aktif_mi) VALUES (?, 1)',
+              [uUnvan]
             )
-            if (exRes.success && exRes.data && exRes.data[0]) {
-              u.gorevId = exRes.data[0].id
+            if (gRes.success) {
+              u.gorevId = gRes.lastInsertRowid
             } else {
-              throw new Error('Görev eklenemedi: ' + gRes.error)
+              const retryRes = await window.electron.ipcRenderer.invoke(
+                'db:query',
+                'SELECT id FROM TANIM_KomisyonGorevi WHERE LOWER(TRIM(ad)) = LOWER(TRIM(?))',
+                [uUnvan]
+              )
+              if (retryRes.success && retryRes.data && retryRes.data[0]) {
+                u.gorevId = retryRes.data[0].id
+              } else {
+                throw new Error('Görev eklenemedi: ' + gRes.error)
+              }
             }
+          }
+        }
+      }
+
+      // 1. İsim çakışması kontrolü ve silinmiş (aktif_mi = 0) eski kayıtların temizlenmesi
+      const checkRes = await window.electron.ipcRenderer.invoke(
+        'db:query',
+        'SELECT id, aktif_mi FROM TANIM_Komisyon WHERE LOWER(TRIM(ad)) = LOWER(TRIM(?))',
+        [trimmedAd]
+      )
+
+      if (checkRes.success && checkRes.data && checkRes.data.length > 0) {
+        for (const existing of checkRes.data) {
+          if (komisyonId && existing.id === komisyonId) {
+            // Kendi kaydı, isim aynı kalmış
+            continue
+          }
+
+          if (existing.aktif_mi === 1) {
+            throw new Error(`"${trimmedAd}" isminde aktif bir komisyon zaten mevcut. Lütfen farklı bir isim belirleyin.`)
+          } else {
+            // Pasif / silinmiş eski bir kayıt bu ismi bloke ediyor!
+            // UNIQUE constraint ihlalini önlemek için bu hayalet kaydı temizle
+            await window.electron.ipcRenderer.invoke('db:transaction', [
+              { sql: 'DELETE FROM TANIM_Komisyon_Sablon WHERE komisyon_id = ?', params: [existing.id] },
+              { sql: 'DELETE FROM TANIM_KomisyonUye WHERE komisyon_id = ?', params: [existing.id] },
+              { sql: 'DELETE FROM TANIM_Komisyon WHERE id = ?', params: [existing.id] }
+            ])
           }
         }
       }
@@ -383,8 +328,8 @@ export function KomisyonOlusturModal({
       if (komisyonId) {
         const updateRes = await window.electron.ipcRenderer.invoke('db:transaction', [
           {
-            sql: 'UPDATE TANIM_Komisyon SET ad = ? WHERE id = ?',
-            params: [ad, komisyonId]
+            sql: 'UPDATE TANIM_Komisyon SET ad = ?, aktif_mi = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+            params: [trimmedAd, komisyonId]
           },
           {
             sql: 'DELETE FROM TANIM_KomisyonUye WHERE komisyon_id = ?',
@@ -396,18 +341,11 @@ export function KomisyonOlusturModal({
           }
         ])
         if (!updateRes.success) {
-          if (
-            updateRes.error.includes('UNIQUE constraint failed') ||
-            updateRes.error.includes('UNIQUE constraint')
-          ) {
-            throw new Error(
-              `"${ad}" isminde bir komisyon zaten var. Listede göremiyorsanız, daha önce silinmiş bir komisyon bu ismi kullanıyor olabilir.`
-            )
-          }
-          throw new Error(updateRes.error)
+          throw new Error('Komisyon güncellenirken hata oluştu: ' + updateRes.error)
         }
 
-        const uyeQueries = uyeler.map((u) => ({
+        const validUyeler = uyeler.filter((u) => u.unvan && u.unvan.trim())
+        const uyeQueries = validUyeler.map((u) => ({
           sql: 'INSERT INTO TANIM_KomisyonUye (komisyon_id, gorev_id, personel_id, asil_mi) VALUES (?, ?, ?, ?)',
           params: [komisyonId, u.gorevId || null, u.personelId || null, u.asilMi]
         }))
@@ -427,23 +365,17 @@ export function KomisyonOlusturModal({
 
         return komisyonId
       } else {
-        const res = await window.electron.ipcRenderer.invoke('db:transaction', [
-          { sql: 'INSERT INTO TANIM_Komisyon (ad) VALUES (?)', params: [ad] }
-        ])
-        if (!res.success) {
-          if (
-            res.error.includes('UNIQUE constraint failed') ||
-            res.error.includes('UNIQUE constraint')
-          ) {
-            throw new Error(
-              `"${ad}" isminde bir komisyon zaten var. Listede göremiyorsanız, daha önce silinmiş bir komisyon bu ismi kullanıyor olabilir.`
-            )
-          }
-          throw new Error(res.error)
+        const insertRes = await window.electron.ipcRenderer.invoke('db:run',
+          'INSERT INTO TANIM_Komisyon (ad, aktif_mi) VALUES (?, 1)',
+          [trimmedAd]
+        )
+        if (!insertRes.success) {
+          throw new Error('Komisyon eklenirken hata oluştu: ' + insertRes.error)
         }
-        const newId = res.lastInsertRowid
+        const newId = insertRes.lastInsertRowid
 
-        const uyeQueries = uyeler.map((u) => ({
+        const validUyeler = uyeler.filter((u) => u.unvan && u.unvan.trim())
+        const uyeQueries = validUyeler.map((u) => ({
           sql: 'INSERT INTO TANIM_KomisyonUye (komisyon_id, gorev_id, personel_id, asil_mi) VALUES (?, ?, ?, ?)',
           params: [newId, u.gorevId || null, u.personelId || null, u.asilMi]
         }))

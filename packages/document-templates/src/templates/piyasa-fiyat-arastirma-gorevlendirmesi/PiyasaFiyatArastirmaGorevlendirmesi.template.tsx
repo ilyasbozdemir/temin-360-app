@@ -21,19 +21,28 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
 }) => {
   // Görevlendirilen personellerin listesi
   const gorevlendirilenler: Array<{ adSoyad: string; unvan: string }> = (() => {
-    if (data.gorevlendirilenler && Array.isArray(data.gorevlendirilenler) && data.gorevlendirilenler.length > 0) {
+    if (
+      data.gorevlendirilenler && Array.isArray(data.gorevlendirilenler) &&
+      data.gorevlendirilenler.length > 0
+    ) {
       return data.gorevlendirilenler.map((g: any) => ({
         adSoyad: g.adSoyad || g.ad || g.adi || "",
         unvan: g.unvan || g.unvani || g.gorev || "",
       }));
     }
-    if (data.fiyatKomisyonu && Array.isArray(data.fiyatKomisyonu) && data.fiyatKomisyonu.length > 0) {
+    if (
+      data.fiyatKomisyonu && Array.isArray(data.fiyatKomisyonu) &&
+      data.fiyatKomisyonu.length > 0
+    ) {
       return data.fiyatKomisyonu.map((g: any) => ({
         adSoyad: g.adSoyad || g.ad_soyad || g.ad || "",
         unvan: g.unvan || g.gorev || "",
       }));
     }
-    if (data.gorevliler && Array.isArray(data.gorevliler) && data.gorevliler.length > 0) {
+    if (
+      data.gorevliler && Array.isArray(data.gorevliler) &&
+      data.gorevliler.length > 0
+    ) {
       return data.gorevliler.map((g: any) => ({
         adSoyad: g.adSoyad || g.ad || g.adi || "",
         unvan: g.unvan || g.unvani || g.gorev || "",
@@ -44,7 +53,10 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
 
   // Dağıtım listesi
   const dagitimListesi: Array<{ adSoyad: string; unvan: string }> = (() => {
-    if (data.dagitimListesi && Array.isArray(data.dagitimListesi) && data.dagitimListesi.length > 0) {
+    if (
+      data.dagitimListesi && Array.isArray(data.dagitimListesi) &&
+      data.dagitimListesi.length > 0
+    ) {
       return data.dagitimListesi.map((d: any) => {
         if (typeof d === "string") return { adSoyad: d, unvan: "" };
         return {
@@ -60,13 +72,13 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
   })();
 
   // Evrak sayısı oluşturma
-  const evrakNo =
-    data.evrakSayisi ||
-    `${data.detsisNo || "........"}-${data.yili || "...."}/${data.sayisi || "...."}`;
+  const evrakNo = data.evrakSayisi ||
+    `${data.detsisNo || "........"}-${data.yili || "...."}/${
+      data.sayisi || "...."
+    }`;
 
-  const konuMetni = data.dosyaKonusu
-    ? `${data.dosyaKonusu} Piyasa Fiyat Araştırması Görevlendirmesi`
-    : "Piyasa Fiyat Araştırması Görevlendirmesi";
+  const konuMetni = data.dosyaKonusu ??
+    "Piyasa Fiyat Araştırması Görevlendirmesi";
 
   return (
     <DocumentLayout
@@ -109,7 +121,9 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
                   >
                     Sayı
                   </td>
-                  <td style={{ padding: "2px 10px 2px 0", verticalAlign: "top" }}>
+                  <td
+                    style={{ padding: "2px 10px 2px 0", verticalAlign: "top" }}
+                  >
                     : <EditableField name="evrakSayisi" value={evrakNo} />
                   </td>
                 </tr>
@@ -124,7 +138,9 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
                   >
                     Konu
                   </td>
-                  <td style={{ padding: "2px 10px 2px 0", verticalAlign: "top" }}>
+                  <td
+                    style={{ padding: "2px 10px 2px 0", verticalAlign: "top" }}
+                  >
                     : <EditableField name="dosyaKonusu" value={konuMetni} />
                   </td>
                 </tr>
@@ -160,16 +176,16 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
             value={data.isinAdi || "Alımı yapılacak"}
           />{" "}
           işine ait fiyat araştırmasını yapmak üzere{" "}
-          {gorevlendirilenler.length > 0 ? (
-            gorevlendirilenler.map((g, idx) => (
-              <React.Fragment key={idx}>
-                <strong>{g.adSoyad}</strong> {g.unvan ? `(${g.unvan})` : ""}
-                {idx < gorevlendirilenler.length - 1 ? ", " : " "}
-              </React.Fragment>
-            ))
-          ) : (
-            <strong>İlgili personeller</strong>
-          )}{" "}
+          {gorevlendirilenler.length > 0
+            ? (
+              gorevlendirilenler.map((g, idx) => (
+                <React.Fragment key={idx}>
+                  <strong>{g.adSoyad}</strong> {g.unvan ? `(${g.unvan})` : ""}
+                  {idx < gorevlendirilenler.length - 1 ? ", " : " "}
+                </React.Fragment>
+              ))
+            )
+            : <strong>İlgili personeller</strong>}{" "}
           Piyasa Fiyat Araştırması için görevlendirilecek olup,
         </div>
 
@@ -253,15 +269,15 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
               lineHeight: 1.5,
             }}
           >
-            {dagitimListesi.length > 0 ? (
-              dagitimListesi.map((d, idx) => (
-                <li key={idx}>
-                  - {d.adSoyad} {d.unvan ? `(${d.unvan})` : ""}
-                </li>
-              ))
-            ) : (
-              <li>- İlgili Personel</li>
-            )}
+            {dagitimListesi.length > 0
+              ? (
+                dagitimListesi.map((d, idx) => (
+                  <li key={idx}>
+                    - {d.adSoyad} {d.unvan ? `(${d.unvan})` : ""}
+                  </li>
+                ))
+              )
+              : <li>- İlgili Personel</li>}
           </ul>
         </div>
       </div>

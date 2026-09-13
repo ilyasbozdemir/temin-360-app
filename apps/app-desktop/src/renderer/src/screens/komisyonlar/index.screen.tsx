@@ -321,7 +321,7 @@ export default function KomisyonlarScreen({
                             if (window.confirm('Bu komisyonu silmek istediğinize emin misiniz?')) {
                               const res = await window.electron.ipcRenderer.invoke(
                                 'db:run',
-                                'UPDATE TANIM_Komisyon SET aktif_mi = 0 WHERE id = ?',
+                                "UPDATE TANIM_Komisyon SET aktif_mi = 0, ad = ad || ' (Silindi ' || id || ')' WHERE id = ?",
                                 [komisyon.id]
                               )
                               if (res.success) {
