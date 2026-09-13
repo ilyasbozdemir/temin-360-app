@@ -44,22 +44,21 @@ export function WorkspaceCloseModal({
 
   useEffect(() => {
     if (isOpen && window.electron?.ipcRenderer) {
-      window.electron.ipcRenderer
-        .invoke('workspace:check-changes')
-        .then((res) => {
-          if (res?.success) {
-            setChangesInfo({
-              hasChanges: !!res.hasChanges,
-              hasGdriveChanges: !!res.hasGdriveChanges,
-              hasEmailChanges: !!res.hasEmailChanges
-            })
-          }
-        })
-        .catch(console.error)
+      Promise.all([
+        window.electron.ipcRenderer.invoke('workspace:check-changes'),
+        window.electron.ipcRenderer.invoke('db:get-settings')
+      ])
+        .then(([res, s]) => {
+          const hasAnyChanges = !!(res?.success && res.hasChanges)
+          const hasGdriveChanges = !!(res?.success && res.hasGdriveChanges)
+          const hasEmailChanges = !!(res?.success && res.hasEmailChanges)
 
-      window.electron.ipcRenderer
-        .invoke('db:get-settings')
-        .then((s) => {
+          setChangesInfo({
+            hasChanges: hasAnyChanges,
+            hasGdriveChanges,
+            hasEmailChanges
+          })
+
           if (s) {
             setSettings(s)
 
@@ -87,15 +86,17 @@ export function WorkspaceCloseModal({
             const hasGDrive = !!s.gdriveAccessToken || (!!s.gdriveClientId && !!s.gdriveClientSecret)
             let chosen: CloseActionType[] = []
 
-            if (initial.length > 0 && !initial.includes('none')) {
-              chosen = initial
-            } else if (hasGDrive) {
-              // Google Drive hesabı bağlıysa mutlaka varsayılan olarak seçili gelmeli
-              chosen = ['gdrive']
-            }
+            // Sadece dosyada gerçek bir değişiklik varsa yedekleri varsayılan olarak seç
+            if (hasAnyChanges) {
+              if (initial.length > 0 && !initial.includes('none')) {
+                chosen = initial
+              } else if (hasGDrive && hasGdriveChanges) {
+                chosen = ['gdrive']
+              }
 
-            if (hasGDrive && !chosen.includes('gdrive') && (!s.closeActionPreference || s.closeActionPreference === 'ask')) {
-              chosen.push('gdrive')
+              if (hasGDrive && hasGdriveChanges && !chosen.includes('gdrive') && (!s.closeActionPreference || s.closeActionPreference === 'ask')) {
+                chosen.push('gdrive')
+              }
             }
 
             setSelectedActions(chosen)

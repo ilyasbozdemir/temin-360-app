@@ -1237,6 +1237,7 @@ export class DtmWorkspace {
       zip.addLocalFolder(this.tempDir)
       zip.writeZip(this.currentFilePath)
       console.log('Workspace saved successfully to zip.')
+      this.initialHash = this.calculateCurrentHash()
     } catch (zipErr) {
       console.error('Error while writing zip file:', zipErr)
       throw new Error('Dosya kaydedilirken hata oluştu: ' + (zipErr as Error).message)
@@ -1319,7 +1320,8 @@ export class DtmWorkspace {
       try {
         this.db.pragma('wal_checkpoint(TRUNCATE)')
       } catch {}
-      const dbPath = path.join(this.tempDir, 'database.sqlite')
+      const dbFileName = this.meta?.active_db_file || 'database.sqlite'
+      const dbPath = path.join(this.tempDir, dbFileName)
       if (!fs.existsSync(dbPath)) return ''
       const content = fs.readFileSync(dbPath)
       const hash = crypto.createHash('sha256').update(content)

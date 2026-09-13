@@ -266,6 +266,14 @@ export function PageWrapper(): React.ReactNode {
       // Ana sürecin agresif zaman aşımını iptal et, kullanıcının seçimi bekleniyor
       window.electron?.ipcRenderer.send('app:cancel-quit-timeout')
       try {
+        // Değişiklik kontrolü: Eğer dosyada değişiklik yoksa yedek aldırma ve modalı ASLA açma, doğrudan çıkış yap!
+        const changesRes = await window.electron?.ipcRenderer?.invoke('workspace:check-changes')
+        if (changesRes?.success && !changesRes.hasChanges) {
+          console.log('[Workspace] Değişiklik yok, doğrudan kapatılıp çıkılıyor.')
+          await handleConfirmClose([], true)
+          return
+        }
+
         const s = await window.electron?.ipcRenderer?.invoke('db:get-settings')
         const hasGDrive = !!s?.gdriveAccessToken || (!!s?.gdriveClientId && !!s?.gdriveClientSecret)
         if (s?.closeActionRemember === 'true' && s?.closeActionPreference && s.closeActionPreference !== 'ask') {
@@ -290,6 +298,14 @@ export function PageWrapper(): React.ReactNode {
       setIsQuittingApp(false)
       window.electron?.ipcRenderer.send('app:cancel-quit-timeout')
       try {
+        // Değişiklik kontrolü: Eğer dosyada değişiklik yoksa yedek aldırma ve modalı ASLA açma, doğrudan kapat!
+        const changesRes = await window.electron?.ipcRenderer?.invoke('workspace:check-changes')
+        if (changesRes?.success && !changesRes.hasChanges) {
+          console.log('[Workspace] Değişiklik yok, modal açılmadan doğrudan kapatılıyor.')
+          await handleConfirmClose([], false)
+          return
+        }
+
         const s = await window.electron?.ipcRenderer?.invoke('db:get-settings')
         const hasGDrive = !!s?.gdriveAccessToken || (!!s?.gdriveClientId && !!s?.gdriveClientSecret)
         if (s?.closeActionRemember === 'true' && s?.closeActionPreference && s.closeActionPreference !== 'ask') {
