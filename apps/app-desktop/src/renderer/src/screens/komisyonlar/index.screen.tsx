@@ -21,6 +21,21 @@ import { useTabStore } from '../../store/tabStore'
 import { useDosyaAsamasiSablons } from '../dosya/sub-screens/DosyaAsamalari/useDosyaAsamasiSablons'
 import { DocumentPreviewModal } from '../dosya/components/DocumentPreviewModal'
 
+const isBaseKomisyon = (ad?: string, id?: number): boolean => {
+  if (id === 1 || id === 2) return true
+  const lower = (ad || '').toLowerCase().trim()
+  return (
+    lower === 'yaklaşık maliyet tespit komisyonu' ||
+    lower === 'muayene kabul ve tespit komisyonu' ||
+    lower === 'fiyat araştırma komisyonu' ||
+    lower.includes('yaklaşık maliyet') ||
+    lower.includes('muayene kabul') ||
+    lower.includes('muayene ve kabul') ||
+    lower.includes('fiyat araştırma') ||
+    lower.includes('fiyat arastirma')
+  )
+}
+
 export default function KomisyonlarScreen({
   isSubComponent = false
 }: {
@@ -58,9 +73,135 @@ export default function KomisyonlarScreen({
   const { data: komisyonlar = [], isLoading: isKomisyonLoading } = useQuery({
     queryKey: ['komisyonlar'],
     queryFn: async () => {
+      // 0. Temel komisyonların isimlerini ve mükerrer kayıtlarını normalize et
+      try {
+        const yaklasikListRes = await window.electron.ipcRenderer.invoke(
+          'db:query',
+          `SELECT id, ad FROM TANIM_Komisyon 
+           WHERE LOWER(TRIM(ad)) IN (
+             'yaklaşık maliyet tespit komisyonu',
+             'yaklasik maliyet tespit komisyonu',
+             'fiyat araştırma komisyonu',
+             'fiyat arastirma komisyonu',
+             'fiyat araştırma ve yaklaşık maliyet tespit komisyonu'
+           )
+           ORDER BY CASE WHEN LOWER(TRIM(ad)) LIKE '%yaklaşık%' THEN 1 ELSE 2 END, id ASC`
+        )
+
+        let primaryYaklasikId = 1
+        if (yaklasikListRes.success && yaklasikListRes.data && yaklasikListRes.data.length > 0) {
+          primaryYaklasikId = yaklasikListRes.data[0].id
+          await window.electron.ipcRenderer.invoke(
+            'db:run',
+            "UPDATE TANIM_Komisyon SET ad = 'Yaklaşık Maliyet Tespit Komisyonu', aktif_mi = 1 WHERE id = ?",
+            [primaryYaklasikId]
+          )
+          for (let i = 1; i < yaklasikListRes.data.length; i++) {
+            const dupId = yaklasikListRes.data[i].id
+            await window.electron.ipcRenderer.invoke(
+              'db:run',
+              'UPDATE OR IGNORE TANIM_KomisyonUye SET komisyon_id = ? WHERE komisyon_id = ?',
+              [primaryYaklasikId, dupId]
+            )
+            await window.electron.ipcRenderer.invoke(
+              'db:run',
+              'DELETE FROM TANIM_Komisyon_Sablon WHERE komisyon_id = ?',
+              [dupId]
+            )
+            await window.electron.ipcRenderer.invoke(
+              'db:run',
+              'DELETE FROM TANIM_Komisyon WHERE id = ?',
+              [dupId]
+            )
+          }
+        }
+
+        const muayeneListRes = await window.electron.ipcRenderer.invoke(
+          'db:query',
+          `SELECT id, ad FROM TANIM_Komisyon 
+           WHERE LOWER(TRIM(ad)) IN (
+             'muayene kabul ve tespit komisyonu',
+             'muayene kabul ve teslim alma komisyonu',
+             'muayene ve kabul komisyonu'
+           )
+           ORDER BY id ASC`
+        )
+
+        let primaryMuayeneId = 2
+        if (muayeneListRes.success && muayeneListRes.data && muayeneListRes.data.length > 0) {
+          primaryMuayeneId = muayeneListRes.data[0].id
+          await window.electron.ipcRenderer.invoke(
+            'db:run',
+            "UPDATE TANIM_Komisyon SET ad = 'Muayene Kabul ve Tespit Komisyonu', aktif_mi = 1 WHERE id = ?",
+            [primaryMuayeneId]
+          )
+          for (let i = 1; i < muayeneListRes.data.length; i++) {
+            const dupId = muayeneListRes.data[i].id
+            await window.electron.ipcRenderer.invoke(
+              'db:run',
+              'UPDATE OR IGNORE TANIM_KomisyonUye SET komisyon_id = ? WHERE komisyon_id = ?',
+              [primaryMuayeneId, dupId]
+            )
+            await window.electron.ipcRenderer.invoke(
+              'db:run',
+              'DELETE FROM TANIM_Komisyon_Sablon WHERE komisyon_id = ?',
+              [dupId]
+            )
+            await window.electron.ipcRenderer.invoke(
+              'db:run',
+              'DELETE FROM TANIM_Komisyon WHERE id = ?',
+              [dupId]
+            )
+          }
+        }
+
+        // Temel şablon bağlantılarını otomatik tamamla
+        const yaklasikSablons = [
+          'piyasa-fiyat-arastirma-gorevlendirmesi',
+          'komisyon-gorevlendirme-onayi',
+          'komisyon-gorevlendirme-onayi-eki',
+          'arastirma-mektubu',
+          'fiyat-arastirma-mektubu',
+          'birim-fiyat-teklif-mektubu',
+          'birim-fiyat-teklif-cetveli',
+          'dagitim-cizelgesi',
+          'dagitim-cizelgesi-karma',
+          'piyasa-fiyat-arastirma-tutanagi',
+          'yaklasik-maliyet-cetveli',
+          'son-alim-fiyat-cetveli'
+        ]
+        const muayeneSablons = [
+          'muayene-kabul-komisyonu',
+          'muayene-kabul-tutanagi',
+          'harcama-pusulasi',
+          'luzum-muzekkeresi-teslim-tesellum',
+          'hizmet-isleri-kabul-tutanagi',
+          'hizmet-isleri-kabul-teklif-belgesi'
+        ]
+
+        for (const s of yaklasikSablons) {
+          await window.electron.ipcRenderer.invoke(
+            'db:run',
+            `INSERT OR IGNORE INTO TANIM_Komisyon_Sablon (komisyon_id, sablon_id)
+             SELECT ?, id FROM TANIM_Sablon WHERE dosya_adi = ?`,
+            [primaryYaklasikId, s]
+          )
+        }
+        for (const s of muayeneSablons) {
+          await window.electron.ipcRenderer.invoke(
+            'db:run',
+            `INSERT OR IGNORE INTO TANIM_Komisyon_Sablon (komisyon_id, sablon_id)
+             SELECT ?, id FROM TANIM_Sablon WHERE dosya_adi = ?`,
+            [primaryMuayeneId, s]
+          )
+        }
+      } catch (normErr) {
+        console.warn('Komisyon normalizasyonu hatası:', normErr)
+      }
+
       const res = await window.electron.ipcRenderer.invoke(
         'db:query',
-        'SELECT * FROM TANIM_Komisyon WHERE aktif_mi = 1 ORDER BY id DESC'
+        'SELECT * FROM TANIM_Komisyon WHERE aktif_mi = 1 ORDER BY id ASC'
       )
       if (!res.success) throw new Error(res.error)
 
@@ -290,6 +431,11 @@ export default function KomisyonlarScreen({
                             {komisyon.ad}
                           </h3>
                           <div className="flex items-center gap-2 mt-2">
+                            {isBaseKomisyon(komisyon.ad) && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[10px] font-bold border border-blue-200/80 dark:border-blue-800">
+                                Temel Komisyon
+                              </span>
+                            )}
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-300">
                               <Users className="w-3.5 h-3.5" />
                               {komisyon.uyeler?.length || 0} Üye
@@ -316,28 +462,41 @@ export default function KomisyonlarScreen({
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
-                        <button
-                          onClick={async () => {
-                            if (window.confirm('Bu komisyonu silmek istediğinize emin misiniz?')) {
-                              const res = await window.electron.ipcRenderer.invoke(
-                                'db:run',
-                                "UPDATE TANIM_Komisyon SET aktif_mi = 0, ad = ad || ' (Silindi ' || id || ')' WHERE id = ?",
-                                [komisyon.id]
-                              )
-                              if (res.success) {
-                                queryClient.invalidateQueries({
-                                  queryKey: ['komisyonlar']
-                                })
-                              } else {
-                                alert('Silme işlemi başarısız oldu: ' + res.error)
+                        {isBaseKomisyon(komisyon.ad) ? (
+                          <span
+                            className="p-2 text-slate-300 dark:text-slate-600 cursor-not-allowed"
+                            title="Sistem temel komisyonudur, silinemez."
+                          >
+                            <ShieldCheck className="w-4 h-4 text-blue-500/70" />
+                          </span>
+                        ) : (
+                          <button
+                            onClick={async () => {
+                              if (isBaseKomisyon(komisyon.ad)) {
+                                alert('Bu komisyon sistemin temel (base) komisyonudur, silinemez.')
+                                return
                               }
-                            }
-                          }}
-                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                          title="Sil"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                              if (window.confirm('Bu komisyonu silmek istediğinize emin misiniz?')) {
+                                const res = await window.electron.ipcRenderer.invoke(
+                                  'db:run',
+                                  "UPDATE TANIM_Komisyon SET aktif_mi = 0, ad = ad || ' (Silindi ' || id || ')' WHERE id = ?",
+                                  [komisyon.id]
+                                )
+                                if (res.success) {
+                                  queryClient.invalidateQueries({
+                                    queryKey: ['komisyonlar']
+                                  })
+                                } else {
+                                  alert('Silme işlemi başarısız oldu: ' + res.error)
+                                }
+                              }
+                            }}
+                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                            title="Sil"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
 

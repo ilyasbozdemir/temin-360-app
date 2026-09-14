@@ -171,8 +171,25 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
 
   // Komisyon Yönetimi (TANIM_KomisyonUye) üzerinden güncelle
   const handleSyncFromKomisyonYonetimi = async () => {
-    const komId = activeTab === "yaklasik_maliyet" ? 1 : 2;
+    const isMaliyet = activeTab === "yaklasik_maliyet";
     try {
+      const findRes = await (window as any).electron.ipcRenderer.invoke(
+        "db:query",
+        isMaliyet
+          ? `SELECT id FROM TANIM_Komisyon 
+             WHERE LOWER(TRIM(ad)) LIKE '%yaklaşık%' OR LOWER(TRIM(ad)) LIKE '%fiyat%' OR id = 1
+             ORDER BY CASE WHEN id = 1 THEN 0 ELSE 1 END, id ASC LIMIT 1`
+          : `SELECT id FROM TANIM_Komisyon 
+             WHERE LOWER(TRIM(ad)) LIKE '%muayene%' OR LOWER(TRIM(ad)) LIKE '%kabul%' OR id = 2
+             ORDER BY CASE WHEN id = 2 THEN 0 ELSE 1 END, id ASC LIMIT 1`,
+      );
+      const komId =
+        findRes.success && findRes.data?.[0]?.id
+          ? findRes.data[0].id
+          : isMaliyet
+            ? 1
+            : 2;
+
       const res = await (window as any).electron.ipcRenderer.invoke(
         "db:query",
         `SELECT u.*, p.ad_soyad, p.unvan, g.ad as gorev_adi
@@ -186,7 +203,7 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
 
       if (res.success && res.data && res.data.length > 0) {
         const members = res.data;
-        if (activeTab === "yaklasik_maliyet") {
+        if (isMaliyet) {
           const next = DEFAULT_MALIYET_ROLES.map((defGorev, idx) => {
             const m = members[idx];
             return {
@@ -207,8 +224,10 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
           });
           setMuayeneRows(next);
         }
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 2000);
       } else {
-        alert("Komisyon Yönetiminde bu komisyon için kayıtlı üye bulunamadı.");
+        alert("Komisyon Yönetiminde bu komisyon için atanmış personel bulunamadı. Lütfen Komisyon Yönetimi ekranından üyeleri atayınız.");
       }
     } catch (err: any) {
       alert("Komisyon Yönetiminden aktarım yapılırken hata: " + err.message);

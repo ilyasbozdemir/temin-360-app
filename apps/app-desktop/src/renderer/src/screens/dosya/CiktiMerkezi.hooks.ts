@@ -182,6 +182,8 @@ export function useCiktiMerkeziData(activeDosyaId: number | null): UseCiktiMerke
           const fallbackRes = await window.electron.ipcRenderer.invoke(
             'db:query',
             `SELECT u.*, 
+                    u.komisyon_id,
+                    k.ad as komisyon_turu,
                     p.ad_soyad as ad_soyad, 
                     p.unvan as unvan, 
                     COALESCE(g.ad, 'Üye') as gorevi
@@ -198,6 +200,8 @@ export function useCiktiMerkeziData(activeDosyaId: number | null): UseCiktiMerke
 
         let commission = allCommission.filter(
           (c: any) =>
+            c.komisyon_id === 1 ||
+            c.komisyon_turu?.toLowerCase().includes('maliyet') ||
             c.komisyon_turu?.toLowerCase().includes('fiyat') ||
             c.komisyon_turu?.toLowerCase().includes('piyasa') ||
             c.komisyon_turu?.toLowerCase().includes('araştırma')
@@ -208,6 +212,7 @@ export function useCiktiMerkeziData(activeDosyaId: number | null): UseCiktiMerke
 
         let muayeneKomisyonu = allCommission.filter(
           (c: any) =>
+            c.komisyon_id === 2 ||
             c.komisyon_turu?.toLowerCase().includes('muayene') ||
             c.komisyon_turu?.toLowerCase().includes('kabul')
         )

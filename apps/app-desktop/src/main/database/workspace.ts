@@ -436,12 +436,102 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
       .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='TANIM_Komisyon'")
       .get()
     if (checkKomisyon) {
-      db.exec(`
-        UPDATE TANIM_Komisyon SET ad = 'Yaklaşık Maliyet Tespit Komisyonu' WHERE ad = 'Fiyat Araştırma ve Yaklaşık Maliyet Tespit Komisyonu';
-        UPDATE TANIM_Komisyon SET ad = 'Muayene Kabul ve Tespit Komisyonu' WHERE ad = 'Muayene Kabul ve Teslim Alma Komisyonu';
-        INSERT OR IGNORE INTO TANIM_Komisyon (id, ad, aktif_mi) VALUES (1, 'Yaklaşık Maliyet Tespit Komisyonu', 1);
-        INSERT OR IGNORE INTO TANIM_Komisyon (id, ad, aktif_mi) VALUES (2, 'Muayene Kabul ve Tespit Komisyonu', 1);
-      `)
+      // 1. Yaklaşık Maliyet Tespit Komisyonu
+      const yaklasikExisting = db.prepare(`
+        SELECT id, ad FROM TANIM_Komisyon 
+        WHERE LOWER(TRIM(ad)) IN (
+          'yaklaşık maliyet tespit komisyonu',
+          'yaklasik maliyet tespit komisyonu',
+          'fiyat araştırma komisyonu',
+          'fiyat arastirma komisyonu',
+          'fiyat araştırma ve yaklaşık maliyet tespit komisyonu',
+          'fiyat arastirma ve yaklasik maliyet tespit komisyonu'
+        )
+        ORDER BY CASE WHEN LOWER(TRIM(ad)) LIKE '%yaklaşık%' OR LOWER(TRIM(ad)) LIKE '%yaklasik%' THEN 1 ELSE 2 END, id ASC
+      `).all() as { id: number; ad: string }[]
+
+      let yaklasikId = 1
+      if (yaklasikExisting.length > 0) {
+        yaklasikId = yaklasikExisting[0].id
+        db.prepare("UPDATE TANIM_Komisyon SET ad = 'Yaklaşık Maliyet Tespit Komisyonu', aktif_mi = 1 WHERE id = ?").run(yaklasikId)
+        for (let i = 1; i < yaklasikExisting.length; i++) {
+          const dupId = yaklasikExisting[i].id
+          db.prepare("UPDATE OR IGNORE TANIM_KomisyonUye SET komisyon_id = ? WHERE komisyon_id = ?").run(yaklasikId, dupId)
+          db.prepare("DELETE FROM TANIM_Komisyon_Sablon WHERE komisyon_id = ?").run(dupId)
+          db.prepare("DELETE FROM TANIM_Komisyon WHERE id = ?").run(dupId)
+        }
+      } else {
+        db.prepare("INSERT OR IGNORE INTO TANIM_Komisyon (id, ad, aktif_mi) VALUES (1, 'Yaklaşık Maliyet Tespit Komisyonu', 1)").run()
+      }
+
+      // 2. Muayene Kabul ve Tespit Komisyonu
+      const muayeneExisting = db.prepare(`
+        SELECT id, ad FROM TANIM_Komisyon 
+        WHERE LOWER(TRIM(ad)) IN (
+          'muayene kabul ve tespit komisyonu',
+          'muayene kabul ve teslim alma komisyonu'
+        )
+        ORDER BY CASE WHEN LOWER(TRIM(ad)) LIKE '%muayene kabul ve tespit%' THEN 1 ELSE 2 END, id ASC
+      `).all() as { id: number; ad: string }[]
+
+      let muayeneId = 2
+      if (muayeneExisting.length > 0) {
+        muayeneId = muayeneExisting[0].id
+        db.prepare("UPDATE TANIM_Komisyon SET ad = 'Muayene Kabul ve Tespit Komisyonu', aktif_mi = 1 WHERE id = ?").run(muayeneId)
+        for (let i = 1; i < muayeneExisting.length; i++) {
+          const dupId = muayeneExisting[i].id
+          db.prepare("UPDATE OR IGNORE TANIM_KomisyonUye SET komisyon_id = ? WHERE komisyon_id = ?").run(muayeneId, dupId)
+          db.prepare("DELETE FROM TANIM_Komisyon_Sablon WHERE komisyon_id = ?").run(dupId)
+          db.prepare("DELETE FROM TANIM_Komisyon WHERE id = ?").run(dupId)
+        }
+      } else {
+        db.prepare("INSERT OR IGNORE INTO TANIM_Komisyon (id, ad, aktif_mi) VALUES (2, 'Muayene Kabul ve Tespit Komisyonu', 1)").run()
+      }
+
+      // 3. Şablon bağlantıları (TANIM_Komisyon_Sablon)
+      const checkSablonTable = db
+        .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='TANIM_Komisyon_Sablon'")
+        .get()
+      if (checkSablonTable) {
+        const yaklasikSablons = [
+          'piyasa-fiyat-arastirma-gorevlendirmesi',
+          'komisyon-gorevlendirme-onayi',
+          'komisyon-gorevlendirme-onayi-eki',
+          'arastirma-mektubu',
+          'fiyat-arastirma-mektubu',
+          'birim-fiyat-teklif-mektubu',
+          'birim-fiyat-teklif-cetveli',
+          'dagitim-cizelgesi',
+          'dagitim-cizelgesi-karma',
+          'piyasa-fiyat-arastirma-tutanagi',
+          'yaklasik-maliyet-cetveli',
+          'son-alim-fiyat-cetveli'
+        ]
+        const muayeneSablons = [
+          'muayene-kabul-komisyonu',
+          'muayene-kabul-tutanagi',
+          'harcama-pusulasi',
+          'luzum-muzekkeresi-teslim-tesellum',
+          'hizmet-isleri-kabul-tutanagi',
+          'hizmet-isleri-kabul-teklif-belgesi'
+        ]
+
+        const insertSablonStmt = db.prepare(`
+          INSERT OR IGNORE INTO TANIM_Komisyon_Sablon (komisyon_id, sablon_id)
+          SELECT ?, id FROM TANIM_Sablon WHERE dosya_adi = ?
+        `)
+
+        for (const s of yaklasikSablons) {
+          try {
+            insertSablonStmt.run(yaklasikId, s)
+          } catch (_) {}
+        }
+        for (const s of muayeneSablons) {
+          try {
+            insertSablonStmt.run(muayeneId, s)
+          } catch (_) {}
+        }
+      }
     }
   } catch (err: any) {
     console.error('Error normalizing default commissions:', err.message)

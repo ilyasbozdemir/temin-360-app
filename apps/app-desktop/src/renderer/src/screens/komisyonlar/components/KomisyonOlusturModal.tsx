@@ -188,6 +188,41 @@ export function KomisyonOlusturModal({
         }
       })
     )
+
+    // İlgili belge şablonlarını otomatik seç
+    if (tip === 'yaklasik_maliyet') {
+      const yaklasikSablons = [
+        'piyasa-fiyat-arastirma-gorevlendirmesi',
+        'komisyon-gorevlendirme-onayi',
+        'komisyon-gorevlendirme-onayi-eki',
+        'arastirma-mektubu',
+        'fiyat-arastirma-mektubu',
+        'birim-fiyat-teklif-mektubu',
+        'birim-fiyat-teklif-cetveli',
+        'dagitim-cizelgesi',
+        'dagitim-cizelgesi-karma',
+        'piyasa-fiyat-arastirma-tutanagi',
+        'yaklasik-maliyet-cetveli',
+        'son-alim-fiyat-cetveli'
+      ]
+      const matchingIds = (tumSablonlar as any[])
+        .filter((s) => yaklasikSablons.includes(s.dosya_adi))
+        .map((s) => s.id)
+      if (matchingIds.length > 0) setSeciliSablonlar(matchingIds)
+    } else if (tip === 'muayene_kabul') {
+      const muayeneSablons = [
+        'muayene-kabul-komisyonu',
+        'muayene-kabul-tutanagi',
+        'harcama-pusulasi',
+        'luzum-muzekkeresi-teslim-tesellum',
+        'hizmet-isleri-kabul-tutanagi',
+        'hizmet-isleri-kabul-teklif-belgesi'
+      ]
+      const matchingIds = (tumSablonlar as any[])
+        .filter((s) => muayeneSablons.includes(s.dosya_adi))
+        .map((s) => s.id)
+      if (matchingIds.length > 0) setSeciliSablonlar(matchingIds)
+    }
   }
 
   // El ile satır ekle
@@ -297,7 +332,9 @@ export function KomisyonOlusturModal({
         }
       }
 
-      // 1. İsim çakışması kontrolü ve silinmiş (aktif_mi = 0) eski kayıtların temizlenmesi
+      // 1. İsim çakışması kontrolü ve base komisyon birleştirme
+      let targetKomisyonId: number | null = komisyonId ? Number(komisyonId) : null
+
       const checkRes = await window.electron.ipcRenderer.invoke(
         'db:query',
         'SELECT id, aktif_mi FROM TANIM_Komisyon WHERE LOWER(TRIM(ad)) = LOWER(TRIM(?))',
@@ -306,38 +343,58 @@ export function KomisyonOlusturModal({
 
       if (checkRes.success && checkRes.data && checkRes.data.length > 0) {
         for (const existing of checkRes.data) {
-          if (komisyonId && existing.id === komisyonId) {
+          const exId = Number(existing.id)
+          if (targetKomisyonId && exId === targetKomisyonId) {
             // Kendi kaydı, isim aynı kalmış
             continue
           }
 
+          const isTargetBase =
+            trimmedAd.toLowerCase().includes('yaklaşık maliyet') ||
+            trimmedAd.toLowerCase().includes('muayene kabul') ||
+            trimmedAd.toLowerCase().includes('fiyat araştırma')
+
           if (existing.aktif_mi === 1) {
-            throw new Error(`"${trimmedAd}" isminde aktif bir komisyon zaten mevcut. Lütfen farklı bir isim belirleyin.`)
+            if (isTargetBase) {
+              // Base komisyon birleştirme: Mevcut temel kaydı hedef yap veya duplicate olan exId'yi temizle
+              if (!targetKomisyonId) {
+                targetKomisyonId = exId
+              } else {
+                await window.electron.ipcRenderer.invoke('db:transaction', [
+                  { sql: 'DELETE FROM TANIM_Komisyon_Sablon WHERE komisyon_id = ?', params: [exId] },
+                  { sql: 'DELETE FROM TANIM_KomisyonUye WHERE komisyon_id = ?', params: [exId] },
+                  { sql: 'DELETE FROM TANIM_Komisyon WHERE id = ?', params: [exId] }
+                ])
+              }
+            } else {
+              throw new Error(
+                `"${trimmedAd}" isminde aktif bir komisyon zaten mevcut. Lütfen farklı bir isim belirleyin.`
+              )
+            }
           } else {
-            // Pasif / silinmiş eski bir kayıt bu ismi bloke ediyor!
-            // UNIQUE constraint ihlalini önlemek için bu hayalet kaydı temizle
+            // Pasif / silinmiş eski bir kayıt bu ismi bloke ediyor! Temizle
             await window.electron.ipcRenderer.invoke('db:transaction', [
-              { sql: 'DELETE FROM TANIM_Komisyon_Sablon WHERE komisyon_id = ?', params: [existing.id] },
-              { sql: 'DELETE FROM TANIM_KomisyonUye WHERE komisyon_id = ?', params: [existing.id] },
-              { sql: 'DELETE FROM TANIM_Komisyon WHERE id = ?', params: [existing.id] }
+              { sql: 'DELETE FROM TANIM_Komisyon_Sablon WHERE komisyon_id = ?', params: [exId] },
+              { sql: 'DELETE FROM TANIM_KomisyonUye WHERE komisyon_id = ?', params: [exId] },
+              { sql: 'DELETE FROM TANIM_Komisyon WHERE id = ?', params: [exId] }
             ])
           }
         }
       }
 
-      if (komisyonId) {
+      if (targetKomisyonId) {
         const updateRes = await window.electron.ipcRenderer.invoke('db:transaction', [
           {
             sql: 'UPDATE TANIM_Komisyon SET ad = ?, aktif_mi = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-            params: [trimmedAd, komisyonId]
+            params: [trimmedAd, targetKomisyonId]
           },
           {
             sql: 'DELETE FROM TANIM_KomisyonUye WHERE komisyon_id = ?',
-            params: [komisyonId]
+            params: [targetKomisyonId]
           },
           {
             sql: 'DELETE FROM TANIM_Komisyon_Sablon WHERE komisyon_id = ?',
-            params: [komisyonId]
+            params: [targetKomisyonId]
           }
         ])
         if (!updateRes.success) {
@@ -347,7 +404,7 @@ export function KomisyonOlusturModal({
         const validUyeler = uyeler.filter((u) => u.unvan && u.unvan.trim())
         const uyeQueries = validUyeler.map((u) => ({
           sql: 'INSERT INTO TANIM_KomisyonUye (komisyon_id, gorev_id, personel_id, asil_mi) VALUES (?, ?, ?, ?)',
-          params: [komisyonId, u.gorevId || null, u.personelId || null, u.asilMi]
+          params: [targetKomisyonId, u.gorevId || null, u.personelId || null, u.asilMi]
         }))
         if (uyeQueries.length > 0) {
           const uyeRes = await window.electron.ipcRenderer.invoke('db:transaction', uyeQueries)
@@ -356,14 +413,14 @@ export function KomisyonOlusturModal({
 
         const sablonQueries = seciliSablonlar.map((sId) => ({
           sql: 'INSERT INTO TANIM_Komisyon_Sablon (komisyon_id, sablon_id) VALUES (?, ?)',
-          params: [komisyonId, sId]
+          params: [targetKomisyonId, sId]
         }))
         if (sablonQueries.length > 0) {
           const sR = await window.electron.ipcRenderer.invoke('db:transaction', sablonQueries)
           if (!sR.success) throw new Error(sR.error)
         }
 
-        return komisyonId
+        return targetKomisyonId
       } else {
         const insertRes = await window.electron.ipcRenderer.invoke('db:run',
           'INSERT INTO TANIM_Komisyon (ad, aktif_mi) VALUES (?, 1)',
