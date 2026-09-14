@@ -455,6 +455,9 @@ if (!gotTheLock && !isMultiInstance) {
 
   function registerWindowsFileAssociations(): void {
     if (process.platform !== 'win32') return
+    // Geliştirme (dev) ortamında process.execPath geçici dev electron.exe olduğu için
+    // Windows kayıt defterini bozmasını önlüyoruz. Yalnızca paketlenmiş prod ortamda çalışır.
+    if (!app.isPackaged) return
     try {
       const exePath = process.execPath
 
