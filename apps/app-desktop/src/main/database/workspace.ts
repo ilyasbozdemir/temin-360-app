@@ -1453,11 +1453,29 @@ export class DtmWorkspace {
     lastModifiedAt: string | null
     items: MutationSummaryItem[]
   } {
+    const isDirty = this.isDirtyState() || this.isDirty || this.hasChanges('any')
+    const items = Array.from(this.mutationMap.values())
+
+    if (isDirty && items.length === 0) {
+      items.push({
+        tableName: 'Veritabanı',
+        title: 'Çalışma Dosyası Değişiklikleri',
+        action: 'other',
+        actionLabel: 'Düzenlendi',
+        count: Math.max(this.userMutationCount, 1),
+        lastTime: this.lastMutationTime || 'Az önce'
+      })
+    }
+
     return {
-      isDirty: this.isDirtyState(),
-      totalChanges: this.userMutationCount,
+      isDirty,
+      totalChanges: Math.max(
+        this.userMutationCount,
+        items.reduce((acc, it) => acc + (it.count || 1), 0),
+        isDirty ? 1 : 0
+      ),
       lastModifiedAt: this.lastMutationTime,
-      items: Array.from(this.mutationMap.values())
+      items
     }
   }
 

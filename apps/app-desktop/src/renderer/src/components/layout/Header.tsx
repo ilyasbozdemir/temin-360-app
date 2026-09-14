@@ -53,13 +53,42 @@ export function Header(): React.JSX.Element {
       const res = await window.electron?.ipcRenderer.invoke("workspace:get-dirty-summary");
       if (res?.success) {
         setDirtySummary({
-          totalChanges: res.totalChanges || 0,
-          lastModifiedAt: res.lastModifiedAt,
-          items: res.items || [],
+          totalChanges: res.totalChanges ?? 0,
+          lastModifiedAt: res.lastModifiedAt ?? null,
+          items: res.items ?? [],
+        });
+      } else {
+        setDirtySummary({
+          totalChanges: 1,
+          lastModifiedAt: null,
+          items: [
+            {
+              tableName: "Veritabanı",
+              title: "Çalışma Dosyası Değişiklikleri",
+              action: "other",
+              actionLabel: "Düzenlendi",
+              count: 1,
+              lastTime: "Az önce",
+            },
+          ],
         });
       }
     } catch (e) {
       console.warn("Değişiklik özeti alınamadı:", e);
+      setDirtySummary({
+        totalChanges: 1,
+        lastModifiedAt: null,
+        items: [
+          {
+            tableName: "Veritabanı",
+            title: "Çalışma Dosyası Değişiklikleri",
+            action: "other",
+            actionLabel: "Düzenlendi",
+            count: 1,
+            lastTime: "Az önce",
+          },
+        ],
+      });
     } finally {
       setIsLoadingSummary(false);
     }
@@ -667,7 +696,7 @@ export function Header(): React.JSX.Element {
       )}
 
       {/* ÜST SATIR: Menü Çubuğu, Mod Switcher ve Sistem/Pencere Kontrolleri */}
-      <div className="h-9 flex items-center justify-between px-3 border-b border-slate-200/40 dark:border-slate-800/40 relative">
+      <div className="h-9 flex items-center justify-between px-3 border-b border-slate-200/40 dark:border-slate-800/40 relative z-30">
         {/* SOL: VS Code-Style Responsive Menu Bar */}
         <div
           id="native-menu-bar"
@@ -847,7 +876,7 @@ export function Header(): React.JSX.Element {
 
         {/* ORTA: Excel / Ofis Tarzı Çalışma Dosyası Başlığı ve Kayıt Durumu */}
         <div
-          className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1 rounded-md text-xs transition-all pointer-events-auto"
+          className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1 rounded-md text-xs transition-all pointer-events-auto z-40"
           style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
         >
           <div className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-200">
@@ -864,7 +893,7 @@ export function Header(): React.JSX.Element {
               {saveFeedback}
             </span>
           ) : isDirty ? (
-            <div className="relative" ref={dirtySummaryRef}>
+            <div className="relative z-50" ref={dirtySummaryRef}>
               <div className="inline-flex items-center shadow-xs rounded-full border border-amber-300/60 dark:border-amber-700/50 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300">
                 <button
                   onClick={handleSaveAndSync}
@@ -890,7 +919,7 @@ export function Header(): React.JSX.Element {
 
               {/* Tıklayınca Açılan Değişiklik Özeti Popover'ı */}
               {isDirtySummaryOpen && (
-                <div className="absolute top-full mt-1.5 left-1/2 -translate-x-1/2 w-80 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 p-3 z-50 animate-in fade-in-0 zoom-in-95 duration-100 text-left">
+                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-84 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200/90 dark:border-slate-800 p-3.5 z-50 animate-in fade-in-0 zoom-in-95 duration-100 text-left drop-shadow-2xl">
                   {/* Başlık */}
                   <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800">
                     <div className="flex items-center gap-1.5">
@@ -900,14 +929,17 @@ export function Header(): React.JSX.Element {
                       </span>
                     </div>
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
-                      {dirtySummary?.totalChanges || 0} işlem
+                      {dirtySummary?.totalChanges || 1} işlem
                     </span>
                   </div>
 
                   {/* Detay Listesi */}
                   <div className="max-h-48 overflow-y-auto space-y-1.5 pr-0.5 custom-scrollbar text-[11px]">
                     {isLoadingSummary ? (
-                      <div className="py-4 text-center text-slate-400 text-xs">Yükleniyor...</div>
+                      <div className="py-4 text-center text-slate-400 text-xs flex items-center justify-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                        <span>Yükleniyor...</span>
+                      </div>
                     ) : dirtySummary && dirtySummary.items.length > 0 ? (
                       dirtySummary.items.map((item, idx) => (
                         <div
@@ -931,10 +963,16 @@ export function Header(): React.JSX.Element {
                         </div>
                       ))
                     ) : (
-                      <div className="py-3 text-center text-slate-400 text-xs">
-                        {dirtySummary?.totalChanges
-                          ? `${dirtySummary.totalChanges} veri işlemi yapıldı.`
-                          : "Değişiklik detayı hazırlanıyor..."}
+                      <div className="py-4 text-center text-slate-500 dark:text-slate-400 text-xs flex flex-col items-center justify-center gap-1.5">
+                        <FileSpreadsheet className="w-5 h-5 text-amber-500 opacity-80" />
+                        <span className="font-medium text-slate-700 dark:text-slate-200">
+                          {dirtySummary && dirtySummary.totalChanges > 0
+                            ? `${dirtySummary.totalChanges} adet veri işlemi kaydedilmeyi bekliyor.`
+                            : "Çalışma dosyasında kaydedilmeyi bekleyen değişiklikler mevcut."}
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          Dosyayı senkronize etmek için aşağıdaki butona tıklayın.
+                        </span>
                       </div>
                     )}
                   </div>
@@ -1049,7 +1087,7 @@ export function Header(): React.JSX.Element {
 
       {/* ALT SATIR: Çalışma Dosyası Seçimi, Mod Rozeti & Süreç Butonları */}
       <div
-        className="min-h-9 py-1.5 flex items-center justify-between bg-slate-100/50 dark:bg-slate-950/20 border-t border-slate-200/30 dark:border-slate-800/30 select-none px-4 relative"
+        className="min-h-9 py-1.5 flex items-center justify-between bg-slate-100/50 dark:bg-slate-950/20 border-t border-slate-200/30 dark:border-slate-800/30 select-none px-4 relative z-10"
         style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
       >
         {/* Sol: İnce ve Şık Aktif Çalışma Modu Rozeti */}
