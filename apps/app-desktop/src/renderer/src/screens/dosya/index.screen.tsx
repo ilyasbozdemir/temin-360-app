@@ -25,6 +25,7 @@ import { PackageStructure } from './components/PackageStructure'
 import { SelectedFileInspector } from './components/SelectedFileInspector'
 import { UpdaterWidget } from './components/UpdaterWidget'
 import { ChangelogWidget } from './components/ChangelogWidget'
+import { DosyaNotlariWidget } from '../notlar/components/DosyaNotlariWidget'
 
 interface TableStat {
   tableName: string
@@ -571,6 +572,14 @@ export default function DosyaScreen(): React.JSX.Element {
                       </div>
                     </div>
                   </div>
+
+                  {/* Dosya Notları & Yapılacaklar (To-Do) Widget'ı */}
+                  {activeDosyaId && (
+                    <DosyaNotlariWidget
+                      dosyaId={activeDosyaId}
+                      dosyaNo={dosyaData.temin_no}
+                    />
+                  )}
 
                   {/* Aşamalar Kısayolu */}
                   <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">

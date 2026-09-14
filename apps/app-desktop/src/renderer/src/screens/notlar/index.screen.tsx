@@ -20,6 +20,7 @@ import { useNotlarHooks } from './notlar.hooks'
 import { NotKarti } from './components/NotKarti'
 import { NotModal } from './components/NotModal'
 import { NotVeGorev, NotFilterState, NotOncelik, NotTip, NOT_KATEGORILERI } from './types'
+import { useWorkspaceStore } from '../../store/workspaceStore'
 
 export default function NotlarVeGorevlerScreen(): React.JSX.Element {
   const {
@@ -34,12 +35,29 @@ export default function NotlarVeGorevlerScreen(): React.JSX.Element {
     deleteNot
   } = useNotlarHooks()
 
+  const { activeDosyaId } = useWorkspaceStore()
+
   // Filtre durumları
   const [search, setSearch] = useState('')
   const [tab, setTab] = useState<'all' | 'todo' | 'not' | 'completed'>('all')
   const [selectedOncelik, setSelectedOncelik] = useState<'all' | NotOncelik>('all')
   const [selectedKategori, setSelectedKategori] = useState('all')
-  const [selectedDosya, setSelectedDosya] = useState<number | 'all' | 'general'>('all')
+
+  // URL parametresi (?dosyaId=...) veya varsayılan seçim
+  const initialDosya = useMemo<number | 'all' | 'general'>(() => {
+    try {
+      const searchStr = window.location.search || window.location.hash.split('?')[1] || ''
+      const params = new URLSearchParams(searchStr)
+      const paramId = params.get('dosyaId')
+      if (paramId) {
+        const parsed = parseInt(paramId, 10)
+        if (!isNaN(parsed)) return parsed
+      }
+    } catch {}
+    return 'all'
+  }, [])
+
+  const [selectedDosya, setSelectedDosya] = useState<number | 'all' | 'general'>(initialDosya)
   const [viewMode, setViewMode] = useState<'list' | 'sticky'>('list')
 
   // Hızlı Ekleme Çubuğu Durumları
@@ -407,6 +425,25 @@ export default function NotlarVeGorevlerScreen(): React.JSX.Element {
               />
             </div>
 
+            {/* Aktif Dosya Hızlı Filtre Butonu */}
+            {activeDosyaId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedDosya((prev) => (prev === activeDosyaId ? 'all' : activeDosyaId))
+                }}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                  selectedDosya === activeDosyaId
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                    : 'bg-blue-50/80 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/60 hover:bg-blue-100 dark:hover:bg-blue-900/40'
+                }`}
+                title="Şu an seçili olan aktif dosyanın not ve görevlerini filtrele"
+              >
+                <Folder className="w-3.5 h-3.5" />
+                <span>Aktif Dosya Notları</span>
+              </button>
+            )}
+
             {/* Dosya Filtresi */}
             <select
               value={selectedDosya}
@@ -416,13 +453,15 @@ export default function NotlarVeGorevlerScreen(): React.JSX.Element {
                 else if (val === 'general') setSelectedDosya('general')
                 else setSelectedDosya(Number(val))
               }}
-              className="px-2.5 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 cursor-pointer max-w-[170px] truncate"
+              className="px-2.5 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 cursor-pointer max-w-42.5 truncate"
             >
               <option value="all">📁 Tüm Dosyalar</option>
               <option value="general">Genel Notlar</option>
               {dosyalar.map((d) => (
                 <option key={d.id} value={d.id}>
+                  {d.id === activeDosyaId ? '⭐ ' : ''}
                   {d.dosya_no ? `Dosya No: ${d.dosya_no}` : `Dosya #${d.id}`}
+                  {d.id === activeDosyaId ? ' (Aktif Dosya)' : ''}
                 </option>
               ))}
             </select>

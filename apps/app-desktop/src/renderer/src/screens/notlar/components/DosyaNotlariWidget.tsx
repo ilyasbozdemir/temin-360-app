@@ -77,8 +77,9 @@ export function DosyaNotlariWidget({
 
         <button
           type="button"
-          onClick={() => navigate({ to: '/notlar' as any })}
+          onClick={() => navigate({ to: '/notlar' as any, search: { dosyaId } as any })}
           className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+          title="Bu dosyanın tüm not ve görevlerini Notlar ekranında aç"
         >
           <span>Tüm Notlar</span>
           <ArrowRight className="w-3 h-3" />
