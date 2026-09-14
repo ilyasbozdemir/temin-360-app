@@ -26,6 +26,14 @@ export const TEMPLATE_OPTIONS: TemplateOptionItem[] = [
     description: "Alımı yapılacak kalemlerin teknik özellikleri ve adetleri",
   },
   {
+    id: "son-alim-fiyat-cetveli",
+    name: "SonAlimFiyatCetveli",
+    title: "Son Alım Fiyat Cetveli",
+    category: "1-ihtiyac-tespiti-ve-baslangic",
+    categoryLabel: "Hazırlık & İhtiyaç",
+    description: "Belirtilen kalemlerin geçmiş alım fiyatları ve yaklaşık maliyet araştırma cetveli",
+  },
+  {
     id: "ihtiyac-talep-formu",
     name: "IhtiyacTalepFormu",
     title: "İhtiyaç Talep Formu",
@@ -297,9 +305,12 @@ export const TEMPLATE_ALIASES: Record<string, string> = {
   "yaklasik-maliyet-hesap-cetveli": "yaklasik-maliyet-cetveli",
   "yaklasik-maliyet": "yaklasik-maliyet-cetveli",
   "yaklasik": "yaklasik-maliyet-cetveli",
-  "son-alim-fiyat-cetveli": "yaklasik-maliyet-cetveli",
-  "son-alim": "yaklasik-maliyet-cetveli",
-  "fiyat-cetveli": "yaklasik-maliyet-cetveli",
+  "son-alim-fiyat-cetveli": "son-alim-fiyat-cetveli",
+  "son-alim": "son-alim-fiyat-cetveli",
+  "son-alim-fiyatlari": "son-alim-fiyat-cetveli",
+  "sonalimfiyatcetveli": "son-alim-fiyat-cetveli",
+  "sonalim": "son-alim-fiyat-cetveli",
+  "fiyat-cetveli": "son-alim-fiyat-cetveli",
   "maliyet-cetveli": "yaklasik-maliyet-cetveli",
 
   // Kabul Edilen Teklif, Sipariş Formu, Sözleşme (Aşama 3)
@@ -423,7 +434,9 @@ export function resolveTemplateConfig(
 
   // 4. Substring / Keyword heuristic matching
   let resolvedId = "ihtiyac-listesi";
-  if (cleanKey.includes("talep")) {
+  if (cleanKey.includes("son-alim") || cleanKey.includes("sonalim")) {
+    resolvedId = "son-alim-fiyat-cetveli";
+  } else if (cleanKey.includes("talep")) {
     resolvedId = "ihtiyac-talep-formu";
   } else if (
     cleanKey.includes("ihtiyac") ||

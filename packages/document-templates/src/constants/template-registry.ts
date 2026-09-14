@@ -92,6 +92,12 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     supportsOlur: true,
   },
   {
+    id: "son-alim-fiyat-cetveli",
+    name: "SonAlimFiyatCetveli",
+    category: "1-ihtiyac-tespiti-ve-baslangic",
+    supportsOlur: true,
+  },
+  {
     id: "yaklasik-maliyet-cetveli",
     name: "YaklasikMaliyetCetveli",
     category: "2-piyasa-fiyat-arastirmasi",

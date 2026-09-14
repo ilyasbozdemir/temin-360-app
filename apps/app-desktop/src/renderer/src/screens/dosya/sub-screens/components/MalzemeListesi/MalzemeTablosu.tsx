@@ -23,7 +23,7 @@ import {
 } from "./components/KomisyonAtamaModal";
 import { useSettingsStore } from "../../../../../store/settingsStore";
 import { PrintDropdownButtonV2 } from "@renderer/screens/dosya/components/PrintDropdownButtonV2";
-import { normalizeForMatch } from "../../DosyaAsamalari/useDosyaAsamasiSablonsV2";
+import { findSablonByAlias } from "../../DosyaAsamalari/constants/sablonAliases";
 import { exportDogrudanTeminMasterExcel } from "../../../../../services/excelExportService";
 import { useGlobalDocumentPreviewStore } from "../../../../../store/globalDocumentPreviewStore";
 
@@ -522,112 +522,8 @@ export function MalzemeTablosu({
   }, [stageSablons, komisyonSablons]);
 
   const handleOpenSablonByDosyaAdi = (targetKey: string) => {
-    const ALIAS_MAP: Record<string, string[]> = {
-      "teklif-isteme-mektubu": [
-        "fiyat-arastirma-mektubu",
-        "arastirma-mektubu",
-        "birim-fiyat-teklif-mektubu",
-        "teklif-isteme-mektubu",
-      ],
-      "teklif-mektubu-dagitim": [
-        "dagitim-cizelgesi",
-        "teklif-mektubu-dagitim-cizelgesi",
-        "teklif-mektubu-dagitim",
-      ],
-      "teklif-mektubu-dagitim-karma": [
-        "dagitim-cizelgesi-karma",
-        "teklif-mektubu-dagitim-karma",
-        "teklif-mektubu-karma",
-      ],
-      "firmalar-teklif-cetveli": [
-        "birim-fiyat-teklif-cetveli",
-        "firmalar-teklif-cetveli",
-        "piyasa-fiyat-arastirmasi-sonuc-cetveli",
-      ],
-      "yasaklilik-sorgulama-tutanagi": [
-        "yasaklilik-sorgulama-tutanagi",
-        "yasaklilik-sorgulama",
-        "ekap-yasaklilik",
-      ],
-      "piyasa-fiyat-arastirma-gorevlendirmesi": [
-        "piyasa-fiyat-arastirma-gorevlendirmesi",
-      ],
-      "piyasa-fiyat-arastirma-tutanagi": [
-        "piyasa-fiyat-arastirma-tutanagi",
-        "fiyat-arastirmasi-tutanagi",
-      ],
-      "yaklasik-maliyet-cetveli": [
-        "yaklasik-maliyet-cetveli",
-        "yaklasik-maliyet-hesap-cetveli",
-      ],
-      "dogrudan-temin-onay-belgesi": [
-        "dogrudan-temin-onay-belgesi",
-        "idare-onay-belgesi",
-        "onay-belgesi",
-      ],
-      "komisyon-gorevlendirme-onayi": [
-        "komisyon-gorevlendirme-onayi",
-        "gorevlendirme-onayi",
-        "yaklasik-maliyet-tespit-komisyonu",
-        "piyasa-fiyat-arastirma-gorevlendirmesi",
-      ],
-      "yaklasik-maliyet-tespit-komisyonu": [
-        "yaklasik-maliyet-tespit-komisyonu",
-        "komisyon-gorevlendirme-onayi",
-        "gorevlendirme-onayi",
-        "yaklasik-maliyet-cetveli",
-      ],
-      "muayene-kabul-komisyonu": [
-        "muayene-kabul-komisyonu",
-        "muayene-kabul-ve-tespit-komisyonu",
-        "komisyon-gorevlendirme-onayi",
-      ],
-      "komisyon-gorevlendirme-onayi-eki": [
-        "komisyon-gorevlendirme-onayi-eki",
-        "gorevlendirme-onay-eki",
-        "komisyon-atama-onay-eki",
-      ],
-    };
-
     const cleanTarget = targetKey.replace(/\.html$/, "").toLowerCase().trim();
-    const candidateKeys = ALIAS_MAP[cleanTarget] || [cleanTarget];
-
-    let foundSablon: any = null;
-
-    if (sablons && sablons.length > 0) {
-      // 1. Exact match on dosya_adi (with or without .html)
-      for (const key of candidateKeys) {
-        foundSablon = sablons.find((s: any) => {
-          const fileBase = (s.dosya_adi || "").replace(/\.html$/, "")
-            .toLowerCase().trim();
-          return fileBase === key;
-        });
-        if (foundSablon) break;
-      }
-
-      // 2. Exact match on route_path or id
-      if (!foundSablon) {
-        for (const key of candidateKeys) {
-          foundSablon = sablons.find((s: any) => {
-            const route = (s.route_path || s.id || "").toLowerCase().trim();
-            return route === key;
-          });
-          if (foundSablon) break;
-        }
-      }
-
-      // 3. Fallback: Normalized title exact match to prevent cross-contamination
-      if (!foundSablon) {
-        for (const key of candidateKeys) {
-          const normKey = normalizeForMatch(key);
-          foundSablon = sablons.find((s: any) => {
-            const normSablonName = normalizeForMatch(s.ad || s.dosya_adi || "");
-            return normSablonName === normKey;
-          });
-          if (foundSablon) break;
-        }
-      }
-    }
+    const foundSablon = findSablonByAlias(sablons, cleanTarget);
 
     if (foundSablon && onSablonClick) {
       onSablonClick(foundSablon, foundSablon.ad);
@@ -718,7 +614,9 @@ export function MalzemeTablosu({
             title="Doğrudan Temin Dosya Excel Raporunu (.xlsx) İndir"
           >
             <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span>{isExportingMasterExcel ? "Hazırlanıyor..." : "Excel Raporu"}</span>
+            <span>
+              {isExportingMasterExcel ? "Hazırlanıyor..." : "Excel Raporu"}
+            </span>
           </button>
 
           <button

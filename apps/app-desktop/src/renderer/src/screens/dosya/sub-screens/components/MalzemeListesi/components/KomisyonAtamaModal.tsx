@@ -400,7 +400,9 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
               : "Muayene Kabul ve Tespit Komisyonu"}
           </h3>
           <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-            Dosya için görevlendirilecek personelleri seçiniz. Boş bırakılan satırlar belgeye dahil edilmez.
+            {activeTab === "yaklasik_maliyet"
+              ? "Komisyon Görevlendirme Onayı (ve eki) resmi belgesi için belirlenen standart kadrodur. Boş bırakılan satırlar belgeye dahil edilmez."
+              : "Muayene Kabul Komisyon Onay Yazısı ve tutanak belgeleri için belirlenen standart kadrodur. Boş bırakılan satırlar belgeye dahil edilmez."}
           </p>
         </div>
 

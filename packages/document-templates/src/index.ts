@@ -32,6 +32,7 @@ export * from "./templates/dogrudan-temin-sonuc-onay-belgesi";
 export * from "./templates/dogrudan-temin-sozlesmesi";
 export * from "./templates/sozlesmeye-davet";
 export * from "./templates/muayene-kabul-komisyonu";
+export * from "./templates/son-alim-fiyat-cetveli";
 
 // Mapping Resolver
 export * from "./resolver/types";

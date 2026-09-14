@@ -567,6 +567,38 @@ export function useDocumentPreviewData({
           }
         }
 
+        // Son alım fiyat cetveli kalemleri
+        if (
+          (!baseData.fiyatKalemleri || baseData.fiyatKalemleri.length === 0) &&
+          baseData.ihtiyacKalemleri &&
+          baseData.ihtiyacKalemleri.length > 0
+        ) {
+          baseData.fiyatKalemleri = baseData.ihtiyacKalemleri.map((k: any, idx: number) => {
+            const birimFiyatStr =
+              k.enDusukFiyat && k.enDusukFiyat !== "-"
+                ? k.enDusukFiyat
+                : (k.birimFiyat ? Number(k.birimFiyat).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0,00");
+            const toplamTutarStr =
+              k.toplamBedel && k.toplamBedel !== "-"
+                ? k.toplamBedel
+                : (k.toplamTutar ? Number(k.toplamTutar).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0,00");
+
+            return {
+              siraNo: k.siraNo || idx + 1,
+              malzemeKodu: k.kodu || k.malzemeKodu || k.tasinir_kodu || "-",
+              malzemeAdi: k.malzemeAdi || k.kalem_adi || "",
+              ozelligi: k.ozelligi || k.aciklama || "",
+              birimi: k.birimi || k.birim || "",
+              kdvOrani: k.kdvOrani ? String(k.kdvOrani).replace("%", "") : "20",
+              miktar: k.miktar || 1,
+              birimFiyat: birimFiyatStr,
+              toplamTutar: toplamTutarStr,
+              kazananFirma: k.kazananFirma || winnerFirm?.unvan || k.enUygunFirmaAdi || "-",
+              alimTarihi: k.alimTarihi || dosyaObj.sozlesme_tarihi || dosyaObj.dosya_acilis_tarihi || dosyaObj.tarih || "-",
+            };
+          });
+        }
+
         // 2. Fetch direct JSON Snapshot from DB if available
         let snapshotData = payloadData.savedSnapshot;
         if (activeDosyaId) {
