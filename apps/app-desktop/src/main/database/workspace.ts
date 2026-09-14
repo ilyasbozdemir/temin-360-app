@@ -54,6 +54,61 @@ function normalizeMeta(raw: any): WorkspaceMeta {
   }
 }
 
+export interface MutationSummaryItem {
+  tableName: string
+  title: string
+  action: 'insert' | 'update' | 'delete' | 'other'
+  actionLabel: string
+  count: number
+  lastTime: string
+}
+
+export const TABLE_FRIENDLY_NAMES: Record<string, string> = {
+  DATA_TeminDosyasi: 'Doğrudan Temin / İhale Dosyası',
+  DATA_Kalemler: 'Malzeme & Kalem Listesi',
+  DATA_Malzemeler: 'Malzeme Tanımları',
+  DATA_YaklasikMaliyet: 'Yaklaşık Maliyet Cetveli',
+  DATA_YaklasikMaliyetFirmaFiyat: 'Piyasa Fiyat Teklifleri',
+  DATA_Komisyonlar: 'Komisyon & Kurul Kaydı',
+  DATA_KomisyonUyeleri: 'Komisyon Üyeleri',
+  DATA_DosyaSablonVeri: 'Belge & Şablon Verisi',
+  DATA_Hakedis: 'Hakediş & Ödeme Kaydı',
+  DATA_HakedisKalemler: 'Hakediş Kalemleri',
+  DATA_Sozlesme: 'Sözleşme Bilgileri',
+  DATA_MuayeneKabul: 'Muayene & Kabul Tutanağı',
+  DATA_Faturalar: 'Fatura & İrsaliye',
+  DATA_Teklifler: 'Firma Teklifleri',
+  DATA_BirimFiyatCetveli: 'Birim Fiyat Cetveli',
+  TANIM_Personel: 'Personel Tanımı',
+  TANIM_Firmalar: 'Firma Tanımı',
+  TANIM_Birimler: 'Birim Tanımı',
+  TANIM_Pozlar: 'Poz / Birim Fiyat',
+  TANIM_Ambarlar: 'Ambar Tanımı',
+  settings: 'Kurum / Sistem Ayarları',
+  attachments: 'Ek Dosyalar & Belgeler'
+}
+
+export function extractTableAndAction(sql: string): {
+  tableName: string
+  action: 'insert' | 'update' | 'delete' | 'other'
+} {
+  if (!sql || typeof sql !== 'string') return { tableName: 'Veritabanı', action: 'other' }
+  const clean = sql.trim().replace(/\s+/g, ' ')
+  const upper = clean.toUpperCase()
+  let action: 'insert' | 'update' | 'delete' | 'other' = 'other'
+
+  if (upper.startsWith('INSERT')) action = 'insert'
+  else if (upper.startsWith('UPDATE')) action = 'update'
+  else if (upper.startsWith('DELETE')) action = 'delete'
+
+  let tableName = 'Veritabanı'
+  const match = clean.match(/(?:FROM|INTO|UPDATE)\s+([A-Za-z0-9_]+)/i)
+  if (match && match[1]) {
+    tableName = match[1]
+  }
+  return { tableName, action }
+}
+
 export function ensureSchemaIntegrity(db: Database.Database): void {
   // Explicit migration for TANIM_Firma CRM columns to guarantee backwards-compatibility
   const firmaCrmColumns = [
@@ -944,6 +999,8 @@ export class DtmWorkspace {
   private initialDataVersion: number = 0
   private userMutationCount: number = 0
   private isDirty: boolean = false
+  private mutationMap: Map<string, MutationSummaryItem> = new Map()
+  private lastMutationTime: string | null = null
 
   constructor() {
     this.tempDir = path.join(app.getPath('userData'), 'dtm_temp', Date.now().toString())
@@ -1196,6 +1253,8 @@ export class DtmWorkspace {
     this.initialHash = this.calculateCurrentHash()
     this.initialDataVersion = this.getDataVersion()
     this.userMutationCount = 0
+    this.mutationMap.clear()
+    this.lastMutationTime = null
     this.isDirty = false
     this.notifyDirtyChange(false)
     return meta
@@ -1306,6 +1365,8 @@ export class DtmWorkspace {
       this.initialHash = this.calculateCurrentHash()
       this.initialDataVersion = this.getDataVersion()
       this.userMutationCount = 0
+      this.mutationMap.clear()
+      this.lastMutationTime = null
       this.isDirty = false
       this.notifyDirtyChange(false)
       return meta
@@ -1488,30 +1549,81 @@ export class DtmWorkspace {
     }
   }
 
-  public recordMutation(): void {
-    this.userMutationCount++
-    if (!this.isDirty) {
-      this.isDirty = true
-      this.notifyDirtyChange(true)
+  public recordMutation(tableName?: string, action?: string, count: number = 1): void {
+    const table = tableName || 'Veritabanı'
+    if (table.toUpperCase() === 'LOG_SYSTEMLOG') {
+      return // Sistem logları kullanıcı mutasyonu değildir!
     }
+
+    this.userMutationCount += count
+    this.isDirty = true
+    const now = new Date()
+    const timeStr = now.toLocaleTimeString('tr-TR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    })
+    this.lastMutationTime = timeStr
+
+    const act = (action as 'insert' | 'update' | 'delete' | 'other') || 'other'
+    const key = `${table}_${act}`
+    const existing = this.mutationMap.get(key)
+
+    const actionLabels: Record<string, string> = {
+      insert: 'Yeni Kayıt Eklendi',
+      update: 'Güncellendi',
+      delete: 'Silindi',
+      other: 'İşlem Yapıldı'
+    }
+
+    const title = TABLE_FRIENDLY_NAMES[table] || table
+
+    if (existing) {
+      existing.count += count
+      existing.lastTime = timeStr
+    } else {
+      this.mutationMap.set(key, {
+        tableName: table,
+        title,
+        action: act,
+        actionLabel: actionLabels[act] || 'İşlem',
+        count,
+        lastTime: timeStr
+      })
+    }
+
+    this.notifyDirtyChange(true)
   }
 
   public isDirtyState(): boolean {
     if (!this.db || !this.currentFilePath) return false
-    if (this.isDirty || this.userMutationCount > 0) return true
-    const currentDataVersion = this.getDataVersion()
-    if (this.initialDataVersion > 0 && currentDataVersion !== this.initialDataVersion) {
-      return true
-    }
+    // Kullanıcı tarafından gerçekleştirilen en az bir gerçek mutasyon varsa kirli kabul et
+    if (this.isDirty && this.userMutationCount > 0) return true
     return false
   }
 
   public resetDirty(): void {
     this.isDirty = false
     this.userMutationCount = 0
+    this.mutationMap.clear()
+    this.lastMutationTime = null
     this.initialDataVersion = this.getDataVersion()
     this.initialHash = this.calculateCurrentHash()
     this.notifyDirtyChange(false)
+  }
+
+  public getDirtySummary(): {
+    isDirty: boolean
+    totalChanges: number
+    lastModifiedAt: string | null
+    items: MutationSummaryItem[]
+  } {
+    return {
+      isDirty: this.isDirtyState(),
+      totalChanges: this.userMutationCount,
+      lastModifiedAt: this.lastMutationTime,
+      items: Array.from(this.mutationMap.values())
+    }
   }
 
   public notifyDirtyChange(dirty: boolean): void {
@@ -1606,8 +1718,14 @@ export const workspaceManager = {
   save: () => {
     if (activeWorkspace) activeWorkspace.saveWorkspace()
   },
-  recordMutation: () => {
-    if (activeWorkspace) activeWorkspace.recordMutation()
+  recordMutation: (tableName?: string, action?: string, count: number = 1) => {
+    if (activeWorkspace) activeWorkspace.recordMutation(tableName, action, count)
+  },
+  getDirtySummary: () => {
+    if (!activeWorkspace) {
+      return { isDirty: false, totalChanges: 0, lastModifiedAt: null, items: [] }
+    }
+    return activeWorkspace.getDirtySummary()
   },
   isDirty: () => {
     if (!activeWorkspace) return false

@@ -951,6 +951,21 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
     return { success: true, isDirty: workspaceManager.isDirty() }
   })
 
+  ipcMain.handle('workspace:get-dirty-summary', async () => {
+    try {
+      return { success: true, ...workspaceManager.getDirtySummary() }
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+        isDirty: false,
+        totalChanges: 0,
+        lastModifiedAt: null,
+        items: []
+      }
+    }
+  })
+
   ipcMain.handle('workspace:get-meta', async () => {
     try {
       const meta = workspaceManager.getMeta()

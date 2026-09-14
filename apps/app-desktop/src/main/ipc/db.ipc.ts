@@ -1,7 +1,11 @@
 import { ipcMain, dialog } from 'electron'
 import fs from 'fs'
 import * as XLSX from 'xlsx'
-import { workspaceManager, ensureSchemaIntegrity } from '../database/workspace'
+import {
+  workspaceManager,
+  ensureSchemaIntegrity,
+  extractTableAndAction
+} from '../database/workspace'
 import { validateSqlQuery } from './utils/sqlGuard'
 import { withSchemaRetry } from './utils/schemaRetry'
 
@@ -38,7 +42,8 @@ export function registerDbIpcHandlers(): void {
         const db = workspaceManager.getDb()
         const stmt = db.prepare(sql)
         const info = stmt.run(...params)
-        workspaceManager.recordMutation()
+        const { tableName, action } = extractTableAndAction(sql)
+        workspaceManager.recordMutation(tableName, action, info.changes || 1)
         workspaceManager.save()
         return { success: true, lastInsertRowid: info.lastInsertRowid, changes: info.changes }
       }
@@ -65,7 +70,8 @@ export function registerDbIpcHandlers(): void {
         const db = workspaceManager.getDb()
         const stmt = db.prepare(sql)
         const info = stmt.run(...actualParams)
-        workspaceManager.recordMutation()
+        const { tableName, action } = extractTableAndAction(sql)
+        workspaceManager.recordMutation(tableName, action, info.changes || 1)
         workspaceManager.save()
         return { success: true, lastInsertRowid: info.lastInsertRowid, changes: info.changes }
       }
@@ -100,11 +106,12 @@ export function registerDbIpcHandlers(): void {
           const info = stmt.run(...q.params)
           lastInsertRowid = info.lastInsertRowid
           totalChanges += info.changes
+          const { tableName, action } = extractTableAndAction(q.sql)
+          workspaceManager.recordMutation(tableName, action, info.changes || 1)
         }
       })
 
       transaction(queries)
-      workspaceManager.recordMutation()
       workspaceManager.save()
 
       return { success: true, lastInsertRowid, changes: totalChanges }
