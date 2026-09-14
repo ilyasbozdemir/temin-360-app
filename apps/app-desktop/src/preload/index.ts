@@ -40,6 +40,7 @@ const allowedChannels = new Set([
   'workspace:save',
   'workspace:close',
   'workspace:check-changes',
+  'workspace:get-dirty-summary',
   'workspace:get-meta',
   'workspace:backup',
   'workspace:backup-server',

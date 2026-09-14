@@ -4,7 +4,6 @@ import {
   FileText,
   Plus,
   Search,
-  Filter,
   Layers,
   LayoutList,
   LayoutGrid,
@@ -13,16 +12,17 @@ import {
   AlertTriangle,
   Folder,
   Sparkles,
-  ArrowUpDown,
   RotateCw
 } from 'lucide-react'
+import { useLocation } from '@tanstack/react-router'
 import { useNotlarHooks } from './notlar.hooks'
 import { NotKarti } from './components/NotKarti'
 import { NotModal } from './components/NotModal'
-import { NotVeGorev, NotFilterState, NotOncelik, NotTip, NOT_KATEGORILERI } from './types'
+import { NotVeGorev, NotOncelik, NotTip, NOT_KATEGORILERI } from './types'
 import { useWorkspaceStore } from '../../store/workspaceStore'
 
 export default function NotlarVeGorevlerScreen(): React.JSX.Element {
+  const location = useLocation()
   const {
     notlar,
     isLoadingNotlar,
@@ -43,21 +43,45 @@ export default function NotlarVeGorevlerScreen(): React.JSX.Element {
   const [selectedOncelik, setSelectedOncelik] = useState<'all' | NotOncelik>('all')
   const [selectedKategori, setSelectedKategori] = useState('all')
 
-  // URL parametresi (?dosyaId=...) veya varsayılan seçim
-  const initialDosya = useMemo<number | 'all' | 'general'>(() => {
+  // URL parametresinden veya hash'ten dosyaId oku
+  const paramDosyaId = useMemo<number | null>(() => {
     try {
-      const searchStr = window.location.search || window.location.hash.split('?')[1] || ''
-      const params = new URLSearchParams(searchStr)
-      const paramId = params.get('dosyaId')
-      if (paramId) {
-        const parsed = parseInt(paramId, 10)
+      const searchObj = (location.search as Record<string, unknown>) || {}
+      if (searchObj.dosyaId) {
+        const parsed = parseInt(String(searchObj.dosyaId), 10)
         if (!isNaN(parsed)) return parsed
       }
-    } catch {}
-    return 'all'
-  }, [])
+      const rawHash = window.location.hash || ''
+      const match = rawHash.match(/[?&]dosyaId=([0-9]+)/)
+      if (match && match[1]) {
+        const parsed = parseInt(match[1], 10)
+        if (!isNaN(parsed)) return parsed
+      }
+    } catch (e) {
+      void e
+    }
+    return null
+  }, [location.search, location.hash])
 
-  const [selectedDosya, setSelectedDosya] = useState<number | 'all' | 'general'>(initialDosya)
+  // Kullanıcı filtreyi elle değiştirdiğinde override kullanılır, aksi halde URL parametresi veya 'all' geçerlidir
+  const [selectedDosyaOverride, setSelectedDosyaOverride] = useState<number | 'all' | 'general' | null>(null)
+  const selectedDosya = selectedDosyaOverride !== null ? selectedDosyaOverride : (paramDosyaId ?? 'all')
+  const setSelectedDosya = (
+    val:
+      | number
+      | 'all'
+      | 'general'
+      | ((prev: number | 'all' | 'general') => number | 'all' | 'general')
+  ): void => {
+    if (typeof val === 'function') {
+      setSelectedDosyaOverride((prev) => {
+        const current = prev !== null ? prev : (paramDosyaId ?? 'all')
+        return val(current)
+      })
+    } else {
+      setSelectedDosyaOverride(val)
+    }
+  }
   const [viewMode, setViewMode] = useState<'list' | 'sticky'>('list')
 
   // Hızlı Ekleme Çubuğu Durumları
