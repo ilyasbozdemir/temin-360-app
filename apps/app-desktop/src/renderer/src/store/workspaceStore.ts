@@ -153,7 +153,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
           actualFilePath
             .split(/[/\\]/)
             .pop()
-            ?.replace(/\.(temin|hkmp|dtal|dtm|dte)$/i, '') ||
+            ?.replace(/\.(temin|hkmp|dtal|dtm|dte|dta|tmn360)$/i, '') ||
           'Bilinmeyen Kurum'
         window.electron.ipcRenderer
           .invoke('app:add-recent-file', actualFilePath, nameWithoutExt)
@@ -204,7 +204,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
           actualFilePath
             .split(/[/\\]/)
             .pop()
-            ?.replace(/\.(temin|hkmp|dtal|dtm|dte)$/i, '') ||
+            ?.replace(/\.(temin|hkmp|dtal|dtm|dte|dta|tmn360)$/i, '') ||
           'Bilinmeyen Kurum'
         window.electron.ipcRenderer
           .invoke('app:add-recent-file', actualFilePath, nameWithoutExt)

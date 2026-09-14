@@ -40,6 +40,16 @@ export const SUPPORTED_FORMATS: FileFormat[] = [
     ext: 'dte',
     label: 'TEMİN 360 Veri Aktarım Dosyası (.dte)',
     dialogName: 'TEMİN 360 / DTE Dosyası (*.dte)'
+  },
+  {
+    ext: 'dta',
+    label: 'TEMİN 360 / DTA Dosyası (Eski .dta)',
+    dialogName: 'TEMİN 360 / DTA Dosyası (*.dta)'
+  },
+  {
+    ext: 'tmn360',
+    label: 'TEMİN 360 Arşiv Paketi (.tmn360)',
+    dialogName: 'TEMİN 360 Arşiv Paketi (*.tmn360)'
   }
 ]
 

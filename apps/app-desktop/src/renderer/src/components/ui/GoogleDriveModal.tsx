@@ -82,7 +82,7 @@ export function GoogleDriveModal(
         if (validList.length === 0) {
           setStatusMsg({
             text:
-              "TEMIN_360_YEDEKLER klasöründe henüz `.dtal` uzantılı yedek dosyası bulunamadı.",
+              "TEMIN_360_YEDEKLER klasöründe henüz proje yedek dosyası bulunamadı.",
             type: "info",
           });
         }
@@ -965,7 +965,7 @@ export function GoogleDriveModal(
                 <div className="p-8 text-center text-xs text-slate-400 dark:text-slate-500">
                   {!isConnected
                     ? "Devam etmek için lütfen yukarıdan Google Hesabınızla bağlanın veya Access Token kaydedin."
-                    : 'TEMIN_360_YEDEKLER klasöründe henüz .dtal yedek dosyası yok. Yukarıdaki "Aktif Dosyayı Buluta Yükle" butonuyla ilk yedeğinizi yükleyebilirsiniz.'}
+                    : 'TEMIN_360_YEDEKLER klasöründe henüz proje yedek dosyası yok. Yukarıdaki "Aktif Dosyayı Buluta Yükle" butonuyla ilk yedeğinizi yükleyebilirsiniz.'}
                 </div>
               )
               : (

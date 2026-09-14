@@ -1,6 +1,6 @@
 import AdmZip from 'adm-zip'
 import Database from 'better-sqlite3'
-import { app, dialog } from 'electron'
+import { app } from 'electron'
 import fs from 'fs'
 import path from 'path'
 import crypto from 'crypto'
@@ -8,7 +8,7 @@ import { initializeDatabase, schema } from './index'
 import { runMigrations, CURRENT_SCHEMA_VERSION, getPendingMigrations } from '@dt/database'
 import tasinirKodlariSeed from './seed/tasinir_kodlari.json'
 import yiUfeSeed from './seed/yi_ufe_endeksleri.json'
-import { recentFilesStore } from '../store/recentFiles'
+import { allExtensions, defaultFormat } from '../config/fileFormats'
 
 export interface WorkspaceMeta {
   dtal_version: string
@@ -1130,60 +1130,18 @@ export class DtmWorkspace {
       }
     }
 
-    // Otomatik uzantıyı .hkmp yapma mantığı (Eski formatlar için)
-    if (!filePath.toLowerCase().endsWith('.hkmp')) {
-      const ext = path.extname(filePath)
-      const fileName = path.basename(filePath)
-      const response = dialog.showMessageBoxSync({
-        type: 'question',
-        buttons: ['Evet, (.hkmp) Formatına Yükselt (Önerilen)', 'Hayır, Eski Uzantıda Devam Et'],
-        defaultId: 0,
-        title: 'Dosya Formatı Yükseltme',
-        message: `"${fileName}" dosyası eski bir formatta (${ext || 'uzantısız'}).\n\nUygulama performansı ve tam uyumluluk için dosyanın yeni TEMİN 360 (.hkmp) formatına yükseltilmesi önerilir.\n\nDosya formatı .hkmp olarak güncellensin mi?`
-      })
-
-      if (response === 0) {
-        const newFilePath = filePath.substring(0, filePath.length - ext.length) + '.hkmp'
-
-        const newLockPath = newFilePath + '.lock'
-        try {
-          fs.writeFileSync(newLockPath, process.pid.toString(), { encoding: 'utf-8' })
-
-          // Asıl dosyayı da yeniden adlandır ki kullanıcı eski dosyayı tekrar açmasın
-          if (fs.existsSync(filePath)) {
-            fs.renameSync(filePath, newFilePath)
-          }
-
-          if (fs.existsSync(lockPath)) {
-            fs.unlinkSync(lockPath)
-          }
-          this.currentFilePath = newFilePath
-
-          // Son açılanlar listesini güncelle
-          try {
-            recentFilesStore.removeRecentFile(filePath)
-            const instName = meta.institution || path.basename(newFilePath, '.hkmp')
-            recentFilesStore.addRecentFile(newFilePath, instName)
-          } catch (recentErr) {
-            console.error('Son açılanlar güncellenirken hata:', recentErr)
-          }
-        } catch (err: any) {
-          console.error('Uzantı değiştirilirken hata oluştu:', err)
-          // Eğer adlandırma başarısız olursa (ör. izin hatası), en azından orijinal yolda kal
-          this.currentFilePath = filePath
-        }
-      }
-    }
-
     this.meta = meta
     this.initialHash = this.calculateCurrentHash()
     return meta
   }
 
   public createWorkspace(filePath: string, institutionName: string): WorkspaceMeta {
-    if (!filePath.toLowerCase().endsWith('.hkmp')) {
-      const ext = path.extname(filePath)
-      filePath = (ext ? filePath.substring(0, filePath.length - ext.length) : filePath) + '.hkmp'
+    const ext = path.extname(filePath).toLowerCase().replace(/^\./, '')
+    // Kullanıcının seçtiği geçerli uzantıyı (.temin, .hkmp, .dtal, .dtm, .dte, .dta) koru
+    // Eğer uzantı girilmemişse veya desteklenmeyen bir uzantıysa varsayılan .temin uzantısını ekle
+    if (!ext || !allExtensions.includes(ext)) {
+      const base = ext ? filePath.substring(0, filePath.length - (ext.length + 1)) : filePath
+      filePath = `${base}.${defaultFormat.ext}`
     }
     const lockPath = filePath + '.lock'
     if (fs.existsSync(lockPath)) {

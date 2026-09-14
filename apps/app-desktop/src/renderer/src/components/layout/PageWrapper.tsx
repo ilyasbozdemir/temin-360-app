@@ -540,38 +540,40 @@ export function PageWrapper(): React.ReactNode {
       }
     }
 
-    // Check if app was launched by double clicking a file
-    window.electron?.ipcRenderer.invoke('get-initial-file').then(async (filePath) => {
-      if (filePath) {
+    const handleOpenExternalWorkspace = async (filePath: string) => {
+      if (!filePath) return
+      try {
         if (filePath.toLowerCase().endsWith('.dte')) {
           handleDteFileOpen(filePath)
-        } else {
-          const result = await openWorkspace(filePath)
-          if (result.success) {
-            queryClient.clear()
-            clearTabs()
-            navigate({ to: '/' })
-          }
+          return
         }
+
+        let result = await openWorkspace(filePath, false)
+        if (result.requiresMigration) {
+          result = await openWorkspace(filePath, true)
+        }
+
+        if (result.success) {
+          queryClient.clear()
+          clearTabs()
+          navigate({ to: '/' })
+        } else if (result.error) {
+          alert(`Çalışma dosyası açılamadı!\n\nDosya: ${filePath}\nHata: ${result.error}`)
+        }
+      } catch (err: any) {
+        console.error('External file open error:', err)
+        alert(`Çalışma dosyası açılırken hata oluştu!\n\nHata: ${err.message}`)
       }
-    })
+    }
+
+    // Check if app was launched by double clicking a file
+    window.electron?.ipcRenderer.invoke('get-initial-file').then(handleOpenExternalWorkspace)
 
     // Listen for files opened while app is already running
     const removeListener = window.electron?.ipcRenderer.on(
       'open-external-file',
       async (_, filePath) => {
-        if (filePath) {
-          if (filePath.toLowerCase().endsWith('.dte')) {
-            handleDteFileOpen(filePath)
-          } else {
-            const result = await openWorkspace(filePath)
-            if (result.success) {
-              queryClient.clear()
-              clearTabs()
-              navigate({ to: '/' })
-            }
-          }
-        }
+        handleOpenExternalWorkspace(filePath)
       }
     )
 

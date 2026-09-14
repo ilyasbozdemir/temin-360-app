@@ -510,6 +510,21 @@ if (!gotTheLock && !isMultiInstance) {
           description: 'Hızlıca yeni bir doğrudan temin dosyası oluşturun'
         }
       ])
+
+      // Windows Explorer dosya ilişkilendirmesi ve simgesini garanti altına al
+      try {
+        const { execFile } = require('child_process')
+        const exePath = process.execPath
+        execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\.temin', '/ve', '/d', 'Temin360.Document', '/f'], () => {
+          execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document', '/ve', '/d', 'TEMİN 360 Proje Dosyası', '/f'], () => {
+            execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document\\DefaultIcon', '/ve', '/d', `"${exePath}",0`, '/f'], () => {
+              execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document\\shell\\open\\command', '/ve', '/d', `"${exePath}" "%1"`, '/f'], () => {})
+            })
+          })
+        })
+      } catch (regErr) {
+        // İsteğe bağlı, sessizce geç
+      }
     }
 
     tray = new Tray(icon)
@@ -567,7 +582,7 @@ if (!gotTheLock && !isMultiInstance) {
     })
 
     // Set app user model id for windows
-    electronApp.setAppUserModelId('com.electron')
+    electronApp.setAppUserModelId('dev.ilyasbozdemir.temin360')
 
     // Default open or close DevTools by F12 in development
     // and ignore CommandOrControl + R in production.

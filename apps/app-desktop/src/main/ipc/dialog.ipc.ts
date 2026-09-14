@@ -7,7 +7,7 @@ export function registerDialogIpcHandlers(): void {
     const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
       title: 'Yeni Veri Dosyası Oluştur',
       defaultPath: `Yeni Dosya.${defaultFormat.ext}`,
-      filters: [...perFormatFilters]
+      filters: [allFormatsFilter, ...perFormatFilters]
     })
     return { canceled, filePath }
   })

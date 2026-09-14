@@ -54,20 +54,43 @@ export default function LockScreen(): React.JSX.Element {
     checkAuthSetup()
     loadSettings() // Load institutional settings pre-login to show name and logo
 
-    setTimeout(() => {
+    setTimeout(async () => {
       if (fileName) {
         const isRemembered = localStorage.getItem(`rememberMe_${fileName}`) === 'true'
         setRememberMe(isRemembered)
         if (isRemembered) {
-          setUsername(localStorage.getItem(`rememberedUser_${fileName}`) || 'admin')
-          setPassword(localStorage.getItem(`rememberedPass_${fileName}`) || '')
+          const savedUser = localStorage.getItem(`rememberedUser_${fileName}`) || 'admin'
+          const savedPass = localStorage.getItem(`rememberedPass_${fileName}`) || ''
+          setUsername(savedUser)
+          setPassword(savedPass)
+
+          if (savedPass) {
+            try {
+              setLoading(true)
+              const res = await window.electron.ipcRenderer.invoke(
+                'db:login',
+                '',
+                savedUser,
+                savedPass
+              )
+              if (res && res.success) {
+                setIsAuthenticated(true)
+                await loadSettings()
+                return
+              }
+            } catch (loginErr) {
+              console.warn('Auto-login attempt failed:', loginErr)
+            } finally {
+              setLoading(false)
+            }
+          }
         } else {
           setUsername('admin')
           setPassword('')
         }
       }
-    }, 0)
-  }, [loadSettings, fileName])
+    }, 50)
+  }, [loadSettings, fileName, setIsAuthenticated])
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault()

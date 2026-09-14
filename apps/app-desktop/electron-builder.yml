@@ -5,17 +5,37 @@ fileAssociations:
     name: TEMİN 360 Proje Dosyası
     description: TEMİN 360 Proje Dosyası (*.temin)
     role: Editor
-    icon: build/icon.png
+    icon: build/icon.ico
   - ext: dtal
     name: TEMİN 360 / DTAL Dosyası (Eski)
     description: TEMİN 360 Veri Dosyası (*.dtal)
     role: Editor
-    icon: build/icon.png
+    icon: build/icon.ico
   - ext: hkmp
     name: Hakim Pro Dosyası (Eski)
     description: Eski Hakim Pro Proje Dosyası (*.hkmp)
     role: Editor
-    icon: build/icon.png
+    icon: build/icon.ico
+  - ext: dtm
+    name: TEMİN 360 Şablon / Veri Dosyası (*.dtm)
+    description: TEMİN 360 Veri Dosyası (*.dtm)
+    role: Editor
+    icon: build/icon.ico
+  - ext: dte
+    name: TEMİN 360 Ek Veri Dosyası (*.dte)
+    description: TEMİN 360 Veri Dosyası (*.dte)
+    role: Editor
+    icon: build/icon.ico
+  - ext: dta
+    name: TEMİN 360 Arşiv Veri Dosyası (*.dta)
+    description: TEMİN 360 Veri Dosyası (*.dta)
+    role: Editor
+    icon: build/icon.ico
+  - ext: tmn360
+    name: TEMİN 360 Arşiv Paketi (*.tmn360)
+    description: TEMİN 360 Arşiv Paketi (*.tmn360)
+    role: Editor
+    icon: build/icon.ico
 directories:
   buildResources: build
   output: dist-local
@@ -39,7 +59,7 @@ extraResources:
 
 win:
   executableName: TEMIN360
-  icon: resources/icon.png
+  icon: resources/icon.ico
   target:
     - target: nsis
       arch:
