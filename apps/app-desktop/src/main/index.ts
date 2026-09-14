@@ -1,5 +1,6 @@
 import { app, shell, BrowserWindow, ipcMain, dialog, Tray, Menu, session, protocol } from 'electron'
-import { join, basename } from 'path'
+import { join, basename, dirname } from 'path'
+import { execFile } from 'child_process'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import mime from 'mime-types'
 import { autoUpdater } from 'electron-updater'
@@ -28,7 +29,8 @@ import {
   isSupportedFile,
   defaultFormat,
   perFormatFilters,
-  allFormatsFilter
+  allFormatsFilter,
+  allExtensions
 } from './config/fileFormats'
 import { recentFilesStore } from './store/recentFiles'
 import { startServer, stopServer, getSocketServer } from './server'
@@ -451,6 +453,57 @@ if (!gotTheLock && !isMultiInstance) {
     }
   })
 
+  function registerWindowsFileAssociations(): void {
+    if (process.platform !== 'win32') return
+    try {
+      const exePath = process.execPath
+
+      // İkon dosyasını doğrudan resources/icon.ico olarak tespit et
+      let iconPath = `${exePath},0`
+      if (app.isPackaged) {
+        const p1 = join(process.resourcesPath, 'icon.ico')
+        const p2 = join(process.resourcesPath, 'resources', 'icon.ico')
+        const p3 = join(dirname(exePath), 'resources', 'icon.ico')
+        if (fs.existsSync(p1)) iconPath = p1
+        else if (fs.existsSync(p2)) iconPath = p2
+        else if (fs.existsSync(p3)) iconPath = p3
+      } else {
+        const pDev = join(app.getAppPath(), 'resources', 'icon.ico')
+        if (fs.existsSync(pDev)) iconPath = pDev
+      }
+
+      // 1. ProgID ve Uygulama Kayıtları
+      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document', '/ve', '/d', 'TEMİN 360 Proje Dosyası', '/f'])
+      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document\\DefaultIcon', '/ve', '/d', iconPath, '/f'])
+      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document\\shell', '/ve', '/d', 'open', '/f'])
+      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document\\shell\\open', '/ve', '/d', 'TEMİN 360 ile Aç', '/f'])
+      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document\\shell\\open\\command', '/ve', '/d', `"${exePath}" "%1"`, '/f'])
+
+      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Applications\\TEMIN360.exe', '/v', 'FriendlyAppName', '/d', 'TEMİN 360', '/f'])
+      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Applications\\TEMIN360.exe\\DefaultIcon', '/ve', '/d', iconPath, '/f'])
+      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Applications\\TEMIN360.exe\\shell\\open\\command', '/ve', '/d', `"${exePath}" "%1"`, '/f'])
+
+      // 2. Desteklenen tüm uzantıları kaydet (.temin, .dtal, .hkmp, .dtm, .dte, .dta, .tmn360)
+      for (const ext of allExtensions) {
+        execFile('reg.exe', ['add', `HKCU\\Software\\Classes\\.${ext}`, '/ve', '/d', 'Temin360.Document', '/f'])
+        execFile('reg.exe', ['add', `HKCU\\Software\\Classes\\.${ext}\\OpenWithProgids`, '/v', 'Temin360.Document', '/t', 'REG_SZ', '/d', '', '/f'])
+        execFile('reg.exe', ['add', `HKCU\\Software\\Classes\\.${ext}\\DefaultIcon`, '/ve', '/d', iconPath, '/f'])
+        execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Applications\\TEMIN360.exe\\SupportedTypes', '/v', `.${ext}`, '/d', '', '/f'])
+        execFile('reg.exe', ['add', `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\.${ext}\\OpenWithProgids`, '/v', 'Temin360.Document', '/t', 'REG_NONE', '/d', '', '/f'])
+      }
+
+      // 3. Windows Explorer İkon Önbelleğini Yenile (SHChangeNotify)
+      const psCmd = `
+        $code = '[DllImport("shell32.dll")] public static extern void SHChangeNotify(int eventId, int flags, IntPtr item1, IntPtr item2);'
+        Add-Type -MemberDefinition $code -Namespace Win32 -Name Shell
+        [Win32.Shell]::SHChangeNotify(0x08000000, 0, [IntPtr]::Zero, [IntPtr]::Zero)
+      `
+      execFile('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', psCmd], () => {})
+    } catch (regErr) {
+      console.warn('Dosya ilişkilendirme kaydı hatası:', regErr)
+    }
+  }
+
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
@@ -511,20 +564,8 @@ if (!gotTheLock && !isMultiInstance) {
         }
       ])
 
-      // Windows Explorer dosya ilişkilendirmesi ve simgesini garanti altına al
-      try {
-        const { execFile } = require('child_process')
-        const exePath = process.execPath
-        execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\.temin', '/ve', '/d', 'Temin360.Document', '/f'], () => {
-          execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document', '/ve', '/d', 'TEMİN 360 Proje Dosyası', '/f'], () => {
-            execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document\\DefaultIcon', '/ve', '/d', `"${exePath}",0`, '/f'], () => {
-              execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document\\shell\\open\\command', '/ve', '/d', `"${exePath}" "%1"`, '/f'], () => {})
-            })
-          })
-        })
-      } catch (regErr) {
-        // İsteğe bağlı, sessizce geç
-      }
+      // Windows Explorer dosya ilişkilendirmesi ve simgelerini tüm formatlar için garanti altına al
+      registerWindowsFileAssociations()
     }
 
     tray = new Tray(icon)

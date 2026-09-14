@@ -473,26 +473,6 @@ export function PageWrapper(): React.ReactNode {
   }, []) // Run once on mount
 
   useEffect(() => {
-    // Initial fetch of DB name if any (in case backend already has an open DB on soft reload)
-    window.electron?.ipcRenderer.invoke('db:get-settings').then(async (res) => {
-      const dbIsOpen = res && res.institutionName && !res.institutionName.includes('Hata')
-      const targetPath = activeFilePath || localStorage.getItem('workspace_path')
-      if (!dbIsOpen && targetPath) {
-        const result = await openWorkspace(targetPath)
-        if (result.success) queryClient.clear()
-      } else if (!dbIsOpen) {
-        try {
-          const recent = await window.electron?.ipcRenderer.invoke('app:get-recent-files')
-          if (recent && recent.length > 0 && recent[0]?.path) {
-            const result = await openWorkspace(recent[0].path)
-            if (result.success) queryClient.clear()
-          }
-        } catch (e) {
-          console.warn('Otomatik son dosya yukleme basarisiz:', e)
-        }
-      }
-    })
-
     const handleDteFileOpen = async (filePath: string) => {
       const currentActivePath = useWorkspaceStore.getState().activeFilePath
       if (!currentActivePath) {
@@ -566,8 +546,43 @@ export function PageWrapper(): React.ReactNode {
       }
     }
 
-    // Check if app was launched by double clicking a file
-    window.electron?.ipcRenderer.invoke('get-initial-file').then(handleOpenExternalWorkspace)
+    let isMounted = true
+
+    const initWorkspace = async (): Promise<void> => {
+      // 1. Önce çift tıklanarak açılan bir dosya var mı kontrol et (process.argv / get-initial-file)
+      try {
+        const initialFile = await window.electron?.ipcRenderer.invoke('get-initial-file')
+        if (initialFile) {
+          console.log('[PageWrapper] Başlangıçta çift tıklanan dosya açılıyor:', initialFile)
+          await handleOpenExternalWorkspace(initialFile)
+          return
+        }
+      } catch (e) {
+        console.warn('get-initial-file hatası:', e)
+      }
+
+      // 2. Eğer çift tıklanan dosya yoksa, veritabanı durumunu veya son açılan dosyayı kontrol et
+      try {
+        const res = await window.electron?.ipcRenderer.invoke('db:get-settings')
+        const dbIsOpen = res && res.institutionName && !res.institutionName.includes('Hata')
+        const targetPath = activeFilePath || localStorage.getItem('workspace_path')
+
+        if (!dbIsOpen && targetPath && isMounted) {
+          const result = await openWorkspace(targetPath)
+          if (result.success) queryClient.clear()
+        } else if (!dbIsOpen && isMounted) {
+          const recent = await window.electron?.ipcRenderer.invoke('app:get-recent-files')
+          if (recent && recent.length > 0 && recent[0]?.path && isMounted) {
+            const result = await openWorkspace(recent[0].path)
+            if (result.success) queryClient.clear()
+          }
+        }
+      } catch (e) {
+        console.warn('Otomatik son dosya yükleme başarısız:', e)
+      }
+    }
+
+    initWorkspace()
 
     // Listen for files opened while app is already running
     const removeListener = window.electron?.ipcRenderer.on(
@@ -585,6 +600,7 @@ export function PageWrapper(): React.ReactNode {
     })
 
     return () => {
+      isMounted = false
       if (removeListener) removeListener()
       if (removeNavListener) removeNavListener()
     }

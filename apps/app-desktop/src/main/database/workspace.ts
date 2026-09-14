@@ -1004,16 +1004,75 @@ export class DtmWorkspace {
       return this.createWorkspace(filePath, 'Yeni Kurum')
     }
 
-    const zip = new AdmZip(zipBuffer)
-    zip.extractAllTo(this.tempDir, true)
-
     const metaPath = path.join(this.tempDir, 'meta.json')
     let rawMeta: any = {}
-    if (fs.existsSync(metaPath)) {
-      const rawMetaContent = fs.readFileSync(metaPath, 'utf-8')
-      rawMeta = JSON.parse(rawMetaContent)
+
+    // Ham SQLite veritabanı mı kontrol et (eski .hkmp, .dtal, .dtm vb. dosyalar)
+    const isRawSqlite =
+      zipBuffer.length >= 16 &&
+      zipBuffer.subarray(0, 16).toString('utf-8').startsWith('SQLite format 3')
+
+    if (isRawSqlite) {
+      // Doğrudan SQLite dosyası: Zip açmaya çalışma, dosyayı temp dizine kopyala
+      fs.copyFileSync(filePath, path.join(this.tempDir, 'database.sqlite'))
+      rawMeta = {
+        dtal_version: '1.0',
+        schema_version: 1,
+        institution_name: path.basename(filePath, path.extname(filePath)),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        active_db_file: 'database.sqlite'
+      }
+      fs.writeFileSync(metaPath, JSON.stringify(rawMeta, null, 2))
     } else {
-      throw new Error('Geçersiz dosya: meta.json bulunamadı.')
+      // Standart Zip formatı (.temin, paketlenmiş .dtal, .tmn360 vb.)
+      try {
+        const zip = new AdmZip(zipBuffer)
+        zip.extractAllTo(this.tempDir, true)
+      } catch (zipErr: any) {
+        // Eğer zip açma başarısız olduysa ve dosya içinde yine de sqlite varsa kurtarmayı dene
+        throw new Error(`Dosya formatı okunamadı (${path.extname(filePath)}): ${zipErr.message}`)
+      }
+
+      if (fs.existsSync(metaPath)) {
+        const rawMetaContent = fs.readFileSync(metaPath, 'utf-8')
+        rawMeta = JSON.parse(rawMetaContent)
+      } else {
+        // meta.json yoksa: .tmn360 arşiv paketi mi kontrol et
+        const archiveMetaPath = path.join(this.tempDir, 'archive_meta.json')
+        if (fs.existsSync(archiveMetaPath)) {
+          try {
+            const aMeta = JSON.parse(fs.readFileSync(archiveMetaPath, 'utf-8'))
+            const hasArchiveSqlite = fs.existsSync(path.join(this.tempDir, 'archive.sqlite'))
+            rawMeta = {
+              dtal_version: '1.0',
+              schema_version: aMeta.schema_version || 1,
+              institution_name: aMeta.institution_name || path.basename(filePath, path.extname(filePath)),
+              created_at: aMeta.archived_at || new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              active_db_file: hasArchiveSqlite ? 'archive.sqlite' : 'database.sqlite'
+            }
+            fs.writeFileSync(metaPath, JSON.stringify(rawMeta, null, 2))
+          } catch (e) {}
+        } else {
+          // Temp dizininde herhangi bir .sqlite veya .db dosyası var mı ara
+          const files = fs.readdirSync(this.tempDir)
+          const sqliteFile = files.find((f) => f.endsWith('.sqlite') || f.endsWith('.db'))
+          if (sqliteFile) {
+            rawMeta = {
+              dtal_version: '1.0',
+              schema_version: 1,
+              institution_name: path.basename(filePath, path.extname(filePath)),
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              active_db_file: sqliteFile
+            }
+            fs.writeFileSync(metaPath, JSON.stringify(rawMeta, null, 2))
+          } else {
+            throw new Error('Geçersiz dosya: meta.json veya veritabanı dosyası bulunamadı.')
+          }
+        }
+      }
     }
 
     const meta = normalizeMeta(rawMeta)

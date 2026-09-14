@@ -72,8 +72,9 @@ export const perFormatFilters = SUPPORTED_FORMATS.map((f) => ({
 }))
 
 export function isSupportedFile(filePath: string): boolean {
-  if (!filePath) return false
+  if (!filePath || typeof filePath !== 'string') return false
   const cleanPath = filePath.replace(/^"+|"+$/g, '').trim()
+  if (cleanPath.startsWith('-')) return false
   const lower = cleanPath.toLowerCase()
   return allExtensions.some((ext) => lower.endsWith('.' + ext))
 }
