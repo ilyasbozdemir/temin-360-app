@@ -38,6 +38,7 @@ export function registerDbIpcHandlers(): void {
         const db = workspaceManager.getDb()
         const stmt = db.prepare(sql)
         const info = stmt.run(...params)
+        workspaceManager.recordMutation()
         workspaceManager.save()
         return { success: true, lastInsertRowid: info.lastInsertRowid, changes: info.changes }
       }
@@ -64,6 +65,7 @@ export function registerDbIpcHandlers(): void {
         const db = workspaceManager.getDb()
         const stmt = db.prepare(sql)
         const info = stmt.run(...actualParams)
+        workspaceManager.recordMutation()
         workspaceManager.save()
         return { success: true, lastInsertRowid: info.lastInsertRowid, changes: info.changes }
       }
@@ -102,6 +104,7 @@ export function registerDbIpcHandlers(): void {
       })
 
       transaction(queries)
+      workspaceManager.recordMutation()
       workspaceManager.save()
 
       return { success: true, lastInsertRowid, changes: totalChanges }
@@ -188,6 +191,7 @@ export function registerDbIpcHandlers(): void {
       stmt.run('eButceKodu', code)
       stmt.run('adminUsername', user)
       stmt.run('adminPassword', pass)
+      workspaceManager.recordMutation()
       workspaceManager.save()
       return { success: true }
     } catch (error: any) {
@@ -231,6 +235,7 @@ export function registerDbIpcHandlers(): void {
         }
       })
       transaction(settingsMap)
+      workspaceManager.recordMutation()
       workspaceManager.save()
       return { success: true }
     } catch (error: any) {
@@ -410,6 +415,7 @@ export function registerDbIpcHandlers(): void {
       })
 
       transaction(rawRows)
+      workspaceManager.recordMutation()
       workspaceManager.save()
 
       return { success: true, count }
@@ -536,6 +542,7 @@ export function registerDbIpcHandlers(): void {
       })
 
       transaction(rawRows)
+      workspaceManager.recordMutation()
       workspaceManager.save()
 
       return { success: true, count }
@@ -644,6 +651,7 @@ export function registerDbIpcHandlers(): void {
       })
 
       transaction(rawRows)
+      workspaceManager.recordMutation()
       workspaceManager.save()
 
       return { success: true, count }
@@ -1139,6 +1147,7 @@ export function registerDbIpcHandlers(): void {
       })
 
       transaction(rawRows)
+      workspaceManager.recordMutation()
       workspaceManager.save()
 
       return {
@@ -1303,6 +1312,7 @@ export function registerDbIpcHandlers(): void {
     try {
       const db = workspaceManager.getDb()
       ensureSchemaIntegrity(db)
+      workspaceManager.recordMutation()
       workspaceManager.save()
       return { success: true }
     } catch (err: any) {

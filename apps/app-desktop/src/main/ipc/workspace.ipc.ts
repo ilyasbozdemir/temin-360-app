@@ -47,6 +47,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
         return { success: false, error: 'Aktif bir çalışma dosyası bulunamadı!' }
       }
       workspaceManager.save()
+      workspaceManager.resetDirty()
       return { success: true, message: 'Çalışma dosyası başarıyla kaydedildi.' }
     } catch (error: any) {
       console.error('Save workspace error:', error)
@@ -57,10 +58,14 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
   ipcMain.handle('workspace:close', async () => {
     try {
       closeAllSecondaryWindows()
-      try {
-        workspaceManager.save()
-      } catch (saveErr) {
-        console.error('Auto-save on close error:', saveErr)
+      // Sadece veritabanında/dosyada değişiklik yapılmışsa diske kaydet
+      // Hiçbir SQL mutasyonu yoksa boş yere save/zip ve yedek çalıştırma
+      if (workspaceManager.isDirty()) {
+        try {
+          workspaceManager.save()
+        } catch (saveErr) {
+          console.error('Auto-save on close error:', saveErr)
+        }
       }
       workspaceManager.close()
       return { success: true }
@@ -921,12 +926,14 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
 
   ipcMain.handle('workspace:check-changes', async () => {
     try {
+      const isDirty = workspaceManager.isDirty()
       return {
         success: true,
-        hasChanges: workspaceManager.hasChanges('any'),
-        hasGdriveChanges: workspaceManager.hasChanges('gdrive'),
-        hasEmailChanges: workspaceManager.hasChanges('email'),
-        currentHash: workspaceManager.getCurrentHash()
+        hasChanges: isDirty && workspaceManager.hasChanges('any'),
+        hasGdriveChanges: isDirty && workspaceManager.hasChanges('gdrive'),
+        hasEmailChanges: isDirty && workspaceManager.hasChanges('email'),
+        currentHash: workspaceManager.getCurrentHash(),
+        isDirty
       }
     } catch (error: any) {
       return {
@@ -934,9 +941,14 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
         error: error.message,
         hasChanges: false,
         hasGdriveChanges: false,
-        hasEmailChanges: false
+        hasEmailChanges: false,
+        isDirty: false
       }
     }
+  })
+
+  ipcMain.handle('workspace:is-dirty', async () => {
+    return { success: true, isDirty: workspaceManager.isDirty() }
   })
 
   ipcMain.handle('workspace:get-meta', async () => {

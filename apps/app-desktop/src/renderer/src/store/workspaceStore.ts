@@ -18,6 +18,9 @@ interface WorkspaceState {
   isCreatingDosya: boolean
   activeMeta: WorkspaceMeta | null
   activeStarredDocs: string[]
+  isDirty: boolean
+  setIsDirty: (dirty: boolean) => void
+  saveWorkspace: () => Promise<{ success: boolean; error?: string }>
   setIsCreatingDosya: (flag: boolean) => void
   setActiveFile: (path: string | null) => void
   setIsAuthenticated: (auth: boolean) => void
@@ -66,6 +69,16 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   isCreatingDosya: false,
   activeMeta: null,
   activeStarredDocs: [],
+  isDirty: false,
+  setIsDirty: (dirty) => set({ isDirty: dirty }),
+  saveWorkspace: async () => {
+    const res = await window.electron.ipcRenderer.invoke('workspace:save')
+    if (res?.success) {
+      set({ isDirty: false })
+      window.dispatchEvent(new CustomEvent('workspace-saved'))
+    }
+    return res
+  },
   setIsCreatingDosya: (flag) => set({ isCreatingDosya: flag }),
   setActiveStarredDocs: (docs) => set({ activeStarredDocs: docs }),
   setActiveFile: (path) => {
@@ -139,6 +152,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
           activeFilePath: actualFilePath,
           fileName: actualFilePath.split(/[/\\]/).pop() || 'Bilinmeyen Dosya',
           isAuthenticated: keepAuth,
+          isDirty: false,
           activeMeta: result.meta || null,
           activeDosyaId: keepAuth
             ? sessionStorage.getItem('workspace_dosya_id')
@@ -194,6 +208,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
           activeFilePath: actualFilePath,
           fileName: actualFilePath.split(/[/\\]/).pop() || 'Bilinmeyen Dosya',
           isAuthenticated: true, // Auto-logged in on create
+          isDirty: false,
           activeMeta: result.meta || null,
           activeDosyaId: null
         })
@@ -230,6 +245,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       activeFilePath: null,
       fileName: 'Veri Dosyası Seçilmedi',
       isAuthenticated: false,
+      isDirty: false,
       activeMeta: null,
       activeDosyaId: null
     })
@@ -246,3 +262,9 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     }
   }
 }))
+
+if (typeof window !== 'undefined' && window.electron?.ipcRenderer) {
+  window.electron.ipcRenderer.on('workspace:dirty-changed', (_event, dirty: boolean) => {
+    useWorkspaceStore.setState({ isDirty: !!dirty })
+  })
+}

@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
+  Check,
   ChevronRight,
   ClipboardList,
   DownloadCloud,
+  FileSpreadsheet,
   Moon,
   MoreHorizontal,
   Printer,
+  Save,
   Sparkles,
   Sun,
 } from "lucide-react";
@@ -22,7 +25,7 @@ export function Header(): React.JSX.Element {
   const { theme, setTheme } = useTheme();
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [hoveredSubMenu, setHoveredSubMenu] = useState<string | null>(null);
-  const { activeDosyaId } = useWorkspaceStore();
+  const { activeDosyaId, fileName, isDirty } = useWorkspaceStore();
 
   // Ekran genişliği takibi (Dinamik taşma menüsü hesaplaması için)
   const [windowWidth, setWindowWidth] = useState<number>(() =>
@@ -171,7 +174,7 @@ export function Header(): React.JSX.Element {
           onClick: () => navigate({ to: "/dosyalar/yeni" }),
         },
         {
-          label: "Veri Dosyası Detayları (.dtal)",
+          label: "Çalışma Dosyası Detayları (.temin)",
           onClick: () => navigate({ to: "/dosya" }),
         },
         {
@@ -184,7 +187,7 @@ export function Header(): React.JSX.Element {
         },
         { divider: true },
         {
-          label: "Farklı Kurum Veri Dosyası Aç (.dtal)...",
+          label: "Farklı Çalışma Dosyası Aç (.temin)...",
           onClick: async () => {
             try {
               const res = await window.electron?.ipcRenderer.invoke(
@@ -198,7 +201,7 @@ export function Header(): React.JSX.Element {
                   window.location.reload();
                 } else {
                   alert(
-                    `Kurum dosyası açılamadı!\nHata: ${
+                    `Çalışma dosyası açılamadı!\nHata: ${
                       result.error || "Bilinmeyen hata"
                     }`,
                   );
@@ -210,7 +213,7 @@ export function Header(): React.JSX.Element {
           },
         },
         {
-          label: "Kurum Dosyasını Kapat (.dtal)",
+          label: "Çalışma Dosyasını Kapat",
           onClick: handleCloseWorkspace,
         },
         { divider: true },
@@ -771,6 +774,45 @@ export function Header(): React.JSX.Element {
                 </div>
               )}
             </div>
+          )}
+        </div>
+
+        {/* ORTA: Excel / Ofis Tarzı Çalışma Dosyası Başlığı ve Kayıt Durumu */}
+        <div
+          className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1 rounded-md text-xs transition-all pointer-events-auto"
+          style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+        >
+          <div className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-200">
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span className="max-w-[220px] truncate font-semibold" title={fileName || "Çalışma Dosyası"}>
+              {fileName || "Çalışma Dosyası"}
+            </span>
+          </div>
+
+          <span className="text-slate-300 dark:text-slate-700 select-none">•</span>
+
+          {saveFeedback ? (
+            <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400 animate-pulse flex items-center gap-1">
+              {saveFeedback}
+            </span>
+          ) : isDirty ? (
+            <button
+              onClick={handleSaveAndSync}
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-300/60 dark:border-amber-700/50 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors cursor-pointer shadow-xs group"
+              title="Değişiklikler yapıldı. Kaydetmek için tıklayın veya Ctrl+S tuşlayın."
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping mr-0.5" />
+              <span>Değiştirildi (Kaydet)</span>
+              <Save className="w-3 h-3 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform" />
+            </button>
+          ) : (
+            <span
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/40 dark:border-emerald-800/40"
+              title="Tüm değişiklikler çalışma dosyasına kaydedildi."
+            >
+              <Check className="w-3 h-3 text-emerald-500" />
+              <span>Kaydedildi</span>
+            </span>
           )}
         </div>
 

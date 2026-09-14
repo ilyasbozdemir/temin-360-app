@@ -68,6 +68,7 @@ export function registerArchiveHandlers() {
         )
         .run(year, year)
 
+      workspaceManager.recordMutation()
       workspaceManager.save()
       return { success: true, count: res.changes }
     } catch (e: any) {
@@ -219,6 +220,7 @@ export function registerArchiveHandlers() {
           db.transaction(() => {
             db.prepare(`DELETE FROM DATA_TeminDosyasi WHERE id IN (${inClause})`).run(...dosyaIds)
           })()
+          workspaceManager.recordMutation()
           workspaceManager.save()
         }
 

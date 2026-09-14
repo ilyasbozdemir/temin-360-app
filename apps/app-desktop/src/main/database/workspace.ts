@@ -1,6 +1,6 @@
 import AdmZip from 'adm-zip'
 import Database from 'better-sqlite3'
-import { app } from 'electron'
+import { app, BrowserWindow, shell } from 'electron'
 import fs from 'fs'
 import path from 'path'
 import crypto from 'crypto'
@@ -941,6 +941,9 @@ export class DtmWorkspace {
   private currentFilePath: string | null = null
   private meta: WorkspaceMeta | null = null
   private initialHash: string = ''
+  private initialDataVersion: number = 0
+  private userMutationCount: number = 0
+  private isDirty: boolean = false
 
   constructor() {
     this.tempDir = path.join(app.getPath('userData'), 'dtm_temp', Date.now().toString())
@@ -1132,6 +1135,10 @@ export class DtmWorkspace {
 
     this.meta = meta
     this.initialHash = this.calculateCurrentHash()
+    this.initialDataVersion = this.getDataVersion()
+    this.userMutationCount = 0
+    this.isDirty = false
+    this.notifyDirtyChange(false)
     return meta
   }
 
@@ -1238,6 +1245,10 @@ export class DtmWorkspace {
 
       this.meta = meta
       this.initialHash = this.calculateCurrentHash()
+      this.initialDataVersion = this.getDataVersion()
+      this.userMutationCount = 0
+      this.isDirty = false
+      this.notifyDirtyChange(false)
       return meta
     } catch (createErr: any) {
       if (fs.existsSync(lockPath)) {
@@ -1408,8 +1419,67 @@ export class DtmWorkspace {
     }
   }
 
+  public getDataVersion(): number {
+    if (!this.db) return 0
+    try {
+      const row = this.db.prepare('PRAGMA data_version').get() as { data_version?: number }
+      return row?.data_version ?? 0
+    } catch {
+      return 0
+    }
+  }
+
+  public recordMutation(): void {
+    this.userMutationCount++
+    if (!this.isDirty) {
+      this.isDirty = true
+      this.notifyDirtyChange(true)
+    }
+  }
+
+  public isDirtyState(): boolean {
+    if (!this.db || !this.currentFilePath) return false
+    if (this.isDirty || this.userMutationCount > 0) return true
+    const currentDataVersion = this.getDataVersion()
+    if (this.initialDataVersion > 0 && currentDataVersion !== this.initialDataVersion) {
+      return true
+    }
+    return false
+  }
+
+  public resetDirty(): void {
+    this.isDirty = false
+    this.userMutationCount = 0
+    this.initialDataVersion = this.getDataVersion()
+    this.initialHash = this.calculateCurrentHash()
+    this.notifyDirtyChange(false)
+  }
+
+  public notifyDirtyChange(dirty: boolean): void {
+    try {
+      const windows = BrowserWindow.getAllWindows()
+      for (const win of windows) {
+        if (!win.isDestroyed()) {
+          win.webContents.send('workspace:dirty-changed', dirty)
+          if (this.currentFilePath) {
+            const base = path.basename(this.currentFilePath)
+            win.setTitle(`${dirty ? '● ' : ''}${base} - TEMİN 360`)
+          }
+        }
+      }
+    } catch {
+      // Ignore if called outside electron browser window cycle
+    }
+  }
+
   public hasChanges(target: 'gdrive' | 'email' | 'any' = 'any'): boolean {
     if (!this.db || !this.currentFilePath) return false
+
+    // Hiçbir SQL mutasyonu yapılmadıysa veya veri değişikliği yoksa kesinlikle değişiklik yoktur!
+    if (!this.isDirtyState()) {
+      return false
+    }
+
     const current = this.calculateCurrentHash()
     if (!current) return false
 
@@ -1476,6 +1546,16 @@ export const workspaceManager = {
   },
   save: () => {
     if (activeWorkspace) activeWorkspace.saveWorkspace()
+  },
+  recordMutation: () => {
+    if (activeWorkspace) activeWorkspace.recordMutation()
+  },
+  isDirty: () => {
+    if (!activeWorkspace) return false
+    return activeWorkspace.isDirtyState()
+  },
+  resetDirty: () => {
+    if (activeWorkspace) activeWorkspace.resetDirty()
   },
   hasChanges: (target?: 'gdrive' | 'email' | 'any') => {
     if (!activeWorkspace) return false
@@ -1546,6 +1626,7 @@ export const workspaceManager = {
     const destPath = path.join(attachmentsDir, safeName)
 
     fs.copyFileSync(sourcePath, destPath)
+    activeWorkspace.recordMutation()
     activeWorkspace.saveWorkspace()
     return { fileName: safeName, relativePath: `attachments/${safeName}` }
   },
@@ -1556,7 +1637,6 @@ export const workspaceManager = {
 
     const fullPath = path.join(tempDir, relativePath)
     if (fs.existsSync(fullPath)) {
-      const { shell } = require('electron')
       await shell.openPath(fullPath)
       return true
     }
