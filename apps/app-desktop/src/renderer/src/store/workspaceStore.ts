@@ -21,6 +21,7 @@ interface WorkspaceState {
   isDirty: boolean
   setIsDirty: (dirty: boolean) => void
   saveWorkspace: () => Promise<{ success: boolean; error?: string }>
+  upgradeToTemin: () => Promise<{ success: boolean; newPath?: string; error?: string }>
   setIsCreatingDosya: (flag: boolean) => void
   setActiveFile: (path: string | null) => void
   setIsAuthenticated: (auth: boolean) => void
@@ -53,8 +54,12 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     localStorage.getItem('workspace_path') ||
     null,
   fileName:
-    (sessionStorage.getItem('workspace_path') || localStorage.getItem('workspace_path'))
-      ? (sessionStorage.getItem('workspace_path') || localStorage.getItem('workspace_path'))!
+    sessionStorage.getItem('workspace_path') ||
+    localStorage.getItem('workspace_path')
+      ? (
+          sessionStorage.getItem('workspace_path') ||
+          localStorage.getItem('workspace_path')
+        )!
           .split('\\')
           .pop()
           ?.split('/')
@@ -75,6 +80,22 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     const res = await window.electron.ipcRenderer.invoke('workspace:save')
     if (res?.success) {
       set({ isDirty: false })
+      window.dispatchEvent(new CustomEvent('workspace-saved'))
+    }
+    return res
+  },
+  upgradeToTemin: async () => {
+    const res = await window.electron.ipcRenderer.invoke('workspace:upgrade-to-temin')
+    if (res?.success && res.newPath) {
+      const newPath = res.newPath
+      sessionStorage.setItem('workspace_path', newPath)
+      localStorage.setItem('workspace_path', newPath)
+      const baseName = newPath.split(/[/\\]/).pop() || 'Bilinmeyen Dosya'
+      set({
+        activeFilePath: newPath,
+        fileName: baseName,
+        isDirty: false
+      })
       window.dispatchEvent(new CustomEvent('workspace-saved'))
     }
     return res

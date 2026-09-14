@@ -825,6 +825,53 @@ function seedTemplates(db: Database.Database): void {
   }
 }
 
+function extractDbInfo(
+  sqliteFilePath: string,
+  fallbackName: string
+): { schemaVersion: number; institutionName: string } {
+  let schemaVersion = 1
+  let institutionName = fallbackName
+  try {
+    const tempDb = new Database(sqliteFilePath, { readonly: true })
+    try {
+      const row = tempDb
+        .prepare("SELECT value FROM settings WHERE key = 'dbSchemaVersion'")
+        .get() as { value: string } | undefined
+      if (row?.value) {
+        const parsed = parseInt(row.value, 10)
+        if (!isNaN(parsed) && parsed > 0) {
+          schemaVersion = parsed
+        }
+      } else {
+        const migRow = tempDb
+          .prepare('SELECT MAX(version) as max_v FROM schema_migrations')
+          .get() as { max_v: number } | undefined
+        if (migRow?.max_v && migRow.max_v > 0) {
+          schemaVersion = migRow.max_v
+        }
+      }
+    } catch {
+      // settings / schema_migrations tablosu yoksa varsayılan 1
+    }
+
+    try {
+      const instRow = tempDb
+        .prepare("SELECT value FROM settings WHERE key = 'institutionName'")
+        .get() as { value: string } | undefined
+      if (instRow?.value && instRow.value.trim()) {
+        institutionName = instRow.value.trim()
+      }
+    } catch {
+      // institutionName yoksa dosya adı
+    }
+
+    tempDb.close()
+  } catch (e) {
+    console.warn('[Workspace] DB bilgileri okunurken uyarı:', e)
+  }
+  return { schemaVersion, institutionName }
+}
+
 export class DtmWorkspace {
   private tempDir: string
   private db: Database.Database | null = null
@@ -842,6 +889,11 @@ export class DtmWorkspace {
   }
 
   public openWorkspace(filePath: string, allowMigration: boolean = false): WorkspaceMeta {
+    filePath = filePath.replace(/^"+|"+$/g, '').trim()
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`Dosya bulunamadı: ${filePath}`)
+    }
+
     const lockPath = filePath + '.lock'
     if (fs.existsSync(lockPath)) {
       try {
@@ -852,7 +904,7 @@ export class DtmWorkspace {
           try {
             process.kill(pid, 0)
             isRunning = true
-          } catch (e) {
+          } catch {
             isRunning = false
           }
           if (!isRunning) {
@@ -899,18 +951,21 @@ export class DtmWorkspace {
     const metaPath = path.join(this.tempDir, 'meta.json')
     let rawMeta: any = {}
 
-    // Ham SQLite veritabanı mı kontrol et (eski .hkmp, .dtal, .dtm vb. dosyalar)
-    const isRawSqlite =
-      zipBuffer.length >= 16 &&
-      zipBuffer.subarray(0, 16).toString('utf-8').startsWith('SQLite format 3')
+    // Akıllı Format Tespiti:
+    // Dosya uzantısı ne olursa olsun (.temin, .hkmp, .dtal veya kullanıcı elle .temin yapmış olsun)
+    // İlk 512 baytta SQLite format 3 imzası varsa dosya doğrudan SQLite veritabanıdır.
+    const headerPrefix = zipBuffer.subarray(0, Math.min(zipBuffer.length, 512)).toString('latin1')
+    const isRawSqlite = headerPrefix.includes('SQLite format 3')
 
     if (isRawSqlite) {
       // Doğrudan SQLite dosyası: Zip açmaya çalışma, dosyayı temp dizine kopyala
-      fs.copyFileSync(filePath, path.join(this.tempDir, 'database.sqlite'))
+      const targetDb = path.join(this.tempDir, 'database.sqlite')
+      fs.copyFileSync(filePath, targetDb)
+      const dbInfo = extractDbInfo(targetDb, path.basename(filePath, path.extname(filePath)))
       rawMeta = {
         dtal_version: '1.0',
-        schema_version: 1,
-        institution_name: path.basename(filePath, path.extname(filePath)),
+        schema_version: dbInfo.schemaVersion,
+        institution_name: dbInfo.institutionName,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         active_db_file: 'database.sqlite'
@@ -918,12 +973,34 @@ export class DtmWorkspace {
       fs.writeFileSync(metaPath, JSON.stringify(rawMeta, null, 2))
     } else {
       // Standart Zip formatı (.temin, paketlenmiş .dtal, .tmn360 vb.)
+      let zipOpened = false
       try {
         const zip = new AdmZip(zipBuffer)
         zip.extractAllTo(this.tempDir, true)
+        zipOpened = true
       } catch (zipErr: any) {
-        // Eğer zip açma başarısız olduysa ve dosya içinde yine de sqlite varsa kurtarmayı dene
-        throw new Error(`Dosya formatı okunamadı (${path.extname(filePath)}): ${zipErr.message}`)
+        console.warn(`[Workspace] Zip açma başarısız: ${zipErr.message}. Akıllı SQLite kurtarma deneniyor...`)
+        // Eğer zip açma başarısız olduysa ve dosya içinde yine de sqlite varsa kurtar
+        const containsSqlite =
+          headerPrefix.includes('SQLite format 3') ||
+          zipBuffer.subarray(0, Math.min(zipBuffer.length, 4096)).toString('latin1').includes('SQLite format 3')
+        if (containsSqlite) {
+          const targetDb = path.join(this.tempDir, 'database.sqlite')
+          fs.copyFileSync(filePath, targetDb)
+          const dbInfo = extractDbInfo(targetDb, path.basename(filePath, path.extname(filePath)))
+          rawMeta = {
+            dtal_version: '1.0',
+            schema_version: dbInfo.schemaVersion,
+            institution_name: dbInfo.institutionName,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            active_db_file: 'database.sqlite'
+          }
+          fs.writeFileSync(metaPath, JSON.stringify(rawMeta, null, 2))
+          zipOpened = true
+        } else {
+          throw new Error(`Dosya formatı okunamadı (${path.extname(filePath)}): ${zipErr.message}`)
+        }
       }
 
       if (fs.existsSync(metaPath)) {
@@ -945,16 +1022,42 @@ export class DtmWorkspace {
               active_db_file: hasArchiveSqlite ? 'archive.sqlite' : 'database.sqlite'
             }
             fs.writeFileSync(metaPath, JSON.stringify(rawMeta, null, 2))
-          } catch (e) {}
+          } catch {
+            // Arşiv meta okunamadı
+          }
         } else {
           // Temp dizininde herhangi bir .sqlite veya .db dosyası var mı ara
           const files = fs.readdirSync(this.tempDir)
-          const sqliteFile = files.find((f) => f.endsWith('.sqlite') || f.endsWith('.db'))
+          let sqliteFile = files.find((f) => f.endsWith('.sqlite') || f.endsWith('.db'))
+          if (!sqliteFile) {
+            for (const f of files) {
+              const fullP = path.join(this.tempDir, f)
+              try {
+                if (fs.statSync(fullP).isFile()) {
+                  const buf = Buffer.alloc(16)
+                  const fd = fs.openSync(fullP, 'r')
+                  fs.readSync(fd, buf, 0, 16, 0)
+                  fs.closeSync(fd)
+                  if (buf.toString('latin1').includes('SQLite format 3')) {
+                    sqliteFile = f
+                    break
+                  }
+                }
+              } catch {
+                // Dosya okuma atlandı
+              }
+            }
+          }
+
           if (sqliteFile) {
+            const dbInfo = extractDbInfo(
+              path.join(this.tempDir, sqliteFile),
+              path.basename(filePath, path.extname(filePath))
+            )
             rawMeta = {
               dtal_version: '1.0',
-              schema_version: 1,
-              institution_name: path.basename(filePath, path.extname(filePath)),
+              schema_version: dbInfo.schemaVersion,
+              institution_name: dbInfo.institutionName,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
               active_db_file: sqliteFile
@@ -967,7 +1070,14 @@ export class DtmWorkspace {
       }
     }
 
+    // Attachments klasörünün varlığını garanti et
+    const attachmentsDir = path.join(this.tempDir, 'attachments')
+    if (!fs.existsSync(attachmentsDir)) {
+      fs.mkdirSync(attachmentsDir, { recursive: true })
+    }
+
     const meta = normalizeMeta(rawMeta)
+
 
     // Hash Validation
     if (meta.integrity_hash) {
@@ -1275,6 +1385,42 @@ export class DtmWorkspace {
     }
   }
 
+  public convertToTemin(): { success: boolean; newPath?: string; error?: string } {
+    if (!this.currentFilePath || !this.db) {
+      return { success: false, error: 'Açık bir çalışma alanı yok.' }
+    }
+
+    if (this.currentFilePath.toLowerCase().endsWith('.temin')) {
+      this.saveWorkspace()
+      return { success: true, newPath: this.currentFilePath }
+    }
+
+    const dir = path.dirname(this.currentFilePath)
+    const baseName = path.basename(this.currentFilePath, path.extname(this.currentFilePath))
+    const newPath = path.join(dir, `${baseName}.temin`)
+
+    // Eski kilidi temizle
+    const oldLock = this.currentFilePath + '.lock'
+    if (fs.existsSync(oldLock)) {
+      try {
+        fs.unlinkSync(oldLock)
+      } catch {
+        // İhmal et
+      }
+    }
+
+    this.currentFilePath = newPath
+    const newLock = newPath + '.lock'
+    try {
+      fs.writeFileSync(newLock, process.pid.toString(), 'utf-8')
+    } catch {
+      // İhmal et
+    }
+
+    this.saveWorkspace()
+    return { success: true, newPath }
+  }
+
   public closeWorkspace(): void {
     if (this.db) {
       this.db.close()
@@ -1570,6 +1716,10 @@ export const workspaceManager = {
   },
   save: () => {
     if (activeWorkspace) activeWorkspace.saveWorkspace()
+  },
+  convertToTemin: () => {
+    if (!activeWorkspace) return { success: false, error: 'Açık bir çalışma alanı yok.' }
+    return activeWorkspace.convertToTemin()
   },
   recordMutation: (tableName?: string, action?: string, count: number = 1) => {
     if (activeWorkspace) activeWorkspace.recordMutation(tableName, action, count)

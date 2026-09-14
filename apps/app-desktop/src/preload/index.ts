@@ -38,6 +38,7 @@ const allowedChannels = new Set([
   'workspace:create',
   'workspace:open',
   'workspace:save',
+  'workspace:upgrade-to-temin',
   'workspace:close',
   'workspace:check-changes',
   'workspace:get-dirty-summary',

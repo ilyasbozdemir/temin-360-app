@@ -1,7 +1,10 @@
+import fs from 'fs'
+
 /**
  * TEMİN 360 — Desteklenen Dosya Formatları
  * .hkmp ve .dtal SQLite veritabanı dosyalarıdır.
  */
+
 
 export interface FileFormat {
   /** Uzantı (nokta olmadan, örn: 'hkmp') */
@@ -50,10 +53,20 @@ export const SUPPORTED_FORMATS: FileFormat[] = [
     ext: 'tmn360',
     label: 'TEMİN 360 Arşiv Paketi (.tmn360)',
     dialogName: 'TEMİN 360 Arşiv Paketi (*.tmn360)'
+  },
+  {
+    ext: 'sqlite',
+    label: 'SQLite Veritabanı Dosyası (*.sqlite)',
+    dialogName: 'SQLite Veritabanı (*.sqlite)'
+  },
+  {
+    ext: 'db',
+    label: 'Veritabanı Dosyası (*.db)',
+    dialogName: 'Veritabanı Dosyası (*.db)'
   }
 ]
 
-/** Tüm desteklenen uzantıları ['hkmp', 'dtal'] olarak döner */
+/** Tüm desteklenen uzantıları ['temin', 'hkmp', ...] olarak döner */
 export const allExtensions = SUPPORTED_FORMATS.map((f) => f.ext)
 
 /** Varsayılan uzantı (yeni dosya oluştururken kullanılır) */
@@ -76,5 +89,24 @@ export function isSupportedFile(filePath: string): boolean {
   const cleanPath = filePath.replace(/^"+|"+$/g, '').trim()
   if (cleanPath.startsWith('-')) return false
   const lower = cleanPath.toLowerCase()
-  return allExtensions.some((ext) => lower.endsWith('.' + ext))
+  if (allExtensions.some((ext) => lower.endsWith('.' + ext))) return true
+
+  // Ekstra akıllı algılama: Uzantı farklı olsa bile dosya geçerli SQLite veya ZIP/TEMİN ise destekle
+  try {
+    if (fs.existsSync(cleanPath) && fs.statSync(cleanPath).isFile()) {
+      const fd = fs.openSync(cleanPath, 'r')
+      const buf = Buffer.alloc(16)
+      fs.readSync(fd, buf, 0, 16, 0)
+      fs.closeSync(fd)
+      const sig = buf.toString('latin1')
+      if (sig.includes('SQLite format 3') || (buf[0] === 0x50 && buf[1] === 0x4b)) {
+        return true
+      }
+    }
+  } catch {
+    // İhmal et
+  }
+
+  return false
 }
+

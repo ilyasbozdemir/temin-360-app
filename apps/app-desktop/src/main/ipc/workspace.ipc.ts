@@ -55,6 +55,17 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
     }
   })
 
+  ipcMain.handle('workspace:upgrade-to-temin', async () => {
+    try {
+      const res = workspaceManager.convertToTemin()
+      return res
+    } catch (error: any) {
+      console.error('Upgrade workspace to .temin error:', error)
+      return { success: false, error: error.message }
+    }
+  })
+
+
   ipcMain.handle('workspace:close', async () => {
     try {
       closeAllSecondaryWindows()
