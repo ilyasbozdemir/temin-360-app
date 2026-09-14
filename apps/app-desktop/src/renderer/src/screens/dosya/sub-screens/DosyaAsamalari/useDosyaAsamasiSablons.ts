@@ -111,71 +111,7 @@ export function isV2Template(dosyaAdiOrTitle?: string | null): boolean {
  *
  * Yeni grup eklemek için sadece buraya ekle — başka hiçbir dosya değişmez.
  */
-export const SABLON_GRUPLARI: Record<string, { grup: string; etiket: string; siralama: number }> = {
-  // ── İhtiyaç Listesi ailesi (İhtiyaç Listesi + Talep Formu)
-  'ihtiyac-listesi': { grup: 'ihtiyac-listesi', etiket: 'İhtiyaç Listesi', siralama: 0 },
-  'ihtiyac-talep-formu': { grup: 'ihtiyac-listesi', etiket: 'Talep Formu', siralama: 1 },
-
-  // ── Komisyon Görevlendirme ailesi (Komisyon Atama + Onay Eki)
-  'komisyon-gorevlendirme-onayi': {
-    grup: 'komisyon-gorevlendirme',
-    etiket: 'Komisyon Atama',
-    siralama: 0
-  },
-  'komisyon-gorevlendirme-onayi-eki': {
-    grup: 'komisyon-gorevlendirme',
-    etiket: 'Onay Eki',
-    siralama: 1
-  },
-
-  // ── Lüzum Müzekkeresi ailesi
-  'luzum-muzekkeresi': { grup: 'luzum-muzekkeresi', etiket: 'Lüzum Müzekkeresi', siralama: 0 },
-  'luzum-muzekkeresi-onay-eki': { grup: 'luzum-muzekkeresi', etiket: 'Onay Eki', siralama: 1 },
-  'luzum-muzekkeresi-teslim-tesellum': {
-    grup: 'luzum-muzekkeresi',
-    etiket: 'Teslim Tesellüm',
-    siralama: 2
-  },
-
-  // ── Onay Belgesi ailesi (Doğrudan Temin + İdare/İhale + Bütçe Sorgusu)
-  'dogrudan-temin-onay-belgesi': { grup: 'onay-belgesi', etiket: 'Doğrudan Temin', siralama: 0 },
-  'idare-onay-belgesi': { grup: 'onay-belgesi', etiket: 'İhale', siralama: 1 },
-  'butce-sorgusu': { grup: 'onay-belgesi', etiket: 'Bütçe Sorgusu', siralama: 2 },
-
-  // ── Harcama ailesi (Harcama Talimatı + Harcama Pusulası)
-  'harcama-talimati': { grup: 'harcama', etiket: 'Harcama Talimatı', siralama: 0 },
-  'harcama-pusulasi': { grup: 'harcama', etiket: 'Harcama Pusulası', siralama: 1 },
-
-  // ── Doğrudan Temin Sözleşmesi ailesi
-  'dogrudan-temin-sozlesmesi': { grup: 'dt-sozlesmesi', etiket: 'Standart', siralama: 0 },
-  'dogrudan-temin-sozlesmesi-alternatif': {
-    grup: 'dt-sozlesmesi',
-    etiket: 'Alternatif',
-    siralama: 1
-  },
-  'dogrudan-temin-sozlesmesi-uzun': { grup: 'dt-sozlesmesi', etiket: 'Uzun Form', siralama: 2 },
-
-  // ── Dağıtım Çizelgesi ailesi
-  'dagitim-cizelgesi': { grup: 'dagitim-cizelgesi', etiket: 'Standart', siralama: 0 },
-  'dagitim-cizelgesi-karma': { grup: 'dagitim-cizelgesi', etiket: 'Karma', siralama: 1 },
-
-  // ── Klasör Sırtlığı ailesi
-  'klasor-sirtligi-3cm': { grup: 'klasor-sirtligi', etiket: '3 cm', siralama: 0 },
-  'klasor-sirtligi-5cm': { grup: 'klasor-sirtligi', etiket: '5 cm', siralama: 1 },
-  'klasor-sirtligi-7-5cm': { grup: 'klasor-sirtligi', etiket: '7.5 cm', siralama: 2 },
-
-  // ── Muayene & Kabul ailesi
-  'muayene-kabul-komisyonu': { grup: 'muayene-kabul', etiket: 'Komisyon', siralama: 0 },
-  'muayene-kabul-tutanagi': { grup: 'muayene-kabul', etiket: 'Tutanak', siralama: 1 },
-
-  // ── Kabul Edilen Teklif (Sipariş Mektubu) ailesi
-  'kabul-edilen-teklif': { grup: 'kabul-edilen-teklif', etiket: 'Standart', siralama: 0 },
-  'kabul-edilen-teklif-alternatif': {
-    grup: 'kabul-edilen-teklif',
-    etiket: 'Alternatif',
-    siralama: 1
-  }
-}
+export { SABLON_GRUPLARI } from '../../../../../../shared/constants/templateConstants'
 
 // -----------------------------------------------------------------------
 // Hook – şablon önizleme mantığı

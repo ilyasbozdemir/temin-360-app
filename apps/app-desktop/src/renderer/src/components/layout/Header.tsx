@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Check,
+  CheckSquare,
   ChevronDown,
   ChevronRight,
   ClipboardList,
@@ -325,6 +326,10 @@ export function Header(): React.JSX.Element {
                   label: "Şablon & Taslak Yöneticisi",
                   onClick: () => navigate({ to: "/taslakyonetim" }),
                 },
+                {
+                  label: "📝 Dosya Notları & Yapılacaklar (To-Do)",
+                  onClick: () => navigate({ to: "/notlar" }),
+                },
               ],
             },
             {
@@ -587,6 +592,10 @@ export function Header(): React.JSX.Element {
         {
           label: "Raporlar",
           onClick: () => navigate({ to: "/raporlar" }),
+        },
+        {
+          label: "📋 Notlar & Yapılacaklar Listesi (To-Do)",
+          onClick: () => navigate({ to: "/notlar" }),
         },
         { divider: true },
         {
@@ -978,6 +987,15 @@ export function Header(): React.JSX.Element {
         >
           {/* Bulut Senkronizasyon Popover */}
           <SyncPopover />
+
+          {/* Notlar & Yapılacaklar (To-Do) Hızlı Erişim Butonu */}
+          <button
+            onClick={() => navigate({ to: "/notlar" })}
+            className="p-1 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-all rounded hover:bg-slate-200/50 dark:hover:bg-slate-800/50 cursor-pointer"
+            title="Notlar & Yapılacaklar Listesi (To-Do)"
+          >
+            <CheckSquare className="w-3.5 h-3.5" />
+          </button>
 
           {/* Tema Değiştir */}
           <button

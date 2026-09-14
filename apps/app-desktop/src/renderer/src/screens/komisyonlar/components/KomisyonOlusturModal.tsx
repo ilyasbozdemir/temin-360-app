@@ -4,6 +4,10 @@ import { AlertCircle, Eye, Plus, Search, Trash2, Users } from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
 import { Input } from '../../../components/ui/Input'
 import { Modal } from '../../../components/ui/Modal'
+import {
+  DEFAULT_YAKLASIK_SABLONLAR,
+  DEFAULT_MUAYENE_SABLONLAR
+} from '../../../../../shared/constants/templateConstants'
 
 interface KomisyonOlusturModalProps {
   isOpen: boolean
@@ -191,35 +195,13 @@ export function KomisyonOlusturModal({
 
     // İlgili belge şablonlarını otomatik seç
     if (tip === 'yaklasik_maliyet') {
-      const yaklasikSablons = [
-        'piyasa-fiyat-arastirma-gorevlendirmesi',
-        'komisyon-gorevlendirme-onayi',
-        'komisyon-gorevlendirme-onayi-eki',
-        'arastirma-mektubu',
-        'fiyat-arastirma-mektubu',
-        'birim-fiyat-teklif-mektubu',
-        'birim-fiyat-teklif-cetveli',
-        'dagitim-cizelgesi',
-        'dagitim-cizelgesi-karma',
-        'piyasa-fiyat-arastirma-tutanagi',
-        'yaklasik-maliyet-cetveli',
-        'son-alim-fiyat-cetveli'
-      ]
       const matchingIds = (tumSablonlar as any[])
-        .filter((s) => yaklasikSablons.includes(s.dosya_adi))
+        .filter((s) => (DEFAULT_YAKLASIK_SABLONLAR as readonly string[]).includes(s.dosya_adi))
         .map((s) => s.id)
       if (matchingIds.length > 0) setSeciliSablonlar(matchingIds)
     } else if (tip === 'muayene_kabul') {
-      const muayeneSablons = [
-        'muayene-kabul-komisyonu',
-        'muayene-kabul-tutanagi',
-        'harcama-pusulasi',
-        'luzum-muzekkeresi-teslim-tesellum',
-        'hizmet-isleri-kabul-tutanagi',
-        'hizmet-isleri-kabul-teklif-belgesi'
-      ]
       const matchingIds = (tumSablonlar as any[])
-        .filter((s) => muayeneSablons.includes(s.dosya_adi))
+        .filter((s) => (DEFAULT_MUAYENE_SABLONLAR as readonly string[]).includes(s.dosya_adi))
         .map((s) => s.id)
       if (matchingIds.length > 0) setSeciliSablonlar(matchingIds)
     }

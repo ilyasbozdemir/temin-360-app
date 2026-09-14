@@ -8,6 +8,7 @@ import {
   Calendar,
   Check,
   CheckCircle2,
+  CheckSquare,
   ChevronRight,
   ClipboardList,
   Clock,
@@ -33,6 +34,7 @@ import { Button } from '../../components/ui/Button'
 import { useEffect, useState, useMemo } from 'react'
 import { logActivity } from '../../utils/logger'
 import { emitAppEvent, useAppEventListener } from '../../utils/appEvents'
+import { DosyaNotlariWidget } from '../notlar/components/DosyaNotlariWidget'
 
 export function TakipScreen(): React.JSX.Element {
   const { activeDosyaId, setActiveDosyaId } = useWorkspaceStore()
@@ -738,13 +740,25 @@ export function TakipScreen(): React.JSX.Element {
                     <FileCheck className="w-3.5 h-3.5 text-purple-500" />
                     İmzalı Belgeler
                   </Link>
+                  <Link
+                    to="/notlar"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 text-xs font-bold transition-all shrink-0 cursor-pointer"
+                  >
+                    <CheckSquare className="w-3.5 h-3.5 text-blue-500" />
+                    Notlar & To-Do
+                  </Link>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT COLUMN: DOSYA GÜNCELLEME & TARİHLER ve İMZA TAKİBİ */}
+          {/* RIGHT COLUMN: DOSYA NOTLARI, GÜNCELLEME & TARİHLER ve İMZA TAKİBİ */}
           <div className="lg:col-span-4 space-y-6">
+            {/* DOSYA NOTLARI & YAPILACAKLAR LİSTESİ */}
+            {activeDosyaId && (
+              <DosyaNotlariWidget dosyaId={activeDosyaId} dosyaNo={activeDosya?.temin_no} />
+            )}
+
             {/* DOSYA GÜNCELLEME & TARİHLER PANELİ */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
               <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">

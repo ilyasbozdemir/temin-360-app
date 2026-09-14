@@ -48,6 +48,7 @@ import {
 
 import TaslakYoneticisi from '../../screens/system/TaslakYoneticisi'
 import DTSurecAkisiScreen from '../../screens/system/DTSurecAkisiScreen'
+import NotlarVeGorevlerScreen from '../../screens/notlar/index.screen'
 
 export const routeComponents: Record<string, React.ComponentType> = {
   '/': DashboardScreen,
@@ -94,6 +95,7 @@ export const routeComponents: Record<string, React.ComponentType> = {
   '/olcubirimleri': OlcuBirimleriScreen,
   '/malzemeler/yeni': YeniMalzemeScreen,
   '/hakedis': HarcamaMerkeziScreen,
+  '/notlar': NotlarVeGorevlerScreen,
   '/harcama-merkezi': HarcamaMerkeziScreen,
   '/dt-surec-akisi': DTSurecAkisiScreen,
   '/surec-akisi': DTSurecAkisiScreen,

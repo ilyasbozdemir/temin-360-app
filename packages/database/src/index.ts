@@ -37,6 +37,7 @@ import { DATA_TIF_Kalem } from './tables/DATA_TIF_Kalem'
 import { DATA_AmbarStok } from './tables/DATA_AmbarStok'
 import { LOG_SystemLog } from './tables/LOG_SystemLog'
 import { DATA_DosyaSablonVeri } from './tables/DATA_DosyaSablonVeri'
+import { DATA_NotVeGorev } from './tables/DATA_NotVeGorev'
 import { runMigrations, CURRENT_SCHEMA_VERSION } from './migrate'
 import { defineTable } from './BaseTable'
 
@@ -77,6 +78,7 @@ const rawTables = [
   DATA_TIF_Kalem,
   DATA_AmbarStok,
   DATA_DosyaSablonVeri,
+  DATA_NotVeGorev,
   LOG_SystemLog
 ]
 

@@ -40,6 +40,7 @@ export const APP_ROUTES = {
   KURUM: '/kurum',
   PROFIL: '/profil',
   HAKEDIS: '/hakedis',
+  NOTLAR: '/notlar',
 
   // Dosya Alt Süreçleri (SubScreens)
   // Aşamalar

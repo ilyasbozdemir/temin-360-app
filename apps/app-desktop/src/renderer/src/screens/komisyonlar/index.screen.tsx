@@ -20,6 +20,10 @@ import { PersonelAtaModal } from './components/PersonelAtaModal'
 import { useTabStore } from '../../store/tabStore'
 import { useDosyaAsamasiSablons } from '../dosya/sub-screens/DosyaAsamalari/useDosyaAsamasiSablons'
 import { DocumentPreviewModal } from '../dosya/components/DocumentPreviewModal'
+import {
+  DEFAULT_YAKLASIK_SABLONLAR,
+  DEFAULT_MUAYENE_SABLONLAR
+} from '../../../../shared/constants/templateConstants'
 
 const isBaseKomisyon = (ad?: string, id?: number): boolean => {
   if (id === 1 || id === 2) return true
@@ -156,30 +160,7 @@ export default function KomisyonlarScreen({
         }
 
         // Temel şablon bağlantılarını otomatik tamamla
-        const yaklasikSablons = [
-          'piyasa-fiyat-arastirma-gorevlendirmesi',
-          'komisyon-gorevlendirme-onayi',
-          'komisyon-gorevlendirme-onayi-eki',
-          'arastirma-mektubu',
-          'fiyat-arastirma-mektubu',
-          'birim-fiyat-teklif-mektubu',
-          'birim-fiyat-teklif-cetveli',
-          'dagitim-cizelgesi',
-          'dagitim-cizelgesi-karma',
-          'piyasa-fiyat-arastirma-tutanagi',
-          'yaklasik-maliyet-cetveli',
-          'son-alim-fiyat-cetveli'
-        ]
-        const muayeneSablons = [
-          'muayene-kabul-komisyonu',
-          'muayene-kabul-tutanagi',
-          'harcama-pusulasi',
-          'luzum-muzekkeresi-teslim-tesellum',
-          'hizmet-isleri-kabul-tutanagi',
-          'hizmet-isleri-kabul-teklif-belgesi'
-        ]
-
-        for (const s of yaklasikSablons) {
+        for (const s of DEFAULT_YAKLASIK_SABLONLAR) {
           await window.electron.ipcRenderer.invoke(
             'db:run',
             `INSERT OR IGNORE INTO TANIM_Komisyon_Sablon (komisyon_id, sablon_id)
@@ -187,7 +168,7 @@ export default function KomisyonlarScreen({
             [primaryYaklasikId, s]
           )
         }
-        for (const s of muayeneSablons) {
+        for (const s of DEFAULT_MUAYENE_SABLONLAR) {
           await window.electron.ipcRenderer.invoke(
             'db:run',
             `INSERT OR IGNORE INTO TANIM_Komisyon_Sablon (komisyon_id, sablon_id)

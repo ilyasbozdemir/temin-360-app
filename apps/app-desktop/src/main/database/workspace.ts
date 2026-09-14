@@ -9,6 +9,14 @@ import { runMigrations, CURRENT_SCHEMA_VERSION, getPendingMigrations } from '@dt
 import tasinirKodlariSeed from './seed/tasinir_kodlari.json'
 import yiUfeSeed from './seed/yi_ufe_endeksleri.json'
 import { allExtensions, defaultFormat } from '../config/fileFormats'
+import { TABLE_FRIENDLY_NAMES } from '../../shared/constants/databaseConstants'
+import {
+  TEMPLATE_NAMES,
+  TEMPLATE_CATEGORIES,
+  TEMPLATE_GROUPS,
+  DEFAULT_YAKLASIK_SABLONLAR,
+  DEFAULT_MUAYENE_SABLONLAR
+} from '../../shared/constants/templateConstants'
 
 export interface WorkspaceMeta {
   dtal_version: string
@@ -63,30 +71,7 @@ export interface MutationSummaryItem {
   lastTime: string
 }
 
-export const TABLE_FRIENDLY_NAMES: Record<string, string> = {
-  DATA_TeminDosyasi: 'Doğrudan Temin / İhale Dosyası',
-  DATA_Kalemler: 'Malzeme & Kalem Listesi',
-  DATA_Malzemeler: 'Malzeme Tanımları',
-  DATA_YaklasikMaliyet: 'Yaklaşık Maliyet Cetveli',
-  DATA_YaklasikMaliyetFirmaFiyat: 'Piyasa Fiyat Teklifleri',
-  DATA_Komisyonlar: 'Komisyon & Kurul Kaydı',
-  DATA_KomisyonUyeleri: 'Komisyon Üyeleri',
-  DATA_DosyaSablonVeri: 'Belge & Şablon Verisi',
-  DATA_Hakedis: 'Hakediş & Ödeme Kaydı',
-  DATA_HakedisKalemler: 'Hakediş Kalemleri',
-  DATA_Sozlesme: 'Sözleşme Bilgileri',
-  DATA_MuayeneKabul: 'Muayene & Kabul Tutanağı',
-  DATA_Faturalar: 'Fatura & İrsaliye',
-  DATA_Teklifler: 'Firma Teklifleri',
-  DATA_BirimFiyatCetveli: 'Birim Fiyat Cetveli',
-  TANIM_Personel: 'Personel Tanımı',
-  TANIM_Firmalar: 'Firma Tanımı',
-  TANIM_Birimler: 'Birim Tanımı',
-  TANIM_Pozlar: 'Poz / Birim Fiyat',
-  TANIM_Ambarlar: 'Ambar Tanımı',
-  settings: 'Kurum / Sistem Ayarları',
-  attachments: 'Ek Dosyalar & Belgeler'
-}
+export { TABLE_FRIENDLY_NAMES }
 
 export function extractTableAndAction(sql: string): {
   tableName: string
@@ -365,6 +350,37 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     console.error('[Schema Self-Healing] TANIM_YiUfeEndeks initialization failed:', e.message)
   }
 
+  // Ensure DATA_NotVeGorev exists for Notes & To-Do List functionality
+  try {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS DATA_NotVeGorev (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        uuid TEXT UNIQUE NOT NULL,
+        temin_dosya_id INTEGER,
+        baslik TEXT NOT NULL,
+        icerik TEXT,
+        tip TEXT DEFAULT 'todo',
+        kategori TEXT DEFAULT 'Genel',
+        oncelik TEXT DEFAULT 'orta',
+        tamamlandi INTEGER DEFAULT 0,
+        tamamlanma_tarihi DATETIME,
+        vade_tarihi TEXT,
+        renk TEXT DEFAULT 'slate',
+        sabitlendi INTEGER DEFAULT 0,
+        sira INTEGER DEFAULT 0,
+        etiketler TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(temin_dosya_id) REFERENCES DATA_TeminDosyasi(id) ON DELETE SET NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_notlar_temin_dosya ON DATA_NotVeGorev(temin_dosya_id);
+      CREATE INDEX IF NOT EXISTS idx_notlar_tamamlandi ON DATA_NotVeGorev(tamamlandi);
+      CREATE INDEX IF NOT EXISTS idx_notlar_tip ON DATA_NotVeGorev(tip);
+    `)
+  } catch (e: any) {
+    console.error('[Schema Self-Healing] DATA_NotVeGorev initialization failed:', e.message)
+  }
+
   for (const table of schema.tables as any[]) {
     try {
       const tableInfo = db.prepare(`PRAGMA table_info(${table.name})`).all() as any[]
@@ -548,40 +564,17 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
         .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='TANIM_Komisyon_Sablon'")
         .get()
       if (checkSablonTable) {
-        const yaklasikSablons = [
-          'piyasa-fiyat-arastirma-gorevlendirmesi',
-          'komisyon-gorevlendirme-onayi',
-          'komisyon-gorevlendirme-onayi-eki',
-          'arastirma-mektubu',
-          'fiyat-arastirma-mektubu',
-          'birim-fiyat-teklif-mektubu',
-          'birim-fiyat-teklif-cetveli',
-          'dagitim-cizelgesi',
-          'dagitim-cizelgesi-karma',
-          'piyasa-fiyat-arastirma-tutanagi',
-          'yaklasik-maliyet-cetveli',
-          'son-alim-fiyat-cetveli'
-        ]
-        const muayeneSablons = [
-          'muayene-kabul-komisyonu',
-          'muayene-kabul-tutanagi',
-          'harcama-pusulasi',
-          'luzum-muzekkeresi-teslim-tesellum',
-          'hizmet-isleri-kabul-tutanagi',
-          'hizmet-isleri-kabul-teklif-belgesi'
-        ]
-
         const insertSablonStmt = db.prepare(`
           INSERT OR IGNORE INTO TANIM_Komisyon_Sablon (komisyon_id, sablon_id)
           SELECT ?, id FROM TANIM_Sablon WHERE dosya_adi = ?
         `)
 
-        for (const s of yaklasikSablons) {
+        for (const s of DEFAULT_YAKLASIK_SABLONLAR) {
           try {
             insertSablonStmt.run(yaklasikId, s)
           } catch (_) {}
         }
-        for (const s of muayeneSablons) {
+        for (const s of DEFAULT_MUAYENE_SABLONLAR) {
           try {
             insertSablonStmt.run(muayeneId, s)
           } catch (_) {}
@@ -593,156 +586,6 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
   }
 }
 
-const TEMPLATE_NAMES: Record<string, string> = {
-  'harcama-talimati': 'HARCAMA TALİMATI',
-  'ihtiyac-listesi': 'İHTİYAÇ LİSTESİ',
-  'ihtiyac-talep-formu': 'İHTİYAÇ TALEP FORMU',
-  'komisyon-gorevlendirme-onayi':
-    'KOMİSYON GÖREVLENDİRME ONAYI (MUAYENE VE KABUL VE FİYAT ARAŞTIRMASI)',
-  'komisyon-gorevlendirme-onayi-eki':
-    'KOMİSYON GÖREVLENDİRME ONAYI EKİ (MUAYENE VE KABUL VE FİYAT ARAŞTIRMASI)',
-  'luzum-muzekkeresi': 'Lüzum Müzekkeresi',
-  'luzum-muzekkeresi-onay-eki': 'Lüzum Müzekkeresi ONAY EKİ',
-  'luzum-muzekkeresi-teslim-tesellum': 'Lüzum Müzekkeresi TESLİM TESELLÜM',
-  'son-alim-fiyat-cetveli': 'SON ALIM FİYAT CETVELİ',
-  'arastirma-mektubu': 'ARAŞTIRMA MEKTUBU',
-  'birim-fiyat-teklif-cetveli': 'BİRİM FİYAT TEKLİF CETVELİ',
-  'birim-fiyat-teklif-mektubu': 'BİRİM FİYAT TEKLİF MEKTUBU',
-  'dagitim-cizelgesi': 'DAĞITIM ÇİZELGESİ',
-  'dagitim-cizelgesi-karma': 'DAĞITIM ÇİZELGESİ (KARMA)',
-  'fiyat-arastirma-mektubu': 'FİYAT ARAŞTIRMA MEKTUBU',
-  'fiyat-arastirmasi': 'FİYAT ARAŞTIRMASI',
-  'piyasa-fiyat-arastirma-gorevlendirmesi': 'PİYASA FİYAT ARAŞTIRMA GÖREVLENDİRMESİ',
-  'piyasa-fiyat-arastirma-tutanagi': 'PİYASA FİYAT ARAŞTIRMA TUTANAĞI',
-  'teklif-mektubu-dagitim-cizelgesi': 'TEKLİF MEKTUBU DAĞITIM ÇİZELGESİ',
-  'yaklasik-maliyet-cetveli': 'YAKLAŞIK MALİYET CETVELİ',
-  'yaklasik-maliyet-teklif-mektubu': 'YAKLAŞIK MALİYET TEKLİF MEKTUBU',
-  'butce-sorgusu': 'BÜTÇE SORGUSU',
-  'dogrudan-temin-onay-belgesi': 'DOĞRUDAN TEMİN ONAY BELGESİ',
-  'dogrudan-temin-sonuc-onay-belgesi': 'DOĞRUDAN TEMİN SONUÇ ONAY BELGESİ',
-  'dogrudan-temin-sozlesmesi': 'DOĞRUDAN TEMİN SÖZLEŞMESİ',
-  'dogrudan-temin-sozlesmesi-alternatif': 'DOĞRUDAN TEMİN SÖZLEŞMESİ (ALTERNATİF)',
-  'dogrudan-temin-sozlesmesi-uzun': 'DOĞRUDAN TEMİN SÖZLEŞMESİ (UZUN)',
-  'idare-onay-belgesi': 'İDARE ONAY BELGESİ',
-  'ihale-komisyon-karari': 'İHALE KOMİSYON KARARI',
-  'kabul-edilen-teklif': 'KABUL EDİLEN TEKLİF',
-  'kabul-edilen-teklif-alternatif': 'KABUL EDİLEN TEKLİF (ALTERNATİF)',
-  'sozlesmeye-davet': 'SÖZLEŞMEYE DAVET',
-  'teklif-mektubu': 'TEKLİF MEKTUBU',
-  'gunluk-calisma-puantaj-cizelgesi': 'GÜNLÜK ÇALIŞMA PUANTAJ ÇİZELGESİ',
-  'hakedis-raporu': 'HAKEDİŞ RAPORU',
-  'harcama-pusulasi': 'HARCAMA PUSULASI',
-  'hizmet-isleri-kabul-teklif-belgesi': 'HİZMET İŞLERİ KABUL TEKLİF BELGESİ',
-  'hizmet-isleri-kabul-tutanagi': 'HİZMET İŞLERİ KABUL TUTANAĞI',
-  'muayene-kabul-komisyonu': 'MUAYENE VE KABUL KOMİSYONU',
-  'muayene-kabul-tutanagi': 'MUAYENE VE KABUL TUTANAĞI',
-  'odeme-emri-belgesi': 'ÖDEME EMRİ BELGESİ',
-  'odeme-yazisi': 'ÖDEME YAZISI',
-  'tasinir-islem-fisi': 'TAŞINIR İŞLEM FİŞİ',
-  'ihale-kapagi': 'İHALE KAPAĞI',
-  'kapak-ici-indeks-sablonu': 'KAPAK İÇİ İNDEKS ŞABLONU',
-  'klasor-sirtligi-3cm': 'KLASÖR SIRTLIĞI (3 CM)',
-  'klasor-sirtligi-5cm': 'KLASÖR SIRTLIĞI (5 CM)',
-  'klasor-sirtligi-7-5cm': 'KLASÖR SIRTLIĞI (7.5 CM)'
-}
-
-/**
- * TEMPLATE_GROUPS — hangi şablonlar aynı kart altında gösterilir?
- *
- * Her entry bir gruptur. "grup" değeri DB'ye grup_adi olarak yazar.
- * Dizi sırası = grup_siralama (0-indexed). İlk eleman her zaman "Ana Belge" görünür.
- * Buraya ekleme/çıkarma yapılınca uygulama yeniden başlatıldığında DB güncellenir.
- */
-const TEMPLATE_GROUPS: Array<{
-  grup: string
-  sablonlar: Array<{ dosya_adi: string; etiket: string }>
-}> = [
-  // İhtiyaç Listesi ailesi
-  {
-    grup: 'ihtiyac-listesi',
-    sablonlar: [
-      { dosya_adi: 'ihtiyac-listesi', etiket: 'İhtiyaç Listesi' },
-      { dosya_adi: 'ihtiyac-talep-formu', etiket: 'Talep Formu' }
-    ]
-  },
-  // Lüzum Müzekkeresi ailesi
-  {
-    grup: 'luzum-muzekkeresi',
-    sablonlar: [
-      { dosya_adi: 'luzum-muzekkeresi', etiket: 'Lüzum Müzekkeresi' },
-      { dosya_adi: 'luzum-muzekkeresi-onay-eki', etiket: 'Onay Eki' },
-      { dosya_adi: 'luzum-muzekkeresi-teslim-tesellum', etiket: 'Teslim Tesellüm' }
-    ]
-  },
-  // Komisyon Görevlendirme ailesi
-  {
-    grup: 'komisyon-gorevlendirme',
-    sablonlar: [
-      { dosya_adi: 'komisyon-gorevlendirme-onayi', etiket: 'Komisyon Atama' },
-      { dosya_adi: 'komisyon-gorevlendirme-onayi-eki', etiket: 'Onay Eki' }
-    ]
-  },
-  // Onay Belgesi ailesi
-  {
-    grup: 'onay-belgesi',
-    sablonlar: [
-      { dosya_adi: 'dogrudan-temin-onay-belgesi', etiket: 'Doğrudan Temin' },
-      { dosya_adi: 'idare-onay-belgesi', etiket: 'İhale' },
-      { dosya_adi: 'butce-sorgusu', etiket: 'Bütçe Sorgusu' }
-    ]
-  },
-  // Harcama ailesi
-  {
-    grup: 'harcama',
-    sablonlar: [
-      { dosya_adi: 'harcama-talimati', etiket: 'Harcama Talimatı' },
-      { dosya_adi: 'harcama-pusulasi', etiket: 'Harcama Pusulası' }
-    ]
-  },
-  // Doğrudan Temin Sözleşmesi ailesi
-  {
-    grup: 'dt-sozlesmesi',
-    sablonlar: [
-      { dosya_adi: 'dogrudan-temin-sozlesmesi', etiket: 'Standart' },
-      { dosya_adi: 'dogrudan-temin-sozlesmesi-alternatif', etiket: 'Alternatif' },
-      { dosya_adi: 'dogrudan-temin-sozlesmesi-uzun', etiket: 'Uzun Form' }
-    ]
-  },
-  // Dağıtım Çizelgesi ailesi
-  {
-    grup: 'dagitim-cizelgesi',
-    sablonlar: [
-      { dosya_adi: 'dagitim-cizelgesi', etiket: 'Standart' },
-      { dosya_adi: 'dagitim-cizelgesi-karma', etiket: 'Karma' }
-    ]
-  },
-  // Klasör Sırtlığı ailesi
-  {
-    grup: 'klasor-sirtligi',
-    sablonlar: [
-      { dosya_adi: 'klasor-sirtligi-3cm', etiket: '3 cm' },
-      { dosya_adi: 'klasor-sirtligi-5cm', etiket: '5 cm' },
-      { dosya_adi: 'klasor-sirtligi-7-5cm', etiket: '7.5 cm' }
-    ]
-  },
-  // Kabul Edilen Teklif ailesi
-  {
-    grup: 'kabul-edilen-teklif',
-    sablonlar: [
-      { dosya_adi: 'kabul-edilen-teklif', etiket: 'Standart' },
-      { dosya_adi: 'kabul-edilen-teklif-alternatif', etiket: 'Alternatif' }
-    ]
-  },
-  // Muayene & Kabul ailesi
-  {
-    grup: 'muayene-kabul',
-    sablonlar: [
-      { dosya_adi: 'muayene-kabul-komisyonu', etiket: 'Komisyon' },
-      { dosya_adi: 'muayene-kabul-tutanagi', etiket: 'Tutanak' }
-    ]
-  }
-]
-
 // Hızlı lookup: dosya_adi → { grup_adi, grup_siralama, etiket }
 const TEMPLATE_GROUP_MAP = new Map<
   string,
@@ -752,14 +595,6 @@ for (const g of TEMPLATE_GROUPS) {
   g.sablonlar.forEach((s, i) => {
     TEMPLATE_GROUP_MAP.set(s.dosya_adi, { grup_adi: g.grup, grup_siralama: i, etiket: s.etiket })
   })
-}
-
-const TEMPLATE_CATEGORIES: Record<string, string> = {
-  '1-ihtiyac-tespiti-ve-baslangic': '1. İhtiyaç Tespiti & Başlangıç',
-  '2-piyasa-fiyat-arastirmasi': '2. Piyasa Fiyat Araştırması',
-  '3-siparis-ve-sozlesme': '3. Sipariş & Sözleşme',
-  '4-kabul-ve-odeme-islemleri': '4. Muayene & Kabul & Ödeme İşlemleri',
-  '5-klasor-ve-kapaklar': '5. Klasör & Kapaklar'
 }
 
 function seedTemplates(db: Database.Database): void {

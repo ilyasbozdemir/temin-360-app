@@ -54,6 +54,8 @@ export function PageWrapper(): React.ReactNode {
     else if (path.startsWith('/profil')) title += ' — Kullanıcı Profili'
     else if (path.startsWith('/hakedis')) {
       title += ' — Hakediş & Süreç Yönetimi (Beta)'
+    } else if (path.startsWith('/notlar')) {
+      title += ' — Notlar & Yapılacaklar (To-Do)'
     }
 
     document.title = title
