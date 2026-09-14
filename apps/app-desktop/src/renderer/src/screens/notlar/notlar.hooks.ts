@@ -12,8 +12,8 @@ const fetchNotlar = async (): Promise<NotVeGorev[]> => {
   const sql = `
     SELECT 
       n.*,
-      d.dosya_no,
-      d.isin_adi as dosya_konusu
+      d.temin_no as dosya_no,
+      d.konu as dosya_konusu
     FROM DATA_NotVeGorev n
     LEFT JOIN DATA_TeminDosyasi d ON n.temin_dosya_id = d.id
     ORDER BY n.sabitlendi DESC, n.tamamlandi ASC, n.id DESC
@@ -29,7 +29,7 @@ const fetchNotlar = async (): Promise<NotVeGorev[]> => {
 
 const fetchDosyalar = async (): Promise<DosyaOption[]> => {
   const sql = `
-    SELECT id, dosya_no, isin_adi, coalesce(yil, 2026) as yil
+    SELECT id, temin_no as dosya_no, konu as isin_adi, coalesce(butce_yili, 2026) as yil
     FROM DATA_TeminDosyasi
     ORDER BY id DESC
   `
