@@ -6,6 +6,8 @@ export interface DuplicateFileInfo {
   konu: string
   butce_yili?: number
   dosya_acilis_tarihi?: string
+  ihale_tipi?: string
+  tur?: string
 }
 
 export interface UseTeminNoCheckerResult {
@@ -49,6 +51,7 @@ export function useTeminNoChecker(
   rawTeminNo: string,
   year: number,
   currentDosyaId?: number | string | null,
+  ihaleTipi?: string,
   debounceMs = 300
 ): UseTeminNoCheckerResult {
   const [isChecking, setIsChecking] = useState(false)
@@ -72,7 +75,7 @@ export function useTeminNoChecker(
       try {
         const res = await window.electron.ipcRenderer.invoke(
           'db:query',
-          `SELECT id, temin_no, konu, butce_yili, dosya_acilis_tarihi 
+          `SELECT id, temin_no, konu, butce_yili, dosya_acilis_tarihi, ihale_tipi, tur 
            FROM DATA_TeminDosyasi 
            WHERE (is_deleted = 0 OR is_deleted IS NULL)`
         )
@@ -120,7 +123,9 @@ export function useTeminNoChecker(
               temin_no: file.temin_no,
               konu: file.konu || 'İsimsiz Dosya',
               butce_yili: fileYear,
-              dosya_acilis_tarihi: file.dosya_acilis_tarihi
+              dosya_acilis_tarihi: file.dosya_acilis_tarihi,
+              ihale_tipi: file.ihale_tipi,
+              tur: file.tur
             }
             break
           }

@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react'
 import {
-  AlertCircle,
   CheckCircle2,
   Copy,
   FileText,
@@ -60,7 +59,8 @@ export function GenelBilgilerVeIdariAntetSection(props: YeniDosyaTabProps): Reac
   } = useTeminNoChecker(
     formData.temin_no || '',
     targetYear,
-    currentTargetId
+    currentTargetId,
+    formData.ihale_tipi || undefined
   )
 
   return (
