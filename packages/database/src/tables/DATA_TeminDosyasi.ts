@@ -50,8 +50,10 @@ export const DATA_TeminDosyasi = {
       default: 0,
       description: 'Kismi Teklif Verilecek mı?'
     },
-    { name: 'fiyat_farki_dayanagi', type: 'TEXT', description: 'Fiyat Farki Dayanagi' },
     { name: 'yatirim_proje_no', type: 'TEXT', description: 'Yatirim Proje Numarası' },
+    { name: 'project_id', type: 'INTEGER', description: 'Bağlı Olduğu Proje ID (TANIM_Proje)' },
+    { name: 'proje_adi', type: 'TEXT', description: 'Bağlı Olduğu Proje Adı' },
+    { name: 'tags', type: 'TEXT', default: "'[]'", description: 'Etiketler (JSON Array örn: ["#Acil", "#Tadilat"])' },
     { name: 'avans_verilecek_mi', type: 'INTEGER', default: 0, description: 'Avans Verilecek mı?' },
     {
       name: 'yillara_yaygin',

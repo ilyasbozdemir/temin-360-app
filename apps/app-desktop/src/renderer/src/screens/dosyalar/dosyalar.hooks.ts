@@ -31,6 +31,11 @@ export interface TeminDosyasi {
   kismi_teklif_verilecek_mi: number
   fiyat_farki_dayanagi: string | null
   yatirim_proje_no: string | null
+  project_id?: number | null
+  proje_kodu?: string | null
+  proje_adi?: string | null
+  proje_renk?: string | null
+  tags?: string | null
   avans_verilecek_mi: number
   yillara_yaygin: number
   sozlesme_yapilacak_mi: number
@@ -82,6 +87,9 @@ const fetchDosyalar = async (): Promise<TeminDosyasi[]> => {
   const res = await window.electron.ipcRenderer.invoke(
     'db:query',
     `SELECT d.*, b.birim_adi,
+      prj.proje_kodu,
+      COALESCE(prj.proje_adi, d.proje_adi) AS proje_adi,
+      prj.renk AS proje_renk,
       p_irtibat.ad_soyad AS irtibat_ad,
       p_onay.ad_soyad AS onaylayan_ad,
       p_sunan.ad_soyad AS sunan_ad,
@@ -89,6 +97,7 @@ const fetchDosyalar = async (): Promise<TeminDosyasi[]> => {
       p_talep.ad_soyad AS talep_eden_ad
     FROM DATA_TeminDosyasi d 
     LEFT JOIN TANIM_Birim b ON d.birim_id = b.id
+    LEFT JOIN TANIM_Proje prj ON d.project_id = prj.id
     LEFT JOIN TANIM_Personel p_irtibat ON d.irtibat_yetkilisi_id = p_irtibat.id
     LEFT JOIN TANIM_Personel p_onay ON d.onay_personel_id = p_onay.id
     LEFT JOIN TANIM_Personel p_sunan ON d.sunan_personel_id = p_sunan.id

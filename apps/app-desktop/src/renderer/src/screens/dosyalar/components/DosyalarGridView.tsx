@@ -11,7 +11,7 @@ import {
   TrendingUp
 } from 'lucide-react'
 import { cn } from '../../../utils/cn'
-import { DurumBadge, TurBadge } from './Badges'
+import { DurumBadge, ProjectBadge, TagBadge, TurBadge } from './Badges'
 import { DosyaActionMenu } from './DosyaActionMenu'
 import { DosyaHizliIcerikPopover } from './DosyaHizliIcerikPopover'
 import { useNavigate } from '@tanstack/react-router'
@@ -178,6 +178,34 @@ export function DosyalarGridView({
                         </span>
                       ) : null}
                     </h3>
+
+                    {/* Proje ve Etiketler */}
+                    {(dosya.proje_adi || dosya.tags) && (() => {
+                      let tagList: string[] = []
+                      if (dosya.tags) {
+                        try {
+                          const parsed = JSON.parse(dosya.tags)
+                          if (Array.isArray(parsed)) tagList = parsed
+                        } catch {
+                          tagList = typeof dosya.tags === 'string' ? dosya.tags.split(',').map((s: string) => s.trim()).filter(Boolean) : []
+                        }
+                      }
+                      if (!dosya.proje_adi && tagList.length === 0) return null
+                      return (
+                        <div className="flex items-center gap-1.5 flex-wrap pt-2">
+                          {dosya.proje_adi && (
+                            <ProjectBadge
+                              projeKodu={dosya.proje_kodu}
+                              projeAdi={dosya.proje_adi}
+                              renk={dosya.proje_renk}
+                            />
+                          )}
+                          {tagList.map((t: string) => (
+                            <TagBadge key={t} tag={t} />
+                          ))}
+                        </div>
+                      )
+                    })()}
                   </div>
 
                   {/* Birim */}

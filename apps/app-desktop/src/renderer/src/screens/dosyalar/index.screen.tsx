@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { TeminDosyasi, useDosyalarHooks } from "./dosyalar.hooks";
+import { useProjeHooks } from "../../hooks/useProjeHooks";
 import { useTabStore } from "../../store/tabStore";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useWorkspaceStore } from "../../store/workspaceStore";
@@ -22,6 +23,7 @@ export default function DosyalarScreen(): React.ReactNode {
     bulkDeleteDosyalar,
     bulkHardDeleteDosyalar,
   } = useDosyalarHooks();
+  const { projeler } = useProjeHooks();
   const { activeDosyaId, setActiveDosyaId, activeMeta } = useWorkspaceStore();
   const { updateTabLabel } = useTabStore();
   const routerState = useRouterState();
@@ -35,6 +37,8 @@ export default function DosyalarScreen(): React.ReactNode {
   const [filterTur, setFilterTur] = useState<string>("hepsi");
   const [filterYil, setFilterYil] = useState<string>("hepsi");
   const [filterStatus, setFilterStatus] = useState<string>("hepsi");
+  const [filterProjeId, setFilterProjeId] = useState<string>("hepsi");
+  const [filterTag, setFilterTag] = useState<string>("hepsi");
 
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
   const toggleGroup = (baseKonu: string) => {
@@ -270,11 +274,31 @@ export default function DosyalarScreen(): React.ReactNode {
     ),
   ).sort((a, b) => b - a);
 
+  const uniqueTags = React.useMemo(() => {
+    const set = new Set<string>()
+    dosyalar.forEach((d) => {
+      if (d.tags) {
+        try {
+          const parsed = JSON.parse(d.tags)
+          if (Array.isArray(parsed)) parsed.forEach((t: string) => set.add(t))
+        } catch {
+          if (typeof d.tags === 'string') {
+            d.tags.split(',').forEach((t: string) => set.add(t.trim()))
+          }
+        }
+      }
+    })
+    return Array.from(set).filter(Boolean)
+  }, [dosyalar]);
+
   const filteredDosyalar = dosyalar.filter((d) => {
     const matchSearch =
       (d.konu || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (d.temin_no || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (d.birim_adi || "").toLowerCase().includes(searchQuery.toLowerCase());
+      (d.birim_adi || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (d.proje_adi || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (d.proje_kodu || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (d.tags || "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchTur = filterTur === "hepsi" || d.tur === filterTur;
 
     const dosyaYili = d.butce_yili ||
@@ -291,7 +315,10 @@ export default function DosyalarScreen(): React.ReactNode {
       (filterStatus === "tamamlandi" && d.status === "tamamlandi" &&
         d.is_deleted !== 1);
 
-    return matchSearch && matchTur && matchYil && matchStatus;
+    const matchProje = filterProjeId === "hepsi" || d.project_id?.toString() === filterProjeId;
+    const matchTag = filterTag === "hepsi" || Boolean(d.tags && d.tags.includes(filterTag));
+
+    return matchSearch && matchTur && matchYil && matchStatus && matchProje && matchTag;
   });
 
   const aktifDosyalar = dosyalar.filter((d) => d.is_deleted !== 1);
@@ -318,11 +345,11 @@ export default function DosyalarScreen(): React.ReactNode {
     const getFileTime = (f: typeof dosyalar[0]) => {
       if (f.dosya_acilis_tarihi) return new Date(f.dosya_acilis_tarihi).getTime();
       if (f.created_at) return new Date(f.created_at).getTime();
-      return f.id || 0;
+      return 0;
     };
 
-    groups.forEach((group) => {
-      group.files.sort((a, b) => getFileTime(b) - getFileTime(a));
+    groups.forEach((g) => {
+      g.files.sort((a, b) => getFileTime(b) - getFileTime(a));
     });
 
     groups.sort((a, b) => {
@@ -332,18 +359,16 @@ export default function DosyalarScreen(): React.ReactNode {
     });
 
     return groups;
-  }, [filteredDosyalar]);
+  }, [filteredDosyalar, dosyalar]);
 
   const toplamMaliyet = aktifDosyalar.reduce(
-    (s, d) => s + (d.yaklasik_maliyet || 0),
+    (acc, d) => acc + (d.yaklasik_maliyet || 0),
     0,
   );
-  const aktifCount = aktifDosyalar.filter(
-    (d) => d.durum_asama_id && d.status !== "tamamlandi",
+  const tamamlananCount = aktifDosyalar.filter(
+    (d) => d.status === "tamamlandi",
   ).length;
-  const taslakCount = aktifDosyalar.filter(
-    (d) => !d.durum_asama_id && d.status !== "tamamlandi",
-  ).length;
+  const taslakCount = aktifDosyalar.filter((d) => !d.durum_asama_id).length;
 
   const formatMoney = (val: number) =>
     val ? val.toLocaleString("tr-TR", { minimumFractionDigits: 2 }) : "0.00";
@@ -355,8 +380,12 @@ export default function DosyalarScreen(): React.ReactNode {
 
   const getDosyaNoLabel = (d: any) => formatDosyaNo(d);
 
+  const aktifCount = aktifDosyalar.filter(
+    (d) => d.durum_asama_id && d.status !== "tamamlandi",
+  ).length;
+
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 p-4 md:p-6 overflow-hidden gap-4">
+    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 p-4 md:p-6 overflow-hidden gap-4 select-none">
       <DosyalarPageHeader
         viewMode={viewMode}
         setViewMode={setViewMode}
@@ -386,6 +415,12 @@ export default function DosyalarScreen(): React.ReactNode {
         uniqueYillar={uniqueYillar}
         filterTur={filterTur}
         setFilterTur={setFilterTur}
+        filterProjeId={filterProjeId}
+        setFilterProjeId={setFilterProjeId}
+        uniqueProjeler={projeler}
+        filterTag={filterTag}
+        setFilterTag={setFilterTag}
+        uniqueTags={uniqueTags}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         filteredCount={filteredDosyalar.length}

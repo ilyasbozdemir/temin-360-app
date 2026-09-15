@@ -27,6 +27,7 @@ import {
   Tag,
   User,
   Users,
+  Boxes,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { useSettingsStore } from "../../store/settingsStore";
@@ -92,7 +93,7 @@ const menuGroups: MenuGroup[] = [
           { name: "Kurum Bilgileri", path: "/kurum", icon: Building2 },
           { name: "Birim Yönetimi", path: "/birimler", icon: LayoutGrid },
           { name: "Personel Yönetimi", path: "/personel", icon: Users },
-          { name: "Ambar Tanımları", path: "/ambar", icon: Database },
+          { name: "Ambar & Stok Yönetimi", path: "/ambar", icon: Boxes },
           { name: "Komisyon Yönetimi", path: "/komisyonlar", icon: Users },
           {
             name: "Görev Tanımları",

@@ -87,3 +87,96 @@ export function DurumBadge({
     </span>
   )
 }
+
+const TAG_COLORS = [
+  'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200/80 dark:border-blue-800/60',
+  'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200/80 dark:border-emerald-800/60',
+  'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200/80 dark:border-purple-800/60',
+  'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200/80 dark:border-amber-800/60',
+  'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200/80 dark:border-rose-800/60',
+  'bg-cyan-50 text-cyan-700 dark:bg-cyan-950/60 dark:text-cyan-300 border-cyan-200/80 dark:border-cyan-800/60',
+  'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border-indigo-200/80 dark:border-indigo-800/60',
+  'bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border-teal-200/80 dark:border-teal-800/60'
+]
+
+function getTagColor(tag: string): string {
+  let hash = 0
+  for (let i = 0; i < tag.length; i++) {
+    hash = tag.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  const index = Math.abs(hash) % TAG_COLORS.length
+  return TAG_COLORS[index]
+}
+
+export function TagBadge({
+  tag,
+  onRemove,
+  onClick,
+  active
+}: {
+  tag: string
+  onRemove?: () => void
+  onClick?: () => void
+  active?: boolean
+}): React.ReactElement {
+  const cleanTag = tag.startsWith('#') ? tag : `#${tag}`
+  const colorCls = getTagColor(tag)
+
+  return (
+    <span
+      onClick={onClick}
+      className={cn(
+        'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border transition-all select-none',
+        colorCls,
+        onClick ? 'cursor-pointer hover:opacity-80 active:scale-95' : '',
+        active ? 'ring-2 ring-offset-1 ring-blue-500 font-bold shadow-sm' : ''
+      )}
+    >
+      <span>{cleanTag}</span>
+      {onRemove && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            onRemove()
+          }}
+          className="hover:text-red-500 rounded-full p-0.5 transition-colors cursor-pointer"
+        >
+          ×
+        </button>
+      )}
+    </span>
+  )
+}
+
+export function ProjectBadge({
+  projeKodu,
+  projeAdi,
+  renk,
+  onClick
+}: {
+  projeKodu?: string | null
+  projeAdi?: string | null
+  renk?: string | null
+  onClick?: () => void
+}): React.ReactElement | null {
+  if (!projeKodu && !projeAdi) return null
+
+  return (
+    <span
+      onClick={onClick}
+      className={cn(
+        'inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold border transition-all select-none bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700',
+        onClick ? 'cursor-pointer hover:border-blue-400 hover:text-blue-600' : ''
+      )}
+    >
+      <span
+        className="w-1.5 h-1.5 rounded-full shrink-0"
+        style={{ backgroundColor: renk || '#3b82f6' }}
+      />
+      {projeKodu && <span className="font-mono text-[9px] text-blue-600 dark:text-blue-400">{projeKodu}</span>}
+      {projeKodu && projeAdi && <span className="text-slate-300 dark:text-slate-600">•</span>}
+      {projeAdi && <span className="truncate max-w-[140px]">{projeAdi}</span>}
+    </span>
+  )
+}

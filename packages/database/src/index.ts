@@ -35,9 +35,11 @@ import { DATA_TeminBelge } from './tables/DATA_TeminBelge'
 import { DATA_TIF } from './tables/DATA_TIF'
 import { DATA_TIF_Kalem } from './tables/DATA_TIF_Kalem'
 import { DATA_AmbarStok } from './tables/DATA_AmbarStok'
-import { LOG_SystemLog } from './tables/LOG_SystemLog'
+import { TANIM_Proje } from './tables/TANIM_Proje'
+import { DATA_AmbarHareket } from './tables/DATA_AmbarHareket'
 import { DATA_DosyaSablonVeri } from './tables/DATA_DosyaSablonVeri'
 import { DATA_NotVeGorev } from './tables/DATA_NotVeGorev'
+import { LOG_SystemLog } from './tables/LOG_SystemLog'
 import { runMigrations, CURRENT_SCHEMA_VERSION } from './migrate'
 import { defineTable } from './BaseTable'
 
@@ -51,6 +53,7 @@ const rawTables = [
   TANIM_Firma,
   TANIM_FirmaIletisimNotu,
   TANIM_Ambar,
+  TANIM_Proje,
   TANIM_TasinirKod,
   TANIM_OkasKod,
   TANIM_Kalem,
@@ -77,6 +80,7 @@ const rawTables = [
   DATA_TIF,
   DATA_TIF_Kalem,
   DATA_AmbarStok,
+  DATA_AmbarHareket,
   DATA_DosyaSablonVeri,
   DATA_NotVeGorev,
   LOG_SystemLog

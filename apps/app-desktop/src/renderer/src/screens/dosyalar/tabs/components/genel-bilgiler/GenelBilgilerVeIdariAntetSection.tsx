@@ -1,7 +1,17 @@
 import React, { useMemo } from 'react'
-import { AlertTriangle, Copy, FileText, Loader2, RefreshCw, Search, Sparkles } from 'lucide-react'
+import {
+  AlertCircle,
+  CheckCircle2,
+  Copy,
+  FileText,
+  Loader2,
+  RefreshCw,
+  Search,
+  Sparkles
+} from 'lucide-react'
 import { cn } from '../../../../../utils/cn'
 import { YeniDosyaTabProps } from '../../../types'
+import { useTeminNoChecker } from '../../../../../hooks/useTeminNoChecker'
 
 export function GenelBilgilerVeIdariAntetSection(props: YeniDosyaTabProps): React.JSX.Element {
   const {
@@ -38,18 +48,20 @@ export function GenelBilgilerVeIdariAntetSection(props: YeniDosyaTabProps): Reac
     )
   }, [formData.butce_yili, formData.dosya_acilis_tarihi])
 
-  // Temin No Mükerrerlik (Benzersizlik) Kontrolü (Aynı bütçe yılı içinde benzersiz olmalıdır)
-  const isDuplicateTeminNo = useMemo(() => {
-    if (!formData.temin_no?.trim() || !dosyalar || dosyalar.length === 0) return false
-    const currentTeminNo = formData.temin_no.trim()
-    return dosyalar.some((d) => {
-      if (d.is_deleted) return false
-      if (isEdit && d.id === editId) return false
-      const dYear =
-        d.butce_yili || (d.dosya_acilis_tarihi ? new Date(d.dosya_acilis_tarihi).getFullYear() : 0)
-      return (dYear === targetYear || !dYear) && d.temin_no?.trim() === currentTeminNo
-    })
-  }, [formData.temin_no, dosyalar, isEdit, editId, targetYear])
+  const currentTargetId = isEdit ? (editId || (formData as any)?.id || null) : ((formData as any)?.id || null)
+
+  // Gerçek Zamanlı (Canlı) SQLite Temin No Mükerrerlik ve Müsaitlik Kontrolü
+  const {
+    isChecking: isCheckingTeminNo,
+    isDuplicate: isDuplicateTeminNo,
+    duplicateInfo,
+    isAvailable: isAvailableTeminNo,
+    nextAvailableNo
+  } = useTeminNoChecker(
+    formData.temin_no || '',
+    targetYear,
+    currentTargetId
+  )
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -57,7 +69,7 @@ export function GenelBilgilerVeIdariAntetSection(props: YeniDosyaTabProps): Reac
         <div className="flex items-center gap-2">
           <FileText className="text-blue-500 w-5 h-5" />
           <h2 className="text-base font-bold text-slate-800 dark:text-white">
-            Genel Bilgiler & İdari Antet Yapısı
+            Genel Bilgiler &amp; İdari Antet Yapısı
           </h2>
         </div>
         <div className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold flex items-center gap-1.5">
@@ -136,14 +148,17 @@ export function GenelBilgilerVeIdariAntetSection(props: YeniDosyaTabProps): Reac
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-650 dark:text-slate-405 mb-1.5 flex items-center justify-between">
-            <span>Doğrudan Temin Numarası *</span>
-            {!formData.temin_no && (
-              <span className="text-[10px] text-amber-500 font-normal animate-pulse">
-                Otomatik üretilecek
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs font-bold text-slate-650 dark:text-slate-405 flex items-center gap-1.5">
+              <span>Doğrudan Temin Numarası *</span>
+            </label>
+            {isCheckingTeminNo && (
+              <span className="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
+                <Loader2 className="w-2.5 h-2.5 animate-spin" /> Kontrol ediliyor...
               </span>
             )}
-          </label>
+          </div>
+
           <div className="relative">
             <input
               type="text"
@@ -172,47 +187,52 @@ export function GenelBilgilerVeIdariAntetSection(props: YeniDosyaTabProps): Reac
               }}
               placeholder={`Örn: ${targetYear}/1`}
               className={cn(
-                'w-full pl-3.5 pr-24 py-2.5 bg-slate-50 dark:bg-slate-950 border rounded-xl text-xs focus:outline-none focus:ring-1 text-slate-800 dark:text-slate-200 font-bold',
+                'w-full pl-3.5 pr-24 py-2.5 bg-slate-50 dark:bg-slate-950 border rounded-xl text-xs focus:outline-none focus:ring-1 text-slate-800 dark:text-slate-200 font-bold transition-all',
                 isDuplicateTeminNo
-                  ? 'border-amber-400 dark:border-amber-600 focus:ring-amber-500 bg-amber-50/20'
+                  ? 'border-amber-300 dark:border-amber-700/60 focus:ring-amber-400/20 bg-amber-50/20'
+                  : isAvailableTeminNo
+                  ? 'border-emerald-300 dark:border-emerald-700/50 focus:ring-emerald-400/20'
                   : 'border-slate-200 dark:border-slate-800 focus:ring-blue-500'
               )}
             />
-            {getNextTeminNo && (
-              <button
-                type="button"
-                title="Sıradaki benzersiz numarayı getir"
-                onClick={() => {
-                  const nextNo = getNextTeminNo(targetYear)
-                  setFormData({ ...formData, temin_no: nextNo })
-                }}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-blue-600 hover:text-blue-700 dark:text-blue-400 font-bold px-2 py-1 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors flex items-center gap-1 cursor-pointer border-none"
-              >
-                <RefreshCw size={11} /> Sıradaki No
-              </button>
-            )}
+            <button
+              type="button"
+              title="Sıradaki müsait benzersiz numarayı ata"
+              onClick={() => {
+                const nextNo = nextAvailableNo || (getNextTeminNo ? getNextTeminNo(targetYear) : `${targetYear}/1`)
+                setFormData({ ...formData, temin_no: nextNo })
+              }}
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-blue-600 hover:text-blue-700 dark:text-blue-400 font-bold px-2 py-1 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors flex items-center gap-1 cursor-pointer border-none"
+            >
+              <RefreshCw size={11} /> Sıradaki No
+            </button>
           </div>
 
-          {isDuplicateTeminNo && (
-            <div className="flex items-center justify-between gap-2 mt-1.5 p-2 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-lg text-[11px] text-amber-800 dark:text-amber-200 animate-in fade-in duration-200">
+          {/* KİBAR & ZARİF BİLGİLENDİRME SATIRI */}
+          {isDuplicateTeminNo && duplicateInfo && (
+            <div className="flex items-center justify-between gap-2 mt-1.5 px-3 py-1.5 bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-800/40 rounded-lg text-xs text-amber-800 dark:text-amber-300 animate-in fade-in duration-200">
               <div className="flex items-center gap-1.5 min-w-0">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span className="text-amber-500 shrink-0">ℹ️</span>
                 <span className="truncate">
-                  <strong>{formData.temin_no}</strong> numarası {targetYear} yılında zaten kullanımda!
+                  Bu numara <strong>#{duplicateInfo.id} - {duplicateInfo.konu}</strong> dosyasında kayıtlı.
                 </span>
               </div>
-              {getNextTeminNo && (
+              {nextAvailableNo && (
                 <button
                   type="button"
-                  onClick={() => {
-                    const nextNo = getNextTeminNo(targetYear)
-                    setFormData({ ...formData, temin_no: nextNo })
-                  }}
-                  className="px-2 py-0.5 bg-amber-600 hover:bg-amber-700 text-white rounded font-bold text-[10px] transition-colors shrink-0 cursor-pointer"
+                  onClick={() => setFormData({ ...formData, temin_no: nextAvailableNo })}
+                  className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 hover:bg-amber-200 dark:hover:bg-amber-900/60 text-amber-900 dark:text-amber-200 rounded text-[10px] font-semibold transition-colors shrink-0 cursor-pointer"
                 >
-                  Sıradakini Ata
+                  Sıradaki: {nextAvailableNo}
                 </button>
               )}
+            </div>
+          )}
+
+          {isAvailableTeminNo && formData.temin_no && (
+            <div className="flex items-center gap-1.5 mt-1 px-1 text-[11px] text-emerald-600 dark:text-emerald-400 animate-in fade-in duration-150">
+              <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+              <span>Bu numara kullanılabilir.</span>
             </div>
           )}
         </div>

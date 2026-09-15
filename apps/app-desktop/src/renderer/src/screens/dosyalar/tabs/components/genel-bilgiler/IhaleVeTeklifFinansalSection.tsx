@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Building2, HelpCircle, Info, Loader2, Sparkles } from "lucide-react";
+import { Building2, FolderKanban, HelpCircle, Info, Loader2, Sparkles, Tag } from "lucide-react";
 import { YeniDosyaTabProps } from "../../../types";
 import { useWorkspaceStore } from "../../../../../store/workspaceStore";
 import { useSettingsStore } from "../../../../../store/settingsStore";
 import { useDosyalarHooks } from "../../../../dosyalar/dosyalar.hooks";
+import { ProjectSelectModal } from "../../../../../components/ui/ProjectSelectModal";
+import { TagInput } from "../../../../../components/ui/TagInput";
 
 export function IhaleVeTeklifFinansalSection(
   props: YeniDosyaTabProps,
@@ -19,6 +21,7 @@ export function IhaleVeTeklifFinansalSection(
     "Ortalama fiyat esasına göre";
 
   const [isAiChecking, setIsAiChecking] = useState(false);
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
 
   React.useEffect(() => {
     loadSettings();
@@ -374,20 +377,97 @@ export function IhaleVeTeklifFinansalSection(
           </select>
         </div>
 
-        <div>
-          <label className="block text-xs font-bold text-slate-600 dark:text-slate-455 mb-1.5">
-            Yatırım Proje Numarası
+        {/* ÜST PROJE / YATIRIM İLİŞKİSİ */}
+        <div className="col-span-full bg-slate-50 dark:bg-slate-900/40 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <FolderKanban size={14} className="text-blue-500" />
+              Üst Proje / Yatırım Programı İlişkisi
+            </label>
+            <button
+              type="button"
+              onClick={() => setIsProjectModalOpen(true)}
+              className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-bold cursor-pointer"
+            >
+              {formData.project_id ? "Projeyi Değiştir" : "+ Proje Seç / Tanımla"}
+            </button>
+          </div>
+
+          {formData.project_id ? (
+            <div className="flex items-center justify-between p-2.5 bg-white dark:bg-slate-950 border border-blue-200 dark:border-blue-800/80 rounded-xl">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800">
+                    {formData.yatirim_proje_no || "PROJE"}
+                  </span>
+                  <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                    {formData.proje_adi || "Bağlı Proje"}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setFormData({
+                    ...formData,
+                    project_id: null,
+                    proje_adi: null,
+                  })
+                }
+                className="text-[11px] text-red-500 hover:text-red-600 font-semibold cursor-pointer"
+              >
+                Kaldır
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={formData.yatirim_proje_no || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    yatirim_proje_no: e.target.value,
+                  })
+                }
+                placeholder="Veya serbest proje / yatırım no giriniz (Örn: 2026-03-Y-12)"
+                className="flex-1 px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 font-mono"
+              />
+              <button
+                type="button"
+                onClick={() => setIsProjectModalOpen(true)}
+                className="px-3 py-2 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 rounded-xl text-xs font-bold hover:bg-blue-100 transition-colors cursor-pointer shrink-0"
+              >
+                Proje Havuzundan Seç
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* ETİKETLER (TAGS) */}
+        <div className="col-span-full space-y-1.5">
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <Tag size={14} className="text-blue-500" />
+            Dosya Etiketleri (Tags)
           </label>
-          <input
-            type="text"
-            value={formData.yatirim_proje_no || ""}
-            onChange={(e) =>
+          <TagInput
+            tags={(() => {
+              if (!formData.tags) return [];
+              try {
+                const parsed = JSON.parse(formData.tags);
+                return Array.isArray(parsed) ? parsed : [];
+              } catch {
+                return typeof formData.tags === "string"
+                  ? formData.tags.split(",").map((s: string) => s.trim()).filter(Boolean)
+                  : [];
+              }
+            })()}
+            onChange={(newTags) =>
               setFormData({
                 ...formData,
-                yatirim_proje_no: e.target.value,
-              })}
-            placeholder="Örn: 2026-03-Y-12"
-            className="w-full px-3.5 py-2.5 bg-slate-55 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 font-mono"
+                tags: JSON.stringify(newTags),
+              })
+            }
           />
         </div>
 
@@ -570,6 +650,28 @@ export function IhaleVeTeklifFinansalSection(
           </>
         )}
       </div>
+
+      <ProjectSelectModal
+        isOpen={isProjectModalOpen}
+        onClose={() => setIsProjectModalOpen(false)}
+        selectedProjectId={formData.project_id}
+        onSelect={(p) => {
+          if (p) {
+            setFormData({
+              ...formData,
+              project_id: p.id,
+              proje_adi: p.proje_adi,
+              yatirim_proje_no: p.proje_kodu,
+            });
+          } else {
+            setFormData({
+              ...formData,
+              project_id: null,
+              proje_adi: null,
+            });
+          }
+        }}
+      />
     </div>
   );
 }

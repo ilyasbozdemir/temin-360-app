@@ -628,16 +628,44 @@ export function useYeniDosyaScreen(): UseYeniDosyaScreenReturn {
       const doubleMatch = finalTeminNo.match(/^(\d{4})[/-]\1[/-](\d+)$/)
       if (doubleMatch) {
         finalTeminNo = `${doubleMatch[1]}/${doubleMatch[2]}`
+      } else if (/^\d+$/.test(finalTeminNo)) {
+        finalTeminNo = `${targetYear}/${finalTeminNo}`
       }
-      // Yeni kayıt ise ve numara başka bir aktif dosyada varsa sıradakini ver
-      if (!isEdit) {
-        const isDuplicate = dosyalar.some(
-          (d) => !d.is_deleted && d.temin_no && d.temin_no === finalTeminNo
-        )
-        if (isDuplicate) {
-          finalTeminNo = getNextTeminNo(targetYear)
+    }
+
+    // Veritabanı seviyesinde gerçek zamanlı mükerrerlik kontrolü (Kayıt öncesi kesin engel)
+    try {
+      const checkRes = await window.electron.ipcRenderer.invoke(
+        'db:query',
+        `SELECT id, temin_no, konu, butce_yili, dosya_acilis_tarihi 
+         FROM DATA_TeminDosyasi 
+         WHERE (is_deleted = 0 OR is_deleted IS NULL)`
+      )
+      if (checkRes.success && checkRes.data) {
+        const existingCollision = checkRes.data.find((d: any) => {
+          if (isEdit && Number(d.id) === Number(editId)) return false
+          const dYear =
+            Number(d.butce_yili) ||
+            (d.dosya_acilis_tarihi ? new Date(d.dosya_acilis_tarihi).getFullYear() : targetYear)
+          if (dYear !== targetYear && dYear !== 0) return false
+          const cleanD = (d.temin_no || '').trim()
+          if (!cleanD) return false
+          return (
+            cleanD.toLowerCase() === finalTeminNo.toLowerCase() ||
+            cleanD.toLowerCase() === `${targetYear}/${finalTeminNo}`.toLowerCase() ||
+            `${targetYear}/${cleanD}`.toLowerCase() === finalTeminNo.toLowerCase()
+          )
+        })
+
+        if (existingCollision) {
+          alert(
+            `KAYIT ENGELLENDİ!\n\n"${finalTeminNo}" doğrudan temin numarası ${targetYear} yılında zaten başka bir dosya (Dosya #${existingCollision.id}: "${existingCollision.konu}") tarafından kullanılmaktadır.\n\nLütfen formu kontrol edip benzersiz bir numara veriniz veya "Sıradaki No" butonunu kullanınız.`
+          )
+          return
         }
       }
+    } catch (err) {
+      console.warn('Temin no doğrulama uyarısı:', err)
     }
 
     const payload = {

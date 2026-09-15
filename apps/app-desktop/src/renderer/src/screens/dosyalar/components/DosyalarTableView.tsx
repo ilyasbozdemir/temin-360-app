@@ -1,7 +1,7 @@
 import React from 'react'
 import { CheckCircle2, ChevronRight, FolderOpen } from 'lucide-react'
 import { cn } from '../../../utils/cn'
-import { TurBadge } from './Badges'
+import { ProjectBadge, TagBadge, TurBadge } from './Badges'
 import { DosyaActionMenu } from './DosyaActionMenu'
 import { DosyaHizliIcerikPopover } from './DosyaHizliIcerikPopover'
 import { useNavigate } from '@tanstack/react-router'
@@ -140,15 +140,42 @@ export function DosyalarTableView({
                           </div>
                         </td>
                         <td
-                          className="p-3.5 font-bold text-slate-800 dark:text-slate-200 max-w-xs truncate"
+                          className="p-3.5 font-bold text-slate-800 dark:text-slate-200 max-w-xs"
                           title={dosya.konu}
                         >
-                          {dosya.konu}
+                          <div className="line-clamp-1">{dosya.konu}</div>
                           {dosya.tekrar_no && dosya.tekrar_no > 1 ? (
                             <span className="ml-1 text-[9px] text-amber-500 font-black">
                               #{dosya.tekrar_no}
                             </span>
                           ) : null}
+
+                          {(dosya.proje_adi || dosya.tags) && (() => {
+                            let tagList: string[] = []
+                            if (dosya.tags) {
+                              try {
+                                const parsed = JSON.parse(dosya.tags)
+                                if (Array.isArray(parsed)) tagList = parsed
+                              } catch {
+                                tagList = typeof dosya.tags === 'string' ? dosya.tags.split(',').map((s: string) => s.trim()).filter(Boolean) : []
+                              }
+                            }
+                            if (!dosya.proje_adi && tagList.length === 0) return null
+                            return (
+                              <div className="flex items-center gap-1 flex-wrap pt-1">
+                                {dosya.proje_adi && (
+                                  <ProjectBadge
+                                    projeKodu={dosya.proje_kodu}
+                                    projeAdi={dosya.proje_adi}
+                                    renk={dosya.proje_renk}
+                                  />
+                                )}
+                                {tagList.map((t: string) => (
+                                  <TagBadge key={t} tag={t} />
+                                ))}
+                              </div>
+                            )
+                          })()}
                         </td>
                         <td className="p-3.5 text-slate-500 max-w-[120px] truncate text-[10px]">
                           {dosya.birim_adi || '-'}

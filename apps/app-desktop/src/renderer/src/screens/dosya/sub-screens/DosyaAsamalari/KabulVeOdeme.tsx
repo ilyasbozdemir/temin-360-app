@@ -11,7 +11,9 @@ import {
   FileText,
   PackageSearch,
   TrendingDown,
-  Trophy
+  Trophy,
+  PackageCheck,
+  Boxes
 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { SubScreen } from '../../SubScreens.screen'
@@ -20,6 +22,8 @@ import { PrintDropdownButton } from '../../components/PrintDropdownButton'
 import { useSettingsStore } from '../../../../store/settingsStore'
 import { useWorkspaceStore } from '../../../../store/workspaceStore'
 import { APP_ROUTES } from '../../../../constants/routeConstants'
+import { TifOlusturModal } from '../../../../components/ui/TifOlusturModal'
+import { Button } from '../../../../components/ui/Button'
 
 export function KabulVeOdeme(): React.JSX.Element {
   const {
@@ -79,6 +83,7 @@ export function KabulVeOdeme(): React.JSX.Element {
   // Mock form state for Fatura
   const [faturaNo, setFaturaNo] = useState<string>('')
   const [faturaTarihi, setFaturaTarihi] = useState<string>('')
+  const [isTifModalOpen, setIsTifModalOpen] = useState(false)
 
   useEffect(() => {
     if (!activeDosyaId) return
@@ -215,7 +220,14 @@ export function KabulVeOdeme(): React.JSX.Element {
       {kazananFirmaId && (
         <div className="flex flex-col gap-6 animate-in fade-in duration-300">
           {/* Header Row */}
-          <div className="flex flex-col md:flex-row md:items-center justify-end gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-5">
+            <Button
+              onClick={() => setIsTifModalOpen(true)}
+              className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm text-xs font-bold py-2.5 px-4 rounded-xl shrink-0"
+            >
+              <PackageCheck className="w-4 h-4" />
+              TİF Oluştur &amp; Ambara Aktar
+            </Button>
             {stageSablons.length > 0 && (
               <div className="shrink-0 self-start md:self-center">
                 <PrintDropdownButton
@@ -362,12 +374,22 @@ export function KabulVeOdeme(): React.JSX.Element {
                         <div className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400" />
                       </div>
                     )}
-                    <div>
-                      <h5
-                        className={`text-xs font-bold ${!faturaNo ? 'text-slate-500 dark:text-slate-400' : faturaTarihi ? 'text-slate-800 dark:text-slate-200' : 'text-blue-700 dark:text-blue-400'}`}
-                      >
-                        3. TİF & Fatura Kaydı
-                      </h5>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <h5
+                          className={`text-xs font-bold ${!faturaNo ? 'text-slate-500 dark:text-slate-400' : faturaTarihi ? 'text-slate-800 dark:text-slate-200' : 'text-blue-700 dark:text-blue-400'}`}
+                        >
+                          3. TİF &amp; Fatura Kaydı
+                        </h5>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setIsTifModalOpen(true)}
+                          className="h-6 text-[10px] px-2 gap-1 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700 bg-emerald-50/60 dark:bg-emerald-950/30"
+                        >
+                          <PackageCheck className="w-3 h-3" /> TİF Aktar
+                        </Button>
+                      </div>
                       <p className="text-[10px] text-slate-500 mt-0.5">
                         {!faturaNo
                           ? 'Kabul sonrası fatura ve taşınır işlemi.'
@@ -511,6 +533,15 @@ export function KabulVeOdeme(): React.JSX.Element {
           </div>
         </div>
       )}
+      {/* TİF & Ambar Aktarım Modalı */}
+      <TifOlusturModal
+        isOpen={isTifModalOpen}
+        onClose={() => setIsTifModalOpen(false)}
+        teminDosyaId={activeDosyaId || 0}
+        dosyaNo={dosyaContext?.dosya_no}
+        dosyaAdi={dosyaContext?.dosya_adi}
+      />
     </SubScreen>
   )
 }
+
