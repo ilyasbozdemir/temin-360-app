@@ -7,6 +7,7 @@ import {
   ChevronRight,
   ClipboardList,
   Clock,
+  Coins,
   DownloadCloud,
   FileSpreadsheet,
   Layers,
@@ -1023,8 +1024,19 @@ export function Header(): React.JSX.Element {
           className="flex items-center space-x-2 pr-36"
           style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
         >
-          {/* Bulut Senkronizasyon Popover */}
-          <SyncPopover />
+          {/* Sayıyı Yazıya Çevirici Hızlı Araç */}
+          <button
+            onClick={() =>
+              window.dispatchEvent(
+                new CustomEvent("open:sayiyi-yaziya-cevir", {
+                  detail: { value: "282.112,00" },
+                }),
+              )}
+            className="p-1 text-slate-500 hover:text-amber-600 dark:text-slate-400 dark:hover:text-amber-400 transition-all rounded hover:bg-slate-200/50 dark:hover:bg-slate-800/50 cursor-pointer"
+            title="Sayıyı Yazıya Çevirici (TL)"
+          >
+            <Coins className="w-3.5 h-3.5" />
+          </button>
 
           {/* Notlar & Yapılacaklar (To-Do) Hızlı Erişim Butonu */}
           <button

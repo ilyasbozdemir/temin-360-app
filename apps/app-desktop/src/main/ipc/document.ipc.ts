@@ -38,53 +38,60 @@ function readSystemTemplate(fileName: string): string | null {
   return null
 }
 
-function numberToTurkishWords(num: number): string {
-  if (isNaN(num) || num === 0) return 'Sıfır TL'
-  const birler = ['', 'Bir', 'İki', 'Üç', 'Dört', 'Beş', 'Altı', 'Yedi', 'Sekiz', 'Dokuz']
-  const onlar = ['', 'On', 'Yirmi', 'Otuz', 'Kırk', 'Elli', 'Altmış', 'Yetmiş', 'Seksen', 'Doksan']
-  const basamaklar = ['', 'Bin', 'Milyon', 'Milyar', 'Trilyon']
+const ONES = ['', 'BİR', 'İKİ', 'ÜÇ', 'DÖRT', 'BEŞ', 'ALTI', 'YEDİ', 'SEKİZ', 'DOKUZ']
+const TENS = ['', 'ON', 'YİRMİ', 'OTUZ', 'KIRK', 'ELLİ', 'ALTMIŞ', 'YETMİŞ', 'SEKSEN', 'DOKSAN']
+const SCALES = ['', 'BİN', 'MİLYON', 'MİLYAR', 'TRİLYON', 'KATRİLYON']
 
-  const convertGroup = (n: number): string => {
-    let res = ''
-    const yuzler = Math.floor(n / 100)
-    const on = Math.floor((n % 100) / 10)
-    const bir = n % 10
+function convertNumberGroup(n: number): string {
+  let result = ''
+  const yuzler = Math.floor(n / 100)
+  const kalan = n % 100
+  const onlar = Math.floor(kalan / 10)
+  const birler = kalan % 10
 
-    if (yuzler > 1) res += birler[yuzler] + 'Yüz'
-    else if (yuzler === 1) res += 'Yüz'
-
-    if (on > 0) res += onlar[on]
-    if (bir > 0) res += birler[bir]
-
-    return res
+  if (yuzler > 0) {
+    if (yuzler > 1) result += ONES[yuzler]
+    result += 'YÜZ'
   }
+  if (onlar > 0) result += TENS[onlar]
+  if (birler > 0) result += ONES[birler]
 
-  const tamKisim = Math.floor(num)
-  const kurusKisim = Math.round((num - tamKisim) * 100)
-
-  let tamStr = ''
-  let temp = tamKisim
-  let basamakIdx = 0
-
-  while (temp > 0) {
-    const group = temp % 1000
-    if (group > 0) {
-      const groupText = convertGroup(group)
-      if (basamakIdx === 1 && group === 1) {
-        tamStr = 'Bin' + tamStr
-      } else {
-        tamStr = groupText + basamaklar[basamakIdx] + tamStr
-      }
-    }
-    temp = Math.floor(temp / 1000)
-    basamakIdx++
-  }
-
-  let result = (tamStr || 'Sıfır') + ' TL'
-  if (kurusKisim > 0) {
-    result += ' ' + convertGroup(kurusKisim) + ' Kr.'
-  }
   return result
+}
+
+function numberToTurkishWords(num: number): string {
+  if (isNaN(num) || num === 0) return 'SIFIR TL'
+
+  const tam = Math.floor(Math.abs(num))
+  const kurus = Math.round((Math.abs(num) - tam) * 100)
+
+  // 3'erli basamaklara ayır
+  const groups: number[] = []
+  let temp = tam
+  while (temp > 0) {
+    groups.push(temp % 1000)
+    temp = Math.floor(temp / 1000)
+  }
+
+  let words = ''
+  for (let i = groups.length - 1; i >= 0; i--) {
+    const g = groups[i]
+    if (g === 0) continue
+
+    let groupWords = convertNumberGroup(g)
+    if (i === 1 && g === 1) {
+      groupWords = '' // "BİR BİN" değil, sadece "BİN"
+    }
+
+    words += groupWords + (SCALES[i] || '') + ' '
+  }
+
+  words = (words.trim() || 'SIFIR') + ' TL'
+  if (kurus > 0) {
+    words += ' ' + convertNumberGroup(kurus) + ' KURUŞ'
+  }
+
+  return words
 }
 
 

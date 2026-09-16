@@ -48,3 +48,5 @@ export const formatTutar = (tutar: number): string => {
     maximumFractionDigits: 2
   }).format(tutar)
 }
+
+export { sayiyiYaziyaCevir, amountToWordsTL, numberToWords } from './sayiyiYaziyaCevir'

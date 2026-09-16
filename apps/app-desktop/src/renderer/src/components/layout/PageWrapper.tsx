@@ -20,12 +20,27 @@ import { GoogleDriveModal } from '../ui/GoogleDriveModal'
 import { GlobalDocumentPreviewHost } from './GlobalDocumentPreviewHost'
 import { useAppEventListener } from '../../utils/appEvents'
 import { FormatUpgradeModal } from '../modals/FormatUpgradeModal'
-
-
+import { SayiyiYaziyaCevirModal } from '../modals/SayiyiYaziyaCevirModal'
 
 export function PageWrapper(): React.ReactNode {
   const routerState = useRouterState()
   const navigate = useNavigate()
+
+  const [isSayiModalOpen, setIsSayiModalOpen] = useState(false)
+  const [sayiInitialVal, setSayiInitialVal] = useState<string>('282.112,00')
+
+  useEffect(() => {
+    const handleOpenSayiModal = (e: any) => {
+      if (e?.detail?.value !== undefined) {
+        setSayiInitialVal(String(e.detail.value))
+      }
+      setIsSayiModalOpen(true)
+    }
+    window.addEventListener('open:sayiyi-yaziya-cevir', handleOpenSayiModal)
+    return () => {
+      window.removeEventListener('open:sayiyi-yaziya-cevir', handleOpenSayiModal)
+    }
+  }, [])
 
   const searchParams = new URLSearchParams(window.location.search)
   const hashParams = new URLSearchParams(window.location.hash.split('?')[1] || '')
@@ -719,6 +734,11 @@ export function PageWrapper(): React.ReactNode {
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans text-slate-900 dark:text-slate-100 transition-colors duration-300">
       <DisclaimerModal />
+      <SayiyiYaziyaCevirModal
+        isOpen={isSayiModalOpen}
+        onClose={() => setIsSayiModalOpen(false)}
+        initialValue={sayiInitialVal}
+      />
       <FindInPage />
       <div className="flex flex-col flex-1 min-w-0">
         <Header />
