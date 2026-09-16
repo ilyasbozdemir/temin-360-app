@@ -377,6 +377,7 @@ export function useMalzemeListesi(
     try {
       for (const row of validRows) {
         const name = row.kalem_adi.trim()
+        const rowTipi = (row as any).tipi || commonData.tipi || 'Mal'
         const rowTasinir = row.tasinir_kodu?.trim() || commonData.tasinir_kodu_prefix || null
         const rowOkas = row.okas_kodu?.trim() || commonData.okas_kodu || null
         const rowBirim = row.birim || commonData.birim || 'Adet'
@@ -397,7 +398,7 @@ export function useMalzemeListesi(
              VALUES (?, ?, ?, ?, ?, ?, 1, ?)`,
             [
               name,
-              commonData.tipi,
+              rowTipi,
               rowBirim,
               rowKdv,
               rowTasinir,
@@ -419,7 +420,7 @@ export function useMalzemeListesi(
               rowTasinir,
               rowOkas,
               name,
-              commonData.tipi,
+              rowTipi,
               rowBirim,
               rowMiktar,
               rowKdv,

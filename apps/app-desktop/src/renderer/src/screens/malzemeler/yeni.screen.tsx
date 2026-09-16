@@ -328,7 +328,8 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
     try {
       let count = 0;
       for (const row of rows) {
-        const finalTipi = commonData.tipi || "Mal";
+        if (!row.kalem_adi || !row.kalem_adi.trim()) continue;
+        const finalTipi = row.tipi || commonData.tipi || "Mal";
         const finalBirim = row.birim || commonData.birim || "Adet";
         const finalOkas = row.okas_kodu || commonData.okas_kodu || "";
         const finalTasinir = row.tasinir_kodu || (commonData.tasinir_kodu_prefix ? commonData.tasinir_kodu_prefix : "");
