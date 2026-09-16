@@ -89,7 +89,7 @@ export function LuzumMuzekkeresi({
                   evrakSayisi={data.evrakSayisi}
                   tarih={data.onayaSunulanTarih || data.tarih ||
                     data.dosyaTarihi}
-                  dosyaKonusu={data.dosyaKonusu || "Lüzum Müzekkeresi"}
+                  dosyaKonusu={data.dosyaKonusu || data.isinAdi || "Mal Alımı"}
                   showBorder={false}
                 />
 

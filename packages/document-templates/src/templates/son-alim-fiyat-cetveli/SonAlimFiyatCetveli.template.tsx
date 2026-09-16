@@ -110,7 +110,7 @@ export function SonAlimFiyatCetveli({
                 <MetadataBlock
                   evrakSayisi={data.evrakSayisi}
                   tarih={data.onayaSunulanTarih || data.tarih || data.dosyaTarihi}
-                  dosyaKonusu={data.dosyaKonusu || 'Son Alım Fiyat Cetveli'}
+                  dosyaKonusu={data.dosyaKonusu || data.isinAdi || "Mal Alımı"}
                   showBorder={false}
                 />
 

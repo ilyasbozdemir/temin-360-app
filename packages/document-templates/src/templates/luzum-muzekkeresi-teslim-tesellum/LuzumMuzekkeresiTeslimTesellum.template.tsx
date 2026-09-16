@@ -168,8 +168,8 @@ export function LuzumMuzekkeresiTeslimTesellum({
                 >
                   <EditableField
                     name="dosyaKonusu"
-                    value={data.dosyaKonusu || "TESLİM TESELLÜM BELGESİ"}
-                    placeholder="TESLİM TESELLÜM BELGESİ"
+                    value={data.dosyaKonusu || data.isinAdi || "Mal Alımı"}
+                    placeholder="İşin Konusu"
                   />
                 </div>
 

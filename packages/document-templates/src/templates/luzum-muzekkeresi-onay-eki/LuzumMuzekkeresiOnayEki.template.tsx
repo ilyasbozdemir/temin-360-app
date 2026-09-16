@@ -105,8 +105,8 @@ export function LuzumMuzekkeresiOnayEki({
                 >
                   <EditableField
                     name="dosyaKonusu"
-                    value={data.dosyaKonusu || "Lüzum Müzekkeresi"}
-                    placeholder="Lüzum Müzekkeresi"
+                    value={data.dosyaKonusu || data.isinAdi || "Mal Alımı"}
+                    placeholder="İşin Konusu"
                   />
                 </div>
 

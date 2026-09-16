@@ -155,7 +155,7 @@ export function IhtiyacTalepFormu({
                 <MetadataBlock
                   evrakSayisi={data.evrakSayisi}
                   tarih={tarihVal}
-                  dosyaKonusu={data.dosyaKonusu || "İhtiyaç Talep Formu"}
+                  dosyaKonusu={data.dosyaKonusu || data.isinAdi || "Mal Alımı"}
                   showBorder={false}
                 />
 

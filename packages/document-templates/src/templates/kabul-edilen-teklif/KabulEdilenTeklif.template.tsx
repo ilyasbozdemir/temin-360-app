@@ -116,7 +116,7 @@ export function KabulEdilenTeklif({
                     </tr>
                     <tr>
                       <td colSpan={2} style={{ padding: "4px 0", fontSize: "11pt", fontWeight: "bold" }}>
-                        Konu: <EditableField name="dosyaKonusu" value={data.dosyaKonusu || "Kabul Edilen Teklif"} placeholder="Kabul Edilen Teklif" />
+                        Konu: <EditableField name="dosyaKonusu" value={data.dosyaKonusu || data.isinAdi || "Mal Alımı"} placeholder="İşin Konusu" />
                       </td>
                     </tr>
                   </tbody>
