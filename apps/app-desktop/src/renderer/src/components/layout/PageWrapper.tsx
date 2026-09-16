@@ -19,6 +19,7 @@ import { WorkspaceCloseModal } from './WorkspaceCloseModal'
 import { GoogleDriveModal } from '../ui/GoogleDriveModal'
 import { GlobalDocumentPreviewHost } from './GlobalDocumentPreviewHost'
 import { useAppEventListener } from '../../utils/appEvents'
+import { FormatUpgradeModal } from '../modals/FormatUpgradeModal'
 
 
 
@@ -186,6 +187,19 @@ export function PageWrapper(): React.ReactNode {
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false)
   const [isQuittingApp, setIsQuittingApp] = useState(false)
   const [isGDriveModalOpen, setIsGDriveModalOpen] = useState(false)
+  const [showFormatUpgradeModal, setShowFormatUpgradeModal] = useState(false)
+  const [upgradeFilePath, setUpgradeFilePath] = useState<string | null>(null)
+
+  const handleUpgradeAndOpen = async (filePath: string): Promise<void> => {
+    const result = await useWorkspaceStore.getState().convertAndOpenWorkspace(filePath)
+    if (result.success) {
+      queryClient.clear()
+      clearTabs()
+      navigate({ to: '/' })
+    } else {
+      throw new Error(result.error || 'Dönüştürme başarısız oldu.')
+    }
+  }
 
   const parseSavedClosePreferences = (pref: any): ('none' | 'backup' | 'email' | 'server' | 'gdrive')[] => {
     if (!pref || pref === 'ask') return []
@@ -530,6 +544,13 @@ export function PageWrapper(): React.ReactNode {
           return
         }
 
+        // Eski format kontrolü: .temin değilse yükseltme modalı aç
+        if (!filePath.toLowerCase().endsWith('.temin')) {
+          setUpgradeFilePath(filePath)
+          setShowFormatUpgradeModal(true)
+          return
+        }
+
         let result = await openWorkspace(filePath, false)
         if (result.requiresMigration) {
           result = await openWorkspace(filePath, true)
@@ -742,6 +763,15 @@ export function PageWrapper(): React.ReactNode {
         onClose={() => setIsGDriveModalOpen(false)}
       />
       <GlobalDocumentPreviewHost />
+      <FormatUpgradeModal
+        isOpen={showFormatUpgradeModal}
+        filePath={upgradeFilePath}
+        onClose={() => {
+          setShowFormatUpgradeModal(false)
+          setUpgradeFilePath(null)
+        }}
+        onUpgradeAndOpen={handleUpgradeAndOpen}
+      />
     </div>
   )
 }

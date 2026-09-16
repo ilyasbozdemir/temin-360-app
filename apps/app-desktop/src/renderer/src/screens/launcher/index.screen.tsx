@@ -22,9 +22,10 @@ import { useWorkspaceStore } from "../../store/workspaceStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "../../components/providers/ThemeProvider";
 import { NetworkSyncModal } from "../../components/network/NetworkSyncModal";
+import { FormatUpgradeModal } from "../../components/modals/FormatUpgradeModal";
 
 export default function LauncherScreen(): React.ReactNode {
-  const { openWorkspace, createWorkspace } = useWorkspaceStore();
+  const { openWorkspace, createWorkspace, convertAndOpenWorkspace } = useWorkspaceStore();
   const queryClient = useQueryClient();
   const { theme, setTheme } = useTheme();
 
@@ -32,6 +33,10 @@ export default function LauncherScreen(): React.ReactNode {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showNetworkModal, setShowNetworkModal] = useState(false);
   const [pendingFilePath, setPendingFilePath] = useState<string | null>(null);
+
+  // Format upgrade modal states
+  const [showFormatUpgradeModal, setShowFormatUpgradeModal] = useState(false);
+  const [upgradeFilePath, setUpgradeFilePath] = useState<string | null>(null);
 
   // Migration states
   const [showMigrationModal, setShowMigrationModal] = useState(false);
@@ -141,81 +146,100 @@ export default function LauncherScreen(): React.ReactNode {
     }
   };
 
+  const handleUpgradeAndOpen = async (filePath: string): Promise<void> => {
+    const result = await convertAndOpenWorkspace(filePath)
+    if (result.success) {
+      queryClient.clear()
+    } else {
+      throw new Error(result.error || 'Dönüştürme başarısız oldu.')
+    }
+  }
+
   const handleOpenFile = async (): Promise<void> => {
     try {
       const res = await window.electron?.ipcRenderer.invoke(
-        "dialog:showOpenDialog",
-      );
+        'dialog:showOpenDialog'
+      )
       if (!res.canceled && res.filePath) {
-        const result = await openWorkspace(res.filePath, false);
+        // Eski format kontrolü: .temin değilse yükseltme modalı aç
+        if (!res.filePath.toLowerCase().endsWith('.temin')) {
+          setUpgradeFilePath(res.filePath)
+          setShowFormatUpgradeModal(true)
+          return
+        }
+
+        const result = await openWorkspace(res.filePath, false)
 
         if (result.requiresMigration) {
           setMigrationData({
             filePath: res.filePath,
-            pendingUpdates: result.pendingUpdates || [],
-          });
-          setShowMigrationModal(true);
-          return;
+            pendingUpdates: result.pendingUpdates || []
+          })
+          setShowMigrationModal(true)
+          return
         }
 
         if (result.success) {
-          queryClient.clear();
+          queryClient.clear()
         } else {
-          alert(
-            `Kurum dosyası açılamadı!\nHata: ${
-              result.error || "Bilinmeyen hata"
-            }`,
-          );
+          alert(`Kurum dosyası açılamadı!\nHata: ${result.error || 'Bilinmeyen hata'}`)
         }
       }
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
-  };
+  }
 
   const handleOpenRecent = async (filePath: string): Promise<void> => {
     try {
-      const result = await openWorkspace(filePath, false);
+      // Eski format kontrolü: .temin değilse yükseltme modalı aç
+      if (!filePath.toLowerCase().endsWith('.temin')) {
+        setUpgradeFilePath(filePath)
+        setShowFormatUpgradeModal(true)
+        return
+      }
+
+      const result = await openWorkspace(filePath, false)
       if (result.requiresMigration) {
         setMigrationData({
           filePath,
-          pendingUpdates: result.pendingUpdates || [],
-        });
-        setShowMigrationModal(true);
-        return;
+          pendingUpdates: result.pendingUpdates || []
+        })
+        setShowMigrationModal(true)
+        return
       }
       if (result.success) {
-        queryClient.clear();
+        queryClient.clear()
       } else {
-        const errorMsg = result.error || "Bilinmeyen hata";
+        const errorMsg = result.error || 'Bilinmeyen hata'
         if (
-          errorMsg.includes("ENOENT") ||
-          errorMsg.includes("bulunamadı") ||
-          errorMsg.includes("no such file")
+          errorMsg.includes('ENOENT') ||
+          errorMsg.includes('bulunamadı') ||
+          errorMsg.includes('no such file')
         ) {
           const remove = window.confirm(
-            `Dosya bulunamadı veya taşınmış:\n${filePath}\n\nBu dosyayı son açılanlar listesinden kaldırmak ister misiniz?`,
-          );
+            `Dosya bulunamadı veya taşınmış:\n${filePath}\n\nBu dosyayı son açılanlar listesinden kaldırmak ister misiniz?`
+          )
           if (remove) {
             const updated = await window.electron?.ipcRenderer.invoke(
-              "app:remove-recent-file",
-              filePath,
-            );
+              'app:remove-recent-file',
+              filePath
+            )
             if (Array.isArray(updated)) {
-              setRecentFiles(updated);
+              setRecentFiles(updated)
             } else {
-              setRecentFiles((prev) => prev.filter((f) => f.path !== filePath));
+              setRecentFiles((prev) => prev.filter((f) => f.path !== filePath))
             }
           }
         } else {
-          alert(`Kurum dosyası açılamadı!\nHata: ${errorMsg}`);
+          alert(`Kurum dosyası açılamadı!\nHata: ${errorMsg}`)
         }
       }
     } catch (e: any) {
-      console.error(e);
-      alert(`Hata oluştu!\nHata: ${e?.message || "Bilinmeyen hata"}`);
+      console.error(e)
+      alert(`Hata oluştu!\nHata: ${e?.message || 'Bilinmeyen hata'}`)
     }
-  };
+  }
 
   const handleRemoveRecent = async (
     filePath: string,
@@ -635,6 +659,17 @@ export default function LauncherScreen(): React.ReactNode {
       {showNetworkModal && (
         <NetworkSyncModal onClose={() => setShowNetworkModal(false)} />
       )}
+
+      {/* Eski Dosya Formatını .temin Yapma Zorunluluğu Modalı */}
+      <FormatUpgradeModal
+        isOpen={showFormatUpgradeModal}
+        filePath={upgradeFilePath}
+        onClose={() => {
+          setShowFormatUpgradeModal(false)
+          setUpgradeFilePath(null)
+        }}
+        onUpgradeAndOpen={handleUpgradeAndOpen}
+      />
     </div>
   );
 }

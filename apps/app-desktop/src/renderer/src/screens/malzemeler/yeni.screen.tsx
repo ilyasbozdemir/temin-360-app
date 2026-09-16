@@ -1,22 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react'
 import {
-  Activity,
   ArrowLeft,
   Barcode,
   BookOpen,
-  Bot,
   Briefcase,
   Building2,
   Calendar,
-  Check,
   CheckCircle2,
   Database,
   Edit2,
   FileImage,
   Globe,
   Image as ImageIcon,
-  Layers,
-  Link2,
   Loader2,
   PackageSearch,
   PlusCircle,
@@ -24,7 +19,8 @@ import {
   Search,
   Sparkles,
   Trash2,
-  Upload
+  Upload,
+  Zap,
 } from 'lucide-react'
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { Kalem, useMalzemelerHooks } from "./malzemeler.hooks";
@@ -37,6 +33,7 @@ import { useTasinirKodHooks } from "../tasinirkod/tasinirkod.hooks";
 import { cn } from "../../utils/cn";
 import { PozSecimModal, SelectedPozData } from "./components/PozSecimModal";
 import { getDinamikFiyatDonemleri } from "./components/pozKitaplari.data";
+import { HizliTopluKalemGrid, HizliKalemRow } from "../dosya/sub-screens/components/MalzemeListesi/HizliTopluKalemGrid";
 
 const HIZMET_SINIFLARI = [
   "Temizlik Hizmetleri",
@@ -76,6 +73,9 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
 
   const generateBarcode = () =>
     Math.floor(1000000000000 + Math.random() * 9000000000000).toString();
+
+  // Entry Mode: 'batch' for fast Excel-style multiple items or 'single' for detailed single item form
+  const [entryMode, setEntryMode] = useState<'batch' | 'single'>(editId ? 'single' : 'batch');
 
   // Form State
   const [formData, setFormData] = useState<Partial<Kalem>>(() => ({
@@ -314,6 +314,56 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
     }
   };
 
+  const handleBatchSaveInLibrary = async (
+    commonData: {
+      tipi: string;
+      okas_kodu?: string;
+      tasinir_kodu_prefix?: string;
+      kdv_orani: number;
+      birim: string;
+    },
+    rows: HizliKalemRow[],
+  ): Promise<boolean> => {
+    setIsSaving(true);
+    try {
+      let count = 0;
+      for (const row of rows) {
+        const finalTipi = commonData.tipi || "Mal";
+        const finalBirim = row.birim || commonData.birim || "Adet";
+        const finalOkas = row.okas_kodu || commonData.okas_kodu || "";
+        const finalTasinir = row.tasinir_kodu || (commonData.tasinir_kodu_prefix ? commonData.tasinir_kodu_prefix : "");
+        const finalKdv = row.kdv_orani ?? commonData.kdv_orani ?? 20;
+
+        await addKalem({
+          kalem_adi: row.kalem_adi.trim(),
+          tipi: finalTipi,
+          birim: finalBirim,
+          olcu_birimi: finalBirim,
+          okas_kodu: finalOkas,
+          tasinir_kodu: finalTasinir,
+          kdv_orani: finalKdv,
+          mensei: "Yerli",
+          aktif_mi: 1,
+          notlar: row.aciklama || null,
+          ozelligi: row.aciklama || null,
+          barkod_id: generateBarcode(),
+          fiyat_donemi: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`,
+        });
+        count++;
+      }
+      setToastMessage(`${count} adet kalem kütüphaneye başarıyla kaydedildi!`);
+      setTimeout(() => {
+        navigate({ to: "/malzemeler" });
+      }, 1000);
+      return true;
+    } catch (err: any) {
+      alert("Toplu kayıt sırasında hata: " + err.message);
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const selectedType = formData.tipi === "Yapım"
     ? "Yapım"
     : formData.tipi === "Hizmet"
@@ -346,17 +396,48 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                   className="text-blue-600 dark:text-blue-400"
                   size={26}
                 />
-                {editId ? "Kaydı Düzenle" : "Yeni Kayıt"}{" "}
+                {editId ? "Kaydı Düzenle" : entryMode === "batch" ? "Toplu / Hızlı Kalem Ekle" : "Yeni Kayıt"}{" "}
                 (Mal / Hizmet / Yapım İşi)
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Yaklaşık maliyet ve teklif süreçleri için doğrudan temin kalemi
-                tanımlayın
+                {entryMode === "batch" && !editId
+                  ? "Ortak kod ve KDV seçip Excel gridiyle saniyeler içinde birden çok malzeme ekleyin"
+                  : "Yaklaşık maliyet ve teklif süreçleri için doğrudan temin kalemi tanımlayın"}
               </p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
+            {!editId && (
+              <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex items-center gap-1 border border-slate-200 dark:border-slate-700 mr-2">
+                <button
+                  type="button"
+                  onClick={() => setEntryMode("batch")}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5",
+                    entryMode === "batch"
+                      ? "bg-amber-500 text-white shadow-sm"
+                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white",
+                  )}
+                >
+                  <Zap size={14} className={entryMode === "batch" ? "fill-amber-200 text-amber-100" : ""} />
+                  ⚡ Hızlı / Excel Toplu Giriş
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEntryMode("single")}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5",
+                    entryMode === "single"
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white",
+                  )}
+                >
+                  📝 Tekil Detaylı Form
+                </button>
+              </div>
+            )}
+
             <button
               onClick={() => navigate({ to: "/malzemeler" })}
               className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
@@ -364,7 +445,7 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
               İptal
             </button>
 
-            {!editId && (
+            {entryMode === "single" && !editId && (
               <button
                 onClick={() => handleSave(true)}
                 disabled={isSaving}
@@ -376,25 +457,36 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
               </button>
             )}
 
-            <button
-              onClick={() => handleSave(false)}
-              disabled={isSaving}
-              className="px-5 py-2 text-xs font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-sm hover:shadow-md flex items-center gap-1.5"
-            >
-              {isSaving
-                ? <Loader2 size={15} className="animate-spin" />
-                : <Save size={15} />}
-              {editId ? "Değişiklikleri Kaydet" : "Kaydet ve Kapat"}
-            </button>
+            {entryMode === "single" && (
+              <button
+                onClick={() => handleSave(false)}
+                disabled={isSaving}
+                className="px-5 py-2 text-xs font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-sm hover:shadow-md flex items-center gap-1.5"
+              >
+                {isSaving
+                  ? <Loader2 size={15} className="animate-spin" />
+                  : <Save size={15} />}
+                {editId ? "Değişiklikleri Kaydet" : "Kaydet ve Kapat"}
+              </button>
+            )}
           </div>
         </div>
       </div>
 
       {/* Main Form Content */}
       <div className="flex-1 overflow-y-auto p-4 md:p-6">
-        <div className="max-w-[1600px] mx-auto space-y-6">
-          {/* TÜR SEÇİMİ (Ana Dallanma) */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-5">
+        {entryMode === "batch" && !editId ? (
+          <div className="max-w-[1600px] mx-auto bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
+            <HizliTopluKalemGrid
+              units={birimler}
+              onSaveBatch={handleBatchSaveInLibrary}
+              onCancel={() => navigate({ to: "/malzemeler" })}
+            />
+          </div>
+        ) : (
+          <div className="max-w-[1600px] mx-auto space-y-6">
+            {/* TÜR SEÇİMİ (Ana Dallanma) */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-5">
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
               Kalem Türü (Alım Türü)
             </label>
@@ -1440,6 +1532,7 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
             </div>
           </div>
         </div>
+        )}
       </div>
 
       {/* OKAS Modal */}

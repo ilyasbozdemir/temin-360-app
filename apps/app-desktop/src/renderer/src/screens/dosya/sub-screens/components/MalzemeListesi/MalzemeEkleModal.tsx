@@ -8,10 +8,12 @@ import {
   Search,
   Sparkles,
   X,
+  Zap,
 } from "lucide-react";
 import { cn } from "../../../../../utils/cn";
 import { Modal } from "../../../../../components/ui/Modal";
 import { useSettingsStore } from "../../../../../store/settingsStore";
+import { HizliTopluKalemGrid } from "./HizliTopluKalemGrid";
 
 export function MalzemeEkleModal({
   state,
@@ -65,6 +67,7 @@ export function MalzemeEkleModal({
     handleSelectSuggestion,
     handleAddItem,
     handleAddSelected,
+    handleBatchInsertItems,
     filteredSuggestions,
   } = state;
 
@@ -99,6 +102,15 @@ export function MalzemeEkleModal({
     }
   };
 
+  const switchToNewTab = (defaultName?: string) => {
+    const name = defaultName || libSearchQuery.trim() || searchQuery.trim();
+    if (name) {
+      setKalemAdi(name);
+      setSearchQuery(name);
+    }
+    setActiveTab("new");
+  };
+
   return (
     <Modal
       isOpen={isAddModalOpen}
@@ -108,6 +120,7 @@ export function MalzemeEkleModal({
         setItemMiktarlar({});
         setLibSearchQuery("");
       }}
+      className="max-w-4xl sm:max-w-5xl w-full"
       title={
         isYapim
           ? "Dosyaya İmalat / Poz Kalemi Ekle"
@@ -117,10 +130,10 @@ export function MalzemeEkleModal({
       }
       description={
         isYapim
-          ? "Poz ve imalat kütüphanesinden seçim yapın veya özel yeni imalat/poz oluşturun."
+          ? "Poz kütüphanesinden seçin, toplu Excel tablosu ile hızla ekleyin veya özel yeni poz tanımlayın."
           : isHizmet
-          ? "Hizmet kütüphanesinden seçim yapın veya yeni hizmet kalemi tanımlayın."
-          : "Taşınır kütüphanesinden toplu seçim yapın veya özel yeni malzeme kalemi oluşturun."
+          ? "Hizmet kütüphanesinden seçin, toplu Excel tablosu ile hızla ekleyin veya yeni hizmet kalemi tanımlayın."
+          : "Kütüphaneden seçin, ortak OKAS/KDV ile toplu Excel tablosundan ekleyin veya tekil kalem oluşturun."
       }
     >
       {/* SEKMELER */}
@@ -129,7 +142,7 @@ export function MalzemeEkleModal({
           type="button"
           onClick={() => setActiveTab("library")}
           className={cn(
-            "flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2",
+            "flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5",
             activeTab === "library"
               ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200/50 dark:border-slate-700/50"
               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200",
@@ -137,16 +150,31 @@ export function MalzemeEkleModal({
         >
           <BookOpen className="w-3.5 h-3.5" />
           {isYapim
-            ? `Poz Kütüphanesinden Seç (${libraryItems.length})`
+            ? `Poz Kütüphanesi (${libraryItems.length})`
             : isHizmet
-            ? `Hizmet Havuzundan Seç (${libraryItems.length})`
+            ? `Hizmet Havuzu (${libraryItems.length})`
             : `Kütüphaneden Seç (${libraryItems.length})`}
         </button>
+
         <button
           type="button"
-          onClick={() => setActiveTab("new")}
+          onClick={() => setActiveTab("batch")}
           className={cn(
-            "flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2",
+            "flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5",
+            activeTab === "batch"
+              ? "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm border border-slate-200/50 dark:border-slate-700/50"
+              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200",
+          )}
+        >
+          <Zap className="w-3.5 h-3.5 text-amber-500" />
+          ⚡ Hızlı / Excel Toplu Ekle
+        </button>
+
+        <button
+          type="button"
+          onClick={() => switchToNewTab()}
+          className={cn(
+            "flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5",
             activeTab === "new"
               ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200/50 dark:border-slate-700/50"
               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200",
@@ -154,10 +182,10 @@ export function MalzemeEkleModal({
         >
           <PlusCircle className="w-3.5 h-3.5" />
           {isYapim
-            ? "Yeni Poz / İmalat Tanımla"
+            ? "Tekil Poz Tanımla"
             : isHizmet
-            ? "Yeni Hizmet Kalemi Tanımla"
-            : "Yeni Kalem Oluştur"}
+            ? "Tekil Hizmet Tanımla"
+            : "Tekil Kalem Oluştur"}
         </button>
       </div>
 
@@ -192,6 +220,23 @@ export function MalzemeEkleModal({
               )}
             </div>
 
+            {/* Arama yapılmışsa doğrudan yeni kalem oluşturma ipucu */}
+            {libSearchQuery.trim().length > 0 && (
+              <div className="flex items-center justify-between px-3 py-2 bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 rounded-xl">
+                <span className="text-xs text-blue-800 dark:text-blue-300 font-medium truncate">
+                  Aranan: <strong>&ldquo;{libSearchQuery.trim()}&rdquo;</strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => switchToNewTab(libSearchQuery.trim())}
+                  className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1.5 shrink-0 underline cursor-pointer"
+                >
+                  <PlusCircle className="w-3.5 h-3.5" />
+                  Yeni Kalem Olarak Tanımla &rarr;
+                </button>
+              </div>
+            )}
+
             {/* Kategori Filtre Butonları */}
             <div className="flex items-center justify-between gap-2">
               <div className="flex gap-1 overflow-x-auto">
@@ -204,7 +249,7 @@ export function MalzemeEkleModal({
                       "px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer",
                       selectedCategory === cat
                         ? "bg-blue-600 text-white shadow-xs"
-                        : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200",
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700",
                     )}
                   >
                     {cat}
@@ -228,7 +273,7 @@ export function MalzemeEkleModal({
           </div>
 
           {/* Kalem Listesi */}
-          <div className="max-h-72 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
+          <div className="max-h-80 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
             {filteredLibraryItems.map((item: any) => {
               const isSelected = selectedItemIds.has(item.id);
               const mkt = itemMiktarlar[item.id] ?? 1;
@@ -355,9 +400,27 @@ export function MalzemeEkleModal({
             })}
 
             {filteredLibraryItems.length === 0 && (
-              <div className="text-center text-xs text-slate-400 py-10 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
-                Aramanızla eşleşen kalem bulunamadı. &ldquo;Yeni Kalem&rdquo;
-                sekmesinden ekleyebilirsiniz.
+              <div className="text-center py-8 px-4 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-900/30 flex flex-col items-center justify-center gap-3">
+                <div className="text-center">
+                  <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    {libSearchQuery.trim()
+                      ? `"${libSearchQuery.trim()}" kütüphanede bulunamadı`
+                      : "Aramanızla eşleşen kayıt bulunamadı"}
+                  </p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    Bu kalemi doğrudan yeni kalem olarak tanımlayabilir ve dosyaya ekleyebilirsiniz.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => switchToNewTab(libSearchQuery.trim())}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  {libSearchQuery.trim()
+                    ? `"${libSearchQuery.trim()}" Olarak Yeni Kalem Tanımla`
+                    : "Yeni Kalem Tanımla"}
+                </button>
               </div>
             )}
           </div>
@@ -397,7 +460,18 @@ export function MalzemeEkleModal({
         </div>
       )}
 
-      {/* SEKME 2: YENİ KALEM FORMU */}
+      {/* SEKME 2: HIZLI / TOPLU EXCEL GRID FORMU */}
+      {activeTab === "batch" && (
+        <HizliTopluKalemGrid
+          activeDosya={activeDosya}
+          activeDosyaId={activeDosya?.id || state.activeDosyaId}
+          units={units}
+          onSaveBatch={handleBatchInsertItems}
+          onCancel={() => setIsAddModalOpen(false)}
+        />
+      )}
+
+      {/* SEKME 3: TEKİL YENİ KALEM FORMU */}
       {activeTab === "new" && (
         <form onSubmit={handleAddItem} className="space-y-4">
           {/* Kalem Arama / Autocomplete */}
@@ -455,8 +529,8 @@ export function MalzemeEkleModal({
             )}
           </div>
 
-          {/* Türü & Birimi */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* Türü & Birimi & Miktar & KDV - 4 Kolon Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <div>
               <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">
                 Kalem Türü
@@ -488,10 +562,6 @@ export function MalzemeEkleModal({
                 ))}
               </select>
             </div>
-          </div>
-
-          {/* Miktar & KDV */}
-          <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">
                 Miktar <span className="text-red-500">*</span>
@@ -524,7 +594,7 @@ export function MalzemeEkleModal({
           </div>
 
           {/* Taşınır & OKAS Kodları */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">
                 {isYapim

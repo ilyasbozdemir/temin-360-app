@@ -9,6 +9,7 @@ import {
   allFormatsFilter,
   perFormatFilters
 } from '../config/fileFormats'
+import { recentFilesStore } from '../store/recentFiles'
 
 export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => void): void {
   ipcMain.handle('workspace:create', async (_, filePath: string, institutionName: string) => {
@@ -61,6 +62,37 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
       return res
     } catch (error: any) {
       console.error('Upgrade workspace to .temin error:', error)
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('workspace:convert-and-open', async (_, filePath: string) => {
+    try {
+      closeAllSecondaryWindows()
+      const meta = workspaceManager.open(filePath, true)
+      const convertRes = workspaceManager.convertToTemin()
+      if (!convertRes.success) {
+        return { success: false, error: convertRes.error || 'Dönüştürme başarısız oldu.' }
+      }
+      const newFilePath = convertRes.newPath || workspaceManager.getCurrentFilePath()
+
+      // Update recent files list
+      try {
+        recentFilesStore.removeRecentFile(filePath)
+        const instName = meta?.institution || basename(newFilePath!, '.temin')
+        recentFilesStore.addRecentFile(newFilePath!, instName)
+      } catch (rErr) {
+        console.warn('Recent files update error:', rErr)
+      }
+
+      return {
+        success: true,
+        meta,
+        newFilePath,
+        oldFilePath: filePath
+      }
+    } catch (error: any) {
+      console.error('Convert and open workspace error:', error)
       return { success: false, error: error.message }
     }
   })

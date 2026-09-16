@@ -29,8 +29,8 @@ export interface UseMalzemeListesiReturn {
   aiLoading: boolean
   isAddModalOpen: boolean
   setIsAddModalOpen: React.Dispatch<React.SetStateAction<boolean>>
-  activeTab: 'library' | 'new'
-  setActiveTab: React.Dispatch<React.SetStateAction<'library' | 'new'>>
+  activeTab: 'library' | 'new' | 'batch'
+  setActiveTab: React.Dispatch<React.SetStateAction<'library' | 'new' | 'batch'>>
   selectedItemIds: Set<number>
   setSelectedItemIds: React.Dispatch<React.SetStateAction<Set<number>>>
   itemMiktarlar: Record<number, number>
@@ -52,6 +52,25 @@ export interface UseMalzemeListesiReturn {
   handleStartEdit: (item: any) => void
   handleSaveEdit: (id: number) => Promise<void>
   handleAddSelected: () => Promise<void>
+  handleBatchInsertItems: (
+    commonData: {
+      tipi: string
+      okas_kodu?: string
+      tasinir_kodu_prefix?: string
+      kdv_orani: number
+      birim: string
+    },
+    rows: Array<{
+      id: string
+      kalem_adi: string
+      miktar: number
+      birim?: string
+      tasinir_kodu?: string
+      okas_kodu?: string
+      kdv_orani?: number
+      aciklama?: string
+    }>
+  ) => Promise<boolean>
   filteredSuggestions: any[]
   loadData: () => Promise<void>
 }
@@ -85,7 +104,7 @@ export function useMalzemeListesi(
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<'library' | 'new'>('library')
+  const [activeTab, setActiveTab] = useState<'library' | 'new' | 'batch'>('library')
   const [selectedItemIds, setSelectedItemIds] = useState<Set<number>>(new Set())
   const [itemMiktarlar, setItemMiktarlar] = useState<Record<number, number>>({})
   const [libSearchQuery, setLibSearchQuery] = useState('')
@@ -333,6 +352,97 @@ export function useMalzemeListesi(
     }
   }
 
+  const handleBatchInsertItems = async (
+    commonData: {
+      tipi: string
+      okas_kodu?: string
+      tasinir_kodu_prefix?: string
+      kdv_orani: number
+      birim: string
+    },
+    rows: Array<{
+      id: string
+      kalem_adi: string
+      miktar: number
+      birim?: string
+      tasinir_kodu?: string
+      okas_kodu?: string
+      kdv_orani?: number
+      aciklama?: string
+    }>
+  ): Promise<boolean> => {
+    const validRows = rows.filter((r) => r.kalem_adi && r.kalem_adi.trim().length > 0)
+    if (validRows.length === 0) return false
+
+    try {
+      for (const row of validRows) {
+        const name = row.kalem_adi.trim()
+        const rowTasinir = row.tasinir_kodu?.trim() || commonData.tasinir_kodu_prefix || null
+        const rowOkas = row.okas_kodu?.trim() || commonData.okas_kodu || null
+        const rowBirim = row.birim || commonData.birim || 'Adet'
+        const rowKdv = row.kdv_orani !== undefined ? row.kdv_orani : commonData.kdv_orani
+        const rowMiktar = row.miktar > 0 ? row.miktar : 1
+        const rowAciklama = row.aciklama?.trim() || null
+
+        // TANIM_Kalem kontrol ve ekleme
+        const checkRes = await (window as any).electron.ipcRenderer.invoke(
+          'db:query',
+          'SELECT id FROM TANIM_Kalem WHERE kalem_adi = ? LIMIT 1',
+          [name]
+        )
+        if (checkRes.success && checkRes.data.length === 0) {
+          await (window as any).electron.ipcRenderer.invoke(
+            'db:run',
+            `INSERT INTO TANIM_Kalem (kalem_adi, tipi, birim, kdv_orani, tasinir_kodu, okas_kodu, aktif_mi, barkod_id)
+             VALUES (?, ?, ?, ?, ?, ?, 1, ?)`,
+            [
+              name,
+              commonData.tipi,
+              rowBirim,
+              rowKdv,
+              rowTasinir,
+              rowOkas,
+              Date.now().toString() + Math.floor(Math.random() * 1000)
+            ]
+          )
+        }
+
+        // Aktif dosya varsa DATA_TeminKalem'e de ekle
+        if (activeDosyaId) {
+          await (window as any).electron.ipcRenderer.invoke(
+            'db:run',
+            `INSERT INTO DATA_TeminKalem
+             (temin_dosya_id, tasinir_kodu, okas_kodu, kalem_adi, tipi, birim, miktar, kdv_orani, aciklama)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              activeDosyaId,
+              rowTasinir,
+              rowOkas,
+              name,
+              commonData.tipi,
+              rowBirim,
+              rowMiktar,
+              rowKdv,
+              rowAciklama
+            ]
+          )
+        }
+      }
+
+      await loadData()
+      if (activeDosyaId) {
+        emitAppEvent('items:changed', { dosyaId: activeDosyaId })
+        emitAppEvent('dossier:updated', { dosyaId: activeDosyaId })
+      }
+      setIsAddModalOpen(false)
+      return true
+    } catch (err: any) {
+      console.error('Batch insert error:', err)
+      alert('Toplu ekleme sırasında hata oluştu: ' + err.message)
+      return false
+    }
+  }
+
   const filteredSuggestions = searchQuery.trim()
     ? libraryItems
         .filter((item) => item.kalem_adi.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -390,6 +500,7 @@ export function useMalzemeListesi(
     handleStartEdit,
     handleSaveEdit,
     handleAddSelected,
+    handleBatchInsertItems,
     filteredSuggestions,
     loadData
   }

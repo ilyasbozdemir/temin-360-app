@@ -4,9 +4,13 @@ import { cn } from '../../utils/cn'
 import { useWorkspaceStore } from '../../store/workspaceStore'
 import { useQueryClient } from '@tanstack/react-query'
 
+import { FormatUpgradeModal } from '../modals/FormatUpgradeModal'
+
 export function FileSelector(): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [showFormatUpgradeModal, setShowFormatUpgradeModal] = useState(false)
+  const [upgradeFilePath, setUpgradeFilePath] = useState<string | null>(null)
 
   const [recentFiles, setRecentFiles] = useState<
     { name: string; path: string; lastOpened: number }[]
@@ -18,7 +22,7 @@ export function FileSelector(): React.JSX.Element {
   } | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const { createWorkspace, openWorkspace, fileName, activeFilePath, upgradeToTemin } = useWorkspaceStore()
+  const { createWorkspace, openWorkspace, fileName, activeFilePath, upgradeToTemin, convertAndOpenWorkspace } = useWorkspaceStore()
   const queryClient = useQueryClient()
 
   // Close dropdown when clicking outside
@@ -50,6 +54,15 @@ export function FileSelector(): React.JSX.Element {
     f.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
+  const handleUpgradeAndOpen = async (filePath: string): Promise<void> => {
+    const result = await convertAndOpenWorkspace(filePath)
+    if (result.success) {
+      queryClient.clear()
+    } else {
+      throw new Error(result.error || 'Dönüştürme başarısız oldu.')
+    }
+  }
+
   const handleCreateNewFile = async () => {
     setIsOpen(false)
     try {
@@ -77,6 +90,12 @@ export function FileSelector(): React.JSX.Element {
     try {
       const res = await window.electron?.ipcRenderer.invoke('dialog:showOpenDialog')
       if (!res.canceled && res.filePath) {
+        if (!res.filePath.toLowerCase().endsWith('.temin')) {
+          setUpgradeFilePath(res.filePath)
+          setShowFormatUpgradeModal(true)
+          return
+        }
+
         const result = await openWorkspace(res.filePath)
         if (result.success) {
           queryClient.clear()
@@ -142,6 +161,11 @@ export function FileSelector(): React.JSX.Element {
                     setSelectedFile(file as any)
                     setIsOpen(false)
                     setSearchQuery('')
+                    if (!file.path.toLowerCase().endsWith('.temin')) {
+                      setUpgradeFilePath(file.path)
+                      setShowFormatUpgradeModal(true)
+                      return
+                    }
                     openWorkspace(file.path)
                   }}
                   className={cn(
@@ -173,7 +197,7 @@ export function FileSelector(): React.JSX.Element {
                     alert(`Dönüştürme hatası: ${res.error}`)
                   }
                 }}
-                className="w-full text-center px-2.5 py-1.5 text-xs font-semibold text-amber-800 dark:text-amber-200 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/40 dark:hover:bg-amber-800/60 border border-amber-300 dark:border-amber-700 rounded-md transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                className="w-full text-center px-2.5 py-1.5 text-xs font-semibold text-amber-800 dark:text-amber-200 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/40 dark:hover:bg-amber-800/60 border border-amber-300 dark:border-amber-700 rounded-md transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span>En Güncel Formata (.temin) Yükselt</span>
@@ -185,19 +209,30 @@ export function FileSelector(): React.JSX.Element {
           <div className="p-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex gap-2">
             <button
               onClick={handleOpenFile}
-              className="flex-1 text-center px-3 py-1.5 text-sm font-semibold text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 rounded-md transition-colors"
+              className="flex-1 text-center px-3 py-1.5 text-sm font-semibold text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
             >
               Çalışma Dosyası Aç
             </button>
             <button
               onClick={handleCreateNewFile}
-              className="flex-1 text-center px-3 py-1.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors shadow-sm"
+              className="flex-1 text-center px-3 py-1.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors shadow-sm cursor-pointer"
             >
               Yeni Çalışma Dosyası
             </button>
           </div>
         </div>
       )}
+
+      {/* Format Upgrade Modal */}
+      <FormatUpgradeModal
+        isOpen={showFormatUpgradeModal}
+        filePath={upgradeFilePath}
+        onClose={() => {
+          setShowFormatUpgradeModal(false)
+          setUpgradeFilePath(null)
+        }}
+        onUpgradeAndOpen={handleUpgradeAndOpen}
+      />
     </div>
   )
 }
