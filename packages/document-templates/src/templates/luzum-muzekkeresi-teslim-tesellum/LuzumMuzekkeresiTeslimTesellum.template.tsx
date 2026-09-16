@@ -161,15 +161,16 @@ export function LuzumMuzekkeresiTeslimTesellum({
                   style={{
                     textAlign: "center",
                     fontWeight: "bold",
-                    fontSize: "14pt",
+                    fontSize: "13pt",
                     textDecoration: "underline",
                     marginBottom: "20px",
+                    letterSpacing: "0.5px",
                   }}
                 >
                   <EditableField
                     name="dosyaKonusu"
-                    value={data.dosyaKonusu || data.isinAdi || "Mal Alımı"}
-                    placeholder="İşin Konusu"
+                    value={data.dosyaKonusu || data.isinAdi || "TESLİM TESELLÜM BELGESİ"}
+                    placeholder="TESLİM TESELLÜM BELGESİ"
                   />
                 </div>
 

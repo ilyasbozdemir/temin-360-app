@@ -98,31 +98,57 @@ export function LuzumMuzekkeresiOnayEki({
                   style={{
                     textAlign: "center",
                     fontWeight: "bold",
-                    fontSize: "12pt",
+                    fontSize: "14pt",
                     textTransform: "uppercase",
-                    margin: "10px 0 20px 0",
+                    letterSpacing: "1px",
+                    marginBottom: "14px",
+                    pageBreakInside: "avoid",
                   }}
                 >
-                  <EditableField
-                    name="dosyaKonusu"
-                    value={data.dosyaKonusu || data.isinAdi || "Mal Alımı"}
-                    placeholder="İşin Konusu"
-                  />
+                  LÜZUM MÜZEKKERESİ
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "12px",
+                    fontSize: "10pt",
+                    fontWeight: "bold",
+                  }}
+                >
+                  <div>
+                    EK:{" "}
+                    <EditableField
+                      name="ekNo"
+                      value={data.ekNo || "1"}
+                      placeholder="1"
+                    />
+                  </div>
+                  <div>
+                    <strong>Tarih:</strong>{" "}
+                    <DateEditableField
+                      name="tarih"
+                      value={data.tarih || dosyaTarihiVal}
+                    />
+                  </div>
                 </div>
 
                 <div
                   style={{
-                    textAlign: "right",
-                    marginBottom: "20px",
+                    textAlign: "center",
                     fontWeight: "bold",
-                    fontSize: "11pt",
+                    fontSize: "12pt",
+                    textTransform: "uppercase",
+                    margin: "10px 0 20px 0",
+                    pageBreakInside: "avoid",
                   }}
                 >
-                  EK:{" "}
                   <EditableField
-                    name="ekNo"
-                    value={data.ekNo || "1"}
-                    placeholder="1"
+                    name="sunulacakMakamAdi"
+                    value={data.sunulacakMakamAdi ||
+                      "İL SAĞLIK MÜDÜRLÜĞÜ MAKAMINA"}
+                    placeholder="SUNULACAK MAKAM ADI"
                   />
                 </div>
 
@@ -137,11 +163,9 @@ export function LuzumMuzekkeresiOnayEki({
                 >
                   <EditableField
                     name="kurumMetni"
-                    value={
-                      data.kurumMetni ||
+                    value={data.kurumMetni ||
                       getKurumName(data.kurumAdi, data.altKurumTipi) ||
-                      "Müdürlüğümüz"
-                    }
+                      "Müdürlüğümüz"}
                     placeholder="Müdürlüğümüz"
                   />{" "}
                   için aşağıda müfredatı ve evsafı yazılı malzemelere ihtiyaç
@@ -155,10 +179,13 @@ export function LuzumMuzekkeresiOnayEki({
               data={pageItems}
               emptyMessage="Kalem bulunamadı"
               striped={false}
-              startIndex={pageIdx === 0 ? 0 : limits.firstPage + (pageIdx - 1) * limits.middle}
-              currentSplitIndex={limits.firstPage ? Number(limits.firstPage) : null}
+              startIndex={pageIdx === 0
+                ? 0
+                : limits.firstPage + (pageIdx - 1) * limits.middle}
+              currentSplitIndex={limits.firstPage
+                ? Number(limits.firstPage)
+                : null}
             />
-
 
             {isLastPage && (
               <div
@@ -181,8 +208,10 @@ export function LuzumMuzekkeresiOnayEki({
                 </div>
 
                 <PersonelCard
-                  adSoyad={data.talepEdenPersonelAdi || data.hazirlayanPersonelAdi}
-                  unvan={data.talepEdenPersonelUnvan || data.hazirlayanPersonelUnvan}
+                  adSoyad={data.talepEdenPersonelAdi ||
+                    data.hazirlayanPersonelAdi}
+                  unvan={data.talepEdenPersonelUnvan ||
+                    data.hazirlayanPersonelUnvan}
                   nameField="talepEdenPersonelAdi"
                   unvanField="talepEdenPersonelUnvan"
                   align="center"

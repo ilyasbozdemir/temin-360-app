@@ -3,9 +3,10 @@ import { DocumentLayout } from "../../document/DocumentLayout";
 import { DocumentTable } from "../../document/DocumentTable";
 import {
   ApprovalSignature,
+  DateEditableField,
   EditableOlurPlaceholder,
-  MetadataBlock,
   PersonelCard,
+  toTrDate,
 } from "../../document/ApprovalSignature";
 import { EditableField } from "../../document/EditableField";
 import {
@@ -65,6 +66,7 @@ export function LuzumMuzekkeresi({
   };
   const items = data.ihtiyacKalemleri || [];
   const pages = paginateData(items, limits);
+  const defaultToday = toTrDate(new Date().toISOString().split("T")[0]);
 
   return (
     <>
@@ -85,28 +87,80 @@ export function LuzumMuzekkeresi({
           >
             {isFirstPage && (
               <>
-                <MetadataBlock
-                  evrakSayisi={data.evrakSayisi}
-                  tarih={data.onayaSunulanTarih || data.tarih ||
-                    data.dosyaTarihi}
-                  dosyaKonusu={data.dosyaKonusu || data.isinAdi || "Mal Alımı"}
-                  showBorder={false}
-                />
+                {/* ÜST BİLGİ: SAYI (SOL) & TARİH (SAĞ) */}
 
+                <div
+                  style={{
+                    textAlign: "center",
+                    fontWeight: "bold",
+                    fontSize: "14pt",
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                    marginBottom: "14px",
+                    pageBreakInside: "avoid",
+                  }}
+                >
+                  LÜZUM MÜZEKKERESİ
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "16px",
+                    fontSize: "11pt",
+                  }}
+                >
+                  <div>
+                    {data.evrakSayisi
+                      ? (
+                        <span>
+                          <strong>Sayı:</strong>{" "}
+                          <EditableField
+                            name="evrakSayisi"
+                            value={data.evrakSayisi}
+                          />
+                        </span>
+                      )
+                      : (
+                        <span style={{ color: "#94a3b8" }}>
+                          <EditableField
+                            name="evrakSayisi"
+                            value={data.evrakSayisi}
+                            placeholder="Evrak Sayısı"
+                          />
+                        </span>
+                      )}
+                  </div>
+                  <div style={{ fontWeight: "bold" }}>
+                    <strong>Tarih:</strong>{" "}
+                    <DateEditableField
+                      name="tarih"
+                      value={data.onayaSunulanTarih || data.tarih ||
+                        data.dosyaTarihi}
+                      defaultDate={defaultToday}
+                    />
+                  </div>
+                </div>
+
+                {/* BELGE BAŞLIĞI */}
+
+                {/* MUHATAP MAKAM */}
                 <div
                   style={{
                     textAlign: "center",
                     fontWeight: "bold",
                     fontSize: "12pt",
                     textTransform: "uppercase",
-                    marginBottom: "20px",
+                    marginBottom: "24px",
                     pageBreakInside: "avoid",
                   }}
                 >
                   <EditableField
                     name="sunulacakMakamAdi"
                     value={data.sunulacakMakamAdi}
-                    placeholder="SUNULACAK MAKAM ADI"
+                    placeholder="SUNULACAK MAKAM ADI (ÖRN: İL SAĞLIK MÜDÜRLÜĞÜ MAKAMINA)"
                   />
                 </div>
 
