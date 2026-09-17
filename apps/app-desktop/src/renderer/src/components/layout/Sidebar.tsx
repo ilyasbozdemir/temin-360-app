@@ -4,6 +4,7 @@ import {
   BarChart3,
   BookOpen,
   Building2,
+  Calculator,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -74,6 +75,12 @@ const menuGroups: MenuGroup[] = [
         name: "Hakediş & Harcama İşlemleri",
         path: "/hakedis",
         icon: Hammer,
+        badge: "YENİ",
+      },
+      {
+        name: "İhale & Hesaplama Araçları",
+        path: "/playground",
+        icon: Calculator,
         badge: "YENİ",
       },
       {

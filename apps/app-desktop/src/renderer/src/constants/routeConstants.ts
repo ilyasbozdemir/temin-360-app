@@ -41,6 +41,7 @@ export const APP_ROUTES = {
   PROFIL: '/profil',
   HAKEDIS: '/hakedis',
   NOTLAR: '/notlar',
+  PLAYGROUND: '/playground',
 
   // Dosya Alt Süreçleri (SubScreens)
   // Aşamalar
