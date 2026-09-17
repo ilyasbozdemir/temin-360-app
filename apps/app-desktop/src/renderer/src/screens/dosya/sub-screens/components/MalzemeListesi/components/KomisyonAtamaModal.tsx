@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Check, FileText, RefreshCw, Save, UserCheck, Users } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Modal } from "../../../../../../components/ui/Modal";
 
 interface PersonelItem {
@@ -56,6 +57,7 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
   activeDosyaId,
   onOpenDocument,
 }) => {
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<KomisyonType>(initialType);
   const [personeller, setPersoneller] = useState<PersonelItem[]>([]);
   const [maliyetRows, setMaliyetRows] = useState<KomisyonRow[]>(
@@ -75,6 +77,7 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [syncToGlobalCommission, setSyncToGlobalCommission] = useState(true);
 
   useEffect(() => {
     if (initialType) {
@@ -317,6 +320,83 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
         }
       }
 
+      // 3. Genel Komisyon Yönetimi (TANIM_Komisyon & TANIM_KomisyonUye) ile senkronize et
+      if (syncToGlobalCommission) {
+        try {
+          const findRes = await (window as any).electron.ipcRenderer.invoke(
+            "db:query",
+            isMaliyet
+              ? `SELECT id FROM TANIM_Komisyon 
+                 WHERE LOWER(TRIM(ad)) LIKE '%yaklaşık%' OR LOWER(TRIM(ad)) LIKE '%fiyat%' OR id = 1
+                 ORDER BY CASE WHEN id = 1 THEN 0 ELSE 1 END, id ASC LIMIT 1`
+              : `SELECT id FROM TANIM_Komisyon 
+                 WHERE LOWER(TRIM(ad)) LIKE '%muayene%' OR LOWER(TRIM(ad)) LIKE '%kabul%' OR id = 2
+                 ORDER BY CASE WHEN id = 2 THEN 0 ELSE 1 END, id ASC LIMIT 1`,
+          );
+          const targetKomId =
+            findRes.success && findRes.data?.[0]?.id
+              ? findRes.data[0].id
+              : isMaliyet
+                ? 1
+                : 2;
+
+          // Mevcut TANIM_KomisyonGorevi listesi
+          const gorevRes = await (window as any).electron.ipcRenderer.invoke(
+            "db:query",
+            "SELECT id, ad FROM TANIM_KomisyonGorevi",
+          );
+          const existingGorevler: { id: number; ad: string }[] =
+            gorevRes.success && gorevRes.data ? gorevRes.data : [];
+
+          // Eski genel komisyon üyelerini temizle
+          await (window as any).electron.ipcRenderer.invoke(
+            "db:run",
+            "DELETE FROM TANIM_KomisyonUye WHERE komisyon_id = ?",
+            [targetKomId],
+          );
+
+          // Yeni personelleri genel komisyon üyelerine ekle
+          for (const row of rows) {
+            if (!row.personelId) continue;
+
+            let gorevId = existingGorevler.find(
+              (g) => g.ad.trim().toLowerCase() === row.gorev.trim().toLowerCase(),
+            )?.id;
+
+            if (!gorevId) {
+              const insertGorevRes = await (window as any).electron.ipcRenderer.invoke(
+                "db:run",
+                "INSERT INTO TANIM_KomisyonGorevi (ad) VALUES (?)",
+                [row.gorev.trim()],
+              );
+              if (insertGorevRes.success && insertGorevRes.lastInsertRowid) {
+                const newGorevId = Number(insertGorevRes.lastInsertRowid);
+                gorevId = newGorevId;
+                existingGorevler.push({ id: newGorevId, ad: row.gorev.trim() });
+              }
+            }
+
+            const isAsil = row.gorev.toLowerCase().includes("yedek") ? 0 : 1;
+
+            if (gorevId) {
+              await (window as any).electron.ipcRenderer.invoke(
+                "db:run",
+                "INSERT INTO TANIM_KomisyonUye (komisyon_id, personel_id, gorev_id, asil_mi) VALUES (?, ?, ?, ?)",
+                [targetKomId, row.personelId, gorevId, isAsil],
+              );
+            }
+          }
+
+          // React query önbelleklerini tazele
+          queryClient.invalidateQueries({ queryKey: ["komisyonlar"] });
+          queryClient.invalidateQueries({ queryKey: ["komisyon_detay", targetKomId] });
+          queryClient.invalidateQueries({ queryKey: ["tanim_komisyonlar"] });
+          queryClient.invalidateQueries({ queryKey: ["tanim_komisyonlar_with_sablons"] });
+        } catch (globalErr) {
+          console.warn("Global komisyon senkronizasyonu sırasında hata:", globalErr);
+        }
+      }
+
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 2500);
       return true;
@@ -358,69 +438,86 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
     }
   };
 
+  const handleGorevChange = (sira: number, newGorev: string) => {
+    if (activeTab === "yaklasik_maliyet") {
+      setMaliyetRows((prev) =>
+        prev.map((r) => (r.sira === sira ? { ...r, gorev: newGorev } : r)),
+      );
+    } else {
+      setMuayeneRows((prev) =>
+        prev.map((r) => (r.sira === sira ? { ...r, gorev: newGorev } : r)),
+      );
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title=""
-      className="max-w-3xl"
+      title="Komisyon ve Görevli Atama"
+      description="Bu dosyaya ve belgelere ait komisyon üyelerini ve onay makamlarını belirleyin."
+      className="max-w-4xl"
     >
       <div className="space-y-4">
-        {/* Sekmeler */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 gap-1 pb-1">
+        {/* Tab Butonları */}
+        <div className="flex border-b border-slate-200 dark:border-slate-800">
           <button
             type="button"
             onClick={() => setActiveTab("yaklasik_maliyet")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
               activeTab === "yaklasik_maliyet"
-                ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-950/20"
+                : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
             }`}
           >
-            <Users className="w-3.5 h-3.5" />
-            Yaklaşık Maliyet & Piyasa Fiyat Araştırması
+            <Users className="w-4 h-4" />
+            Yaklaşık Maliyet ve Piyasa Fiyat Araştırma Komisyonu
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("muayene_kabul")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
               activeTab === "muayene_kabul"
-                ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-950/20"
+                : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
             }`}
           >
-            <UserCheck className="w-3.5 h-3.5" />
-            Muayene Kabul ve Tespit Komisyonu
+            <UserCheck className="w-4 h-4" />
+            Muayene Kabul Komisyonu
           </button>
         </div>
 
-        {/* Tablo Başlığı */}
-        <div className="text-center py-1">
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 tracking-wide">
-            {activeTab === "yaklasik_maliyet"
-              ? "Piyasa Fiyat Araştırması ve Maliyet Tespit Komisyonu"
-              : "Muayene Kabul ve Tespit Komisyonu"}
-          </h3>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-            {activeTab === "yaklasik_maliyet"
-              ? "Piyasa Fiyat Araştırma Görevlendirmesi ve Komisyon Görevlendirme Onayı resmi belgeleri için belirlenen standart kadrodur. Boş bırakılan satırlar belgeye dahil edilmez."
-              : "Muayene Kabul Komisyon Onay Yazısı ve tutanak belgeleri için belirlenen standart kadrodur. Boş bırakılan satırlar belgeye dahil edilmez."}
-          </p>
+        {/* Global Senkronizasyon Bilgilendirme ve Toggle Kutusu */}
+        <div className="flex items-center justify-between p-2.5 bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200/70 dark:border-blue-800/50 rounded-lg text-xs">
+          <label className="flex items-center gap-2.5 text-slate-700 dark:text-slate-300 font-medium cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={syncToGlobalCommission}
+              onChange={(e) => setSyncToGlobalCommission(e.target.checked)}
+              className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600"
+            />
+            <span>
+              Bu atamaları <strong>Genel Komisyon Yönetimi</strong>&apos;ne de otomatik aktar (Sonraki dosyalarda varsayılan olur)
+            </span>
+          </label>
+          <span className="text-[11px] text-blue-600 dark:text-blue-400 font-mono bg-blue-100 dark:bg-blue-900/50 px-2 py-0.5 rounded">
+            TANIM_Komisyon &amp; TANIM_KomisyonUye
+          </span>
         </div>
 
-        {/* Komisyon Tablosu */}
-        <div className="border border-slate-300 dark:border-slate-700 rounded-lg overflow-hidden shadow-xs bg-white dark:bg-slate-900">
-          <table className="w-full text-xs border-collapse">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200">
-                <th className="py-2.5 px-3 w-14 text-left font-bold border-r border-slate-300 dark:border-slate-700">
-                  Sıra
+        {/* Tablo Alanı */}
+        <div className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden max-h-[380px] overflow-y-auto">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead className="bg-slate-50 dark:bg-slate-900/80 sticky top-0 border-b border-slate-200 dark:border-slate-800 z-10">
+              <tr>
+                <th className="p-2.5 font-semibold text-slate-600 dark:text-slate-400 w-12 text-center">
+                  #
                 </th>
-                <th className="py-2.5 px-4 text-left font-bold border-r border-slate-300 dark:border-slate-700">
-                  Komisyondaki Görevi
+                <th className="p-2.5 font-semibold text-slate-600 dark:text-slate-400 w-64">
+                  Görevi / Rolü
                 </th>
-                <th className="py-2.5 px-4 text-left font-bold">
-                  Personel
+                <th className="p-2.5 font-semibold text-slate-600 dark:text-slate-400">
+                  Atanan Personel (Ad Soyad / Unvan)
                 </th>
               </tr>
             </thead>
@@ -428,22 +525,26 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
               {currentRows.map((row) => (
                 <tr
                   key={row.sira}
-                  className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                  className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors"
                 >
-                  <td className="py-2 px-3 text-slate-500 dark:text-slate-400 font-medium border-r border-slate-200 dark:border-slate-700">
-                    {row.sira}.
+                  <td className="p-2.5 text-center text-slate-500 font-medium">
+                    {row.sira}
                   </td>
-                  <td className="py-2 px-4 font-semibold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700">
-                    {row.gorev}
+                  <td className="p-2.5 font-medium text-slate-800 dark:text-slate-200">
+                    <input
+                      type="text"
+                      value={row.gorev}
+                      onChange={(e) => handleGorevChange(row.sira, e.target.value)}
+                      className="w-full bg-transparent border border-transparent hover:border-slate-300 dark:hover:border-slate-700 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 rounded px-1.5 py-1 text-xs outline-none transition-all"
+                    />
                   </td>
-                  <td className="py-1.5 px-3">
+                  <td className="p-2.5">
                     <select
                       value={row.personelId || ""}
-                      onChange={(e) =>
-                        handlePersonelChange(row.sira, e.target.value)}
-                      className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-slate-800 dark:text-slate-100 focus:ring-1 focus:ring-blue-500 focus:outline-none cursor-pointer"
+                      onChange={(e) => handlePersonelChange(row.sira, e.target.value)}
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md px-2.5 py-1.5 text-xs text-slate-800 dark:text-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all cursor-pointer"
                     >
-                      <option value="">Seçiniz</option>
+                      <option value="">-- Personel Seçiniz --</option>
                       {personeller.map((p) => (
                         <option key={p.id} value={p.id}>
                           {p.ad_soyad}
