@@ -87,7 +87,7 @@ export const MuayeneKabulKomisyonu: React.FC<Props> = ({
     }`;
 
   const konuMetni = data.dosyaKonusu ??
-    "Muayene ve Kabul Komisyonu Görevlendirmesi";
+    "Muayene ve Kabul Komisyonu";
 
   return (
     <DocumentLayout

@@ -21,7 +21,7 @@ export const MuayeneKabulKomisyonuMapping: ProcessMapping = {
     sutun: 'temin_no',
     aciklama: 'Temin Numarası'
   },
-  dosyaKonusu: { deger: 'Muayene ve Kabul Komisyonu Görevlendirmesi', aciklama: 'Belgenin konusu' },
+  dosyaKonusu: { deger: 'Muayene ve Kabul Komisyonu', aciklama: 'Belgenin konusu' },
   dosyaTarihi: {
     tablo: 'DATA_TeminDosyasi',
     sutun: 'dosya_tarihi',

@@ -202,10 +202,10 @@ export const TEMPLATE_OPTIONS: TemplateOptionItem[] = [
   {
     id: "muayene-kabul-komisyonu",
     name: "MuayeneKabulKomisyonu",
-    title: "Muayene ve Kabul Komisyonu Görevlendirmesi",
+    title: "Muayene ve Kabul Komisyonu",
     category: "4-kabul-ve-odeme-islemleri",
     categoryLabel: "Muayene & Kabul & Ödeme",
-    description: "Muayene ve kabul işlemlerini yürütecek komisyon görevlendirme onayı",
+    description: "Muayene ve kabul işlemlerini yürütecek komisyon belgesi",
   },
 ];
 
