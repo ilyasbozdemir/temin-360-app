@@ -116,7 +116,12 @@ export function KomisyonGorevlendirmeOnayi({
             lineHeight: 1.35,
           }}
         >
-          {data.kurumumuz || "Kurumumuz"} bünyesindeki{" "}
+          <EditableField
+            name="kurumumuz"
+            value={data.kurumumuz || data.kurumAdi || "Kurumumuz"}
+            placeholder="Kurumumuz"
+          />{" "}
+          bünyesindeki{" "}
           <strong><EditableField name="isAdi" value={data.isAdi || data.isinAdi} placeholder="İşin Adı" /></strong> işine ait fiyat araştırması ile
           muayene ve kabulü yapmak üzere aşağıdaki personeller görevlendirilecek olup,
         </div>

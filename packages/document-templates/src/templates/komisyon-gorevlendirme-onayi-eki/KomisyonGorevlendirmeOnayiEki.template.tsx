@@ -86,7 +86,11 @@ export function KomisyonGorevlendirmeOnayiEki({
             lineHeight: 1.5,
           }}
         >
-          {data.kurumumuz || "Kurumumuz"}{" "}
+          <EditableField
+            name="kurumumuz"
+            value={data.kurumumuz || data.kurumAdi || "Kurumumuz"}
+            placeholder="Kurumumuz"
+          />{" "}
           birimlerinde kullanılmak üzere ekteki lüzum müzakeresinde sunulan{" "}
           <strong>
             <EditableField
