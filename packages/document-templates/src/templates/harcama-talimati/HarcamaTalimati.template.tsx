@@ -1,7 +1,10 @@
 import React from "react";
 import { DocumentLayout } from "../../document/DocumentLayout";
 import { EditableField } from "../../document/EditableField";
-import { DateEditableField, PersonelCard } from "../../document/ApprovalSignature";
+import {
+  DateEditableField,
+  PersonelCard,
+} from "../../document/ApprovalSignature";
 import { HarcamaTalimatiType } from "./HarcamaTalimati.schema";
 
 interface HarcamaTalimatiProps {
@@ -10,6 +13,36 @@ interface HarcamaTalimatiProps {
   orientation?: "portrait" | "landscape";
   hideHeader?: boolean;
   hideFooter?: boolean;
+}
+
+function getDativeSuffix(name?: string): string {
+  if (!name || typeof name !== "string") return "’a";
+  const trimmed = name.split("(")[0].trim();
+  if (!trimmed || trimmed.includes(".")) return "’a";
+
+  const vowels = "aıoueiöüAIOUEİÖÜ";
+  const backVowels = "aıouAIOU";
+
+  let lastVowel = "";
+  for (let i = trimmed.length - 1; i >= 0; i--) {
+    const char = trimmed[i];
+    if (vowels.includes(char)) {
+      lastVowel = char;
+      break;
+    }
+  }
+
+  if (!lastVowel) return "’a";
+
+  const lastChar = trimmed[trimmed.length - 1];
+  const endsWithVowel = vowels.includes(lastChar);
+  const isBack = backVowels.includes(lastVowel);
+
+  if (isBack) {
+    return endsWithVowel ? "’ya" : "’a";
+  } else {
+    return endsWithVowel ? "’ye" : "’e";
+  }
 }
 
 export function HarcamaTalimati({
@@ -28,23 +61,26 @@ export function HarcamaTalimati({
     return String(val);
   };
 
+  const rawMutemet =
+    data.mutemetAdi || data.muhasebeYetkilisiAdi || data.muhasebeYetkilisi || "";
+  const cleanMutemet = typeof rawMutemet === "string" ? rawMutemet.split("(")[0].trim() : "";
+  const mutemetSuffix = cleanMutemet ? getDativeSuffix(cleanMutemet) : "’a";
+
   const formattedYaklasikMaliyet = data.yaklasikMaliyet
     ? `${data.yaklasikMaliyet} ₺`
     : "-";
 
-  const shouldHideHeader =
-    hideHeader !== undefined
-      ? hideHeader
-      : (data as any)?.hideHeader !== undefined
-      ? (data as any).hideHeader
-      : true;
+  const shouldHideHeader = hideHeader !== undefined
+    ? hideHeader
+    : (data as any)?.hideHeader !== undefined
+    ? (data as any).hideHeader
+    : true;
 
-  const shouldHideFooter =
-    hideFooter !== undefined
-      ? hideFooter
-      : (data as any)?.hideFooter !== undefined
-      ? (data as any).hideFooter
-      : true;
+  const shouldHideFooter = hideFooter !== undefined
+    ? hideFooter
+    : (data as any)?.hideFooter !== undefined
+    ? (data as any).hideFooter
+    : true;
 
   return (
     <DocumentLayout
@@ -56,7 +92,14 @@ export function HarcamaTalimati({
       pageNumber={1}
       totalPages={1}
     >
-      <div style={{ width: "100%", fontSize: "10pt", color: "#000", fontFamily: "'Times New Roman', Times, serif" }}>
+      <div
+        style={{
+          width: "100%",
+          fontSize: "10pt",
+          color: "#000",
+          fontFamily: "'Times New Roman', Times, serif",
+        }}
+      >
         <table
           style={{
             width: "100%",
@@ -87,17 +130,49 @@ export function HarcamaTalimati({
 
             {/* Sayı and Tarih */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "50%", fontWeight: "bold", padding: "4px 7px" }}>
-                Sayı: <EditableField name="evrakSayisi" value={data.evrakSayisi} placeholder="E-00000000-934.01-0001" />
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "50%",
+                  fontWeight: "bold",
+                  padding: "4px 7px",
+                }}
+              >
+                Sayı:{" "}
+                <EditableField
+                  name="evrakSayisi"
+                  value={data.evrakSayisi}
+                  placeholder="E-00000000-934.01-0001"
+                />
               </td>
-              <td style={{ border: "1px solid #000", width: "50%", fontWeight: "bold", textAlign: "right", padding: "4px 7px" }}>
-                Tarih: <DateEditableField name="tarih" value={data.tarih} placeholder="GG.AA.YYYY" />
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "50%",
+                  fontWeight: "bold",
+                  textAlign: "right",
+                  padding: "4px 7px",
+                }}
+              >
+                Tarih:{" "}
+                <DateEditableField
+                  name="tarih"
+                  value={data.tarih}
+                  placeholder="GG.AA.YYYY"
+                />
               </td>
             </tr>
 
             {/* Harcama Talebinde Bulunan Birim */}
             <tr>
-              <td colSpan={2} style={{ border: "1px solid #000", fontWeight: "bold", padding: "4px 7px 2px 7px" }}>
+              <td
+                colSpan={2}
+                style={{
+                  border: "1px solid #000",
+                  fontWeight: "bold",
+                  padding: "4px 7px 2px 7px",
+                }}
+              >
                 Harcama Talebinde Bulunan Birim:
               </td>
             </tr>
@@ -113,7 +188,9 @@ export function HarcamaTalimati({
                   textTransform: "uppercase",
                 }}
               >
-                {data.idareAdi || (data.antetSatirlari && data.antetSatirlari[1]) || "KURUM / BİRİM ADI"}
+                {data.idareAdi ||
+                  (data.antetSatirlari && data.antetSatirlari[1]) ||
+                  "KURUM / BİRİM ADI"}
               </td>
             </tr>
 
@@ -137,95 +214,250 @@ export function HarcamaTalimati({
 
             {/* Gerekçe ve hukuki dayanak */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "35%",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  padding: "4px 7px",
+                }}
+              >
                 Gerekçesi ve Hukuki Dayanağı
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", padding: "4px 7px" }}>
-                <EditableField name="gerekce" value={data.gerekce} multiline placeholder="Gerekçe" />
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "65%",
+                  padding: "4px 7px",
+                }}
+              >
+                <EditableField
+                  name="gerekce"
+                  value={data.gerekce}
+                  multiline
+                  placeholder="Gerekçe"
+                />
               </td>
             </tr>
 
             {/* Konusu / Nev'i / Niteliği */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "35%",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  padding: "4px 7px",
+                }}
+              >
                 Konusu / Nev'i / Niteliği
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", fontWeight: "bold", padding: "4px 7px" }}>
-                <EditableField name="isAdi" value={data.isAdi || data.konu} placeholder="İşin Adı" style={{ width: "100%" }} />
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "65%",
+                  fontWeight: "bold",
+                  padding: "4px 7px",
+                }}
+              >
+                <EditableField
+                  name="isAdi"
+                  value={data.isAdi || data.konu}
+                  placeholder="İşin Adı"
+                  style={{ width: "100%" }}
+                />
               </td>
             </tr>
 
             {/* Miktarı */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "35%",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  padding: "4px 7px",
+                }}
+              >
                 Miktarı
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", padding: "4px 7px" }}>
-                <EditableField name="miktar" value={data.miktar} placeholder="Miktar" />
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "65%",
+                  padding: "4px 7px",
+                }}
+              >
+                <EditableField
+                  name="miktar"
+                  value={data.miktar}
+                  placeholder="Miktar"
+                />
               </td>
             </tr>
 
             {/* Gerçekleştirme Süresi */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "35%",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  padding: "4px 7px",
+                }}
+              >
                 Gerçekleştirme Süresi
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", padding: "4px 7px" }}>
-                <EditableField name="sure" value={data.sure} placeholder="Gerçekleştirme Süresi" />
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "65%",
+                  padding: "4px 7px",
+                }}
+              >
+                <EditableField
+                  name="sure"
+                  value={data.sure}
+                  placeholder="Gerçekleştirme Süresi"
+                />
               </td>
             </tr>
 
             {/* Gerçekleştirme Usulü */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "35%",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  padding: "4px 7px",
+                }}
+              >
                 Gerçekleştirme Usulü
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", padding: "4px 7px" }}>
-                <EditableField name="teminSekli" value={data.teminSekli} placeholder="Gerçekleştirme Usulü" />
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "65%",
+                  padding: "4px 7px",
+                }}
+              >
+                <EditableField
+                  name="teminSekli"
+                  value={data.teminSekli}
+                  placeholder="Gerçekleştirme Usulü"
+                />
               </td>
             </tr>
 
             {/* Tutarı veya yaklaşık bedeli */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "35%",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  padding: "4px 7px",
+                }}
+              >
                 Tutarı veya Yaklaşık Bedeli
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "65%",
+                  padding: "4px 7px",
+                }}
+              >
                 {formattedYaklasikMaliyet}
               </td>
             </tr>
 
             {/* Kullanılabilir ödenek tutarı */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "35%",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  padding: "4px 7px",
+                }}
+              >
                 Kullanılabilir Ödenek Tutarı
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", padding: "4px 7px" }}>
-                <EditableField name="odenekTutari" value={data.odenekTutari ? String(data.odenekTutari) : ""} placeholder="Kullanılabilir Ödenek Tutarı" />
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "65%",
+                  padding: "4px 7px",
+                }}
+              >
+                <EditableField
+                  name="odenekTutari"
+                  value={data.odenekTutari ? String(data.odenekTutari) : ""}
+                  placeholder="Kullanılabilir Ödenek Tutarı"
+                />
               </td>
             </tr>
 
             {/* Ödeneğin bütçe tertibi */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "35%",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  padding: "4px 7px",
+                }}
+              >
                 Ödeneğin Bütçe Tertibi
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "65%",
+                  padding: "4px 7px",
+                }}
+              >
                 {renderArrayOrString(data.butceTertibi)}
               </td>
             </tr>
 
             {/* Gerçekleştirme görevlileri */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "35%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "35%",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  padding: "4px 7px",
+                }}
+              >
                 Gerçekleştirme Görevlileri
               </td>
-              <td style={{ border: "1px solid #000", width: "65%", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "65%",
+                  padding: "4px 7px",
+                }}
+              >
                 {renderArrayOrString(
                   data.gerceklestirmeGorevlileri,
                   data.hazirlayanPersonelAdi
-                    ? `${data.hazirlayanPersonelAdi} (${data.hazirlayanPersonelUnvan || ""})`
-                    : "-"
+                    ? `${data.hazirlayanPersonelAdi} (${
+                      data.hazirlayanPersonelUnvan || ""
+                    })`
+                    : "-",
                 )}
               </td>
             </tr>
@@ -258,7 +490,13 @@ export function HarcamaTalimati({
                   whiteSpace: "pre-wrap",
                 }}
               >
-                <EditableField name="aciklama" value={data.aciklama || data.isinAciklamasi || data.isAdi || data.isinAdi || data.gerekce} multiline placeholder="Açıklama giriniz..." />
+                <EditableField
+                  name="aciklama"
+                  value={data.aciklama || data.isinAciklamasi || data.isAdi ||
+                    data.isinAdi || data.gerekce}
+                  multiline
+                  placeholder="Açıklama giriniz..."
+                />
               </td>
             </tr>
           </tbody>
@@ -302,21 +540,28 @@ export function HarcamaTalimati({
                   fontSize: "9pt",
                 }}
               >
-                Yukarıda belirtilen harcamanın yaptırılması için harcama yetkilisi mutemedi{" "}
+                Yukarıda belirtilen harcamanın yaptırılması için harcama
+                yetkilisi mutemedi{" "}
                 <strong>
                   <EditableField
                     name="mutemetAdi"
-                    value={data.mutemetAdi || data.muhasebeYetkilisiAdi || data.muhasebeYetkilisi}
+                    value={cleanMutemet}
                     placeholder="Mutemet / Muhasebe Yetkilisi"
                   />
                 </strong>
-                ‘a, işin tutarı,{" "}
+                {mutemetSuffix}, işin tutarı,{" "}
                 <strong>
                   <EditableField
                     name="isTutari"
-                    value={data.isTutari !== undefined && data.isTutari !== null ? String(data.isTutari) : data.yaklasikMaliyet !== undefined && data.yaklasikMaliyet !== null ? String(data.yaklasikMaliyet) : undefined}
+                    value={data.isTutari !== undefined && data.isTutari !== null
+                      ? String(data.isTutari)
+                      : data.yaklasikMaliyet !== undefined &&
+                          data.yaklasikMaliyet !== null
+                      ? String(data.yaklasikMaliyet)
+                      : undefined}
                     placeholder="İşin Tutarı"
-                  /> ₺
+                  />{" "}
+                  ₺
                 </strong>
                 , avans verilmesi hususu olurlarınıza arz olunur.
               </td>
@@ -348,11 +593,20 @@ export function HarcamaTalimati({
               >
                 <div style={{ fontSize: "9.5pt" }}>
                   Teklif Eden Yetkili<br />
-                  <DateEditableField name="sunumTarihi" value={data.sunumTarihi || data.tarih} placeholder="GG.AA.YYYY" />
+                  <DateEditableField
+                    name="sunumTarihi"
+                    value={data.sunumTarihi || data.tarih}
+                    placeholder="GG.AA.YYYY"
+                  />
                 </div>
                 <PersonelCard
-                  adSoyad={data.hazirlayanPersonelAdi || data.teklifEdenPersonelAdi || data.gerceklestirmeGorevlisiAdi}
-                  unvan={data.hazirlayanPersonelUnvan || data.teklifEdenPersonelUnvan || data.gerceklestirmeGorevlisiUnvan || "Gerçekleştirme Görevlisi"}
+                  adSoyad={data.hazirlayanPersonelAdi ||
+                    data.teklifEdenPersonelAdi ||
+                    data.gerceklestirmeGorevlisiAdi}
+                  unvan={data.hazirlayanPersonelUnvan ||
+                    data.teklifEdenPersonelUnvan ||
+                    data.gerceklestirmeGorevlisiUnvan ||
+                    "Gerçekleştirme Görevlisi"}
                   nameField="hazirlayanPersonelAdi"
                   unvanField="hazirlayanPersonelUnvan"
                   placeholderName="Hazırlayan / Teklif Eden"
@@ -373,11 +627,17 @@ export function HarcamaTalimati({
               >
                 <div style={{ fontSize: "9.5pt" }}>
                   Harcama Yetkilisi<br />
-                  <DateEditableField name="olurTarihi" value={data.olurTarihi || data.onayTarihi || data.tarih} placeholder="GG.AA.YYYY" />
+                  <DateEditableField
+                    name="olurTarihi"
+                    value={data.olurTarihi || data.onayTarihi || data.tarih}
+                    placeholder="GG.AA.YYYY"
+                  />
                 </div>
                 <PersonelCard
-                  adSoyad={data.onaylayanPersonelAdi || data.harcamaYetkilisiAdi}
-                  unvan={data.onaylayanPersonelUnvan || data.harcamaYetkilisiUnvan || "Harcama Yetkilisi"}
+                  adSoyad={data.onaylayanPersonelAdi ||
+                    data.harcamaYetkilisiAdi}
+                  unvan={data.onaylayanPersonelUnvan ||
+                    data.harcamaYetkilisiUnvan || "Harcama Yetkilisi"}
                   nameField="onaylayanPersonelAdi"
                   unvanField="onaylayanPersonelUnvan"
                   placeholderName="Harcama Yetkilisi"

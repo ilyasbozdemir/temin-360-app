@@ -388,13 +388,14 @@ export function useDocumentPreviewData({
                 return g.includes("muhasebe") || g.includes("mutemet");
               });
               if (muhasebeRow && (muhasebeRow.ad_soyad || muhasebeRow.personel_id)) {
+                const cleanName = (muhasebeRow.ad_soyad || "").split("(")[0].trim();
                 if (!baseData.mutemetAdi || baseData.mutemetAdi === "......") {
-                  baseData.mutemetAdi = muhasebeRow.ad_soyad || "";
+                  baseData.mutemetAdi = cleanName;
                   baseData.mutemetUnvan = muhasebeRow.unvan || "Muhasebe Yetkilisi";
                 }
-                baseData.muhasebeYetkilisiAdi = muhasebeRow.ad_soyad || "";
+                baseData.muhasebeYetkilisiAdi = cleanName;
                 baseData.muhasebeYetkilisiUnvan = muhasebeRow.unvan || "Muhasebe Yetkilisi";
-                baseData.muhasebeYetkilisi = muhasebeRow.ad_soyad || "";
+                baseData.muhasebeYetkilisi = cleanName;
               }
 
               // 2. Harcama Yetkilisi (Onaylayan / Olur Veren)
