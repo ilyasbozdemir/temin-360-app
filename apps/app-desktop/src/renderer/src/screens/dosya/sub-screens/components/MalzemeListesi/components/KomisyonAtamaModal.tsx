@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Check, FileText, RefreshCw, Save, UserCheck, Users, X } from "lucide-react";
+import { Check, FileText, RefreshCw, Save, UserCheck, Users } from "lucide-react";
 import { Modal } from "../../../../../../components/ui/Modal";
 
 interface PersonelItem {
@@ -329,12 +329,14 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
   };
 
   // Belge Aç Butonu (Kayıttan sonra önizleme açar)
-  const handleOpenDoc = async () => {
+  const handleOpenDoc = async (targetDoc?: string) => {
     const ok = await handleSave(activeTab);
     if (ok && onOpenDocument) {
       onClose();
-      if (activeTab === "yaklasik_maliyet") {
-        onOpenDocument("komisyon-gorevlendirme-onayi");
+      if (targetDoc) {
+        onOpenDocument(targetDoc);
+      } else if (activeTab === "yaklasik_maliyet") {
+        onOpenDocument("piyasa-fiyat-arastirma-gorevlendirmesi");
       } else {
         onOpenDocument("muayene-kabul-komisyonu");
       }
@@ -376,7 +378,7 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
             }`}
           >
             <Users className="w-3.5 h-3.5" />
-            Yaklaşık Maliyet Tespit Komisyonu
+            Yaklaşık Maliyet & Piyasa Fiyat Araştırması
           </button>
           <button
             type="button"
@@ -396,12 +398,12 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
         <div className="text-center py-1">
           <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 tracking-wide">
             {activeTab === "yaklasik_maliyet"
-              ? "Yaklaşık Maliyet Tespit Komisyonu"
+              ? "Piyasa Fiyat Araştırması ve Maliyet Tespit Komisyonu"
               : "Muayene Kabul ve Tespit Komisyonu"}
           </h3>
           <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
             {activeTab === "yaklasik_maliyet"
-              ? "Komisyon Görevlendirme Onayı (ve eki) resmi belgesi için belirlenen standart kadrodur. Boş bırakılan satırlar belgeye dahil edilmez."
+              ? "Piyasa Fiyat Araştırma Görevlendirmesi ve Komisyon Görevlendirme Onayı resmi belgeleri için belirlenen standart kadrodur. Boş bırakılan satırlar belgeye dahil edilmez."
               : "Muayene Kabul Komisyon Onay Yazısı ve tutanak belgeleri için belirlenen standart kadrodur. Boş bırakılan satırlar belgeye dahil edilmez."}
           </p>
         </div>
@@ -457,22 +459,55 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
         </div>
 
         {/* Butonlar */}
-        <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800">
-          <div>
-            <button
-              type="button"
-              onClick={handleOpenDoc}
-              disabled={saving || loading}
-              className="flex items-center gap-2 px-4 py-2 bg-[#1e549f] hover:bg-[#184687] text-white rounded-md text-xs font-bold transition-all shadow-sm cursor-pointer disabled:opacity-50"
-            >
-              <FileText className="w-3.5 h-3.5" />
-              {activeTab === "yaklasik_maliyet"
-                ? "Komisyon Onayı"
-                : "Kabul Komisyon Onay Yazısı"}
-            </button>
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {activeTab === "yaklasik_maliyet" ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleOpenDoc("piyasa-fiyat-arastirma-gorevlendirmesi")}
+                  disabled={saving || loading}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-md text-xs font-bold transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                  title="Piyasa Fiyat Araştırması Görevlendirmesi Belgesini Aç"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  Fiyat Araştırma Görevlendirmesi
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOpenDoc("komisyon-gorevlendirme-onayi")}
+                  disabled={saving || loading}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-md text-xs font-semibold transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                  title="Komisyon Görevlendirme Onayı Belgesini Aç"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  Komisyon Onayı
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOpenDoc("komisyon-gorevlendirme-onayi-eki")}
+                  disabled={saving || loading}
+                  className="flex items-center gap-1.5 px-2.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-md text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
+                  title="Komisyon Görevlendirme Onayı Ekini Aç"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  Onay Eki
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => handleOpenDoc("muayene-kabul-komisyonu")}
+                disabled={saving || loading}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-md text-xs font-bold transition-all shadow-sm cursor-pointer disabled:opacity-50"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                Kabul Komisyon Onay Yazısı
+              </button>
+            )}
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleSyncFromKomisyonYonetimi}
@@ -488,11 +523,11 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
               type="button"
               onClick={() => handleSave(activeTab)}
               disabled={saving || loading}
-              className="flex items-center gap-1.5 px-6 py-2 bg-[#1e549f] hover:bg-[#184687] text-white rounded-md text-xs font-bold transition-all shadow-sm cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-1.5 px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-xs font-bold transition-all shadow-sm cursor-pointer disabled:opacity-50"
             >
               {saveSuccess ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <Check className="w-3.5 h-3.5 text-white" />
                   Kaydedildi
                 </>
               ) : (

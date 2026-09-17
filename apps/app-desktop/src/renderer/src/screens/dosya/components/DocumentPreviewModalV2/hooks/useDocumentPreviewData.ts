@@ -334,9 +334,66 @@ export function useDocumentPreviewData({
           baseData.sagLogo = resolvedSagLogo;
         }
 
+        if (activeDosyaId) {
+          try {
+            const dbKomisyonlar = await queryExecutor(
+              `SELECT tk.*, p.ad_soyad, p.unvan, tk.gorev, tk.rol, tk.komisyon_id 
+               FROM DATA_TeminKomisyon tk 
+               LEFT JOIN TANIM_Personel p ON tk.personel_id = p.id 
+               WHERE tk.temin_dosya_id = ? 
+               ORDER BY tk.id ASC`,
+              [activeDosyaId]
+            );
+            if (dbKomisyonlar && dbKomisyonlar.length > 0) {
+              const maliyetMembers = dbKomisyonlar.filter(
+                (k: any) =>
+                  k.komisyon_id === 1 ||
+                  (k.komisyon_turu &&
+                    (k.komisyon_turu.toLowerCase().includes("maliyet") ||
+                      k.komisyon_turu.toLowerCase().includes("fiyat")))
+              );
+              const muayeneMembers = dbKomisyonlar.filter(
+                (k: any) =>
+                  k.komisyon_id === 2 ||
+                  (k.komisyon_turu &&
+                    (k.komisyon_turu.toLowerCase().includes("muayene") ||
+                      k.komisyon_turu.toLowerCase().includes("kabul")))
+              );
+
+              if (maliyetMembers.length > 0) {
+                const formattedMaliyet = maliyetMembers.map((m: any) => ({
+                  adSoyad: m.ad_soyad || "",
+                  unvan: m.unvan || "",
+                  gorev: m.gorev || "Fiyat Araştırma Görevlisi",
+                  rol: m.rol || "Üye",
+                }));
+                baseData.fiyatKomisyonu = formattedMaliyet;
+                // Piyasa Fiyat Araştırması Görevlendirmesi için görevlendirilen personeller
+                const activeGorevliler = formattedMaliyet.filter(
+                  (m: any) => m.gorev !== "Harcama Yetkilisi" && m.gorev !== "Gerçekleştirme Görevlisi"
+                );
+                baseData.gorevlendirilenler = activeGorevliler.length > 0 ? activeGorevliler : formattedMaliyet;
+                baseData.gorevliler = baseData.gorevlendirilenler;
+              }
+
+              if (muayeneMembers.length > 0) {
+                baseData.muayeneKomisyonu = muayeneMembers.map((m: any) => ({
+                  adSoyad: m.ad_soyad || "",
+                  unvan: m.unvan || "",
+                  gorev: m.gorev || "Üye",
+                  rol: m.rol || "Üye",
+                }));
+              }
+            }
+          } catch (e) {
+            console.error("DATA_TeminKomisyon preview query error:", e);
+          }
+        }
+
         if (!baseData.fiyatKomisyonu || (Array.isArray(baseData.fiyatKomisyonu) && baseData.fiyatKomisyonu.length === 0)) {
           if (ctx.fiyatKomisyonu && ctx.fiyatKomisyonu.length > 0) {
             baseData.fiyatKomisyonu = ctx.fiyatKomisyonu;
+            baseData.gorevlendirilenler = ctx.fiyatKomisyonu;
           }
         }
         if (!baseData.muayeneKomisyonu || (Array.isArray(baseData.muayeneKomisyonu) && baseData.muayeneKomisyonu.length === 0)) {
