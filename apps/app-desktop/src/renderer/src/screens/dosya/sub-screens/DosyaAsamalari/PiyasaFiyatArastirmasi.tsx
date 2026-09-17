@@ -84,7 +84,9 @@ export function PiyasaFiyatArastirmasi(): React.JSX.Element {
     handleSetWinnerFirma,
   } = logic;
 
-  const [activeFormTab, setActiveFormTab] = useState<"firms" | "matrix">(() => {
+  const [activeFormTab, setActiveFormTab] = useState<
+    "firms" | "matrix" | "comparison"
+  >(() => {
     return invitedFirms.length > 0 ? "matrix" : "firms";
   });
   const [activeActionDropdown, setActiveActionDropdown] = useState<

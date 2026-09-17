@@ -8,9 +8,12 @@ import {
   ChevronRight,
   Layers,
   Loader2,
+  Lock,
   Printer,
   RefreshCw,
+  Sparkles,
   Square,
+  Unlock,
 } from "lucide-react";
 import { useWorkspaceStore } from "../../store/workspaceStore";
 import Mustache from "mustache";
@@ -18,6 +21,7 @@ import { Sablon } from "../sablonlar/sablonlar.hooks";
 import { useCiktiMerkeziData } from "./CiktiMerkezi.hooks";
 import { useDocumentLogger } from "../../hooks/useDocumentLogger";
 import { useRouterState } from "@tanstack/react-router";
+import { TekTikYazdirModal } from "./components/TekTikYazdirModal";
 import { PrintManagerModal } from "./components/PrintManagerModal";
 import { SABLON_DOSYAADI_KATEGORI } from "../../constants/sablonKategorileri";
 import { BelgeAksiyonlari } from "../../components/ui/BelgeAksiyonlari";
@@ -25,7 +29,11 @@ import { CiktiPresetManager } from "./components/CiktiPresetManager";
 import { CiktiSidebar } from "./components/CiktiSidebar";
 import { CiktiPreviewModal } from "./components/CiktiPreviewModal";
 import { buildExportFileName, buildBatchZipFileName } from "../../utils/exportFileName";
-import { usePrintQueueStore } from "../../store/printQueueStore";
+import {
+  usePrintQueueStore,
+  CURRENT_APP_VERSION,
+  PrintSettings,
+} from "../../store/printQueueStore";
 import { useGlobalDocumentPreviewStore } from "../../store/globalDocumentPreviewStore";
 import { exportDogrudanTeminMasterExcel } from "../../services/excelExportService";
 
@@ -66,6 +74,9 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
     getDocumentStatus,
     toggleReadyToPrint,
     markAsPrinted,
+    isDocumentLocked,
+    getDocumentLockInfo,
+    unlockDocument,
   } = usePrintQueueStore();
   const { openDocument } = useGlobalDocumentPreviewStore();
 
@@ -762,6 +773,12 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
                             const docStatus = activeDosyaId
                               ? getDocumentStatus(activeDosyaId, docKey)
                               : "draft";
+                            const isLocked = activeDosyaId
+                              ? isDocumentLocked(activeDosyaId, docKey)
+                              : false;
+                            const lockInfo = activeDosyaId
+                              ? getDocumentLockInfo(activeDosyaId, docKey)
+                              : null;
 
                             return (
                               <div
@@ -804,17 +821,22 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
                                     >
                                       {sablon.ad}
                                     </p>
-                                    {docStatus === "ready_to_print" && (
+                                    {isLocked && (
+                                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300/50">
+                                        <Lock className="w-2.5 h-2.5 text-amber-500" /> {lockInfo?.lockedAtVersion || CURRENT_APP_VERSION} Kilitli
+                                      </span>
+                                    )}
+                                    {!isLocked && docStatus === "ready_to_print" && (
                                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300/50">
                                         <CheckCircle2 className="w-2.5 h-2.5" /> Hazır
                                       </span>
                                     )}
-                                    {docStatus === "modified" && (
+                                    {!isLocked && docStatus === "modified" && (
                                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-300/50">
                                         Kontrol Bekliyor
                                       </span>
                                     )}
-                                    {docStatus === "printed" && (
+                                    {!isLocked && docStatus === "printed" && (
                                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-300/50">
                                         <Printer className="w-2.5 h-2.5" /> Yazdırıldı
                                       </span>
@@ -829,6 +851,27 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
                                 </div>
 
                                 <div className="flex items-center gap-1 shrink-0">
+                                  {isLocked && (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (
+                                          confirm(
+                                            `"${sablon.ad}" belgesinin yazdırma kilidini açmak ve yeniden düzenlemeye izin vermek istiyor musunuz?`
+                                          )
+                                        ) {
+                                          if (activeDosyaId) {
+                                            unlockDocument(activeDosyaId, docKey);
+                                          }
+                                        }
+                                      }}
+                                      className="p-1 rounded-lg border text-amber-500 hover:text-amber-700 border-amber-200 dark:border-amber-800"
+                                      title="Yazdırma Kilidini Aç"
+                                    >
+                                      <Unlock className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
                                   {/* Quick toggle ready to print button */}
                                   <button
                                     type="button"
@@ -971,32 +1014,19 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
         />
       )}
 
-      <PrintManagerModal
+      <TekTikYazdirModal
         isOpen={isPrintManagerOpen}
         onClose={() => setIsPrintManagerOpen(false)}
         sablons={sablons}
+        activeDosya={activeDosya}
         activeStarredDocs={activeStarredDocs}
-        selectedIds={selectedIds}
-        onRemoveFromQueue={(sablonId) => {
-          setSelectedIds((prev) => {
-            const next = new Set(prev);
-            next.delete(sablonId);
-            return next;
-          });
-          const sab = sablons.find((s) => s.id === sablonId);
-          if (
-            sab &&
-            activeStarredDocs.some((d) =>
-              normalizeForMatch(d) === normalizeForMatch(sab.ad)
-            )
-          ) {
-            toggleStar(sab.ad, { stopPropagation: () => {} } as any);
-          }
+        initialSelectedIds={Array.from(selectedIds)}
+        renderHtml={renderHtml}
+        onExecutePrint={async (selected, action, settings) => {
+          await handleAction(action, selected.map((s) => s.id));
         }}
-        onPrint={(validIds) => handleAction("print", validIds)}
-        processing={processing}
-        normalizeForMatch={normalizeForMatch}
         getMissingRequirement={getMissingRequirement}
+        normalizeForMatch={normalizeForMatch}
       />
 
       {toast && (

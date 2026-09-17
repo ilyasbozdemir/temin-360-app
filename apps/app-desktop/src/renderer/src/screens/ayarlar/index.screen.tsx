@@ -15,8 +15,9 @@ import { DeveloperTab } from './components/DeveloperTab'
 import { AiTab } from './components/AiTab'
 import { SyncTab } from './components/SyncTab'
 import { GenelTab } from './components/GenelTab'
+import { DocumentThemeTab } from './components/DocumentThemeTab'
 
-type TabType = 'genel' | 'smtp' | 'tema' | 'developer' | 'ai' | 'archive' | 'sync'
+type TabType = 'genel' | 'smtp' | 'tema' | 'belge-tema' | 'developer' | 'ai' | 'archive' | 'sync'
 
 export default function AyarlarScreen(): React.ReactNode {
   const { settings, isLoadingSettings, saveSettings, importSmtp, exportSmtp } = useAyarlarHooks()
@@ -30,6 +31,7 @@ export default function AyarlarScreen(): React.ReactNode {
       tabParam === 'genel' ||
       tabParam === 'smtp' ||
       tabParam === 'tema' ||
+      tabParam === 'belge-tema' ||
       tabParam === 'developer' ||
       tabParam === 'ai' ||
       tabParam === 'archive' ||
@@ -47,6 +49,7 @@ export default function AyarlarScreen(): React.ReactNode {
       currentTabParam === 'genel' ||
       currentTabParam === 'smtp' ||
       currentTabParam === 'tema' ||
+      currentTabParam === 'belge-tema' ||
       currentTabParam === 'developer' ||
       currentTabParam === 'ai' ||
       currentTabParam === 'archive' ||
@@ -278,6 +281,8 @@ export default function AyarlarScreen(): React.ReactNode {
             </div>
           ) : activeTab === 'tema' ? (
             <TemaScreen isEmbedded={true} />
+          ) : activeTab === 'belge-tema' ? (
+            <DocumentThemeTab />
           ) : (
             <>
               <div className="space-y-6">

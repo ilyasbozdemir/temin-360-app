@@ -4,6 +4,16 @@ import { emitAppEvent } from '../utils/appEvents'
 
 export type PrintStatus = 'draft' | 'modified' | 'ready_to_print' | 'printed'
 
+export interface PrintSettings {
+  pageSize?: 'A4' | 'A3' | 'Letter'
+  orientation?: 'portrait' | 'landscape'
+  copies?: number
+  printBackground?: boolean
+  showPageNumbers?: boolean
+  pageRange?: string
+  scale?: number
+}
+
 export interface QueuedDocument {
   id: string // e.g. `${dosyaId}_${docKey}`
   dosyaId: number
@@ -16,7 +26,13 @@ export interface QueuedDocument {
   lastPrintedAt?: string
   lastModifiedAt?: string
   notes?: string
+  isLocked?: boolean
+  lockedAtVersion?: string
+  lockedAt?: string
+  printSettings?: PrintSettings
 }
+
+export const CURRENT_APP_VERSION = 'v1.0.0-beta.126'
 
 export interface PrintQueueState {
   items: QueuedDocument[]
@@ -30,13 +46,20 @@ export interface PrintQueueState {
   ) => boolean
   updateStatus: (dosyaId: number, docKey: string, status: PrintStatus, notes?: string) => void
   invalidateReadyStatus: (dosyaId: number, docKey: string, reason?: string) => void
-  markAsPrinted: (dosyaId: number, docKey: string) => void
+  markAsPrinted: (dosyaId: number, docKey: string, version?: string, settings?: PrintSettings) => void
+  lockDocument: (dosyaId: number, docKey: string, version?: string) => void
+  unlockDocument: (dosyaId: number, docKey: string) => void
   clearQueueForDosya: (dosyaId: number) => void
   getQueueForDosya: (dosyaId: number | null | undefined) => QueuedDocument[]
   getReadyCountForDosya: (dosyaId: number | null | undefined) => number
   getPrintedCountForDosya: (dosyaId: number | null | undefined) => number
   isInQueue: (dosyaId: number | null | undefined, docKey: string) => boolean
   getDocumentStatus: (dosyaId: number | null | undefined, docKey: string) => PrintStatus
+  isDocumentLocked: (dosyaId: number | null | undefined, docKey: string) => boolean
+  getDocumentLockInfo: (
+    dosyaId: number | null | undefined,
+    docKey: string
+  ) => { isLocked: boolean; lockedAtVersion?: string; lockedAt?: string } | null
 }
 
 export const usePrintQueueStore = create<PrintQueueState>()(
@@ -133,20 +156,82 @@ export const usePrintQueueStore = create<PrintQueueState>()(
         emitAppEvent('print_queue:updated', { dosyaId, docKey, status: 'modified' })
       },
 
-      markAsPrinted: (dosyaId, docKey) => {
+      markAsPrinted: (dosyaId, docKey, version, settings) => {
+        const id = `${dosyaId}_${docKey}`
+        const now = new Date().toISOString()
+        const lockedVer = version || CURRENT_APP_VERSION
+        set((state) => {
+          const existing = state.items.find((i) => i.id === id)
+          if (existing) {
+            return {
+              items: state.items.map((i) =>
+                i.id === id
+                  ? {
+                      ...i,
+                      status: 'printed' as const,
+                      lastPrintedAt: now,
+                      isLocked: true,
+                      lockedAtVersion: lockedVer,
+                      lockedAt: now,
+                      printSettings: settings || i.printSettings
+                    }
+                  : i
+              )
+            }
+          }
+          // If not existing in queue yet, add as printed & locked
+          const newItem: QueuedDocument = {
+            id,
+            dosyaId,
+            docKey,
+            title: docKey,
+            status: 'printed',
+            addedAt: now,
+            lastPrintedAt: now,
+            isLocked: true,
+            lockedAtVersion: lockedVer,
+            lockedAt: now,
+            printSettings: settings
+          }
+          return { items: [newItem, ...state.items] }
+        })
+        emitAppEvent('print_queue:updated', { dosyaId, docKey, status: 'printed', isLocked: true })
+      },
+
+      lockDocument: (dosyaId, docKey, version) => {
+        const id = `${dosyaId}_${docKey}`
+        const now = new Date().toISOString()
+        const lockedVer = version || CURRENT_APP_VERSION
+        set((state) => ({
+          items: state.items.map((i) =>
+            i.id === id
+              ? {
+                  ...i,
+                  isLocked: true,
+                  lockedAtVersion: lockedVer,
+                  lockedAt: now
+                }
+              : i
+          )
+        }))
+        emitAppEvent('print_queue:updated', { dosyaId, docKey, isLocked: true })
+      },
+
+      unlockDocument: (dosyaId, docKey) => {
         const id = `${dosyaId}_${docKey}`
         set((state) => ({
           items: state.items.map((i) =>
             i.id === id
               ? {
                   ...i,
-                  status: 'printed',
-                  lastPrintedAt: new Date().toISOString()
+                  isLocked: false,
+                  status: i.status === 'printed' ? ('modified' as const) : i.status,
+                  notes: 'Kullanıcı tarafından kilidi açıldı ve düzenlemeye izin verildi.'
                 }
               : i
           )
         }))
-        emitAppEvent('print_queue:updated', { dosyaId, docKey, status: 'printed' })
+        emitAppEvent('print_queue:updated', { dosyaId, docKey, isLocked: false })
       },
 
       clearQueueForDosya: (dosyaId) => {
@@ -183,6 +268,25 @@ export const usePrintQueueStore = create<PrintQueueState>()(
         const id = `${dosyaId}_${docKey}`
         const found = get().items.find((i) => i.id === id)
         return found ? found.status : 'draft'
+      },
+
+      isDocumentLocked: (dosyaId, docKey) => {
+        if (!dosyaId || !docKey) return false
+        const id = `${dosyaId}_${docKey}`
+        const found = get().items.find((i) => i.id === id)
+        return !!(found && found.isLocked)
+      },
+
+      getDocumentLockInfo: (dosyaId, docKey) => {
+        if (!dosyaId || !docKey) return null
+        const id = `${dosyaId}_${docKey}`
+        const found = get().items.find((i) => i.id === id)
+        if (!found) return null
+        return {
+          isLocked: !!found.isLocked,
+          lockedAtVersion: found.lockedAtVersion,
+          lockedAt: found.lockedAt || found.lastPrintedAt
+        }
       }
     }),
     {

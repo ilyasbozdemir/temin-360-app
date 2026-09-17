@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import { BaseTemplate } from "../base.schema";
-import { GLOBAL_THEME } from "../theme.config";
+import { DocumentThemeConfig, GLOBAL_THEME, createDocumentTheme } from "../theme.config";
 import { DocumentHeader } from "./DocumentHeader";
 import { DocumentFooter } from "./DocumentFooter";
 
@@ -14,6 +14,7 @@ interface DocumentLayoutProps {
   orientation?: "portrait" | "landscape";
   pageNumber?: number;
   totalPages?: number;
+  theme?: DocumentThemeConfig | Partial<DocumentThemeConfig>;
 }
 
 export const DocumentLayout = React.forwardRef<
@@ -31,10 +32,12 @@ export const DocumentLayout = React.forwardRef<
       orientation = "portrait",
       pageNumber,
       totalPages,
+      theme,
     },
     ref,
   ) => {
-    const margins = GLOBAL_THEME.page.margins;
+    const activeTheme = theme ? createDocumentTheme(theme) : GLOBAL_THEME;
+    const margins = activeTheme.page.margins;
 
     let docWidth = "21cm";
     let docHeight = "29.7cm";
@@ -82,10 +85,10 @@ export const DocumentLayout = React.forwardRef<
           margin: totalPages && totalPages > 1 && !isLastPage ? "0 auto 40px auto" : "0 auto",
           padding:
             `${margins.top}cm ${margins.right}cm ${margins.bottom}cm ${margins.left}cm`,
-          fontFamily: GLOBAL_THEME.typography.fontFamily,
-          fontSize: GLOBAL_THEME.typography.baseFontSize,
-          lineHeight: GLOBAL_THEME.typography.lineHeight,
-          color: GLOBAL_THEME.colors.text,
+          fontFamily: activeTheme.typography.fontFamily,
+          fontSize: activeTheme.typography.baseFontSize,
+          lineHeight: activeTheme.typography.lineHeight,
+          color: activeTheme.colors.text,
           backgroundColor: "#fff",
           position: "relative",
           pageBreakAfter: isLastPage ? "avoid" : "always",
