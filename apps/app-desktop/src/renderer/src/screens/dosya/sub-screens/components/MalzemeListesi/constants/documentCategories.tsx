@@ -164,19 +164,11 @@ export function buildDocumentCategories(
           steps: [1, 2, 3, 4],
         },
         {
-          id: "gorevlendirmeOnayi",
-          label: "Komisyon Görevlendirme Onayı",
-          icon: FileCheck,
-          iconColorClass: "text-blue-500",
-          onClick: onGorevlendirmeOnayi,
-          steps: [1, 2, 3, 4],
-        },
-        {
           id: "gorevlendirmeOnayEki",
           label: "Komisyon Görevlendirme Onay Eki",
           icon: FileCheck,
           iconColorClass: "text-blue-600",
-          onClick: onGorevlendirmeOnayEki,
+          onClick: onGorevlendirmeOnayEki || onGorevlendirmeOnayi,
           steps: [1, 2, 3, 4],
         },
         {
