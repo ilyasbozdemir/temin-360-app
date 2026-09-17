@@ -45,6 +45,26 @@ function getDativeSuffix(name?: string): string {
   }
 }
 
+function formatCurrency(val: any, fallback = "-"): string {
+  if (val === undefined || val === null || val === "") return fallback;
+  if (typeof val === "number") {
+    if (isNaN(val)) return fallback;
+    return val.toLocaleString("tr-TR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }
+  const cleanStr = String(val).trim().replace("₺", "").trim();
+  const num = Number(cleanStr.replace(/\./g, "").replace(",", "."));
+  if (!isNaN(num) && cleanStr !== "") {
+    return num.toLocaleString("tr-TR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }
+  return String(val);
+}
+
 export function HarcamaTalimati({
   data = {},
   pageSize = "A4",
@@ -61,14 +81,25 @@ export function HarcamaTalimati({
     return String(val);
   };
 
-  const rawMutemet =
-    data.mutemetAdi || data.muhasebeYetkilisiAdi || data.muhasebeYetkilisi || "";
-  const cleanMutemet = typeof rawMutemet === "string" ? rawMutemet.split("(")[0].trim() : "";
+  const rawMutemet = data.mutemetAdi || data.muhasebeYetkilisiAdi ||
+    data.muhasebeYetkilisi || "";
+  const cleanMutemet = typeof rawMutemet === "string"
+    ? rawMutemet.split("(")[0].trim()
+    : "";
   const mutemetSuffix = cleanMutemet ? getDativeSuffix(cleanMutemet) : "’a";
 
-  const formattedYaklasikMaliyet = data.yaklasikMaliyet
-    ? `${data.yaklasikMaliyet} ₺`
-    : "-";
+  const rawYaklasikMaliyet = data.yaklasikMaliyet;
+  const formattedYaklasikMaliyet =
+    rawYaklasikMaliyet !== undefined && rawYaklasikMaliyet !== null &&
+      rawYaklasikMaliyet !== ""
+      ? `${formatCurrency(rawYaklasikMaliyet)} ₺`
+      : "-";
+
+  const rawTutari = data.isTutari ?? data.yaklasikMaliyet;
+  const formattedIsTutari =
+    rawTutari !== undefined && rawTutari !== null && rawTutari !== ""
+      ? formatCurrency(rawTutari, "")
+      : "";
 
   const shouldHideHeader = hideHeader !== undefined
     ? hideHeader
@@ -553,12 +584,7 @@ export function HarcamaTalimati({
                 <strong>
                   <EditableField
                     name="isTutari"
-                    value={data.isTutari !== undefined && data.isTutari !== null
-                      ? String(data.isTutari)
-                      : data.yaklasikMaliyet !== undefined &&
-                          data.yaklasikMaliyet !== null
-                      ? String(data.yaklasikMaliyet)
-                      : undefined}
+                    value={formattedIsTutari}
                     placeholder="İşin Tutarı"
                   />{" "}
                   ₺
