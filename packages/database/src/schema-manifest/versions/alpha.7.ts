@@ -1,0 +1,21 @@
+﻿/* eslint-disable */
+export default {
+  app: "1.0.0-alpha.7",
+  schema_min: 1,
+  schema_max: 11,
+  release_date: "2026-06-02",
+  changes: [
+    {
+      schema: 11, type: "create",
+      description: "TANIM_Birim ve TANIM_OlcuBirimi tablolari eklendi, TANIM_Kalem sutunlari genisletildi",
+      tables_added: ["TANIM_Birim", "TANIM_OlcuBirimi"],
+      columns_added: [
+        { table: "TANIM_Kalem", column: "ozelligi" },
+        { table: "TANIM_Kalem", column: "kdv_orani" },
+        { table: "TANIM_Kalem", column: "mensei" },
+        { table: "TANIM_Kalem", column: "is_personel" },
+        { table: "TANIM_Kalem", column: "personel_asgari_fark_oran" },
+      ],
+    },
+  ],
+};

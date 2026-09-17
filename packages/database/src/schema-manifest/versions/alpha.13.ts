@@ -1,0 +1,19 @@
+﻿/* eslint-disable */
+export default {
+  app: "1.0.0-alpha.13",
+  schema_min: 1,
+  schema_max: 18,
+  release_date: "2026-06-07",
+  changes: [
+    {
+      schema: 18, type: "update",
+      description: "TANIM_KomisyonUye personel_id nullable yapildi",
+      raw_sql: [
+        "CREATE TABLE TANIM_KomisyonUye_new (id INTEGER PRIMARY KEY AUTOINCREMENT, komisyon_id INTEGER NOT NULL, personel_id INTEGER, gorev_id INTEGER NOT NULL, asil_mi BOOLEAN DEFAULT 1, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(komisyon_id) REFERENCES TANIM_Komisyon(id) ON DELETE CASCADE, FOREIGN KEY(personel_id) REFERENCES TANIM_Personel(id) ON DELETE CASCADE, FOREIGN KEY(gorev_id) REFERENCES TANIM_KomisyonGorevi(id) ON DELETE CASCADE);",
+        "INSERT INTO TANIM_KomisyonUye_new SELECT id, komisyon_id, personel_id, gorev_id, asil_mi, created_at, updated_at FROM TANIM_KomisyonUye;",
+        "DROP TABLE TANIM_KomisyonUye;",
+        "ALTER TABLE TANIM_KomisyonUye_new RENAME TO TANIM_KomisyonUye;",
+      ],
+    },
+  ],
+};

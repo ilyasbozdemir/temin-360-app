@@ -1,0 +1,17 @@
+﻿/* eslint-disable */
+export default {
+  app: "1.0.0-alpha.59",
+  schema_min: 1,
+  schema_max: 23,
+  release_date: "2026-06-21",
+  changes: [
+    {
+      schema: 23, type: "ALTER",
+      description: "DATA_TeminFirma tablosuna yasaklilik_durumu ve yasaklilik_belgesi alanlari eklendi",
+      columns_added: [
+        { table: "DATA_TeminFirma", column: "yasaklilik_durumu" },
+        { table: "DATA_TeminFirma", column: "yasaklilik_belgesi" },
+      ],
+    },
+  ],
+};

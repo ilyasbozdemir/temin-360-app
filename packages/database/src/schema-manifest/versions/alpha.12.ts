@@ -1,0 +1,10 @@
+﻿/* eslint-disable */
+export default {
+  app: "1.0.0-alpha.12",
+  schema_min: 1,
+  schema_max: 17,
+  release_date: "2026-06-06",
+  changes: [
+    { schema: 17, type: "update", description: "Komisyon turu altyapisi temizlendi" },
+  ],
+};

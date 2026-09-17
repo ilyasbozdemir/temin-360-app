@@ -1,0 +1,10 @@
+﻿/* eslint-disable */
+export default {
+  app: "1.0.0-alpha.10",
+  schema_min: 1,
+  schema_max: 15,
+  release_date: "2026-06-06",
+  changes: [
+    { schema: 15, type: "create", description: "Komisyon Gorev Tanimlari (Unvanlar) icin tablo eklendi", tables_added: ["TANIM_KomisyonGorevi"] },
+  ],
+};

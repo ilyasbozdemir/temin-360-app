@@ -1,0 +1,17 @@
+﻿/* eslint-disable */
+export default {
+  app: "1.0.0-beta.20",
+  schema_min: 1,
+  schema_max: 26,
+  release_date: "2026-07-01",
+  changes: [
+    {
+      schema: 26, type: "alter",
+      description: "DATA_TeminDosyasi tablosuna yillara_yaygin ve sozlesme_yapilacak_mi kolonlari eklendi",
+      columns_added: [
+        { table: "DATA_TeminDosyasi", column: "yillara_yaygin" },
+        { table: "DATA_TeminDosyasi", column: "sozlesme_yapilacak_mi" },
+      ],
+    },
+  ],
+};

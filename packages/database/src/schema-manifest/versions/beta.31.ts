@@ -1,0 +1,14 @@
+﻿/* eslint-disable */
+export default {
+  app: "1.0.0-beta.31",
+  schema_min: 1,
+  schema_max: 27,
+  release_date: "2026-07-07",
+  changes: [
+    {
+      schema: 27, type: "alter",
+      description: "DATA_TeminDosyasi tablosuna isin_aciklama_maddeleri kolonu eklendi",
+      columns_added: [{ table: "DATA_TeminDosyasi", column: "isin_aciklama_maddeleri" }],
+    },
+  ],
+};

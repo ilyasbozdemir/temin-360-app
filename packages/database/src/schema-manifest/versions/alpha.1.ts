@@ -1,0 +1,15 @@
+/* eslint-disable */
+export default {
+  app: "1.0.0-alpha.1",
+  schema_min: 1,
+  schema_max: 1,
+  release_date: "2026-01-15",
+  changes: [
+    {
+      schema: 1,
+      type: "init",
+      description: "İlk kurulum — temel tablolar oluşturuldu",
+      tables_added: ["TANIM_Mevzuat", "TANIM_Birim", "TANIM_Personel", "DATA_TeminDosyasi"],
+    },
+  ],
+};

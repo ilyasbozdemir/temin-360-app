@@ -1,0 +1,2 @@
+﻿/* eslint-disable */
+export default { app: "1.0.0-beta.53", schema_min: 1, schema_max: 29, release_date: "2026-07-16", changes: [] };

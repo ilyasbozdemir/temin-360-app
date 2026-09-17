@@ -1,0 +1,11 @@
+﻿/* eslint-disable */
+export default {
+  app: "1.0.0-alpha.5",
+  schema_min: 1,
+  schema_max: 8,
+  release_date: "2026-05-31",
+  changes: [
+    { schema: 7, type: "create", description: "TANIM_Kalem tablosu eklendi", tables_added: ["TANIM_Kalem"] },
+    { schema: 8, type: "create", description: "TANIM_TasinirKod tablosu eklendi", tables_added: ["TANIM_TasinirKod"] },
+  ],
+};

@@ -17,6 +17,7 @@ export const HarcamaPusulasiSchema = BaseTemplateSchema.extend({
   saticiAdres: z.string().optional(),
   onaylayanPersonelAdi: z.string().optional(),
   onaylayanPersonelUnvan: z.string().optional(),
+  ihtiyacKalemleri: z.array(z.any()).optional(),
 });
 
 export type HarcamaPusulasiType = z.infer<typeof HarcamaPusulasiSchema>;

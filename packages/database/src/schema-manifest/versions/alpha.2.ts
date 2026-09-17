@@ -1,0 +1,19 @@
+/* eslint-disable */
+export default {
+  app: "1.0.0-alpha.2",
+  schema_min: 1,
+  schema_max: 2,
+  release_date: "2026-03-10",
+  changes: [
+    {
+      schema: 2,
+      type: "addTable",
+      description: "TANIM_Ambar tablosu eklendi",
+      tables_added: ["TANIM_Ambar"],
+      columns_added: [
+        { table: "TANIM_Firma", column: "vergi_no" },
+        { table: "TANIM_Birim", column: "mudur_id" },
+      ],
+    },
+  ],
+};

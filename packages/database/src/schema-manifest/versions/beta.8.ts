@@ -1,0 +1,18 @@
+﻿/* eslint-disable */
+export default {
+  app: "1.0.0-beta.8",
+  schema_min: 1,
+  schema_max: 24,
+  release_date: "2026-06-27",
+  changes: [
+    {
+      schema: 24, type: "ALTER",
+      description: "DATA_TeminDosyasi tablosuna ordered_docs, starred_docs ve skipped_docs alanlari eklendi",
+      columns_added: [
+        { table: "DATA_TeminDosyasi", column: "ordered_docs" },
+        { table: "DATA_TeminDosyasi", column: "starred_docs" },
+        { table: "DATA_TeminDosyasi", column: "skipped_docs" },
+      ],
+    },
+  ],
+};

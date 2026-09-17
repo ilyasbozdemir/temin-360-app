@@ -1,0 +1,29 @@
+﻿app: '1.0.0-beta.67'
+schema_min: 1
+schema_max: 31
+release_date: '2026-07-22'
+changes:
+  - schema: 31
+    type: 'alter'
+    description: 'TANIM_Firma tablosuna CRM alanlari ve TANIM_FirmaIletisimNotu tablosu eklendi'
+    tables_added:
+      - TANIM_FirmaIletisimNotu
+    columns_added:
+      - table: 'TANIM_Firma'
+        column: 'deneyim_skoru'
+      - table: 'TANIM_Firma'
+        column: 'kalite_skoru'
+      - table: 'TANIM_Firma'
+        column: 'odeme_disiplini'
+      - table: 'TANIM_Firma'
+        column: 'kara_liste'
+      - table: 'TANIM_Firma'
+        column: 'kara_liste_neden'
+      - table: 'TANIM_Firma'
+        column: 'son_iletisim_tarihi'
+      - table: 'TANIM_Firma'
+        column: 'sorumlu_personel_id'
+      - table: 'TANIM_Firma'
+        column: 'iletisim_notlari'
+      - table: 'TANIM_Firma'
+        column: 'updated_at'

@@ -1,8 +1,12 @@
 import React from "react";
 import { DocumentLayout } from "../../document/DocumentLayout";
 import { EditableField } from "../../document/EditableField";
-import { DateEditableField, PersonelCard } from "../../document/ApprovalSignature";
+import {
+  DateEditableField,
+  PersonelCard,
+} from "../../document/ApprovalSignature";
 import { HarcamaPusulasiType } from "./HarcamaPusulasi.schema";
+import { amountToWordsTL } from "../../document/sayiyiYaziyaCevir";
 
 interface HarcamaPusulasiProps {
   data?: Partial<HarcamaPusulasiType> & Record<string, any>;
@@ -19,22 +23,64 @@ export function HarcamaPusulasi({
   hideHeader,
   hideFooter,
 }: HarcamaPusulasiProps) {
-  const formattedTutar = data.tutar ? `${data.tutar} ₺` : "-";
-  const formattedBirimFiyat = data.birimFiyat ? `${data.birimFiyat} ₺` : "-";
+  // Türkçe locale ile para formatlaması (örn: 12.324,83)
+  const formatCurrency = (val: number | string | undefined | null): string => {
+    if (val === undefined || val === null || val === "") return "";
+    const num = typeof val === "number"
+      ? val
+      : parseFloat(String(val).replace(/\./g, "").replace(",", "."));
+    if (isNaN(num)) return String(val);
+    return num.toLocaleString("tr-TR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
 
-  const shouldHideHeader =
-    hideHeader !== undefined
-      ? hideHeader
-      : (data as any)?.hideHeader !== undefined
-      ? (data as any).hideHeader
-      : true;
+  const formattedTutar = data.tutar ? `${formatCurrency(data.tutar)} ₺` : "-";
+  const formattedBirimFiyat = data.birimFiyat
+    ? `${formatCurrency(data.birimFiyat)} ₺`
+    : "-";
 
-  const shouldHideFooter =
-    hideFooter !== undefined
-      ? hideFooter
-      : (data as any)?.hideFooter !== undefined
-      ? (data as any).hideFooter
-      : true;
+  // Tutar yazıya otomatik çevir (manuel override varsa onu kullan)
+  const tutarYaziGosterilecek = data.tutarYazi
+    ? data.tutarYazi
+    : data.tutar
+    ? amountToWordsTL(data.tutar)
+    : "";
+
+  // Kalem sayısını ihtiyacKalemleri dizisinden hesapla
+  const kalemSayisi = Array.isArray(data.ihtiyacKalemleri)
+    ? data.ihtiyacKalemleri.length
+    : null;
+
+  const kalemSayisiYazi = kalemSayisi !== null
+    ? `${kalemSayisi} Kalem`
+    : null;
+
+  // Miktar: manuel girilmişse onu kullan, yoksa kalem sayısından otomatik üret
+  const miktarGosterilecek = data.miktar
+    ? data.miktar
+    : kalemSayisiYazi ?? "";
+
+  // Açıklama: manuel girilmemişse dosyanın konusundan otomatik oluştur
+  const aciklamaGosterilecek = data.aciklama
+    ? data.aciklama
+    : [data.alimTuru, data.isAdi]
+      .filter(Boolean)
+      .join(" kapsamında ") ||
+      "";
+
+  const shouldHideHeader = hideHeader !== undefined
+    ? hideHeader
+    : (data as any)?.hideHeader !== undefined
+    ? (data as any).hideHeader
+    : true;
+
+  const shouldHideFooter = hideFooter !== undefined
+    ? hideFooter
+    : (data as any)?.hideFooter !== undefined
+    ? (data as any).hideFooter
+    : true;
 
   return (
     <DocumentLayout
@@ -46,7 +92,14 @@ export function HarcamaPusulasi({
       pageNumber={1}
       totalPages={1}
     >
-      <div style={{ width: "100%", fontSize: "10pt", color: "#000", fontFamily: "'Times New Roman', Times, serif" }}>
+      <div
+        style={{
+          width: "100%",
+          fontSize: "10pt",
+          color: "#000",
+          fontFamily: "'Times New Roman', Times, serif",
+        }}
+      >
         <table
           style={{
             width: "100%",
@@ -77,21 +130,63 @@ export function HarcamaPusulasi({
 
             {/* Sayı and Tarih */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "50%", fontWeight: "bold", padding: "4px 7px" }}>
-                Sayı: <EditableField name="evrakSayisi" value={data.evrakSayisi} placeholder="E-00000000-934.01-0001" />
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "50%",
+                  fontWeight: "bold",
+                  padding: "4px 7px",
+                }}
+              >
+                Sayı:{" "}
+                <EditableField
+                  name="evrakSayisi"
+                  value={data.evrakSayisi}
+                  placeholder="E-00000000-934.01-0001"
+                />
               </td>
-              <td style={{ border: "1px solid #000", width: "50%", fontWeight: "bold", textAlign: "right", padding: "4px 7px" }}>
-                Tarih: <DateEditableField name="tarih" value={data.tarih} placeholder="GG.AA.YYYY" />
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "50%",
+                  fontWeight: "bold",
+                  textAlign: "right",
+                  padding: "4px 7px",
+                }}
+              >
+                Tarih:{" "}
+                <DateEditableField
+                  name="tarih"
+                  value={data.tarih}
+                  placeholder="GG.AA.YYYY"
+                />
               </td>
             </tr>
 
             {/* Dairesi */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "30%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "30%",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  padding: "4px 7px",
+                }}
+              >
                 Dairesi
               </td>
-              <td style={{ border: "1px solid #000", width: "70%", fontWeight: "bold", padding: "4px 7px" }}>
-                {data.idareAdi || (data.antetSatirlari && data.antetSatirlari[1]) || "KURUM / BİRİM ADI"}
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "70%",
+                  fontWeight: "bold",
+                  padding: "4px 7px",
+                }}
+              >
+                {data.idareAdi ||
+                  (data.antetSatirlari && data.antetSatirlari[1]) ||
+                  "KURUM / BİRİM ADI"}
               </td>
             </tr>
 
@@ -115,43 +210,121 @@ export function HarcamaPusulasi({
 
             {/* Çeşidi */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "30%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "30%",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  padding: "4px 7px",
+                }}
+              >
                 Çeşidi
               </td>
-              <td style={{ border: "1px solid #000", width: "70%", padding: "4px 7px" }}>
-                <EditableField name="alimTuru" value={data.alimTuru} placeholder="Alım Türü" />
-                {" "}
-                (<EditableField name="isAdi" value={data.isAdi} placeholder="İşin Adı" />)
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "70%",
+                  padding: "4px 7px",
+                }}
+              >
+                <EditableField
+                  name="alimTuru"
+                  value={data.alimTuru}
+                  placeholder="Alım Türü"
+                />{" "}
+                (<EditableField
+                  name="isAdi"
+                  value={data.isAdi}
+                  placeholder="İşin Adı"
+                />)
               </td>
             </tr>
 
             {/* Miktarı */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "30%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "30%",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  padding: "4px 7px",
+                }}
+              >
                 Miktarı
               </td>
-              <td style={{ border: "1px solid #000", width: "70%", padding: "4px 7px" }}>
-                <EditableField name="miktar" value={data.miktar} placeholder="Miktar" />
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "70%",
+                  padding: "4px 7px",
+                }}
+              >
+                <EditableField
+                  name="miktar"
+                  value={miktarGosterilecek}
+                  placeholder="1 Kalem"
+                />
               </td>
             </tr>
 
             {/* Birim Fiyat */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "30%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "30%",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  padding: "4px 7px",
+                }}
+              >
                 Birim Fiyatı
               </td>
-              <td style={{ border: "1px solid #000", width: "70%", padding: "4px 7px" }}>
-                <EditableField name="birimFiyat" value={data.birimFiyat ? String(data.birimFiyat) : ""} placeholder="Birim Fiyat" /> ₺
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "70%",
+                  padding: "4px 7px",
+                }}
+              >
+                <EditableField
+                  name="birimFiyat"
+                  value={data.birimFiyat ? formatCurrency(data.birimFiyat) : ""}
+                  placeholder="Birim Fiyat"
+                />{" "}
+                ₺
               </td>
             </tr>
 
             {/* Tutarı */}
             <tr>
-              <td style={{ border: "1px solid #000", width: "30%", fontWeight: "bold", textTransform: "uppercase", padding: "4px 7px" }}>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "30%",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  padding: "4px 7px",
+                }}
+              >
                 Tutarı
               </td>
-              <td style={{ border: "1px solid #000", width: "70%", fontWeight: "bold", padding: "4px 7px" }}>
-                <EditableField name="tutar" value={data.tutar ? String(data.tutar) : ""} placeholder="Tutar" /> ₺
+              <td
+                style={{
+                  border: "1px solid #000",
+                  width: "70%",
+                  fontWeight: "bold",
+                  padding: "4px 7px",
+                }}
+              >
+                <EditableField
+                  name="tutar"
+                  value={data.tutar ? formatCurrency(data.tutar) : ""}
+                  placeholder="Tutar"
+                />{" "}
+                ₺
               </td>
             </tr>
 
@@ -167,7 +340,13 @@ export function HarcamaPusulasi({
                   padding: "6px 8px",
                 }}
               >
-                Yalnız <EditableField name="tutarYazi" value={data.tutarYazi} placeholder="(yazı ile tutar)" /> TL.sıdır.
+                Yalnız{" "}
+                <EditableField
+                  name="tutarYazi"
+                  value={tutarYaziGosterilecek}
+                  placeholder="(yazı ile tutar)"
+                />{" "}
+                TL.sıdır.
               </td>
             </tr>
 
@@ -185,7 +364,7 @@ export function HarcamaPusulasi({
                 <div style={{ marginTop: "4px", textIndent: "20px" }}>
                   <EditableField
                     name="aciklama"
-                    value={data.aciklama}
+                    value={aciklamaGosterilecek}
                     multiline
                     placeholder="Açıklama giriniz..."
                   />
@@ -195,7 +374,10 @@ export function HarcamaPusulasi({
 
             {/* Tarih and Signatures Inner Block */}
             <tr>
-              <td colSpan={2} style={{ border: "1px solid #000", padding: "6px 8px" }}>
+              <td
+                colSpan={2}
+                style={{ border: "1px solid #000", padding: "6px 8px" }}
+              >
                 <table
                   style={{
                     width: "100%",
@@ -234,23 +416,67 @@ export function HarcamaPusulasi({
                       </td>
                     </tr>
                     <tr>
-                      <td style={{ border: "1px solid #000", minHeight: "85px", lineHeight: 1.4, padding: "8px", verticalAlign: "top", fontSize: "9pt" }}>
+                      <td
+                        style={{
+                          border: "1px solid #000",
+                          minHeight: "85px",
+                          lineHeight: 1.4,
+                          padding: "8px",
+                          verticalAlign: "top",
+                          fontSize: "9pt",
+                        }}
+                      >
                         <div>
                           <strong>T.C. Kimlik No :</strong>{" "}
-                          <EditableField name="saticiTcNo" value={data.saticiTcNo} placeholder="TC Kimlik No" />
+                          <EditableField
+                            name="saticiTcNo"
+                            value={data.saticiTcNo}
+                            placeholder="TC Kimlik No"
+                          />
                         </div>
                         <div style={{ marginTop: "4px" }}>
                           <strong>Adı Soyadı :</strong>{" "}
-                          <EditableField name="saticiAdiSoyadi" value={data.saticiAdiSoyadi} placeholder="Satıcı Adı Soyadı" />
+                          <EditableField
+                            name="saticiAdiSoyadi"
+                            value={data.saticiAdiSoyadi}
+                            placeholder="Satıcı Adı Soyadı"
+                          />
                         </div>
                         <div style={{ marginTop: "4px" }}>
                           <strong>Adresi :</strong>{" "}
-                          <EditableField name="saticiAdres" value={data.saticiAdres} placeholder="Satıcı Adresi" />
+                          <EditableField
+                            name="saticiAdres"
+                            value={data.saticiAdres}
+                            placeholder="Satıcı Adresi"
+                          />
                         </div>
-                        <div style={{ marginTop: "10px", fontStyle: "italic", color: "#888" }}>(İmza)</div>
+                        <div
+                          style={{
+                            marginTop: "10px",
+                            fontStyle: "italic",
+                            color: "#888",
+                          }}
+                        >
+                          (İmza)
+                        </div>
                       </td>
-                      <td style={{ border: "1px solid #000", textAlign: "center", verticalAlign: "top", minHeight: "85px", padding: "8px" }}>
-                        <div style={{ marginBottom: "4px", fontWeight: "bold", fontSize: "9.5pt", color: "#555" }}>
+                      <td
+                        style={{
+                          border: "1px solid #000",
+                          textAlign: "center",
+                          verticalAlign: "top",
+                          minHeight: "85px",
+                          padding: "8px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            marginBottom: "4px",
+                            fontWeight: "bold",
+                            fontSize: "9.5pt",
+                            color: "#555",
+                          }}
+                        >
                           Harcama Yetkilisi
                         </div>
                         <PersonelCard
@@ -268,12 +494,22 @@ export function HarcamaPusulasi({
                   </tbody>
                 </table>
 
-                <div style={{ fontSize: "8pt", color: "#444", textAlign: "justify", marginTop: "8px", lineHeight: 1.3 }}>
-                  <strong>Not:</strong> Bu belge, fatura veya fatura yerine geçen belgeleri düzenleme
-                  zorunluluğu bulunmayan kişilerden yapılan iş, mal veya hizmet alımlarında düzenlenir.
-                  Taksi ile yapılan seyahatlerde (şehir içi taksi ücretleri hariç) seyahat edilen
-                  taksinin plaka numarası ile yolculuğun nereden nereye yapıldığı açıklama bölümünde
-                  belirtilir.
+                <div
+                  style={{
+                    fontSize: "8pt",
+                    color: "#444",
+                    textAlign: "justify",
+                    marginTop: "8px",
+                    lineHeight: 1.3,
+                  }}
+                >
+                  <strong>Not:</strong>{" "}
+                  Bu belge, fatura veya fatura yerine geçen belgeleri düzenleme
+                  zorunluluğu bulunmayan kişilerden yapılan iş, mal veya hizmet
+                  alımlarında düzenlenir. Taksi ile yapılan seyahatlerde (şehir
+                  içi taksi ücretleri hariç) seyahat edilen taksinin plaka
+                  numarası ile yolculuğun nereden nereye yapıldığı açıklama
+                  bölümünde belirtilir.
                 </div>
               </td>
             </tr>

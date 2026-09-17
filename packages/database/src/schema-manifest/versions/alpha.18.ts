@@ -1,0 +1,10 @@
+﻿/* eslint-disable */
+export default {
+  app: "1.0.0-alpha.18",
+  schema_min: 1,
+  schema_max: 21,
+  release_date: "2026-06-13",
+  changes: [
+    { schema: 21, type: "ALTER", description: "TANIM_Birim tablosuna detsis_kodu alani eklendi", columns_added: [{ table: "TANIM_Birim", column: "detsis_kodu" }] },
+  ],
+};

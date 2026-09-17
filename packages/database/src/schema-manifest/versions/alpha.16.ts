@@ -1,0 +1,18 @@
+﻿/* eslint-disable */
+export default {
+  app: "1.0.0-alpha.16",
+  schema_min: 1,
+  schema_max: 19,
+  release_date: "2026-06-07",
+  changes: [
+    {
+      schema: 19, type: "addColumn",
+      description: "TANIM_Sablon tablosuna versiyonlama icin parent_id ve versiyon kolonlari eklendi",
+      tables_added: ["TANIM_Sablon"],
+      columns_added: [
+        { table: "TANIM_Sablon", column: "parent_id" },
+        { table: "TANIM_Sablon", column: "versiyon" },
+      ],
+    },
+  ],
+};

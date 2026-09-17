@@ -1,0 +1,10 @@
+﻿/* eslint-disable */
+export default {
+  app: "1.0.0-alpha.19",
+  schema_min: 1,
+  schema_max: 22,
+  release_date: "2026-06-18",
+  changes: [
+    { schema: 22, type: "ALTER", description: "TANIM_Sablon tablosuna test_verisi alani eklendi", columns_added: [{ table: "TANIM_Sablon", column: "test_verisi" }] },
+  ],
+};

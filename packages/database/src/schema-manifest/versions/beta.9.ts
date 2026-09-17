@@ -1,0 +1,10 @@
+﻿/* eslint-disable */
+export default {
+  app: "1.0.0-beta.9",
+  schema_min: 1,
+  schema_max: 25,
+  release_date: "2026-07-01",
+  changes: [
+    { schema: 25, type: "ADD_TABLE", description: "DATA_DosyaSablonVeri tablosu eklendi", tables_added: ["DATA_DosyaSablonVeri"] },
+  ],
+};
