@@ -345,20 +345,42 @@ export function useDocumentPreviewData({
               [activeDosyaId]
             );
             if (dbKomisyonlar && dbKomisyonlar.length > 0) {
-              const maliyetMembers = dbKomisyonlar.filter(
-                (k: any) =>
+              const maliyetMembers = dbKomisyonlar.filter((k: any) => {
+                const isMaliyet =
                   k.komisyon_id === 1 ||
                   (k.komisyon_turu &&
                     (k.komisyon_turu.toLowerCase().includes("maliyet") ||
-                      k.komisyon_turu.toLowerCase().includes("fiyat")))
-              );
-              const muayeneMembers = dbKomisyonlar.filter(
-                (k: any) =>
+                      k.komisyon_turu.toLowerCase().includes("fiyat")));
+                if (!isMaliyet) return false;
+
+                // belgede_goster kontrolü (0 ise hariç tut)
+                if (k.belgede_goster === 0 || k.belgede_goster === false) return false;
+
+                // Eğer belgede_goster belirtilmemişse varsayılan onay makamlarını hariç tut
+                if (k.belgede_goster === undefined || k.belgede_goster === null) {
+                  const g = (k.gorev || "").toLowerCase();
+                  if (
+                    g.includes("harcama yetkili") ||
+                    g.includes("gerçekleştirme") ||
+                    g.includes("gerceklestirme") ||
+                    g.includes("muhasebe")
+                  ) {
+                    return false;
+                  }
+                }
+                return true;
+              });
+
+              const muayeneMembers = dbKomisyonlar.filter((k: any) => {
+                const isMuayene =
                   k.komisyon_id === 2 ||
                   (k.komisyon_turu &&
                     (k.komisyon_turu.toLowerCase().includes("muayene") ||
-                      k.komisyon_turu.toLowerCase().includes("kabul")))
-              );
+                      k.komisyon_turu.toLowerCase().includes("kabul")));
+                if (!isMuayene) return false;
+                if (k.belgede_goster === 0 || k.belgede_goster === false) return false;
+                return true;
+              });
 
               if (maliyetMembers.length > 0) {
                 const formattedMaliyet = maliyetMembers.map((m: any) => ({

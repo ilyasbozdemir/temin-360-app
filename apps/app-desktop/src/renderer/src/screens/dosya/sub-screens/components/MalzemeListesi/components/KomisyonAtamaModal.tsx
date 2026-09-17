@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Check, FileText, RefreshCw, Save, UserCheck, Users } from "lucide-react";
+import {
+  Building2,
+  Check,
+  Eye,
+  EyeOff,
+  FileText,
+  HelpCircle,
+  RefreshCw,
+  Save,
+  UserCheck,
+  Users,
+} from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Modal } from "../../../../../../components/ui/Modal";
 import { PersonelCombobox } from "./PersonelCombobox";
@@ -14,6 +25,7 @@ interface KomisyonRow {
   sira: number;
   gorev: string;
   personelId: number | null;
+  belgedeGoster: boolean;
 }
 
 export type KomisyonType = "yaklasik_maliyet" | "muayene_kabul";
@@ -26,29 +38,29 @@ interface KomisyonAtamaModalProps {
   onOpenDocument?: (dosyaAdi: string) => void;
 }
 
-const DEFAULT_MALIYET_ROLES = [
-  "Harcama Yetkilisi",
-  "Satın Alma Harcama Yetkilisi",
-  "Gerçekleştirme Görevlisi",
-  "Muhasebe Yetkilisi",
-  "Fiyat Araştırma Görevlisi",
-  "Fiyat Araştırma Görevlisi",
-  "Fiyat Araştırma Görevlisi",
-  "Fiyat Araştırma Görevlisi",
-  "Fiyat Araştırma Görevlisi",
-  "Fiyat Araştırma Görevlisi",
+const DEFAULT_MALIYET_ROLES: { gorev: string; belgedeGoster: boolean }[] = [
+  { gorev: "Harcama Yetkilisi", belgedeGoster: false },
+  { gorev: "Satın Alma Harcama Yetkilisi", belgedeGoster: false },
+  { gorev: "Gerçekleştirme Görevlisi", belgedeGoster: false },
+  { gorev: "Muhasebe Yetkilisi", belgedeGoster: false },
+  { gorev: "Fiyat Araştırma Görevlisi", belgedeGoster: true },
+  { gorev: "Fiyat Araştırma Görevlisi", belgedeGoster: true },
+  { gorev: "Fiyat Araştırma Görevlisi", belgedeGoster: true },
+  { gorev: "Fiyat Araştırma Görevlisi", belgedeGoster: true },
+  { gorev: "Fiyat Araştırma Görevlisi", belgedeGoster: true },
+  { gorev: "Fiyat Araştırma Görevlisi", belgedeGoster: true },
 ];
 
-const DEFAULT_MUAYENE_ROLES = [
-  "Komisyon Başkanı",
-  "Üye",
-  "Üye",
-  "Üye",
-  "Üye",
-  "Üye",
-  "Üye",
-  "Üye",
-  "Üye",
+const DEFAULT_MUAYENE_ROLES: { gorev: string; belgedeGoster: boolean }[] = [
+  { gorev: "Komisyon Başkanı", belgedeGoster: true },
+  { gorev: "Üye", belgedeGoster: true },
+  { gorev: "Üye", belgedeGoster: true },
+  { gorev: "Üye", belgedeGoster: true },
+  { gorev: "Üye", belgedeGoster: true },
+  { gorev: "Üye", belgedeGoster: true },
+  { gorev: "Üye", belgedeGoster: true },
+  { gorev: "Üye", belgedeGoster: true },
+  { gorev: "Üye", belgedeGoster: true },
 ];
 
 export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
@@ -61,20 +73,30 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<KomisyonType>(initialType);
   const [personeller, setPersoneller] = useState<PersonelItem[]>([]);
+  const [kurumInfo, setKurumInfo] = useState<{
+    kurumAdi?: string;
+    makamAdi?: string;
+    kurumTipi?: string;
+  } | null>(null);
+
   const [maliyetRows, setMaliyetRows] = useState<KomisyonRow[]>(
-    DEFAULT_MALIYET_ROLES.map((gorev, idx) => ({
+    DEFAULT_MALIYET_ROLES.map((item, idx) => ({
       sira: idx + 1,
-      gorev,
+      gorev: item.gorev,
       personelId: null,
+      belgedeGoster: item.belgedeGoster,
     })),
   );
+
   const [muayeneRows, setMuayeneRows] = useState<KomisyonRow[]>(
-    DEFAULT_MUAYENE_ROLES.map((gorev, idx) => ({
+    DEFAULT_MUAYENE_ROLES.map((item, idx) => ({
       sira: idx + 1,
-      gorev,
+      gorev: item.gorev,
       personelId: null,
+      belgedeGoster: item.belgedeGoster,
     })),
   );
+
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -86,7 +108,7 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
     }
   }, [initialType]);
 
-  // Personel listesi ve mevcut komisyon üyelerini yükle
+  // Personel listesi, kurum bilgisi ve mevcut komisyon üyelerini yükle
   useEffect(() => {
     if (!isOpen) return;
 
@@ -95,7 +117,24 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
     const loadData = async () => {
       setLoading(true);
       try {
-        // 1. Personel listesi
+        // 1. Kurum bilgisi
+        try {
+          const kInfoRes = await (window as any).electron.ipcRenderer.invoke(
+            "db:query",
+            "SELECT kurum_adi, makam_adi, kurum_tipi, alt_kurum_tipi FROM TANIM_Kurum LIMIT 1",
+          );
+          if (kInfoRes.success && kInfoRes.data?.[0] && isMounted) {
+            setKurumInfo({
+              kurumAdi: kInfoRes.data[0].kurum_adi,
+              makamAdi: kInfoRes.data[0].makam_adi,
+              kurumTipi: kInfoRes.data[0].kurum_tipi || kInfoRes.data[0].alt_kurum_tipi,
+            });
+          }
+        } catch (e) {
+          console.warn("Kurum bilgisi okunamadı:", e);
+        }
+
+        // 2. Personel listesi
         const pRes = await (window as any).electron.ipcRenderer.invoke(
           "db:query",
           "SELECT id, ad_soyad, unvan FROM TANIM_Personel WHERE aktif_mi = 1 ORDER BY ad_soyad ASC",
@@ -103,7 +142,7 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
         const pList: PersonelItem[] = pRes.success && pRes.data ? pRes.data : [];
         if (isMounted) setPersoneller(pList);
 
-        // 2. Mevcut DATA_TeminKomisyon kayıtları
+        // 3. Mevcut DATA_TeminKomisyon kayıtları
         if (activeDosyaId) {
           const kRes = await (window as any).electron.ipcRenderer.invoke(
             "db:query",
@@ -134,24 +173,38 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
 
             if (isMounted) {
               if (mList.length > 0) {
-                const newMaliyet = DEFAULT_MALIYET_ROLES.map((gorev, idx) => {
+                const newMaliyet = DEFAULT_MALIYET_ROLES.map((item, idx) => {
                   const matched = mList[idx];
+                  const hasBelgedeGoster =
+                    matched?.belgede_goster !== undefined &&
+                    matched?.belgede_goster !== null;
+
                   return {
                     sira: idx + 1,
-                    gorev: matched?.gorev || gorev,
+                    gorev: matched?.gorev || item.gorev,
                     personelId: matched?.personel_id || null,
+                    belgedeGoster: hasBelgedeGoster
+                      ? matched.belgede_goster === 1
+                      : item.belgedeGoster,
                   };
                 });
                 setMaliyetRows(newMaliyet);
               }
 
               if (muList.length > 0) {
-                const newMuayene = DEFAULT_MUAYENE_ROLES.map((gorev, idx) => {
+                const newMuayene = DEFAULT_MUAYENE_ROLES.map((item, idx) => {
                   const matched = muList[idx];
+                  const hasBelgedeGoster =
+                    matched?.belgede_goster !== undefined &&
+                    matched?.belgede_goster !== null;
+
                   return {
                     sira: idx + 1,
-                    gorev: matched?.gorev || gorev,
+                    gorev: matched?.gorev || item.gorev,
                     personelId: matched?.personel_id || null,
+                    belgedeGoster: hasBelgedeGoster
+                      ? matched.belgede_goster === 1
+                      : item.belgedeGoster,
                   };
                 });
                 setMuayeneRows(newMuayene);
@@ -208,22 +261,24 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
       if (res.success && res.data && res.data.length > 0) {
         const members = res.data;
         if (isMaliyet) {
-          const next = DEFAULT_MALIYET_ROLES.map((defGorev, idx) => {
+          const next = DEFAULT_MALIYET_ROLES.map((item, idx) => {
             const m = members[idx];
             return {
               sira: idx + 1,
-              gorev: m?.gorev_adi || defGorev,
+              gorev: m?.gorev_adi || item.gorev,
               personelId: m ? m.personel_id : null,
+              belgedeGoster: item.belgedeGoster,
             };
           });
           setMaliyetRows(next);
         } else {
-          const next = DEFAULT_MUAYENE_ROLES.map((defGorev, idx) => {
+          const next = DEFAULT_MUAYENE_ROLES.map((item, idx) => {
             const m = members[idx];
             return {
               sira: idx + 1,
-              gorev: m?.gorev_adi || defGorev,
+              gorev: m?.gorev_adi || item.gorev,
               personelId: m ? m.personel_id : null,
+              belgedeGoster: item.belgedeGoster,
             };
           });
           setMuayeneRows(next);
@@ -231,7 +286,9 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 2000);
       } else {
-        alert("Komisyon Yönetiminde bu komisyon için atanmış personel bulunamadı. Lütfen Komisyon Yönetimi ekranından üyeleri atayınız.");
+        alert(
+          "Komisyon Yönetiminde bu komisyon için atanmış personel bulunamadı. Lütfen Komisyon Yönetimi ekranından üyeleri atayınız.",
+        );
       }
     } catch (err: any) {
       alert("Komisyon Yönetiminden aktarım yapılırken hata: " + err.message);
@@ -250,6 +307,16 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
         ? "Yaklaşık Maliyet Tespit Komisyonu"
         : "Muayene Kabul ve Tespit Komisyonu";
       const rows = isMaliyet ? maliyetRows : muayeneRows;
+
+      // 0. Sütun kontrolü (belgede_goster sütununu gerekirse ekle)
+      try {
+        await (window as any).electron.ipcRenderer.invoke(
+          "db:run",
+          "ALTER TABLE DATA_TeminKomisyon ADD COLUMN belgede_goster INTEGER DEFAULT 1",
+        );
+      } catch {
+        // Zaten mevcut
+      }
 
       // 1. Önceki kayıtları temizle
       if (isMaliyet) {
@@ -285,8 +352,8 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
         await (window as any).electron.ipcRenderer.invoke(
           "db:run",
           `INSERT INTO DATA_TeminKomisyon 
-           (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+           (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu, belgede_goster)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             activeDosyaId,
             komId,
@@ -296,6 +363,7 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
             row.gorev,
             rol,
             komTitle,
+            row.belgedeGoster ? 1 : 0,
           ],
         );
 
@@ -450,6 +518,22 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
     }
   };
 
+  const handleToggleBelgedeGoster = (sira: number) => {
+    if (activeTab === "yaklasik_maliyet") {
+      setMaliyetRows((prev) =>
+        prev.map((r) =>
+          r.sira === sira ? { ...r, belgedeGoster: !r.belgedeGoster } : r,
+        ),
+      );
+    } else {
+      setMuayeneRows((prev) =>
+        prev.map((r) =>
+          r.sira === sira ? { ...r, belgedeGoster: !r.belgedeGoster } : r,
+        ),
+      );
+    }
+  };
+
   const modalFooter = (
     <div className="flex flex-wrap items-center justify-between gap-3 w-full">
       <div className="flex items-center gap-2 flex-wrap">
@@ -561,11 +645,33 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title="Komisyon ve Görevli Atama"
-      description="Bu dosyaya ve belgelere ait komisyon üyelerini ve onay makamlarını belirleyin."
-      className="max-w-4xl max-h-[90vh]"
+      description="Bu dosyaya ve belgelere ait komisyon üyelerini, görevlerini ve onay makamlarını belirleyin."
+      className="max-w-5xl max-h-[90vh]"
       footer={modalFooter}
     >
-      <div className="space-y-4">
+      <div className="space-y-3.5">
+        {/* Kurum & Makam Bilgi Özeti */}
+        {kurumInfo && (
+          <div className="flex items-center justify-between px-3.5 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200/90 dark:border-slate-800 rounded-xl text-xs">
+            <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+              <Building2 className="w-4 h-4 text-blue-600 shrink-0" />
+              <span className="font-bold text-slate-850 dark:text-slate-100">
+                {kurumInfo.kurumAdi || "Kurum Bilgisi"}
+              </span>
+              {kurumInfo.makamAdi && (
+                <span className="text-slate-400 font-medium text-[11px]">
+                  • Onay Makamı: <strong className="text-slate-600 dark:text-slate-300">{kurumInfo.makamAdi}</strong>
+                </span>
+              )}
+            </div>
+            {kurumInfo.kurumTipi && (
+              <span className="text-[10px] font-bold tracking-wide uppercase px-2 py-0.5 bg-blue-100/70 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-md">
+                {kurumInfo.kurumTipi}
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Tab Butonları */}
         <div className="flex border-b border-slate-200 dark:border-slate-800 -mx-2 px-2 gap-1 pb-1">
           <button
@@ -620,11 +726,20 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
                 <th className="py-2.5 px-3 font-bold text-slate-600 dark:text-slate-400 w-12 text-center border-r border-slate-200 dark:border-slate-800">
                   #
                 </th>
-                <th className="py-2.5 px-3 font-bold text-slate-600 dark:text-slate-400 w-60 border-r border-slate-200 dark:border-slate-800">
+                <th className="py-2.5 px-3 font-bold text-slate-600 dark:text-slate-400 w-56 border-r border-slate-200 dark:border-slate-800">
                   Komisyondaki Görevi / Rolü
                 </th>
                 <th className="py-2.5 px-3 font-bold text-slate-600 dark:text-slate-400">
                   Atanan Personel (Ad Soyad / Unvan)
+                </th>
+                <th
+                  className="py-2.5 px-3 font-bold text-slate-600 dark:text-slate-400 w-36 text-center border-l border-slate-200 dark:border-slate-800"
+                  title="Resmi belge tablosunda ve dağıtımında listelensin mi?"
+                >
+                  <div className="flex items-center justify-center gap-1">
+                    <span>Belgede Göster</span>
+                    <HelpCircle className="w-3 h-3 text-slate-400" />
+                  </div>
                 </th>
               </tr>
             </thead>
@@ -632,7 +747,9 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
               {currentRows.map((row) => (
                 <tr
                   key={row.sira}
-                  className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                  className={`hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors ${
+                    !row.belgedeGoster ? "bg-slate-50/30 dark:bg-slate-900/30" : ""
+                  }`}
                 >
                   <td className="py-2 px-3 text-center text-slate-500 font-medium border-r border-slate-100 dark:border-slate-800">
                     {row.sira}.
@@ -642,7 +759,7 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
                       type="text"
                       value={row.gorev}
                       onChange={(e) => handleGorevChange(row.sira, e.target.value)}
-                      className="w-full bg-transparent hover:bg-white dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 focus:border-blue-500 rounded px-2 py-1 text-xs outline-none transition-all font-semibold"
+                      className="w-full bg-transparent hover:bg-white dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 border border-transparent hover:border-slate-200 dark:border-slate-700 focus:border-blue-500 rounded px-2 py-1 text-xs outline-none transition-all font-semibold"
                     />
                   </td>
                   <td className="py-1.5 px-3">
@@ -651,6 +768,34 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
                       selectedId={row.personelId}
                       onChange={(personelId) => handlePersonelChange(row.sira, personelId)}
                     />
+                  </td>
+                  <td className="py-1.5 px-3 text-center border-l border-slate-100 dark:border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleBelgedeGoster(row.sira)}
+                      className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer w-full select-none ${
+                        row.belgedeGoster
+                          ? "bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 shadow-2xs"
+                          : "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700"
+                      }`}
+                      title={
+                        row.belgedeGoster
+                          ? "Bu görevli resmi belge komisyon listesinde ve dağıtımında gösterilir."
+                          : "Bu görevli belgedeki komisyon tablosunda gizlenir (yalnızca onay/dosya yetkilisi olarak işlenir)."
+                      }
+                    >
+                      {row.belgedeGoster ? (
+                        <>
+                          <Eye className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                          <span>Göster</span>
+                        </>
+                      ) : (
+                        <>
+                          <EyeOff className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span>Gizle</span>
+                        </>
+                      )}
+                    </button>
                   </td>
                 </tr>
               ))}
