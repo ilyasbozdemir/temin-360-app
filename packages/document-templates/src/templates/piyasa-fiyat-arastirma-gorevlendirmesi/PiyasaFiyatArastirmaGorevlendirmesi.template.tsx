@@ -19,58 +19,24 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
   hideHeader = false,
   hideFooter = false,
 }) => {
-  // Hariç tutulacak rolleri ve yetkilileri filtreleme fonksiyonu
+  // Hariç tutulacak geçersiz/placeholder isimleri filtreleme fonksiyonu
   const isExcludedOfficer = (item: any) => {
-    const adSoyad = (item.adSoyad || item.ad_soyad || item.ad || item.adi || "")
-      .trim();
-    const unvan = (item.unvan || item.unvani || "").trim();
-    const gorev = (item.gorev || item.gorevi || "").trim();
-    const combined = `${adSoyad} ${unvan} ${gorev}`.toLowerCase();
+    if (!item) return true;
+    const adSoyad = (
+      typeof item === "string"
+        ? item
+        : item.adSoyad || item.ad_soyad || item.ad || item.adi || ""
+    ).trim();
 
     if (!adSoyad) return true;
 
-    // Harcama yetkilisi / Gerçekleştirme görevlisi / Muhasebe yetkilisi / Satın alma yetkilisi
+    const lower = adSoyad.toLowerCase();
     if (
-      combined.includes("harcama yetkili") ||
-      combined.includes("gerçekleştirme") ||
-      combined.includes("gerceklestirme") ||
-      combined.includes("muhasebe yetkili") ||
-      combined.includes("muhasebe görevli") ||
-      combined.includes("satın alma yetkili") ||
-      combined.includes("satınalma yetkili") ||
-      combined.includes("satın alma harcama") ||
-      combined.includes("satin alma harcama")
-    ) {
-      return true;
-    }
-
-    // Onay makamı / OLUR veren yetkili ile eşleşiyorsa çıkar
-    if (
-      data.onaylayanPersonelAdi &&
-      adSoyad.toLowerCase() === data.onaylayanPersonelAdi.trim().toLowerCase()
-    ) {
-      return true;
-    }
-
-    // Hazırlayan personel ile eşleşiyorsa ve özel olarak fiyat araştırması denmemişse çıkar
-    if (
-      data.hazirlayanPersonelAdi &&
-      adSoyad.toLowerCase() ===
-        data.hazirlayanPersonelAdi.trim().toLowerCase() &&
-      !gorev.toLowerCase().includes("fiyat") &&
-      !gorev.toLowerCase().includes("araştırma") &&
-      !gorev.toLowerCase().includes("arastirma")
-    ) {
-      return true;
-    }
-
-    // Placeholder isimleri
-    if (
-      combined.includes("talep eden personel") ||
-      combined.includes("hazırlayan personel") ||
-      combined.includes("onaylayan yetkili") ||
-      combined.includes("onaylayan personel") ||
-      combined.includes("dosyayı hazırlayan")
+      lower.includes("talep eden") ||
+      lower.includes("hazırlayan personel") ||
+      lower.includes("onaylayan yetkili") ||
+      lower.includes("onaylayan personel") ||
+      lower.includes("dosyayı hazırlayan")
     ) {
       return true;
     }
@@ -87,7 +53,7 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
     return `(${trimmed})`;
   };
 
-  // Ham görevli listesini topla
+  // Ham görevli listesini topla (gorevlendirilenler, fiyatKomisyonu, gorevliler, dagitimListesi)
   const rawList: any[] = (() => {
     if (
       data.gorevlendirilenler && Array.isArray(data.gorevlendirilenler) &&
@@ -102,6 +68,12 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
       return data.fiyatKomisyonu;
     }
     if (
+      data.dagitimListesi && Array.isArray(data.dagitimListesi) &&
+      data.dagitimListesi.length > 0
+    ) {
+      return data.dagitimListesi;
+    }
+    if (
       data.gorevliler && Array.isArray(data.gorevliler) &&
       data.gorevliler.length > 0
     ) {
@@ -110,29 +82,20 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
     return [];
   })();
 
-  // Sadece gerçek Piyasa Fiyat Araştırma Görevlilerini filtrele
+  // Piyasa Fiyat Araştırma Görevlilerini listele
   const gorevlendirilenler: Array<{ adSoyad: string; unvan: string }> = (() => {
-    const filtered = rawList
-      .filter((g) => !isExcludedOfficer(g))
-      .map((g: any) => ({
-        adSoyad: (g.adSoyad || g.ad_soyad || g.ad || g.adi || "").trim(),
-        unvan: (g.unvan || g.unvani || g.gorev || "").trim(),
-      }));
-
-    if (filtered.length > 0) return filtered;
-
-    // Eğer filtre sonucu boş kaldıysa ama ham liste varsa harcama yetkilisi olmayanları al
     return rawList
-      .filter((g: any) => {
-        const text = `${g.adSoyad || g.ad || ""} ${g.unvan || ""} ${
-          g.gorev || ""
-        }`.toLowerCase();
-        return !text.includes("harcama yetkili") && !text.includes("onaylayan");
+      .filter((g) => !isExcludedOfficer(g))
+      .map((g: any) => {
+        if (typeof g === "string") {
+          return { adSoyad: g.trim(), unvan: "" };
+        }
+        return {
+          adSoyad: (g.adSoyad || g.ad_soyad || g.ad || g.adi || "").trim(),
+          unvan: (g.unvan || g.unvani || g.gorev || "").trim(),
+        };
       })
-      .map((g: any) => ({
-        adSoyad: (g.adSoyad || g.ad_soyad || g.ad || g.adi || "").trim(),
-        unvan: (g.unvan || g.unvani || g.gorev || "").trim(),
-      }));
+      .filter((g) => g.adSoyad.length > 0);
   })();
 
   // Dağıtım listesi
@@ -144,15 +107,14 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
       const filtered = data.dagitimListesi
         .map((d: any) => {
           if (typeof d === "string") {
-            return { adSoyad: d.trim(), unvan: "", gorev: "" };
+            return { adSoyad: d.trim(), unvan: "" };
           }
           return {
             adSoyad: (d.adSoyad || d.ad || d.adi || "").trim(),
             unvan: (d.unvan || d.unvani || d.gorev || "").trim(),
-            gorev: (d.gorev || d.gorevi || "").trim(),
           };
         })
-        .filter((d: any) => !isExcludedOfficer(d));
+        .filter((d: any) => !isExcludedOfficer(d) && d.adSoyad.length > 0);
 
       if (filtered.length > 0) return filtered;
     }

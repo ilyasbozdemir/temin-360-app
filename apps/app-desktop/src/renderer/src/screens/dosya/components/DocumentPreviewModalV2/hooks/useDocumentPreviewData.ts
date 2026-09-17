@@ -368,31 +368,9 @@ export function useDocumentPreviewData({
                   rol: m.rol || "Üye",
                 }));
                 baseData.fiyatKomisyonu = formattedMaliyet;
-                // Piyasa Fiyat Araştırması Görevlendirmesi için sadece gerçek görevlileri filtrele
-                const isExcluded = (m: any) => {
-                  const combined = `${m.adSoyad || ''} ${m.unvan || ''} ${m.gorev || ''}`.toLowerCase();
-                  return (
-                    combined.includes('harcama yetkili') ||
-                    combined.includes('gerçekleştirme') ||
-                    combined.includes('gerceklestirme') ||
-                    combined.includes('muhasebe yetkili') ||
-                    combined.includes('muhasebe görevli') ||
-                    combined.includes('satın alma yetkili') ||
-                    combined.includes('satınalma yetkili') ||
-                    combined.includes('satın alma harcama') ||
-                    combined.includes('satin alma harcama') ||
-                    combined.includes('talep eden personel') ||
-                    combined.includes('hazırlayan personel') ||
-                    combined.includes('onaylayan yetkili') ||
-                    combined.includes('onaylayan personel') ||
-                    !m.adSoyad ||
-                    !m.adSoyad.trim()
-                  );
-                };
-                const activeGorevliler = formattedMaliyet.filter((m: any) => !isExcluded(m));
-                baseData.gorevlendirilenler = activeGorevliler.length > 0 ? activeGorevliler : formattedMaliyet.filter((m: any) => m.gorev?.toLowerCase().includes('fiyat'));
-                baseData.gorevliler = baseData.gorevlendirilenler;
-                baseData.dagitimListesi = baseData.gorevlendirilenler;
+                baseData.gorevlendirilenler = formattedMaliyet;
+                baseData.gorevliler = formattedMaliyet;
+                baseData.dagitimListesi = formattedMaliyet;
               }
 
               if (muayeneMembers.length > 0) {
