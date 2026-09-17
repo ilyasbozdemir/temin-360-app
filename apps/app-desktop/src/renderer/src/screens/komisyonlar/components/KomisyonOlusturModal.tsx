@@ -4,6 +4,7 @@ import { AlertCircle, Eye, Plus, Search, Trash2, Users } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
+import { PersonelCombobox } from "../../../components/ui/PersonelCombobox";
 import {
   DEFAULT_MUAYENE_SABLONLAR,
   DEFAULT_YAKLASIK_SABLONLAR,
@@ -684,41 +685,32 @@ export function KomisyonOlusturModal({
                             </datalist>
                           </td>
                           {/* Personel Seçimi */}
-                          <td className="px-4 py-2.5">
-                            <select
-                              value={uye.personelId || ""}
-                              onChange={(e) => {
-                                const val = e.target.value;
+                          <td className="px-4 py-2.5 min-w-[240px]">
+                            <PersonelCombobox
+                              personeller={tumPersonel}
+                              selectedId={uye.personelId}
+                              onChange={(val) => {
                                 if (!val) {
-                                  // Clear selection
                                   setUyeler(
                                     uyeler.map((u) =>
                                       u.id === uye.id
                                         ? {
-                                          ...u,
-                                          personelId: null,
-                                          personelAdi: "",
-                                          personelArama: "",
-                                        }
-                                        : u
+                                            ...u,
+                                            personelId: null,
+                                            personelAdi: "",
+                                            personelArama: "",
+                                          }
+                                        : u,
                                     ),
                                   );
                                   return;
                                 }
-                                const pId = parseInt(val);
-                                const p = tumPersonel.find((x) => x.id === pId);
+                                const p = tumPersonel.find((x) => x.id === val);
                                 if (p) handlePersonelSec(uye.id, p);
                               }}
-                              onClick={(e) => e.stopPropagation()}
-                              className="w-full bg-transparent border-0 border-b border-dashed border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm py-0.5 focus:outline-none focus:border-blue-400"
-                            >
-                              <option value="">-- Personel Seçin --</option>
-                              {tumPersonel.map((p) => (
-                                <option key={p.id} value={p.id}>
-                                  {p.ad_soyad} {p.unvan ? `- ${p.unvan}` : ""}
-                                </option>
-                              ))}
-                            </select>
+                              compact
+                              placeholder="-- Personel Seçin --"
+                            />
                           </td>
 
                           {/* Asil/Yedek */}

@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { AlertCircle } from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
 import { Modal } from '../../../components/ui/Modal'
+import { PersonelCombobox } from '../../../components/ui/PersonelCombobox'
 
 interface PersonelAtaModalProps {
   isOpen: boolean
@@ -24,7 +25,7 @@ export function PersonelAtaModal({
   komisyonId
 }: PersonelAtaModalProps): React.JSX.Element | null {
   const queryClient = useQueryClient()
-  const [selectedPersonelId, setSelectedPersonelId] = useState<number | ''>('')
+  const [selectedPersonelId, setSelectedPersonelId] = useState<number | null>(null)
 
   const { data: personeller = [] } = useQuery<PersonelInfo[]>({
     queryKey: ['personel_listesi_komisyon_ata'],
@@ -59,7 +60,7 @@ export function PersonelAtaModal({
         queryClient.invalidateQueries({ queryKey: ['komisyon_detay', komisyonId] })
       }
       onClose()
-      setSelectedPersonelId('')
+      setSelectedPersonelId(null)
     }
   })
 
@@ -82,18 +83,12 @@ export function PersonelAtaModal({
           <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
             Personel Seçimi
           </label>
-          <select
-            value={selectedPersonelId}
-            onChange={(e) => setSelectedPersonelId(e.target.value ? Number(e.target.value) : '')}
-            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none dark:text-white"
-          >
-            <option value="">-- Lütfen bir personel seçin --</option>
-            {personeller.map((p: PersonelInfo) => (
-              <option key={p.id} value={p.id}>
-                {p.ad_soyad} ({p.unvan})
-              </option>
-            ))}
-          </select>
+          <PersonelCombobox
+            personeller={personeller}
+            selectedId={selectedPersonelId}
+            onChange={(val) => setSelectedPersonelId(val)}
+            placeholder="Personel arayın veya seçin..."
+          />
         </div>
 
         <div className="flex items-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">

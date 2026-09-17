@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Check, FileText, RefreshCw, Save, UserCheck, Users } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Modal } from "../../../../../../components/ui/Modal";
+import { PersonelCombobox } from "./PersonelCombobox";
 
 interface PersonelItem {
   id: number;
@@ -425,15 +426,14 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
 
   const currentRows = activeTab === "yaklasik_maliyet" ? maliyetRows : muayeneRows;
 
-  const handlePersonelChange = (sira: number, personelIdStr: string) => {
-    const val = personelIdStr ? Number(personelIdStr) : null;
+  const handlePersonelChange = (sira: number, personelId: number | null) => {
     if (activeTab === "yaklasik_maliyet") {
       setMaliyetRows((prev) =>
-        prev.map((r) => (r.sira === sira ? { ...r, personelId: val } : r)),
+        prev.map((r) => (r.sira === sira ? { ...r, personelId } : r)),
       );
     } else {
       setMuayeneRows((prev) =>
-        prev.map((r) => (r.sira === sira ? { ...r, personelId: val } : r)),
+        prev.map((r) => (r.sira === sira ? { ...r, personelId } : r)),
       );
     }
   };
@@ -646,19 +646,11 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
                     />
                   </td>
                   <td className="py-1.5 px-3">
-                    <select
-                      value={row.personelId || ""}
-                      onChange={(e) => handlePersonelChange(row.sira, e.target.value)}
-                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 dark:text-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all cursor-pointer font-medium"
-                    >
-                      <option value="">-- Personel Seçiniz --</option>
-                      {personeller.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.ad_soyad}
-                          {p.unvan ? ` (${p.unvan})` : ""}
-                        </option>
-                      ))}
-                    </select>
+                    <PersonelCombobox
+                      personeller={personeller}
+                      selectedId={row.personelId}
+                      onChange={(personelId) => handlePersonelChange(row.sira, personelId)}
+                    />
                   </td>
                 </tr>
               ))}
