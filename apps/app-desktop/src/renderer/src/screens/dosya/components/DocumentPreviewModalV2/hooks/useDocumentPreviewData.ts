@@ -368,12 +368,31 @@ export function useDocumentPreviewData({
                   rol: m.rol || "Üye",
                 }));
                 baseData.fiyatKomisyonu = formattedMaliyet;
-                // Piyasa Fiyat Araştırması Görevlendirmesi için görevlendirilen personeller
-                const activeGorevliler = formattedMaliyet.filter(
-                  (m: any) => m.gorev !== "Harcama Yetkilisi" && m.gorev !== "Gerçekleştirme Görevlisi"
-                );
-                baseData.gorevlendirilenler = activeGorevliler.length > 0 ? activeGorevliler : formattedMaliyet;
+                // Piyasa Fiyat Araştırması Görevlendirmesi için sadece gerçek görevlileri filtrele
+                const isExcluded = (m: any) => {
+                  const combined = `${m.adSoyad || ''} ${m.unvan || ''} ${m.gorev || ''}`.toLowerCase();
+                  return (
+                    combined.includes('harcama yetkili') ||
+                    combined.includes('gerçekleştirme') ||
+                    combined.includes('gerceklestirme') ||
+                    combined.includes('muhasebe yetkili') ||
+                    combined.includes('muhasebe görevli') ||
+                    combined.includes('satın alma yetkili') ||
+                    combined.includes('satınalma yetkili') ||
+                    combined.includes('satın alma harcama') ||
+                    combined.includes('satin alma harcama') ||
+                    combined.includes('talep eden personel') ||
+                    combined.includes('hazırlayan personel') ||
+                    combined.includes('onaylayan yetkili') ||
+                    combined.includes('onaylayan personel') ||
+                    !m.adSoyad ||
+                    !m.adSoyad.trim()
+                  );
+                };
+                const activeGorevliler = formattedMaliyet.filter((m: any) => !isExcluded(m));
+                baseData.gorevlendirilenler = activeGorevliler.length > 0 ? activeGorevliler : formattedMaliyet.filter((m: any) => m.gorev?.toLowerCase().includes('fiyat'));
                 baseData.gorevliler = baseData.gorevlendirilenler;
+                baseData.dagitimListesi = baseData.gorevlendirilenler;
               }
 
               if (muayeneMembers.length > 0) {
@@ -393,7 +412,22 @@ export function useDocumentPreviewData({
         if (!baseData.fiyatKomisyonu || (Array.isArray(baseData.fiyatKomisyonu) && baseData.fiyatKomisyonu.length === 0)) {
           if (ctx.fiyatKomisyonu && ctx.fiyatKomisyonu.length > 0) {
             baseData.fiyatKomisyonu = ctx.fiyatKomisyonu;
-            baseData.gorevlendirilenler = ctx.fiyatKomisyonu;
+            const activeFromCtx = ctx.fiyatKomisyonu.filter((m: any) => {
+              const combined = `${m.adSoyad || m.ad_soyad || ''} ${m.unvan || ''} ${m.gorev || m.gorevi || ''}`.toLowerCase();
+              return (
+                !combined.includes('harcama yetkili') &&
+                !combined.includes('gerçekleştirme') &&
+                !combined.includes('gerceklestirme') &&
+                !combined.includes('muhasebe') &&
+                !combined.includes('satın alma harcama') &&
+                !combined.includes('talep eden') &&
+                !combined.includes('hazırlayan') &&
+                (m.adSoyad || m.ad_soyad)
+              );
+            });
+            baseData.gorevlendirilenler = activeFromCtx.length > 0 ? activeFromCtx : ctx.fiyatKomisyonu;
+            baseData.gorevliler = baseData.gorevlendirilenler;
+            baseData.dagitimListesi = baseData.gorevlendirilenler;
           }
         }
         if (!baseData.muayeneKomisyonu || (Array.isArray(baseData.muayeneKomisyonu) && baseData.muayeneKomisyonu.length === 0)) {

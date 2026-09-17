@@ -883,8 +883,24 @@ export function usePiyasaFiyatArastirmasiLogic() {
         const formattedKomisyon = komisyonListesi.map((c: any) => ({
           adSoyad: c.adSoyad || c.ad_soyad || '',
           unvan: c.unvan || '',
-          gorevi: c.gorevi || 'Üye'
+          gorevi: c.gorevi || 'Üye',
+          gorev: c.gorevi || 'Üye'
         }))
+
+        const filteredGorevliler = formattedKomisyon.filter((c: any) => {
+          const combined = `${c.adSoyad} ${c.unvan} ${c.gorevi || ''}`.toLowerCase()
+          return (
+            !combined.includes('harcama yetkili') &&
+            !combined.includes('gerçekleştirme') &&
+            !combined.includes('gerceklestirme') &&
+            !combined.includes('muhasebe') &&
+            !combined.includes('satın alma harcama') &&
+            !combined.includes('talep eden') &&
+            !combined.includes('hazırlayan') &&
+            c.adSoyad.trim() !== ''
+          )
+        })
+        const gorevlendirilenListesi = filteredGorevliler.length > 0 ? filteredGorevliler : formattedKomisyon
 
         const mergedCtx = {
           ...baseCtx,
@@ -906,7 +922,8 @@ export function usePiyasaFiyatArastirmasiLogic() {
           kalemler: needItems,
           komisyon: formattedKomisyon.length > 0 ? formattedKomisyon : (baseCtx.komisyon || []),
           fiyatKomisyonu: formattedKomisyon.length > 0 ? formattedKomisyon : (baseCtx.fiyatKomisyonu || []),
-          gorevlendirilenler: formattedKomisyon.length > 0 ? formattedKomisyon : (baseCtx.gorevlendirilenler || []),
+          gorevlendirilenler: gorevlendirilenListesi.length > 0 ? gorevlendirilenListesi : (baseCtx.gorevlendirilenler || []),
+          dagitimListesi: gorevlendirilenListesi.length > 0 ? gorevlendirilenListesi : (baseCtx.dagitimListesi || []),
           yukleniciFirma:
             targetMode === 'tutanak'
               ? enAvantajliTeklifSahibi

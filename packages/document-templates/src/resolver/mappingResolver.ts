@@ -487,9 +487,30 @@ export async function resolveTemplateData(
         resolvedPayload[sablonDegiskeni] = members.map((m: any) => ({
           adSoyad: m.resolved_ad_soyad || m.ad_soyad || m.adSoyad || '',
           unvan: m.resolved_unvan || m.unvan || '',
+          gorev: m.gorev || m.gorev_adi || (m.asil_mi === 0 ? 'Yedek Üye' : 'Üye'),
           gorevi: m.gorev || m.gorev_adi || (m.asil_mi === 0 ? 'Yedek Üye' : 'Üye'),
           pozisyonu: m.resolved_unvan || m.unvan || ''
         }));
+
+        if (sablonDegiskeni === 'fiyatKomisyonu') {
+          const onlyGorevliler = (resolvedPayload[sablonDegiskeni] as any[]).filter((m: any) => {
+            const combined = `${m.adSoyad} ${m.unvan} ${m.gorev}`.toLowerCase();
+            return (
+              !combined.includes('harcama yetkili') &&
+              !combined.includes('gerçekleştirme') &&
+              !combined.includes('gerceklestirme') &&
+              !combined.includes('muhasebe') &&
+              !combined.includes('satın alma harcama') &&
+              !combined.includes('satin alma harcama') &&
+              !combined.includes('talep eden personel') &&
+              !combined.includes('hazırlayan personel') &&
+              !combined.includes('onaylayan') &&
+              m.adSoyad.trim() !== ''
+            );
+          });
+          resolvedPayload.gorevlendirilenler = onlyGorevliler.length > 0 ? onlyGorevliler : resolvedPayload[sablonDegiskeni];
+          resolvedPayload.dagitimListesi = resolvedPayload.gorevlendirilenler;
+        }
         continue;
       } catch (err) {
         resolvedPayload[sablonDegiskeni] = [];
