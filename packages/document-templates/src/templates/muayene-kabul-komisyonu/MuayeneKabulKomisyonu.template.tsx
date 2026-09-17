@@ -80,6 +80,15 @@ export const MuayeneKabulKomisyonu: React.FC<Props> = ({
     return [];
   })();
 
+  const formatUnvan = (unvan?: string) => {
+    if (!unvan || !unvan.trim()) return "";
+    const trimmed = unvan.trim();
+    if (trimmed.startsWith("(") && trimmed.endsWith(")")) {
+      return trimmed;
+    }
+    return `(${trimmed})`;
+  };
+
   // Evrak sayısı oluşturma
   const evrakNo = data.evrakSayisi ||
     `${data.detsisNo || "........"}-${data.yili || "...."}/${
@@ -177,22 +186,17 @@ export const MuayeneKabulKomisyonu: React.FC<Props> = ({
         >
           <EditableField
             name="onayBelgesiTarihi"
-            value={String(data.onayBelgesiTarihi || data.dosyaTarihi || "........")}
+            value={String(data.onayBelgesiTarihi || data.dosyaTarihi || data.tarih || "........")}
           />
-          {"-"}
+          {" tarih ve "}
           <EditableField
-            name="onayBelgesiNo"
-            value={String(data.onayBelgesiNo ?? data.sayisi ?? "....")}
+            name="onayBelgesiSayisi"
+            value={String(data.onayBelgesiSayisi || data.onayBelgesiNo || evrakNo)}
           />
-          {"-"}
-          <EditableField
-            name="onayBelgesiYili"
-            value={String(data.onayBelgesiYili ?? data.yili ?? "....")}
-          />
-          {"/ tarih ve sayılı Onay Belgesine istinaden 4734 Sayılı kanunun "}
+          {" sayılı Onay Belgesine istinaden 4734 Sayılı Kanunun "}
           <EditableField
             name="kanunMaddesi"
-            value={String(data.kanunMaddesi || data.ihaleSekli || data.ihale_sekli || "22/d*")}
+            value={String(data.kanunMaddesi || data.ihaleSekli || data.ihale_sekli || "22/d")}
           />
           {" maddesine göre alımı gerçekleştirilen "}
           <EditableField
@@ -209,7 +213,7 @@ export const MuayeneKabulKomisyonu: React.FC<Props> = ({
             ? (
               gorevlendirilenler.map((g, idx) => (
                 <React.Fragment key={idx}>
-                  <strong>{g.adSoyad}</strong> {g.unvan ? `(${g.unvan})` : ""}
+                  <strong>{g.adSoyad}</strong> {g.unvan ? formatUnvan(g.unvan) : ""}
                   {idx < gorevlendirilenler.length - 1 ? ", " : " "}
                 </React.Fragment>
               ))
@@ -302,7 +306,7 @@ export const MuayeneKabulKomisyonu: React.FC<Props> = ({
               ? (
                 dagitimListesi.map((d, idx) => (
                   <li key={idx}>
-                    - {d.adSoyad} {d.unvan ? `(${d.unvan})` : ""}
+                    - {d.adSoyad} {d.unvan ? formatUnvan(d.unvan) : ""}
                   </li>
                 ))
               )
