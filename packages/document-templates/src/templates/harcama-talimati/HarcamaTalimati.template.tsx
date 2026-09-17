@@ -303,8 +303,22 @@ export function HarcamaTalimati({
                 }}
               >
                 Yukarıda belirtilen harcamanın yaptırılması için harcama yetkilisi mutemedi{" "}
-                <strong>{data.mutemetAdi || "......"}</strong>‘a, işin tutarı,{" "}
-                <strong>{data.isTutari || data.yaklasikMaliyet || "......"} ₺</strong>, avans verilmesi hususu olurlarınıza arz olunur.
+                <strong>
+                  <EditableField
+                    name="mutemetAdi"
+                    value={data.mutemetAdi || data.muhasebeYetkilisiAdi || data.muhasebeYetkilisi}
+                    placeholder="Mutemet / Muhasebe Yetkilisi"
+                  />
+                </strong>
+                ‘a, işin tutarı,{" "}
+                <strong>
+                  <EditableField
+                    name="isTutari"
+                    value={data.isTutari !== undefined && data.isTutari !== null ? String(data.isTutari) : data.yaklasikMaliyet !== undefined && data.yaklasikMaliyet !== null ? String(data.yaklasikMaliyet) : undefined}
+                    placeholder="İşin Tutarı"
+                  /> ₺
+                </strong>
+                , avans verilmesi hususu olurlarınıza arz olunur.
               </td>
               <td
                 style={{
@@ -337,11 +351,11 @@ export function HarcamaTalimati({
                   <DateEditableField name="sunumTarihi" value={data.sunumTarihi || data.tarih} placeholder="GG.AA.YYYY" />
                 </div>
                 <PersonelCard
-                  adSoyad={data.hazirlayanPersonelAdi}
-                  unvan={data.hazirlayanPersonelUnvan}
+                  adSoyad={data.hazirlayanPersonelAdi || data.teklifEdenPersonelAdi || data.gerceklestirmeGorevlisiAdi}
+                  unvan={data.hazirlayanPersonelUnvan || data.teklifEdenPersonelUnvan || data.gerceklestirmeGorevlisiUnvan || "Gerçekleştirme Görevlisi"}
                   nameField="hazirlayanPersonelAdi"
                   unvanField="hazirlayanPersonelUnvan"
-                  placeholderName="Hazırlayan Adı Soyadı"
+                  placeholderName="Hazırlayan / Teklif Eden"
                   placeholderUnvan="Unvanı"
                   marginTop={4}
                   marginBottom={0}
@@ -362,11 +376,11 @@ export function HarcamaTalimati({
                   <DateEditableField name="olurTarihi" value={data.olurTarihi || data.onayTarihi || data.tarih} placeholder="GG.AA.YYYY" />
                 </div>
                 <PersonelCard
-                  adSoyad={data.onaylayanPersonelAdi}
-                  unvan={data.onaylayanPersonelUnvan}
+                  adSoyad={data.onaylayanPersonelAdi || data.harcamaYetkilisiAdi}
+                  unvan={data.onaylayanPersonelUnvan || data.harcamaYetkilisiUnvan || "Harcama Yetkilisi"}
                   nameField="onaylayanPersonelAdi"
                   unvanField="onaylayanPersonelUnvan"
-                  placeholderName="Onaylayan Adı Soyadı"
+                  placeholderName="Harcama Yetkilisi"
                   placeholderUnvan="Unvanı"
                   marginTop={4}
                   marginBottom={0}

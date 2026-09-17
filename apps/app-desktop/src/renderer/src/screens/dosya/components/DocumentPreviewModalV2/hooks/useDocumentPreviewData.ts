@@ -382,6 +382,49 @@ export function useDocumentPreviewData({
                 return true;
               });
 
+              // 1. Muhasebe Yetkilisi / Mutemet tespiti
+              const muhasebeRow = dbKomisyonlar.find((k: any) => {
+                const g = (k.gorev || "").toLowerCase();
+                return g.includes("muhasebe") || g.includes("mutemet");
+              });
+              if (muhasebeRow && (muhasebeRow.ad_soyad || muhasebeRow.personel_id)) {
+                if (!baseData.mutemetAdi || baseData.mutemetAdi === "......") {
+                  baseData.mutemetAdi = muhasebeRow.ad_soyad || "";
+                  baseData.mutemetUnvan = muhasebeRow.unvan || "Muhasebe Yetkilisi";
+                }
+                baseData.muhasebeYetkilisiAdi = muhasebeRow.ad_soyad || "";
+                baseData.muhasebeYetkilisiUnvan = muhasebeRow.unvan || "Muhasebe Yetkilisi";
+                baseData.muhasebeYetkilisi = muhasebeRow.ad_soyad || "";
+              }
+
+              // 2. Harcama Yetkilisi (Onaylayan / Olur Veren)
+              const harcamaRow = dbKomisyonlar.find((k: any) => {
+                const g = (k.gorev || "").toLowerCase();
+                return g.includes("harcama yetkili");
+              });
+              if (harcamaRow && (harcamaRow.ad_soyad || harcamaRow.personel_id)) {
+                if (!baseData.onaylayanPersonelAdi) {
+                  baseData.onaylayanPersonelAdi = harcamaRow.ad_soyad || "";
+                  baseData.onaylayanPersonelUnvan = harcamaRow.unvan || "Harcama Yetkilisi";
+                }
+                baseData.harcamaYetkilisiAdi = harcamaRow.ad_soyad || "";
+                baseData.harcamaYetkilisiUnvan = harcamaRow.unvan || "Harcama Yetkilisi";
+              }
+
+              // 3. Gerçekleştirme Görevlisi (Teklif Eden / Hazırlayan)
+              const gerceklestirmeRow = dbKomisyonlar.find((k: any) => {
+                const g = (k.gorev || "").toLowerCase();
+                return g.includes("gerçekleştirme") || g.includes("gerceklestirme") || g.includes("hazırlayan");
+              });
+              if (gerceklestirmeRow && (gerceklestirmeRow.ad_soyad || gerceklestirmeRow.personel_id)) {
+                if (!baseData.hazirlayanPersonelAdi) {
+                  baseData.hazirlayanPersonelAdi = gerceklestirmeRow.ad_soyad || "";
+                  baseData.hazirlayanPersonelUnvan = gerceklestirmeRow.unvan || "Gerçekleştirme Görevlisi";
+                }
+                baseData.gerceklestirmeGorevlisiAdi = gerceklestirmeRow.ad_soyad || "";
+                baseData.gerceklestirmeGorevlisiUnvan = gerceklestirmeRow.unvan || "Gerçekleştirme Görevlisi";
+              }
+
               if (maliyetMembers.length > 0) {
                 const formattedMaliyet = maliyetMembers.map((m: any) => ({
                   adSoyad: m.ad_soyad || "",
