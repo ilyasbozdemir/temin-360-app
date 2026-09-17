@@ -82,6 +82,75 @@ export function DateEditableField({
   );
 }
 
+export interface PersonelInlineSelectProps {
+  nameField: string;
+  unvanField?: string;
+  value?: string | null;
+  placeholder?: string;
+  onlyAdSoyad?: boolean;
+}
+
+export const PersonelInlineSelect: React.FC<PersonelInlineSelectProps> = ({
+  nameField,
+  unvanField,
+  value,
+  placeholder = "Personel Seçiniz...",
+}) => {
+  const { isEditing, onFieldChange, personelListesi } = useTemplateEdit();
+  const personelList = personelListesi || [];
+  const cleanVal = typeof value === "string" ? value.split("(")[0].trim() : "";
+  const matched = personelList.find(
+    (p: any) =>
+      p.ad_soyad &&
+      String(p.ad_soyad).trim().toLowerCase() === cleanVal.toLowerCase()
+  );
+  const selectedValue = matched ? String(matched.id) : "";
+
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+      <EditableField name={nameField} value={cleanVal} placeholder={placeholder} />
+      {isEditing && personelList.length > 0 && (
+        <select
+          value={selectedValue}
+          onChange={(e) => {
+            const selectedId = Number(e.target.value);
+            const p = personelList.find((item: any) => item.id === selectedId);
+            if (p && onFieldChange) {
+              const cleanName = (p.ad_soyad || "").split("(")[0].trim();
+              onFieldChange(nameField, cleanName);
+              if (unvanField) {
+                onFieldChange(unvanField, p.unvan || "");
+              }
+            } else if (onFieldChange && e.target.value === "") {
+              onFieldChange(nameField, "");
+              if (unvanField) {
+                onFieldChange(unvanField, "");
+              }
+            }
+          }}
+          style={{
+            fontSize: "7.5pt",
+            padding: "1px 4px",
+            borderRadius: "4px",
+            border: "1px solid #cbd5e1",
+            backgroundColor: "#f8fafc",
+            maxWidth: "140px",
+            cursor: "pointer",
+          }}
+          title="Kayıtlı personellerden seç"
+        >
+          <option value="">👤 Seç...</option>
+          {personelList.map((p: any) => (
+            <option key={p.id} value={p.id}>
+              {p.ad_soyad} {p.unvan ? `(${p.unvan})` : ""}
+            </option>
+          ))}
+        </select>
+      )}
+    </span>
+  );
+};
+
 export const EditableOlurPlaceholder: React.FC = () => {
   const { isEditing, onFieldChange } = useTemplateEdit();
   if (!isEditing || !onFieldChange) return null;

@@ -4,6 +4,7 @@ import { EditableField } from "../../document/EditableField";
 import {
   DateEditableField,
   PersonelCard,
+  PersonelInlineSelect,
 } from "../../document/ApprovalSignature";
 import { HarcamaTalimatiType } from "./HarcamaTalimati.schema";
 
@@ -574,8 +575,9 @@ export function HarcamaTalimati({
                 Yukarıda belirtilen harcamanın yaptırılması için harcama
                 yetkilisi mutemedi{" "}
                 <strong>
-                  <EditableField
-                    name="mutemetAdi"
+                  <PersonelInlineSelect
+                    nameField="mutemetAdi"
+                    unvanField="mutemetUnvan"
                     value={cleanMutemet}
                     placeholder="Mutemet / Muhasebe Yetkilisi"
                   />

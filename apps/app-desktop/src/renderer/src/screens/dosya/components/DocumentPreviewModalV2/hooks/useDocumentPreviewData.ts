@@ -453,6 +453,86 @@ export function useDocumentPreviewData({
           }
         }
 
+        // Global Komisyon Yönetimi (TANIM_KomisyonUye) ve Personel tablosu Fallback'i
+        if (!baseData.mutemetAdi || baseData.mutemetAdi === "......" || !baseData.muhasebeYetkilisiAdi || !baseData.onaylayanPersonelAdi || !baseData.hazirlayanPersonelAdi) {
+          try {
+            const globalKomisyonlar = await queryExecutor(
+              `SELECT u.*, p.ad_soyad, p.unvan, g.ad as gorev, k.ad as komisyon_adi, k.id as komisyon_id
+               FROM TANIM_KomisyonUye u
+               LEFT JOIN TANIM_Personel p ON u.personel_id = p.id
+               LEFT JOIN TANIM_KomisyonGorevi g ON u.gorev_id = g.id
+               LEFT JOIN TANIM_Komisyon k ON u.komisyon_id = k.id
+               WHERE u.personel_id IS NOT NULL
+               ORDER BY u.sira ASC, u.id ASC`,
+              []
+            );
+            if (globalKomisyonlar && globalKomisyonlar.length > 0) {
+              // 1. Muhasebe Yetkilisi / Mutemet
+              if (!baseData.mutemetAdi || baseData.mutemetAdi === "......" || !baseData.muhasebeYetkilisiAdi) {
+                const mRow = globalKomisyonlar.find((k: any) => {
+                  const g = (k.gorev || "").toLowerCase();
+                  return g.includes("muhasebe") || g.includes("mutemet");
+                });
+                if (mRow && mRow.ad_soyad) {
+                  const cleanName = mRow.ad_soyad.split("(")[0].trim();
+                  if (!baseData.mutemetAdi || baseData.mutemetAdi === "......") {
+                    baseData.mutemetAdi = cleanName;
+                    baseData.mutemetUnvan = mRow.unvan || "Muhasebe Yetkilisi";
+                  }
+                  baseData.muhasebeYetkilisiAdi = baseData.muhasebeYetkilisiAdi || cleanName;
+                  baseData.muhasebeYetkilisiUnvan = baseData.muhasebeYetkilisiUnvan || (mRow.unvan || "Muhasebe Yetkilisi");
+                  baseData.muhasebeYetkilisi = baseData.muhasebeYetkilisi || cleanName;
+                }
+              }
+
+              // 2. Harcama Yetkilisi
+              if (!baseData.onaylayanPersonelAdi || !baseData.harcamaYetkilisiAdi) {
+                const hRow = globalKomisyonlar.find((k: any) => (k.gorev || "").toLowerCase().includes("harcama yetkili"));
+                if (hRow && hRow.ad_soyad) {
+                  baseData.onaylayanPersonelAdi = baseData.onaylayanPersonelAdi || hRow.ad_soyad;
+                  baseData.onaylayanPersonelUnvan = baseData.onaylayanPersonelUnvan || (hRow.unvan || "Harcama Yetkilisi");
+                  baseData.harcamaYetkilisiAdi = baseData.harcamaYetkilisiAdi || hRow.ad_soyad;
+                  baseData.harcamaYetkilisiUnvan = baseData.harcamaYetkilisiUnvan || (hRow.unvan || "Harcama Yetkilisi");
+                }
+              }
+
+              // 3. Gerçekleştirme Görevlisi
+              if (!baseData.hazirlayanPersonelAdi || !baseData.gerceklestirmeGorevlisiAdi) {
+                const gRow = globalKomisyonlar.find((k: any) => {
+                  const g = (k.gorev || "").toLowerCase();
+                  return g.includes("gerçekleştirme") || g.includes("gerceklestirme") || g.includes("hazırlayan");
+                });
+                if (gRow && gRow.ad_soyad) {
+                  baseData.hazirlayanPersonelAdi = baseData.hazirlayanPersonelAdi || gRow.ad_soyad;
+                  baseData.hazirlayanPersonelUnvan = baseData.hazirlayanPersonelUnvan || (gRow.unvan || "Gerçekleştirme Görevlisi");
+                  baseData.gerceklestirmeGorevlisiAdi = baseData.gerceklestirmeGorevlisiAdi || gRow.ad_soyad;
+                  baseData.gerceklestirmeGorevlisiUnvan = baseData.gerceklestirmeGorevlisiUnvan || (gRow.unvan || "Gerçekleştirme Görevlisi");
+                }
+              }
+            }
+
+            // 4. TANIM_Personel unvan/görev bazlı son fallback
+            if (!baseData.mutemetAdi || baseData.mutemetAdi === "......" || !baseData.muhasebeYetkilisiAdi) {
+              const pMuhasebe = (personelList || []).find((p: any) => {
+                const u = `${p.unvan || ''} ${p.gorev || ''} ${p.birim || ''}`.toLowerCase();
+                return u.includes('muhasebe') || u.includes('mutemet');
+              });
+              if (pMuhasebe && pMuhasebe.ad_soyad) {
+                const cleanName = pMuhasebe.ad_soyad.split("(")[0].trim();
+                if (!baseData.mutemetAdi || baseData.mutemetAdi === "......") {
+                  baseData.mutemetAdi = cleanName;
+                  baseData.mutemetUnvan = pMuhasebe.unvan || "Muhasebe Yetkilisi";
+                }
+                baseData.muhasebeYetkilisiAdi = baseData.muhasebeYetkilisiAdi || cleanName;
+                baseData.muhasebeYetkilisiUnvan = baseData.muhasebeYetkilisiUnvan || (pMuhasebe.unvan || "Muhasebe Yetkilisi");
+                baseData.muhasebeYetkilisi = baseData.muhasebeYetkilisi || cleanName;
+              }
+            }
+          } catch (err) {
+            console.error("Global komisyon/personel fallback query error in preview:", err);
+          }
+        }
+
         if (!baseData.fiyatKomisyonu || (Array.isArray(baseData.fiyatKomisyonu) && baseData.fiyatKomisyonu.length === 0)) {
           if (ctx.fiyatKomisyonu && ctx.fiyatKomisyonu.length > 0) {
             baseData.fiyatKomisyonu = ctx.fiyatKomisyonu;
