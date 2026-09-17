@@ -723,6 +723,10 @@ export function MalzemeTablosu({
               handleOpenSablonByDosyaAdi(
                 "piyasa-fiyat-arastirma-gorevlendirmesi",
               )}
+            onPiyasaArastirmaGorevlendirmesi={() =>
+              handleOpenSablonByDosyaAdi(
+                "piyasa-fiyat-arastirma-gorevlendirmesi",
+              )}
             onYaklasikMaliyetKomisyonu={() => {
               setKomisyonModalType("yaklasik_maliyet");
               setKomisyonModalOpen(true);

@@ -11,10 +11,17 @@ export function formatAlimTuru(alimTuru?: string, tur?: string): string {
   if (!raw) return "mal alımı";
   if (lower === "mal" || lower === "malzeme") return "mal alımı";
   if (lower === "hizmet") return "hizmet alımı";
-  if (lower === "yapim" || lower === "yapım" || lower === "yapim_isi") return "yapım işi";
-  if (lower === "danismanlik" || lower === "danışmanlık") return "danışmanlık hizmet alımı";
+  if (lower === "yapim" || lower === "yapım" || lower === "yapim_isi") {
+    return "yapım işi";
+  }
+  if (lower === "danismanlik" || lower === "danışmanlık") {
+    return "danışmanlık hizmet alımı";
+  }
 
-  if (lower.includes("alım") || lower.includes("alim") || lower.includes("işi") || lower.includes("isi")) {
+  if (
+    lower.includes("alım") || lower.includes("alim") || lower.includes("işi") ||
+    lower.includes("isi")
+  ) {
     return raw;
   }
 
@@ -79,7 +86,8 @@ export function KomisyonGorevlendirmeOnayiEki({
             lineHeight: 1.5,
           }}
         >
-          {data.kurumumuz || "Kurumumuz"} birimlerinde kullanılmak üzere ekteki lüzum müzakeresinde sunulan{" "}
+          {data.kurumumuz || "Kurumumuz"}{" "}
+          birimlerinde kullanılmak üzere ekteki lüzum müzakeresinde sunulan{" "}
           <strong>
             <EditableField
               name="alimTuru"
@@ -87,7 +95,8 @@ export function KomisyonGorevlendirmeOnayiEki({
               placeholder="mal alımı / yapım işi / hizmet alımı"
             />
           </strong>{" "}
-          için 4734 Sayılı Kamu İhale Kanununa göre görevlendirilen kişilerin listesidir.
+          için 4734 Sayılı Kamu İhale Kanununa göre görevlendirilen kişilerin
+          listesidir.
         </div>
 
         {/* Table 1: PİYASA ARAŞTIRMA VE SATINALMA KOMİSYONU */}
@@ -155,35 +164,47 @@ export function KomisyonGorevlendirmeOnayiEki({
             </tr>
           </thead>
           <tbody>
-            {fiyatUyeleri.length > 0 ? (
-              fiyatUyeleri.map((u, idx) => (
-                <tr key={idx}>
-                  <td style={{ border: "1px solid #000", padding: "5px 8px" }}>
-                    {u.gorevi || "Üye"}
-                  </td>
-                  <td style={{ border: "1px solid #000", padding: "5px 8px", fontWeight: "bold" }}>
-                    {u.adSoyad || (u as any).adi}
-                  </td>
-                  <td style={{ border: "1px solid #000", padding: "5px 8px" }}>
-                    {u.unvan || (u as any).unvani}
+            {fiyatUyeleri.length > 0
+              ? (
+                fiyatUyeleri.map((u, idx) => (
+                  <tr key={idx}>
+                    <td
+                      style={{ border: "1px solid #000", padding: "5px 8px" }}
+                    >
+                      {u.gorevi || "Üye"}
+                    </td>
+                    <td
+                      style={{
+                        border: "1px solid #000",
+                        padding: "5px 8px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {u.adSoyad || (u as any).adi}
+                    </td>
+                    <td
+                      style={{ border: "1px solid #000", padding: "5px 8px" }}
+                    >
+                      {u.unvan || (u as any).unvani}
+                    </td>
+                  </tr>
+                ))
+              )
+              : (
+                <tr>
+                  <td
+                    colSpan={3}
+                    style={{
+                      border: "1px solid #000",
+                      padding: "6px 8px",
+                      textAlign: "center",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    Komisyon üyesi bulunmamaktadır.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={3}
-                  style={{
-                    border: "1px solid #000",
-                    padding: "6px 8px",
-                    textAlign: "center",
-                    fontStyle: "italic",
-                  }}
-                >
-                  Komisyon üyesi bulunmamaktadır.
-                </td>
-              </tr>
-            )}
+              )}
           </tbody>
         </table>
 
@@ -251,35 +272,47 @@ export function KomisyonGorevlendirmeOnayiEki({
             </tr>
           </thead>
           <tbody>
-            {muayeneUyeleri.length > 0 ? (
-              muayeneUyeleri.map((u, idx) => (
-                <tr key={idx}>
-                  <td style={{ border: "1px solid #000", padding: "5px 8px" }}>
-                    {u.gorevi || "Üye"}
-                  </td>
-                  <td style={{ border: "1px solid #000", padding: "5px 8px", fontWeight: "bold" }}>
-                    {u.adSoyad || (u as any).adi}
-                  </td>
-                  <td style={{ border: "1px solid #000", padding: "5px 8px" }}>
-                    {u.unvan || (u as any).unvani}
+            {muayeneUyeleri.length > 0
+              ? (
+                muayeneUyeleri.map((u, idx) => (
+                  <tr key={idx}>
+                    <td
+                      style={{ border: "1px solid #000", padding: "5px 8px" }}
+                    >
+                      {u.gorevi || "Üye"}
+                    </td>
+                    <td
+                      style={{
+                        border: "1px solid #000",
+                        padding: "5px 8px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {u.adSoyad || (u as any).adi}
+                    </td>
+                    <td
+                      style={{ border: "1px solid #000", padding: "5px 8px" }}
+                    >
+                      {u.unvan || (u as any).unvani}
+                    </td>
+                  </tr>
+                ))
+              )
+              : (
+                <tr>
+                  <td
+                    colSpan={3}
+                    style={{
+                      border: "1px solid #000",
+                      padding: "6px 8px",
+                      textAlign: "center",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    Komisyon üyesi bulunmamaktadır.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={3}
-                  style={{
-                    border: "1px solid #000",
-                    padding: "6px 8px",
-                    textAlign: "center",
-                    fontStyle: "italic",
-                  }}
-                >
-                  Komisyon üyesi bulunmamaktadır.
-                </td>
-              </tr>
-            )}
+              )}
           </tbody>
         </table>
 
