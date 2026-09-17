@@ -73,11 +73,13 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<KomisyonType>(initialType);
   const [personeller, setPersoneller] = useState<PersonelItem[]>([]);
-  const [kurumInfo, setKurumInfo] = useState<{
-    kurumAdi?: string;
-    makamAdi?: string;
-    kurumTipi?: string;
-  } | null>(null);
+  const [kurumInfo, setKurumInfo] = useState<
+    {
+      kurumAdi?: string;
+      makamAdi?: string;
+      kurumTipi?: string;
+    } | null
+  >(null);
 
   const [maliyetRows, setMaliyetRows] = useState<KomisyonRow[]>(
     DEFAULT_MALIYET_ROLES.map((item, idx) => ({
@@ -127,7 +129,8 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
             setKurumInfo({
               kurumAdi: kInfoRes.data[0].kurum_adi,
               makamAdi: kInfoRes.data[0].makam_adi,
-              kurumTipi: kInfoRes.data[0].kurum_tipi || kInfoRes.data[0].alt_kurum_tipi,
+              kurumTipi: kInfoRes.data[0].kurum_tipi ||
+                kInfoRes.data[0].alt_kurum_tipi,
             });
           }
         } catch (e) {
@@ -139,7 +142,9 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
           "db:query",
           "SELECT id, ad_soyad, unvan FROM TANIM_Personel WHERE aktif_mi = 1 ORDER BY ad_soyad ASC",
         );
-        const pList: PersonelItem[] = pRes.success && pRes.data ? pRes.data : [];
+        const pList: PersonelItem[] = pRes.success && pRes.data
+          ? pRes.data
+          : [];
         if (isMounted) setPersoneller(pList);
 
         // 3. Mevcut DATA_TeminKomisyon kayıtları
@@ -240,12 +245,11 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
              WHERE LOWER(TRIM(ad)) LIKE '%muayene%' OR LOWER(TRIM(ad)) LIKE '%kabul%' OR id = 2
              ORDER BY CASE WHEN id = 2 THEN 0 ELSE 1 END, id ASC LIMIT 1`,
       );
-      const komId =
-        findRes.success && findRes.data?.[0]?.id
-          ? findRes.data[0].id
-          : isMaliyet
-            ? 1
-            : 2;
+      const komId = findRes.success && findRes.data?.[0]?.id
+        ? findRes.data[0].id
+        : isMaliyet
+        ? 1
+        : 2;
 
       const res = await (window as any).electron.ipcRenderer.invoke(
         "db:query",
@@ -296,7 +300,9 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
   };
 
   // Seçilen komisyonu DATA_TeminKomisyon tablosuna kaydet
-  const handleSave = async (tabToSave: KomisyonType = activeTab): Promise<boolean> => {
+  const handleSave = async (
+    tabToSave: KomisyonType = activeTab,
+  ): Promise<boolean> => {
     if (!activeDosyaId) return false;
 
     setSaving(true);
@@ -343,11 +349,10 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
         const p = personeller.find((item) => item.id === row.personelId);
         if (!p) continue;
 
-        const rol =
-          row.gorev.toLowerCase().includes("başkan") ||
-          row.gorev.toLowerCase().includes("yetkili")
-            ? "Başkan"
-            : "Üye";
+        const rol = row.gorev.toLowerCase().includes("başkan") ||
+            row.gorev.toLowerCase().includes("yetkili")
+          ? "Başkan"
+          : "Üye";
 
         await (window as any).electron.ipcRenderer.invoke(
           "db:run",
@@ -402,12 +407,11 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
                  WHERE LOWER(TRIM(ad)) LIKE '%muayene%' OR LOWER(TRIM(ad)) LIKE '%kabul%' OR id = 2
                  ORDER BY CASE WHEN id = 2 THEN 0 ELSE 1 END, id ASC LIMIT 1`,
           );
-          const targetKomId =
-            findRes.success && findRes.data?.[0]?.id
-              ? findRes.data[0].id
-              : isMaliyet
-                ? 1
-                : 2;
+          const targetKomId = findRes.success && findRes.data?.[0]?.id
+            ? findRes.data[0].id
+            : isMaliyet
+            ? 1
+            : 2;
 
           // Mevcut TANIM_KomisyonGorevi listesi
           const gorevRes = await (window as any).electron.ipcRenderer.invoke(
@@ -429,15 +433,17 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
             if (!row.personelId) continue;
 
             let gorevId = existingGorevler.find(
-              (g) => g.ad.trim().toLowerCase() === row.gorev.trim().toLowerCase(),
+              (g) =>
+                g.ad.trim().toLowerCase() === row.gorev.trim().toLowerCase(),
             )?.id;
 
             if (!gorevId) {
-              const insertGorevRes = await (window as any).electron.ipcRenderer.invoke(
-                "db:run",
-                "INSERT INTO TANIM_KomisyonGorevi (ad) VALUES (?)",
-                [row.gorev.trim()],
-              );
+              const insertGorevRes = await (window as any).electron.ipcRenderer
+                .invoke(
+                  "db:run",
+                  "INSERT INTO TANIM_KomisyonGorevi (ad) VALUES (?)",
+                  [row.gorev.trim()],
+                );
               if (insertGorevRes.success && insertGorevRes.lastInsertRowid) {
                 const newGorevId = Number(insertGorevRes.lastInsertRowid);
                 gorevId = newGorevId;
@@ -458,11 +464,18 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
 
           // React query önbelleklerini tazele
           queryClient.invalidateQueries({ queryKey: ["komisyonlar"] });
-          queryClient.invalidateQueries({ queryKey: ["komisyon_detay", targetKomId] });
+          queryClient.invalidateQueries({
+            queryKey: ["komisyon_detay", targetKomId],
+          });
           queryClient.invalidateQueries({ queryKey: ["tanim_komisyonlar"] });
-          queryClient.invalidateQueries({ queryKey: ["tanim_komisyonlar_with_sablons"] });
+          queryClient.invalidateQueries({
+            queryKey: ["tanim_komisyonlar_with_sablons"],
+          });
         } catch (globalErr) {
-          console.warn("Global komisyon senkronizasyonu sırasında hata:", globalErr);
+          console.warn(
+            "Global komisyon senkronizasyonu sırasında hata:",
+            globalErr,
+          );
         }
       }
 
@@ -492,16 +505,18 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
     }
   };
 
-  const currentRows = activeTab === "yaklasik_maliyet" ? maliyetRows : muayeneRows;
+  const currentRows = activeTab === "yaklasik_maliyet"
+    ? maliyetRows
+    : muayeneRows;
 
   const handlePersonelChange = (sira: number, personelId: number | null) => {
     if (activeTab === "yaklasik_maliyet") {
       setMaliyetRows((prev) =>
-        prev.map((r) => (r.sira === sira ? { ...r, personelId } : r)),
+        prev.map((r) => (r.sira === sira ? { ...r, personelId } : r))
       );
     } else {
       setMuayeneRows((prev) =>
-        prev.map((r) => (r.sira === sira ? { ...r, personelId } : r)),
+        prev.map((r) => (r.sira === sira ? { ...r, personelId } : r))
       );
     }
   };
@@ -509,11 +524,11 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
   const handleGorevChange = (sira: number, newGorev: string) => {
     if (activeTab === "yaklasik_maliyet") {
       setMaliyetRows((prev) =>
-        prev.map((r) => (r.sira === sira ? { ...r, gorev: newGorev } : r)),
+        prev.map((r) => (r.sira === sira ? { ...r, gorev: newGorev } : r))
       );
     } else {
       setMuayeneRows((prev) =>
-        prev.map((r) => (r.sira === sira ? { ...r, gorev: newGorev } : r)),
+        prev.map((r) => (r.sira === sira ? { ...r, gorev: newGorev } : r))
       );
     }
   };
@@ -522,14 +537,14 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
     if (activeTab === "yaklasik_maliyet") {
       setMaliyetRows((prev) =>
         prev.map((r) =>
-          r.sira === sira ? { ...r, belgedeGoster: !r.belgedeGoster } : r,
-        ),
+          r.sira === sira ? { ...r, belgedeGoster: !r.belgedeGoster } : r
+        )
       );
     } else {
       setMuayeneRows((prev) =>
         prev.map((r) =>
-          r.sira === sira ? { ...r, belgedeGoster: !r.belgedeGoster } : r,
-        ),
+          r.sira === sira ? { ...r, belgedeGoster: !r.belgedeGoster } : r
+        )
       );
     }
   };
@@ -537,73 +552,78 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
   const modalFooter = (
     <div className="flex flex-wrap items-center justify-between gap-3 w-full">
       <div className="flex items-center gap-2 flex-wrap">
-        {activeTab === "yaklasik_maliyet" ? (
-          <>
-            <button
-              type="button"
-              onClick={() => handleOpenDoc("piyasa-fiyat-arastirma-gorevlendirmesi")}
-              disabled={saving || loading}
-              className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 hover:bg-black dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-95 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
-              title="Piyasa Fiyat Araştırması Görevlendirmesi Belgesini Aç"
-            >
-              <FileText className="w-3.5 h-3.5" />
-              Fiyat Araştırma Görevlendirmesi
-            </button>
-            <button
-              type="button"
-              onClick={() => handleOpenDoc("komisyon-gorevlendirme-onayi")}
-              disabled={saving || loading}
-              className="flex items-center gap-1.5 px-3 py-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white rounded-lg text-xs font-semibold transition-all shadow-xs cursor-pointer disabled:opacity-50"
-              title="Komisyon Görevlendirme Onayı Belgesini Aç"
-            >
-              <FileText className="w-3.5 h-3.5" />
-              Komisyon Onayı
-            </button>
-            <button
-              type="button"
-              onClick={() => handleOpenDoc("komisyon-gorevlendirme-onayi-eki")}
-              disabled={saving || loading}
-              className="flex items-center gap-1.5 px-2.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
-              title="Komisyon Görevlendirme Onayı Ekini Aç"
-            >
-              <FileText className="w-3.5 h-3.5" />
-              Onay Eki
-            </button>
-          </>
-        ) : (
-          <>
-            <button
-              type="button"
-              onClick={() => handleOpenDoc("muayene-kabul-komisyonu")}
-              disabled={saving || loading}
-              className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 hover:bg-black dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-95 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
-              title="Muayene ve Kabul Komisyonu Belgesini Aç"
-            >
-              <FileText className="w-3.5 h-3.5" />
-              Muayene ve Kabul Komisyonu
-            </button>
-            <button
-              type="button"
-              onClick={() => handleOpenDoc("komisyon-gorevlendirme-onayi")}
-              disabled={saving || loading}
-              className="flex items-center gap-1.5 px-3 py-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white rounded-lg text-xs font-semibold transition-all shadow-xs cursor-pointer disabled:opacity-50"
-              title="Komisyon Görevlendirme Onayı Belgesini Aç"
-            >
-              <FileText className="w-3.5 h-3.5" />
-              Komisyon Onayı
-            </button>
-            <button
-              type="button"
-              onClick={() => handleOpenDoc("komisyon-gorevlendirme-onayi-eki")}
-              disabled={saving || loading}
-              className="flex items-center gap-1.5 px-2.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
-              title="Komisyon Görevlendirme Onayı Ekini Aç"
-            >
-              <FileText className="w-3.5 h-3.5" />
-              Onay Eki
-            </button>
-          </>
-        )}
+        {activeTab === "yaklasik_maliyet"
+          ? (
+            <>
+              <button
+                type="button"
+                onClick={() =>
+                  handleOpenDoc("piyasa-fiyat-arastirma-gorevlendirmesi")}
+                disabled={saving || loading}
+                className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 hover:bg-black dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-95 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                title="Piyasa Fiyat Araştırması Görevlendirmesi Belgesini Aç"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                Fiyat Araştırma Görevlendirmesi
+              </button>
+              <button
+                type="button"
+                onClick={() => handleOpenDoc("komisyon-gorevlendirme-onayi")}
+                disabled={saving || loading}
+                className="flex items-center gap-1.5 px-3 py-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white rounded-lg text-xs font-semibold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                title="Komisyon Görevlendirme Onayı Belgesini Aç"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                Komisyon Onayı
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  handleOpenDoc("komisyon-gorevlendirme-onayi-eki")}
+                disabled={saving || loading}
+                className="flex items-center gap-1.5 px-2.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
+                title="Komisyon Görevlendirme Onayı Ekini Aç"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                Onay Eki
+              </button>
+            </>
+          )
+          : (
+            <>
+              <button
+                type="button"
+                onClick={() => handleOpenDoc("muayene-kabul-komisyonu")}
+                disabled={saving || loading}
+                className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 hover:bg-black dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-95 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                title="Muayene ve Kabul Komisyonu Belgesini Aç"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                Muayene ve Kabul Komisyonu
+              </button>
+              <button
+                type="button"
+                onClick={() => handleOpenDoc("komisyon-gorevlendirme-onayi")}
+                disabled={saving || loading}
+                className="flex items-center gap-1.5 px-3 py-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white rounded-lg text-xs font-semibold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                title="Komisyon Görevlendirme Onayı Belgesini Aç"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                Komisyon Onayı
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  handleOpenDoc("komisyon-gorevlendirme-onayi-eki")}
+                disabled={saving || loading}
+                className="flex items-center gap-1.5 px-2.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
+                title="Komisyon Görevlendirme Onayı Ekini Aç"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                Onay Eki
+              </button>
+            </>
+          )}
       </div>
 
       <div className="flex items-center gap-2">
@@ -624,17 +644,19 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
           disabled={saving || loading}
           className="flex items-center gap-1.5 px-5 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
         >
-          {saveSuccess ? (
-            <>
-              <Check className="w-3.5 h-3.5 text-white" />
-              Kaydedildi
-            </>
-          ) : (
-            <>
-              <Save className="w-3.5 h-3.5" />
-              {saving ? "Kaydediliyor..." : "Kaydet"}
-            </>
-          )}
+          {saveSuccess
+            ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-white" />
+                Kaydedildi
+              </>
+            )
+            : (
+              <>
+                <Save className="w-3.5 h-3.5" />
+                {saving ? "Kaydediliyor..." : "Kaydet"}
+              </>
+            )}
         </button>
       </div>
     </div>
@@ -660,7 +682,10 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
               </span>
               {kurumInfo.makamAdi && (
                 <span className="text-slate-400 font-medium text-[11px]">
-                  • Onay Makamı: <strong className="text-slate-600 dark:text-slate-300">{kurumInfo.makamAdi}</strong>
+                  • Onay Makamı:{" "}
+                  <strong className="text-slate-600 dark:text-slate-300">
+                    {kurumInfo.makamAdi}
+                  </strong>
                 </span>
               )}
             </div>
@@ -710,7 +735,9 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
               className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600"
             />
             <span>
-              Bu atamaları <strong>Genel Komisyon Yönetimi</strong>&apos;ne de otomatik aktar (Sonraki dosyalarda varsayılan olur)
+              Bu atamaları{" "}
+              <strong>Genel Komisyon Yönetimi</strong>&apos;ne de otomatik aktar
+              (Sonraki dosyalarda varsayılan olur)
             </span>
           </label>
           <span className="text-[11px] text-blue-600 dark:text-blue-400 font-mono bg-blue-100/80 dark:bg-blue-900/60 px-2 py-0.5 rounded-md font-semibold">
@@ -748,7 +775,9 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
                 <tr
                   key={row.sira}
                   className={`hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors ${
-                    !row.belgedeGoster ? "bg-slate-50/30 dark:bg-slate-900/30" : ""
+                    !row.belgedeGoster
+                      ? "bg-slate-50/30 dark:bg-slate-900/30"
+                      : ""
                   }`}
                 >
                   <td className="py-2 px-3 text-center text-slate-500 font-medium border-r border-slate-100 dark:border-slate-800">
@@ -758,7 +787,8 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
                     <input
                       type="text"
                       value={row.gorev}
-                      onChange={(e) => handleGorevChange(row.sira, e.target.value)}
+                      onChange={(e) =>
+                        handleGorevChange(row.sira, e.target.value)}
                       className="w-full bg-transparent hover:bg-white dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 border border-transparent hover:border-slate-200 dark:border-slate-700 focus:border-blue-500 rounded px-2 py-1 text-xs outline-none transition-all font-semibold"
                     />
                   </td>
@@ -766,7 +796,8 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
                     <PersonelCombobox
                       personeller={personeller}
                       selectedId={row.personelId}
-                      onChange={(personelId) => handlePersonelChange(row.sira, personelId)}
+                      onChange={(personelId) =>
+                        handlePersonelChange(row.sira, personelId)}
                     />
                   </td>
                   <td className="py-1.5 px-3 text-center border-l border-slate-100 dark:border-slate-800">
@@ -778,23 +809,23 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
                           ? "bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 shadow-2xs"
                           : "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700"
                       }`}
-                      title={
-                        row.belgedeGoster
-                          ? "Bu görevli resmi belge komisyon listesinde ve dağıtımında gösterilir."
-                          : "Bu görevli belgedeki komisyon tablosunda gizlenir (yalnızca onay/dosya yetkilisi olarak işlenir)."
-                      }
+                      title={row.belgedeGoster
+                        ? "Bu görevli resmi belge komisyon listesinde ve dağıtımında gösterilir."
+                        : "Bu görevli belgedeki komisyon tablosunda gizlenir (yalnızca onay/dosya yetkilisi olarak işlenir)."}
                     >
-                      {row.belgedeGoster ? (
-                        <>
-                          <Eye className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                          <span>Göster</span>
-                        </>
-                      ) : (
-                        <>
-                          <EyeOff className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <span>Gizle</span>
-                        </>
-                      )}
+                      {row.belgedeGoster
+                        ? (
+                          <>
+                            <Eye className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                            <span>Göster</span>
+                          </>
+                        )
+                        : (
+                          <>
+                            <EyeOff className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                            <span>Gizle</span>
+                          </>
+                        )}
                     </button>
                   </td>
                 </tr>

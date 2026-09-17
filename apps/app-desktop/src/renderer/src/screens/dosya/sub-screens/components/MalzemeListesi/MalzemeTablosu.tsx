@@ -689,20 +689,26 @@ export function MalzemeTablosu({
               handleOpenSablonByDosyaAdi("harcama-talimati")}
             onHarcamaPusulasi={() =>
               handleOpenSablonByDosyaAdi("harcama-pusulasi")}
-            onGorevlendirmeOnayi={() =>
-              handleOpenSablonByDosyaAdi("komisyon-gorevlendirme-onayi")}
-            onGorevlendirmeOnayEki={() =>
-              handleOpenSablonByDosyaAdi("komisyon-gorevlendirme-onayi-eki")}
-            onFiyatArastirmaKomisyonu={() =>
-              handleOpenSablonByDosyaAdi(
-                "piyasa-fiyat-arastirma-gorevlendirmesi",
-              )}
-            onPiyasaArastirmaGorevlendirmesi={() =>
-              handleOpenSablonByDosyaAdi(
-                "piyasa-fiyat-arastirma-gorevlendirmesi",
-              )}
-            onMuayeneKabulBelgesi={() =>
-              handleOpenSablonByDosyaAdi("muayene-kabul-komisyonu")}
+            onGorevlendirmeOnayi={() => {
+              setKomisyonModalType("yaklasik_maliyet");
+              setKomisyonModalOpen(true);
+            }}
+            onGorevlendirmeOnayEki={() => {
+              setKomisyonModalType("yaklasik_maliyet");
+              setKomisyonModalOpen(true);
+            }}
+            onFiyatArastirmaKomisyonu={() => {
+              setKomisyonModalType("yaklasik_maliyet");
+              setKomisyonModalOpen(true);
+            }}
+            onPiyasaArastirmaGorevlendirmesi={() => {
+              setKomisyonModalType("yaklasik_maliyet");
+              setKomisyonModalOpen(true);
+            }}
+            onMuayeneKabulBelgesi={() => {
+              setKomisyonModalType("muayene_kabul");
+              setKomisyonModalOpen(true);
+            }}
             onYaklasikMaliyetKomisyonu={() => {
               setKomisyonModalType("yaklasik_maliyet");
               setKomisyonModalOpen(true);
