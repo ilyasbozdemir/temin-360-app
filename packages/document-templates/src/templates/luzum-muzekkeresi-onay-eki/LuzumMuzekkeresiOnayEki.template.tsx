@@ -110,7 +110,7 @@ export function LuzumMuzekkeresiOnayEki({
                 <div
                   style={{
                     display: "flex",
-                    justifyContent: "space-between",
+                    justifyContent: "end",
                     alignItems: "center",
                     marginBottom: "12px",
                     fontSize: "10pt",
@@ -125,31 +125,6 @@ export function LuzumMuzekkeresiOnayEki({
                       placeholder="1"
                     />
                   </div>
-                  <div>
-                    <strong>Tarih:</strong>{" "}
-                    <DateEditableField
-                      name="tarih"
-                      value={data.tarih || dosyaTarihiVal}
-                    />
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    textAlign: "center",
-                    fontWeight: "bold",
-                    fontSize: "12pt",
-                    textTransform: "uppercase",
-                    margin: "10px 0 20px 0",
-                    pageBreakInside: "avoid",
-                  }}
-                >
-                  <EditableField
-                    name="sunulacakMakamAdi"
-                    value={data.sunulacakMakamAdi ||
-                      "İL SAĞLIK MÜDÜRLÜĞÜ MAKAMINA"}
-                    placeholder="SUNULACAK MAKAM ADI"
-                  />
                 </div>
 
                 <div

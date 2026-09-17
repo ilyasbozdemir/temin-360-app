@@ -4,6 +4,9 @@ import * as Templates from "@temin360/document-templates";
 export const V2_TEMPLATES_MAP: Record<string, TemplateComponentType> = {
   IhtiyacListesi: Templates.IhtiyacListesi as TemplateComponentType,
   IhtiyacTalepFormu: Templates.IhtiyacTalepFormu as TemplateComponentType,
+  TasinirKayitYetkilisiGorusu: Templates
+    .TasinirKayitYetkilisiGorusu as TemplateComponentType,
+  TeknikSartname: Templates.TeknikSartname as TemplateComponentType,
   LuzumMuzekkeresi: Templates.LuzumMuzekkeresi as TemplateComponentType,
   LuzumMuzekkeresiOnayEki: Templates
     .LuzumMuzekkeresiOnayEki as TemplateComponentType,

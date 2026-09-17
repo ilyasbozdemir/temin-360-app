@@ -14,6 +14,18 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     supportsOlur: false,
   },
   {
+    id: "tasinir-kayit-yetkilisi-gorusu",
+    name: "TasinirKayitYetkilisiGorusu",
+    category: "1-ihtiyac-tespiti-ve-baslangic",
+    supportsOlur: false,
+  },
+  {
+    id: "teknik-sartname",
+    name: "TeknikSartname",
+    category: "1-ihtiyac-tespiti-ve-baslangic",
+    supportsOlur: false,
+  },
+  {
     id: "luzum-muzekkeresi",
     name: "LuzumMuzekkeresi",
     category: "1-ihtiyac-tespiti-ve-baslangic",

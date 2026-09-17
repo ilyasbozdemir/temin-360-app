@@ -33,6 +33,8 @@ export * from "./templates/dogrudan-temin-sozlesmesi";
 export * from "./templates/sozlesmeye-davet";
 export * from "./templates/muayene-kabul-komisyonu";
 export * from "./templates/son-alim-fiyat-cetveli";
+export * from "./templates/tasinir-kayit-yetkilisi-gorusu";
+export * from "./templates/teknik-sartname";
 
 // Mapping Resolver
 export * from "./resolver/types";

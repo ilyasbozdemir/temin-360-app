@@ -42,6 +42,22 @@ export const TEMPLATE_OPTIONS: TemplateOptionItem[] = [
     description: "Birimlerin ihtiyaç talebini resmi olarak ilettiği form",
   },
   {
+    id: "tasinir-kayit-yetkilisi-gorusu",
+    name: "TasinirKayitYetkilisiGorusu",
+    title: "Taşınır Kayıt Yetkilisi Görüşü",
+    category: "1-ihtiyac-tespiti-ve-baslangic",
+    categoryLabel: "Hazırlık & İhtiyaç",
+    description: "Ambar stok durumu ve taşınır malzeme ihtiyacı değerlendirme görüşü",
+  },
+  {
+    id: "teknik-sartname",
+    name: "TeknikSartname",
+    title: "Teknik Şartname (Mal / Hizmet / Yapım)",
+    category: "1-ihtiyac-tespiti-ve-baslangic",
+    categoryLabel: "Hazırlık & İhtiyaç",
+    description: "Alım türüne göre dinamik şekillenen teknik şartname formu",
+  },
+  {
     id: "luzum-muzekkeresi",
     name: "LuzumMuzekkeresi",
     title: "Lüzum Müzekkeresi",
@@ -227,9 +243,25 @@ export const TEMPLATE_ALIASES: Record<string, string> = {
   "hazirlik-ve-ihtiyac": "ihtiyac-listesi",
   "ihtiyac-talep-formu": "ihtiyac-talep-formu",
   "ihtiyactalepformu": "ihtiyac-talep-formu",
-  "talep-formu": "ihtiyac-talep-formu",
   "ihtiyac-talep": "ihtiyac-talep-formu",
   "talep": "ihtiyac-talep-formu",
+
+  // Taşınır Kayıt Yetkilisi Görüşü
+  "tasinir-kayit-yetkilisi-gorusu": "tasinir-kayit-yetkilisi-gorusu",
+  "tasinirkayityetkilisigorusu": "tasinir-kayit-yetkilisi-gorusu",
+  "tasinir-kayit-yetkilisi": "tasinir-kayit-yetkilisi-gorusu",
+  "tasinir-gorusu": "tasinir-kayit-yetkilisi-gorusu",
+  "tasinir-kayit": "tasinir-kayit-yetkilisi-gorusu",
+  "tasinir": "tasinir-kayit-yetkilisi-gorusu",
+  "ambar-gorusu": "tasinir-kayit-yetkilisi-gorusu",
+
+  // Teknik Şartname
+  "teknik-sartname": "teknik-sartname",
+  "tekniksartname": "teknik-sartname",
+  "teknik-sartnamesi": "teknik-sartname",
+  "teknik-sartnameler": "teknik-sartname",
+  "sartname": "teknik-sartname",
+  "teknik": "teknik-sartname",
 
   // Lüzum
   "luzum": "luzum-muzekkeresi",
@@ -436,6 +468,10 @@ export function resolveTemplateConfig(
   let resolvedId = "ihtiyac-listesi";
   if (cleanKey.includes("son-alim") || cleanKey.includes("sonalim")) {
     resolvedId = "son-alim-fiyat-cetveli";
+  } else if (cleanKey.includes("tasinir") || cleanKey.includes("ambar")) {
+    resolvedId = "tasinir-kayit-yetkilisi-gorusu";
+  } else if (cleanKey.includes("sartname") || cleanKey.includes("teknik")) {
+    resolvedId = "teknik-sartname";
   } else if (cleanKey.includes("talep")) {
     resolvedId = "ihtiyac-talep-formu";
   } else if (
