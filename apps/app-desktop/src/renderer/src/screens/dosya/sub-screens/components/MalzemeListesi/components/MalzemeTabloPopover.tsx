@@ -46,6 +46,7 @@ export interface MalzemeTabloPopoverProps {
   onGorevlendirmeOnayEki?: () => void;
   onYaklasikMaliyetKomisyonu?: () => void;
   onMuayeneKabulKomisyonu?: () => void;
+  onMuayeneKabulBelgesi?: () => void;
   onFiyatArastirmaKomisyonu?: () => void;
   // Fiyat Araştırma İşlemleri
   onPiyasaArastirmaGorevlendirmesi?: () => void;

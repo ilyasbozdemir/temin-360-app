@@ -628,32 +628,6 @@ export function MalzemeTablosu({
             <span>Son Alım Fiyatları</span>
           </button>
 
-          <div className="flex items-center rounded-xl bg-slate-100/80 dark:bg-slate-800/60 p-0.5 border border-slate-200/80 dark:border-slate-700/60 gap-0.5">
-            <button
-              onClick={() => {
-                setKomisyonModalType("yaklasik_maliyet");
-                setKomisyonModalOpen(true);
-              }}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 h-7.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50/80 dark:hover:bg-slate-600 transition-all shadow-2xs cursor-pointer active:scale-98"
-              title="Yaklaşık Maliyet Tespit Komisyonu Personel Atamaları ve Onay Yazısı"
-            >
-              <Users className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
-              <span>Maliyet Komisyonu</span>
-            </button>
-
-            <button
-              onClick={() => {
-                setKomisyonModalType("muayene_kabul");
-                setKomisyonModalOpen(true);
-              }}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 h-7.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-sky-700 dark:text-sky-300 hover:bg-sky-50/80 dark:hover:bg-slate-600 transition-all shadow-2xs cursor-pointer active:scale-98"
-              title="Muayene Kabul ve Tespit Komisyonu Personel Atamaları ve Onay Yazısı"
-            >
-              <UserCheck className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
-              <span>Muayene Kabul</span>
-            </button>
-          </div>
-
           <button
             onClick={() => setIsAddModalOpen(true)}
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 h-8.5 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 shadow-xs hover:shadow-sm transition-all cursor-pointer active:scale-98"
@@ -727,6 +701,8 @@ export function MalzemeTablosu({
               handleOpenSablonByDosyaAdi(
                 "piyasa-fiyat-arastirma-gorevlendirmesi",
               )}
+            onMuayeneKabulBelgesi={() =>
+              handleOpenSablonByDosyaAdi("muayene-kabul-komisyonu")}
             onYaklasikMaliyetKomisyonu={() => {
               setKomisyonModalType("yaklasik_maliyet");
               setKomisyonModalOpen(true);
