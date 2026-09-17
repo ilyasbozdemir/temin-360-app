@@ -73,5 +73,20 @@ export const HarcamaTalimatiMapping: ProcessMapping = {
     tablo: 'DATA_TeminDosyasi',
     sutun: 'onaylayan_personel_unvan',
     aciklama: 'Onaylayan Personel Ünvanı'
+  },
+  mutemetAdi: {
+    tablo: 'DATA_TeminKomisyon',
+    sutun: 'ad_soyad',
+    aciklama: 'Harcama Yetkilisi Mutemedi / Muhasebe Yetkilisi'
+  },
+  mutemetUnvan: {
+    tablo: 'DATA_TeminKomisyon',
+    sutun: 'unvan',
+    aciklama: 'Mutemet Ünvanı'
+  },
+  muhasebeYetkilisiAdi: {
+    tablo: 'DATA_TeminKomisyon',
+    sutun: 'ad_soyad',
+    aciklama: 'Muhasebe Yetkilisi'
   }
 }

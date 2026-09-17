@@ -388,14 +388,18 @@ export function useDocumentPreviewData({
                 return g.includes("muhasebe") || g.includes("mutemet");
               });
               if (muhasebeRow && (muhasebeRow.ad_soyad || muhasebeRow.personel_id)) {
-                const cleanName = (muhasebeRow.ad_soyad || "").split("(")[0].trim();
-                if (!baseData.mutemetAdi || baseData.mutemetAdi === "......") {
+                let cleanName = (muhasebeRow.ad_soyad || "").split("(")[0].trim();
+                if (!cleanName && muhasebeRow.personel_id) {
+                  const p = (personelList || []).find((x: any) => x.id === muhasebeRow.personel_id);
+                  if (p) cleanName = (p.ad_soyad || "").split("(")[0].trim();
+                }
+                if (cleanName) {
                   baseData.mutemetAdi = cleanName;
                   baseData.mutemetUnvan = muhasebeRow.unvan || "Muhasebe Yetkilisi";
+                  baseData.muhasebeYetkilisiAdi = cleanName;
+                  baseData.muhasebeYetkilisiUnvan = muhasebeRow.unvan || "Muhasebe Yetkilisi";
+                  baseData.muhasebeYetkilisi = cleanName;
                 }
-                baseData.muhasebeYetkilisiAdi = cleanName;
-                baseData.muhasebeYetkilisiUnvan = muhasebeRow.unvan || "Muhasebe Yetkilisi";
-                baseData.muhasebeYetkilisi = cleanName;
               }
 
               // 2. Harcama Yetkilisi (Onaylayan / Olur Veren)
@@ -850,6 +854,27 @@ export function useDocumentPreviewData({
                   continue;
                 }
                 if (key === "sagLogo" && (!val || String(val).trim() === "")) {
+                  continue;
+                }
+                if (
+                  (key === "mutemetAdi" || key === "muhasebeYetkilisiAdi" || key === "muhasebeYetkilisi") &&
+                  (!val || val === "......" || val === "Mutemet / Muhasebe Yetkilisi" || String(val).trim() === "") &&
+                  baseData.mutemetAdi
+                ) {
+                  continue;
+                }
+                if (
+                  (key === "onaylayanPersonelAdi" || key === "harcamaYetkilisiAdi") &&
+                  (!val || val === "......" || String(val).trim() === "") &&
+                  baseData.onaylayanPersonelAdi
+                ) {
+                  continue;
+                }
+                if (
+                  (key === "hazirlayanPersonelAdi" || key === "gerceklestirmeGorevlisiAdi") &&
+                  (!val || val === "......" || String(val).trim() === "") &&
+                  baseData.hazirlayanPersonelAdi
+                ) {
                   continue;
                 }
                 finalData[key] = val;

@@ -14,6 +14,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { Modal } from "../../../../../../components/ui/Modal";
 import { PersonelCombobox } from "./PersonelCombobox";
+import { documentPreloadService } from "../../../../../../services/documentPreloadService";
 
 interface PersonelItem {
   id: number;
@@ -478,6 +479,13 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
           );
         }
       }
+
+      if (activeDosyaId) {
+        documentPreloadService.invalidateCache(activeDosyaId);
+      }
+      queryClient.invalidateQueries({ queryKey: ["document_preview"] });
+      queryClient.invalidateQueries({ queryKey: ["komisyonlar"] });
+      queryClient.invalidateQueries({ queryKey: ["komisyon_detay"] });
 
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 2500);
