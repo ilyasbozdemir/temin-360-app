@@ -25,25 +25,25 @@ export function BirimFiyatTeklifMektubu({
   const renderTableHead = () => (
     <thead>
       <tr style={{ backgroundColor: "#f2f2f2" }}>
-        <th style={{ border: "1px solid #000", padding: "5px 4px", width: "6%", textAlign: "center", fontWeight: "bold" }}>
+        <th style={{ border: "1px solid #000", padding: "4px 5px", width: "6%", textAlign: "center", fontWeight: "bold" }}>
           S.No
         </th>
-        <th style={{ border: "1px solid #000", padding: "5px 6px", width: "36%", textAlign: "left", fontWeight: "bold" }}>
+        <th style={{ border: "1px solid #000", padding: "4px 5px", width: "38%", textAlign: "left", fontWeight: "bold" }}>
           Mal/Hizmet Kaleminin Adı ve Kısa Açıklaması
         </th>
-        <th style={{ border: "1px solid #000", padding: "5px 6px", width: "18%", textAlign: "left", fontWeight: "bold" }}>
+        <th style={{ border: "1px solid #000", padding: "4px 5px", width: "18%", textAlign: "left", fontWeight: "bold" }}>
           Özelliği
         </th>
-        <th style={{ border: "1px solid #000", padding: "5px 4px", width: "10%", textAlign: "center", fontWeight: "bold" }}>
+        <th style={{ border: "1px solid #000", padding: "4px 5px", width: "9%", textAlign: "center", fontWeight: "bold" }}>
           Birimi
         </th>
-        <th style={{ border: "1px solid #000", padding: "5px 4px", width: "10%", textAlign: "center", fontWeight: "bold" }}>
+        <th style={{ border: "1px solid #000", padding: "4px 5px", width: "9%", textAlign: "center", fontWeight: "bold" }}>
           Miktarı
         </th>
-        <th style={{ border: "1px solid #000", padding: "5px 4px", width: "10%", textAlign: "center", fontWeight: "bold" }}>
+        <th style={{ border: "1px solid #000", padding: "4px 5px", width: "10%", textAlign: "center", fontWeight: "bold" }}>
           Birim Fiyat (TL)
         </th>
-        <th style={{ border: "1px solid #000", padding: "5px 4px", width: "10%", textAlign: "center", fontWeight: "bold" }}>
+        <th style={{ border: "1px solid #000", padding: "4px 5px", width: "10%", textAlign: "center", fontWeight: "bold" }}>
           Tutarı (TL)
         </th>
       </tr>
@@ -57,21 +57,21 @@ export function BirimFiyatTeklifMektubu({
           const rowNum = startIndex + idx + 1;
           return (
             <tr key={idx}>
-              <td style={{ border: "1px solid #000", padding: "4px", textAlign: "center" }}>
+              <td style={{ border: "1px solid #000", padding: "4px 5px", textAlign: "center" }}>
                 {item.siraNo || rowNum}
               </td>
-              <td style={{ border: "1px solid #000", padding: "4px 6px" }}>{item.malzemeAdi}</td>
-              <td style={{ border: "1px solid #000", padding: "4px 6px" }}>{item.ozelligi || "-"}</td>
-              <td style={{ border: "1px solid #000", padding: "4px", textAlign: "center" }}>
+              <td style={{ border: "1px solid #000", padding: "4px 5px", textAlign: "left" }}>{item.malzemeAdi}</td>
+              <td style={{ border: "1px solid #000", padding: "4px 5px", textAlign: "left" }}>{item.ozelligi || "-"}</td>
+              <td style={{ border: "1px solid #000", padding: "4px 5px", textAlign: "center" }}>
                 {item.birimi || "-"}
               </td>
-              <td style={{ border: "1px solid #000", padding: "4px", textAlign: "right" }}>
+              <td style={{ border: "1px solid #000", padding: "4px 5px", textAlign: "right" }}>
                 {item.miktar}
               </td>
-              <td style={{ border: "1px solid #000", padding: "4px", textAlign: "right" }}>
+              <td style={{ border: "1px solid #000", padding: "4px 5px", textAlign: "right" }}>
                 {item.birimFiyat ? `${item.birimFiyat} ₺` : ""}
               </td>
-              <td style={{ border: "1px solid #000", padding: "4px", textAlign: "right" }}>
+              <td style={{ border: "1px solid #000", padding: "4px 5px", textAlign: "right" }}>
                 {item.tutar ? `${item.tutar} ₺` : ""}
               </td>
             </tr>
@@ -112,8 +112,7 @@ export function BirimFiyatTeklifMektubu({
             lineHeight: 1.35,
           }}
         >
-          <div style={{ textAlign: "right", fontSize: "10pt", marginBottom: "6px" }}>
-            <strong>Tarih:</strong>{" "}
+          <div style={{ textAlign: "right", fontWeight: "bold", margin: "0 0 4px 0", fontSize: "9.5pt" }}>
             <DateEditableField name="dosyaTarihi" value={data.dosyaTarihi || data.tarih} placeholder="GG.AA.YYYY" />
           </div>
 
@@ -122,7 +121,7 @@ export function BirimFiyatTeklifMektubu({
               textAlign: "center",
               fontWeight: "bold",
               fontSize: "12pt",
-              margin: "4px 0",
+              margin: "6px 0 4px 0",
               textTransform: "uppercase",
               letterSpacing: "0.5px",
             }}
@@ -133,8 +132,8 @@ export function BirimFiyatTeklifMektubu({
           <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "11pt", marginBottom: "8px" }}>
             <EditableField
               name="hitap"
-              value={data.hitap || data.idareAdi || "KURUM / MAKAM ADI"}
-              placeholder="KURUM / MAKAM ADI"
+              value={data.hitap || data.idareAdi || "KURUM / MAKAM ADINA"}
+              placeholder="KURUM / MAKAM ADINA"
             />
           </div>
 
@@ -216,11 +215,11 @@ export function BirimFiyatTeklifMektubu({
               <tfoot>
                 <tr>
                   <td colSpan={5} style={{ border: "none" }} />
-                  <td style={{ border: "1px solid #000", padding: "4px", textAlign: "center", fontWeight: "bold", backgroundColor: "#f2f2f2" }}>
+                  <td style={{ border: "1px solid #000", padding: "4px 5px", textAlign: "center", fontWeight: "bold", backgroundColor: "#f2f2f2" }}>
                     Toplam Tutar (KDV Hariç)
                   </td>
-                  <td style={{ border: "1px solid #000", padding: "4px", height: "26px", textAlign: "right", fontWeight: "bold" }}>
-                    {data.toplamTutar ? `${data.toplamTutar} ₺` : ""}
+                  <td style={{ border: "1px solid #000", padding: "4px 5px", height: "26px", textAlign: "right", fontWeight: "bold" }}>
+                    <EditableField name="toplamTutar" value={data.toplamTutar ? `${data.toplamTutar} ₺` : ""} placeholder="0,00 ₺" />
                   </td>
                 </tr>
               </tfoot>
@@ -234,42 +233,36 @@ export function BirimFiyatTeklifMektubu({
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "flex-start",
-                marginTop: "16px",
-                paddingTop: "4px",
+                marginTop: "12px",
                 fontSize: "9.5pt",
               }}
             >
-              <div style={{ fontStyle: "italic", color: "#333", fontSize: "9pt", paddingTop: "4px" }}>
+              <div style={{ fontStyle: "italic", color: "#333", fontSize: "9pt" }}>
                 Para Birimi: Türk Lirası (TL)
               </div>
               <div
                 style={{
-                  width: "240px",
                   textAlign: "center",
+                  minWidth: "220px",
+                  lineHeight: 1.3,
                   marginLeft: "auto",
-                  marginRight: "10px",
-                  lineHeight: 1.4,
                 }}
               >
                 <div>
-                  <strong>Tarih:</strong>{" "}
                   <DateEditableField
                     name="tarih"
                     value={data.tarih || data.dosyaTarihi}
-                    placeholder="……/……/20…"
+                    placeholder="GG.AA.YYYY"
                   />
                 </div>
-                <div style={{ marginTop: "8px", fontWeight: "bold", fontSize: "10pt" }}>
+                <div style={{ marginTop: "4px", fontWeight: "bold" }}>
                   <EditableField
                     name="teklifSahibi"
-                    value={data.teklifSahibi || data.firmaUnvani}
-                    placeholder="Teklif Sahibi / Firma Adı"
+                    value={data.teklifSahibi || data.firmaUnvani || "Firma / Yetkili Adı"}
+                    placeholder="Firma / Yetkili Adı"
                   />
                 </div>
-                <div style={{ fontSize: "9pt", color: "#444", marginTop: "4px" }}>
-                  Kaşe - İmza
-                </div>
-                <div style={{ height: "35px" }} />
+                <div style={{ marginTop: "16px" }}>Kaşe - İmza</div>
               </div>
             </div>
           )}
@@ -308,11 +301,11 @@ export function BirimFiyatTeklifMektubu({
               <tfoot>
                 <tr>
                   <td colSpan={5} style={{ border: "none" }} />
-                  <td style={{ border: "1px solid #000", padding: "4px", textAlign: "center", fontWeight: "bold", backgroundColor: "#f2f2f2" }}>
+                  <td style={{ border: "1px solid #000", padding: "4px 5px", textAlign: "center", fontWeight: "bold", backgroundColor: "#f2f2f2" }}>
                     Toplam Tutar (KDV Hariç)
                   </td>
-                  <td style={{ border: "1px solid #000", padding: "4px", height: "26px", textAlign: "right", fontWeight: "bold" }}>
-                    {data.toplamTutar ? `${data.toplamTutar} ₺` : ""}
+                  <td style={{ border: "1px solid #000", padding: "4px 5px", height: "26px", textAlign: "right", fontWeight: "bold" }}>
+                    <EditableField name="toplamTutar" value={data.toplamTutar ? `${data.toplamTutar} ₺` : ""} placeholder="0,00 ₺" />
                   </td>
                 </tr>
               </tfoot>
@@ -323,42 +316,36 @@ export function BirimFiyatTeklifMektubu({
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "flex-start",
-                marginTop: "16px",
-                paddingTop: "4px",
+                marginTop: "12px",
                 fontSize: "9.5pt",
               }}
             >
-              <div style={{ fontStyle: "italic", color: "#333", fontSize: "9pt", paddingTop: "4px" }}>
+              <div style={{ fontStyle: "italic", color: "#333", fontSize: "9pt" }}>
                 Para Birimi: Türk Lirası (TL)
               </div>
               <div
                 style={{
-                  width: "240px",
                   textAlign: "center",
+                  minWidth: "220px",
+                  lineHeight: 1.3,
                   marginLeft: "auto",
-                  marginRight: "10px",
-                  lineHeight: 1.4,
                 }}
               >
                 <div>
-                  <strong>Tarih:</strong>{" "}
                   <DateEditableField
                     name="tarih"
                     value={data.tarih || data.dosyaTarihi}
-                    placeholder="……/……/20…"
+                    placeholder="GG.AA.YYYY"
                   />
                 </div>
-                <div style={{ marginTop: "8px", fontWeight: "bold", fontSize: "10pt" }}>
+                <div style={{ marginTop: "4px", fontWeight: "bold" }}>
                   <EditableField
                     name="teklifSahibi"
-                    value={data.teklifSahibi || data.firmaUnvani}
-                    placeholder="Teklif Sahibi / Firma Adı"
+                    value={data.teklifSahibi || data.firmaUnvani || "Firma / Yetkili Adı"}
+                    placeholder="Firma / Yetkili Adı"
                   />
                 </div>
-                <div style={{ fontSize: "9pt", color: "#444", marginTop: "4px" }}>
-                  Kaşe - İmza
-                </div>
-                <div style={{ height: "35px" }} />
+                <div style={{ marginTop: "16px" }}>Kaşe - İmza</div>
               </div>
             </div>
           </div>
