@@ -148,6 +148,8 @@ export function DocumentPreviewModalV2({
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           selectedDocId={selectedDocId}
+          supportsOlur={activeTemplateConf?.supportsOlur}
+          supportsLogos={activeTemplateConf?.category !== "5-klasor-ve-kapaklar"}
           onSelectTemplate={setSelectedDocId}
           templateOptions={templateOptions}
           isEditingMode={isEditingMode}
