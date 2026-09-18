@@ -19,16 +19,15 @@ protocol.registerSchemesAsPrivileged([
   }
 ])
 
-const iconFileName = process.platform === 'win32' ? 'icon.ico' : 'icon.png'
-const iconCandidate = app.isPackaged
-  ? join(process.resourcesPath, iconFileName)
-  : join(__dirname, `../../resources/${iconFileName}`)
+const iconPng = app.isPackaged
+  ? join(process.resourcesPath, 'icon.png')
+  : join(__dirname, '../../resources/icon.png')
 
-const icon = fs.existsSync(iconCandidate)
-  ? iconCandidate
-  : (app.isPackaged
-      ? join(process.resourcesPath, 'icon.png')
-      : join(__dirname, '../../resources/icon.png'))
+const iconIco = app.isPackaged
+  ? join(process.resourcesPath, 'icon.ico')
+  : join(__dirname, '../../resources/icon.ico')
+
+const icon = fs.existsSync(iconIco) ? iconIco : iconPng
 
 // Windows Taskbar & Pinning için AppUserModelID kaydını en erken aşamada çağırıyoruz
 if (process.platform === 'win32') {
@@ -585,59 +584,64 @@ if (!gotTheLock && !isMultiInstance) {
       registerWindowsFileAssociations()
     }
 
-    tray = new Tray(icon)
-    const contextMenu = Menu.buildFromTemplate([
-      {
-        label: 'Gösterge Paneli',
-        click: () => {
-          const windows = BrowserWindow.getAllWindows()
-          if (windows.length > 0) {
-            windows[0].show()
-            windows[0].webContents.send('app:navigate', '/')
+    try {
+      const trayIconPath = fs.existsSync(iconPng) ? iconPng : icon
+      tray = new Tray(trayIconPath)
+      const contextMenu = Menu.buildFromTemplate([
+        {
+          label: 'Gösterge Paneli',
+          click: () => {
+            const windows = BrowserWindow.getAllWindows()
+            if (windows.length > 0) {
+              windows[0].show()
+              windows[0].webContents.send('app:navigate', '/')
+            }
+          }
+        },
+        {
+          label: 'Yeni Doğrudan Temin Dosyası',
+          click: () => {
+            const windows = BrowserWindow.getAllWindows()
+            if (windows.length > 0) {
+              windows[0].show()
+              windows[0].webContents.send('app:navigate', '/dosyalar/yeni')
+            }
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Çıkış',
+          click: () => {
+            app.quit()
           }
         }
-      },
-      {
-        label: 'Yeni Doğrudan Temin Dosyası',
-        click: () => {
-          const windows = BrowserWindow.getAllWindows()
-          if (windows.length > 0) {
+      ])
+      tray.setToolTip('TEMİN 360')
+      tray.setContextMenu(contextMenu)
+      tray.on('click', () => {
+        const windows = BrowserWindow.getAllWindows()
+        if (windows.length > 0) {
+          if (windows[0].isVisible()) {
+            windows[0].hide()
+          } else {
             windows[0].show()
-            windows[0].webContents.send('app:navigate', '/dosyalar/yeni')
           }
         }
-      },
-      { type: 'separator' },
-      {
-        label: 'Çıkış',
-        click: () => {
-          app.quit()
+      })
+      tray.on('double-click', () => {
+        const windows = BrowserWindow.getAllWindows()
+        if (windows.length > 0) {
+          const mainWindow = windows[0]
+          if (!mainWindow.isVisible()) {
+            mainWindow.show()
+          }
+          if (mainWindow.isMinimized()) mainWindow.restore()
+          mainWindow.focus()
         }
-      }
-    ])
-    tray.setToolTip('TEMİN 360')
-    tray.setContextMenu(contextMenu)
-    tray.on('click', () => {
-      const windows = BrowserWindow.getAllWindows()
-      if (windows.length > 0) {
-        if (windows[0].isVisible()) {
-          windows[0].hide()
-        } else {
-          windows[0].show()
-        }
-      }
-    })
-    tray.on('double-click', () => {
-      const windows = BrowserWindow.getAllWindows()
-      if (windows.length > 0) {
-        const mainWindow = windows[0]
-        if (!mainWindow.isVisible()) {
-          mainWindow.show()
-        }
-        if (mainWindow.isMinimized()) mainWindow.restore()
-        mainWindow.focus()
-      }
-    })
+      })
+    } catch (e) {
+      console.warn('Tray başlatılırken hata oluştu:', e)
+    }
 
     // Set app user model id for windows
     electronApp.setAppUserModelId('dev.ilyasbozdemir.temin360')
