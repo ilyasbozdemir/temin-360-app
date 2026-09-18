@@ -19,9 +19,23 @@ protocol.registerSchemesAsPrivileged([
   }
 ])
 
-const icon = app.isPackaged
-  ? join(process.resourcesPath, 'icon.png')
-  : join(__dirname, '../../resources/icon.png')
+const iconFileName = process.platform === 'win32' ? 'icon.ico' : 'icon.png'
+const iconCandidate = app.isPackaged
+  ? join(process.resourcesPath, iconFileName)
+  : join(__dirname, `../../resources/${iconFileName}`)
+
+const icon = fs.existsSync(iconCandidate)
+  ? iconCandidate
+  : (app.isPackaged
+      ? join(process.resourcesPath, 'icon.png')
+      : join(__dirname, '../../resources/icon.png'))
+
+// Windows Taskbar & Pinning için AppUserModelID kaydını en erken aşamada çağırıyoruz
+if (process.platform === 'win32') {
+  try {
+    app.setAppUserModelId('dev.ilyasbozdemir.temin360')
+  } catch (e) {}
+}
 import { workspaceManager, ensureSchemaIntegrity } from './database/workspace'
 import { CURRENT_SCHEMA_VERSION, manifests } from '@dt/database'
 import nodemailer from 'nodemailer'
