@@ -18,6 +18,27 @@ export function BirimFiyatTeklifMektubu({
 }: BirimFiyatTeklifMektubuProps) {
   const items = data.ihtiyacKalemleri || [];
 
+  let displayTeklifGecerlilikTarihi =
+    data.teklifGecerlilikTarihi ||
+    data.sonTeklifTarihi ||
+    data.son_teklif_verme_tarihi ||
+    data.teklifSonTarihi ||
+    data.bitisTarihi ||
+    data.sonTarih;
+
+  if (displayTeklifGecerlilikTarihi) {
+    const clean = String(displayTeklifGecerlilikTarihi).trim();
+    if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
+      const parts = clean.split(/[T ]/);
+      const dParts = parts[0].split("-");
+      const datePart = `${dParts[2]}.${dParts[1]}.${dParts[0]}`;
+      const timePart = parts[1] && parts[1] !== "00:00:00" ? ` ${parts[1].substring(0, 5)}` : "";
+      displayTeklifGecerlilikTarihi = `${datePart}${timePart}`;
+    }
+  } else {
+    displayTeklifGecerlilikTarihi = "……/……/20…";
+  }
+
   return (
     <DocumentLayout
       data={data as any}
@@ -279,13 +300,7 @@ export function BirimFiyatTeklifMektubu({
                   Giderleri dahildir.
                 </li>
                 <li style={{ marginBottom: "2px" }}>
-                  Teklifimiz{" "}
-                  <EditableField
-                    name="teklifGecerlilikTarihi"
-                    value={data.teklifGecerlilikTarihi}
-                    placeholder="……/……/20…"
-                  />{" "}
-                  tarihine kadar geçerlidir.
+                  Teklifimiz {displayTeklifGecerlilikTarihi} tarihine kadar geçerlidir.
                 </li>
                 <li style={{ marginBottom: "2px" }}>
                   İhale konusu iş için sermayesinin %50 sinden fazlasına sahip

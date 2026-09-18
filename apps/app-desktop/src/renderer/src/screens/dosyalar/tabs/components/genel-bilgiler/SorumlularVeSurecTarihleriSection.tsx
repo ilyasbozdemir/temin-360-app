@@ -1,8 +1,10 @@
-import React from 'react'
-import { Info, Search, User } from 'lucide-react'
-import { YeniDosyaTabProps } from '../../../types'
+import React from "react";
+import { Info, Search, User } from "lucide-react";
+import { YeniDosyaTabProps } from "../../../types";
 
-export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): React.JSX.Element {
+export function SorumlularVeSurecTarihleriSection(
+  props: YeniDosyaTabProps,
+): React.JSX.Element {
   const {
     formData,
     setFormData,
@@ -11,8 +13,8 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
     setShowPersonelSearch,
     personelSearchQuery,
     setPersonelSearchQuery,
-    filteredPersoneller
-  } = props
+    filteredPersoneller,
+  } = props;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -28,14 +30,15 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
         <div className="space-y-1">
           <p className="font-bold">Yetkili Personel & Tarih Bilgilendirmesi</p>
           <p className="leading-relaxed opacity-90">
-            Doğrudan temin evraklarının alt bilgileri, onay ve imza alanlarında yer alacak
-            personelleri (İrtibat Yetkilisi, Dosyayı Hazırlayan, Talep Eden, Sunan ve Onaylayan)
-            buradan belirleyebilirsiniz. Ayrıca talebe ait resmî evrak numarası, teklif alma ve
-            teslim tarihlerini girerek şablonların otomatik dolmasını sağlayabilirsiniz.
+            Doğrudan temin evraklarının alt bilgileri, onay ve imza alanlarında
+            yer alacak personelleri (İrtibat Yetkilisi, Dosyayı Hazırlayan,
+            Talep Eden, Sunan ve Onaylayan) buradan belirleyebilirsiniz. Ayrıca
+            talebe ait resmî evrak numarası, teklif alma ve teslim tarihlerini
+            girerek şablonların otomatik dolmasını sağlayabilirsiniz.
           </p>
           <p className="text-[10px] text-slate-500 dark:text-slate-400 italic mt-2 block">
-            * Not: Bu alanlar üzerinde ilerleyen süreçlerde daha da sadeleştirme ve otomatik
-            tamamlama iyileştirmeleri yapılabilir.
+            * Not: Bu alanlar üzerinde ilerleyen süreçlerde daha da sadeleştirme
+            ve otomatik tamamlama iyileştirmeleri yapılabilir.
           </p>
         </div>
       </div>
@@ -49,19 +52,22 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
           <button
             type="button"
             onClick={() =>
-              setShowPersonelSearch?.(showPersonelSearch === 'hazirlayan' ? null : 'hazirlayan')
-            }
+              setShowPersonelSearch?.(
+                showPersonelSearch === "hazirlayan" ? null : "hazirlayan",
+              )}
             className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none text-slate-800 dark:text-slate-200 text-left"
           >
             <span>
               {formData.hazirlayan_personel_id
-                ? personeller.find((p) => p.id === formData.hazirlayan_personel_id)?.ad_soyad
-                : 'Hazırlayan Seçin...'}
+                ? personeller.find((p) =>
+                  p.id === formData.hazirlayan_personel_id
+                )?.ad_soyad
+                : "Hazırlayan Seçin..."}
             </span>
             <Search size={14} className="text-slate-400" />
           </button>
 
-          {showPersonelSearch === 'hazirlayan' && (
+          {showPersonelSearch === "hazirlayan" && (
             <div className="absolute left-0 mt-1.5 w-full bg-white dark:bg-slate-955 border border-slate-250 dark:border-slate-800 rounded-2xl shadow-xl p-2 z-50">
               <input
                 type="text"
@@ -79,10 +85,10 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
                     onClick={() => {
                       setFormData((prev) => ({
                         ...prev,
-                        hazirlayan_personel_id: p.id
-                      }))
-                      setShowPersonelSearch?.(null)
-                      setPersonelSearchQuery?.('')
+                        hazirlayan_personel_id: p.id,
+                      }));
+                      setShowPersonelSearch?.(null);
+                      setPersonelSearchQuery?.("");
                     }}
                     className="w-full text-left p-2 text-xs rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
                   >
@@ -102,19 +108,22 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
           <button
             type="button"
             onClick={() =>
-              setShowPersonelSearch?.(showPersonelSearch === 'talep_eden' ? null : 'talep_eden')
-            }
+              setShowPersonelSearch?.(
+                showPersonelSearch === "talep_eden" ? null : "talep_eden",
+              )}
             className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none text-slate-800 dark:text-slate-200 text-left"
           >
             <span>
               {formData.talep_eden_personel_id
-                ? personeller.find((p) => p.id === formData.talep_eden_personel_id)?.ad_soyad
-                : 'Talep Eden Personel Seçin...'}
+                ? personeller.find((p) =>
+                  p.id === formData.talep_eden_personel_id
+                )?.ad_soyad
+                : "Talep Eden Personel Seçin..."}
             </span>
             <Search size={14} className="text-slate-400" />
           </button>
 
-          {showPersonelSearch === 'talep_eden' && (
+          {showPersonelSearch === "talep_eden" && (
             <div className="absolute left-0 mt-1.5 w-full bg-white dark:bg-slate-955 border border-slate-250 dark:border-slate-800 rounded-2xl shadow-xl p-2 z-50">
               <input
                 type="text"
@@ -132,10 +141,10 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
                     onClick={() => {
                       setFormData((prev) => ({
                         ...prev,
-                        talep_eden_personel_id: p.id
-                      }))
-                      setShowPersonelSearch?.(null)
-                      setPersonelSearchQuery?.('')
+                        talep_eden_personel_id: p.id,
+                      }));
+                      setShowPersonelSearch?.(null);
+                      setPersonelSearchQuery?.("");
                     }}
                     className="w-full text-left p-2 text-xs rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
                   >
@@ -154,18 +163,22 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
           </label>
           <button
             type="button"
-            onClick={() => setShowPersonelSearch?.(showPersonelSearch === 'onay' ? null : 'onay')}
+            onClick={() =>
+              setShowPersonelSearch?.(
+                showPersonelSearch === "onay" ? null : "onay",
+              )}
             className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none text-slate-800 dark:text-slate-200 text-left"
           >
             <span>
               {formData.onay_personel_id
-                ? personeller.find((p) => p.id === formData.onay_personel_id)?.ad_soyad
-                : 'Harcama Yetkilisi Seçin...'}
+                ? personeller.find((p) => p.id === formData.onay_personel_id)
+                  ?.ad_soyad
+                : "Harcama Yetkilisi Seçin..."}
             </span>
             <Search size={14} className="text-slate-400" />
           </button>
 
-          {showPersonelSearch === 'onay' && (
+          {showPersonelSearch === "onay" && (
             <div className="absolute left-0 mt-1.5 w-full bg-white dark:bg-slate-955 border border-slate-250 dark:border-slate-800 rounded-2xl shadow-xl p-2 z-50">
               <input
                 type="text"
@@ -183,14 +196,14 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
                     onClick={() => {
                       setFormData((prev) => ({
                         ...prev,
-                        onay_personel_id: p.id
-                      }))
-                      setShowPersonelSearch?.(null)
-                      setPersonelSearchQuery?.('')
+                        onay_personel_id: p.id,
+                      }));
+                      setShowPersonelSearch?.(null);
+                      setPersonelSearchQuery?.("");
                     }}
                     className="w-full text-left p-2 text-xs rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
                   >
-                    {p.ad_soyad} {p.harcama_yetkilisi_mi === 1 && '★'}
+                    {p.ad_soyad} {p.harcama_yetkilisi_mi === 1 && "★"}
                   </button>
                 ))}
               </div>
@@ -200,17 +213,16 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
 
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-455 mb-1.5">
-            Son Teklif Verme Tarih &amp; Saati
+            Son Teklif Verme Tarih &amp; Saati ss
           </label>
           <input
             type="datetime-local"
-            value={formData.son_teklif_verme_tarihi || ''}
+            value={formData.son_teklif_verme_tarihi || ""}
             onChange={(e) =>
               setFormData({
                 ...formData,
-                son_teklif_verme_tarihi: e.target.value
-              })
-            }
+                son_teklif_verme_tarihi: e.target.value,
+              })}
             className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200"
           />
         </div>
@@ -221,17 +233,16 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
           </label>
           <input
             type="date"
-            value={formData.teslim_tarihi || ''}
+            value={formData.teslim_tarihi || ""}
             onChange={(e) =>
               setFormData({
                 ...formData,
-                teslim_tarihi: e.target.value
-              })
-            }
+                teslim_tarihi: e.target.value,
+              })}
             className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200"
           />
         </div>
       </div>
     </div>
-  )
+  );
 }
