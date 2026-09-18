@@ -921,6 +921,7 @@ export function usePiyasaFiyatArastirmasiLogic() {
           items: needItems,
           kalemler: needItems,
           komisyon: formattedKomisyon.length > 0 ? formattedKomisyon : (baseCtx.komisyon || []),
+          komisyonUyeleri: formattedKomisyon.length > 0 ? formattedKomisyon : (baseCtx.komisyonUyeleri || baseCtx.komisyon || []),
           fiyatKomisyonu: formattedKomisyon.length > 0 ? formattedKomisyon : (baseCtx.fiyatKomisyonu || []),
           gorevlendirilenler: gorevlendirilenListesi.length > 0 ? gorevlendirilenListesi : (baseCtx.gorevlendirilenler || []),
           dagitimListesi: gorevlendirilenListesi.length > 0 ? gorevlendirilenListesi : (baseCtx.dagitimListesi || []),

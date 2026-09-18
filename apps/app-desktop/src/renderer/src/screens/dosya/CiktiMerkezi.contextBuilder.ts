@@ -161,6 +161,10 @@ export function buildDocumentContext(
     kurumAdi: institutionName,
     mudurluk: rawHarcamaBirimi,
     idareAdi: idareAdi,
+    sunulacakMakam:
+      dosyaResData?.sunulacak_makam ||
+      dosyaResData?.makam ||
+      (antetSatirlari.length > 0 ? antetSatirlari.join(' ') : idareAdi),
     baskanAdi: dosyaResData?.onaylayan_ad_soyad || '',
     baskanUnvan: dosyaResData?.onaylayan_unvan || 'Harcama Yetkilisi',
     teminNo: dosyaResData?.temin_no || 'Belirtilmedi',
@@ -194,6 +198,11 @@ export function buildDocumentContext(
       }
     ],
     komisyon: commission.map((c: any) => ({
+      adSoyad: c.ad_soyad,
+      unvan: c.unvan,
+      gorevi: c.gorevi
+    })),
+    komisyonUyeleri: commission.map((c: any) => ({
       adSoyad: c.ad_soyad,
       unvan: c.unvan,
       gorevi: c.gorevi

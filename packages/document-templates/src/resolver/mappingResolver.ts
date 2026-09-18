@@ -409,8 +409,14 @@ export async function resolveTemplateData(
       continue;
     }
 
-    // 3.5 Commission members (fiyatKomisyonu / muayeneKomisyonu / komisyon)
-    if (sablonDegiskeni === 'fiyatKomisyonu' || sablonDegiskeni === 'muayeneKomisyonu' || sablonDegiskeni === 'komisyon') {
+    // 3.5 Commission members (fiyatKomisyonu / muayeneKomisyonu / komisyon / komisyonUyeleri / gorevlendirilenler)
+    if (
+      sablonDegiskeni === 'fiyatKomisyonu' ||
+      sablonDegiskeni === 'muayeneKomisyonu' ||
+      sablonDegiskeni === 'komisyon' ||
+      sablonDegiskeni === 'komisyonUyeleri' ||
+      sablonDegiskeni === 'gorevlendirilenler'
+    ) {
       try {
         let members: any[] = [];
         // 1. Try querying DATA_TeminKomisyon for active file
@@ -424,7 +430,12 @@ export async function resolveTemplateData(
                               WHERE tk.temin_dosya_id = ?`;
         const fileKomRows = await queryExecutor(fileKomQuery, [activeDosyaId]);
         if (fileKomRows && fileKomRows.length > 0) {
-          if (sablonDegiskeni === 'fiyatKomisyonu' || sablonDegiskeni === 'komisyon') {
+          if (
+            sablonDegiskeni === 'fiyatKomisyonu' ||
+            sablonDegiskeni === 'komisyon' ||
+            sablonDegiskeni === 'komisyonUyeleri' ||
+            sablonDegiskeni === 'gorevlendirilenler'
+          ) {
             const filtered = fileKomRows.filter((r: any) => {
               const kt = String(r.komisyon_turu_adi || r.komisyon_turu || '').toLowerCase();
               return !kt || kt.includes('fiyat') || kt.includes('piyasa') || kt.includes('araştırma') || kt.includes('arastirma');
@@ -451,7 +462,12 @@ export async function resolveTemplateData(
                               WHERE k.aktif_mi = 1 OR k.aktif_mi IS NULL`;
           const tanimRows = await queryExecutor(tanimQuery, []);
           if (tanimRows && tanimRows.length > 0) {
-            if (sablonDegiskeni === 'fiyatKomisyonu' || sablonDegiskeni === 'komisyon') {
+            if (
+              sablonDegiskeni === 'fiyatKomisyonu' ||
+              sablonDegiskeni === 'komisyon' ||
+              sablonDegiskeni === 'komisyonUyeleri' ||
+              sablonDegiskeni === 'gorevlendirilenler'
+            ) {
               const filtered = tanimRows.filter((r: any) => {
                 const ka = String(r.komisyon_adi || '').toLowerCase();
                 return ka.includes('fiyat') || ka.includes('piyasa') || ka.includes('araştırma') || ka.includes('arastirma');

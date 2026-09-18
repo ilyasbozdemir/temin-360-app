@@ -200,6 +200,46 @@ export const FiyatArastirmaMektubuMapping: ProcessMapping = {
       birimi: 'birim',
       miktar: 'miktar'
     }
+  },
+  komisyonUyeleri: {
+    tablo: 'DATA_TeminKomisyon',
+    sutun: '*',
+    iliskili_id: 'temin_dosya_id',
+    altEslestirme: {
+      adSoyad: 'ad_soyad',
+      unvan: 'unvan',
+      gorev: 'gorev'
+    }
+  },
+  komisyon: {
+    tablo: 'DATA_TeminKomisyon',
+    sutun: '*',
+    iliskili_id: 'temin_dosya_id',
+    altEslestirme: {
+      adSoyad: 'ad_soyad',
+      unvan: 'unvan',
+      gorev: 'gorev'
+    }
+  },
+  fiyatKomisyonu: {
+    tablo: 'DATA_TeminKomisyon',
+    sutun: '*',
+    iliskili_id: 'temin_dosya_id',
+    altEslestirme: {
+      adSoyad: 'ad_soyad',
+      unvan: 'unvan',
+      gorev: 'gorev'
+    }
+  },
+  gorevlendirilenler: {
+    tablo: 'DATA_TeminKomisyon',
+    sutun: '*',
+    iliskili_id: 'temin_dosya_id',
+    altEslestirme: {
+      adSoyad: 'ad_soyad',
+      unvan: 'unvan',
+      gorev: 'gorev'
+    }
   }
 }
 

@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const FiyatArastirmaMektubuSchema = z.object({
   idareAdi: z.string().optional(),
+  sunulacakMakam: z.string().optional(),
   idareHitapMetni: z.string().optional(),
   isinAdi: z.string().optional(),
   gunSayisi: z.string().optional(),

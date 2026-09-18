@@ -18,7 +18,18 @@ export function FiyatArastirmaMektubu({
   orientation = "portrait",
 }: FiyatArastirmaMektubuProps) {
   const items = data.ihtiyacKalemleri || [];
-  const komisyon = data.komisyonUyeleri || [];
+  const komisyon =
+    (data.komisyonUyeleri && data.komisyonUyeleri.length > 0)
+      ? data.komisyonUyeleri
+      : (data.komisyon && data.komisyon.length > 0)
+      ? data.komisyon
+      : (data.fiyatKomisyonu && data.fiyatKomisyonu.length > 0)
+      ? data.fiyatKomisyonu
+      : (data.gorevlendirilenler && data.gorevlendirilenler.length > 0)
+      ? data.gorevlendirilenler
+      : (data.dagitimListesi && data.dagitimListesi.length > 0)
+      ? data.dagitimListesi
+      : [];
 
   // Gün sayısı ve yazıyla gün sayısı hesaplama
   let displayGunSayisi = data.gunSayisi || data.teslimGun || data.teslimGunu;
@@ -91,6 +102,7 @@ export function FiyatArastirmaMektubu({
   return (
     <DocumentLayout
       data={data as any}
+      hideHeader={true}
       hideFooter={false}
       pageSize={pageSize}
       orientation={orientation}
@@ -107,6 +119,22 @@ export function FiyatArastirmaMektubu({
         }}
       >
         {/* BÖLÜM 1: FİYAT ARAŞTIRMA MEKTUBU */}
+        <div
+          style={{
+            textAlign: "center",
+            fontWeight: "bold",
+            fontSize: "12pt",
+            marginBottom: "8px",
+            textTransform: "uppercase",
+          }}
+        >
+          <EditableField
+            name="sunulacakMakam"
+            value={data.sunulacakMakam || data.idareAdi}
+            placeholder="T.C. İDARE ADI BAŞKANLIĞI"
+          />
+        </div>
+
         <div
           style={{
             textAlign: "center",
@@ -151,33 +179,60 @@ export function FiyatArastirmaMektubu({
           />) gün içinde bildirmenizi rica ederim.
         </div>
 
-        {/* KOMİSYON ÜYELERİ */}
+        {/* KOMİSYON ÜYELERİ TABLOSU */}
         {komisyon.length > 0 && (
-          <div
+          <table
             style={{
-              display: "flex",
-              flexWrap: "wrap",
-              margin: "10px 0",
+              width: "100%",
+              borderCollapse: "collapse",
+              margin: "16px 0",
               textAlign: "center",
+              pageBreakInside: "avoid",
             }}
           >
-            {komisyon.map((uye, idx) => (
-              <div
-                key={idx}
-                style={{
-                  width: "25%",
-                  boxSizing: "border-box",
-                  fontSize: "9.5pt",
-                  padding: "4px 2px",
-                  lineHeight: 1.3,
-                }}
-              >
-                <strong>{uye.adSoyad}</strong>
-                <br />
-                {uye.unvan}
-              </div>
-            ))}
-          </div>
+            <tbody>
+              {Array.from(
+                { length: Math.ceil(komisyon.length / 4) },
+                (_, rowIndex) => {
+                  const rowMembers = komisyon.slice(
+                    rowIndex * 4,
+                    rowIndex * 4 + 4,
+                  );
+                  const cellWidth = `${100 / Math.min(rowMembers.length, 4)}%`;
+                  return (
+                    <tr key={rowIndex}>
+                      {rowMembers.map((uye: any, idx: number) => {
+                        const gorevBaslik =
+                          uye.komisyonGorevi ||
+                          uye.gorevi ||
+                          uye.gorev ||
+                          uye.rol ||
+                          "Üye";
+                        return (
+                          <td
+                            key={idx}
+                            style={{
+                              verticalAlign: "top",
+                              fontSize: "9.5pt",
+                              padding: "6px 8px 16px 8px",
+                              lineHeight: 1.4,
+                              width: cellWidth,
+                            }}
+                          >
+                            {gorevBaslik && <strong>{gorevBaslik}</strong>}
+                            {gorevBaslik && <br />}
+                            {uye.adSoyad || uye.ad_soyad || ""}
+                            <br />
+                            {uye.unvan || ""}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                },
+              )}
+            </tbody>
+          </table>
         )}
 
         {/* BÖLÜM 2: FİYAT ARAŞTIRMA VE BİRİM FİYAT TEKLİF MEKTUBU */}
