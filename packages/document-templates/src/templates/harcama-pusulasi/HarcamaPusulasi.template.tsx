@@ -67,8 +67,33 @@ export function HarcamaPusulasi({
     ? data.aciklama
     : [data.alimTuru, data.isAdi]
       .filter(Boolean)
-      .join(" kapsamında ") ||
-      "";
+      .join(" kapsamında ")
+      ? `${[data.alimTuru, data.isAdi].filter(Boolean).join(" kapsamında ")} Muayene ve Kabul Komisyonunca teslim alınan mal/hizmet alımına ilişkindir.`
+      : "";
+
+  // Malı Satan = Kazanan istekli firma
+  // data.yukleniciFirma ve ilgili alanlar, hook tarafından winnerFirm'dan otomatik dolduruluyor
+  const saticiAdiSoyadiGosterilecek =
+    data.saticiAdiSoyadi ||
+    (data as any).yukleniciFirmaYetkilisi ||
+    (data as any).yetkiliAdSoyad ||
+    (data as any).yukleniciFirma ||
+    '';
+
+  const saticiAdresGosterilecek =
+    data.saticiAdres ||
+    (data as any).yukleniciAdresi ||
+    [(data as any).yukleniciIlce, (data as any).yukleniciIl]
+      .filter(Boolean)
+      .join(' / ') ||
+    '';
+
+  const saticiTcNoGosterilecek =
+    data.saticiTcNo ||
+    (data as any).vergiNo ||
+    (data as any).firmaVergiNo ||
+    '';
+
 
   const shouldHideHeader = hideHeader !== undefined
     ? hideHeader
@@ -269,36 +294,112 @@ export function HarcamaPusulasi({
               </td>
             </tr>
 
-            {/* Birim Fiyat */}
-            <tr>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  width: "30%",
-                  fontWeight: "bold",
-                  textTransform: "uppercase",
-                  padding: "4px 7px",
-                }}
-              >
-                Birim Fiyatı
-              </td>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  width: "70%",
-                  padding: "4px 7px",
-                }}
-              >
-                <EditableField
-                  name="birimFiyat"
-                  value={data.birimFiyat ? formatCurrency(data.birimFiyat) : ""}
-                  placeholder="Birim Fiyat"
-                />{" "}
-                ₺
-              </td>
-            </tr>
+            {/* Dinamik Kalem Tablosu — ihtiyacKalemleri varsa göster */}
+            {Array.isArray(data.ihtiyacKalemleri) && data.ihtiyacKalemleri.length > 0 && (
+              <tr>
+                <td colSpan={2} style={{ border: "1px solid #000", padding: "0" }}>
+                  <table
+                    style={{
+                      width: "100%",
+                      borderCollapse: "collapse",
+                      fontSize: "8.5pt",
+                    }}
+                  >
+                    <thead>
+                      <tr style={{ backgroundColor: "#f5f5f5" }}>
+                        <th style={{ border: "1px solid #ccc", padding: "3px 5px", width: "5%", textAlign: "center" }}>S.No</th>
+                        <th style={{ border: "1px solid #ccc", padding: "3px 5px", width: "40%", textAlign: "left" }}>Malzeme / Hizmet Adı</th>
+                        <th style={{ border: "1px solid #ccc", padding: "3px 5px", width: "10%", textAlign: "center" }}>Miktar</th>
+                        <th style={{ border: "1px solid #ccc", padding: "3px 5px", width: "8%", textAlign: "center" }}>Birim</th>
+                        <th style={{ border: "1px solid #ccc", padding: "3px 5px", width: "17%", textAlign: "right" }}>Birim Fiyat (₺)</th>
+                        <th style={{ border: "1px solid #ccc", padding: "3px 5px", width: "20%", textAlign: "right" }}>Tutar (₺)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(data.ihtiyacKalemleri as any[]).map((kalem: any, idx: number) => {
+                        const miktarNum = Number(
+                          kalem.teslimMiktari ??
+                          kalem.teslim_miktari ??
+                          kalem.kabulMiktari ??
+                          kalem.kabul_miktari ??
+                          kalem.miktar ??
+                          1
+                        );
+                        const birimFiyatNum = Number(
+                          kalem.teklifFiyati || kalem.birimFiyat || kalem.birim_fiyat ||
+                          kalem.kabul_fiyati || kalem.fiyat || 0
+                        );
+                        const satirToplam = miktarNum * birimFiyatNum;
+                        return (
+                          <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? "#fff" : "#fafafa" }}>
+                            <td style={{ border: "1px solid #ccc", padding: "3px 5px", textAlign: "center" }}>{idx + 1}</td>
+                            <td style={{ border: "1px solid #ccc", padding: "3px 5px" }}>
+                              {kalem.malzemeAdi || kalem.kalem_adi || kalem.ad || "—"}
+                              {kalem.ozelligi ? <span style={{ color: "#666", fontSize: "8pt" }}> ({kalem.ozelligi})</span> : null}
+                            </td>
+                            <td style={{ border: "1px solid #ccc", padding: "3px 5px", textAlign: "center" }}>{miktarNum}</td>
+                            <td style={{ border: "1px solid #ccc", padding: "3px 5px", textAlign: "center" }}>{kalem.birimi || kalem.birim || "Adet"}</td>
+                            <td style={{ border: "1px solid #ccc", padding: "3px 5px", textAlign: "right" }}>
+                              {birimFiyatNum > 0 ? formatCurrency(birimFiyatNum) : "—"}
+                            </td>
+                            <td style={{ border: "1px solid #ccc", padding: "3px 5px", textAlign: "right", fontWeight: satirToplam > 0 ? "bold" : "normal" }}>
+                              {satirToplam > 0 ? formatCurrency(satirToplam) : "—"}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  <div
+                    style={{
+                      padding: "3px 7px",
+                      fontSize: "7.5pt",
+                      color: "#555",
+                      fontStyle: "italic",
+                      backgroundColor: "#f9f9f9",
+                      borderTop: "1px solid #ddd",
+                      textAlign: "right",
+                    }}
+                  >
+                    * Kalem miktarları ve tutarlar Muayene ve Kabul Komisyonu Tutanağı teslimat verileri esas alınarak otomatik aktarılmıştır.
+                  </div>
+                </td>
+              </tr>
+            )}
 
-            {/* Tutarı */}
+            {/* Birim Fiyat */}
+            {/* Birim Fiyatı — kalem tablosu varsa gizle, yoksa göster */}
+            {(!Array.isArray(data.ihtiyacKalemleri) || data.ihtiyacKalemleri.length === 0) && (
+              <tr>
+                <td
+                  style={{
+                    border: "1px solid #000",
+                    width: "30%",
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                    padding: "4px 7px",
+                  }}
+                >
+                  Birim Fiyatı
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #000",
+                    width: "70%",
+                    padding: "4px 7px",
+                  }}
+                >
+                  <EditableField
+                    name="birimFiyat"
+                    value={data.birimFiyat ? formatCurrency(data.birimFiyat) : ""}
+                    placeholder="Birim Fiyat"
+                  />{" "}
+                  ₺
+                </td>
+              </tr>
+            )}
+
+            {/* Tutarı — kalem varsa otomatik toplam hesapla */}
             <tr>
               <td
                 style={{
@@ -309,7 +410,9 @@ export function HarcamaPusulasi({
                   padding: "4px 7px",
                 }}
               >
-                Tutarı
+                {Array.isArray(data.ihtiyacKalemleri) && data.ihtiyacKalemleri.length > 0
+                  ? "Genel Toplam"
+                  : "Tutarı"}
               </td>
               <td
                 style={{
@@ -321,7 +424,25 @@ export function HarcamaPusulasi({
               >
                 <EditableField
                   name="tutar"
-                  value={data.tutar ? formatCurrency(data.tutar) : ""}
+                  value={(() => {
+                    if (data.tutar) return formatCurrency(data.tutar);
+                    if (Array.isArray(data.ihtiyacKalemleri) && data.ihtiyacKalemleri.length > 0) {
+                      const hesaplanan = (data.ihtiyacKalemleri as any[]).reduce((acc: number, k: any) => {
+                        const m = Number(
+                          k.teslimMiktari ??
+                          k.teslim_miktari ??
+                          k.kabulMiktari ??
+                          k.kabul_miktari ??
+                          k.miktar ??
+                          1
+                        );
+                        const f = Number(k.teklifFiyati || k.birimFiyat || k.birim_fiyat || k.kabul_fiyati || k.fiyat || 0);
+                        return acc + m * f;
+                      }, 0);
+                      return hesaplanan > 0 ? formatCurrency(hesaplanan) : "";
+                    }
+                    return "";
+                  })()}
                   placeholder="Tutar"
                 />{" "}
                 ₺
@@ -427,27 +548,27 @@ export function HarcamaPusulasi({
                         }}
                       >
                         <div>
-                          <strong>T.C. Kimlik No :</strong>{" "}
+                          <strong>T.C. / Vergi No :</strong>{" "}
                           <EditableField
                             name="saticiTcNo"
-                            value={data.saticiTcNo}
-                            placeholder="TC Kimlik No"
+                            value={saticiTcNoGosterilecek}
+                            placeholder="TC Kimlik / Vergi No"
                           />
                         </div>
                         <div style={{ marginTop: "4px" }}>
-                          <strong>Adı Soyadı :</strong>{" "}
+                          <strong>Adı Soyadı / Unvanı :</strong>{" "}
                           <EditableField
                             name="saticiAdiSoyadi"
-                            value={data.saticiAdiSoyadi}
-                            placeholder="Satıcı Adı Soyadı"
+                            value={saticiAdiSoyadiGosterilecek}
+                            placeholder="Satıcı / Firma Adı"
                           />
                         </div>
                         <div style={{ marginTop: "4px" }}>
                           <strong>Adresi :</strong>{" "}
                           <EditableField
                             name="saticiAdres"
-                            value={data.saticiAdres}
-                            placeholder="Satıcı Adresi"
+                            value={saticiAdresGosterilecek}
+                            placeholder="Satıcı / Firma Adresi"
                           />
                         </div>
                         <div
