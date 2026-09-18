@@ -21,6 +21,7 @@ import {
 import { useTheme } from "../providers/ThemeProvider";
 import { TeminSelector } from "./TeminSelector";
 import { useWorkspaceStore } from "../../store/workspaceStore";
+import { FormatUpgradeModal } from "../modals/FormatUpgradeModal";
 import { WindowControls } from "./header/WindowControls";
 import { NotificationPopover } from "./header/NotificationPopover";
 import { SyncPopover } from "./header/SyncPopover";
@@ -30,7 +31,21 @@ export function Header(): React.JSX.Element {
   const { theme, setTheme } = useTheme();
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [hoveredSubMenu, setHoveredSubMenu] = useState<string | null>(null);
-  const { activeDosyaId, fileName, isDirty } = useWorkspaceStore();
+  const { activeDosyaId, fileName, isDirty, activeFilePath } = useWorkspaceStore();
+  const activeExt = (activeFilePath?.split('.').pop() || '').toLowerCase();
+  const isOldFormat = Boolean(activeFilePath && activeExt !== 'temin');
+
+  const [showFormatUpgradeModal, setShowFormatUpgradeModal] = useState(false);
+  const [upgradeFilePath, setUpgradeFilePath] = useState<string | null>(null);
+
+  const handleUpgradeAndOpen = async (filePath: string): Promise<void> => {
+    const result = await useWorkspaceStore.getState().convertAndOpenWorkspace(filePath);
+    if (result.success) {
+      window.location.reload();
+    } else {
+      throw new Error(result.error || 'Dönüştürme başarısız oldu.');
+    }
+  };
 
   const [isDirtySummaryOpen, setIsDirtySummaryOpen] = useState(false);
   const [dirtySummary, setDirtySummary] = useState<{
@@ -272,29 +287,72 @@ export function Header(): React.JSX.Element {
           onClick: handleSaveAndSync,
         },
         {
+          label: "💾 Farklı Kaydet (Yeni Format .temin)...",
+          onClick: async () => {
+            try {
+              const res = await window.electron?.ipcRenderer.invoke("workspace:save-as");
+              if (res?.success && res.newFilePath) {
+                alert(`Çalışma dosyanız yeni konuma (.temin) başarıyla kaydedildi:\n\n${res.newFilePath}`);
+                window.location.reload();
+              } else if (res?.error && res.error !== 'İşlem iptal edildi.') {
+                alert(`Farklı kaydetme başarısız!\nHata: ${res.error}`);
+              }
+            } catch (e) {
+              console.error(e);
+            }
+          },
+        },
+        ...(isOldFormat
+          ? [
+              {
+                label: "⚡ Güncel Formata Dönüştür & Kaydet (.temin)",
+                onClick: async () => {
+                  try {
+                    const res = await useWorkspaceStore.getState().upgradeToTemin();
+                    if (res?.success && res.newPath) {
+                      alert(`Dosyanız başarıyla yeni nesil TEMİN 360 formatına (.temin) dönüştürüldü ve kaydedildi:\n\n${res.newPath}`);
+                      window.location.reload();
+                    } else {
+                      alert(`Format dönüştürülemedi!\nHata: ${res?.error || "Bilinmeyen hata"}`);
+                    }
+                  } catch (e: any) {
+                    alert(`Hata: ${e.message}`);
+                  }
+                },
+              },
+            ]
+          : []),
+        {
           label: "Kullanıcı Profili",
           onClick: () => navigate({ to: "/profil" }),
         },
         { divider: true },
         {
-          label: "Farklı Çalışma Dosyası Aç (.temin)...",
+          label: "Farklı Çalışma Dosyası Aç (.temin, .dtal, .hkmp...)...",
           onClick: async () => {
             try {
               const res = await window.electron?.ipcRenderer.invoke(
                 "dialog:showOpenDialog",
               );
               if (!res?.canceled && res?.filePath) {
-                const result = await useWorkspaceStore
-                  .getState()
-                  .openWorkspace(res.filePath as string, false);
-                if (result.success) {
-                  window.location.reload();
+                const filePath = res.filePath as string;
+                const ext = (filePath.split('.').pop() || '').toLowerCase();
+                if (ext !== 'temin') {
+                  setUpgradeFilePath(filePath);
+                  setShowFormatUpgradeModal(true);
                 } else {
-                  alert(
-                    `Çalışma dosyası açılamadı!\nHata: ${
-                      result.error || "Bilinmeyen hata"
-                    }`,
-                  );
+                  const result = await useWorkspaceStore
+                    .getState()
+                    .openWorkspace(filePath, false);
+                  if (result.success) {
+                    window.location.reload();
+                  } else {
+                    alert(
+                      `Çalışma dosyası açılamadı!\nHata: ${
+                        result.error || "Bilinmeyen hata"
+                      }`,
+                    );
+                  }
                 }
               }
             } catch (e) {
@@ -1164,6 +1222,13 @@ export function Header(): React.JSX.Element {
           <span>{saveFeedback}</span>
         </div>
       )}
+
+      <FormatUpgradeModal
+        isOpen={showFormatUpgradeModal}
+        filePath={upgradeFilePath}
+        onClose={() => setShowFormatUpgradeModal(false)}
+        onUpgradeAndOpen={handleUpgradeAndOpen}
+      />
     </header>
   );
 }

@@ -56,6 +56,33 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
     }
   })
 
+  ipcMain.handle('workspace:save-as', async (event, targetPath?: string) => {
+    try {
+      let destPath = targetPath
+      if (!destPath) {
+        const win = BrowserWindow.fromWebContents(event.sender)
+        const currentPath = workspaceManager.getCurrentFilePath() || 'Dosya.temin'
+        const baseName = basename(currentPath).replace(/\.[^.]+$/, '') + '.temin'
+        const res = await dialog.showSaveDialog(win!, {
+          title: 'Farklı Kaydet (Yeni Format .temin)',
+          defaultPath: baseName,
+          filters: [
+            { name: 'TEMİN 360 Proje Dosyası (*.temin)', extensions: ['temin'] },
+            allFormatsFilter
+          ]
+        })
+        if (res.canceled || !res.filePath) {
+          return { success: false, error: 'İşlem iptal edildi.' }
+        }
+        destPath = res.filePath
+      }
+      return workspaceManager.saveAs(destPath)
+    } catch (error: any) {
+      console.error('Save as error:', error)
+      return { success: false, error: error.message }
+    }
+  })
+
   ipcMain.handle('workspace:upgrade-to-temin', async () => {
     try {
       const res = workspaceManager.convertToTemin()

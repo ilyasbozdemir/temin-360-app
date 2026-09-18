@@ -1421,6 +1421,32 @@ export class DtmWorkspace {
     return { success: true, newPath }
   }
 
+  public saveAs(targetFilePath: string): { success: boolean; newPath?: string; error?: string } {
+    if (!this.currentFilePath || !this.db) {
+      return { success: false, error: 'Açık bir çalışma alanı yok.' }
+    }
+
+    const newPath = targetFilePath.toLowerCase().endsWith('.temin')
+      ? targetFilePath
+      : `${targetFilePath}.temin`
+
+    const oldLock = this.currentFilePath + '.lock'
+    if (fs.existsSync(oldLock)) {
+      try {
+        fs.unlinkSync(oldLock)
+      } catch {}
+    }
+
+    this.currentFilePath = newPath
+    const newLock = newPath + '.lock'
+    try {
+      fs.writeFileSync(newLock, process.pid.toString(), 'utf-8')
+    } catch {}
+
+    this.saveWorkspace()
+    return { success: true, newPath }
+  }
+
   public closeWorkspace(): void {
     if (this.db) {
       this.db.close()
@@ -1720,6 +1746,10 @@ export const workspaceManager = {
   convertToTemin: () => {
     if (!activeWorkspace) return { success: false, error: 'Açık bir çalışma alanı yok.' }
     return activeWorkspace.convertToTemin()
+  },
+  saveAs: (targetFilePath: string) => {
+    if (!activeWorkspace) return { success: false, error: 'Açık bir çalışma alanı yok.' }
+    return activeWorkspace.saveAs(targetFilePath)
   },
   recordMutation: (tableName?: string, action?: string, count: number = 1) => {
     if (activeWorkspace) activeWorkspace.recordMutation(tableName, action, count)

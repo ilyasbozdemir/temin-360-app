@@ -21,6 +21,7 @@ interface WorkspaceState {
   isDirty: boolean
   setIsDirty: (dirty: boolean) => void
   saveWorkspace: () => Promise<{ success: boolean; error?: string }>
+  saveAsWorkspace: (targetFilePath?: string) => Promise<{ success: boolean; newFilePath?: string; error?: string }>
   upgradeToTemin: () => Promise<{ success: boolean; newPath?: string; error?: string }>
   convertAndOpenWorkspace: (filePath: string) => Promise<{ success: boolean; newFilePath?: string; error?: string }>
   setIsCreatingDosya: (flag: boolean) => void
@@ -81,6 +82,22 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     const res = await window.electron.ipcRenderer.invoke('workspace:save')
     if (res?.success) {
       set({ isDirty: false })
+      window.dispatchEvent(new CustomEvent('workspace-saved'))
+    }
+    return res
+  },
+  saveAsWorkspace: async (targetFilePath?: string) => {
+    const res = await window.electron.ipcRenderer.invoke('workspace:save-as', targetFilePath)
+    if (res?.success && res.newFilePath) {
+      const newPath = res.newFilePath
+      sessionStorage.setItem('workspace_path', newPath)
+      localStorage.setItem('workspace_path', newPath)
+      const baseName = newPath.split(/[/\\]/).pop() || 'Bilinmeyen Dosya'
+      set({
+        activeFilePath: newPath,
+        fileName: baseName,
+        isDirty: false
+      })
       window.dispatchEvent(new CustomEvent('workspace-saved'))
     }
     return res
