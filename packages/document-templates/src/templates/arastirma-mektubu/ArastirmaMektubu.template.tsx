@@ -445,6 +445,8 @@ export function ArastirmaMektubu({
               placeholder=".…../.…../20…"
             />
             <br />
+            Tarih:
+            <br />
             Kaşe:
             <br />
             <br />

@@ -135,6 +135,7 @@ export function PiyasaFiyatArastirmasi(): React.JSX.Element {
       previewDocumentId={previewModalOpen && previewData?.dosyaAdi
         ? previewData.dosyaAdi
         : null}
+      selectedFirma={previewData?.selectedFirma}
       invitedFirms={logic.invitedFirms}
       onClosePreview={() => setPreviewModalOpen(false)}
     >

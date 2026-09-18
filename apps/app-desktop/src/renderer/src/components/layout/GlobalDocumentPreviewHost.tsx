@@ -3,14 +3,16 @@ import { useGlobalDocumentPreviewStore } from "../../store/globalDocumentPreview
 import { DocumentPreviewModalV2 } from "../../screens/dosya/components/DocumentPreviewModalV2";
 
 export const GlobalDocumentPreviewHost: React.FC = () => {
-  const { isOpen, documentId, dosyaId, invitedFirms, closeDocument } =
+  const { isOpen, documentId, dosyaId, invitedFirms, selectedFirma, closeDocument } =
     useGlobalDocumentPreviewStore();
 
   if (!isOpen || !documentId) return null;
 
+  const firmKey = selectedFirma?.id || selectedFirma?.firma_id || selectedFirma?.temin_firma_id || selectedFirma?.unvan || "none";
+
   return (
     <DocumentPreviewModalV2
-      key={`${documentId}-${dosyaId || "default"}`}
+      key={`${documentId}-${dosyaId || "default"}-${firmKey}`}
       isOpen={isOpen}
       documentId={documentId}
       dosyaId={dosyaId}

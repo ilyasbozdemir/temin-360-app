@@ -1,6 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, FileSpreadsheet, FileText, Mail, Tag } from "lucide-react";
+import {
+  ChevronDown,
+  FileSpreadsheet,
+  FileText,
+  Mail,
+  Tag,
+} from "lucide-react";
 import { Firma } from "./types";
 
 export interface FirmaMektupMenuProps {
@@ -19,7 +25,9 @@ export function FirmaMektupMenu({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(
+    null,
+  );
 
   const updateCoords = useCallback(() => {
     if (containerRef.current) {

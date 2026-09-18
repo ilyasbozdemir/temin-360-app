@@ -62,6 +62,7 @@ export interface PreviewData {
   sablonId?: number
   snapshotContext?: any
   dosyaAdi?: string
+  selectedFirma?: any
 }
 
 export const checkIsSablonDisabled = (cleanName: string, dosyaContext: any): boolean => {
@@ -181,7 +182,8 @@ export function useDosyaAsamasiSablonsV2() {
       processPath,
       templateTestVerisi: '',
       snapshotContext: snapshotCtx,
-      dosyaAdi: sablon.dosya_adi
+      dosyaAdi: sablon.dosya_adi,
+      selectedFirma: selectedFirma || null,
     })
     setPreviewModalOpen(true)
 

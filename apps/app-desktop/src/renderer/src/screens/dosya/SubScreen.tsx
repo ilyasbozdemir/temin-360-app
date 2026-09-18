@@ -21,6 +21,7 @@ interface SubScreenProps {
   hideStepper?: boolean
   requireActiveDosya?: boolean
   previewDocumentId?: string | null
+  selectedFirma?: any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   invitedFirms?: any[]
   onClosePreview?: () => void
@@ -35,6 +36,7 @@ export function SubScreen({
   hideStepper = false,
   requireActiveDosya = true,
   previewDocumentId,
+  selectedFirma,
   invitedFirms,
   onClosePreview
 }: SubScreenProps): React.JSX.Element {
@@ -52,6 +54,7 @@ export function SubScreen({
         documentId: previewDocumentId.replace('.html', ''),
         dosyaId: activeDosyaId || undefined,
         invitedFirms,
+        selectedFirma: selectedFirma || null,
         onClose: () => {
           if (onClosePreview) {
             onClosePreview()
@@ -59,7 +62,7 @@ export function SubScreen({
         }
       })
     }
-  }, [previewDocumentId, activeDosyaId, invitedFirms, openDocument, onClosePreview])
+  }, [previewDocumentId, activeDosyaId, invitedFirms, selectedFirma, openDocument, onClosePreview])
 
   useEffect(() => {
     if (!activeDosyaId) return
