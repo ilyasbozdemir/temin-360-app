@@ -41,6 +41,7 @@ export interface FiyatIstenenFirmalarınSecilmesiProps {
   onFirmaCikar?: (firma: Firma) => void;
   onFiyatGir?: () => void;
   onFiyatPiyasaFormu?: (firma?: Firma) => void;
+  onIdareFiyatArastirmaMektubu?: (firma?: Firma) => void;
   onBirimFiyatArastirmasi?: (firma?: Firma) => void;
   onEkapSorgula?: (firma?: Firma) => void;
   onDagitimMektubu?: () => void;

@@ -4,14 +4,17 @@ import {
   ChevronDown,
   FileSpreadsheet,
   FileText,
+  Layers,
   Mail,
   Tag,
 } from "lucide-react";
+import { MEKTUP_MENU_ITEMS } from "./constants";
 import { Firma } from "./types";
 
 export interface FirmaMektupMenuProps {
   firma: Firma;
   onFiyatPiyasaFormu?: (firma: Firma) => void;
+  onIdareFiyatArastirmaMektubu?: (firma: Firma) => void;
   onBirimFiyatArastirmasi?: (firma: Firma) => void;
   onBosTeklifCetveli?: (firma: Firma) => void;
 }
@@ -19,6 +22,7 @@ export interface FirmaMektupMenuProps {
 export function FirmaMektupMenu({
   firma,
   onFiyatPiyasaFormu,
+  onIdareFiyatArastirmaMektubu,
   onBirimFiyatArastirmasi,
   onBosTeklifCetveli,
 }: FirmaMektupMenuProps): React.JSX.Element {
@@ -127,11 +131,28 @@ export function FirmaMektupMenu({
                   <FileText className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                   <div>
                     <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                      Fiyat Araştırması
+                      {MEKTUP_MENU_ITEMS.ARASTIRMA_MEKTUBU.title}
                     </div>
                     <div className="text-[10px] text-slate-400">
-                      Yaklaşık maliyet ve piyasa fiyat araştırma tutanağı -
-                      istekliye firmalara dağıtılır.
+                      {MEKTUP_MENU_ITEMS.ARASTIRMA_MEKTUBU.description}
+                    </div>
+                  </div>
+                </button>
+              )}
+
+              {onIdareFiyatArastirmaMektubu && (
+                <button
+                  type="button"
+                  onClick={() => handleAction(onIdareFiyatArastirmaMektubu)}
+                  className="w-full flex items-start gap-2.5 px-3 py-2 text-left hover:bg-teal-50 dark:hover:bg-teal-950/40 transition-colors cursor-pointer"
+                >
+                  <Layers className="w-4 h-4 text-teal-500 shrink-0 mt-0.5" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      {MEKTUP_MENU_ITEMS.IDARE_FIYAT_ARASTIRMA.title}
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      {MEKTUP_MENU_ITEMS.IDARE_FIYAT_ARASTIRMA.description}
                     </div>
                   </div>
                 </button>
@@ -146,10 +167,10 @@ export function FirmaMektupMenu({
                   <Tag className="w-4 h-4 text-violet-500 shrink-0 mt-0.5" />
                   <div>
                     <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                      Birim Fiyat Teklif Mektubu
+                      {MEKTUP_MENU_ITEMS.BIRIM_FIYAT_ARASTIRMASI.title}
                     </div>
                     <div className="text-[10px] text-slate-400">
-                      Firma unvanı, VKN ve taahhütname formatı
+                      {MEKTUP_MENU_ITEMS.BIRIM_FIYAT_ARASTIRMASI.description}
                     </div>
                   </div>
                 </button>
@@ -164,10 +185,10 @@ export function FirmaMektupMenu({
                   <FileSpreadsheet className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
                   <div>
                     <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                      Birim Fiyat Teklif Cetveli
+                      {MEKTUP_MENU_ITEMS.BOS_TEKLIF_CETVELI.title}
                     </div>
                     <div className="text-[10px] text-slate-400">
-                      Firmanın dolduracağı boş birim fiyat tablosu
+                      {MEKTUP_MENU_ITEMS.BOS_TEKLIF_CETVELI.description}
                     </div>
                   </div>
                 </button>

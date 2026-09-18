@@ -13,6 +13,7 @@ interface FirmaTabloProps {
   onFirmaCikar?: (firma: Firma) => void;
   onFiyatGir?: () => void;
   onFiyatPiyasaFormu?: (firma: Firma) => void;
+  onIdareFiyatArastirmaMektubu?: (firma: Firma) => void;
   onBirimFiyatArastirmasi?: (firma: Firma) => void;
   onBosTeklifCetveli?: (firma: Firma) => void;
   onEkapSorgula?: (firma: Firma) => void;
@@ -28,6 +29,7 @@ export function FirmaTablo({
   onFirmaCikar,
   onFiyatGir,
   onFiyatPiyasaFormu,
+  onIdareFiyatArastirmaMektubu,
   onBirimFiyatArastirmasi,
   onBosTeklifCetveli,
   onEkapSorgula,
@@ -129,6 +131,7 @@ export function FirmaTablo({
                       <FirmaMektupMenu
                         firma={firma}
                         onFiyatPiyasaFormu={onFiyatPiyasaFormu}
+                        onIdareFiyatArastirmaMektubu={onIdareFiyatArastirmaMektubu}
                         onBirimFiyatArastirmasi={onBirimFiyatArastirmasi}
                         onBosTeklifCetveli={onBosTeklifCetveli}
                       />

@@ -22,6 +22,7 @@ export function FiyatIstenenFirmalarınSecilmesi({
   onFirmaCikar,
   onFiyatGir,
   onFiyatPiyasaFormu,
+  onIdareFiyatArastirmaMektubu,
   onBirimFiyatArastirmasi,
   onBosTeklifCetveli,
   onEkapSorgula,
@@ -121,6 +122,7 @@ export function FiyatIstenenFirmalarınSecilmesi({
           onFirmaCikar={onFirmaCikar}
           onFiyatGir={onFiyatGir}
           onFiyatPiyasaFormu={onFiyatPiyasaFormu}
+          onIdareFiyatArastirmaMektubu={onIdareFiyatArastirmaMektubu}
           onBirimFiyatArastirmasi={onBirimFiyatArastirmasi}
           onBosTeklifCetveli={onBosTeklifCetveli}
           onEkapSorgula={onEkapSorgula}

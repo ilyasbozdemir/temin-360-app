@@ -30,13 +30,15 @@ export function ArastirmaMektubu({
     [];
 
   const seenNames = new Set<string>();
-  const komisyon = (Array.isArray(komisyonRaw) ? komisyonRaw : []).filter((uye: any) => {
-    const nameKey = (uye.adSoyad || uye.ad_soyad || "").trim().toLowerCase();
-    if (!nameKey) return true;
-    if (seenNames.has(nameKey)) return false;
-    seenNames.add(nameKey);
-    return true;
-  });
+  const komisyon = (Array.isArray(komisyonRaw) ? komisyonRaw : []).filter(
+    (uye: any) => {
+      const nameKey = (uye.adSoyad || uye.ad_soyad || "").trim().toLowerCase();
+      if (!nameKey) return true;
+      if (seenNames.has(nameKey)) return false;
+      seenNames.add(nameKey);
+      return true;
+    },
+  );
 
   const firstPageLimit = data.firstPageLimit
     ? Number(data.firstPageLimit)
@@ -328,14 +330,13 @@ export function ArastirmaMektubu({
                 (_, rowIndex) => {
                   const rowMembers = komisyon.slice(
                     rowIndex * 4,
-                    rowIndex * 4 + 4
+                    rowIndex * 4 + 4,
                   );
                   const cellWidth = `${100 / Math.min(rowMembers.length, 4)}%`;
                   return (
                     <tr key={rowIndex}>
                       {rowMembers.map((uye: any, idx: number) => {
-                        const gorevBaslik =
-                          uye.komisyonGorevi ||
+                        const gorevBaslik = uye.komisyonGorevi ||
                           uye.gorevi ||
                           uye.gorev ||
                           uye.rol ||
@@ -363,7 +364,7 @@ export function ArastirmaMektubu({
                       })}
                     </tr>
                   );
-                }
+                },
               )}
             </tbody>
           </table>
@@ -394,7 +395,9 @@ export function ArastirmaMektubu({
               lineHeight: 1.5,
             }}
           >
-            <div style={{ fontStyle: "italic", color: "#333", paddingTop: "5px" }}>
+            <div
+              style={{ fontStyle: "italic", color: "#333", paddingTop: "5px" }}
+            >
               Para Birimi: Türk Lirası (TL)
             </div>
             <div
@@ -406,12 +409,8 @@ export function ArastirmaMektubu({
               }}
             >
               <div>
-                <strong>Tarih:</strong>{" "}
-                <DateEditableField
-                  name="tarih"
-                  value={data.tarih || data.dosyaTarihi}
-                  placeholder="…/…/20…"
-                />
+                <strong>Tarih:</strong>
+                {" "}
               </div>
               <div style={{ fontWeight: "bold", marginTop: "12px" }}>
                 Firma Yetkilisi
@@ -476,7 +475,9 @@ export function ArastirmaMektubu({
             lineHeight: 1.5,
           }}
         >
-          <div style={{ fontStyle: "italic", color: "#333", paddingTop: "5px" }}>
+          <div
+            style={{ fontStyle: "italic", color: "#333", paddingTop: "5px" }}
+          >
             Para Birimi: Türk Lirası (TL)
           </div>
           <div

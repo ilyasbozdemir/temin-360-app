@@ -63,6 +63,9 @@ export function Step1IsteklilerVeDagitim({
         onFiyatPiyasaFormu={(firma) => {
           handleOpenSablonByDosyaAdi("arastirma-mektubu", firma);
         }}
+        onIdareFiyatArastirmaMektubu={(firma) => {
+          handleOpenSablonByDosyaAdi("fiyat-arastirma-mektubu", firma);
+        }}
         onBirimFiyatArastirmasi={(firma) => {
           handleOpenSablonByDosyaAdi("birim-fiyat-teklif-mektubu", firma);
         }}

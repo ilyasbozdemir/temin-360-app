@@ -1,21 +1,53 @@
 import React from "react";
 import {
-  ExternalLink,
-  FileCheck,
   FileSpreadsheet,
   Layers,
   Send,
-  ShieldCheck,
+  Tag,
 } from "lucide-react";
+import { DAGITIM_BELGELERI_KARTLARI } from "../FiyatIstenenFirmalari/constants";
 
 interface DagitimBelgeleriKartlariProps {
   handleOpenSablonByDosyaAdi: (targetKey: string, firmData?: any) => void;
-  handleOpenEkapSorgu: (firma?: any) => void;
+  handleOpenEkapSorgu?: (firma?: any) => void;
 }
+
+const ICON_MAP = {
+  Send,
+  Layers,
+  Tag,
+  FileSpreadsheet,
+};
+
+const COLOR_STYLES = {
+  indigo: {
+    hoverBorder: "hover:border-indigo-300 dark:hover:border-indigo-700",
+    iconBg: "bg-indigo-500/10",
+    iconColor: "text-indigo-600 dark:text-indigo-400",
+    buttonBg: "bg-indigo-600 hover:bg-indigo-700",
+  },
+  purple: {
+    hoverBorder: "hover:border-purple-300 dark:hover:border-purple-700",
+    iconBg: "bg-purple-500/10",
+    iconColor: "text-purple-600 dark:text-purple-400",
+    buttonBg: "bg-purple-600 hover:bg-purple-700",
+  },
+  violet: {
+    hoverBorder: "hover:border-violet-300 dark:hover:border-violet-700",
+    iconBg: "bg-violet-500/10",
+    iconColor: "text-violet-600 dark:text-violet-400",
+    buttonBg: "bg-violet-600 hover:bg-violet-700",
+  },
+  emerald: {
+    hoverBorder: "hover:border-emerald-300 dark:hover:border-emerald-700",
+    iconBg: "bg-emerald-500/10",
+    iconColor: "text-emerald-600 dark:text-emerald-400",
+    buttonBg: "bg-emerald-600 hover:bg-emerald-700",
+  },
+};
 
 export function DagitimBelgeleriKartlari({
   handleOpenSablonByDosyaAdi,
-  handleOpenEkapSorgu,
 }: DagitimBelgeleriKartlariProps): React.JSX.Element {
   return (
     <div className="rounded-2xl border border-indigo-100 dark:border-indigo-900/50 bg-gradient-to-br from-indigo-50/50 via-white to-blue-50/40 dark:from-slate-900 dark:via-slate-950 dark:to-indigo-950/20 p-5 shadow-xs flex flex-col gap-4">
@@ -28,128 +60,52 @@ export function DagitimBelgeleriKartlari({
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
               <span>Teklif İsteme & Dağıtım Belgeleri</span>
               <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
-                Firmalara Gönderilecek Formlar
+                Genel / Sayın İlgili Formları
               </span>
             </h3>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Fiyat araştırma tutanağı öncesinde firmalara iletilecek resmi teklif mektuplarını ve boş cetvelleri üretin.
+              Fiyat araştırma tutanağı öncesinde firmalara genel/anonim (&quot;Sayın İlgili&quot;) olarak iletilecek resmi teklif mektuplarını ve boş cetvelleri üretin.
             </p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        {/* Kart 1: Teklif Mektubu (Dağıtımlı) */}
-        <div className="flex flex-col justify-between p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs hover:shadow-sm transition-all group">
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shrink-0 group-hover:scale-105 transition-transform">
-              <Send className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">
-                Teklif Mektubu (Dağıtımlı)
-              </h4>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                İstekli firmaların isimlerinin yer aldığı toplu dağıtım listeli resmi yazı.
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => handleOpenSablonByDosyaAdi("arastirma-mektubu")}
-            className="mt-3 w-full py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-          >
-            <Send className="w-3.5 h-3.5" />
-            <span>Dağıtım Mektubunu Aç</span>
-          </button>
-        </div>
+        {DAGITIM_BELGELERI_KARTLARI.map((kart) => {
+          const IconComponent = ICON_MAP[kart.iconName];
+          const style = COLOR_STYLES[kart.themeColor];
 
-        {/* Kart 2: Karma Dağıtım Mektubu */}
-        <div className="flex flex-col justify-between p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-700 shadow-2xs hover:shadow-sm transition-all group">
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 shrink-0 group-hover:scale-105 transition-transform">
-              <Layers className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">
-                Karma Dağıtım Mektubu
-              </h4>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                Farklı kalem grupları içeren alımlar için dağıtım çizelgeli mektup.
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => handleOpenSablonByDosyaAdi("fiyat-arastirma-mektubu")}
-            className="mt-3 w-full py-1.5 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span>Karma Mektubu Aç</span>
-          </button>
-        </div>
-
-        {/* Kart 3: Boş Birim Fiyat Teklif Cetveli */}
-        <div className="flex flex-col justify-between p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-700 shadow-2xs hover:shadow-sm transition-all group">
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0 group-hover:scale-105 transition-transform">
-              <FileSpreadsheet className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">
-                Birim Fiyat Teklif Cetveli
-              </h4>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                İstekli firmalara fiyatlarını doldurmaları için verilecek boş teklif formu.
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => handleOpenSablonByDosyaAdi("birim-fiyat-teklif-mektubu")}
-            className="mt-3 w-full py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-          >
-            <FileSpreadsheet className="w-3.5 h-3.5" />
-            <span>Teklif Cetvelini Aç</span>
-          </button>
-        </div>
-
-        {/* Kart 4: EKAP Yasaklılık Kontrolü & Tutanak */}
-        <div className="flex flex-col justify-between p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-orange-300 dark:hover:border-orange-700 shadow-2xs hover:shadow-sm transition-all group">
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 shrink-0 group-hover:scale-105 transition-transform">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">
-                Yasaklılık Sorgulama & Tutanak
-              </h4>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                İhale yasağı kontrolü yapın ve yasaklılık sorgulama tutanağını düzenleyin.
-              </p>
-            </div>
-          </div>
-          <div className="mt-3 grid grid-cols-2 gap-1.5">
-            <button
-              type="button"
-              onClick={() => handleOpenEkapSorgu()}
-              className="py-1.5 px-2 rounded-lg bg-orange-50 hover:bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300 text-[11px] font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer border border-orange-200 dark:border-orange-800"
-              title="EKAP üzerinden canlı sorgula"
+          return (
+            <div
+              key={kart.id}
+              className={`flex flex-col justify-between p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 ${style.hoverBorder} shadow-2xs hover:shadow-sm transition-all group`}
             >
-              <ExternalLink className="w-3 h-3 text-orange-600" />
-              <span>EKAP Sorgu</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleOpenSablonByDosyaAdi("yasaklilik-sorgulama-tutanagi")}
-              className="py-1.5 px-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-[11px] font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
-              title="Yasaklılık Sorgulama Tutanağını Aç"
-            >
-              <FileCheck className="w-3 h-3" />
-              <span>Tutanağı Aç</span>
-            </button>
-          </div>
-        </div>
+              <div className="flex items-start gap-3">
+                <div
+                  className={`p-2 rounded-lg ${style.iconBg} ${style.iconColor} shrink-0 group-hover:scale-105 transition-transform`}
+                >
+                  <IconComponent className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                    {kart.title}
+                  </h4>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                    {kart.description}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleOpenSablonByDosyaAdi(kart.templateKey)}
+                className={`mt-3 w-full py-1.5 px-3 rounded-lg ${style.buttonBg} text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs`}
+              >
+                <IconComponent className="w-3.5 h-3.5" />
+                <span>{kart.buttonText}</span>
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
