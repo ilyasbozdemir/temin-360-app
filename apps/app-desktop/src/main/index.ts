@@ -1,9 +1,8 @@
-import { app, shell, BrowserWindow, ipcMain, dialog, Tray, Menu, session, protocol } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog, Tray, Menu, session, protocol, nativeImage } from 'electron'
 import { join, basename, dirname } from 'path'
 import { execFile } from 'child_process'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import mime from 'mime-types'
-import { autoUpdater } from 'electron-updater'
 import fs from 'fs'
 
 protocol.registerSchemesAsPrivileged([
@@ -27,7 +26,19 @@ const iconIco = app.isPackaged
   ? join(process.resourcesPath, 'icon.ico')
   : join(__dirname, '../../resources/icon.ico')
 
-const icon = fs.existsSync(iconIco) ? iconIco : iconPng
+const getAppIcon = (): string | undefined => {
+  if (fs.existsSync(iconIco)) {
+    const img = nativeImage.createFromPath(iconIco)
+    if (!img.isEmpty()) return iconIco
+  }
+  if (fs.existsSync(iconPng)) {
+    const img = nativeImage.createFromPath(iconPng)
+    if (!img.isEmpty()) return iconPng
+  }
+  return undefined
+}
+
+const icon = getAppIcon()
 
 // Windows Taskbar & Pinning için AppUserModelID kaydını en erken aşamada çağırıyoruz
 if (process.platform === 'win32') {
@@ -35,7 +46,7 @@ if (process.platform === 'win32') {
     app.setAppUserModelId('dev.ilyasbozdemir.temin360')
   } catch (e) {}
 }
-import { workspaceManager, ensureSchemaIntegrity } from './database/workspace'
+import { workspaceManager } from './database/workspace'
 import { CURRENT_SCHEMA_VERSION, manifests } from '@dt/database'
 import nodemailer from 'nodemailer'
 import {
@@ -585,8 +596,10 @@ if (!gotTheLock && !isMultiInstance) {
     }
 
     try {
-      const trayIconPath = fs.existsSync(iconPng) ? iconPng : icon
-      tray = new Tray(trayIconPath)
+      const trayIconPath = (fs.existsSync(iconPng) ? iconPng : icon) ?? iconPng
+      if (trayIconPath) {
+        tray = new Tray(trayIconPath)
+      }
       const contextMenu = Menu.buildFromTemplate([
         {
           label: 'Gösterge Paneli',
