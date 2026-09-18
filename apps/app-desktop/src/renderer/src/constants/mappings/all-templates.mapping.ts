@@ -5,7 +5,7 @@ import { ProcessMapping } from './types'
 // ===========================================================
 export const ArastirmaMektubuMapping: ProcessMapping = {
   antetSatirlari: { tablo: 'TANIM_Kurum', sutun: 'kurum_anteti', aciklama: 'Kurum Anteti' },
-  dosyaKonusu: { deger: 'Araştırma Mektubu', aciklama: 'Belge Başlığı / Konusu' },
+  dosyaKonusu: { deger: 'Fiyat Araştırması', aciklama: 'Belge Başlığı / Konusu' },
   hazirlayanPersonelAdi: {
     tablo: 'DATA_TeminDosyasi',
     sutun: 'hazirlayan_personel_ad',
@@ -30,6 +30,28 @@ export const ArastirmaMektubuMapping: ProcessMapping = {
       ozelligi: 'aciklama',
       birimi: 'birim',
       miktar: 'miktar'
+    }
+  },
+  gorevlendirilenler: {
+    tablo: 'DATA_TeminKomisyon',
+    sutun: '*',
+    iliskili_id: 'temin_dosya_id',
+    altEslestirme: {
+      adSoyad: 'ad_soyad',
+      unvan: 'unvan',
+      komisyonGorevi: 'gorevi',
+      gorevi: 'gorevi'
+    }
+  },
+  fiyatKomisyonu: {
+    tablo: 'DATA_TeminKomisyon',
+    sutun: '*',
+    iliskili_id: 'temin_dosya_id',
+    altEslestirme: {
+      adSoyad: 'ad_soyad',
+      unvan: 'unvan',
+      komisyonGorevi: 'gorevi',
+      gorevi: 'gorevi'
     }
   }
 }

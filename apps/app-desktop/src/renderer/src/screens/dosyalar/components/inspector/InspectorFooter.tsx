@@ -64,7 +64,7 @@ export const InspectorFooter: React.FC<InspectorFooterProps> = ({
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all cursor-pointer shadow-xs"
         >
           <ExternalLink className="w-3.5 h-3.5" />
-          Araştırma Mektubu
+          Fiyat Araştırma Mektubu
         </button>
       </div>
 

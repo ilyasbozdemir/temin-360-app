@@ -335,7 +335,7 @@ export function useSurecAkisi(): UseSurecAkisiReturn {
       title: 'Piyasa Araştırması',
       tasks: [
         { name: 'İstekli Firmaları Yönet', done: firmalar.length > 0, tab: 'firmalar' },
-        { name: 'Araştırma Mektubu Gönder', done: false, tab: 'belgeler' },
+        { name: 'Fiyat Araştırma Mektubu Gönder', done: false, tab: 'belgeler' },
         {
           name: 'Fiyat Teklifi Al',
           done: firmalar.some((f) => f.durumu === 'teklif' || f.durumu === 'seçildi'),

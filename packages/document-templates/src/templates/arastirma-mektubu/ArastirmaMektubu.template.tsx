@@ -20,7 +20,15 @@ export function ArastirmaMektubu({
   orientation = "portrait",
 }: ArastirmaMektubuProps) {
   const items = data.ihtiyacKalemleri || [];
-  const komisyon = data.gorevlendirilenler || [];
+
+  console.log("data", data);
+
+  const komisyon = data.gorevlendirilenler ||
+    data.fiyatKomisyonu ||
+    data.komisyon ||
+    data.gorevliler ||
+    [];
+
   const firstPageLimit = data.firstPageLimit
     ? Number(data.firstPageLimit)
     : null;
@@ -307,24 +315,31 @@ export function ArastirmaMektubu({
           >
             <tbody>
               <tr>
-                {komisyon.map((uye, idx) => (
-                  <td
-                    key={idx}
-                    style={{
-                      verticalAlign: "top",
-                      fontSize: "10pt",
-                      padding: "5px",
-                      lineHeight: 1.3,
-                      width: `${100 / komisyon.length}%`,
-                    }}
-                  >
-                    <strong>{uye.komisyonGorevi}</strong>
-                    <br />
-                    {uye.adSoyad}
-                    <br />
-                    {uye.unvan}
-                  </td>
-                ))}
+                {komisyon.map((uye: any, idx: number) => {
+                  const gorevBaslik = uye.komisyonGorevi ||
+                    uye.gorevi ||
+                    uye.gorev ||
+                    uye.rol ||
+                    "";
+                  return (
+                    <td
+                      key={idx}
+                      style={{
+                        verticalAlign: "top",
+                        fontSize: "10pt",
+                        padding: "5px",
+                        lineHeight: 1.3,
+                        width: `${100 / komisyon.length}%`,
+                      }}
+                    >
+                      {gorevBaslik && <strong>{gorevBaslik}</strong>}
+                      {gorevBaslik && <br />}
+                      {uye.adSoyad || uye.ad_soyad || ""}
+                      <br />
+                      {uye.unvan || ""}
+                    </td>
+                  );
+                })}
               </tr>
             </tbody>
           </table>
