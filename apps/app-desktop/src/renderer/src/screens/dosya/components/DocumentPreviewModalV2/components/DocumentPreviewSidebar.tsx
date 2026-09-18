@@ -349,69 +349,121 @@ export function DocumentPreviewSidebar({
             </div>
           </div>
 
-          {/* OLUR Bloğu Toggle */}
+          {/* OLUR Bloğu Toggle (Sadece OLUR bloğunu destekleyen şablonlarda akıllı olarak gösterilir) */}
+          {(() => {
+            const cleanDocId = (selectedDocId || "").toLowerCase();
+            const noOlurKeywords = [
+              "klasor",
+              "kapak",
+              "indeks",
+              "sozlesme",
+              "sartname",
+              "mektub",
+              "teklif",
+              "davet",
+              "teslim-tesellum",
+              "onayi-eki",
+            ];
+            const supportsOlurBlock =
+              typeof (formData as any).olurYazisi === "boolean" ||
+              !noOlurKeywords.some((kw) => cleanDocId.includes(kw));
 
-          <label className="flex items-center justify-between p-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl cursor-pointer hover:border-slate-300 transition-colors">
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
-              OLUR Bloğunu Göster
-            </span>
-            <input
-              type="checkbox"
-              checked={formData.olurYazisi !== false}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  olurYazisi: e.target.checked,
-                }))}
-              className="w-4 h-4 text-blue-600 rounded cursor-pointer"
-            />
-          </label>
+            if (!supportsOlurBlock) return null;
 
-          {/* Sol Amblem */}
-          <label className="flex items-center justify-between p-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl cursor-pointer hover:border-slate-300 transition-colors">
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
-              Sol Amblem / Logo
-            </span>
-            <input
-              type="checkbox"
-              checked={localShowLogoLeft}
-              onChange={(e) => {
-                const checked = e.target.checked;
-                setLocalShowLogoLeft(checked);
-                if (checked) {
-                  const store = useSettingsStore.getState();
-                  const fallback = store.logoLeft || store.institutionLogo || null;
-                  if (fallback && (!formData.solLogo || String(formData.solLogo).trim() === "")) {
-                    setFormData((prev: any) => ({ ...prev, solLogo: fallback }));
-                  }
-                }
-              }}
-              className="w-4 h-4 text-blue-600 rounded cursor-pointer"
-            />
-          </label>
+            return (
+              <label className="flex items-center justify-between p-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl cursor-pointer hover:border-slate-300 transition-colors">
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                  OLUR Bloğunu Göster
+                </span>
+                <input
+                  type="checkbox"
+                  checked={formData.olurYazisi !== false}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      olurYazisi: e.target.checked,
+                    }))}
+                  className="w-4 h-4 text-blue-600 rounded cursor-pointer"
+                />
+              </label>
+            );
+          })()}
 
-          {/* Sağ Amblem */}
-          <label className="flex items-center justify-between p-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl cursor-pointer hover:border-slate-300 transition-colors">
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
-              Sağ Amblem / Logo
-            </span>
-            <input
-              type="checkbox"
-              checked={localShowLogoRight}
-              onChange={(e) => {
-                const checked = e.target.checked;
-                setLocalShowLogoRight(checked);
-                if (checked) {
-                  const store = useSettingsStore.getState();
-                  const fallback = store.logoRight || null;
-                  if (fallback && (!formData.sagLogo || String(formData.sagLogo).trim() === "")) {
-                    setFormData((prev: any) => ({ ...prev, sagLogo: fallback }));
-                  }
-                }
-              }}
-              className="w-4 h-4 text-blue-600 rounded cursor-pointer"
-            />
-          </label>
+          {/* Sol ve Sağ Amblem / Logo Toggles (Sadece logo başlığını destekleyen şablonlarda akıllı olarak gösterilir) */}
+          {(() => {
+            const cleanDocId = (selectedDocId || "").toLowerCase();
+            const noLogoKeywords = ["klasor-sirtligi", "kapak-ici-indeks"];
+            const supportsLogos = !noLogoKeywords.some((kw) =>
+              cleanDocId.includes(kw)
+            );
+
+            if (!supportsLogos) return null;
+
+            return (
+              <>
+                {/* Sol Amblem */}
+                <label className="flex items-center justify-between p-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl cursor-pointer hover:border-slate-300 transition-colors">
+                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                    Sol Amblem / Logo
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={localShowLogoLeft}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setLocalShowLogoLeft(checked);
+                      if (checked) {
+                        const store = useSettingsStore.getState();
+                        const fallback = store.logoLeft ||
+                          store.institutionLogo || null;
+                        if (
+                          fallback &&
+                          (!formData.solLogo ||
+                            String(formData.solLogo).trim() === "")
+                        ) {
+                          setFormData((prev: any) => ({
+                            ...prev,
+                            solLogo: fallback,
+                          }));
+                        }
+                      }
+                    }}
+                    className="w-4 h-4 text-blue-600 rounded cursor-pointer"
+                  />
+                </label>
+
+                {/* Sağ Amblem */}
+                <label className="flex items-center justify-between p-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl cursor-pointer hover:border-slate-300 transition-colors">
+                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                    Sağ Amblem / Logo
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={localShowLogoRight}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setLocalShowLogoRight(checked);
+                      if (checked) {
+                        const store = useSettingsStore.getState();
+                        const fallback = store.logoRight || null;
+                        if (
+                          fallback &&
+                          (!formData.sagLogo ||
+                            String(formData.sagLogo).trim() === "")
+                        ) {
+                          setFormData((prev: any) => ({
+                            ...prev,
+                            sagLogo: fallback,
+                          }));
+                        }
+                      }
+                    }}
+                    className="w-4 h-4 text-blue-600 rounded cursor-pointer"
+                  />
+                </label>
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>
