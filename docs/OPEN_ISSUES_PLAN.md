@@ -1,6 +1,6 @@
-# 📋 TEMİN 360 — Açık 8 Issue Çözüm ve Uygulama Rehberi
+# 📋 TEMİN 360 — Açık 7 Issue Çözüm ve Uygulama Rehberi
 
-Bu belge, **TEMİN 360** projesinde açık durumda olan **8 GitHub Issue'nun** detaylı teknik analizini, çözüm önerilerini, kodlama adımlarını ve uygulanacak mimarileri içermektedir.
+Bu belge, **TEMİN 360** projesinde açık durumda olan **7 GitHub Issue'nun** detaylı teknik analizini, çözüm önerilerini, kodlama adımlarını ve uygulanacak mimarileri içermektedir.
 
 ---
 
@@ -8,7 +8,6 @@ Bu belge, **TEMİN 360** projesinde açık durumda olan **8 GitHub Issue'nun** d
 
 | # | Issue Başlığı | Öncelik / Sürüm | Etkilenen Bileşenler |
 |---|---------------|-----------------|----------------------|
-| **#18** | Düzenleme butonu çalışmıyor & Input veri girişi hatası | 🚨 Yüksek (Bug Fix) | `MalzemeTablosu.tsx`, `MalzemeEkleModal.tsx` |
 | **#16** | Şablonlarda fazla kalem girildiğinde sayfa bölünme & imza alanı davranışları | 📐 Orta (Test/UI) | `packages/document-templates`, Paged.js |
 | **#9** | Doğrudan Temin Dosyası Oluşturma Sihirbazı (Wizard) | 🪄 Orta (Feature) | `yeni.screen.tsx`, `DosyaSihirbaziModal.tsx` |
 | **#11** | Kanban İş Akışı ile Doğrudan Temin Takip Paneli (`/takip`) | 📋 Orta (Feature) | `Takip.screen.tsx`, `KanbanBoard.tsx` |
@@ -20,25 +19,6 @@ Bu belge, **TEMİN 360** projesinde açık durumda olan **8 GitHub Issue'nun** d
 ---
 
 ## 🔍 Detaylı Analizler ve Kodlama Adımları
-
----
-
-### 1️⃣ Issue #18: Malzeme Düzenleme Butonu ve Input Bug Fix
-
-#### 🐛 Mevcut Durum
-Malzemeler ekranında kayıtlı kalemler listelenirken "Düzenle" butonuna tıklandığında seçili kalemin verisi `MalzemeEkleModal` içine yüklenmiyor veya kaydetme sırasında güncelleme yerine yeni kayıt ekliyor.
-
-#### 🛠️ Çözüm & Kodlama Adımları
-1. [`MalzemeTablosu.tsx`](file:///d:/Github/ilyas-bozdemir/temin-360-app/apps/app-desktop/src/renderer/src/screens/dosya/sub-screens/components/MalzemeListesi/MalzemeTablosu.tsx) dosyasında düzenleme butonuna tıklanınca tetiklenen `onEditItem(item)` handler'ı kontrol edilecek.
-2. Modal state'ine seçilen kalemin `id` değerinin aktarıldığından emin olunacak:
-   ```typescript
-   const handleEdit = (kalem: any) => {
-     setSelectedKalem(kalem);
-     setIsModalOpen(true);
-   };
-   ```
-3. `MalzemeEkleModal.tsx` içinde `selectedKalem` prop'u varsa form `defaultValues` nesnesinin sıfırlanması (`reset(selectedKalem)`) sağlanacak.
-4. Kaydet butonunda `id` varsa `UPDATE DATA_TeminKalem`, yoksa `INSERT INTO DATA_TeminKalem` çalıştırılacak.
 
 ---
 
