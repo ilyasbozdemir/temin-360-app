@@ -106,9 +106,9 @@ export function FiyatArastirmaMektubu({
           }}
         >
           <EditableField
-            name="idareAdi"
-            value={data.idareAdi || data.kurumAdi}
-            placeholder="Kurum/İdare Adı"
+            name="idareHitapMetni"
+            value={data.idareHitapMetni || data.idareAdi || "Kurumumuza ait"}
+            placeholder="Kurumumuza ait / İdare Adı"
           />,{" "}
           <EditableField
             name="isinAdi"
@@ -158,8 +158,6 @@ export function FiyatArastirmaMektubu({
             ))}
           </div>
         )}
-
-        <div style={{ borderTop: "1px solid #000", margin: "14px 0" }} />
 
         {/* BÖLÜM 2: FİYAT ARAŞTIRMA VE BİRİM FİYAT TEKLİF MEKTUBU */}
 
