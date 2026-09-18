@@ -68,14 +68,19 @@ export function DateEditableField({
         }
       }}
       style={{
-        fontSize: "9pt",
-        padding: "2px 5px",
-        borderRadius: "4px",
-        border: "1px solid #94a3b8",
-        backgroundColor: "#f8fafc",
-        cursor: "pointer",
-        color: "#0f172a",
+        fontSize: "inherit",
         fontFamily: "inherit",
+        fontWeight: "inherit",
+        color: "inherit",
+        padding: "0 2px",
+        borderRadius: "0",
+        border: "none",
+        borderBottom: "1px dashed #94a3b8",
+        backgroundColor: "transparent",
+        cursor: "pointer",
+        display: "inline-block",
+        outline: "none",
+        verticalAlign: "baseline",
       }}
       title={tooltipText}
     />

@@ -38,7 +38,9 @@ export function RowMenu({
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(
+    null,
+  );
 
   const updateCoords = useCallback(() => {
     if (buttonRef.current) {
@@ -114,62 +116,9 @@ export function RowMenu({
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors cursor-pointer"
               >
                 <Trophy className="w-4 h-4 text-amber-500 shrink-0" />
-                {isWinner ? "Kazanan Seçimini Kaldır" : "Kazanan Firma Olarak Seç"}
-              </button>
-            )}
-
-            {onFiyatGir && (
-              <button
-                type="button"
-                onClick={() => handleItem(onFiyatGir)}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer"
-              >
-                <Calculator className="w-4 h-4 text-emerald-500 shrink-0" />
-                Teklif / Fiyat Girişi Yap
-              </button>
-            )}
-
-            {onFiyatPiyasaFormu && (
-              <button
-                type="button"
-                onClick={() => handleItem(() => onFiyatPiyasaFormu(firma))}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-              >
-                <FileText className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                Fiyat Araştırma İsteme Mektubu
-              </button>
-            )}
-
-            {onBirimFiyatArastirmasi && (
-              <button
-                type="button"
-                onClick={() => handleItem(() => onBirimFiyatArastirmasi(firma))}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-              >
-                <Tag className="w-3.5 h-3.5 text-violet-500 shrink-0" />
-                Birim Fiyat Teklif Mektubu
-              </button>
-            )}
-
-            {onBosTeklifCetveli && (
-              <button
-                type="button"
-                onClick={() => handleItem(() => onBosTeklifCetveli(firma))}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-              >
-                <FileSpreadsheet className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                Birim Fiyat Teklif Cetveli
-              </button>
-            )}
-
-            {onEkapSorgula && (
-              <button
-                type="button"
-                onClick={() => handleItem(() => onEkapSorgula(firma))}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-orange-700 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/40 transition-colors cursor-pointer font-medium"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-orange-500 shrink-0" />
-                EKAP Yasaklılık Sorgula
+                {isWinner
+                  ? "Kazanan Seçimini Kaldır"
+                  : "Kazanan Firma Olarak Seç"}
               </button>
             )}
 

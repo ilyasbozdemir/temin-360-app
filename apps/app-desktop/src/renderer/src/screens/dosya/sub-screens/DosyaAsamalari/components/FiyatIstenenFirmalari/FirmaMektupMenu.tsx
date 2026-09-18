@@ -130,7 +130,8 @@ export function FirmaMektupMenu({
                       Fiyat Araştırması
                     </div>
                     <div className="text-[10px] text-slate-400">
-                      Yaklaşık maliyet cetveli için
+                      Yaklaşık maliyet ve piyasa fiyat araştırma tutanağı -
+                      istekliye firmalara dağıtılır.
                     </div>
                   </div>
                 </button>

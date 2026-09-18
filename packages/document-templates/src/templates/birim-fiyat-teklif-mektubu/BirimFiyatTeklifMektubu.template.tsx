@@ -112,7 +112,8 @@ export function BirimFiyatTeklifMektubu({
             lineHeight: 1.35,
           }}
         >
-          <div style={{ textAlign: "right", fontWeight: "bold", marginBottom: "4px" }}>
+          <div style={{ textAlign: "right", fontSize: "10pt", marginBottom: "6px" }}>
+            <strong>Tarih:</strong>{" "}
             <DateEditableField name="dosyaTarihi" value={data.dosyaTarihi || data.tarih} placeholder="GG.AA.YYYY" />
           </div>
 
@@ -214,9 +215,7 @@ export function BirimFiyatTeklifMektubu({
             {!isMultiPage && (
               <tfoot>
                 <tr>
-                  <td colSpan={5} style={{ border: "none", textAlign: "left", padding: "6px 0", fontStyle: "italic", fontSize: "9pt" }}>
-                    Para birimi: TL
-                  </td>
+                  <td colSpan={5} style={{ border: "none" }} />
                   <td style={{ border: "1px solid #000", padding: "4px", textAlign: "center", fontWeight: "bold", backgroundColor: "#f2f2f2" }}>
                     Toplam Tutar (KDV Hariç)
                   </td>
@@ -235,19 +234,42 @@ export function BirimFiyatTeklifMektubu({
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "flex-start",
-                marginTop: "12px",
+                marginTop: "16px",
                 paddingTop: "4px",
+                fontSize: "9.5pt",
               }}
             >
-              <div style={{ fontStyle: "italic", color: "#333", fontSize: "9pt" }}>
+              <div style={{ fontStyle: "italic", color: "#333", fontSize: "9pt", paddingTop: "4px" }}>
                 Para Birimi: Türk Lirası (TL)
               </div>
-              <div style={{ textAlign: "center", minWidth: "220px", fontSize: "9.5pt", lineHeight: 1.3, marginLeft: "auto" }}>
-                <DateEditableField name="tarih" value={data.tarih || data.dosyaTarihi} placeholder="……/……/20…" />
-                <div style={{ marginTop: "4px", fontWeight: "bold" }}>
-                  {data.teklifSahibi || data.firmaUnvani || "Firma / Yetkili Adı"}
+              <div
+                style={{
+                  width: "240px",
+                  textAlign: "center",
+                  marginLeft: "auto",
+                  marginRight: "10px",
+                  lineHeight: 1.4,
+                }}
+              >
+                <div>
+                  <strong>Tarih:</strong>{" "}
+                  <DateEditableField
+                    name="tarih"
+                    value={data.tarih || data.dosyaTarihi}
+                    placeholder="……/……/20…"
+                  />
                 </div>
-                <div style={{ marginTop: "16px" }}>Kaşe - İmza</div>
+                <div style={{ marginTop: "8px", fontWeight: "bold", fontSize: "10pt" }}>
+                  <EditableField
+                    name="teklifSahibi"
+                    value={data.teklifSahibi || data.firmaUnvani}
+                    placeholder="Teklif Sahibi / Firma Adı"
+                  />
+                </div>
+                <div style={{ fontSize: "9pt", color: "#444", marginTop: "4px" }}>
+                  Kaşe - İmza
+                </div>
+                <div style={{ height: "35px" }} />
               </div>
             </div>
           )}
@@ -285,9 +307,7 @@ export function BirimFiyatTeklifMektubu({
               {renderTableRows(page2Items, firstPageLimit)}
               <tfoot>
                 <tr>
-                  <td colSpan={5} style={{ border: "none", textAlign: "left", padding: "6px 0", fontStyle: "italic", fontSize: "9pt" }}>
-                    Para birimi: TL
-                  </td>
+                  <td colSpan={5} style={{ border: "none" }} />
                   <td style={{ border: "1px solid #000", padding: "4px", textAlign: "center", fontWeight: "bold", backgroundColor: "#f2f2f2" }}>
                     Toplam Tutar (KDV Hariç)
                   </td>
@@ -304,17 +324,41 @@ export function BirimFiyatTeklifMektubu({
                 justifyContent: "space-between",
                 alignItems: "flex-start",
                 marginTop: "16px",
+                paddingTop: "4px",
+                fontSize: "9.5pt",
               }}
             >
-              <div style={{ fontStyle: "italic", color: "#333", fontSize: "9pt" }}>
+              <div style={{ fontStyle: "italic", color: "#333", fontSize: "9pt", paddingTop: "4px" }}>
                 Para Birimi: Türk Lirası (TL)
               </div>
-              <div style={{ textAlign: "center", minWidth: "220px", fontSize: "9.5pt", lineHeight: 1.3, marginLeft: "auto" }}>
-                <DateEditableField name="tarih" value={data.tarih || data.dosyaTarihi} placeholder="……/……/20…" />
-                <div style={{ marginTop: "4px", fontWeight: "bold" }}>
-                  {data.teklifSahibi || data.firmaUnvani || "Firma / Yetkili Adı"}
+              <div
+                style={{
+                  width: "240px",
+                  textAlign: "center",
+                  marginLeft: "auto",
+                  marginRight: "10px",
+                  lineHeight: 1.4,
+                }}
+              >
+                <div>
+                  <strong>Tarih:</strong>{" "}
+                  <DateEditableField
+                    name="tarih"
+                    value={data.tarih || data.dosyaTarihi}
+                    placeholder="……/……/20…"
+                  />
                 </div>
-                <div style={{ marginTop: "16px" }}>Kaşe - İmza</div>
+                <div style={{ marginTop: "8px", fontWeight: "bold", fontSize: "10pt" }}>
+                  <EditableField
+                    name="teklifSahibi"
+                    value={data.teklifSahibi || data.firmaUnvani}
+                    placeholder="Teklif Sahibi / Firma Adı"
+                  />
+                </div>
+                <div style={{ fontSize: "9pt", color: "#444", marginTop: "4px" }}>
+                  Kaşe - İmza
+                </div>
+                <div style={{ height: "35px" }} />
               </div>
             </div>
           </div>
