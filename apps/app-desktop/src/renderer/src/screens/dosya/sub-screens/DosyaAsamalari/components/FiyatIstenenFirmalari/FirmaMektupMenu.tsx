@@ -130,7 +130,7 @@ export function FirmaMektupMenu({
                       Fiyat Araştırması
                     </div>
                     <div className="text-[10px] text-slate-400">
-                      Hitaplı, adresli ve il/ilçe başlıklı isteme mektubu
+                      Yaklaşık maliyet cetveli için
                     </div>
                   </div>
                 </button>

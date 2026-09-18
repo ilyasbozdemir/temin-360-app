@@ -389,23 +389,37 @@ export function ArastirmaMektubu({
               display: "flex",
               justifyContent: "space-between",
               alignItems: "flex-start",
-              marginTop: "30px",
-              fontSize: "11pt",
-              lineHeight: 1.8,
+              marginTop: "25px",
+              fontSize: "10.5pt",
+              lineHeight: 1.5,
             }}
           >
-            <div style={{ fontStyle: "italic", color: "#333" }}>
+            <div style={{ fontStyle: "italic", color: "#333", paddingTop: "5px" }}>
               Para Birimi: Türk Lirası (TL)
             </div>
-            <div style={{ textAlign: "center", marginLeft: "auto" }}>
-              <br />
-              Tarih:
-              <br />
-              <br />
-              Kaşe:
-              <br />
-              <br />
-              İmza:
+            <div
+              style={{
+                width: "220px",
+                textAlign: "center",
+                marginLeft: "auto",
+                marginRight: "15px",
+              }}
+            >
+              <div>
+                <strong>Tarih:</strong>{" "}
+                <DateEditableField
+                  name="tarih"
+                  value={data.tarih || data.dosyaTarihi}
+                  placeholder="…/…/20…"
+                />
+              </div>
+              <div style={{ fontWeight: "bold", marginTop: "12px" }}>
+                Firma Yetkilisi
+              </div>
+              <div style={{ fontSize: "10pt", color: "#444" }}>
+                Kaşe ve İmza
+              </div>
+              <div style={{ height: "45px" }} />
             </div>
           </div>
         )}
@@ -457,28 +471,37 @@ export function ArastirmaMektubu({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            marginTop: "35px",
-            fontSize: "11pt",
-            lineHeight: 1.8,
+            marginTop: "30px",
+            fontSize: "10.5pt",
+            lineHeight: 1.5,
           }}
         >
-          <div style={{ fontStyle: "italic", color: "#333" }}>
+          <div style={{ fontStyle: "italic", color: "#333", paddingTop: "5px" }}>
             Para Birimi: Türk Lirası (TL)
           </div>
-          <div style={{ textAlign: "right", marginLeft: "auto" }}>
-            Tarih:{" "}
-            <DateEditableField
-              name="tarih"
-              value={data.tarih || data.dosyaTarihi}
-              placeholder=".…../.…../20…"
-            />
-            <br />
-            Tarih:
-            <br />
-            Kaşe:
-            <br />
-            <br />
-            İmza:
+          <div
+            style={{
+              width: "220px",
+              textAlign: "center",
+              marginLeft: "auto",
+              marginRight: "15px",
+            }}
+          >
+            <div>
+              <strong>Tarih:</strong>{" "}
+              <DateEditableField
+                name="tarih"
+                value={data.tarih || data.dosyaTarihi}
+                placeholder="…/…/20…"
+              />
+            </div>
+            <div style={{ fontWeight: "bold", marginTop: "12px" }}>
+              Firma Yetkilisi
+            </div>
+            <div style={{ fontSize: "10pt", color: "#444" }}>
+              Kaşe ve İmza
+            </div>
+            <div style={{ height: "45px" }} />
           </div>
         </div>
       </div>
