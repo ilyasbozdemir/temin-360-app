@@ -8,7 +8,6 @@ import {
 import { TableRowSplitDivider } from "../../document/TableRowSplitDivider";
 import { ArastirmaMektubuType } from "./ArastirmaMektubu.schema";
 
-
 interface ArastirmaMektubuProps {
   data?: Partial<ArastirmaMektubuType> & Record<string, any>;
   pageSize?: "A4" | "A3";
@@ -116,75 +115,76 @@ export function ArastirmaMektubu({
 
   const renderTableRows = (rowItems: typeof items, startIndex = 0) => (
     <tbody>
-      {rowItems.length > 0 ? (
-        rowItems.map((item, idx) => {
-          const rowNum = startIndex + idx + 1;
-          return (
-            <React.Fragment key={idx}>
-              <tr>
-                <td
-                  style={{
-                    border: "1px solid #000",
-                    padding: "6px",
-                    textAlign: "center",
-                  }}
-                >
-                  {item.siraNo || rowNum}
-                </td>
-                <td style={{ border: "1px solid #000", padding: "6px" }}>
-                  {item.malzemeAdi}
-                </td>
-                <td style={{ border: "1px solid #000", padding: "6px" }}>
-                  {item.ozelligi || "-"}
-                </td>
-                <td
-                  style={{
-                    border: "1px solid #000",
-                    padding: "6px",
-                    textAlign: "center",
-                  }}
-                >
-                  {item.birimi || "-"}
-                </td>
-                <td
-                  style={{
-                    border: "1px solid #000",
-                    padding: "6px",
-                    textAlign: "right",
-                  }}
-                >
-                  {item.miktar}
-                </td>
-                <td
-                  style={{
-                    border: "1px solid #000",
-                    padding: "6px",
-                    textAlign: "right",
-                  }}
-                >
-                  {item.birimFiyat ? `${item.birimFiyat} ₺` : ""}
-                </td>
-                <td
-                  style={{
-                    border: "1px solid #000",
-                    padding: "6px",
-                    textAlign: "right",
-                  }}
-                >
-                  {item.tutar ? `${item.tutar} ₺` : ""}
-                </td>
-              </tr>
-              {/* On-Hover & Active Split Row Divider */}
-              <TableRowSplitDivider
-                rowIndex={rowNum}
-                colSpan={7}
-                currentSplitIndex={firstPageLimit}
-              />
-            </React.Fragment>
-          );
-        })
-      ) : (
-
+      {rowItems.length > 0
+        ? (
+          rowItems.map((item, idx) => {
+            const rowNum = startIndex + idx + 1;
+            return (
+              <React.Fragment key={idx}>
+                <tr>
+                  <td
+                    style={{
+                      border: "1px solid #000",
+                      padding: "6px",
+                      textAlign: "center",
+                    }}
+                  >
+                    {item.siraNo || rowNum}
+                  </td>
+                  <td style={{ border: "1px solid #000", padding: "6px" }}>
+                    {item.malzemeAdi}
+                  </td>
+                  <td style={{ border: "1px solid #000", padding: "6px" }}>
+                    {item.ozelligi || "-"}
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #000",
+                      padding: "6px",
+                      textAlign: "center",
+                    }}
+                  >
+                    {item.birimi || "-"}
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #000",
+                      padding: "6px",
+                      textAlign: "right",
+                    }}
+                  >
+                    {item.miktar}
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #000",
+                      padding: "6px",
+                      textAlign: "right",
+                    }}
+                  >
+                    {item.birimFiyat ? `${item.birimFiyat} ₺` : ""}
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #000",
+                      padding: "6px",
+                      textAlign: "right",
+                    }}
+                  >
+                    {item.tutar ? `${item.tutar} ₺` : ""}
+                  </td>
+                </tr>
+                {/* On-Hover & Active Split Row Divider */}
+                <TableRowSplitDivider
+                  rowIndex={rowNum}
+                  colSpan={7}
+                  currentSplitIndex={firstPageLimit}
+                />
+              </React.Fragment>
+            );
+          })
+        )
+        : (
           <tr>
             <td
               colSpan={7}
@@ -242,11 +242,20 @@ export function ArastirmaMektubu({
           <div style={{ fontWeight: "bold", fontSize: "12pt" }}>
             <EditableField
               name="sayinIlgili"
-              value={data.sayinIlgili || (data.firmaUnvani ? `Sayın ${data.firmaUnvani}` : "Sayın İlgili,")}
+              value={data.sayinIlgili || (data.firmaUnvani
+                ? `Sayın ${data.firmaUnvani}`
+                : "Sayın İlgili,")}
               placeholder="Sayın [Firma Unvanı] / Sayın İlgili,"
             />
           </div>
-          <div style={{ fontSize: "10.5pt", color: "#222", marginTop: "2px", textAlign: "center" }}>
+          <div
+            style={{
+              fontSize: "10.5pt",
+              color: "#222",
+              marginTop: "2px",
+              textAlign: "center",
+            }}
+          >
             <div>
               <EditableField
                 name="firmaAdresi"
@@ -350,13 +359,6 @@ export function ArastirmaMektubu({
               Para Birimi: Türk Lirası (TL)
             </div>
             <div style={{ textAlign: "right", marginLeft: "auto" }}>
-              Tarih:{" "}
-              <DateEditableField
-                name="tarih"
-                value={data.tarih || data.dosyaTarihi}
-                placeholder=".…../.…../20…"
-              />
-              <br />
               Kaşe:
               <br />
               <br />
