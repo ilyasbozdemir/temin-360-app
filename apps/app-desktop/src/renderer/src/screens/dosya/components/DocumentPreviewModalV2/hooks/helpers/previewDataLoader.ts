@@ -4,6 +4,20 @@ import { useSettingsStore } from "../../../../../../store/settingsStore";
 import { useGlobalDocumentPreviewStore } from "../../../../../../store/globalDocumentPreviewStore";
 import { LoadPreviewDataParams, LoadPreviewDataResult } from "./types";
 
+function dedupeMembers(members: any[]) {
+  if (!Array.isArray(members)) return [];
+  const seen = new Set<string>();
+  return members.filter((m: any) => {
+    const rawName = (m.ad_soyad || m.adSoyad || "").trim().toLowerCase();
+    const pid = m.personel_id ? `pid_${m.personel_id}` : null;
+    const key = pid || (rawName ? `name_${rawName}` : null);
+    if (!key) return true;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export async function loadDocumentPreviewData({
   activeDosyaId,
   resolvedId,
@@ -239,7 +253,8 @@ export async function loadDocumentPreviewData({
         }
 
         if (maliyetMembers.length > 0) {
-          const formattedMaliyet = maliyetMembers.map((m: any) => ({
+          const deduplicatedMaliyet = dedupeMembers(maliyetMembers);
+          const formattedMaliyet = deduplicatedMaliyet.map((m: any) => ({
             adSoyad: m.ad_soyad || "",
             unvan: m.unvan || "",
             gorev: m.gorev || "Fiyat Araştırma Görevlisi",
@@ -254,7 +269,8 @@ export async function loadDocumentPreviewData({
         }
 
         if (muayeneMembers.length > 0) {
-          baseData.muayeneKomisyonu = muayeneMembers.map((m: any) => ({
+          const deduplicatedMuayene = dedupeMembers(muayeneMembers);
+          baseData.muayeneKomisyonu = deduplicatedMuayene.map((m: any) => ({
             adSoyad: m.ad_soyad || "",
             unvan: m.unvan || "",
             gorev: m.gorev || "Üye",

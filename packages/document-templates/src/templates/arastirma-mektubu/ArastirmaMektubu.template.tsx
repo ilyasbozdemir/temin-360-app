@@ -23,11 +23,20 @@ export function ArastirmaMektubu({
 
   console.log("data", data);
 
-  const komisyon = data.gorevlendirilenler ||
-    data.fiyatKomisyonu ||
+  const komisyonRaw = data.fiyatKomisyonu ||
+    data.gorevlendirilenler ||
     data.komisyon ||
     data.gorevliler ||
     [];
+
+  const seenNames = new Set<string>();
+  const komisyon = (Array.isArray(komisyonRaw) ? komisyonRaw : []).filter((uye: any) => {
+    const nameKey = (uye.adSoyad || uye.ad_soyad || "").trim().toLowerCase();
+    if (!nameKey) return true;
+    if (seenNames.has(nameKey)) return false;
+    seenNames.add(nameKey);
+    return true;
+  });
 
   const firstPageLimit = data.firstPageLimit
     ? Number(data.firstPageLimit)
@@ -314,33 +323,48 @@ export function ArastirmaMektubu({
             }}
           >
             <tbody>
-              <tr>
-                {komisyon.map((uye: any, idx: number) => {
-                  const gorevBaslik = uye.komisyonGorevi ||
-                    uye.gorevi ||
-                    uye.gorev ||
-                    uye.rol ||
-                    "";
-                  return (
-                    <td
-                      key={idx}
-                      style={{
-                        verticalAlign: "top",
-                        fontSize: "10pt",
-                        padding: "5px",
-                        lineHeight: 1.3,
-                        width: `${100 / komisyon.length}%`,
-                      }}
-                    >
-                      {gorevBaslik && <strong>{gorevBaslik}</strong>}
-                      {gorevBaslik && <br />}
-                      {uye.adSoyad || uye.ad_soyad || ""}
-                      <br />
-                      {uye.unvan || ""}
-                    </td>
+              {Array.from(
+                { length: Math.ceil(komisyon.length / 4) },
+                (_, rowIndex) => {
+                  const rowMembers = komisyon.slice(
+                    rowIndex * 4,
+                    rowIndex * 4 + 4
                   );
-                })}
-              </tr>
+                  const cellWidth = `${100 / Math.min(rowMembers.length, 4)}%`;
+                  return (
+                    <tr key={rowIndex}>
+                      {rowMembers.map((uye: any, idx: number) => {
+                        const gorevBaslik =
+                          uye.komisyonGorevi ||
+                          uye.gorevi ||
+                          uye.gorev ||
+                          uye.rol ||
+                          "Üye";
+                        return (
+                          <td
+                            key={idx}
+                            style={{
+                              verticalAlign: "top",
+                              fontSize: "10pt",
+                              padding: "6px 8px 24px 8px",
+                              lineHeight: 1.4,
+                              width: cellWidth,
+                            }}
+                          >
+                            {gorevBaslik && <strong>{gorevBaslik}</strong>}
+                            {gorevBaslik && <br />}
+                            {uye.adSoyad || uye.ad_soyad || ""}
+                            <br />
+                            {uye.unvan || ""}
+                            {/* Dikey imza alanı boşluğu */}
+                            <div style={{ height: "28px" }} />
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                }
+              )}
             </tbody>
           </table>
         )}
@@ -373,7 +397,11 @@ export function ArastirmaMektubu({
             <div style={{ fontStyle: "italic", color: "#333" }}>
               Para Birimi: Türk Lirası (TL)
             </div>
-            <div style={{ textAlign: "right", marginLeft: "auto" }}>
+            <div style={{ textAlign: "center", marginLeft: "auto" }}>
+              <br />
+              Tarih:
+              <br />
+              <br />
               Kaşe:
               <br />
               <br />

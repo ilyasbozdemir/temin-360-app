@@ -88,7 +88,7 @@ export function FirmaMektupMenu({
         title={`${firma.unvan} için Fiyat Araştırma İsteme Mektubunu (Hitaplı & Adresli) Aç`}
       >
         <Mail className="w-3 h-3 text-blue-500" />
-        <span>Mektup</span>
+        <span>Fiyat Araştırması</span>
       </button>
 
       <button
@@ -127,7 +127,7 @@ export function FirmaMektupMenu({
                   <FileText className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                   <div>
                     <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                      Fiyat Araştırma Mektubu
+                      Fiyat Araştırması
                     </div>
                     <div className="text-[10px] text-slate-400">
                       Hitaplı, adresli ve il/ilçe başlıklı isteme mektubu
