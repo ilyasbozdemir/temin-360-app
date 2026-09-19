@@ -111,8 +111,8 @@ export function registerUpdaterIpcHandlers(): void {
     try {
       if (!app.isPackaged && !autoUpdater.forceDevUpdateConfig) {
         return {
-          success: false,
-          error: 'Geliştirme modunda (Dev) otomatik güncelleme denetlenemez.'
+          success: true,
+          version: app.getVersion()
         }
       }
       const result = await autoUpdater.checkForUpdates()
