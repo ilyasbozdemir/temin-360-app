@@ -24,7 +24,7 @@ export default function DosyalarScreen(): React.ReactNode {
     bulkHardDeleteDosyalar,
   } = useDosyalarHooks();
   const { projeler } = useProjeHooks();
-  const { activeDosyaId, setActiveDosyaId, activeMeta } = useWorkspaceStore();
+  const { activeDosyaId, setActiveDosyaId, activeMeta, activeFilePath } = useWorkspaceStore();
   const { updateTabLabel } = useTabStore();
   const routerState = useRouterState();
   const navigate = useNavigate();
