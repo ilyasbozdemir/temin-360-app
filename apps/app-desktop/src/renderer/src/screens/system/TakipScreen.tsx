@@ -37,7 +37,7 @@ import { emitAppEvent, useAppEventListener } from '../../utils/appEvents'
 import { DosyaNotlariWidget } from '../notlar/components/DosyaNotlariWidget'
 
 export function TakipScreen(): React.JSX.Element {
-  const { activeDosyaId, setActiveDosyaId } = useWorkspaceStore()
+  const { activeDosyaId, setActiveDosyaId, activeFilePath } = useWorkspaceStore()
   const { dosyalar, deleteDosya, hardDeleteDosya } = useDosyalarHooks()
   const { addTab } = useTabStore()
   const queryClient = useQueryClient()
@@ -94,9 +94,10 @@ export function TakipScreen(): React.JSX.Element {
 
   const handleOpenInNewWindow = () => {
     if (!activeDosya) return
+    const wpParam = activeFilePath ? `&wp=${encodeURIComponent(activeFilePath)}` : ''
     window.electron?.ipcRenderer.send('window:open-secondary', {
       path: '/dosyalar',
-      search: `?id=${activeDosya.id}&mode=window`,
+      search: `?id=${activeDosya.id}&mode=window${wpParam}`,
       title: `DT: ${activeDosya.konu}`
     })
   }

@@ -441,9 +441,6 @@ export function PageWrapper(): React.ReactNode {
     if (isAnyWindowMode) return
     if (activeDosyaId === null) {
       clearDosyaTabs()
-      if (window.electron) {
-        window.electron.ipcRenderer.send('window:close-secondary-windows')
-      }
     }
   }, [activeDosyaId, clearDosyaTabs, isAnyWindowMode])
 

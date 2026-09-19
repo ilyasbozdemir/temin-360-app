@@ -112,9 +112,10 @@ export default function DosyalarScreen(): React.ReactNode {
 
   const handleOpenInNewWindow = (dosya: TeminDosyasi) => {
     if (!dosya) return;
+    const wpParam = activeFilePath ? `&wp=${encodeURIComponent(activeFilePath)}` : '';
     window.electron?.ipcRenderer.send("window:open-secondary", {
       path: "/dosyalar",
-      search: `?id=${dosya.id}&mode=window`,
+      search: `?id=${dosya.id}&mode=window${wpParam}`,
       title: `DT: ${dosya.konu}`,
     });
   };
