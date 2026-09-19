@@ -373,8 +373,12 @@ function createWindow(): void {
   })
 
   // Debug: Capture renderer console logs in the main process
-  mainWindow.webContents.on('console-message', (_event, details) => {
-    console.log(`[RENDERER CONSOLE] (${details.level}) ${details.message} (at ${details.sourceId}:${details.line})`)
+  mainWindow.webContents.on('console-message', (event: any, ...args: any[]) => {
+    const level = event.level ?? args[0]
+    const message = event.message ?? args[1]
+    const line = event.line ?? args[2]
+    const sourceId = event.sourceId ?? args[3]
+    console.log(`[RENDERER CONSOLE] (${level}) ${message} (at ${sourceId}:${line})`)
   })
   mainWindow.webContents.on('render-process-gone', (_event, details) => {
     console.error('Renderer process gone:', details)
