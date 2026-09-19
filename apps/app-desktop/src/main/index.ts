@@ -18,24 +18,12 @@ protocol.registerSchemesAsPrivileged([
   }
 ])
 
-const iconPng = app.isPackaged
-  ? join(process.resourcesPath, 'icon.png')
-  : join(__dirname, '../../resources/icon.png')
-
-const iconIco = app.isPackaged
-  ? join(process.resourcesPath, 'icon.ico')
-  : join(__dirname, '../../resources/icon.ico')
+import iconPng from '../../resources/icon.png?asset'
+import iconIco from '../../resources/icon.ico?asset'
 
 const getAppIcon = (): string | undefined => {
-  if (fs.existsSync(iconIco)) {
-    const img = nativeImage.createFromPath(iconIco)
-    if (!img.isEmpty()) return iconIco
-  }
-  if (fs.existsSync(iconPng)) {
-    const img = nativeImage.createFromPath(iconPng)
-    if (!img.isEmpty()) return iconPng
-  }
-  return undefined
+  if (process.platform === 'win32' && iconIco) return iconIco
+  return iconPng || undefined
 }
 
 const icon = getAppIcon()
