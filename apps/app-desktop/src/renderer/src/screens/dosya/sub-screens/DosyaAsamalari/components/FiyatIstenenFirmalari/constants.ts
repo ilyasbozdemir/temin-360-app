@@ -29,17 +29,19 @@ export interface DagitimKartItem {
   templateKey: string;
   iconName: "Send" | "Layers" | "Tag" | "FileSpreadsheet";
   themeColor: "indigo" | "purple" | "violet" | "emerald";
+  legalTooltip?: React.ReactNode | string;
 }
 
 export const DAGITIM_BELGELERI_KARTLARI: DagitimKartItem[] = [
   {
     id: "arastirma-mektubu",
-    title: "Fiyat Araştırması",
-    description: "Yaklaşık maliyet ve genel piyasa fiyat araştırma mektubu (Sayın İlgili / Anonim).",
-    buttonText: "Dağıtım Mektubunu Aç",
+    title: "Fiyat Araştırması (Üst Yazı)",
+    description: "İdarenin satıcılara gönderdiği davet ve talep yazısı.",
+    buttonText: "Üst Yazıyı Aç",
     templateKey: "arastirma-mektubu",
     iconName: "Send",
     themeColor: "indigo",
+    legalTooltip: "Hukuki Statü: Kapalı/Gizli İç Belge.\nYasal bağlılığı yoktur. Yalnızca pazar fiyatlarını belirlemek (ön değerlendirme) amacıyla kullanılır. Firmaları bağlamaz.",
   },
   {
     id: "fiyat-arastirma-mektubu",
@@ -49,23 +51,26 @@ export const DAGITIM_BELGELERI_KARTLARI: DagitimKartItem[] = [
     templateKey: "fiyat-arastirma-mektubu",
     iconName: "Layers",
     themeColor: "purple",
+    legalTooltip: "Üst yazı ve cetvelin birleşik halidir. Hızlı alımlarda kullanılır.",
   },
   {
     id: "birim-fiyat-teklif-mektubu",
-    title: "Birim Fiyat Teklif Mektubu",
-    description: "Firmaların doldurması için genel/boş teklif mektubu ve taahhütname formatı.",
+    title: "Birim Fiyat Teklif Mektubu (Kısa)",
+    description: "Konsorsiyum olmayan, basit ihale ve alımlar için taahhütname formatı.",
     buttonText: "Teklif Mektubunu Aç",
     templateKey: "birim-fiyat-teklif-mektubu",
     iconName: "Tag",
     themeColor: "violet",
+    legalTooltip: "Hukuki Statü: Kısmi Resmi Belge.\nKDV hariç yazılıdır. İmza ve kaşe zorunludur. Yasal bağlılığı vardır. (Konsorsiyum öngörülmez)",
   },
   {
     id: "teklif-cetveli",
-    title: "Birim Fiyat Teklif Cetveli",
-    description: "İstekli firmalara fiyatlarını doldurmaları için verilecek boş teklif tablosu.",
+    title: "Birim Fiyat Teklif Cetveli (Uzun)",
+    description: "4734 Kamu İhale Kanunu'na tam uyumlu resmi teklif ve taahhüt formu.",
     buttonText: "Teklif Cetvelini Aç",
     templateKey: "birim-fiyat-teklif-mektubu",
     iconName: "FileSpreadsheet",
     themeColor: "emerald",
+    legalTooltip: "Hukuki Statü: Tam Resmi Belge.\nYasal bağlılığı çok güçlüdür. Konsorsiyum koşulu öngörülmüştür. İhale komisyonuna sunulur.",
   },
 ];

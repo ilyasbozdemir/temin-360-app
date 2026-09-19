@@ -25,6 +25,7 @@ import { FormatUpgradeModal } from "../modals/FormatUpgradeModal";
 import { WindowControls } from "./header/WindowControls";
 import { NotificationPopover } from "./header/NotificationPopover";
 import { SyncPopover } from "./header/SyncPopover";
+import appIcon from "../../assets/icon.png";
 
 export function Header(): React.JSX.Element {
   const navigate = useNavigate();
@@ -762,6 +763,11 @@ export function Header(): React.JSX.Element {
           className="flex items-center gap-0.5 z-50 text-[11px] font-medium"
           style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
         >
+          {/* App Logo */}
+          <div className="flex items-center justify-center w-8 h-8 mr-1 opacity-90">
+            <img src={appIcon} alt="Logo" className="w-4 h-4 object-contain drop-shadow-sm" />
+          </div>
+
           {/* Görünür Ana Menüler */}
           {visibleMenus.map((m) => (
             <div key={m.name} className="relative">

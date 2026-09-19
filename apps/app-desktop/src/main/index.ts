@@ -22,11 +22,18 @@ import iconPng from '../../resources/icon.png?asset'
 import iconIco from '../../resources/icon.ico?asset'
 
 const getAppIcon = (): string | undefined => {
-  if (process.platform === 'win32' && iconIco) return iconIco
+  console.log('App isPackaged:', app.isPackaged)
+  console.log('iconIco asset path:', iconIco)
+  console.log('iconPng asset path:', iconPng)
+  if (process.platform === 'win32' && iconIco) {
+    console.log('Using win32 iconIco')
+    return iconIco
+  }
   return iconPng || undefined
 }
 
 const icon = getAppIcon()
+console.log('Final resolved icon:', icon)
 
 // Windows Taskbar & Pinning için AppUserModelID kaydını en erken aşamada çağırıyoruz
 if (process.platform === 'win32') {

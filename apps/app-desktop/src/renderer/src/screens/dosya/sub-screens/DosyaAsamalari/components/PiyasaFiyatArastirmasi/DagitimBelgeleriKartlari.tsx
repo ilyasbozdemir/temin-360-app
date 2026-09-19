@@ -4,6 +4,7 @@ import {
   Layers,
   Send,
   Tag,
+  Info,
 } from "lucide-react";
 import { DAGITIM_BELGELERI_KARTLARI } from "../FiyatIstenenFirmalari/constants";
 
@@ -87,8 +88,16 @@ export function DagitimBelgeleriKartlari({
                   <IconComponent className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
                     {kart.title}
+                    {kart.legalTooltip && (
+                      <div className="relative group/tooltip flex items-center">
+                        <Info className="w-3.5 h-3.5 text-slate-400 hover:text-indigo-500 transition-colors cursor-help" />
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block z-50 w-64 p-2 text-[10px] font-medium leading-relaxed text-slate-700 bg-white dark:bg-slate-800 dark:text-slate-200 rounded shadow-lg border border-slate-200 dark:border-slate-700 whitespace-pre-line pointer-events-none">
+                          {kart.legalTooltip}
+                        </div>
+                      </div>
+                    )}
                   </h4>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                     {kart.description}
@@ -98,7 +107,7 @@ export function DagitimBelgeleriKartlari({
               <button
                 type="button"
                 onClick={() => handleOpenSablonByDosyaAdi(kart.templateKey)}
-                className={`mt-3 w-full py-1.5 px-3 rounded-lg ${style.buttonBg} text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs`}
+                className={`mt-4 w-full py-1.5 rounded-lg text-white text-[11px] font-bold ${style.buttonBg} transition-colors flex items-center justify-center gap-1.5 opacity-90 group-hover:opacity-100`}
               >
                 <IconComponent className="w-3.5 h-3.5" />
                 <span>{kart.buttonText}</span>
