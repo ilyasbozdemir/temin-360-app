@@ -202,59 +202,68 @@ export function FiyatArastirmaMektubu({
           />) gün içinde bildirmenizi rica ederim.
         </div>
 
-        {/* KOMİSYON ÜYELERİ TABLOSU */}
+        {/* KOMİSYON ÜYELERİ */}
         {komisyon.length > 0 && (
-          <table
+          <div
             style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              margin: "16px 0",
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "space-around",
+              alignItems: "flex-start",
+              gap: "12px 16px",
+              margin: "14px 0",
               textAlign: "center",
               pageBreakInside: "avoid",
             }}
           >
-            <tbody>
-              {Array.from(
-                { length: Math.ceil(komisyon.length / 4) },
-                (_, rowIndex) => {
-                  const rowMembers = komisyon.slice(
-                    rowIndex * 4,
-                    rowIndex * 4 + 4,
-                  );
-                  const cellWidth = `${100 / Math.min(rowMembers.length, 4)}%`;
-                  return (
-                    <tr key={rowIndex}>
-                      {rowMembers.map((uye: any, idx: number) => {
-                        const gorevBaslik = uye.komisyonGorevi ||
-                          uye.gorevi ||
-                          uye.gorev ||
-                          uye.rol ||
-                          "Üye";
-                        return (
-                          <td
-                            key={idx}
-                            style={{
-                              verticalAlign: "top",
-                              fontSize: "9.5pt",
-                              padding: "6px 8px 16px 8px",
-                              lineHeight: 1.4,
-                              width: cellWidth,
-                            }}
-                          >
-                            {gorevBaslik && <strong>{gorevBaslik}</strong>}
-                            {gorevBaslik && <br />}
-                            {uye.adSoyad || uye.ad_soyad || ""}
-                            <br />
-                            {uye.unvan || ""}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                },
-              )}
-            </tbody>
-          </table>
+            {komisyon.map((uye: any, idx: number) => {
+              const gorevBaslik =
+                uye.komisyonGorevi ||
+                uye.gorevi ||
+                uye.gorev ||
+                uye.rol ||
+                "Üye";
+
+              const count = komisyon.length;
+              const flexWidth =
+                count === 1
+                  ? "280px"
+                  : count === 2
+                  ? "45%"
+                  : count === 3
+                  ? "30%"
+                  : count === 4
+                  ? "22%"
+                  : "28%";
+
+              return (
+                <div
+                  key={idx}
+                  style={{
+                    flex: `0 1 ${flexWidth}`,
+                    minWidth: "160px",
+                    maxWidth: count <= 2 ? "320px" : "100%",
+                    fontSize: "9.5pt",
+                    padding: "4px 6px",
+                    lineHeight: 1.35,
+                    boxSizing: "border-box",
+                  }}
+                >
+                  {gorevBaslik && (
+                    <div style={{ fontWeight: "bold", marginBottom: "2px" }}>
+                      {gorevBaslik}
+                    </div>
+                  )}
+                  <div>
+                    {uye.adSoyad || uye.ad_soyad || ""}
+                  </div>
+                  <div style={{ fontSize: "9pt", color: "#111" }}>
+                    {uye.unvan || ""}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
 
         {/* BÖLÜM 2: FİYAT ARAŞTIRMA VE BİRİM FİYAT TEKLİF MEKTUBU */}
