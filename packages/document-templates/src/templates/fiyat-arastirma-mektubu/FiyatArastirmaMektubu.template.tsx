@@ -440,12 +440,12 @@ export function FiyatArastirmaMektubu({
                 }}
               >
                 <li style={{ marginBottom: "3px", textAlign: "justify" }}>
-                  Teklifimize Damga Vergisi, Resim Harç, Pul ve Ulaştırma
-                  Giderleri dahildir.
-                </li>
-                <li style={{ marginBottom: "3px", textAlign: "justify" }}>
                   Teklifimiz {displayTeklifGecerlilikTarihi}{" "}
                   tarihine kadar geçerlidir.
+                </li>
+                <li style={{ marginBottom: "3px", textAlign: "justify" }}>
+                  Teklifimize Damga Vergisi, Resim Harç, Pul ve Ulaştırma
+                  Giderleri dahildir.
                 </li>
                 <li style={{ marginBottom: "3px", textAlign: "justify" }}>
                   İhale konusu iş için sermayesinin %50'sinden fazlasına sahip
@@ -461,14 +461,6 @@ export function FiyatArastirmaMektubu({
                   yapılacak/yaptırılacak diğer işlerde idarenizin çıkarlarına
                   aykırı düşecek hiçbir eylem ve oluşum içerisinde
                   olmayacağımızı taahhüt ediyoruz.
-                </li>
-                <li style={{ marginBottom: "3px", textAlign: "justify" }}>
-                  Bu alıma ilişkin malzeme kalemlerine kısmi teklif{" "}
-                  <EditableField
-                    name="kismiTeklif"
-                    value={data.kismiTeklif}
-                    placeholder="............"
-                  />
                 </li>
                 <li style={{ marginBottom: "3px", textAlign: "justify" }}>
                   4734 Sayılı Kamu İhale Kanununun 4. maddesindeki "Yerli
