@@ -178,7 +178,8 @@ export const FiyatArastirmaMektubuMapping: ProcessMapping = {
   kurumAdres: { tablo: 'TANIM_Kurum', sutun: 'adres', aciklama: 'Kurum Adresi' },
   kurumTelefon: { tablo: 'TANIM_Kurum', sutun: 'telefon', aciklama: 'Kurum Telefonu' },
   kurumEposta: { tablo: 'TANIM_Kurum', sutun: 'eposta', aciklama: 'Kurum E-Posta' },
-  kurumKep: { tablo: 'TANIM_Kurum', sutun: 'kep_adresi', aciklama: 'Kurum KEP Adresi' },
+  sunulacakMakam: { tablo: 'TANIM_Kurum', sutun: 'makam_adi', aciklama: 'Sunulacak Makam Adı' },
+  sunulacakMakamAdi: { tablo: 'TANIM_Kurum', sutun: 'makam_adi', aciklama: 'Sunulacak Makam Adı' },
   kurumIci: { deger: true },
   hazirlayanPersonelAdi: {
     tablo: 'DATA_TeminDosyasi',

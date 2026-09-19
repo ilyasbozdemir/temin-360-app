@@ -19,11 +19,13 @@ export function registerUpdaterIpcHandlers(): void {
   autoUpdater.allowDowngrade = true
 
   if (!app.isPackaged) {
-    autoUpdater.forceDevUpdateConfig = true
+    autoUpdater.autoDownload = false
+    autoUpdater.autoInstallOnAppQuit = false
     autoUpdater.logger = console
   }
 
-  if (app.isPackaged || autoUpdater.forceDevUpdateConfig) {
+  // Only auto-check for updates in production packaged mode
+  if (app.isPackaged) {
     setTimeout(() => {
       autoUpdater.checkForUpdates().catch((e) => {
         console.error('Update check error:', e.message)

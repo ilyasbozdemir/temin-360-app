@@ -18,18 +18,40 @@ export function FiyatArastirmaMektubu({
   orientation = "portrait",
 }: FiyatArastirmaMektubuProps) {
   const items = data.ihtiyacKalemleri || [];
-  const komisyon =
-    (data.komisyonUyeleri && data.komisyonUyeleri.length > 0)
-      ? data.komisyonUyeleri
-      : (data.komisyon && data.komisyon.length > 0)
-      ? data.komisyon
-      : (data.fiyatKomisyonu && data.fiyatKomisyonu.length > 0)
-      ? data.fiyatKomisyonu
-      : (data.gorevlendirilenler && data.gorevlendirilenler.length > 0)
-      ? data.gorevlendirilenler
-      : (data.dagitimListesi && data.dagitimListesi.length > 0)
-      ? data.dagitimListesi
-      : [];
+  const komisyonRaw = (data.komisyonUyeleri && data.komisyonUyeleri.length > 0)
+    ? data.komisyonUyeleri
+    : (data.komisyon && data.komisyon.length > 0)
+    ? data.komisyon
+    : (data.fiyatKomisyonu && data.fiyatKomisyonu.length > 0)
+    ? data.fiyatKomisyonu
+    : (data.gorevlendirilenler && data.gorevlendirilenler.length > 0)
+    ? data.gorevlendirilenler
+    : (data.dagitimListesi && data.dagitimListesi.length > 0)
+    ? data.dagitimListesi
+    : [];
+
+  const seenNames = new Set<string>();
+  const komisyon = (Array.isArray(komisyonRaw) ? komisyonRaw : []).filter(
+    (uye: any) => {
+      const nameKey = (uye.adSoyad || uye.ad_soyad || "").trim().toLowerCase();
+      if (!nameKey) return true;
+      if (seenNames.has(nameKey)) return false;
+      seenNames.add(nameKey);
+      return true;
+    },
+  );
+
+  const mainHeaderTitle = data.sunulacakMakam ||
+    data.sunulacakMakamAdi ||
+    (Array.isArray(data.antetSatirlari) && data.antetSatirlari.length > 0
+      ? data.antetSatirlari.filter((s: string) =>
+        s && !s.toUpperCase().includes("T.C.") &&
+        !s.toUpperCase().includes("T.C")
+      ).join(" ") || data.antetSatirlari.join(" ")
+      : "") ||
+    data.kurumAdi ||
+    data.idareAdi ||
+    "";
 
   // Gün sayısı ve yazıyla gün sayısı hesaplama
   let displayGunSayisi = data.gunSayisi || data.teslimGun || data.teslimGunu;
@@ -78,8 +100,7 @@ export function FiyatArastirmaMektubu({
     }
   }
 
-  let displayTeklifGecerlilikTarihi =
-    data.teklifGecerlilikTarihi ||
+  let displayTeklifGecerlilikTarihi = data.teklifGecerlilikTarihi ||
     data.sonTeklifTarihi ||
     data.son_teklif_verme_tarihi ||
     data.teklifSonTarihi ||
@@ -92,11 +113,13 @@ export function FiyatArastirmaMektubu({
       const parts = clean.split(/[T ]/);
       const dParts = parts[0].split("-");
       const datePart = `${dParts[2]}.${dParts[1]}.${dParts[0]}`;
-      const timePart = parts[1] && parts[1] !== "00:00:00" ? ` ${parts[1].substring(0, 5)}` : "";
+      const timePart = parts[1] && parts[1] !== "00:00:00"
+        ? ` ${parts[1].substring(0, 5)}`
+        : "";
       displayTeklifGecerlilikTarihi = `${datePart}${timePart}`;
     }
   } else {
-    displayTeklifGecerlilikTarihi = "……/……/20…";
+    displayTeklifGecerlilikTarihi = "……/……/20……";
   }
 
   return (
@@ -130,8 +153,8 @@ export function FiyatArastirmaMektubu({
         >
           <EditableField
             name="sunulacakMakam"
-            value={data.sunulacakMakam || data.idareAdi}
-            placeholder="T.C. İDARE ADI BAŞKANLIĞI"
+            value={mainHeaderTitle}
+            placeholder="SUNULACAK MAKAM ADI"
           />
         </div>
 
@@ -202,8 +225,7 @@ export function FiyatArastirmaMektubu({
                   return (
                     <tr key={rowIndex}>
                       {rowMembers.map((uye: any, idx: number) => {
-                        const gorevBaslik =
-                          uye.komisyonGorevi ||
+                        const gorevBaslik = uye.komisyonGorevi ||
                           uye.gorevi ||
                           uye.gorev ||
                           uye.rol ||
@@ -422,7 +444,8 @@ export function FiyatArastirmaMektubu({
                   Giderleri dahildir.
                 </li>
                 <li style={{ marginBottom: "3px", textAlign: "justify" }}>
-                  Teklifimiz {displayTeklifGecerlilikTarihi} tarihine kadar geçerlidir.
+                  Teklifimiz {displayTeklifGecerlilikTarihi}{" "}
+                  tarihine kadar geçerlidir.
                 </li>
                 <li style={{ marginBottom: "3px", textAlign: "justify" }}>
                   İhale konusu iş için sermayesinin %50'sinden fazlasına sahip
