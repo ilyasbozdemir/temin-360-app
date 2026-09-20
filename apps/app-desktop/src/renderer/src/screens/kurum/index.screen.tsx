@@ -369,6 +369,7 @@ export default function KurumScreen(): React.JSX.Element {
                       setShowLogoLeft={setShowLogoLeft}
                       showLogoRight={showLogoRight}
                       setShowLogoRight={setShowLogoRight}
+                      detsisKodu={localData.detsis_kodu || localData.dtvt_kodu}
                     />
                   )}
                 </div>

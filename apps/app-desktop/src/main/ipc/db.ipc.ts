@@ -232,6 +232,228 @@ export function registerDbIpcHandlers(): void {
     }
   })
 
+  // Recovery code cache in memory (valid for 15 minutes)
+  let activeRecovery: { code: string; expiresAt: number; email: string } | null = null
+
+  // 8a. Send Recovery Email Handler
+  ipcMain.handle('db:send-recovery-email', async () => {
+    try {
+      const db = workspaceManager.getDb()
+      const getSetting = (key: string): string => {
+        try {
+          const row = db.prepare('SELECT value FROM settings WHERE key = ?').get(key) as { value?: string } | undefined
+          return row?.value || ''
+        } catch {
+          return ''
+        }
+      }
+
+      const smtpHost = getSetting('smtpHost') || getSetting('smtp_host')
+      const smtpPort = parseInt(getSetting('smtpPort') || getSetting('smtp_port') || '587', 10)
+      const smtpUser = getSetting('smtpUser') || getSetting('smtp_user')
+      const smtpPass = getSetting('smtpPass') || getSetting('smtp_pass')
+      const smtpSecure = getSetting('smtpSecure') === 'true' || getSetting('smtp_secure') === 'true'
+      const targetEmail =
+        getSetting('smtpReceiver') ||
+        getSetting('smtp_receiver') ||
+        getSetting('kurum_eposta') ||
+        getSetting('kurumEposta') ||
+        getSetting('adminEmail') ||
+        getSetting('admin_email') ||
+        smtpUser
+
+      // Generate 6-digit random code
+      const code = Math.floor(100000 + Math.random() * 900000).toString()
+      activeRecovery = {
+        code,
+        expiresAt: Date.now() + 15 * 60 * 1000,
+        email: targetEmail || 'tanimsiz@kurum.gov.tr'
+      }
+
+      // Mask email for privacy (e.g. adm***@domain.com)
+      const maskEmail = (mail: string): string => {
+        if (!mail || !mail.includes('@')) return mail || 'kurum-eposta'
+        const [local, dom] = mail.split('@')
+        const maskedLocal = local.length <= 2 ? local + '***' : local.slice(0, 2) + '***'
+        return `${maskedLocal}@${dom}`
+      }
+
+      const maskedDisplay = targetEmail ? maskEmail(targetEmail) : 'Kurum E-postası'
+
+      // Check if SMTP is configured
+      if (smtpHost && smtpUser && smtpPass) {
+        try {
+          const nodemailer = await import('nodemailer')
+          const transporter = nodemailer.createTransport({
+            host: smtpHost,
+            port: smtpPort,
+            secure: smtpSecure,
+            auth: {
+              user: smtpUser,
+              pass: smtpPass
+            },
+            tls: {
+              rejectUnauthorized: false
+            }
+          })
+
+          const institution = getSetting('institutionName') || 'TEMİN 360 Kurumu'
+          await transporter.sendMail({
+            from: `"${institution} (TEMİN 360)" <${smtpUser}>`,
+            to: targetEmail || smtpUser,
+            subject: `[TEMİN 360] Şifre Sıfırlama Kodu: ${code}`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+                <h2 style="color: #1e293b; margin-top: 0;">TEMİN 360 Güvenlik Doğrulaması</h2>
+                <p style="color: #475569; font-size: 14px;"><strong>${institution}</strong> çalışma dosyası için şifre sıfırlama talebinde bulunuldu.</p>
+                <div style="background: #f1f5f9; padding: 18px; border-radius: 8px; text-align: center; margin: 20px 0;">
+                  <span style="font-size: 28px; font-weight: bold; letter-spacing: 6px; color: #2563eb;">${code}</span>
+                </div>
+                <p style="color: #64748b; font-size: 12px; margin-bottom: 0;">Bu kod 15 dakika boyunca geçerlidir. Talebi siz yapmadıysanız lütfen bu e-postayı dikkate almayınız.</p>
+              </div>
+            `
+          })
+
+          return {
+            success: true,
+            email: maskedDisplay,
+            isTestMode: false,
+            testCode: code
+          }
+        } catch (mailError: any) {
+          console.warn('SMTP Send error, falling back to test mode code:', mailError?.message)
+          return {
+            success: true,
+            email: maskedDisplay,
+            isTestMode: true,
+            testCode: code,
+            warning: `SMTP e-posta gönderimi başarısız oldu (${mailError?.message || 'Bağlantı hatası'}). Test için doğrulama kodunuz hazırlandı.`
+          }
+        }
+      }
+
+      // SMTP not configured - enable test mode with generated code
+      return {
+        success: true,
+        email: maskedDisplay,
+        isTestMode: true,
+        testCode: code,
+        warning: 'SMTP sunucusu yapılandırılmadığı için test modu aktiftir.'
+      }
+    } catch (error: any) {
+      console.error('Send recovery email error:', error)
+      return { success: false, error: error.message }
+    }
+  })
+
+  // 8b. Verify Recovery Code Handler
+  ipcMain.handle('db:verify-recovery-code', async (_, inputCode: string) => {
+    try {
+      if (!activeRecovery) {
+        return { success: false, error: 'Aktif bir kurtarma kodu bulunamadı. Lütfen tekrar kod isteyin.' }
+      }
+      if (Date.now() > activeRecovery.expiresAt) {
+        activeRecovery = null
+        return { success: false, error: 'Doğrulama kodunun geçerlilik süresi dolmuş (15 dk). Lütfen yeni kod isteyin.' }
+      }
+      const cleanInput = (inputCode || '').toString().trim()
+      if (cleanInput !== activeRecovery.code) {
+        return { success: false, error: 'Girdiğiniz 6 haneli doğrulama kodu hatalı!' }
+      }
+      return { success: true }
+    } catch (error: any) {
+      console.error('Verify recovery code error:', error)
+      return { success: false, error: error.message }
+    }
+  })
+
+  // 8c. Export SMTP Settings Handler
+  ipcMain.handle('db:export-smtp', async () => {
+    try {
+      const db = workspaceManager.getDb()
+      const getSetting = (key: string): string => {
+        try {
+          const row = db.prepare('SELECT value FROM settings WHERE key = ?').get(key) as
+            | { value?: string }
+            | undefined
+          return row?.value || ''
+        } catch {
+          return ''
+        }
+      }
+
+      const smtpData = {
+        _exportType: 'temin360_smtp_config',
+        version: '1.0',
+        exportedAt: new Date().toISOString(),
+        smtpHost: getSetting('smtpHost') || getSetting('smtp_host'),
+        smtpPort: getSetting('smtpPort') || getSetting('smtp_port') || '587',
+        smtpUser: getSetting('smtpUser') || getSetting('smtp_user'),
+        smtpPass: getSetting('smtpPass') || getSetting('smtp_pass'),
+        smtpReceiver: getSetting('smtpReceiver') || getSetting('smtp_receiver'),
+        smtpSecure: getSetting('smtpSecure') || getSetting('smtp_secure') || 'false'
+      }
+
+      const { canceled, filePath } = await dialog.showSaveDialog({
+        title: 'SMTP Ayarlarını Dışa Aktar',
+        defaultPath: 'temin360_smtp_ayarlari.json',
+        filters: [{ name: 'JSON Dosyası (*.json)', extensions: ['json'] }]
+      })
+
+      if (canceled || !filePath) {
+        return { success: false, error: 'İptal edildi' }
+      }
+
+      fs.writeFileSync(filePath, JSON.stringify(smtpData, null, 2), 'utf-8')
+      return { success: true, filePath }
+    } catch (error: any) {
+      console.error('Export SMTP error:', error)
+      return { success: false, error: error.message }
+    }
+  })
+
+  // 8d. Import SMTP Settings Handler
+  ipcMain.handle('db:import-smtp', async () => {
+    try {
+      const { canceled, filePaths } = await dialog.showOpenDialog({
+        title: 'SMTP Ayarlarını İçe Aktar',
+        filters: [{ name: 'JSON Dosyası (*.json)', extensions: ['json'] }],
+        properties: ['openFile']
+      })
+
+      if (canceled || !filePaths || filePaths.length === 0) {
+        return { success: false, error: 'İptal edildi' }
+      }
+
+      const content = fs.readFileSync(filePaths[0], 'utf-8')
+      const data = JSON.parse(content)
+
+      if (!data || typeof data !== 'object') {
+        return { success: false, error: 'Geçersiz ayar dosyası formatı!' }
+      }
+
+      const db = workspaceManager.getDb()
+      const stmt = db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)')
+      const keys = ['smtpHost', 'smtpPort', 'smtpUser', 'smtpPass', 'smtpReceiver', 'smtpSecure']
+
+      const insertMany = db.transaction(() => {
+        for (const key of keys) {
+          if (data[key] !== undefined) {
+            stmt.run(key, String(data[key]))
+          }
+        }
+      })
+      insertMany()
+
+      workspaceManager.recordMutation()
+      workspaceManager.save()
+      return { success: true }
+    } catch (error: any) {
+      console.error('Import SMTP error:', error)
+      return { success: false, error: error.message }
+    }
+  })
+
   // 9. Save Settings Handler
   ipcMain.handle('db:save-settings', async (_, settingsMap: Record<string, string>) => {
     try {

@@ -57,11 +57,11 @@ const getAppIcon = (): Electron.NativeImage | undefined => {
   return undefined
 }
 
-// Windows Taskbar & Pinning için AppUserModelID kaydını en erken aşamada çağırıyoruz
+// Windows Taskbar & Pinning için AppUserModelID kaydı
 if (process.platform === 'win32') {
   try {
-    app.setAppUserModelId('dev.ilyasbozdemir.temin360')
-  } catch (e) {}
+    app.setAppUserModelId(app.isPackaged ? 'dev.ilyasbozdemir.temin360' : process.execPath)
+  } catch {}
 }
 import { workspaceManager } from './database/workspace'
 import { CURRENT_SCHEMA_VERSION, manifests } from '@dt/database'

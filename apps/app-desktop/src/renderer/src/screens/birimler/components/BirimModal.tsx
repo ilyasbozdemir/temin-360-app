@@ -354,7 +354,19 @@ export const BirimModal: React.FC<BirimModalProps> = ({
                 <label className="flex items-center gap-2 text-xs font-semibold text-slate-655 dark:text-slate-400">
                   DETSİS Kodu <span className="text-[10px] font-normal text-slate-400">(Eski adıyla DTVT)</span>
                 </label>
-                <DetsisBadge detsisNo={form.dtvt_kodu || form.detsis_kodu} />
+                <DetsisBadge
+                  detsisNo={form.dtvt_kodu || form.detsis_kodu}
+                  showSearchButton={true}
+                  searchTitle="DETSİS'te Birim / Müdürlük Ara"
+                  onApplyData={(detsisInfo) => {
+                    if (!detsisInfo) return
+                    if (detsisInfo.birimAdi) handleChange('birim_adi', detsisInfo.birimAdi)
+                    if (detsisInfo.detsisNo) {
+                      handleChange('dtvt_kodu', detsisInfo.detsisNo)
+                      handleChange('detsis_kodu', detsisInfo.detsisNo)
+                    }
+                  }}
+                />
               </div>
               <Input
                 value={form.dtvt_kodu || ''}
@@ -362,7 +374,7 @@ export const BirimModal: React.FC<BirimModalProps> = ({
                   handleChange('dtvt_kodu', e.target.value)
                   handleChange('detsis_kodu', e.target.value)
                 }}
-                placeholder="Biriminizin DETSİS kodunu girin..."
+                placeholder="Biriminizin DETSİS kodunu girin veya İsimle Arayın..."
                 className="w-full bg-slate-50 dark:bg-slate-955 border-slate-200 dark:border-slate-800 text-xs"
               />
               <div className="mt-2 text-[10px] text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-955/30 p-2 rounded-lg border border-amber-100 dark:border-amber-900/50 flex flex-col gap-1.5 leading-relaxed">
@@ -373,9 +385,7 @@ export const BirimModal: React.FC<BirimModalProps> = ({
                     <a
                       href={
                         form.dtvt_kodu
-                          ? `https://detsis.gov.tr/birim/${form.dtvt_kodu}/${form.dtvt_kodu}/${
-                              new Date().toISOString().split('T')[0]
-                            }`
+                          ? `https://detsis.gov.tr/ara/${form.dtvt_kodu}`
                           : 'https://detsis.gov.tr/'
                       }
                       target="_blank"

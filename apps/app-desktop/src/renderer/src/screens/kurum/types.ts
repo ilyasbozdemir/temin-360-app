@@ -7,4 +7,5 @@ export interface KurumTabProps {
   setInstitutionLetterhead: (val: string[]) => void
   parentInstitutionLines: string[]
   setParentInstitutionLines: (val: string[]) => void
+  sozlukData?: any[]
 }

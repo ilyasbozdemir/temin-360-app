@@ -1,6 +1,9 @@
-import React from 'react'
-import { Plus, X } from 'lucide-react'
+import React, { useState } from 'react'
+import { Plus, X, Sparkles, Building2 } from 'lucide-react'
 import { Input } from '../../../components/ui/Input'
+import { Button } from '../../../components/ui/Button'
+import { DetsisBadge, DetsisVerificationState } from '../../../components/ui/DetsisBadge'
+import { DetsisSearchModal } from '../../../components/ui/DetsisSearchModal'
 import { getSubInstitutionOptions } from '../../../utils/kurumHelper'
 import { KurumTabProps } from '../types'
 
@@ -12,6 +15,8 @@ export const IdariBilgilerTab: React.FC<KurumTabProps> = ({
   parentInstitutionLines,
   setParentInstitutionLines
 }) => {
+  const [isDetsisSearchOpen, setIsDetsisSearchOpen] = useState(false)
+
   const handleInstitutionTypeChange = (type: string): void => {
     onChange('kurum_tipi', type)
     if (type === 'belediye') {
@@ -27,6 +32,28 @@ export const IdariBilgilerTab: React.FC<KurumTabProps> = ({
     }
   }
 
+  const handleApplyDetsisData = (detsisInfo: DetsisVerificationState): void => {
+    if (!detsisInfo) return
+    if (detsisInfo.birimAdi) onChange('kurum_adi', detsisInfo.birimAdi)
+    if (detsisInfo.kurumHiyerarsisi) {
+      onChange('ust_kurum_adi', detsisInfo.kurumHiyerarsisi)
+      const hierarchyParts = detsisInfo.kurumHiyerarsisi
+        .split('>')
+        .map((s) => s.trim())
+        .filter(Boolean)
+      if (hierarchyParts.length > 0) {
+        setInstitutionLetterhead(['T.C.', ...hierarchyParts])
+      }
+    }
+    if (detsisInfo.detsisNo) {
+      onChange('detsis_kodu', detsisInfo.detsisNo)
+      onChange('dtvt_kodu', detsisInfo.detsisNo)
+    }
+    if (detsisInfo.ilAdi) onChange('il', detsisInfo.ilAdi)
+    if (detsisInfo.ilceAdi) onChange('ilce', detsisInfo.ilceAdi)
+    if (detsisInfo.logoByteArray) onChange('logo_kurum', detsisInfo.logoByteArray)
+  }
+
   return (
     <div className="space-y-6">
       <div className="border-b border-slate-100 dark:border-slate-800 pb-2">
@@ -39,16 +66,45 @@ export const IdariBilgilerTab: React.FC<KurumTabProps> = ({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div className="md:col-span-2">
-          <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-            Kurum Adı
-          </label>
-          <Input
-            value={data.kurum_adi || ''}
-            onChange={(e) => onChange('kurum_adi', e.target.value)}
-            placeholder="Kurum Adı"
-            className="bg-slate-55 dark:bg-slate-955 border-slate-200 dark:border-slate-800 text-xs"
-          />
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              Kurum Adı
+            </label>
+            <DetsisBadge
+              detsisNo={data.detsis_kodu}
+              showSearchButton={true}
+              searchTitle="DETSİS'te Resmi Kurum Ara"
+              onApplyData={handleApplyDetsisData}
+            />
+          </div>
+          <div className="flex gap-2">
+            <Input
+              value={data.kurum_adi || ''}
+              onChange={(e) => onChange('kurum_adi', e.target.value)}
+              placeholder="Kurum Adı (Örn: Çankaya Kaymakamlığı veya İçişleri Bakanlığı)"
+              className="bg-slate-55 dark:bg-slate-955 border-slate-200 dark:border-slate-800 text-xs flex-1"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsDetsisSearchOpen(true)}
+              className="border-blue-300 dark:border-blue-800 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/40 flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold shrink-0 cursor-pointer shadow-sm"
+              title="DETSİS Veritabanında Arayarak Bilgileri ve Logoyu Otomatik Çek"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>DETSİS&apos;te Ara</span>
+            </Button>
+          </div>
         </div>
+
+        <DetsisSearchModal
+          isOpen={isDetsisSearchOpen}
+          onClose={() => setIsDetsisSearchOpen(false)}
+          initialQuery={data.kurum_adi || ''}
+          onSelect={handleApplyDetsisData}
+          title="DETSİS'te Resmi Kurum / Bakanlık Ara"
+        />
 
         <div className="md:col-span-2">
           <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 flex items-center gap-1.5">

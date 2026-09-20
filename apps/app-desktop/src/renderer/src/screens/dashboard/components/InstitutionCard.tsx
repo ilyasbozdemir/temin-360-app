@@ -129,9 +129,7 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
                 <a
                   href={
                     detsisKodu
-                      ? `https://detsis.gov.tr/birim/${detsisKodu}/${detsisKodu}/${
-                          new Date().toISOString().split('T')[0]
-                        }`
+                      ? `https://detsis.gov.tr/ara/${detsisKodu}`
                       : 'https://detsis.gov.tr/'
                   }
                   target="_blank"

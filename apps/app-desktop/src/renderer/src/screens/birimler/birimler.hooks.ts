@@ -82,7 +82,9 @@ export function useBirimlerHooks() {
 
   const addBirimMutation = useMutation({
     mutationFn: async (birim: BirimInput) => {
+      const nameVal = birim.birim_adi || ''
       const cols = [
+        'ad',
         'birim_adi',
         'antet_ek_satir',
         'ihtiyac_yeri_eki',
@@ -99,7 +101,10 @@ export function useBirimlerHooks() {
         'ilgili_personel_id'
       ]
       const placeholders = cols.map(() => '?').join(', ')
-      const values = cols.map((col) => (birim as any)[col] ?? null)
+      const values = cols.map((col) => {
+        if (col === 'ad') return nameVal
+        return (birim as any)[col] ?? null
+      })
       const res = await window.electron.ipcRenderer.invoke(
         'db:run',
         `INSERT INTO TANIM_Birim (${cols.join(', ')}, aktif_mi) VALUES (${placeholders}, 1)`,
@@ -113,7 +118,11 @@ export function useBirimlerHooks() {
 
   const updateBirimMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<BirimInput> }) => {
-      const entries = Object.entries(data).filter(([, v]) => v !== undefined)
+      const updateData = { ...data }
+      if (updateData.birim_adi !== undefined) {
+        ;(updateData as any).ad = updateData.birim_adi
+      }
+      const entries = Object.entries(updateData).filter(([, v]) => v !== undefined)
       if (entries.length === 0) return
       const setClause = entries.map(([k]) => `${k} = ?`).join(', ')
       const values = [...entries.map(([, v]) => v), id]

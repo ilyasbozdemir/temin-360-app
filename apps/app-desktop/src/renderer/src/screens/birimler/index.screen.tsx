@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { BirimInput, useBirimlerHooks, usePersonelList } from './birimler.hooks'
 import { useAyarlarHooks } from '../ayarlar/ayarlar.hooks'
 import { Button } from '../../components/ui/Button'
-import { LayoutGrid, Plus } from 'lucide-react'
+import { LayoutGrid, Plus, Sparkles, Building2 } from 'lucide-react'
 import { DataViewMode, ViewToggle } from '../../components/ui/ViewToggle'
 
 // Subcomponents
@@ -11,6 +11,9 @@ import { BirimGrid } from './components/BirimGrid'
 import { BirimList } from './components/BirimList'
 import { BirimModal } from './components/BirimModal'
 import { ExcelActions } from '../../components/ui/ExcelActions'
+import { DetsisSubUnitsModal, DetsisSubUnitItem } from '../../components/ui/DetsisSubUnitsModal'
+import { DetsisSearchModal } from '../../components/ui/DetsisSearchModal'
+import { DetsisVerificationState } from '../../components/ui/DetsisBadge'
 
 const emptyBirim: BirimInput = {
   birim_adi: '',
@@ -47,6 +50,67 @@ export default function BirimlerScreen({
   const [viewingBirim, setViewingBirim] = useState<any | null>(null)
   const [ihtiyacYeriList, setIhtiyacYeriList] = useState<string[]>([''])
 
+  // DETSİS State
+  const [isSubUnitsModalOpen, setIsSubUnitsModalOpen] = useState(false)
+  const [isDetsisSearchModalOpen, setIsDetsisSearchModalOpen] = useState(false)
+  const [targetInstitution, setTargetInstitution] = useState<{
+    detsisNo: string
+    name: string
+  } | null>(null)
+
+  const configuredDetsisNo =
+    settings?.detsis_kodu || settings?.detsisKodu || settings?.dtvt_kodu || ''
+  const configuredInstName = settings?.kurum_adi || settings?.kurumAdi || 'Kurumunuz'
+
+  const handleOpenDetsisImporter = (): void => {
+    if (configuredDetsisNo) {
+      setTargetInstitution({
+        detsisNo: configuredDetsisNo,
+        name: configuredInstName
+      })
+      setIsSubUnitsModalOpen(true)
+    } else {
+      setIsDetsisSearchModalOpen(true)
+    }
+  }
+
+  const handleSelectInstitutionFromSearch = (selected: DetsisVerificationState): void => {
+    setIsDetsisSearchModalOpen(false)
+    if (selected && selected.detsisNo) {
+      setTargetInstitution({
+        detsisNo: selected.detsisNo,
+        name: selected.birimAdi || 'Seçilen Kurum'
+      })
+      setIsSubUnitsModalOpen(true)
+    }
+  }
+
+  const handleImportDetsisUnits = async (units: DetsisSubUnitItem[]): Promise<void> => {
+    let addedCount = 0
+    for (const u of units) {
+      const alreadyExists = birimler.some(
+        (b) =>
+          (b.detsis_kodu && b.detsis_kodu === u.detsisNo) ||
+          b.birim_adi.toLowerCase().trim() === u.birimAdi.toLowerCase().trim()
+      )
+      if (!alreadyExists) {
+        try {
+          await addBirim({
+            ...emptyBirim,
+            birim_adi: u.birimAdi,
+            detsis_kodu: u.detsisNo,
+            dtvt_kodu: u.detsisNo,
+            antet_ek_satir: u.kurumHiyerarsisi || ''
+          })
+          addedCount++
+        } catch (e) {
+          console.error(`Birim eklenirken hata: ${u.birimAdi}`, e)
+        }
+      }
+    }
+    alert(`${addedCount} adet birim / müdürlük DETSİS üzerinden başarıyla içe aktarıldı!`)
+  }
+
   const isMuhasebe =
     form.birim_adi.toLowerCase().includes('muhasebe') ||
     form.birim_adi.toLowerCase().includes('mali') ||
@@ -80,7 +144,7 @@ export default function BirimlerScreen({
     }
   }
 
-  const openModal = () => {
+  const openModal = (): void => {
     setForm({ ...emptyBirim })
     setIhtiyacYeriList([''])
     setEditingBirimId(null)
@@ -88,13 +152,13 @@ export default function BirimlerScreen({
     setIsModalOpen(true)
   }
 
-  const closeModal = () => {
+  const closeModal = (): void => {
     setIsModalOpen(false)
     setEditingBirimId(null)
     setIhtiyacYeriList([''])
   }
 
-  const handleEditClick = (e: React.MouseEvent, birim: any) => {
+  const handleEditClick = (e: React.MouseEvent, birim: any): void => {
     e.stopPropagation()
     setForm({
       birim_adi: birim.birim_adi || '',
@@ -120,7 +184,7 @@ export default function BirimlerScreen({
         } else {
           parsedIhtiyacList = birim.ihtiyac_yeri_eki.split('\n')
         }
-      } catch (e) {
+      } catch {
         parsedIhtiyacList = [birim.ihtiyac_yeri_eki]
       }
     }
@@ -130,7 +194,7 @@ export default function BirimlerScreen({
     setIsModalOpen(true)
   }
 
-  const handleViewClick = (birim: any) => {
+  const handleViewClick = (birim: any): void => {
     setViewingBirim(birim)
   }
 
@@ -174,17 +238,24 @@ export default function BirimlerScreen({
             Birim &amp; Müdürlük Yönetimi
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-            Kurumunuza ait idari birimleri ve müdürlükleri buradan tanımlayarak personellere
-            atayabilirsiniz.
+            Kurumunuza ait idari birimleri ve müdürlükleri buradan tanımlayabilir veya DETSİS&apos;ten tek
+            tıkla aktarabilirsiniz.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <ExcelActions
-            tableName="TANIM_Birim"
-            title="Birimler"
-            uniqueCol="id"
-          />
+        <div className="flex items-center gap-3 flex-wrap">
+          <ExcelActions tableName="TANIM_Birim" title="Birimler" uniqueCol="id" />
           <ViewToggle viewMode={dataViewMode} onChange={setDataViewMode} />
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleOpenDetsisImporter}
+            className="border-blue-300 dark:border-blue-800 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/50 flex items-center gap-2 px-3.5 py-2 text-xs font-semibold shadow-sm"
+          >
+            <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <span>DETSİS&apos;ten Birimleri Çek</span>
+          </Button>
+
           <Button
             onClick={openModal}
             className="bg-blue-600 hover:bg-blue-700 shadow-md flex items-center gap-2 px-4 py-2 text-sm shrink-0"
@@ -202,8 +273,20 @@ export default function BirimlerScreen({
               Birimler yükleniyor...
             </div>
           ) : birimler.length === 0 ? (
-            <div className="text-sm text-slate-450 dark:text-slate-500 py-4 italic text-center w-full">
-              Kayıtlı birim bulunmamaktadır.
+            <div className="text-center py-12 space-y-3">
+              <Building2 className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600" />
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Kayıtlı birim bulunmamaktadır.
+              </p>
+              <div className="flex items-center justify-center gap-2 pt-2">
+                <Button
+                  onClick={handleOpenDetsisImporter}
+                  className="bg-blue-600 hover:bg-blue-700 text-xs flex items-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  DETSİS&apos;ten Otomatik İçe Aktar
+                </Button>
+              </div>
             </div>
           ) : dataViewMode === 'grid' ? (
             <BirimGrid
@@ -241,6 +324,25 @@ export default function BirimlerScreen({
         setIhtiyacYeriList={setIhtiyacYeriList}
         personeller={personeller}
         isLoadingPersonel={isLoadingPersonel}
+      />
+
+      {/* DETSİS Kurum Arama Modalı */}
+      <DetsisSearchModal
+        isOpen={isDetsisSearchModalOpen}
+        onClose={() => setIsDetsisSearchModalOpen(false)}
+        onSelect={handleSelectInstitutionFromSearch}
+        title="DETSİS'te Kurum / Bakanlık Seçin"
+      />
+
+      {/* DETSİS Alt Birimlerini Toplu İçe Aktarma Modalı */}
+      <DetsisSubUnitsModal
+        isOpen={isSubUnitsModalOpen}
+        onClose={() => setIsSubUnitsModalOpen(false)}
+        institutionDetsisNo={targetInstitution?.detsisNo || configuredDetsisNo}
+        institutionName={targetInstitution?.name || configuredInstName}
+        existingBirimDetsisNos={birimler.map((b) => b.detsis_kodu).filter(Boolean) as string[]}
+        existingBirimNames={birimler.map((b) => b.birim_adi)}
+        onImportUnits={handleImportDetsisUnits}
       />
     </div>
   )

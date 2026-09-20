@@ -67,9 +67,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
           ?.split('/')
           .pop() || 'Bilinmeyen Dosya'
       : 'Veri Dosyası Seçilmedi',
-  isAuthenticated:
-    sessionStorage.getItem('workspace_auth') === 'true' ||
-    localStorage.getItem('workspace_auth') === 'true',
+  isAuthenticated: sessionStorage.getItem('workspace_auth') === 'true',
   activeDosyaId: sessionStorage.getItem('workspace_dosya_id')
     ? parseInt(sessionStorage.getItem('workspace_dosya_id')!, 10)
     : null,

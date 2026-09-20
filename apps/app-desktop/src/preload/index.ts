@@ -13,6 +13,10 @@ const allowedChannels = new Set([
   'db:save-settings',
   'db:check-auth-setup',
   'db:setup-auth',
+  'db:send-recovery-email',
+  'db:verify-recovery-code',
+  'db:export-smtp',
+  'db:import-smtp',
   // Excel / CSV / Import / Export
   'db:export-kalem-excel',
   'db:import-kalem-excel',
@@ -115,6 +119,11 @@ const allowedChannels = new Set([
   'sync:pull',
   'network:verify-detsis',
   'network:get-detsis-cache',
+  'network:search-detsis',
+  'workspace:search-detsis',
+  'network:get-detsis-subunits',
+  'network:get-detsis-categories',
+  'network:get-detsis-special-types',
   // Template
   'template:export',
   'template:import',

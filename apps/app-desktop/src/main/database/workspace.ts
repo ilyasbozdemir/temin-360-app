@@ -389,6 +389,14 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
         is_verified INTEGER DEFAULT 0,
         birim_adi TEXT,
         kurum_adi TEXT,
+        kurum_hiyerarsisi TEXT,
+        ulke_adi TEXT,
+        il_adi TEXT,
+        ilce_adi TEXT,
+        kategori_adi TEXT,
+        statu_adi TEXT,
+        logo_base64 TEXT,
+        ingilizce_adi TEXT,
         url TEXT,
         status_code INTEGER,
         response_data TEXT,
@@ -398,6 +406,28 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
       );
       CREATE INDEX IF NOT EXISTS idx_detsis_no ON TANIM_DetsisCache(detsis_no);
     `)
+
+    // Self-healing columns for existing cache tables
+    const detsisCols = [
+      'kurum_hiyerarsisi',
+      'ulke_adi',
+      'il_adi',
+      'ilce_adi',
+      'kategori_adi',
+      'statu_adi',
+      'logo_base64',
+      'ingilizce_adi'
+    ]
+    const currentCols = (db.prepare(`PRAGMA table_info(TANIM_DetsisCache)`).all() as any[]).map(
+      (c) => c.name
+    )
+    for (const col of detsisCols) {
+      if (!currentCols.includes(col)) {
+        try {
+          db.exec(`ALTER TABLE TANIM_DetsisCache ADD COLUMN ${col} TEXT;`)
+        } catch {}
+      }
+    }
   } catch (e: any) {
     console.error('[Schema Self-Healing] TANIM_DetsisCache initialization failed:', e.message)
   }

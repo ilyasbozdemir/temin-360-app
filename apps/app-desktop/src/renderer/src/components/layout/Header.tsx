@@ -21,6 +21,7 @@ import {
 import { useTheme } from "../providers/ThemeProvider";
 import { TeminSelector } from "./TeminSelector";
 import { useWorkspaceStore } from "../../store/workspaceStore";
+import { useSettingsStore } from "../../store/settingsStore";
 import { FormatUpgradeModal } from "../modals/FormatUpgradeModal";
 import { WindowControls } from "./header/WindowControls";
 import { NotificationPopover } from "./header/NotificationPopover";
@@ -34,6 +35,7 @@ export function Header(): React.JSX.Element {
   const [hoveredSubMenu, setHoveredSubMenu] = useState<string | null>(null);
   const { activeDosyaId, fileName, isDirty, activeFilePath } =
     useWorkspaceStore();
+  const { institutionLogo, logoLeft } = useSettingsStore();
   const activeExt = (activeFilePath?.split(".").pop() || "").toLowerCase();
   const isOldFormat = Boolean(activeFilePath && activeExt !== "temin");
 
@@ -809,12 +811,18 @@ export function Header(): React.JSX.Element {
           className="flex items-center gap-0.5 z-50 text-[11px] font-medium"
           style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
         >
-          {/* App Logo */}
-          <div className="flex items-center justify-center w-8 h-8 mr-1 opacity-90">
+          {/* App / Kurum Logo */}
+          <div className="flex items-center justify-center w-6 h-6 mr-1.5 opacity-95">
             <img
-              src={appIcon}
+              src={institutionLogo || logoLeft || appIcon}
               alt="Logo"
-              className="w-5 h-5 object-contain drop-shadow-sm"
+              className="w-full h-full object-contain drop-shadow-xs"
+              onError={(e) => {
+                // Fallback to appIcon if custom logo fails to render
+                if (e.currentTarget.src !== appIcon) {
+                  e.currentTarget.src = appIcon
+                }
+              }}
             />
           </div>
 

@@ -1,6 +1,8 @@
-import React, { useState } from 'react'
-import { ImageIcon, Info, Upload, X, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { ImageIcon, Info, Upload, X, CheckCircle2, AlertCircle, Loader2, Search } from 'lucide-react'
 import { Input } from '../../../components/ui/Input'
+import { DetsisSearchModal } from '../../../components/ui/DetsisSearchModal'
+import { DetsisVerificationState } from '../../../components/ui/DetsisBadge'
 import { optimizeImageFile } from '../../../utils/imageOptimizer'
 
 interface LogoUploadCardProps {
@@ -160,6 +162,7 @@ interface LogolarTabProps {
   setShowLogoLeft: (val: boolean) => void
   showLogoRight: boolean
   setShowLogoRight: (val: boolean) => void
+  detsisKodu?: string
 }
 
 export function LogolarTab(props: LogolarTabProps): React.ReactElement {
@@ -173,17 +176,82 @@ export function LogolarTab(props: LogolarTabProps): React.ReactElement {
     showLogoLeft,
     setShowLogoLeft,
     showLogoRight,
-    setShowLogoRight
+    setShowLogoRight,
+    detsisKodu
   } = props
 
   const [notification, setNotification] = useState<{
     type: 'success' | 'error'
     message: string
   } | null>(null)
+  const [detsisLogo, setDetsisLogo] = useState<string | null>(null)
+  const [loadingDetsisLogo, setLoadingDetsisLogo] = useState(false)
 
   const showToast = (type: 'success' | 'error', message: string): void => {
     setNotification({ type, message })
-    setTimeout(() => setNotification(null), 4000)
+    setTimeout(() => {
+      setNotification(null)
+    }, 4000)
+  }
+
+  // DETSİS önbelleğinden veya API'den logo çek
+  useEffect(() => {
+    const cleanNo = (detsisKodu || '').trim().replace(/[^0-9]/g, '')
+    if (!cleanNo || !window.electron?.ipcRenderer) return
+
+    let isMounted = true
+    window.electron.ipcRenderer
+      .invoke('network:get-detsis-cache', cleanNo)
+      .then((res: any) => {
+        if (isMounted && res?.logoByteArray) {
+          setDetsisLogo(res.logoByteArray)
+        }
+      })
+      .catch(() => {})
+
+    return () => {
+      isMounted = false
+    }
+  }, [detsisKodu])
+
+  const handleFetchDetsisLogo = async (): Promise<void> => {
+    const cleanNo = (detsisKodu || '').trim().replace(/[^0-9]/g, '')
+    if (!cleanNo || !window.electron?.ipcRenderer) {
+      showToast('error', 'Önce DETSİS Kodu girilmelidir (Mali & Birim sekmesi).')
+      return
+    }
+    setLoadingDetsisLogo(true)
+    try {
+      const res = await window.electron.ipcRenderer.invoke('network:verify-detsis', {
+        detsisNo: cleanNo,
+        force: true
+      })
+      if (res?.logoByteArray) {
+        setDetsisLogo(res.logoByteArray)
+        setInstitutionLogo(res.logoByteArray)
+        setLogoLeft(res.logoByteArray)
+        showToast('success', 'DETSİS Resmi Logosu başarıyla çekildi ve uygulandı!')
+      } else {
+        showToast('error', 'Bu DETSİS numarasına ait resmi logo bulunamadı.')
+      }
+    } catch {
+      showToast('error', 'DETSİS logosu sorgulanırken hata oluştu.')
+    } finally {
+      setLoadingDetsisLogo(false)
+    }
+  }
+
+  const [isDetsisModalOpen, setIsDetsisModalOpen] = useState(false)
+
+  const handleDetsisSelect = (detsisInfo: DetsisVerificationState): void => {
+    if (detsisInfo.logoByteArray) {
+      setDetsisLogo(detsisInfo.logoByteArray)
+      setInstitutionLogo(detsisInfo.logoByteArray)
+      setLogoLeft(detsisInfo.logoByteArray)
+      showToast('success', `${detsisInfo.birimAdi || 'Kurum'} resmi logosu başarıyla çekildi ve uygulandı!`)
+    } else {
+      showToast('error', 'Seçilen kurumun DETSİS kaydında resmi logo amblemi bulunamadı.')
+    }
   }
 
   return (
@@ -213,6 +281,70 @@ export function LogolarTab(props: LogolarTabProps): React.ReactElement {
           <span>{notification.message}</span>
         </div>
       )}
+
+      {/* DETSİS Hızlı Logo Aktarma Kartı */}
+      <div className="p-3.5 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-xs">
+        <div className="flex items-center gap-3">
+          {detsisLogo ? (
+            <img
+              src={detsisLogo}
+              alt="DETSİS Logo"
+              className="w-10 h-10 object-contain rounded-xl bg-white p-1 border border-emerald-200 dark:border-emerald-700 shadow-xs"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-emerald-700 dark:text-emerald-300">
+              <ImageIcon className="w-5 h-5" />
+            </div>
+          )}
+          <div>
+            <h4 className="text-xs font-bold text-emerald-900 dark:text-emerald-200 flex items-center gap-1.5">
+              <span>DETSİS Resmi Kurum Logosu</span>
+              {detsisKodu && (
+                <span className="text-[10px] font-normal text-emerald-700 dark:text-emerald-400 font-mono">
+                  ({detsisKodu})
+                </span>
+              )}
+            </h4>
+            <p className="text-[10px] text-emerald-700/90 dark:text-emerald-400/90">
+              DETSİS sistemindeki resmi kurum armasını arayıp tek tıkla çekip logo alanlarına uygulayabilirsiniz.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {detsisKodu && (
+            <button
+              type="button"
+              onClick={handleFetchDetsisLogo}
+              disabled={loadingDetsisLogo}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {loadingDetsisLogo ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Upload className="w-3.5 h-3.5" />
+              )}
+              <span>DETSİS&apos;ten Çek</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setIsDetsisModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+          >
+            <Search className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span>DETSİS&apos;te Ara & Getir</span>
+          </button>
+        </div>
+      </div>
+
+      <DetsisSearchModal
+        isOpen={isDetsisModalOpen}
+        onClose={() => setIsDetsisModalOpen(false)}
+        onSelect={handleDetsisSelect}
+        title="DETSİS'te Kurum Logosu Ara & Uygula"
+      />
 
       <div className="flex items-start gap-2 p-3 bg-blue-50/60 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 rounded-xl text-xs text-blue-700 dark:text-blue-400 leading-relaxed">
         <Info className="w-4 h-4 shrink-0 mt-0.5" />
