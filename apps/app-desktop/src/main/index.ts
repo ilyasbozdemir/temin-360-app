@@ -890,19 +890,23 @@ if (!gotTheLock && !isMultiInstance) {
           newWindow.focus()
         })
 
+        // data.path may contain query params (e.g. "/dosya/hazirlik?id=5")
+        // Split into pure path and tab-specific query params
+        const [purePath, tabQuery] = data.path.split('?')
         const wpParam = data.workspacePath ? '&wp=' + encodeURIComponent(data.workspacePath) : ''
-        const searchString = '?mode=window' + wpParam
+        const tabQueryParam = tabQuery ? '&' + tabQuery : ''
+        const searchString = '?mode=window' + wpParam + tabQueryParam
         
         if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-          // Dev: append search params then hash for HashRouter compatibility
+          // Dev: pure path into hash, all params into search string
           newWindow.loadURL(
-            process.env['ELECTRON_RENDERER_URL'] + searchString + '#' + data.path
+            process.env['ELECTRON_RENDERER_URL'] + searchString + '#' + purePath
           )
         } else {
-          // Production: path goes into hash, params into search
+          // Production: pure path into hash, all params into search
           const indexHtml = join(__dirname, '../renderer/index.html')
           newWindow.loadFile(indexHtml, {
-            hash: data.path,
+            hash: purePath,
             search: searchString.replace(/^\?/, '')
           })
         }
