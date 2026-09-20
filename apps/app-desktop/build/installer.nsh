@@ -4,10 +4,10 @@
   WriteRegStr HKCU "Software\Classes\.temin" "" "Temin360.Document"
   WriteRegStr HKCU "Software\Classes\.temin" "Content Type" "application/x-temin"
   WriteRegStr HKCU "Software\Classes\.temin\OpenWithProgids" "Temin360.Document" ""
-  WriteRegStr HKCU "Software\Classes\.temin\DefaultIcon" "" "$INSTDIR\TEMIN360.exe,0"
+  WriteRegStr HKCU "Software\Classes\.temin\DefaultIcon" "" "$INSTDIR\resources\icon.ico"
   WriteRegStr HKCU "Software\Classes\.temin\ShellNew" "NullFile" ""
   WriteRegStr HKCU "Software\Classes\.temin\ShellNew" "ItemName" "TEMİN 360 Proje Dosyası"
-  WriteRegStr HKCU "Software\Classes\.temin\ShellNew" "IconPath" "$INSTDIR\TEMIN360.exe,0"
+  WriteRegStr HKCU "Software\Classes\.temin\ShellNew" "IconPath" "$INSTDIR\resources\icon.ico"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.temin\OpenWithProgids" "Temin360.Document" ""
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.temin\UserChoice"
 
@@ -15,7 +15,7 @@
   WriteRegStr HKCU "Software\Classes\.dtal" "" "Temin360.Document"
   WriteRegStr HKCU "Software\Classes\.dtal" "Content Type" "application/x-dtal"
   WriteRegStr HKCU "Software\Classes\.dtal\OpenWithProgids" "Temin360.Document" ""
-  WriteRegStr HKCU "Software\Classes\.dtal\DefaultIcon" "" "$INSTDIR\TEMIN360.exe,0"
+  WriteRegStr HKCU "Software\Classes\.dtal\DefaultIcon" "" "$INSTDIR\resources\icon.ico"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.dtal\OpenWithProgids" "Temin360.Document" ""
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.dtal\UserChoice"
 
@@ -23,7 +23,7 @@
   WriteRegStr HKCU "Software\Classes\.hkmp" "" "Temin360.Document"
   WriteRegStr HKCU "Software\Classes\.hkmp" "Content Type" "application/x-hkmp"
   WriteRegStr HKCU "Software\Classes\.hkmp\OpenWithProgids" "Temin360.Document" ""
-  WriteRegStr HKCU "Software\Classes\.hkmp\DefaultIcon" "" "$INSTDIR\TEMIN360.exe,0"
+  WriteRegStr HKCU "Software\Classes\.hkmp\DefaultIcon" "" "$INSTDIR\resources\icon.ico"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.hkmp\OpenWithProgids" "Temin360.Document" ""
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.hkmp\UserChoice"
 
@@ -31,7 +31,7 @@
   WriteRegStr HKCU "Software\Classes\.dtm" "" "Temin360.Document"
   WriteRegStr HKCU "Software\Classes\.dtm" "Content Type" "application/x-dtm"
   WriteRegStr HKCU "Software\Classes\.dtm\OpenWithProgids" "Temin360.Document" ""
-  WriteRegStr HKCU "Software\Classes\.dtm\DefaultIcon" "" "$INSTDIR\TEMIN360.exe,0"
+  WriteRegStr HKCU "Software\Classes\.dtm\DefaultIcon" "" "$INSTDIR\resources\icon.ico"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.dtm\OpenWithProgids" "Temin360.Document" ""
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.dtm\UserChoice"
 
@@ -39,7 +39,7 @@
   WriteRegStr HKCU "Software\Classes\.dte" "" "Temin360.Document"
   WriteRegStr HKCU "Software\Classes\.dte" "Content Type" "application/x-dte"
   WriteRegStr HKCU "Software\Classes\.dte\OpenWithProgids" "Temin360.Document" ""
-  WriteRegStr HKCU "Software\Classes\.dte\DefaultIcon" "" "$INSTDIR\TEMIN360.exe,0"
+  WriteRegStr HKCU "Software\Classes\.dte\DefaultIcon" "" "$INSTDIR\resources\icon.ico"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.dte\OpenWithProgids" "Temin360.Document" ""
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.dte\UserChoice"
 
@@ -47,7 +47,7 @@
   WriteRegStr HKCU "Software\Classes\.dta" "" "Temin360.Document"
   WriteRegStr HKCU "Software\Classes\.dta" "Content Type" "application/x-dta"
   WriteRegStr HKCU "Software\Classes\.dta\OpenWithProgids" "Temin360.Document" ""
-  WriteRegStr HKCU "Software\Classes\.dta\DefaultIcon" "" "$INSTDIR\TEMIN360.exe,0"
+  WriteRegStr HKCU "Software\Classes\.dta\DefaultIcon" "" "$INSTDIR\resources\icon.ico"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.dta\OpenWithProgids" "Temin360.Document" ""
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.dta\UserChoice"
 
@@ -55,20 +55,20 @@
   WriteRegStr HKCU "Software\Classes\.tmn360" "" "Temin360.Document"
   WriteRegStr HKCU "Software\Classes\.tmn360" "Content Type" "application/x-tmn360"
   WriteRegStr HKCU "Software\Classes\.tmn360\OpenWithProgids" "Temin360.Document" ""
-  WriteRegStr HKCU "Software\Classes\.tmn360\DefaultIcon" "" "$INSTDIR\TEMIN360.exe,0"
+  WriteRegStr HKCU "Software\Classes\.tmn360\DefaultIcon" "" "$INSTDIR\resources\icon.ico"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.tmn360\OpenWithProgids" "Temin360.Document" ""
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.tmn360\UserChoice"
 
   ; --- 2. ProgID Tanımı, İkon ve Açma Komutu ---
   WriteRegStr HKCU "Software\Classes\Temin360.Document" "" "TEMİN 360 Proje Dosyası"
-  WriteRegStr HKCU "Software\Classes\Temin360.Document\DefaultIcon" "" "$INSTDIR\TEMIN360.exe,0"
+  WriteRegStr HKCU "Software\Classes\Temin360.Document\DefaultIcon" "" "$INSTDIR\resources\icon.ico"
   WriteRegStr HKCU "Software\Classes\Temin360.Document\shell" "" "open"
   WriteRegStr HKCU "Software\Classes\Temin360.Document\shell\open" "" "TEMİN 360 ile Aç"
   WriteRegStr HKCU "Software\Classes\Temin360.Document\shell\open\command" "" '"$INSTDIR\TEMIN360.exe" "%1"'
 
   ; --- 3. Applications Kaydı ---
   WriteRegStr HKCU "Software\Classes\Applications\TEMIN360.exe" "FriendlyAppName" "TEMİN 360"
-  WriteRegStr HKCU "Software\Classes\Applications\TEMIN360.exe\DefaultIcon" "" "$INSTDIR\TEMIN360.exe,0"
+  WriteRegStr HKCU "Software\Classes\Applications\TEMIN360.exe\DefaultIcon" "" "$INSTDIR\resources\icon.ico"
   WriteRegStr HKCU "Software\Classes\Applications\TEMIN360.exe\shell\open\command" "" '"$INSTDIR\TEMIN360.exe" "%1"'
   WriteRegStr HKCU "Software\Classes\Applications\TEMIN360.exe\SupportedTypes" ".temin" ""
   WriteRegStr HKCU "Software\Classes\Applications\TEMIN360.exe\SupportedTypes" ".dtal" ""

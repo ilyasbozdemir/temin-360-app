@@ -21,19 +21,40 @@ protocol.registerSchemesAsPrivileged([
 import iconPng from '../../resources/icon.png?asset'
 import iconIco from '../../resources/icon.ico?asset'
 
-const getAppIcon = (): string | undefined => {
-  console.log('App isPackaged:', app.isPackaged)
-  console.log('iconIco asset path:', iconIco)
-  console.log('iconPng asset path:', iconPng)
-  if (process.platform === 'win32' && iconIco) {
-    console.log('Using win32 iconIco')
-    return iconIco
+const getIconFilePath = (): string | undefined => {
+  const possiblePaths = [
+    join(process.resourcesPath, 'icon.ico'),
+    join(process.resourcesPath, 'icon.png'),
+    join(process.resourcesPath, 'resources', 'icon.ico'),
+    join(process.resourcesPath, 'resources', 'icon.png'),
+    join(app.getAppPath(), 'resources', 'icon.ico'),
+    join(app.getAppPath(), 'resources', 'icon.png'),
+    iconIco,
+    iconPng,
+    join(__dirname, '../../resources/icon.ico'),
+    join(__dirname, '../../resources/icon.png')
+  ].filter(Boolean) as string[]
+
+  for (const p of possiblePaths) {
+    if (typeof p === 'string' && fs.existsSync(p)) {
+      return p
+    }
   }
-  return iconPng || undefined
+  return iconIco || iconPng || undefined
+}
+
+const getAppIcon = (): Electron.NativeImage | undefined => {
+  const iconPath = getIconFilePath()
+  if (iconPath && fs.existsSync(iconPath)) {
+    try {
+      const img = nativeImage.createFromPath(iconPath)
+      if (!img.isEmpty()) return img
+    } catch {}
+  }
+  return undefined
 }
 
 const icon = getAppIcon()
-console.log('Final resolved icon:', icon)
 
 // Windows Taskbar & Pinning için AppUserModelID kaydını en erken aşamada çağırıyoruz
 if (process.platform === 'win32') {
@@ -225,6 +246,11 @@ function createWindow(): void {
   })
 
   mainWindow.on('ready-to-show', () => {
+    if (icon) {
+      try {
+        mainWindow.setIcon(icon)
+      } catch {}
+    }
     mainWindow.show()
     if (process.argv.includes('--new-dosya')) {
       mainWindow.webContents.send('app:navigate', '/dosyalar/yeni')
@@ -486,17 +512,17 @@ if (!gotTheLock && !isMultiInstance) {
 
       // İkon dosyasını doğrudan resources/icon.ico olarak tespit et
       let iconPath = `${exePath},0`
-      if (app.isPackaged) {
-        const p1 = join(process.resourcesPath, 'icon.ico')
-        const p2 = join(process.resourcesPath, 'resources', 'icon.ico')
-        const p3 = join(dirname(exePath), 'resources', 'icon.ico')
-        if (fs.existsSync(p1)) iconPath = p1
-        else if (fs.existsSync(p2)) iconPath = p2
-        else if (fs.existsSync(p3)) iconPath = p3
-      } else {
-        const pDev = join(app.getAppPath(), 'resources', 'icon.ico')
-        if (fs.existsSync(pDev)) iconPath = pDev
-      }
+      const p1 = join(process.resourcesPath, 'icon.ico')
+      const p2 = join(process.resourcesPath, 'resources', 'icon.ico')
+      const p3 = join(dirname(exePath), 'resources', 'icon.ico')
+      const pDev = join(app.getAppPath(), 'resources', 'icon.ico')
+      const pRoot = join(__dirname, '../../resources/icon.ico')
+
+      if (fs.existsSync(p1)) iconPath = p1
+      else if (fs.existsSync(p2)) iconPath = p2
+      else if (fs.existsSync(p3)) iconPath = p3
+      else if (fs.existsSync(pDev)) iconPath = pDev
+      else if (fs.existsSync(pRoot)) iconPath = pRoot
 
       // 1. ProgID ve Uygulama Kayıtları
       execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document', '/ve', '/d', 'TEMİN 360 Proje Dosyası', '/f'])
