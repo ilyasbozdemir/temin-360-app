@@ -184,8 +184,16 @@ export function IhtiyacTalepFormu({
                   TALEP EDEN BİRİM:{" "}
                   <EditableField
                     name="ihtiyacYeri"
-                    value={data.ihtiyacYeri || (data as any).mudurluk ||
-                      (data as any).kurum_adi}
+                    value={
+                      (data as any).mudurluk ||
+                      (data as any).birimAdi ||
+                      (data as any).harcamaBirimi ||
+                      (data as any).talepEdenBirim ||
+                      data.ihtiyacYeri ||
+                      (data as any).idareAdi ||
+                      (data as any).kurum_adi ||
+                      ""
+                    }
                     placeholder="Birim Adı"
                   />
                 </div>

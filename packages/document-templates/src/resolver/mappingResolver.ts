@@ -1,5 +1,33 @@
 import { ProcessMapping, TableColumnMapping } from './types';
 
+export function toPossessiveSuffix(str: string): string {
+  if (!str) return 'Müdürlüğümüzün';
+  const trimmed = str.trim();
+  const lower = trimmed.toLowerCase();
+  if (
+    lower.endsWith('n') ||
+    lower.endsWith('in') ||
+    lower.endsWith('ın') ||
+    lower.endsWith('un') ||
+    lower.endsWith('ün')
+  ) {
+    return trimmed;
+  }
+  if (lower.endsWith('miz') || lower.endsWith('müz')) return `${trimmed}in`;
+  if (lower.endsWith('mız') || lower.endsWith('muz')) return `${trimmed}ın`;
+  if (
+    lower.endsWith('si') ||
+    lower.endsWith('su') ||
+    lower.endsWith('sü') ||
+    lower.endsWith('sı')
+  ) {
+    return `${trimmed}nin`;
+  }
+  if (lower.endsWith('i') || lower.endsWith('ü')) return `${trimmed}nin`;
+  if (lower.endsWith('ı') || lower.endsWith('u')) return `${trimmed}nun`;
+  return `${trimmed}in`;
+}
+
 /**
  * Resolves official E-DETSIS formatted document number e.g. E-10234521-934.01-0001
  */
@@ -698,6 +726,85 @@ export async function resolveTemplateData(
           } catch (e) {}
         }
 
+        // Dynamic fallback for ihtiyacYeri from TANIM_Birim or TANIM_Kurum
+        if (
+          sablonDegiskeni === 'ihtiyacYeri' &&
+          (!rawValue || String(rawValue).trim() === '' || String(rawValue).trim() === 'Müdürlüğümüzün')
+        ) {
+          try {
+            let foundIhtiyacYeri = '';
+
+            // 1. Check if the active file has a specific birim with ihtiyac_yeri_eki
+            if (activeDosyaId) {
+              const bRes = await queryExecutor(
+                `SELECT b.ihtiyac_yeri_eki, b.birim_adi 
+                 FROM DATA_TeminDosyasi d 
+                 JOIN TANIM_Birim b ON d.birim_id = b.id 
+                 WHERE d.id = ? LIMIT 1`,
+                [activeDosyaId]
+              );
+              if (bRes?.[0]) {
+                const bRow = bRes[0];
+                if (bRow.ihtiyac_yeri_eki && String(bRow.ihtiyac_yeri_eki).trim()) {
+                  let parsed = String(bRow.ihtiyac_yeri_eki).trim();
+                  if (parsed.startsWith('[') && parsed.endsWith(']')) {
+                    try {
+                      const arr = JSON.parse(parsed);
+                      if (Array.isArray(arr) && arr.length > 0 && arr[0]) {
+                        parsed = arr[0];
+                      }
+                    } catch (e) {}
+                  }
+                  if (parsed && parsed !== '[]') {
+                    foundIhtiyacYeri = parsed;
+                  }
+                }
+              }
+            }
+
+            // 2. If not found from birim, resolve from TANIM_Kurum (alt_kurum_bizim, alt_kurum_tipi, kurum_tipi)
+            if (!foundIhtiyacYeri) {
+              const kRes = await queryExecutor(
+                'SELECT alt_kurum_bizim, alt_kurum_tipi, kurum_tipi, kurum_adi FROM TANIM_Kurum LIMIT 1',
+                []
+              );
+              if (kRes?.[0]) {
+                const kRow = kRes[0];
+                if (kRow.alt_kurum_bizim && String(kRow.alt_kurum_bizim).trim()) {
+                  foundIhtiyacYeri = toPossessiveSuffix(kRow.alt_kurum_bizim.trim());
+                } else if (kRow.alt_kurum_tipi) {
+                  const map: Record<string, string> = {
+                    belediye: 'Belediyemizin',
+                    mudurluk: 'Müdürlüğümüzün',
+                    bakanlik: 'Bakanlığımızın',
+                    valilik: 'Valiliğimizin',
+                    kaymakamlik: 'Kaymakamlığımızın',
+                    universite: 'Üniversitemizin',
+                    il_ozel: 'İl Özel İdaremizin',
+                    koy: 'Muhtarlığımızın',
+                    sgk: 'Müdürlüğümüzün',
+                    kurul: 'Kurulumuzun',
+                    diger: 'Kurumumuzun'
+                  };
+                  foundIhtiyacYeri = map[kRow.alt_kurum_tipi] || 'Müdürlüğümüzün';
+                } else if (kRow.kurum_tipi === 'belediye') {
+                  foundIhtiyacYeri = 'Belediyemizin';
+                } else if (kRow.kurum_tipi === 'ozel_butce') {
+                  foundIhtiyacYeri = 'Üniversitemizin';
+                } else if (kRow.kurum_tipi === 'duzenleyici') {
+                  foundIhtiyacYeri = 'Kurulumuzun';
+                } else if (kRow.kurum_tipi === 'genel_butce') {
+                  foundIhtiyacYeri = 'Müdürlüğümüzün';
+                }
+              }
+            }
+
+            if (foundIhtiyacYeri) {
+              rawValue = foundIhtiyacYeri;
+            }
+          } catch (e) {}
+        }
+
         // Handle stringified JSON arrays (like antetSatirlari)
         if (typeof rawValue === 'string' && (rawValue.trim().startsWith('[') || rawValue.trim().startsWith('{'))) {
           try {
@@ -746,10 +853,29 @@ export async function resolveTemplateData(
     } catch (e) {}
   }
 
-  // Format all date variables into Turkish GG.AA.YYYY format
+  // Format all date variables into Turkish GG.AA.YYYY format & fallback to file date
+  let defaultFileDate = '';
+  try {
+    const dRes = await queryExecutor(
+      'SELECT dosya_acilis_tarihi, tarih, temin_tarihi, created_at FROM DATA_TeminDosyasi WHERE id = ? LIMIT 1',
+      [activeDosyaId]
+    );
+    if (dRes && dRes.length > 0) {
+      defaultFileDate = formatDateTR(
+        dRes[0].dosya_acilis_tarihi || dRes[0].tarih || dRes[0].temin_tarihi || dRes[0].created_at
+      );
+    }
+  } catch (e) {}
+
   for (const key of Object.keys(resolvedPayload)) {
-    const val = resolvedPayload[key];
+    let val = resolvedPayload[key];
     if (
+      key.toLowerCase().includes('tarih') &&
+      (!val || String(val).trim() === '' || String(val).startsWith('[Belirtilmedi'))
+    ) {
+      val = defaultFileDate || formatDateTR(new Date());
+      resolvedPayload[key] = val;
+    } else if (
       typeof val === 'string' &&
       (/^\d{4}-\d{2}-\d{2}/.test(val) || key.toLowerCase().includes('tarih'))
     ) {

@@ -6,10 +6,11 @@ import {
   ProcessMapping,
   processMappingRegistry
 } from '../../constants/mappings'
-import { buildDocumentContext, formatDateString } from './CiktiMerkezi.contextBuilder'
+import { buildDocumentContext, formatDateString, getFileDate } from './CiktiMerkezi.contextBuilder'
 import { filterContextForTemplate } from './CiktiMerkezi.mediator'
 import { defaultTemplatesByPath } from '../sablonlar/components/defaultTemplates'
 import { useAppEventListener } from '../../utils/appEvents'
+import { getKurumIhtiyacYeriDefault } from '../../utils/kurumHelper'
 export interface UseCiktiMerkeziDataResult {
   sablons: Sablon[]
   loading: boolean
@@ -350,18 +351,46 @@ export function useCiktiMerkeziData(activeDosyaId: number | null): UseCiktiMerke
                 } else if (colMap.tablo === 'TANIM_Kurum' && kurum) {
                   val = kurum[colMap.sutun as keyof typeof kurum]
                 } else if (colMap.tablo === 'DATA_TeminDosyasi' && dosyaRes.data?.[0]) {
-                  val = dosyaRes.data[0][colMap.sutun]
+                  const dRow = dosyaRes.data[0]
+                  val = dRow[colMap.sutun]
+                  if (
+                    (val === null || val === undefined || val === '') &&
+                    (colMap.sutun.toLowerCase().includes('tarih') ||
+                      sablonKey.toLowerCase().includes('tarih'))
+                  ) {
+                    val =
+                      dRow.dosya_acilis_tarihi ||
+                      dRow.tarih ||
+                      dRow.temin_tarihi ||
+                      dRow.created_at
+                  }
                 }
               }
 
               if (val === null || val === undefined || val === '') {
-                val =
-                  colMap.varsayilan !== undefined
-                    ? colMap.varsayilan
-                    : `[Belirtilmedi: ${colMap.aciklama || sablonKey}]`
+                if (sablonKey === 'ihtiyacYeri') {
+                  val = getKurumIhtiyacYeriDefault(kurum)
+                } else if (
+                  sablonKey.toLowerCase().includes('tarih') ||
+                  (colMap.sutun && colMap.sutun.toLowerCase().includes('tarih'))
+                ) {
+                  val = getFileDate(dosyaRes.data?.[0])
+                } else {
+                  val =
+                    colMap.varsayilan !== undefined
+                      ? colMap.varsayilan
+                      : `[Belirtilmedi: ${colMap.aciklama || sablonKey}]`
+                }
               }
 
               if (val !== null && val !== undefined) {
+                if (
+                  typeof val === 'string' &&
+                  (sablonKey.toLowerCase().includes('tarih') || /^\d{4}-\d{2}-\d{2}/.test(val))
+                ) {
+                  const formatted = formatDateString(val)
+                  if (formatted) val = formatted
+                }
                 if (
                   typeof val === 'string' &&
                   ((val.startsWith('[') && val.endsWith(']')) ||

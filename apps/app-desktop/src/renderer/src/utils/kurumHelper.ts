@@ -143,3 +143,65 @@ export function getKurumumuzText(
   const item = INSTITUTION_MAP[subInstType] || INSTITUTION_MAP.diger
   return item.kurumumuz
 }
+
+export function toPossessiveSuffix(str: string): string {
+  if (!str) return 'Müdürlüğümüzün'
+  const trimmed = str.trim()
+  const lower = trimmed.toLowerCase()
+  if (
+    lower.endsWith('n') ||
+    lower.endsWith('in') ||
+    lower.endsWith('ın') ||
+    lower.endsWith('un') ||
+    lower.endsWith('ün')
+  ) {
+    return trimmed
+  }
+  if (lower.endsWith('miz') || lower.endsWith('müz')) return `${trimmed}in`
+  if (lower.endsWith('mız') || lower.endsWith('muz')) return `${trimmed}ın`
+  if (
+    lower.endsWith('si') ||
+    lower.endsWith('su') ||
+    lower.endsWith('sü') ||
+    lower.endsWith('sı')
+  ) {
+    return `${trimmed}nin`
+  }
+  if (lower.endsWith('i') || lower.endsWith('ü')) return `${trimmed}nin`
+  if (lower.endsWith('ı') || lower.endsWith('u')) return `${trimmed}nun`
+  return `${trimmed}in`
+}
+
+export function getKurumIhtiyacYeriDefault(
+  kurum?: {
+    alt_kurum_bizim?: string
+    alt_kurum_tipi?: string
+    kurum_tipi?: string
+  } | null
+): string {
+  if (!kurum) return 'Müdürlüğümüzün'
+  if (kurum.alt_kurum_bizim && String(kurum.alt_kurum_bizim).trim()) {
+    return toPossessiveSuffix(kurum.alt_kurum_bizim.trim())
+  }
+  if (kurum.alt_kurum_tipi) {
+    const map: Record<string, string> = {
+      belediye: 'Belediyemizin',
+      mudurluk: 'Müdürlüğümüzün',
+      bakanlik: 'Bakanlığımızın',
+      valilik: 'Valiliğimizin',
+      kaymakamlik: 'Kaymakamlığımızın',
+      universite: 'Üniversitemizin',
+      il_ozel: 'İl Özel İdaremizin',
+      koy: 'Muhtarlığımızın',
+      sgk: 'Müdürlüğümüzün',
+      kurul: 'Kurulumuzun',
+      diger: 'Kurumumuzun'
+    }
+    if (map[kurum.alt_kurum_tipi]) return map[kurum.alt_kurum_tipi]
+  }
+  if (kurum.kurum_tipi === 'belediye') return 'Belediyemizin'
+  if (kurum.kurum_tipi === 'ozel_butce') return 'Üniversitemizin'
+  if (kurum.kurum_tipi === 'duzenleyici') return 'Kurulumuzun'
+  if (kurum.kurum_tipi === 'genel_butce') return 'Müdürlüğümüzün'
+  return 'Müdürlüğümüzün'
+}

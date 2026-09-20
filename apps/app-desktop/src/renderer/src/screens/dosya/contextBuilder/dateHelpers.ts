@@ -31,9 +31,9 @@ export function getFileDate(dosyaResData: any): string {
   }).format(new Date())
 
   return (
+    formatDateString(dosyaResData?.dosya_acilis_tarihi) ||
     formatDateString(dosyaResData?.tarih) ||
     formatDateString(dosyaResData?.temin_tarihi) ||
-    formatDateString(dosyaResData?.dosya_acilis_tarihi) ||
     formatDateString(dosyaResData?.created_at) ||
     today
   )

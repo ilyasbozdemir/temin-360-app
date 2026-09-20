@@ -102,7 +102,8 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
     document.title = editId
       ? "Mal/Hizmet/Yapım İşi Düzenle - DT"
       : "Mal/Hizmet/Yapım İşi Ekle - DT";
-    if (editId && kalemList.length > 0) {
+    if (editId) {
+      setEntryMode('single');
       const existing = kalemList.find((k) => k.id === editId);
       if (existing) {
         setFormData({
@@ -113,6 +114,22 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
             ? "Yapım"
             : "Mal",
         });
+      } else {
+        window.electron.ipcRenderer
+          .invoke('db:query', 'SELECT * FROM TANIM_Kalem WHERE id = ?', [editId])
+          .then((res: any) => {
+            if (res.success && res.data?.[0]) {
+              const row = res.data[0];
+              setFormData({
+                ...row,
+                tipi: row.tipi?.startsWith("Hizmet")
+                  ? "Hizmet"
+                  : row.tipi === "Yapım"
+                  ? "Yapım"
+                  : "Mal",
+              });
+            }
+          });
       }
     }
   }, [editId, kalemList]);
@@ -401,9 +418,11 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
                 (Mal / Hizmet / Yapım İşi)
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {entryMode === "batch" && !editId
-                  ? "Ortak kod ve KDV seçip Excel gridiyle saniyeler içinde birden çok malzeme ekleyin"
-                  : "Yaklaşık maliyet ve teklif süreçleri için doğrudan temin kalemi tanımlayın"}
+                {editId
+                  ? "Mevcut kalem bilgilerini, teknik özelliklerini ve parametrelerini güncelleyin"
+                  : entryMode === "batch"
+                    ? "Ortak kod ve KDV seçip Excel gridiyle saniyeler içinde birden çok malzeme ekleyin"
+                    : "Yaklaşık maliyet ve teklif süreçleri için doğrudan temin kalemi tanımlayın"}
               </p>
             </div>
           </div>
@@ -440,17 +459,19 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
             )}
 
             <button
+              type="button"
               onClick={() => navigate({ to: "/malzemeler" })}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
             >
               İptal
             </button>
 
             {entryMode === "single" && !editId && (
               <button
+                type="button"
                 onClick={() => handleSave(true)}
                 disabled={isSaving}
-                className="px-4 py-2 text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all flex items-center gap-1.5 shadow-sm"
+                className="px-4 py-2 text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
                 title="Kaydeder ve hemen ardından yeni bir kalem eklemek için formu açık tutar"
               >
                 <PlusCircle size={15} />
@@ -458,11 +479,12 @@ export default function YeniMalzemeScreen(): React.JSX.Element {
               </button>
             )}
 
-            {entryMode === "single" && (
+            {(entryMode === "single" || !!editId) && (
               <button
+                type="button"
                 onClick={() => handleSave(false)}
                 disabled={isSaving}
-                className="px-5 py-2 text-xs font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-sm hover:shadow-md flex items-center gap-1.5"
+                className="px-5 py-2 text-xs font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-sm hover:shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 {isSaving
                   ? <Loader2 size={15} className="animate-spin" />

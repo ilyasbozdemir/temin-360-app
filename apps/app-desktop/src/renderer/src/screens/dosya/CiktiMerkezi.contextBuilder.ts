@@ -5,8 +5,9 @@ import { calculateFirmaTeklifleri } from './contextBuilder/bidsHelpers'
 import { calculateNeedItems } from './contextBuilder/itemsHelpers'
 import { buildKapakDetaylari, parseAciklamaMaddeleri } from './contextBuilder/kapakHelpers'
 import { buildFormattedEvrakSayisi } from './contextBuilder/evrakHelpers'
+import { getKurumIhtiyacYeriDefault } from '../../utils/kurumHelper'
 
-export { formatDateString }
+export { formatDateString, getFileDate }
 
 export function buildDocumentContext(
   dosyaResData: any,
@@ -60,7 +61,12 @@ export function buildDocumentContext(
 
   const genelToplam = formatTR(grandTotal)
 
-  const rawHarcamaBirimi = settings?.harcamaBirimAdi || dosyaResData?.harcama_birimi || ''
+  const rawHarcamaBirimi =
+    dosyaResData?.birim_tablo_adi ||
+    dosyaResData?.birim_adi ||
+    dosyaResData?.harcama_birimi ||
+    settings?.harcamaBirimAdi ||
+    ''
   const parentInstitutionName = settings?.parentInstitution || ''
   const institutionName = settings?.institutionName || 'Kurum Adı Belirtilmedi'
   const idareAdi = rawHarcamaBirimi ? `${institutionName} - ${rawHarcamaBirimi}` : institutionName
@@ -121,11 +127,27 @@ export function buildDocumentContext(
     dosyaYili: dosyaYili,
     kapakDetaylari,
     tarih: fileDate,
+    dosyaTarihi: fileDate,
+    onayTarihi: formatDateString(dosyaResData?.onay_tarihi) || fileDate,
+    onayaSunulanTarih: formatDateString(dosyaResData?.temin_tarihi) || fileDate,
+    kararTarihi: formatDateString(dosyaResData?.karar_tarihi) || fileDate,
+    belgeTarihi: fileDate,
+    talepTarihi: fileDate,
+    olurTarihi: formatDateString(dosyaResData?.onay_tarihi) || fileDate,
+    davetTarihi: fileDate,
+    komisyonTarihi: fileDate,
+    duzenlemeTarihi: fileDate,
+    teklifTarihi: fileDate,
+    faturaTarihi: fileDate,
+    teslimTarihi: formatDateString(dosyaResData?.teslim_tarihi) || fileDate,
+    sonTeklifTarihi:
+      formatDateString(dosyaResData?.son_teklif_verme_tarihi) ||
+      formatDateString(dosyaResData?.son_teklif_tarihi) ||
+      fileDate,
     alimTuru: alimTuruText,
     isMal,
     isHizmet,
     isYapim,
-    dosyaTarihi: fileDate,
     yukleniciFirma: dosyaResData?.yuklenici_firma_adi || null,
     yukleniciAdresi: dosyaResData?.yuklenici_firma_adresi || '',
     yukleniciIlce: dosyaResData?.yuklenici_firma_ilcesi || '',
@@ -160,6 +182,10 @@ export function buildDocumentContext(
     kurumUst: parentInstitutionName,
     kurumAdi: institutionName,
     mudurluk: rawHarcamaBirimi,
+    ihtiyacYeri:
+      dosyaResData?.ihtiyac_yeri ||
+      dosyaResData?.ihtiyac_yeri_eki ||
+      getKurumIhtiyacYeriDefault(kurum),
     idareAdi: idareAdi,
     sunulacakMakam:
       dosyaResData?.sunulacak_makam ||

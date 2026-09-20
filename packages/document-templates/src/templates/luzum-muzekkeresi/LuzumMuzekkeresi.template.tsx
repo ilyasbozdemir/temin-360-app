@@ -175,7 +175,7 @@ export function LuzumMuzekkeresi({
                 >
                   <EditableField
                     name="ihtiyacYeri"
-                    value={data.ihtiyacYeri || "Müdürlüğümüzün"}
+                    value={data.ihtiyacYeri || (data as any).altKurumBizim || (data as any).kurumumuz || "Müdürlüğümüzün"}
                     placeholder="İhtiyaç Yeri"
                   />{" "}
                   ihtiyacı olan aşağıda yazılı mal/hizmet kalemlerinin temin

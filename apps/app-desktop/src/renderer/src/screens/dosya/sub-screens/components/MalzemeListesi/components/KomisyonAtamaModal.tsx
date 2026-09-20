@@ -568,16 +568,6 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
                 onClick={() =>
                   handleOpenDoc("piyasa-fiyat-arastirma-gorevlendirmesi")}
                 disabled={saving || loading}
-                className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 hover:bg-black dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-95 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
-                title="Piyasa Fiyat Araştırması Görevlendirmesi Belgesini Aç"
-              >
-                <FileText className="w-3.5 h-3.5" />
-                Fiyat Araştırma Görevlendirmesi
-              </button>
-              <button
-                type="button"
-                onClick={() => handleOpenDoc("komisyon-gorevlendirme-onayi")}
-                disabled={saving || loading}
                 className="flex items-center gap-1.5 px-3 py-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white rounded-lg text-xs font-semibold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                 title="Komisyon Görevlendirme Onayı Belgesini Aç"
               >
