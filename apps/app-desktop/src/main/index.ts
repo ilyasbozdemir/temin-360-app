@@ -22,39 +22,40 @@ import iconPng from '../../resources/icon.png?asset'
 import iconIco from '../../resources/icon.ico?asset'
 
 const getIconFilePath = (): string | undefined => {
-  const possiblePaths = [
-    join(process.resourcesPath, 'icon.ico'),
-    join(process.resourcesPath, 'icon.png'),
-    join(process.resourcesPath, 'resources', 'icon.ico'),
-    join(process.resourcesPath, 'resources', 'icon.png'),
-    join(app.getAppPath(), 'resources', 'icon.ico'),
-    join(app.getAppPath(), 'resources', 'icon.png'),
-    iconIco,
-    iconPng,
-    join(__dirname, '../../resources/icon.ico'),
-    join(__dirname, '../../resources/icon.png')
-  ].filter(Boolean) as string[]
+  try {
+    const appDir = app.isReady() ? app.getAppPath() : process.cwd()
+    const possiblePaths = [
+      join(__dirname, '../../resources/icon.ico'),
+      join(__dirname, '../../resources/icon.png'),
+      join(appDir, 'resources', 'icon.ico'),
+      join(appDir, 'resources', 'icon.png'),
+      join(process.resourcesPath, 'icon.ico'),
+      join(process.resourcesPath, 'icon.png'),
+      join(process.resourcesPath, 'resources', 'icon.ico'),
+      join(process.resourcesPath, 'resources', 'icon.png'),
+      iconIco,
+      iconPng
+    ].filter(Boolean) as string[]
 
-  for (const p of possiblePaths) {
-    if (typeof p === 'string' && fs.existsSync(p)) {
-      return p
+    for (const p of possiblePaths) {
+      if (typeof p === 'string' && fs.existsSync(p)) {
+        return p
+      }
     }
-  }
+  } catch {}
   return iconIco || iconPng || undefined
 }
 
 const getAppIcon = (): Electron.NativeImage | undefined => {
-  const iconPath = getIconFilePath()
-  if (iconPath && fs.existsSync(iconPath)) {
-    try {
+  try {
+    const iconPath = getIconFilePath()
+    if (iconPath && fs.existsSync(iconPath)) {
       const img = nativeImage.createFromPath(iconPath)
       if (!img.isEmpty()) return img
-    } catch {}
-  }
+    }
+  } catch {}
   return undefined
 }
-
-const icon = getAppIcon()
 
 // Windows Taskbar & Pinning için AppUserModelID kaydını en erken aşamada çağırıyoruz
 if (process.platform === 'win32') {
@@ -224,6 +225,7 @@ process.on('exit', () => {
 })
 
 function createWindow(): void {
+  const winIcon = getAppIcon()
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1280,
@@ -235,7 +237,7 @@ function createWindow(): void {
     frame: false,
     titleBarStyle: 'hidden',
     titleBarOverlay: false,
-    icon: icon,
+    icon: winIcon,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
@@ -246,9 +248,9 @@ function createWindow(): void {
   })
 
   mainWindow.on('ready-to-show', () => {
-    if (icon) {
+    if (winIcon) {
       try {
-        mainWindow.setIcon(icon)
+        mainWindow.setIcon(winIcon)
       } catch {}
     }
     mainWindow.show()
@@ -625,9 +627,9 @@ if (!gotTheLock && !isMultiInstance) {
     }
 
     try {
-      const trayIconPath = (fs.existsSync(iconPng) ? iconPng : icon) ?? iconPng
-      if (trayIconPath) {
-        tray = new Tray(trayIconPath)
+      const trayImg = getAppIcon()
+      if (trayImg) {
+        tray = new Tray(trayImg)
         const contextMenu = Menu.buildFromTemplate([
           {
             label: 'Gösterge Paneli',
@@ -783,7 +785,7 @@ if (!gotTheLock && !isMultiInstance) {
         show: false,
         autoHideMenuBar: false,
         title: data.title || 'Sorgulama Ekranı',
-        icon: icon,
+        icon: getAppIcon(),
         webPreferences: {
           nodeIntegration: false,
           contextIsolation: true
@@ -809,7 +811,7 @@ if (!gotTheLock && !isMultiInstance) {
           show: false,
           autoHideMenuBar: true,
           title: data.title || 'TEMİN 360 — Detay',
-          icon: icon,
+          icon: getAppIcon(),
           webPreferences: {
             preload: join(__dirname, '../preload/index.js'),
             sandbox: false
@@ -859,7 +861,7 @@ if (!gotTheLock && !isMultiInstance) {
           titleBarStyle: 'hidden',
           titleBarOverlay: false,
           title: data.title || `Dosya #${data.dosyaId}`,
-          icon: icon,
+          icon: getAppIcon(),
           webPreferences: {
             preload: join(__dirname, '../preload/index.js'),
             sandbox: false
@@ -906,7 +908,7 @@ if (!gotTheLock && !isMultiInstance) {
           titleBarStyle: 'hidden',
           titleBarOverlay: false,
           title: data.title || 'TEMİN 360',
-          icon: icon,
+          icon: getAppIcon(),
           webPreferences: {
             preload: join(__dirname, '../preload/index.js'),
             sandbox: false
