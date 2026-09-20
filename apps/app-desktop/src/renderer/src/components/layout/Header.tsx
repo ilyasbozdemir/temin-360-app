@@ -23,6 +23,7 @@ import { TeminSelector } from "./TeminSelector";
 import { useWorkspaceStore } from "../../store/workspaceStore";
 import { useSettingsStore } from "../../store/settingsStore";
 import { FormatUpgradeModal } from "../modals/FormatUpgradeModal";
+import { UpdateModal } from "../ui/UpdateModal";
 import { WindowControls } from "./header/WindowControls";
 import { NotificationPopover } from "./header/NotificationPopover";
 import { SyncPopover } from "./header/SyncPopover";
@@ -259,6 +260,7 @@ export function Header(): React.JSX.Element {
       version?: string;
     } | null
   >(null);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
@@ -266,6 +268,9 @@ export function Header(): React.JSX.Element {
       "updater:status",
       (_event, data: { status: string; version?: string }) => {
         setUpdateStatus(data);
+        if (data.status === "downloaded") {
+          setShowUpdateModal(true);
+        }
       },
     );
 
@@ -1202,25 +1207,24 @@ export function Header(): React.JSX.Element {
               updateStatus.status === "downloaded") &&
             (
               <button
-                onClick={() => {
-                  if (updateStatus.status === "downloaded") {
-                    window.electron?.ipcRenderer.invoke(
-                      "updater:quit-and-install",
-                    );
-                  } else {
-                    alert(
-                      "Güncelleme arka planda indiriliyor, lütfen bekleyin...",
-                    );
-                  }
-                }}
-                className="relative p-1 text-blue-500 hover:text-blue-600 transition-all rounded hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                type="button"
+                onClick={() => setShowUpdateModal(true)}
+                className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition-all border shadow-xs cursor-pointer ${
+                  updateStatus.status === "downloaded"
+                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20 animate-pulse"
+                    : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30 hover:bg-blue-500/20"
+                }`}
                 title={updateStatus.status === "downloaded"
                   ? `Yeni sürüm hazır: ${updateStatus.version} (Kurmak için tıkla)`
-                  : `Yeni sürüm iniyor: ${updateStatus.version}...`}
+                  : `Yeni sürüm indiriliyor: ${updateStatus.version}...`}
               >
                 <DownloadCloud className="w-3.5 h-3.5" />
-                <span className="absolute top-0 right-0 w-1.5 h-1.5 bg-blue-500 rounded-full border border-white dark:border-slate-900 shadow-sm animate-pulse">
+                <span className="hidden sm:inline">
+                  {updateStatus.status === "downloaded"
+                    ? `Güncelleme Hazır (${updateStatus.version || ""})`
+                    : `Güncelleniyor...`}
                 </span>
+                <span className={`w-2 h-2 rounded-full ${updateStatus.status === "downloaded" ? "bg-emerald-500 animate-ping" : "bg-blue-500 animate-pulse"}`} />
               </button>
             )}
 
@@ -1319,6 +1323,13 @@ export function Header(): React.JSX.Element {
         filePath={upgradeFilePath}
         onClose={() => setShowFormatUpgradeModal(false)}
         onUpgradeAndOpen={handleUpgradeAndOpen}
+      />
+
+      <UpdateModal
+        isOpen={showUpdateModal}
+        onClose={() => setShowUpdateModal(false)}
+        version={updateStatus?.version}
+        status={updateStatus?.status}
       />
     </header>
   );
