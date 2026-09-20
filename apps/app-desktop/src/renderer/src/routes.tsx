@@ -35,7 +35,7 @@ import PozDetayScreen from "./screens/pozlar/detay.screen";
 import TopluPozEkleScreen from "./screens/pozlar/toplu.screen";
 import OlcuBirimleriScreen from "./screens/olcubirimleri/index.screen";
 import YeniMalzemeScreen from "./screens/malzemeler/yeni.screen";
-import YeniDosyaScreen from "./screens/dosyalar/yeni.screen";
+import YeniDosyaScreen, { DosyaManageScreen } from "./screens/dosyalar/manage.screen";
 import KomisyonDetayScreen from "./screens/komisyonlar/detay.screen";
 import DosyaDataInspectorScreen from "./screens/dosyalar/DosyaDataInspectorScreen";
 import NotlarVeGorevlerScreen from "./screens/notlar/index.screen";
@@ -73,7 +73,13 @@ const dosyalarRoute = createRoute({
 const yeniDosyaRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.YENI_DOSYA,
-  component: YeniDosyaScreen,
+  component: DosyaManageScreen,
+});
+
+const dosyaManageRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: APP_ROUTES.DOSYA_MANAGE,
+  component: DosyaManageScreen,
 });
 
 const firmalarRoute = createRoute({
@@ -377,6 +383,7 @@ const routeTree = rootRoute.addChildren([
   projelerRoute,
   dosyalarRoute,
   yeniDosyaRoute,
+  dosyaManageRoute,
   firmalarRoute,
   personelRoute,
   sablonlarRoute,

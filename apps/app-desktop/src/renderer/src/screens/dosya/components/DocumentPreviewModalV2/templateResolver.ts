@@ -370,11 +370,15 @@ export const TEMPLATE_ALIASES: Record<string, string> = {
   "harcama-pusulasi": "harcama-pusulasi",
   "harcamapusulasi": "harcama-pusulasi",
   "pusula": "harcama-pusulasi",
-  "muayene-kabul-tutanagi": "harcama-pusulasi",
-  "muayene-kabul": "harcama-pusulasi",
-  "kabul-tutanagi": "harcama-pusulasi",
-  "hizmet-isleri-kabul-tutanagi": "harcama-pusulasi",
-  "hizmet-isleri-kabul-teklif-belgesi": "harcama-pusulasi",
+  "muayene-kabul-komisyonu": "muayene-kabul-komisyonu",
+  "muayenekabulkomisyonu": "muayene-kabul-komisyonu",
+  "muayene-kabul-belgesi": "muayene-kabul-komisyonu",
+  "muayene-kabul-tutanagi": "muayene-kabul-komisyonu",
+  "muayene-kabul": "muayene-kabul-komisyonu",
+  "muayenekabul": "muayene-kabul-komisyonu",
+  "kabul-tutanagi": "muayene-kabul-komisyonu",
+  "hizmet-isleri-kabul-tutanagi": "muayene-kabul-komisyonu",
+  "hizmet-isleri-kabul-teklif-belgesi": "muayene-kabul-komisyonu",
   "odeme-emri-belgesi": "harcama-pusulasi",
   "odeme-yazisi": "harcama-pusulasi",
   "tasinir-islem-fisi": "harcama-pusulasi",
@@ -560,8 +564,12 @@ export function resolveTemplateConfig(
   ) {
     resolvedId = "fiyat-arastirma-mektubu";
   } else if (
-    cleanKey.includes("pusula") ||
     cleanKey.includes("muayene") ||
+    cleanKey.includes("kabul")
+  ) {
+    resolvedId = "muayene-kabul-komisyonu";
+  } else if (
+    cleanKey.includes("pusula") ||
     cleanKey.includes("odeme")
   ) {
     resolvedId = "harcama-pusulasi";

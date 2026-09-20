@@ -428,6 +428,14 @@ export function MalzemeTablosu({
               );
               if (res.success && res.data) {
                 for (const member of res.data) {
+                  if (!member.personel_id) continue;
+                  const existsRes = await (window as any).electron.ipcRenderer.invoke(
+                    "db:query",
+                    "SELECT id FROM DATA_TeminKomisyon WHERE temin_dosya_id = ? AND komisyon_id = ? AND personel_id = ? LIMIT 1",
+                    [activeDosyaId, komisyonData.id, member.personel_id],
+                  );
+                  if (existsRes.data && existsRes.data.length > 0) continue;
+
                   await (window as any).electron.ipcRenderer.invoke(
                     "db:run",
                     `INSERT INTO DATA_TeminKomisyon 
@@ -704,7 +712,7 @@ export function MalzemeTablosu({
             onPiyasaArastirmaGorevlendirmesi={() =>
               handleOpenSablonByDosyaAdi("piyasa-arastirma-gorevlendirmesi")}
             onMuayeneKabulBelgesi={() =>
-              handleOpenSablonByDosyaAdi("muayene-kabul-belgesi")}
+              handleOpenSablonByDosyaAdi("muayene-kabul-komisyonu")}
             onYaklasikMaliyetKomisyonu={() =>
               handleOpenSablonByDosyaAdi("yaklasik-maliyet-komisyonu")}
             onMuayeneKabulKomisyonu={() =>

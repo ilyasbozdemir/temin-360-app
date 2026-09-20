@@ -575,10 +575,10 @@ export function registerDocumentIpcHandlers(): void {
           SELECT 
             df.id as temin_firma_id,
             COALESCE(f.id, df.firma_id, df.id) as id,
-            COALESCE(NULLIF(df.unvan, ''), NULLIF(f.unvan, ''), NULLIF(f.firma_adi, ''), NULLIF(df.firma_adi, ''), 'İstekli Firma') as unvan,
-            COALESCE(NULLIF(f.yetkili_ad_soyad, ''), NULLIF(df.yetkili_ad_soyad, '')) as yetkili_ad_soyad,
+            COALESCE(NULLIF(df.unvan, ''), NULLIF(f.unvan, ''), 'İstekli Firma') as unvan,
+            COALESCE(NULLIF(df.ilgili_kisi, ''), NULLIF(f.ilgili_adi, '')) as yetkili_ad_soyad,
             COALESCE(NULLIF(f.telefon, ''), NULLIF(df.telefon, '')) as telefon,
-            COALESCE(NULLIF(f.eposta, ''), NULLIF(df.email, '')) as eposta
+            COALESCE(NULLIF(f.email, ''), NULLIF(df.email, '')) as eposta
           FROM DATA_TeminFirma df
           LEFT JOIN TANIM_Firma f ON df.firma_id = f.id
           WHERE df.temin_dosya_id = ?
@@ -588,7 +588,7 @@ export function registerDocumentIpcHandlers(): void {
 
       // 6. Fetch global firms for fallback/selection
       const globalFirms = db.prepare(
-        "SELECT id, unvan, yetkili_ad_soyad, telefon, eposta FROM TANIM_Firma WHERE aktif_mi = 1 AND unvan IS NOT NULL AND unvan != '' ORDER BY unvan ASC"
+        "SELECT id, unvan, ilgili_adi as yetkili_ad_soyad, telefon, email as eposta FROM TANIM_Firma WHERE aktif_mi = 1 AND unvan IS NOT NULL AND unvan != '' ORDER BY unvan ASC"
       ).all()
 
       // 7. Fetch bids
@@ -892,42 +892,69 @@ export function registerDocumentIpcHandlers(): void {
         firmalar: fileFirms,
         firmaToplamlari: firmaTotals,
         firmaToplamlariDetay: firmaTotals,
-        komisyon: komisyonlar.map((k: any) => ({
-          adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
-          unvan: k.resolved_unvan || k.unvan || '',
-          gorevi: k.gorev || k.gorevi || 'Üye',
-          pozisyonu: k.resolved_unvan || k.unvan || ''
-        })),
-        fiyatKomisyonu: (komisyonlar.filter((k: any) => {
-          const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
-          return !kt || kt.includes('fiyat') || kt.includes('piyasa') || kt.includes('araştırma') || kt.includes('arastirma')
-        }).length > 0
-          ? komisyonlar.filter((k: any) => {
-              const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
-              return !kt || kt.includes('fiyat') || kt.includes('piyasa') || kt.includes('araştırma') || kt.includes('arastirma')
-            })
-          : komisyonlar
-        ).map((k: any) => ({
-          adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
-          unvan: k.resolved_unvan || k.unvan || '',
-          gorevi: k.gorev || k.gorevi || 'Üye',
-          pozisyonu: k.resolved_unvan || k.unvan || ''
-        })),
-        muayeneKomisyonu: (komisyonlar.filter((k: any) => {
-          const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
-          return kt.includes('muayene') || kt.includes('kabul')
-        }).length > 0
-          ? komisyonlar.filter((k: any) => {
-              const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
-              return kt.includes('muayene') || kt.includes('kabul')
-            })
-          : komisyonlar
-        ).map((k: any) => ({
-          adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
-          unvan: k.resolved_unvan || k.unvan || '',
-          gorevi: k.gorev || k.gorevi || 'Üye',
-          pozisyonu: k.resolved_unvan || k.unvan || ''
-        }))
+        komisyon: (() => {
+          const mapped = komisyonlar.map((k: any) => ({
+            adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
+            unvan: k.resolved_unvan || k.unvan || '',
+            gorevi: k.gorev || k.gorevi || 'Üye',
+            pozisyonu: k.resolved_unvan || k.unvan || ''
+          }))
+          const seen = new Set<string>()
+          return mapped.filter((item: any) => {
+            const name = (item.adSoyad || '').trim().toLowerCase()
+            if (!name || seen.has(name)) return false
+            seen.add(name)
+            return true
+          })
+        })(),
+        fiyatKomisyonu: (() => {
+          const filtered = (komisyonlar.filter((k: any) => {
+            const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
+            return !kt || kt.includes('fiyat') || kt.includes('piyasa') || kt.includes('araştırma') || kt.includes('arastirma')
+          }).length > 0
+            ? komisyonlar.filter((k: any) => {
+                const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
+                return !kt || kt.includes('fiyat') || kt.includes('piyasa') || kt.includes('araştırma') || kt.includes('arastirma')
+              })
+            : komisyonlar
+          ).map((k: any) => ({
+            adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
+            unvan: k.resolved_unvan || k.unvan || '',
+            gorevi: k.gorev || k.gorevi || 'Üye',
+            pozisyonu: k.resolved_unvan || k.unvan || ''
+          }))
+          const seen = new Set<string>()
+          return filtered.filter((item: any) => {
+            const name = (item.adSoyad || '').trim().toLowerCase()
+            if (!name || seen.has(name)) return false
+            seen.add(name)
+            return true
+          })
+        })(),
+        muayeneKomisyonu: (() => {
+          const filtered = (komisyonlar.filter((k: any) => {
+            const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
+            return kt.includes('muayene') || kt.includes('kabul')
+          }).length > 0
+            ? komisyonlar.filter((k: any) => {
+                const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
+                return kt.includes('muayene') || kt.includes('kabul')
+              })
+            : komisyonlar
+          ).map((k: any) => ({
+            adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
+            unvan: k.resolved_unvan || k.unvan || '',
+            gorevi: k.gorev || k.gorevi || 'Üye',
+            pozisyonu: k.resolved_unvan || k.unvan || ''
+          }))
+          const seen = new Set<string>()
+          return filtered.filter((item: any) => {
+            const name = (item.adSoyad || '').trim().toLowerCase()
+            if (!name || seen.has(name)) return false
+            seen.add(name)
+            return true
+          })
+        })()
       }
 
       return {
@@ -1066,13 +1093,13 @@ export function registerDocumentIpcHandlers(): void {
           SELECT 
             df.id as temin_firma_id,
             COALESCE(f.id, df.firma_id, df.id) as id,
-            COALESCE(NULLIF(df.unvan, ''), NULLIF(f.unvan, ''), NULLIF(f.firma_adi, ''), NULLIF(df.firma_adi, ''), 'İstekli Firma') as unvan,
-            COALESCE(NULLIF(f.yetkili_ad_soyad, ''), NULLIF(df.yetkili_ad_soyad, '')) as yetkili_ad_soyad,
+            COALESCE(NULLIF(df.unvan, ''), NULLIF(f.unvan, ''), 'İstekli Firma') as unvan,
+            COALESCE(NULLIF(df.ilgili_kisi, ''), NULLIF(f.ilgili_adi, '')) as yetkili_ad_soyad,
             COALESCE(NULLIF(f.telefon, ''), NULLIF(df.telefon, '')) as telefon,
-            COALESCE(NULLIF(f.eposta, ''), NULLIF(df.email, '')) as eposta,
-            COALESCE(NULLIF(f.adres, ''), NULLIF(df.adres, '')) as adres,
-            COALESCE(NULLIF(f.vergi_no, ''), NULLIF(df.vergi_no, '')) as vergi_no,
-            COALESCE(NULLIF(f.vergi_dairesi, ''), NULLIF(df.vergi_dairesi, '')) as vergi_dairesi
+            COALESCE(NULLIF(f.email, ''), NULLIF(df.email, '')) as eposta,
+            f.adres as adres,
+            COALESCE(NULLIF(df.vergi_no, ''), NULLIF(f.vergi_no, '')) as vergi_no,
+            f.vergi_dairesi as vergi_dairesi
           FROM DATA_TeminFirma df
           LEFT JOIN TANIM_Firma f ON df.firma_id = f.id
           WHERE df.temin_dosya_id = ?

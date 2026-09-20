@@ -4,6 +4,7 @@ import { Button } from "../../components/ui/Button";
 import {
   Building2,
   ClipboardCheck,
+  FolderKanban,
   LayoutGrid,
   MapPin,
   Save,
@@ -25,6 +26,7 @@ import PersonelScreen from "../personel/index.screen";
 import KomisyonlarScreen from "../komisyonlar/index.screen";
 import KomisyonGorevleriScreen from "../komisyon-gorevleri/index.screen";
 import AmbarScreen from "../ambar/index.screen";
+import ProjelerScreen from "../projeler/index.screen";
 
 type TabType =
   | "idari"
@@ -35,7 +37,8 @@ type TabType =
   | "personel"
   | "komisyonlar"
   | "komisyon-gorevleri"
-  | "ambar";
+  | "ambar"
+  | "projeler";
 
 export default function KurumScreen(): React.JSX.Element {
   const { kurumData, isLoadingKurum, fetchKurum, saveKurum } = useKurumHooks();
@@ -271,6 +274,11 @@ export default function KurumScreen(): React.JSX.Element {
       label: "Ambar Yönetimi",
       icon: <Warehouse className="w-4 h-4 shrink-0 text-orange-500" />,
     },
+    {
+      id: "projeler",
+      label: "Proje Yönetimi",
+      icon: <FolderKanban className="w-4 h-4 shrink-0 text-blue-500" />,
+    },
   ];
 
   if (isLoadingKurum) {
@@ -386,6 +394,9 @@ export default function KurumScreen(): React.JSX.Element {
                   <KomisyonGorevleriScreen isSubComponent />
                 )}
                 {activeTab === "ambar" && <AmbarScreen isSubComponent />}
+                {activeTab === "projeler" && (
+                  <ProjelerScreen isSubComponent />
+                )}
               </div>
             )}
         </div>

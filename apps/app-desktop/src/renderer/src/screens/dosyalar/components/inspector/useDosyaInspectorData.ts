@@ -63,7 +63,7 @@ export function useDosyaInspectorData(dosyaOrId?: any, initialDosyaParam?: any) 
         ),
         window.electron.ipcRenderer.invoke(
           "db:query",
-          "SELECT tf.*, f.unvan, f.vergi_no, f.telefon, f.yetkili FROM DATA_TeminFirma tf LEFT JOIN TANIM_Firma f ON tf.firma_id = f.id WHERE tf.temin_dosya_id = ?",
+          "SELECT tf.*, f.unvan, f.vergi_no, f.telefon, COALESCE(NULLIF(tf.ilgili_kisi, ''), f.ilgili_adi) as yetkili FROM DATA_TeminFirma tf LEFT JOIN TANIM_Firma f ON tf.firma_id = f.id WHERE tf.temin_dosya_id = ?",
           [numId],
         ),
         window.electron.ipcRenderer.invoke(

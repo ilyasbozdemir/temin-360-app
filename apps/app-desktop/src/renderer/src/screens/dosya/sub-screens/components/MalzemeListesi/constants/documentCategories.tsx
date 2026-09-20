@@ -132,14 +132,6 @@ export function buildDocumentCategories(
           onClick: onHarcamaTalimati,
           steps: [1],
         },
-        {
-          id: "harcamaPusulasi",
-          label: "Harcama Pusulası",
-          icon: FileText,
-          iconColorClass: "text-teal-700",
-          onClick: onHarcamaPusulasi,
-          steps: [1],
-        },
       ],
     },
     {
@@ -164,7 +156,7 @@ export function buildDocumentCategories(
           label: "Muayene ve Kabul Komisyonu",
           icon: UserCheck,
           iconColorClass: "text-sky-600",
-          onClick: onMuayeneKabulBelgesi || onMuayeneKabulKomisyonu,
+          onClick: onMuayeneKabulKomisyonu || onMuayeneKabulBelgesi,
           steps: [1, 2, 3, 4],
         },
         {

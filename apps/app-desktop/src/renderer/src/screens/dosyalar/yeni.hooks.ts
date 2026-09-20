@@ -237,7 +237,9 @@ export function useYeniDosyaScreen(): UseYeniDosyaScreenReturn {
               ...doc,
               dosya_acilis_tarihi: formatForInput(doc.dosya_acilis_tarihi),
               son_teklif_verme_tarihi: doc.son_teklif_verme_tarihi
-                ? doc.son_teklif_verme_tarihi.replace(' ', 'T')
+                ? (/^\d{4}-\d{2}-\d{2}$/.test(String(doc.son_teklif_verme_tarihi).trim())
+                    ? `${String(doc.son_teklif_verme_tarihi).trim()}T10:00`
+                    : String(doc.son_teklif_verme_tarihi).replace(' ', 'T').slice(0, 16))
                 : '',
               teslim_tarihi: formatForInput(doc.teslim_tarihi)
             })

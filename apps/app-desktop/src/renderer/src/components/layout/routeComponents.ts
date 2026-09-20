@@ -56,6 +56,7 @@ export const routeComponents: Record<string, React.ComponentType> = {
   '/projeler': ProjelerScreen,
   '/dosyalar': DosyalarScreen,
   '/dosyalar/yeni': YeniDosyaScreen,
+  '/dosyalar/manage': YeniDosyaScreen,
   '/firmalar': FirmalarScreen,
   '/personel': PersonelScreen,
   '/sablonlar': SablonlarScreen,

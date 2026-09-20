@@ -35,8 +35,11 @@ export function normalizePath(rawPath: string): string {
 
 export function getTabLabel(fullPath: string): string {
   const path = normalizePath(fullPath).split('?')[0]
-  if (path === APP_ROUTES.DASHBOARD) return 'Gösterge Paneli'
-  if (path === APP_ROUTES.YENI_DOSYA) return 'Yeni Doğrudan Temin Dosyası'
+  if (path === APP_ROUTES.YENI_DOSYA || path === APP_ROUTES.DOSYA_MANAGE) {
+    const query = fullPath.split('?')[1] || ''
+    const hasId = new URLSearchParams(query).has('id')
+    return hasId ? 'DT Dosyasını Düzenle' : 'Yeni DT Dosyası Ekle'
+  }
   if (path.startsWith(APP_ROUTES.DOSYALAR)) return 'Doğrudan Temin'
   if (path.startsWith(APP_ROUTES.PROJELER)) return 'Proje Yönetimi'
   if (path.startsWith(APP_ROUTES.FIRMALAR)) return 'Firmalar'

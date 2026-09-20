@@ -27,15 +27,6 @@ export const TANIM_Proje = {
     }
   ],
   initialData: [
-    {
-      id: 1,
-      proje_kodu: 'PRJ-2026-001',
-      proje_adi: 'Genel İdari ve Bakım-Onarım İhtiyaçları',
-      aciklama: 'Kurum genel idari ve teknik doğrudan temin alımları',
-      toplam_butce: 1000000,
-      durum: 'devam',
-      renk: '#3b82f6',
-      aktif_mi: 1
-    }
+ 
   ]
 }

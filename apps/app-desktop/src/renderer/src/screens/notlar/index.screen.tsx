@@ -149,12 +149,15 @@ export default function NotlarVeGorevlerScreen(): React.JSX.Element {
     if (!quickTitle.trim()) return
 
     try {
-      setIsQuickSubmitting(true)
+      const defaultDosya = typeof selectedDosya === 'number'
+        ? selectedDosya
+        : (selectedDosya === 'general' ? null : (activeDosyaId || null))
+
       await createNot({
         baslik: quickTitle.trim(),
         tip: quickTip,
         oncelik: quickOncelik,
-        temin_dosya_id: typeof selectedDosya === 'number' ? selectedDosya : null,
+        temin_dosya_id: defaultDosya,
         kategori: 'Genel',
         renk: quickTip === 'not' ? 'amber' : 'slate'
       })
@@ -601,7 +604,13 @@ export default function NotlarVeGorevlerScreen(): React.JSX.Element {
         isOpen={isModalOpen}
         editingItem={editingItem}
         dosyalar={dosyalar}
-        defaultDosyaId={typeof selectedDosya === 'number' ? selectedDosya : null}
+        defaultDosyaId={
+          typeof selectedDosya === 'number'
+            ? selectedDosya
+            : selectedDosya === 'general'
+              ? null
+              : activeDosyaId || null
+        }
         onClose={() => setIsModalOpen(false)}
         onSave={async (data) => {
           if (editingItem) {

@@ -82,9 +82,9 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
     return [];
   })();
 
-  // Piyasa Fiyat Araştırma Görevlilerini listele
+  // Piyasa Fiyat Araştırma Görevlilerini listele (Mükerrer isimleri tekleştir)
   const gorevlendirilenler: Array<{ adSoyad: string; unvan: string }> = (() => {
-    return rawList
+    const list = rawList
       .filter((g) => !isExcludedOfficer(g))
       .map((g: any) => {
         if (typeof g === "string") {
@@ -96,9 +96,17 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
         };
       })
       .filter((g) => g.adSoyad.length > 0);
+
+    const seen = new Set<string>();
+    return list.filter((item) => {
+      const key = item.adSoyad.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   })();
 
-  // Dağıtım listesi
+  // Dağıtım listesi (Mükerrer isimleri tekleştir)
   const dagitimListesi: Array<{ adSoyad: string; unvan: string }> = (() => {
     if (
       data.dagitimListesi && Array.isArray(data.dagitimListesi) &&
@@ -116,7 +124,15 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
         })
         .filter((d: any) => !isExcludedOfficer(d) && d.adSoyad.length > 0);
 
-      if (filtered.length > 0) return filtered;
+      if (filtered.length > 0) {
+        const seen = new Set<string>();
+        return filtered.filter((item) => {
+          const key = item.adSoyad.toLowerCase();
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+      }
     }
     return gorevlendirilenler;
   })();

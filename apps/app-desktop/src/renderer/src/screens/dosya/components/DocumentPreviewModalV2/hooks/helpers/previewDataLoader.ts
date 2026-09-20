@@ -391,6 +391,14 @@ export async function loadDocumentPreviewData({
     }
   }
 
+  // Deduplicate all commission member lists in baseData
+  if (Array.isArray(baseData.fiyatKomisyonu)) baseData.fiyatKomisyonu = dedupeMembers(baseData.fiyatKomisyonu);
+  if (Array.isArray(baseData.gorevlendirilenler)) baseData.gorevlendirilenler = dedupeMembers(baseData.gorevlendirilenler);
+  if (Array.isArray(baseData.gorevliler)) baseData.gorevliler = dedupeMembers(baseData.gorevliler);
+  if (Array.isArray(baseData.dagitimListesi)) baseData.dagitimListesi = dedupeMembers(baseData.dagitimListesi);
+  if (Array.isArray(baseData.muayeneKomisyonu)) baseData.muayeneKomisyonu = dedupeMembers(baseData.muayeneKomisyonu);
+  if (Array.isArray(baseData.komisyon)) baseData.komisyon = dedupeMembers(baseData.komisyon);
+
   const activeFirms = fileFirms.length > 0 ? fileFirms : combinedFirms;
   baseData.firmalar = activeFirms;
   baseData.firmaListesi = combinedFirms;

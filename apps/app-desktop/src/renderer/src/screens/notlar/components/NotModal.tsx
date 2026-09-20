@@ -1,38 +1,45 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from "react";
 import {
-  X,
-  Save,
-  CheckSquare,
-  FileText,
+  AlertCircle,
   Bell,
   Calendar,
+  CheckSquare,
+  FileText,
   Folder,
-  Tag,
-  AlertCircle,
+  Palette,
   Pin,
-  Palette
-} from 'lucide-react'
-import { NotVeGorev, NotTip, NotOncelik, NotRenk, NOT_KATEGORILERI } from '../types'
-import { DosyaOption } from '../notlar.hooks'
+  Save,
+  Tag,
+  X,
+} from "lucide-react";
+import {
+  NOT_KATEGORILERI,
+  NotOncelik,
+  NotRenk,
+  NotTip,
+  NotVeGorev,
+} from "../types";
+import { DosyaOption } from "../notlar.hooks";
+import { useWorkspaceStore } from "../../../store/workspaceStore";
 
 interface NotModalProps {
-  isOpen: boolean
-  editingItem: NotVeGorev | null
-  dosyalar: DosyaOption[]
-  defaultDosyaId?: number | null
-  onClose: () => void
-  onSave: (data: any) => Promise<void>
+  isOpen: boolean;
+  editingItem: NotVeGorev | null;
+  dosyalar: DosyaOption[];
+  defaultDosyaId?: number | null;
+  onClose: () => void;
+  onSave: (data: any) => Promise<void>;
 }
 
 const RENK_OPTIONS: Array<{ key: NotRenk; name: string; bg: string }> = [
-  { key: 'slate', name: 'Klasik Gri', bg: 'bg-slate-400' },
-  { key: 'amber', name: 'Sarı Not', bg: 'bg-amber-400' },
-  { key: 'blue', name: 'Mavi', bg: 'bg-blue-400' },
-  { key: 'emerald', name: 'Yeşil', bg: 'bg-emerald-400' },
-  { key: 'purple', name: 'Mor', bg: 'bg-purple-400' },
-  { key: 'rose', name: 'Gül Pembesi', bg: 'bg-rose-400' },
-  { key: 'indigo', name: 'İndigo', bg: 'bg-indigo-400' }
-]
+  { key: "slate", name: "Klasik Gri", bg: "bg-slate-400" },
+  { key: "amber", name: "Sarı Not", bg: "bg-amber-400" },
+  { key: "blue", name: "Mavi", bg: "bg-blue-400" },
+  { key: "emerald", name: "Yeşil", bg: "bg-emerald-400" },
+  { key: "purple", name: "Mor", bg: "bg-purple-400" },
+  { key: "rose", name: "Gül Pembesi", bg: "bg-rose-400" },
+  { key: "indigo", name: "İndigo", bg: "bg-indigo-400" },
+];
 
 export function NotModal({
   isOpen,
@@ -40,57 +47,63 @@ export function NotModal({
   dosyalar,
   defaultDosyaId,
   onClose,
-  onSave
+  onSave,
 }: NotModalProps): React.JSX.Element | null {
-  const [baslik, setBaslik] = useState('')
-  const [icerik, setIcerik] = useState('')
-  const [tip, setTip] = useState<NotTip>('todo')
-  const [kategori, setKategori] = useState('Genel')
-  const [oncelik, setOncelik] = useState<NotOncelik>('orta')
-  const [teminDosyaId, setTeminDosyaId] = useState<number | null>(null)
-  const [vadeTarihi, setVadeTarihi] = useState('')
-  const [renk, setRenk] = useState<NotRenk>('slate')
-  const [sabitlendi, setSabitlendi] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { activeDosyaId } = useWorkspaceStore();
+  const [baslik, setBaslik] = useState("");
+  const [icerik, setIcerik] = useState("");
+  const [tip, setTip] = useState<NotTip>("todo");
+  const [kategori, setKategori] = useState("Genel");
+  const [oncelik, setOncelik] = useState<NotOncelik>("orta");
+  const [teminDosyaId, setTeminDosyaId] = useState<number | null>(null);
+  const [vadeTarihi, setVadeTarihi] = useState("");
+  const [renk, setRenk] = useState<NotRenk>("slate");
+  const [sabitlendi, setSabitlendi] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (editingItem) {
-      setBaslik(editingItem.baslik || '')
-      setIcerik(editingItem.icerik || '')
-      setTip(editingItem.tip || 'todo')
-      setKategori(editingItem.kategori || 'Genel')
-      setOncelik(editingItem.oncelik || 'orta')
-      setTeminDosyaId(editingItem.temin_dosya_id || null)
-      setVadeTarihi(editingItem.vade_tarihi || '')
-      setRenk(editingItem.renk || 'slate')
-      setSabitlendi(editingItem.sabitlendi === 1)
+      setBaslik(editingItem.baslik || "");
+      setIcerik(editingItem.icerik || "");
+      setTip(editingItem.tip || "todo");
+      setKategori(editingItem.kategori || "Genel");
+      setOncelik(editingItem.oncelik || "orta");
+      setTeminDosyaId(editingItem.temin_dosya_id || null);
+      setVadeTarihi(editingItem.vade_tarihi || "");
+      setRenk(editingItem.renk || "slate");
+      setSabitlendi(editingItem.sabitlendi === 1);
     } else {
-      setBaslik('')
-      setIcerik('')
-      setTip('todo')
-      setKategori('Genel')
-      setOncelik('orta')
-      setTeminDosyaId(defaultDosyaId || null)
-      setVadeTarihi('')
-      setRenk('slate')
-      setSabitlendi(false)
+      setBaslik("");
+      setIcerik("");
+      setTip("todo");
+      setKategori("Genel");
+      setOncelik("orta");
+      // Aktif dosya varsa doğrudan default olarak bağla
+      const initialDosya =
+        defaultDosyaId !== undefined && defaultDosyaId !== null
+          ? defaultDosyaId
+          : (activeDosyaId || null);
+      setTeminDosyaId(initialDosya);
+      setVadeTarihi("");
+      setRenk("slate");
+      setSabitlendi(false);
     }
-    setError(null)
-  }, [editingItem, defaultDosyaId, isOpen])
+    setError(null);
+  }, [editingItem, defaultDosyaId, activeDosyaId, isOpen]);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault()
+    e.preventDefault();
     if (!baslik.trim()) {
-      setError('Lütfen bir başlık veya görev tanımı girin.')
-      return
+      setError("Lütfen bir başlık veya görev tanımı girin.");
+      return;
     }
 
     try {
-      setIsSubmitting(true)
-      setError(null)
+      setIsSubmitting(true);
+      setError(null);
       await onSave({
         ...(editingItem ? { id: editingItem.id } : {}),
         baslik: baslik.trim(),
@@ -101,15 +114,15 @@ export function NotModal({
         temin_dosya_id: teminDosyaId || null,
         vade_tarihi: vadeTarihi || null,
         renk,
-        sabitlendi: sabitlendi ? 1 : 0
-      })
-      onClose()
+        sabitlendi: sabitlendi ? 1 : 0,
+      });
+      onClose();
     } catch (err: any) {
-      setError(err.message || 'Kayıt sırasında bir hata oluştu.')
+      setError(err.message || "Kayıt sırasında bir hata oluştu.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in-0 duration-150">
@@ -118,20 +131,21 @@ export function NotModal({
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
-              {tip === 'todo' ? (
-                <CheckSquare className="w-5 h-5" />
-              ) : tip === 'not' ? (
-                <FileText className="w-5 h-5" />
-              ) : (
-                <Bell className="w-5 h-5" />
-              )}
+              {tip === "todo"
+                ? <CheckSquare className="w-5 h-5" />
+                : tip === "not"
+                ? <FileText className="w-5 h-5" />
+                : <Bell className="w-5 h-5" />}
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
-                {editingItem ? 'Notu / Görevi Düzenle' : 'Yeni Not veya Görev Ekle'}
+                {editingItem
+                  ? "Notu / Görevi Düzenle"
+                  : "Yeni Not veya Görev Ekle"}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Dosyalarınıza veya uygulama geneline özel yapılacaklar ve hatırlatıcılar
+                Dosyalarınıza veya uygulama geneline özel yapılacaklar ve
+                hatırlatıcılar
               </p>
             </div>
           </div>
@@ -157,11 +171,11 @@ export function NotModal({
           <div className="flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1">
             <button
               type="button"
-              onClick={() => setTip('todo')}
+              onClick={() => setTip("todo")}
               className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                tip === 'todo'
-                  ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                tip === "todo"
+                  ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
               }`}
             >
               <CheckSquare className="w-3.5 h-3.5" />
@@ -169,11 +183,11 @@ export function NotModal({
             </button>
             <button
               type="button"
-              onClick={() => setTip('not')}
+              onClick={() => setTip("not")}
               className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                tip === 'not'
-                  ? 'bg-white dark:bg-slate-700 text-amber-600 dark:text-amber-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                tip === "not"
+                  ? "bg-white dark:bg-slate-700 text-amber-600 dark:text-amber-400 shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
               }`}
             >
               <FileText className="w-3.5 h-3.5" />
@@ -181,11 +195,11 @@ export function NotModal({
             </button>
             <button
               type="button"
-              onClick={() => setTip('hatirlatici')}
+              onClick={() => setTip("hatirlatici")}
               className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                tip === 'hatirlatici'
-                  ? 'bg-white dark:bg-slate-700 text-purple-600 dark:text-purple-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                tip === "hatirlatici"
+                  ? "bg-white dark:bg-slate-700 text-purple-600 dark:text-purple-400 shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
               }`}
             >
               <Bell className="w-3.5 h-3.5" />
@@ -212,24 +226,41 @@ export function NotModal({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {/* İlgili Dosya */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                İlgili Çalışma Dosyası
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  İlgili Çalışma Dosyası
+                </label>
+                {activeDosyaId && teminDosyaId === activeDosyaId && (
+                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-1.5 py-0.5 rounded border border-emerald-200/50 dark:border-emerald-800/40">
+                    Aktif Dosya
+                  </span>
+                )}
+              </div>
               <div className="relative">
                 <select
-                  value={teminDosyaId || ''}
+                  value={teminDosyaId || ""}
                   onChange={(e) =>
-                    setTeminDosyaId(e.target.value ? Number(e.target.value) : null)
-                  }
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    setTeminDosyaId(
+                      e.target.value ? Number(e.target.value) : null,
+                    )}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium"
                 >
-                  <option value="">Genel (Herhangi bir dosyaya bağlı değil)</option>
-                  {dosyalar.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.dosya_no ? `[${d.yil}/${d.dosya_no}]` : `[#${d.id}]`} -{' '}
-                      {d.isin_adi ? d.isin_adi.substring(0, 35) : 'İsimsiz Dosya'}
-                    </option>
-                  ))}
+                  <option value="">
+                    Genel (Herhangi bir dosyaya bağlı değil)
+                  </option>
+                  {dosyalar.map((d) => {
+                    const isCurrent = d.id === activeDosyaId;
+                    return (
+                      <option key={d.id} value={d.id}>
+                        {isCurrent ? "⭐ [Aktif Dosya] " : ""}
+                        {d.dosya_no ? `[${d.yil}/${d.dosya_no}]` : `[#${d.id}]`}
+                        {" "}
+                        - {d.isin_adi
+                          ? d.isin_adi.substring(0, 35)
+                          : "İsimsiz Dosya"}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </div>
@@ -263,10 +294,10 @@ export function NotModal({
               <div className="grid grid-cols-4 gap-1">
                 {(
                   [
-                    { key: 'dusuk', label: 'Düşük' },
-                    { key: 'orta', label: 'Orta' },
-                    { key: 'yuksek', label: 'Yüksek' },
-                    { key: 'acil', label: 'Acil' }
+                    { key: "dusuk", label: "Düşük" },
+                    { key: "orta", label: "Orta" },
+                    { key: "yuksek", label: "Yüksek" },
+                    { key: "acil", label: "Acil" },
                   ] as const
                 ).map((opt) => (
                   <button
@@ -275,14 +306,14 @@ export function NotModal({
                     onClick={() => setOncelik(opt.key)}
                     className={`py-1.5 text-center text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
                       oncelik === opt.key
-                        ? opt.key === 'acil'
-                          ? 'bg-rose-500 text-white border-rose-500'
-                          : opt.key === 'yuksek'
-                            ? 'bg-amber-500 text-white border-amber-500'
-                            : opt.key === 'orta'
-                              ? 'bg-blue-500 text-white border-blue-500'
-                              : 'bg-slate-600 text-white border-slate-600'
-                        : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-100'
+                        ? opt.key === "acil"
+                          ? "bg-rose-500 text-white border-rose-500"
+                          : opt.key === "yuksek"
+                          ? "bg-amber-500 text-white border-amber-500"
+                          : opt.key === "orta"
+                          ? "bg-blue-500 text-white border-blue-500"
+                          : "bg-slate-600 text-white border-slate-600"
+                        : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-100"
                     }`}
                   >
                     {opt.label}
@@ -323,7 +354,9 @@ export function NotModal({
           <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800">
             {/* Renk Seçimi */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Tema:</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Tema:
+              </span>
               <div className="flex items-center gap-1.5">
                 {RENK_OPTIONS.map((c) => (
                   <button
@@ -333,8 +366,8 @@ export function NotModal({
                     title={c.name}
                     className={`w-5 h-5 rounded-full ${c.bg} transition-transform cursor-pointer ${
                       renk === c.key
-                        ? 'ring-2 ring-offset-2 ring-blue-500 scale-110'
-                        : 'hover:scale-105 opacity-80 hover:opacity-100'
+                        ? "ring-2 ring-offset-2 ring-blue-500 scale-110"
+                        : "hover:scale-105 opacity-80 hover:opacity-100"
                     }`}
                   />
                 ))}
@@ -368,11 +401,17 @@ export function NotModal({
               className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 transition-all cursor-pointer disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
-              <span>{isSubmitting ? 'Kaydediliyor...' : editingItem ? 'Güncelle' : 'Kaydet'}</span>
+              <span>
+                {isSubmitting
+                  ? "Kaydediliyor..."
+                  : editingItem
+                  ? "Güncelle"
+                  : "Kaydet"}
+              </span>
             </button>
           </div>
         </form>
       </div>
     </div>
-  )
+  );
 }

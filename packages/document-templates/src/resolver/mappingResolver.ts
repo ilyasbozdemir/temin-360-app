@@ -528,7 +528,18 @@ export async function resolveTemplateData(
           }
         }
 
-        resolvedPayload[sablonDegiskeni] = members.map((m: any) => ({
+        const seenMemberNames = new Set<string>();
+        const uniqueMembers = (members || []).filter((m: any) => {
+          const name = (m.resolved_ad_soyad || m.ad_soyad || m.adSoyad || '').trim().toLowerCase();
+          const pid = m.personel_id ? `pid_${m.personel_id}` : null;
+          const key = pid || (name ? `name_${name}` : null);
+          if (!key) return true;
+          if (seenMemberNames.has(key)) return false;
+          seenMemberNames.add(key);
+          return true;
+        });
+
+        resolvedPayload[sablonDegiskeni] = uniqueMembers.map((m: any) => ({
           adSoyad: m.resolved_ad_soyad || m.ad_soyad || m.adSoyad || '',
           unvan: m.resolved_unvan || m.unvan || '',
           gorev: m.gorev || m.gorev_adi || (m.asil_mi === 0 ? 'Yedek Üye' : 'Üye'),
@@ -536,7 +547,7 @@ export async function resolveTemplateData(
           pozisyonu: m.resolved_unvan || m.unvan || ''
         }));
 
-        if (sablonDegiskeni === 'fiyatKomisyonu') {
+        if (sablonDegiskeni === 'fiyatKomisyonu' || sablonDegiskeni === 'gorevlendirilenler') {
           const onlyGorevliler = (resolvedPayload[sablonDegiskeni] as any[]).filter((m: any) => {
             const combined = `${m.adSoyad} ${m.unvan} ${m.gorev}`.toLowerCase();
             return (

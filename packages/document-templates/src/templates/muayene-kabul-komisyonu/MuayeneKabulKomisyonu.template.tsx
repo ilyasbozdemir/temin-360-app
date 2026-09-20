@@ -19,59 +19,73 @@ export const MuayeneKabulKomisyonu: React.FC<Props> = ({
   hideHeader = false,
   hideFooter = false,
 }) => {
-  // Görevlendirilen muayene kabul komisyonu üyeleri
+  // Görevlendirilen muayene kabul komisyonu üyeleri (Mükerrer isimleri tekleştir)
   const gorevlendirilenler: Array<{ adSoyad: string; unvan: string }> = (() => {
+    let raw: Array<{ adSoyad: string; unvan: string }> = [];
     if (
       data.gorevlendirilenler && Array.isArray(data.gorevlendirilenler) &&
       data.gorevlendirilenler.length > 0
     ) {
-      return data.gorevlendirilenler.map((g: any) => ({
+      raw = data.gorevlendirilenler.map((g: any) => ({
         adSoyad: g.adSoyad || g.ad || g.adi || "",
         unvan: g.unvan || g.unvani || g.gorev || "",
       }));
-    }
-    if (
+    } else if (
       data.muayeneKomisyonu && Array.isArray(data.muayeneKomisyonu) &&
       data.muayeneKomisyonu.length > 0
     ) {
-      return data.muayeneKomisyonu.map((g: any) => ({
+      raw = data.muayeneKomisyonu.map((g: any) => ({
         adSoyad: g.adSoyad || g.ad_soyad || g.ad || "",
         unvan: g.unvan || g.gorev || "",
       }));
-    }
-    if (
+    } else if (
       data.komisyonUyeleri && Array.isArray(data.komisyonUyeleri) &&
       data.komisyonUyeleri.length > 0
     ) {
-      return data.komisyonUyeleri.map((g: any) => ({
+      raw = data.komisyonUyeleri.map((g: any) => ({
         adSoyad: g.adSoyad || g.ad_soyad || g.ad || "",
         unvan: g.unvan || g.gorev || "",
       }));
-    }
-    if (
+    } else if (
       data.gorevliler && Array.isArray(data.gorevliler) &&
       data.gorevliler.length > 0
     ) {
-      return data.gorevliler.map((g: any) => ({
-        adSoyad: g.adSoyad || g.ad || g.adi || "",
+      raw = data.gorevliler.map((g: any) => ({
+        adSoyad: g.ad || g.adSoyad || "",
         unvan: g.unvan || g.unvani || g.gorev || "",
       }));
     }
-    return [];
+
+    const seen = new Set<string>();
+    return raw.filter((item) => {
+      const key = (item.adSoyad || "").trim().toLowerCase();
+      if (!key) return false;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   })();
 
-  // Dağıtım listesi
+  // Dağıtım listesi (Mükerrer isimleri tekleştir)
   const dagitimListesi: Array<{ adSoyad: string; unvan: string }> = (() => {
     if (
       data.dagitimListesi && Array.isArray(data.dagitimListesi) &&
       data.dagitimListesi.length > 0
     ) {
-      return data.dagitimListesi.map((d: any) => {
+      const mapped = data.dagitimListesi.map((d: any) => {
         if (typeof d === "string") return { adSoyad: d, unvan: "" };
         return {
           adSoyad: d.adSoyad || d.ad || d.adi || "",
           unvan: d.unvan || d.unvani || d.gorev || "",
         };
+      });
+      const seen = new Set<string>();
+      return mapped.filter((item) => {
+        const key = (item.adSoyad || "").trim().toLowerCase();
+        if (!key) return false;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
       });
     }
     if (gorevlendirilenler.length > 0) {

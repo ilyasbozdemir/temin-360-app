@@ -54,7 +54,11 @@ const generateDefaultProjectCode = (): string => {
   return `PRJ-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`
 }
 
-export default function ProjelerScreen(): React.JSX.Element {
+export default function ProjelerScreen({
+  isSubComponent = false,
+}: {
+  isSubComponent?: boolean;
+} = {}): React.JSX.Element {
   const navigate = useNavigate()
   const { setActiveDosyaId } = useWorkspaceStore()
   const { projeler, isLoadingProjeler, addProje, updateProje, deleteProje } = useProjeHooks()
@@ -183,7 +187,7 @@ export default function ProjelerScreen(): React.JSX.Element {
   }
 
   return (
-    <div className="p-6 max-w-[1600px] mx-auto space-y-6 animate-fadeIn pb-16">
+    <div className={`space-y-6 animate-fadeIn pb-16 ${isSubComponent ? 'w-full' : 'p-6 max-w-[1600px] mx-auto'}`}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-xs">
         <div className="flex items-center gap-3">
