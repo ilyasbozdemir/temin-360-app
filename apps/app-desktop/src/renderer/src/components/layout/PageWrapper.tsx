@@ -258,7 +258,7 @@ export function PageWrapper(): React.ReactNode {
           throw new Error(res?.error || 'Sunucuya yedekleme işlemi başarısız oldu.')
         }
       } else if (type === 'gdrive') {
-        const res = await window.electron.ipcRenderer.invoke('workspace:backup-gdrive')
+        const res = await window.electron.ipcRenderer.invoke('workspace:backup-gdrive', { force: true })
         if (!res?.success) {
           throw new Error(res?.error || 'Google Drive bulut yedekleme işlemi başarısız oldu.')
         }
@@ -297,25 +297,14 @@ export function PageWrapper(): React.ReactNode {
       // Ana sürecin agresif zaman aşımını iptal et, kullanıcının seçimi bekleniyor
       window.electron?.ipcRenderer.send('app:cancel-quit-timeout')
       try {
-        // Değişiklik kontrolü: Eğer dosyada değişiklik yoksa yedek aldırma ve modalı ASLA açma, doğrudan çıkış yap!
-        const changesRes = await window.electron?.ipcRenderer?.invoke('workspace:check-changes')
-        if (changesRes?.success && !changesRes.hasChanges) {
-          console.log('[Workspace] Değişiklik yok, doğrudan kapatılıp çıkılıyor.')
-          await handleConfirmClose([], true)
-          return
-        }
-
         const s = await window.electron?.ipcRenderer?.invoke('db:get-settings')
-        const hasGDrive = !!s?.gdriveAccessToken || (!!s?.gdriveClientId && !!s?.gdriveClientSecret)
         if (s?.closeActionRemember === 'true' && s?.closeActionPreference && s.closeActionPreference !== 'ask') {
           const actions = parseSavedClosePreferences(s.closeActionPreference)
-          // Eğer Google Drive bağlıysa ve tercihlerde yoksa/none ise sessizce atlama, kullanıcıya modalı aç
-          if (hasGDrive && (!actions.includes('gdrive') || actions.includes('none'))) {
-            setIsCloseModalOpen(true)
-            return
-          }
           if (actions.length > 0 && !actions.includes('none')) {
             await handleConfirmClose(actions, true)
+            return
+          } else if (actions.includes('none')) {
+            await handleConfirmClose([], true)
             return
           }
         }
@@ -329,24 +318,14 @@ export function PageWrapper(): React.ReactNode {
       setIsQuittingApp(false)
       window.electron?.ipcRenderer.send('app:cancel-quit-timeout')
       try {
-        // Değişiklik kontrolü: Eğer dosyada değişiklik yoksa yedek aldırma ve modalı ASLA açma, doğrudan kapat!
-        const changesRes = await window.electron?.ipcRenderer?.invoke('workspace:check-changes')
-        if (changesRes?.success && !changesRes.hasChanges) {
-          console.log('[Workspace] Değişiklik yok, modal açılmadan doğrudan kapatılıyor.')
-          await handleConfirmClose([], false)
-          return
-        }
-
         const s = await window.electron?.ipcRenderer?.invoke('db:get-settings')
-        const hasGDrive = !!s?.gdriveAccessToken || (!!s?.gdriveClientId && !!s?.gdriveClientSecret)
         if (s?.closeActionRemember === 'true' && s?.closeActionPreference && s.closeActionPreference !== 'ask') {
           const actions = parseSavedClosePreferences(s.closeActionPreference)
-          if (hasGDrive && (!actions.includes('gdrive') || actions.includes('none'))) {
-            setIsCloseModalOpen(true)
-            return
-          }
           if (actions.length > 0 && !actions.includes('none')) {
             await handleConfirmClose(actions, false)
+            return
+          } else if (actions.includes('none')) {
+            await handleConfirmClose([], false)
             return
           }
         }

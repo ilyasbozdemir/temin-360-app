@@ -5,4 +5,6 @@ export interface KurumTabProps {
   onChange: (key: keyof KurumVerisi, value: any) => void
   institutionLetterhead: string[]
   setInstitutionLetterhead: (val: string[]) => void
+  parentInstitutionLines: string[]
+  setParentInstitutionLines: (val: string[]) => void
 }

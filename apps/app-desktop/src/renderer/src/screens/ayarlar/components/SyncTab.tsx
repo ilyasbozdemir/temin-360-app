@@ -581,7 +581,7 @@ export const SyncTab: React.FC = () => {
               )}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Çalışma dosyanızı (.dtal) her kapattığınızda veya uygulamadan çıktığınızda uygulanacak varsayılan davranışı belirleyin.
+              Çalışma dosyanızı (.temin) her kapattığınızda veya uygulamadan çıktığınızda uygulanacak varsayılan davranışı belirleyin.
             </p>
           </div>
         </div>
@@ -679,7 +679,7 @@ export const SyncTab: React.FC = () => {
                 {
                   id: 'backup',
                   icon: '💾',
-                  title: 'Bilgisayara Yerel Yedek Kaydet (.dtal)',
+                  title: 'Bilgisayara Yerel Yedek Kaydet (.temin)',
                   desc: 'Bilgisayarınızda seçilen yedekleme klasörüne dosya kopyası yazar.',
                   configured: true
                 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Building2, Info, Plus, X } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import { Input } from '../../../components/ui/Input'
 import { getSubInstitutionOptions } from '../../../utils/kurumHelper'
 import { KurumTabProps } from '../types'
@@ -8,7 +8,9 @@ export const IdariBilgilerTab: React.FC<KurumTabProps> = ({
   data,
   onChange,
   institutionLetterhead,
-  setInstitutionLetterhead
+  setInstitutionLetterhead,
+  parentInstitutionLines,
+  setParentInstitutionLines
 }) => {
   const handleInstitutionTypeChange = (type: string): void => {
     onChange('kurum_tipi', type)
@@ -106,15 +108,49 @@ export const IdariBilgilerTab: React.FC<KurumTabProps> = ({
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+          <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 flex items-center gap-1.5">
             Bağlı Olduğu Kurum
+            <span className="text-[9px] font-normal text-slate-400">
+              (Örn: T.C. / Bakanlık / Genel Müdürlük)
+            </span>
           </label>
-          <Input
-            value={data.ust_kurum_adi || ''}
-            onChange={(e) => onChange('ust_kurum_adi', e.target.value)}
-            placeholder="Üst Kurum Adı"
-            className="bg-slate-55 dark:bg-slate-955 border-slate-200 dark:border-slate-800 text-xs"
-          />
+          <div className="space-y-2">
+            {parentInstitutionLines.map((line, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <Input
+                  value={line}
+                  onChange={(e) => {
+                    const newArr = [...parentInstitutionLines]
+                    newArr[idx] = e.target.value
+                    setParentInstitutionLines(newArr)
+                  }}
+                  placeholder={`Kurum ${idx + 1}. Satır`}
+                  className="bg-slate-55 dark:bg-slate-955 border-slate-200 dark:border-slate-800 text-xs flex-1"
+                />
+                {parentInstitutionLines.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newArr = parentInstitutionLines.filter((_, i) => i !== idx)
+                      setParentInstitutionLines(newArr)
+                    }}
+                    className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors shrink-0"
+                    title="Satırı Sil"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setParentInstitutionLines([...parentInstitutionLines, ''])}
+              className="mt-2 text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-lg border border-blue-100 dark:border-blue-800/40 flex items-center gap-1.5 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Yeni Satır Ekle
+            </button>
+          </div>
         </div>
 
         <div className="md:col-span-2">

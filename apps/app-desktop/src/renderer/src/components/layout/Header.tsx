@@ -206,11 +206,18 @@ export function Header(): React.JSX.Element {
         setSaveFeedback("☁️ Google Drive bulutuna yedekleniyor...");
         const gdriveRes = await window.electron?.ipcRenderer.invoke(
           "workspace:backup-gdrive",
+          { force: true }
         );
         if (gdriveRes?.success) {
-          setSaveFeedback(
-            "✓ Kaydedildi ve Google Drive'a başarıyla yedeklendi",
-          );
+          if (gdriveRes?.skipped) {
+            setSaveFeedback(
+              "✓ Kaydedildi (Google Drive yedeği zaten güncel)",
+            );
+          } else {
+            setSaveFeedback(
+              "✓ Kaydedildi ve Google Drive'a başarıyla yedeklendi",
+            );
+          }
         } else {
           setSaveFeedback(
             `⚠️ Kaydedildi, ancak bulut: ${gdriveRes?.error || "Yetki hatası"}`,

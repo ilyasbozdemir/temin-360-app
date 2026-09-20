@@ -54,6 +54,9 @@ export default function KurumScreen(): React.JSX.Element {
   const [institutionLetterhead, setInstitutionLetterhead] = useState<string[]>(
     [],
   );
+  const [parentInstitutionLines, setParentInstitutionLines] = useState<
+    string[]
+  >([]);
   const [sozlukData, setSozlukData] = useState<any[]>([]);
 
   const [institutionLogo, setInstitutionLogo] = useState<string | null>(
@@ -94,6 +97,21 @@ export default function KurumScreen(): React.JSX.Element {
         }
       }
       setInstitutionLetterhead(parsedLetterhead);
+
+      let parsedParent = [""];
+      if (kurumData.ust_kurum_adi) {
+        try {
+          const parsedP = JSON.parse(kurumData.ust_kurum_adi);
+          if (Array.isArray(parsedP) && parsedP.length > 0) {
+            parsedParent = parsedP;
+          } else {
+            parsedParent = [kurumData.ust_kurum_adi];
+          }
+        } catch {
+          parsedParent = [kurumData.ust_kurum_adi];
+        }
+      }
+      setParentInstitutionLines(parsedParent);
     }
   }, [kurumData]);
 
@@ -120,6 +138,9 @@ export default function KurumScreen(): React.JSX.Element {
       dataToSave.kurum_anteti = JSON.stringify(
         institutionLetterhead.filter((l) => l.trim() !== ""),
       );
+      dataToSave.ust_kurum_adi = JSON.stringify(
+        parentInstitutionLines.filter((l) => l.trim() !== ""),
+      );
 
       await saveKurum(dataToSave);
 
@@ -144,8 +165,16 @@ export default function KurumScreen(): React.JSX.Element {
   const navigate = useNavigate();
   const routerState = useRouterState();
   const pathname = routerState.location.pathname;
-  const searchParams = new URLSearchParams(window.location.search);
-  const queryTab = searchParams.get("tab");
+  
+  // TanStack Hash Router search resolution
+  const locationSearch = routerState.location.search as any;
+  const hashSearch = window.location.hash.includes("?")
+    ? window.location.hash.substring(window.location.hash.indexOf("?"))
+    : "";
+  const searchParams = new URLSearchParams(hashSearch || window.location.search);
+  const queryTab =
+    (typeof locationSearch === "object" ? locationSearch?.tab : null) ||
+    searchParams.get("tab");
 
   let activeTab: TabType = "idari";
   if (pathname === "/birimler") {
@@ -177,7 +206,10 @@ export default function KurumScreen(): React.JSX.Element {
     } else if (tabId === "ambar") {
       navigate({ to: "/ambar" as any });
     } else {
-      navigate({ to: `/kurum?tab=${tabId}` as any });
+      navigate({
+        to: "/kurum" as any,
+        search: { tab: tabId } as any,
+      });
     }
   };
 
@@ -255,7 +287,7 @@ export default function KurumScreen(): React.JSX.Element {
     );
   }
 
-  const isKurumTab = ["idari", "mali", "iletisim", "logolar", "ambar"].includes(
+  const isKurumTab = ["idari", "mali", "iletisim", "logolar"].includes(
     activeTab,
   );
 
@@ -263,6 +295,7 @@ export default function KurumScreen(): React.JSX.Element {
     <div className="max-w-[1600px] mx-auto flex flex-col gap-6 w-full animate-in fade-in duration-200">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-4">
         {/* SOL MENÜ */}
+
         <InnerMenu
           className="lg:col-span-3"
           items={menuItems}
@@ -305,6 +338,8 @@ export default function KurumScreen(): React.JSX.Element {
                       onChange={handleChange}
                       institutionLetterhead={institutionLetterhead}
                       setInstitutionLetterhead={setInstitutionLetterhead}
+                      parentInstitutionLines={parentInstitutionLines}
+                      setParentInstitutionLines={setParentInstitutionLines}
                     />
                   )}
                   {activeTab === "mali" && (
@@ -313,6 +348,8 @@ export default function KurumScreen(): React.JSX.Element {
                       onChange={handleChange}
                       institutionLetterhead={institutionLetterhead}
                       setInstitutionLetterhead={setInstitutionLetterhead}
+                      parentInstitutionLines={parentInstitutionLines}
+                      setParentInstitutionLines={setParentInstitutionLines}
                       sozlukData={sozlukData}
                     />
                   )}
@@ -322,6 +359,8 @@ export default function KurumScreen(): React.JSX.Element {
                       onChange={handleChange}
                       institutionLetterhead={institutionLetterhead}
                       setInstitutionLetterhead={setInstitutionLetterhead}
+                      parentInstitutionLines={parentInstitutionLines}
+                      setParentInstitutionLines={setParentInstitutionLines}
                     />
                   )}
                   {activeTab === "logolar" && (
