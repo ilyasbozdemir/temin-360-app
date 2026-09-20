@@ -6,9 +6,7 @@ import {
   Loader2,
   RefreshCw,
   Search,
-  Sparkles,
   MapPin,
-  ShieldCheck,
   AlertCircle
 } from 'lucide-react'
 import { Modal } from './Modal'
@@ -204,9 +202,25 @@ export function DetsisSubUnitsModal({
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 rounded-xl text-xs text-red-600 dark:text-red-400 flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-            <span>{error}</span>
+          <div className="p-3.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-2xl text-xs text-red-600 dark:text-red-400 flex items-start justify-between gap-3">
+            <div className="flex items-start gap-2.5 flex-1">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-500" />
+              <div className="space-y-1">
+                <span className="font-bold text-red-800 dark:text-red-200 block">
+                  DETSİS Bağlantı / Sunucu Hatası
+                </span>
+                <span className="text-[11px] leading-relaxed text-red-700/90 dark:text-red-300/90 block font-mono">
+                  {error}
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => cleanInstNo && fetchSubUnits(cleanInstNo)}
+              className="px-3 py-1.5 bg-red-100 hover:bg-red-200 dark:bg-red-900/60 dark:hover:bg-red-900 text-red-800 dark:text-red-100 rounded-xl text-xs font-bold shrink-0 transition-colors shadow-sm cursor-pointer"
+            >
+              Yeniden Dene
+            </button>
           </div>
         )}
 

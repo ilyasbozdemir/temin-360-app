@@ -242,6 +242,19 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     } catch {}
   }
 
+  // Explicit migration for TANIM_Personel extended columns
+  const personelExtendedColumns = [
+    { name: 'gorev', def: 'TEXT' },
+    { name: 'unvan', def: 'TEXT' },
+    { name: 'birim', def: 'TEXT' },
+    { name: 'avatar', def: 'TEXT' }
+  ]
+  for (const c of personelExtendedColumns) {
+    try {
+      db.exec(`ALTER TABLE TANIM_Personel ADD COLUMN "${c.name}" ${c.def};`)
+    } catch {}
+  }
+
   // Ensure default unit conversions exist in TANIM_BirimDonusum
   try {
     const donusumCountRes = db.prepare('SELECT COUNT(*) as cnt FROM TANIM_BirimDonusum').get() as { cnt: number }

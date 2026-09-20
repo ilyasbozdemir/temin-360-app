@@ -742,22 +742,52 @@ export function registerNetworkIpcHandlers(): void {
         return { success: false, error: 'Geçersiz DETSİS numarası', data: [] }
       }
 
-      const url = `https://yetkiliapi.detsis.gov.tr/api/backoffice/unauthorizedaccessdata/birimler?ustBirimId=${cleanNo}&pageSize=250&page=1`
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          Accept: 'application/json, text/plain, */*'
-        },
-        signal: AbortSignal.timeout(12000)
-      })
+      console.log(`[DETSİS Sub-units] Fetching sub-units for ustBirimId=${cleanNo}`)
 
-      if (!response.ok) {
-        return { success: false, error: `HTTP ${response.status}`, data: [] }
+      let allItems: any[] = []
+      let totalCount = 0
+      let currentPage = 1
+      const pageSize = 100 // DETSİS API maksimum 100 destekler
+
+      while (currentPage <= 5) {
+        const url = `https://yetkiliapi.detsis.gov.tr/api/backoffice/unauthorizedaccessdata/birimler?ustBirimId=${cleanNo}&pageSize=${pageSize}&page=${currentPage}`
+        const response = await fetch(url, {
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            Accept: 'application/json, text/plain, */*'
+          },
+          signal: AbortSignal.timeout(12000)
+        })
+
+        if (!response.ok) {
+          let errorDetail = ''
+          try {
+            const errJson = await response.json()
+            errorDetail = errJson?.Message || errJson?.message || JSON.stringify(errJson)
+          } catch {
+            errorDetail = await response.text().catch(() => '')
+          }
+          console.error(`[DETSİS Sub-units] HTTP ${response.status}:`, errorDetail)
+          return {
+            success: false,
+            error: errorDetail ? `DETSİS Hatası (${response.status}): ${errorDetail}` : `DETSİS Sunucu Hatası: HTTP ${response.status}`,
+            data: []
+          }
+        }
+
+        const json = await response.json()
+        const pageData = json?.data || []
+        totalCount = json?.totalCount || pageData.length
+        allItems = allItems.concat(pageData)
+
+        if (pageData.length < pageSize || allItems.length >= totalCount) {
+          break
+        }
+        currentPage++
       }
 
-      const json = await response.json()
-      const list = (json?.data || []).map((item: any) => ({
+      const list = allItems.map((item: any) => ({
         detsisNo: item.detsisNo ? String(item.detsisNo) : String(item.id || ''),
         birimAdi: item.birimAdi || '',
         kurumHiyerarsisi: item.kurumHiyerarsisi || '',
@@ -769,9 +799,11 @@ export function registerNetworkIpcHandlers(): void {
         logoByteArray: item.logoByteArray || ''
       }))
 
+      console.log(`[DETSİS Sub-units] Successfully retrieved ${list.length} units (total: ${totalCount})`)
+
       return {
         success: true,
-        totalCount: json?.totalCount || list.length,
+        totalCount: totalCount || list.length,
         data: list
       }
     } catch (err: any) {

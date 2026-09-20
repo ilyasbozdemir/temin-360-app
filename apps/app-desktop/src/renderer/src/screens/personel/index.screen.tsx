@@ -3,7 +3,6 @@ import QRCode from "qrcode";
 import {
   Personel,
   PersonelWithRoles,
-  Rol,
   usePersonelHooks,
 } from "./personel.hooks";
 import { useBirimlerHooks } from "../birimler/birimler.hooks";
@@ -100,6 +99,7 @@ export default function PersonelScreen({
   const [formData, setFormData] = useState<PersonelWithRoles>({
     ad_soyad: "",
     unvan: "",
+    gorev: "",
     sicil_no: "",
     birim: "",
     telefon: "",
@@ -116,12 +116,17 @@ export default function PersonelScreen({
       const rolesForPersonel = rollerList
         .filter((r) => r.varsayilan_personel_id === personel.id)
         .map((r) => r.rol_kodu);
-      setFormData({ ...personel, assignedRoles: rolesForPersonel });
+      setFormData({
+        ...personel,
+        gorev: personel.gorev || "",
+        assignedRoles: rolesForPersonel,
+      });
     } else {
       setEditingPersonel(null);
       setFormData({
         ad_soyad: "",
         unvan: "",
+        gorev: "",
         sicil_no: "",
         birim: "",
         telefon: "",
@@ -248,10 +253,17 @@ export default function PersonelScreen({
               <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-1 leading-snug">
                 {viewingPersonel.ad_soyad}
               </h2>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-1.5 justify-center">
-                <Briefcase className="w-4 h-4 shrink-0 text-slate-400" />
-                {viewingPersonel.unvan || "Unvan Belirtilmedi"}
-              </p>
+              <div className="flex flex-col items-center gap-1 mb-3">
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1.5 justify-center">
+                  <Briefcase className="w-4 h-4 shrink-0 text-blue-500" />
+                  {viewingPersonel.unvan || "Kadro Unvanı Yok"}
+                </p>
+                {viewingPersonel.gorev && (
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 font-semibold">
+                    Görev: {viewingPersonel.gorev}
+                  </span>
+                )}
+              </div>
               {viewingPersonel.birim && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 dark:bg-slate-950/40 text-xs font-semibold rounded-full border border-slate-150 dark:border-slate-850 text-slate-600 dark:text-slate-350">
                   <Building className="w-3.5 h-3.5" />
@@ -297,10 +309,28 @@ export default function PersonelScreen({
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm space-y-6">
               <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
                 <FileText className="w-4 h-4 text-blue-500" />
-                İletişim ve Kurum Bilgileri
+                Kadro ve İletişim Bilgileri
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-4 bg-slate-50/50 dark:bg-slate-950/20 border border-slate-150 dark:border-slate-850 rounded-2xl flex flex-col gap-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Kadro / Meslek Unvanı
+                  </span>
+                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300 mt-0.5">
+                    {viewingPersonel.unvan || "Belirtilmedi"}
+                  </span>
+                </div>
+
+                <div className="p-4 bg-slate-50/50 dark:bg-slate-950/20 border border-slate-150 dark:border-slate-850 rounded-2xl flex flex-col gap-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Kurum İçi / İhale Görevi
+                  </span>
+                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300 mt-0.5">
+                    {viewingPersonel.gorev || "Belirtilmedi"}
+                  </span>
+                </div>
+
                 <div className="p-4 bg-slate-50/50 dark:bg-slate-950/20 border border-slate-150 dark:border-slate-850 rounded-2xl flex flex-col gap-1">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                     Telefon Numarası
@@ -379,7 +409,7 @@ export default function PersonelScreen({
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm space-y-6">
               <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
                 <Shield className="w-4 h-4 text-blue-500" />
-                Atanmış Varsayılan İmza Yetkileri
+                Atanmış Varsayılan İmza Yetkileri (Görevler)
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -535,28 +565,77 @@ export default function PersonelScreen({
               </div>
             </div>
 
+            {/* Kadro Unvanı ve Kurum İçi Görevi Ayrı Ayrı */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  Unvan / Görevi
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Kadro / Meslek Unvanı
                 </label>
                 <Input
-                  placeholder="Örn: İnşaat Mühendisi"
+                  placeholder="Örn: İnşaat Mühendisi, Mimar, V.H.K.İ., Şube Müdürü"
                   value={formData.unvan || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, unvan: e.target.value })}
                   className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-sm py-2 h-11"
                 />
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
+                  Personelin asaleten veya sözleşmeli kadro unvanı.
+                </p>
               </div>
 
               <div>
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
-                  Kurum Sicil No
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Kurum İçi / İhale Görevi
+                </label>
+                <Input
+                  placeholder="Örn: Harcama Yetkilisi, Satın Alma Sorumlusu, Komisyon Üyesi"
+                  value={formData.gorev || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, gorev: e.target.value })}
+                  className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-sm py-2 h-11"
+                />
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
+                  Personelin imza atarken ve süreçleri yürütürken üstlendiği görev.
+                </p>
+              </div>
+            </div>
+
+            {/* Birim ve Sicil No */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="relative">
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                  <span>Birim / Müdürlük</span>
                   <span className="text-[11px] text-slate-400 font-normal">
                     (İsteğe Bağlı)
                   </span>
-                  <span title="Personelin kurum içi sicil numarası">
-                    <HelpCircle className="w-4 h-4 text-blue-500 cursor-help ml-auto" />
+                </label>
+                <Input
+                  list="birimler-list"
+                  placeholder="-- Birim Seçin veya Arayın --"
+                  value={formData.birim || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, birim: e.target.value })}
+                  className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-sm py-2 h-11"
+                />
+                <datalist id="birimler-list">
+                  {kurumData?.kurum_adi && <option value={kurumData.kurum_adi} />}
+                  {birimler.map((b) => <option key={b.id} value={b.birim_adi} />)}
+                </datalist>
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
+                  Listeden seçebilir veya boş bırakabilirsiniz.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    Kurum Sicil No
+                    <span title="Personelin kurum içi sicil numarası">
+                      <HelpCircle className="w-4 h-4 text-blue-500 cursor-help" />
+                    </span>
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-normal">
+                    (İsteğe Bağlı)
                   </span>
                 </label>
                 <Input
@@ -567,24 +646,6 @@ export default function PersonelScreen({
                   className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-sm py-2 h-11"
                 />
               </div>
-            </div>
-
-            <div className="relative">
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                Birim / Müdürlük
-              </label>
-              <Input
-                list="birimler-list"
-                placeholder="-- Birim Seçin veya Arayın --"
-                value={formData.birim || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, birim: e.target.value })}
-                className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-sm py-2 h-11"
-              />
-              <datalist id="birimler-list">
-                {kurumData?.kurum_adi && <option value={kurumData.kurum_adi} />}
-                {birimler.map((b) => <option key={b.id} value={b.birim_adi} />)}
-              </datalist>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -622,8 +683,8 @@ export default function PersonelScreen({
                 Şablonlarda Varsayılan Görev (Yetkilendirme)
               </h4>
               <p className="text-xs text-slate-500">
-                Seçtiğiniz roller, yeni oluşturulan belgelerde bu personel
-                adıyla otomatik doldurulacaktır.
+                Seçtiğiniz roller, yeni oluşturulan resmi belgelerde bu personelin
+                adı ve unvanıyla otomatik doldurulacaktır. Personel birden çok görev üstlenebilir.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
@@ -670,8 +731,7 @@ export default function PersonelScreen({
             Personel Yönetimi
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-            Kurum personelini buradan ekleyebilir ve yetkilerini
-            belirleyebilirsiniz.
+            Kurum personelini buradan ekleyebilir, kadro unvanı ve kurum görevlerini belirleyebilirsiniz.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -768,6 +828,11 @@ export default function PersonelScreen({
                           <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                             {p.unvan || "Unvan Belirtilmedi"}
                           </p>
+                          {p.gorev && (
+                            <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium truncate">
+                              Görev: {p.gorev}
+                            </p>
+                          )}
                         </div>
                       </div>
 
@@ -839,13 +904,20 @@ export default function PersonelScreen({
                             )}
                         </div>
 
-                        <div className="flex-1 min-w-[200px]">
+                        <div className="flex-1 min-w-[180px]">
                           <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 truncate">
                             {p.ad_soyad}
                           </h4>
                           <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                             {p.unvan || "Unvan Belirtilmedi"}
                           </p>
+                        </div>
+
+                        <div className="flex-1 min-w-[140px]">
+                          <span className="text-[10px] uppercase font-bold text-slate-400 block">Görev</span>
+                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate block">
+                            {p.gorev || "-"}
+                          </span>
                         </div>
 
                         <div className="flex-1 min-w-[150px] text-[11px] text-slate-500 dark:text-slate-400">
@@ -906,7 +978,8 @@ export default function PersonelScreen({
                   <thead className="bg-slate-50 dark:bg-slate-900/50 text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
                     <tr>
                       <th className="px-4 py-3">Ad Soyad</th>
-                      <th className="px-4 py-3">Unvan</th>
+                      <th className="px-4 py-3">Kadro Unvanı</th>
+                      <th className="px-4 py-3">Görevi</th>
                       <th className="px-4 py-3">Birim</th>
                       <th className="px-4 py-3">Telefon</th>
                       <th className="px-4 py-3 text-right">İşlemler</th>
@@ -923,6 +996,7 @@ export default function PersonelScreen({
                           {p.ad_soyad}
                         </td>
                         <td className="px-4 py-3">{p.unvan || "-"}</td>
+                        <td className="px-4 py-3 font-medium text-slate-700 dark:text-slate-300">{p.gorev || "-"}</td>
                         <td className="px-4 py-3">{p.birim || "-"}</td>
                         <td className="px-4 py-3">{p.telefon || "-"}</td>
                         <td className="px-4 py-3 text-right">
