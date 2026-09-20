@@ -535,13 +535,17 @@ if (!gotTheLock && !isMultiInstance) {
       execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Applications\\TEMIN360.exe\\DefaultIcon', '/ve', '/d', iconPath, '/f'])
       execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Applications\\TEMIN360.exe\\shell\\open\\command', '/ve', '/d', `"${exePath}" "%1"`, '/f'])
 
-      // 2. Desteklenen tüm uzantıları kaydet (.temin, .dtal, .hkmp, .dtm, .dte, .dta, .tmn360)
-      for (const ext of allExtensions) {
-        execFile('reg.exe', ['add', `HKCU\\Software\\Classes\\.${ext}`, '/ve', '/d', 'Temin360.Document', '/f'])
-        execFile('reg.exe', ['add', `HKCU\\Software\\Classes\\.${ext}\\OpenWithProgids`, '/v', 'Temin360.Document', '/t', 'REG_SZ', '/d', '', '/f'])
-        execFile('reg.exe', ['add', `HKCU\\Software\\Classes\\.${ext}\\DefaultIcon`, '/ve', '/d', iconPath, '/f'])
-        execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Applications\\TEMIN360.exe\\SupportedTypes', '/v', `.${ext}`, '/d', '', '/f'])
-        execFile('reg.exe', ['add', `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\.${ext}\\OpenWithProgids`, '/v', 'Temin360.Document', '/t', 'REG_NONE', '/d', '', '/f'])
+      // 2. Sadece .temin uzantısını kaydet
+      const ext = 'temin'
+      execFile('reg.exe', ['add', `HKCU\\Software\\Classes\\.${ext}`, '/ve', '/d', 'Temin360.Document', '/f'])
+      execFile('reg.exe', ['add', `HKCU\\Software\\Classes\\.${ext}\\OpenWithProgids`, '/v', 'Temin360.Document', '/t', 'REG_SZ', '/d', '', '/f'])
+      execFile('reg.exe', ['add', `HKCU\\Software\\Classes\\.${ext}\\DefaultIcon`, '/ve', '/d', iconPath, '/f'])
+      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Applications\\TEMIN360.exe\\SupportedTypes', '/v', `.${ext}`, '/d', '', '/f'])
+      execFile('reg.exe', ['add', `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\.${ext}\\OpenWithProgids`, '/v', 'Temin360.Document', '/t', 'REG_NONE', '/d', '', '/f'])
+
+      // Eski uzantıları kayıt defterinden temizle
+      for (const oldExt of ['dtal', 'hkmp', 'dtm', 'dte', 'dta', 'tmn360']) {
+        execFile('reg.exe', ['delete', `HKCU\\Software\\Classes\\.${oldExt}`, '/f'])
       }
 
       // 3. Windows Explorer İkon Önbelleğini Yenile (SHChangeNotify)
