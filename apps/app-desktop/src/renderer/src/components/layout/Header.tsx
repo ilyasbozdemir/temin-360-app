@@ -219,8 +219,9 @@ export function Header(): React.JSX.Element {
       } else {
         setSaveFeedback("✓ Çalışma dosyası başarıyla kaydedildi");
       }
-    } catch (e: any) {
-      setSaveFeedback(`❌ Kaydetme hatası: ${e.message}`);
+    } catch (e: unknown) {
+      const errorMsg = e instanceof Error ? e.message : String(e);
+      setSaveFeedback(`❌ Kaydetme hatası: ${errorMsg}`);
     } finally {
       setTimeout(() => {
         setSaveFeedback(null);
@@ -258,6 +259,7 @@ export function Header(): React.JSX.Element {
         setUpdateStatus(data);
       },
     );
+
     return () => {
       if (removeListener) removeListener();
     };
@@ -430,6 +432,10 @@ export function Header(): React.JSX.Element {
                 {
                   label: "Süreç Takip & Durum Paneli",
                   onClick: () => navigate({ to: "/takip" }),
+                },
+                {
+                  label: "🧭 Süreç Akış Haritası (Beta - Tablar)",
+                  onClick: () => navigate({ to: "/surec-akisi" }),
                 },
                 {
                   label: "Belge Çıktı Merkezi",
@@ -1203,6 +1209,9 @@ export function Header(): React.JSX.Element {
               </button>
             )}
 
+          {/* Senkronizasyon & Bulut Popover */}
+          <SyncPopover />
+
           {/* Bildirim Popover */}
           <NotificationPopover
             isOpen={showNotifications}
@@ -1263,6 +1272,14 @@ export function Header(): React.JSX.Element {
               >
                 <ClipboardList className="w-3.5 h-3.5" />
                 {isDt ? "Doğrudan Temin & Durum" : "İhale Takip & Durum"}
+              </Link>
+              <Link
+                to="/surec-akisi"
+                className="flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-purple-700 bg-purple-50/80 hover:bg-purple-100 dark:bg-purple-950/40 dark:text-purple-300 dark:hover:bg-purple-900/50 border border-purple-200/50 dark:border-purple-900/30 rounded-md transition-colors shadow-2xs hover:shadow-xs"
+                title="Süreç Akış Haritası (Beta Tablar)"
+              >
+                <Layers className="w-3.5 h-3.5" />
+                Süreç Akışı (Beta)
               </Link>
               <Link
                 to="/cikti-merkezi"

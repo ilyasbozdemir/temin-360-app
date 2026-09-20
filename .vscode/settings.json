@@ -1,0 +1,9 @@
+{
+  "search.useIgnoreFiles": false,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.pnpm-store": true,
+    "**/.git": true
+  }
+}

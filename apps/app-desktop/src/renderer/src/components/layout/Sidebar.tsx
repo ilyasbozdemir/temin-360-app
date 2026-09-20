@@ -17,6 +17,7 @@ import {
   Home,
   Key,
   Landmark,
+  Layers,
   LayoutGrid,
   LogOut,
   Megaphone,
@@ -87,6 +88,12 @@ const menuGroups: MenuGroup[] = [
         name: "Hızlı Dosya Ekle / Güncelle",
         path: "/hizli-dosya-ekle",
         icon: Database,
+      },
+      {
+        name: "Süreç Akış Haritası",
+        path: "/surec-akisi",
+        icon: Layers,
+        badge: "BETA",
       },
     ],
   },
@@ -212,15 +219,23 @@ export function Sidebar(): React.JSX.Element {
     if (!activeDosyaId) return menuGroups;
     return menuGroups.map((group) => {
       if (group.title === "Süreç Yönetimi") {
-        const activeItem: MenuItem = {
-          name: "Aktif Dosya (Süreç Takip)",
-          path: "/takip",
-          icon: FolderOpen,
-          badge: "AÇIK",
-        };
+        const activeItems: MenuItem[] = [
+          {
+            name: "Aktif Dosya (Süreç Takip)",
+            path: "/takip",
+            icon: FolderOpen,
+            badge: "AÇIK",
+          },
+          {
+            name: "Süreç Akış Haritası",
+            path: "/surec-akisi",
+            icon: Layers,
+            badge: "BETA",
+          },
+        ];
         return {
           ...group,
-          items: [activeItem, ...group.items],
+          items: [...activeItems, ...group.items],
         };
       }
       return group;

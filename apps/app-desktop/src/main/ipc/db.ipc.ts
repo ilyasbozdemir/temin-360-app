@@ -1,5 +1,6 @@
-import { ipcMain, dialog } from 'electron'
+import { ipcMain, dialog, app } from 'electron'
 import fs from 'fs'
+import path from 'path'
 import * as XLSX from 'xlsx'
 import {
   workspaceManager,
@@ -1327,3 +1328,4 @@ export function registerDbIpcHandlers(): void {
     }
   })
 }
+

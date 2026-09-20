@@ -477,6 +477,18 @@ export function TakipScreen(): React.JSX.Element {
                     Düzenle
                   </button>
 
+                  <button
+                    onClick={() => {
+                      addTab('/surec-akisi')
+                      navigate({ to: '/surec-akisi' })
+                    }}
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-purple-50 hover:bg-purple-600 text-purple-700 hover:text-white dark:bg-purple-950/40 dark:text-purple-300 dark:hover:bg-purple-600 dark:hover:text-white border border-purple-200 dark:border-purple-800/60 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                    title="Süreç Akış Haritasını Aç (Beta Tablar)"
+                  >
+                    <Layers size={14} />
+                    Süreç Akışı (Beta)
+                  </button>
+
                   <div className="relative dosya-menu-container">
                     <button
                       onClick={(e) => {
@@ -514,6 +526,18 @@ export function TakipScreen(): React.JSX.Element {
                         >
                           <ExternalLink size={14} className="text-slate-400" />
                           Yeni Pencerede Aç
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setIsMenuOpen(false)
+                            addTab('/surec-akisi')
+                            navigate({ to: '/surec-akisi' })
+                          }}
+                          className="w-full text-left px-4 py-2.5 hover:bg-purple-50 dark:hover:bg-purple-950/20 text-purple-700 dark:text-purple-300 flex items-center gap-2 transition-colors cursor-pointer border-0 bg-transparent font-semibold"
+                        >
+                          <Layers size={14} className="text-purple-500" />
+                          Süreç Akış Haritası (Beta)
                         </button>
 
                         <div className="border-t border-slate-100 dark:border-slate-800 my-1" />
