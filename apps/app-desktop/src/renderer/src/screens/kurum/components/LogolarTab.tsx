@@ -1,6 +1,153 @@
-import React from 'react'
-import { ImageIcon, Info, Upload, X } from 'lucide-react'
+import React, { useState } from 'react'
+import { ImageIcon, Info, Upload, X, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
 import { Input } from '../../../components/ui/Input'
+import { optimizeImageFile } from '../../../utils/imageOptimizer'
+
+interface LogoUploadCardProps {
+  title: string
+  description: string
+  value: string | null
+  onChange: (val: string | null) => void
+  recommendedSize: string
+  maxDimension?: number
+  showToggle?: boolean
+  toggleChecked?: boolean
+  onToggleChange?: (checked: boolean) => void
+  toggleLabel?: string
+  onError?: (msg: string) => void
+  onSuccess?: (msg: string) => void
+}
+
+export function LogoUploadCard({
+  title,
+  description,
+  value,
+  onChange,
+  recommendedSize,
+  maxDimension = 1024,
+  showToggle = false,
+  toggleChecked = false,
+  onToggleChange,
+  toggleLabel = '',
+  onError,
+  onSuccess
+}: LogoUploadCardProps): React.ReactElement {
+  const [loading, setLoading] = useState(false)
+
+  const handleFile = async (file: File | undefined): Promise<void> => {
+    if (!file) return
+
+    if (file.size > 20 * 1024 * 1024) {
+      onError?.('Dosya boyutu çok yüksek! Lütfen 20 MB altı bir görsel seçin.')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const optimizedBase64 = await optimizeImageFile(file, maxDimension)
+      onChange(optimizedBase64)
+      onSuccess?.(`${title} başarıyla optimize edilip yüklendi.`)
+    } catch {
+      onError?.('Görsel işlenirken bir hata oluştu.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="border border-slate-200 dark:border-slate-800 rounded-2xl p-5 bg-slate-50/50 dark:bg-slate-950/20 flex flex-col gap-4 shadow-sm">
+      <div>
+        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-0.5">
+          {title}
+        </label>
+        <p className="text-[10px] text-slate-450 dark:text-slate-500 leading-normal">
+          {description}
+        </p>
+      </div>
+
+      <label className="group relative flex flex-col items-center justify-center w-full h-36 bg-white dark:bg-slate-950 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden cursor-pointer hover:border-blue-400 dark:hover:border-blue-700 transition-all duration-200 shadow-inner">
+        {loading ? (
+          <div className="flex flex-col items-center gap-2 text-blue-500">
+            <Loader2 className="w-6 h-6 animate-spin" />
+            <span className="text-[10px] font-medium">Optimize ediliyor...</span>
+          </div>
+        ) : value ? (
+          <>
+            <img src={value} alt={title} className="w-full h-full object-contain p-3" />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
+              <Upload className="w-5 h-5 text-white" />
+              <span className="text-white text-[10px] font-semibold">Değiştir</span>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-600">
+            <ImageIcon className="w-8 h-8" />
+            <span className="text-[10px] font-medium text-center leading-tight px-2">
+              Logo seçmek için
+              <br />
+              tıklayın
+            </span>
+            <span className="text-[9px] text-slate-350 dark:text-slate-700">
+              PNG, JPG, SVG, WebP · Otomatik Optimize
+            </span>
+          </div>
+        )}
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/svg+xml,image/webp"
+          className="hidden"
+          disabled={loading}
+          onChange={(e) => {
+            handleFile(e.target.files?.[0])
+            e.target.value = ''
+          }}
+        />
+      </label>
+
+      <div className="flex flex-col gap-3">
+        <Input
+          value={value?.startsWith('http') ? value : ''}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Veya web URL'si yapıştırın (https://...)"
+          className="text-xs bg-slate-55 dark:bg-slate-955 border-slate-200 dark:border-slate-800"
+        />
+        <div className="flex items-center justify-between">
+          <span className="text-[9px] text-slate-400 dark:text-slate-600 font-mono">
+            Önerilen: {recommendedSize}
+          </span>
+          {value && (
+            <button
+              type="button"
+              onClick={() => onChange(null)}
+              className="flex items-center gap-1 py-1 px-2 border border-red-200 dark:border-red-900/40 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 dark:text-red-400 rounded-lg text-[10px] font-bold transition-all cursor-pointer"
+            >
+              <X className="w-3 h-3" />
+              Kaldır
+            </button>
+          )}
+        </div>
+
+        {showToggle && onToggleChange && (
+          <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-200/50 dark:border-slate-800/50">
+            <input
+              id={`toggle-${title}`}
+              type="checkbox"
+              checked={toggleChecked}
+              onChange={(e) => onToggleChange(e.target.checked)}
+              className="rounded border-slate-300 dark:border-slate-800 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 cursor-pointer"
+            />
+            <label
+              htmlFor={`toggle-${title}`}
+              className="text-[10px] font-medium text-slate-600 dark:text-slate-400 cursor-pointer select-none"
+            >
+              {toggleLabel}
+            </label>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
 interface LogolarTabProps {
   institutionLogo: string | null
@@ -29,6 +176,16 @@ export function LogolarTab(props: LogolarTabProps): React.ReactElement {
     setShowLogoRight
   } = props
 
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error'
+    message: string
+  } | null>(null)
+
+  const showToast = (type: 'success' | 'error', message: string): void => {
+    setNotification({ type, message })
+    setTimeout(() => setNotification(null), 4000)
+  }
+
   return (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
       <div>
@@ -36,291 +193,77 @@ export function LogolarTab(props: LogolarTabProps): React.ReactElement {
           Kurum Logoları
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Uygulama arayüzünde ve belge çıktılarında kullanılacak logoları buradan
-          ayarlayabilirsiniz.
+          Uygulama arayüzünde ve belge çıktılarında kullanılacak logoları buradan ayarlayabilirsiniz.
         </p>
       </div>
+
+      {notification && (
+        <div
+          className={`flex items-center gap-2 p-3 rounded-xl text-xs font-semibold animate-in fade-in duration-200 ${
+            notification.type === 'success'
+              ? 'bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
+              : 'bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300'
+          }`}
+        >
+          {notification.type === 'success' ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+          )}
+          <span>{notification.message}</span>
+        </div>
+      )}
 
       <div className="flex items-start gap-2 p-3 bg-blue-50/60 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 rounded-xl text-xs text-blue-700 dark:text-blue-400 leading-relaxed">
         <Info className="w-4 h-4 shrink-0 mt-0.5" />
         <span>
-          <strong>Önerilen boyutlar:</strong> Uygulama Logosu için <strong>256×256 px</strong> veya{' '}
-          <strong>512×512 px</strong> (kare, şeffaf arka planlı PNG tercih edilir). Belge logoları
-          (Sol/Sağ) için <strong>300×150 px</strong> önerilir. Maksimum dosya boyutu:{' '}
-          <strong>2 MB</strong>.
+          <strong>Akıllı Görsel Optimizasyonu:</strong> Yüklediğiniz logolar otomatik olarak en iyi
+          çözünürlük ve kalitede sıkıştırılır. Uygulama Logosu için <strong>256×256 px</strong>,
+          Belge logoları için <strong>300×150 px</strong> tavsiye edilir. (Maksimum 20 MB).
         </span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        {/* === UYGULAMA LOGOSU === */}
-        <div className="border border-slate-200 dark:border-slate-800 rounded-2xl p-5 bg-slate-50/50 dark:bg-slate-950/20 flex flex-col gap-4 shadow-sm">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-0.5">
-              Uygulama Logosu
-            </label>
-            <p className="text-[10px] text-slate-450 dark:text-slate-500 leading-normal">
-              Giriş/Kilit ekranı ve sol menüde gösterilen genel logo.
-            </p>
-          </div>
+        <LogoUploadCard
+          title="Uygulama Logosu"
+          description="Giriş/Kilit ekranı ve sol menüde gösterilen genel logo."
+          value={institutionLogo}
+          onChange={setInstitutionLogo}
+          recommendedSize="256×256 px"
+          maxDimension={1024}
+          onError={(msg) => showToast('error', msg)}
+          onSuccess={(msg) => showToast('success', msg)}
+        />
 
-          <label className="group relative flex flex-col items-center justify-center w-full h-36 bg-white dark:bg-slate-950 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden cursor-pointer hover:border-blue-400 dark:hover:border-blue-700 transition-all duration-200 shadow-inner">
-            {institutionLogo ? (
-              <>
-                <img
-                  src={institutionLogo}
-                  alt="Uygulama Logosu"
-                  className="w-full h-full object-contain p-3"
-                />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
-                  <Upload className="w-5 h-5 text-white" />
-                  <span className="text-white text-[10px] font-semibold">Değiştir</span>
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-600">
-                <ImageIcon className="w-8 h-8" />
-                <span className="text-[10px] font-medium text-center leading-tight px-2">
-                  Logo seçmek için
-                  <br />
-                  tıklayın
-                </span>
-                <span className="text-[9px] text-slate-350 dark:text-slate-700">
-                  PNG, JPG, SVG · Maks. 2MB
-                </span>
-              </div>
-            )}
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/svg+xml,image/webp"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (!file) return
-                if (file.size > 2 * 1024 * 1024) {
-                  alert("Dosya boyutu 2 MB'ı aşmamalıdır!")
-                  return
-                }
-                const reader = new FileReader()
-                reader.onload = () => {
-                  if (typeof reader.result === 'string') {
-                    setInstitutionLogo(reader.result)
-                  }
-                }
-                reader.readAsDataURL(file)
-              }}
-            />
-          </label>
+        <LogoUploadCard
+          title="Sol Logo (Kurum)"
+          description="Resmi belgelerin sol üstünde yer alacak kurum logosu."
+          value={logoLeft}
+          onChange={setLogoLeft}
+          recommendedSize="300×150 px"
+          maxDimension={800}
+          showToggle
+          toggleChecked={showLogoLeft}
+          onToggleChange={setShowLogoLeft}
+          toggleLabel="Belgelerde Sol Logoyu Göster"
+          onError={(msg) => showToast('error', msg)}
+          onSuccess={(msg) => showToast('success', msg)}
+        />
 
-          <div className="flex flex-col gap-3">
-            <Input
-              value={institutionLogo?.startsWith('http') ? institutionLogo : ''}
-              onChange={(e) => setInstitutionLogo(e.target.value)}
-              placeholder="Veya web URL'si yapıştırın (https://...)"
-              className="text-xs bg-slate-55 dark:bg-slate-955 border-slate-200 dark:border-slate-800"
-            />
-            <div className="flex items-center justify-between">
-              <span className="text-[9px] text-slate-400 dark:text-slate-600 font-mono">
-                Önerilen: 256×256 px
-              </span>
-              {institutionLogo && (
-                <button
-                  type="button"
-                  onClick={() => setInstitutionLogo(null)}
-                  className="flex items-center gap-1 py-1 px-2 border border-red-200 dark:border-red-900/40 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 dark:text-red-400 rounded-lg text-[10px] font-bold transition-all"
-                >
-                  <X className="w-3 h-3" />
-                  Kaldır
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* === SOL LOGO === */}
-        <div className="border border-slate-200 dark:border-slate-800 rounded-2xl p-5 bg-slate-50/50 dark:bg-slate-950/20 flex flex-col gap-4 shadow-sm">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-0.5">
-              Sol Logo (Kurum)
-            </label>
-            <p className="text-[10px] text-slate-450 dark:text-slate-500 leading-normal">
-              Resmi belgelerin sol üstünde yer alacak kurum logosu.
-            </p>
-          </div>
-
-          <label className="group relative flex flex-col items-center justify-center w-full h-36 bg-white dark:bg-slate-950 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden cursor-pointer hover:border-blue-400 dark:hover:border-blue-700 transition-all duration-200 shadow-inner">
-            {logoLeft ? (
-              <>
-                <img src={logoLeft} alt="Sol Logo" className="w-full h-full object-contain p-3" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
-                  <Upload className="w-5 h-5 text-white" />
-                  <span className="text-white text-[10px] font-semibold">Değiştir</span>
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-600">
-                <ImageIcon className="w-8 h-8" />
-                <span className="text-[10px] font-medium text-center leading-tight px-2">
-                  Logo seçmek için
-                  <br />
-                  tıklayın
-                </span>
-                <span className="text-[9px] text-slate-350 dark:text-slate-700">
-                  PNG, JPG, SVG · Maks. 2MB
-                </span>
-              </div>
-            )}
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/svg+xml,image/webp"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (!file) return
-                if (file.size > 2 * 1024 * 1024) {
-                  alert("Dosya boyutu 2 MB'ı aşmamalıdır!")
-                  return
-                }
-                const reader = new FileReader()
-                reader.onload = () => {
-                  if (typeof reader.result === 'string') {
-                    setLogoLeft(reader.result)
-                  }
-                }
-                reader.readAsDataURL(file)
-              }}
-            />
-          </label>
-
-          <div className="flex flex-col gap-3">
-            <Input
-              value={logoLeft?.startsWith('http') ? logoLeft : ''}
-              onChange={(e) => setLogoLeft(e.target.value)}
-              placeholder="Veya web URL'si yapıştırın (https://...)"
-              className="text-xs bg-slate-55 dark:bg-slate-955 border-slate-200 dark:border-slate-800"
-            />
-            <div className="flex items-center justify-between">
-              <span className="text-[9px] text-slate-400 dark:text-slate-600 font-mono">
-                Önerilen: 300×150 px
-              </span>
-              {logoLeft && (
-                <button
-                  type="button"
-                  onClick={() => setLogoLeft(null)}
-                  className="flex items-center gap-1 py-1 px-2 border border-red-200 dark:border-red-900/40 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 dark:text-red-400 rounded-lg text-[10px] font-bold transition-all"
-                >
-                  <X className="w-3 h-3" />
-                  Kaldır
-                </button>
-              )}
-            </div>
-            
-            <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-200/50 dark:border-slate-800/50">
-              <input
-                id="show-logo-left"
-                type="checkbox"
-                checked={showLogoLeft}
-                onChange={(e) => setShowLogoLeft(e.target.checked)}
-                className="rounded border-slate-300 dark:border-slate-800 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5"
-              />
-              <label htmlFor="show-logo-left" className="text-[10px] font-medium text-slate-600 dark:text-slate-400 cursor-pointer select-none">
-                Belgelerde Sol Logoyu Göster
-              </label>
-            </div>
-          </div>
-        </div>
-
-        {/* === SAĞ LOGO === */}
-        <div className="border border-slate-200 dark:border-slate-800 rounded-2xl p-5 bg-slate-50/50 dark:bg-slate-950/20 flex flex-col gap-4 shadow-sm">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-0.5">
-              Sağ Logo (Bakanlık)
-            </label>
-            <p className="text-[10px] text-slate-450 dark:text-slate-500 leading-normal">
-              Resmi belgelerin sağ üstünde yer alacak logo.
-            </p>
-          </div>
-
-          <label className="group relative flex flex-col items-center justify-center w-full h-36 bg-white dark:bg-slate-950 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden cursor-pointer hover:border-blue-400 dark:hover:border-blue-700 transition-all duration-200 shadow-inner">
-            {logoRight ? (
-              <>
-                <img src={logoRight} alt="Sağ Logo" className="w-full h-full object-contain p-3" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
-                  <Upload className="w-5 h-5 text-white" />
-                  <span className="text-white text-[10px] font-semibold">Değiştir</span>
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-600">
-                <ImageIcon className="w-8 h-8" />
-                <span className="text-[10px] font-medium text-center leading-tight px-2">
-                  Logo seçmek için
-                  <br />
-                  tıklayın
-                </span>
-                <span className="text-[9px] text-slate-350 dark:text-slate-700">
-                  PNG, JPG, SVG · Maks. 2MB
-                </span>
-              </div>
-            )}
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/svg+xml,image/webp"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (!file) return
-                if (file.size > 2 * 1024 * 1024) {
-                  alert("Dosya boyutu 2 MB'ı aşmamalıdır!")
-                  return
-                }
-                const reader = new FileReader()
-                reader.onload = () => {
-                  if (typeof reader.result === 'string') {
-                    setLogoRight(reader.result)
-                  }
-                }
-                reader.readAsDataURL(file)
-              }}
-            />
-          </label>
-
-          <div className="flex flex-col gap-3">
-            <Input
-              value={logoRight?.startsWith('http') ? logoRight : ''}
-              onChange={(e) => setLogoRight(e.target.value)}
-              placeholder="Veya web URL'si yapıştırın (https://...)"
-              className="text-xs bg-slate-55 dark:bg-slate-955 border-slate-200 dark:border-slate-800"
-            />
-            <div className="flex items-center justify-between">
-              <span className="text-[9px] text-slate-400 dark:text-slate-600 font-mono">
-                Önerilen: 300×150 px
-              </span>
-              {logoRight && (
-                <button
-                  type="button"
-                  onClick={() => setLogoRight(null)}
-                  className="flex items-center gap-1 py-1 px-2 border border-red-200 dark:border-red-900/40 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 dark:text-red-400 rounded-lg text-[10px] font-bold transition-all"
-                >
-                  <X className="w-3 h-3" />
-                  Kaldır
-                </button>
-              )}
-            </div>
-            
-            <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-200/50 dark:border-slate-800/50">
-              <input
-                id="show-logo-right"
-                type="checkbox"
-                checked={showLogoRight}
-                onChange={(e) => setShowLogoRight(e.target.checked)}
-                className="rounded border-slate-300 dark:border-slate-800 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5"
-              />
-              <label htmlFor="show-logo-right" className="text-[10px] font-medium text-slate-600 dark:text-slate-400 cursor-pointer select-none">
-                Belgelerde Sağ Logoyu Göster
-              </label>
-            </div>
-          </div>
-        </div>
+        <LogoUploadCard
+          title="Sağ Logo (Bakanlık)"
+          description="Resmi belgelerin sağ üstünde yer alacak logo."
+          value={logoRight}
+          onChange={setLogoRight}
+          recommendedSize="300×150 px"
+          maxDimension={800}
+          showToggle
+          toggleChecked={showLogoRight}
+          onToggleChange={setShowLogoRight}
+          toggleLabel="Belgelerde Sağ Logoyu Göster"
+          onError={(msg) => showToast('error', msg)}
+          onSuccess={(msg) => showToast('success', msg)}
+        />
       </div>
     </div>
   )

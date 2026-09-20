@@ -56,6 +56,8 @@ const allowedChannels = new Set([
   'workspace:delete-gdrive-file',
   'workspace:upload-file',
   'workspace:open-file',
+  'workspace:verify-detsis',
+  'workspace:get-detsis-cache',
   // Document
   'belge:get-all-cikti-data',
   'get-all-cikti-data',
@@ -111,6 +113,8 @@ const allowedChannels = new Set([
   'sync:run-sync',
   'sync:push',
   'sync:pull',
+  'network:verify-detsis',
+  'network:get-detsis-cache',
   // Template
   'template:export',
   'template:import',
@@ -150,7 +154,7 @@ const secureElectronAPI = {
     invoke: (channel: string, ...args: any[]) => {
       if (!allowedChannels.has(channel)) {
         console.error(`[Preload Security] Access denied for unauthorized channel: '${channel}'`)
-        throw new Error(`[Preload Security] Channel access denied: '${channel}'`)
+        return Promise.reject(new Error(`[Preload Security] Channel access denied: '${channel}'`))
       }
       return ipcRenderer.invoke(channel, ...args)
     }

@@ -381,6 +381,27 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     console.error('[Schema Self-Healing] DATA_NotVeGorev initialization failed:', e.message)
   }
 
+  // Ensure TANIM_DetsisCache exists for DETSİS Verification & Caching
+  try {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS TANIM_DetsisCache (
+        detsis_no TEXT PRIMARY KEY,
+        is_verified INTEGER DEFAULT 0,
+        birim_adi TEXT,
+        kurum_adi TEXT,
+        url TEXT,
+        status_code INTEGER,
+        response_data TEXT,
+        verified_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_detsis_no ON TANIM_DetsisCache(detsis_no);
+    `)
+  } catch (e: any) {
+    console.error('[Schema Self-Healing] TANIM_DetsisCache initialization failed:', e.message)
+  }
+
   for (const table of schema.tables as any[]) {
     try {
       const tableInfo = db.prepare(`PRAGMA table_info(${table.name})`).all() as any[]

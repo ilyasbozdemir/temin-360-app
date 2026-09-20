@@ -1,8 +1,9 @@
 import React from 'react'
-import { ChevronUp, ChevronDown, Hash, HelpCircle, Info, X, Plus, ExternalLink } from 'lucide-react'
+import { ChevronUp, ChevronDown, HelpCircle, Info, X, Plus } from 'lucide-react'
 import { Modal } from '../../../components/ui/Modal'
 import { Input } from '../../../components/ui/Input'
 import { Button } from '../../../components/ui/Button'
+import { DetsisBadge } from '../../../components/ui/DetsisBadge'
 import { BirimInput } from '../birimler.hooks'
 
 interface BirimModalProps {
@@ -348,24 +349,13 @@ export const BirimModal: React.FC<BirimModalProps> = ({
               placeholder="Sunulacak makam"
             />
 
-            <div className="col-span-full">
-              <label className="flex items-center gap-2 text-xs font-semibold text-slate-655 dark:text-slate-400 mb-1.5">
-                DETSİS Kodu{' '}
-                <span className="text-[10px] font-normal text-slate-400">(Eski adıyla DTVT)</span>
-                <a
-                  href={
-                    form.dtvt_kodu
-                      ? `https://www.kaysis.gov.tr/Kutuphane/Kurum/Detay/${form.dtvt_kodu}`
-                      : 'https://www.kaysis.gov.tr/'
-                  }
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[10px] text-blue-600 hover:underline flex items-center gap-1 ml-auto"
-                  title="Devlet Teşkilatı Merkezi Kayıt Sistemi"
-                >
-                  DETSİS Sorgula <ExternalLink className="w-3 h-3" />
-                </a>
-              </label>
+            <div className="col-span-full space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 text-xs font-semibold text-slate-655 dark:text-slate-400">
+                  DETSİS Kodu <span className="text-[10px] font-normal text-slate-400">(Eski adıyla DTVT)</span>
+                </label>
+                <DetsisBadge detsisNo={form.dtvt_kodu || form.detsis_kodu} />
+              </div>
               <Input
                 value={form.dtvt_kodu || ''}
                 onChange={(e) => {

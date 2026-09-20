@@ -1,7 +1,6 @@
 import React from 'react'
-import { Building2, HelpCircle, ExternalLink, Info } from 'lucide-react'
 import { Input } from '../../../components/ui/Input'
-import { Link } from '@tanstack/react-router'
+import { DetsisBadge } from '../../../components/ui/DetsisBadge'
 import { KurumTabProps } from '../types'
 
 export const MaliBirimTab: React.FC<KurumTabProps & { sozlukData: any[] }> = ({
@@ -43,10 +42,13 @@ export const MaliBirimTab: React.FC<KurumTabProps & { sozlukData: any[] }> = ({
           />
         </div>
 
-        <div>
-          <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5">
-            DETSİS Kodu
-          </label>
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+              DETSİS Kodu
+            </label>
+            <DetsisBadge detsisNo={data.detsis_kodu} compact={false} />
+          </div>
           <Input
             value={data.detsis_kodu || ''}
             onChange={(e) => {

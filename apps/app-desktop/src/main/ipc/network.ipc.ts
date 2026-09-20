@@ -369,6 +369,204 @@ export function registerNetworkIpcHandlers(): void {
       return { success: false, error: msg }
     }
   })
+
+  // ---------------- DETSİS DOĞRULAMA & CACHE MOTORU ----------------
+  ipcMain.handle('network:verify-detsis', async (_, { detsisNo, force }: { detsisNo: string; force?: boolean }) => {
+    if (!detsisNo || typeof detsisNo !== 'string') {
+      return { success: false, verified: false, error: 'DETSİS numarası geçersiz.' }
+    }
+    const cleanNo = detsisNo.trim().replace(/[^0-9]/g, '')
+    if (!cleanNo) {
+      return { success: false, verified: false, error: 'DETSİS numarası yalnızca sayılardan oluşmalıdır.' }
+    }
+
+    const db = workspaceManager.getDb()
+
+    // 1. Önce DB Cache kontrol et (force değilse)
+    if (!force && db) {
+      try {
+        const cached = db.prepare('SELECT * FROM TANIM_DetsisCache WHERE detsis_no = ?').get(cleanNo) as {
+          detsis_no: string
+          is_verified: number
+          birim_adi?: string
+          kurum_adi?: string
+          url?: string
+          status_code?: number
+          verified_at?: string
+        } | undefined
+
+        if (cached) {
+          return {
+            success: true,
+            cached: true,
+            verified: cached.is_verified === 1,
+            detsisNo: cleanNo,
+            birimAdi: cached.birim_adi || '',
+            kurumAdi: cached.kurum_adi || '',
+            url: cached.url || `https://detsis.gov.tr/birim/${cleanNo}`,
+            statusCode: cached.status_code || 200,
+            verifiedAt: cached.verified_at
+          }
+        }
+      } catch (e) {
+        console.warn('[DETSİS Cache Check] Warning:', e)
+      }
+    }
+
+    // 2. DETSİS / KAYSİS web sitelerine istek at (Hızlı Fetch + Headless Chromium Scraper)
+    const targetUrl = `https://detsis.gov.tr/birim/${cleanNo}`
+    const kaysisUrl = `https://www.kaysis.gov.tr/Kutuphane/Kurum/Detay/${cleanNo}`
+    const searchUrl = `https://detsis.gov.tr/ara/${cleanNo}`
+
+    let isVerified = false
+    let statusCode = 0
+    let birimAdi = ''
+    let kurumAdi = ''
+    let finalUrl = targetUrl
+    let rawResponse = ''
+
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+      let res = await fetch(targetUrl, {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        },
+        signal: controller.signal,
+        redirect: 'follow'
+      }).catch(() => null)
+
+      clearTimeout(timeoutId)
+
+      if (!res || !res.ok) {
+        // Fallback to Kaysis URL
+        const kaysisController = new AbortController()
+        const kaysisTimeoutId = setTimeout(() => kaysisController.abort(), 5000)
+        const kaysisRes = await fetch(kaysisUrl, {
+          method: 'GET',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+          },
+          signal: kaysisController.signal,
+          redirect: 'follow'
+        }).catch(() => null)
+        clearTimeout(kaysisTimeoutId)
+
+        if (kaysisRes && kaysisRes.ok) {
+          res = kaysisRes
+          finalUrl = kaysisUrl
+        }
+      }
+
+      if (res) {
+        statusCode = res.status
+        if (res.ok && res.status >= 200 && res.status < 400) {
+          isVerified = true
+          try {
+            const html = await res.text()
+            rawResponse = html.slice(0, 1000)
+            const titleMatch = html.match(/<title>([^<]+)<\/title>/i)
+            if (titleMatch && titleMatch[1]) {
+              const titleText = titleMatch[1].replace(/- DETSİS|- KAYSİS|KAYSİS/gi, '').trim()
+              if (titleText && !titleText.toLowerCase().includes('hata') && !titleText.toLowerCase().includes('bulunamadı')) {
+                birimAdi = titleText
+              }
+            }
+          } catch {}
+        }
+      }
+
+      // 2.1 Eğer Fetch ile doğrulanamadıysa veya sayfa SPA ise: Headless Chromium Scraper çalıştır
+      if (!isVerified) {
+        try {
+          const scraped = await scrapeDetsisWithHeadlessBrowser(cleanNo)
+          if (scraped && scraped.verified) {
+            isVerified = true
+            statusCode = 200
+            if (scraped.birimAdi) birimAdi = scraped.birimAdi
+            if (scraped.kurumAdi) kurumAdi = scraped.kurumAdi
+            if (scraped.url) finalUrl = scraped.url
+          }
+        } catch (scrapErr: any) {
+          console.warn('[Headless Scraper Warning]:', scrapErr.message)
+        }
+      }
+    } catch (err: any) {
+      console.warn('[DETSİS Fetch Error]:', err.message)
+    }
+
+    const verifiedAt = new Date().toISOString()
+
+    // 3. Veritabanına kaydet (Cache)
+    if (db) {
+      try {
+        db.prepare(`
+          INSERT OR REPLACE INTO TANIM_DetsisCache (
+            detsis_no, is_verified, birim_adi, kurum_adi, url, status_code, response_data, verified_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now', 'localtime'))
+        `).run(
+          cleanNo,
+          isVerified ? 1 : 0,
+          birimAdi || null,
+          kurumAdi || null,
+          finalUrl,
+          statusCode,
+          rawResponse ? rawResponse.slice(0, 500) : null,
+          verifiedAt
+        )
+      } catch (dbErr) {
+        console.warn('[DETSİS DB Save Warning]:', dbErr)
+      }
+    }
+
+    return {
+      success: true,
+      cached: false,
+      verified: isVerified,
+      detsisNo: cleanNo,
+      birimAdi,
+      kurumAdi,
+      url: finalUrl,
+      statusCode,
+      verifiedAt
+    }
+  })
+
+  ipcMain.handle('network:get-detsis-cache', async (_, detsisNo: string) => {
+    if (!detsisNo) return null
+    const cleanNo = detsisNo.toString().trim().replace(/[^0-9]/g, '')
+    if (!cleanNo) return null
+    const db = workspaceManager.getDb()
+    if (!db) return null
+    try {
+      const row = db.prepare('SELECT * FROM TANIM_DetsisCache WHERE detsis_no = ?').get(cleanNo) as {
+        detsis_no: string
+        is_verified: number
+        birim_adi?: string
+        kurum_adi?: string
+        url?: string
+        status_code?: number
+        verified_at?: string
+      } | undefined
+
+      if (!row) return null
+      return {
+        cached: true,
+        verified: row.is_verified === 1,
+        detsisNo: row.detsis_no,
+        birimAdi: row.birim_adi || '',
+        kurumAdi: row.kurum_adi || '',
+        url: row.url || `https://detsis.gov.tr/birim/${cleanNo}`,
+        statusCode: row.status_code,
+        verifiedAt: row.verified_at
+      }
+    } catch {
+      return null
+    }
+  })
 }
 
 export async function performAutoCloudSync(): Promise<void> {
@@ -603,6 +801,114 @@ export async function performAutoCloudSync(): Promise<void> {
   } catch {
     // Non-blocking fail-safe
   }
+}
+
+async function scrapeDetsisWithHeadlessBrowser(cleanNo: string): Promise<{
+  verified: boolean
+  birimAdi?: string
+  kurumAdi?: string
+  url?: string
+}> {
+  return new Promise((resolve) => {
+    let win: BrowserWindow | null = null
+    let resolved = false
+
+    const cleanup = () => {
+      if (win && !win.isDestroyed()) {
+        try {
+          win.destroy()
+        } catch {}
+      }
+      win = null
+    }
+
+    const timeout = setTimeout(() => {
+      if (!resolved) {
+        resolved = true
+        cleanup()
+        resolve({ verified: false })
+      }
+    }, 7000)
+
+    try {
+      win = new BrowserWindow({
+        show: false,
+        width: 1024,
+        height: 768,
+        webPreferences: {
+          nodeIntegration: false,
+          contextIsolation: true,
+          sandbox: true,
+          images: false
+        }
+      })
+
+      const targetUrl = `https://detsis.gov.tr/birim/${cleanNo}`
+
+      win.webContents.on('did-finish-load', async () => {
+        if (resolved || !win || win.isDestroyed()) return
+        try {
+          const result = await win.webContents.executeJavaScript(`
+            (() => {
+              const bodyText = document.body ? document.body.innerText : '';
+              const title = document.title || '';
+              const isNotFound = bodyText.includes('bulunamadı') || bodyText.includes('Hata') || title.includes('Hata');
+              const h1 = document.querySelector('h1, h2, .unit-name, .birim-adi, .page-title');
+              const heading = h1 ? h1.innerText.trim() : '';
+              return {
+                title,
+                heading,
+                bodyTextLength: bodyText.length,
+                isNotFound
+              };
+            })()
+          `).catch(() => null)
+
+          if (result && !result.isNotFound && result.bodyTextLength > 50) {
+            resolved = true
+            clearTimeout(timeout)
+            cleanup()
+            resolve({
+              verified: true,
+              birimAdi: result.heading || result.title.replace(/- DETSİS|- KAYSİS|KAYSİS/gi, '').trim(),
+              url: targetUrl
+            })
+            return
+          }
+        } catch {}
+
+        resolved = true
+        clearTimeout(timeout)
+        cleanup()
+        resolve({ verified: false, url: targetUrl })
+      })
+
+      win.webContents.on('did-fail-load', () => {
+        if (!resolved) {
+          resolved = true
+          clearTimeout(timeout)
+          cleanup()
+          resolve({ verified: false })
+        }
+      })
+
+      win.loadURL(targetUrl).catch(() => {
+        if (!resolved) {
+          resolved = true
+          clearTimeout(timeout)
+          cleanup()
+          resolve({ verified: false })
+        }
+      })
+    } catch {
+      if (!resolved) {
+        resolved = true
+        clearTimeout(timeout)
+        cleanup()
+        resolve({ verified: false })
+      }
+    }
+  })
 }
 
 

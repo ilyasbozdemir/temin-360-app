@@ -206,7 +206,7 @@ export function Header(): React.JSX.Element {
         setSaveFeedback("☁️ Google Drive bulutuna yedekleniyor...");
         const gdriveRes = await window.electron?.ipcRenderer.invoke(
           "workspace:backup-gdrive",
-          { force: true }
+          { force: true },
         );
         if (gdriveRes?.success) {
           if (gdriveRes?.skipped) {
