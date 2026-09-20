@@ -104,6 +104,9 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [syncToGlobalCommission, setSyncToGlobalCommission] = useState(true);
+  // dataLoaded: modal açıldıktan sonra DB verisi yüklenince true olur.
+  // Bu flag false iken hiçbir zaman DELETE işlemi yapılmaz.
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
     if (initialType) {
@@ -221,7 +224,10 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
       } catch (err) {
         console.error("Komisyon verileri yüklenirken hata:", err);
       } finally {
-        if (isMounted) setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+          setDataLoaded(true); // Yükleme tamamlandı - artık kayıt yapılabilir
+        }
       }
     };
 
@@ -305,6 +311,14 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
     tabToSave: KomisyonType = activeTab,
   ): Promise<boolean> => {
     if (!activeDosyaId) return false;
+
+    // KRITIK GUARD: Veriler henüz DB'den yüklenmemişse (modal yeni açıldı,
+    // useEffect henüz tamamlanmadı), kayıt yapma. Aksi halde mevcut DB
+    // kayıtları boş state ile silinir.
+    if (!dataLoaded) {
+      console.warn("[KomisyonAtamaModal] Veri yüklenmeden kayıt engellendi.");
+      return false;
+    }
 
     setSaving(true);
     try {
@@ -498,18 +512,32 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
     }
   };
 
-  // Belge Aç Butonu (Kayıttan sonra önizleme açar)
+  // Belge Aç Butonu
+  // Veri yüklendiyse kaydet+aç, yüklenmemişse sadece aç (silme riski olmadan)
   const handleOpenDoc = async (targetDoc?: string) => {
-    const ok = await handleSave(activeTab);
-    if (ok && onOpenDocument) {
-      onClose();
-      if (targetDoc) {
-        onOpenDocument(targetDoc);
-      } else if (activeTab === "yaklasik_maliyet") {
-        onOpenDocument("piyasa-fiyat-arastirma-gorevlendirmesi");
-      } else {
-        onOpenDocument("muayene-kabul-komisyonu");
+    if (!onOpenDocument) return;
+
+    if (dataLoaded) {
+      // Veriler yüklendi, kaydet sonra aç
+      const ok = await handleSave(activeTab);
+      if (ok) {
+        onClose();
+        const docToOpen = targetDoc
+          ? targetDoc
+          : activeTab === "yaklasik_maliyet"
+          ? "piyasa-fiyat-arastirma-gorevlendirmesi"
+          : "muayene-kabul-komisyonu";
+        onOpenDocument(docToOpen);
       }
+    } else {
+      // Veriler henüz yüklenemedi, sadece belgeyi aç (kayıt yapma)
+      onClose();
+      const docToOpen = targetDoc
+        ? targetDoc
+        : activeTab === "yaklasik_maliyet"
+        ? "piyasa-fiyat-arastirma-gorevlendirmesi"
+        : "muayene-kabul-komisyonu";
+      onOpenDocument(docToOpen);
     }
   };
 

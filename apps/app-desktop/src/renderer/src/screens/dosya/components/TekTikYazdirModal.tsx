@@ -309,7 +309,7 @@ export function TekTikYazdirModal({
 
                 return (
                   <div
-                    key={sablon.id}
+                    key={`${sablon.id}_${docKey}`}
                     onClick={() => {
                       if (!missingReq) {
                         toggleSelect(sablon.id)

@@ -158,12 +158,12 @@ export function PrintManagerModal({
             </div>
           ) : (
             <div className="space-y-2.5">
-              {queueItems.map((item) => {
+              {queueItems.map((item, idx) => {
                 const { sablon, isReadyFlag } = item
                 const missingMsg = getMissingRequirement(sablon)
                 return (
                   <div
-                    key={sablon.id}
+                    key={`queue_${sablon.id ?? idx}_${sablon.dosya_adi || sablon.ad || idx}`}
                     className={`flex items-center gap-3.5 p-3.5 rounded-2xl border transition-all ${
                       missingMsg
                         ? 'bg-rose-50/50 border-rose-200 dark:bg-rose-950/20 dark:border-rose-900/30'

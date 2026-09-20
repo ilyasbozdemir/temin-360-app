@@ -157,12 +157,23 @@ export function PrintDropdownButton({
   const filter = manualFilter !== null ? manualFilter : hasStarred ? 'starred' : 'all'
 
   const displaySablons = useMemo(() => {
-    if (filter === 'starred') {
-      return stageSablons.filter((sablon) => {
-        return starredDocsForFilter.some((d) => isSablonMatch(d, sablon))
-      })
+    const rawList =
+      filter === 'starred'
+        ? stageSablons.filter((sablon) => {
+            return starredDocsForFilter.some((d) => isSablonMatch(d, sablon))
+          })
+        : stageSablons
+
+    const unique: any[] = []
+    const seen = new Set<string>()
+    for (const s of rawList) {
+      const key = `${s.id ?? ''}_${(s.dosya_adi || s.ad || '').toLowerCase().trim()}`
+      if (!seen.has(key)) {
+        seen.add(key)
+        unique.push(s)
+      }
     }
-    return stageSablons
+    return unique
   }, [filter, starredDocsForFilter, stageSablons])
 
   if (stageSablons.length === 0) return null
@@ -282,7 +293,7 @@ export function PrintDropdownButton({
 
               return (
                 <div
-                  key={sablon.id || sablon.ad}
+                  key={`sablon_${sablon.id ?? ''}_${docKey}`}
                   onMouseEnter={() => {
                     if (activeDosyaId && docKey) {
                       documentPreloadService.warmOnHover(docKey, activeDosyaId)

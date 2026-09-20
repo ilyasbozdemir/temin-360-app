@@ -782,7 +782,7 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
 
                             return (
                               <div
-                                key={sablon.id}
+                                key={`cikti_${sablon.id}_${docKey}`}
                                 onClick={() => toggleSelect(sablon.id)}
                                 className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
                                   missingMsg

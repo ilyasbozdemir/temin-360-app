@@ -857,12 +857,12 @@ export async function resolveTemplateData(
   let defaultFileDate = '';
   try {
     const dRes = await queryExecutor(
-      'SELECT dosya_acilis_tarihi, tarih, temin_tarihi, created_at FROM DATA_TeminDosyasi WHERE id = ? LIMIT 1',
+      'SELECT dosya_acilis_tarihi, temin_tarihi, created_at FROM DATA_TeminDosyasi WHERE id = ? LIMIT 1',
       [activeDosyaId]
     );
     if (dRes && dRes.length > 0) {
       defaultFileDate = formatDateTR(
-        dRes[0].dosya_acilis_tarihi || dRes[0].tarih || dRes[0].temin_tarihi || dRes[0].created_at
+        dRes[0].dosya_acilis_tarihi || dRes[0].temin_tarihi || dRes[0].created_at
       );
     }
   } catch (e) {}

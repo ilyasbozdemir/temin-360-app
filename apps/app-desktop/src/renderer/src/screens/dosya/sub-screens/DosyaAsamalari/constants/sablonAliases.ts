@@ -101,7 +101,7 @@ export function findSablonByAlias(sablons: any[] | undefined | null, targetKey: 
   // 2. Exact match on route_path or id
   for (const key of candidateKeys) {
     const found = sablons.find((s: any) => {
-      const route = (s.route_path || s.id || '').toLowerCase().trim()
+      const route = String(s.route_path || s.id || '').toLowerCase().trim()
       return route === key
     })
     if (found) return found

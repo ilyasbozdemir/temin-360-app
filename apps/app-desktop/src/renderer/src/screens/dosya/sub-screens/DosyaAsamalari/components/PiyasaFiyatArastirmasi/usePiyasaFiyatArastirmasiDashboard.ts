@@ -53,7 +53,7 @@ export function usePiyasaFiyatArastirmasiDashboard(
       if (!foundSablon) {
         for (const key of candidateKeys) {
           foundSablon = sablons.find((s: any) => {
-            const route = (s.route_path || s.id || "").toLowerCase().trim();
+            const route = String(s.route_path || s.id || "").toLowerCase().trim();
             return route === key;
           });
           if (foundSablon) break;
@@ -169,7 +169,7 @@ export function usePiyasaFiyatArastirmasiDashboard(
     if (!found) {
       for (const key of candidateKeys) {
         found = sablons.find((s: any) => {
-          const route = (s.route_path || s.id || "").toLowerCase().trim();
+          const route = String(s.route_path || s.id || "").toLowerCase().trim();
           return route === key;
         });
         if (found) break;

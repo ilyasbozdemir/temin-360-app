@@ -565,6 +565,29 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     console.error('Error migrating legacy snapshots:', err.message)
   }
 
+  // Ensure DATA_TeminKomisyon and TANIM_KomisyonUye have necessary columns
+  try {
+    const checkTK = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='DATA_TeminKomisyon'").get()
+    if (checkTK) {
+      const cols = (db.prepare("PRAGMA table_info(DATA_TeminKomisyon)").all() as any[]).map((c) => c.name)
+      if (!cols.includes('komisyon_turu')) {
+        db.prepare('ALTER TABLE DATA_TeminKomisyon ADD COLUMN komisyon_turu TEXT').run()
+      }
+      if (!cols.includes('belgede_goster')) {
+        db.prepare('ALTER TABLE DATA_TeminKomisyon ADD COLUMN belgede_goster INTEGER DEFAULT 1').run()
+      }
+    }
+    const checkKU = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='TANIM_KomisyonUye'").get()
+    if (checkKU) {
+      const cols = (db.prepare("PRAGMA table_info(TANIM_KomisyonUye)").all() as any[]).map((c) => c.name)
+      if (!cols.includes('belgede_goster')) {
+        db.prepare('ALTER TABLE TANIM_KomisyonUye ADD COLUMN belgede_goster INTEGER DEFAULT 1').run()
+      }
+    }
+  } catch (err: any) {
+    console.error('Error migrating komisyon columns:', err.message)
+  }
+
   // Normalize default direct procurement commissions
   try {
     const checkKomisyon = db

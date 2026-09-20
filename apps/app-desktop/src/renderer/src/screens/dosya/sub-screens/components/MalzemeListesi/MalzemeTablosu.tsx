@@ -18,10 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "../../../../../utils/cn";
 import { MalzemeTabloPopover } from "./components/MalzemeTabloPopover";
-import {
-  KomisyonAtamaModal,
-  KomisyonType,
-} from "./components/KomisyonAtamaModal";
+
 import {
   KatalogSenkronizasyonModal,
   KalemDiffItem,
@@ -86,11 +83,6 @@ export function MalzemeTablosu({
 
   // Çoklu komisyon seçimi — değerler DB'den gelen id (number)
   const [selectedKomisyonlar, setSelectedKomisyonlar] = useState<number[]>([]);
-  // Komisyon Atama Modal state'leri
-  const [komisyonModalOpen, setKomisyonModalOpen] = useState(false);
-  const [komisyonModalType, setKomisyonModalType] = useState<KomisyonType>(
-    "yaklasik_maliyet",
-  );
 
   // Katalog Senkronizasyon & Diff Modal State'leri
   const [katalogModalOpen, setKatalogModalOpen] = useState(false);
@@ -408,6 +400,15 @@ export function MalzemeTablosu({
       // Veritabanında DATA_TeminKomisyon kayıtlarını otomatik doldur (tüm komisyonlar varsayılan aktif)
       (async () => {
         try {
+          await (window as any).electron.ipcRenderer.invoke(
+            "db:run",
+            "ALTER TABLE DATA_TeminKomisyon ADD COLUMN komisyon_turu TEXT",
+          ).catch(() => {});
+          await (window as any).electron.ipcRenderer.invoke(
+            "db:run",
+            "ALTER TABLE DATA_TeminKomisyon ADD COLUMN belgede_goster INTEGER DEFAULT 1",
+          ).catch(() => {});
+
           const checkRes = await (window as any).electron.ipcRenderer.invoke(
             "db:query",
             "SELECT COUNT(*) as cnt FROM DATA_TeminKomisyon WHERE temin_dosya_id = ?",
@@ -430,8 +431,8 @@ export function MalzemeTablosu({
                   await (window as any).electron.ipcRenderer.invoke(
                     "db:run",
                     `INSERT INTO DATA_TeminKomisyon 
-                     (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                     (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu, belgede_goster) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                       activeDosyaId,
                       komisyonData.id,
@@ -443,6 +444,7 @@ export function MalzemeTablosu({
                         : "Üye",
                       member.asil_mi === 1 ? "Asil" : "Yedek",
                       komisyonData.ad,
+                      member.belgede_goster ?? 1,
                     ],
                   );
                 }
@@ -456,63 +458,6 @@ export function MalzemeTablosu({
     }
   }, [activeDosyaId, dbKomisyonlar]);
 
-  // Çoklu komisyon onaylama — seçilen komisyon ID'lerine göre DB'yi güncelle
-  const handleKomisyonlarOnayla = async (
-    seciliKomisyonIdleri: number[],
-  ): Promise<void> => {
-    if (!activeDosyaId) return;
-    try {
-      await (window as any).electron.ipcRenderer.invoke(
-        "db:run",
-        "DELETE FROM DATA_TeminKomisyon WHERE temin_dosya_id = ?",
-        [activeDosyaId],
-      );
-
-      for (const komisyonId of seciliKomisyonIdleri) {
-        const komisyonData = dbKomisyonlar.find((k) => k.id === komisyonId);
-        if (!komisyonData) continue;
-
-        const res = await (window as any).electron.ipcRenderer.invoke(
-          "db:query",
-          `SELECT u.*, p.ad_soyad, p.unvan, g.ad as gorev_adi 
-           FROM TANIM_KomisyonUye u 
-           JOIN TANIM_Personel p ON u.personel_id = p.id 
-           JOIN TANIM_KomisyonGorevi g ON u.gorev_id = g.id 
-           WHERE u.komisyon_id = ?`,
-          [komisyonId],
-        );
-        if (res.success && res.data) {
-          for (const member of res.data) {
-            await (window as any).electron.ipcRenderer.invoke(
-              "db:run",
-              `INSERT INTO DATA_TeminKomisyon 
-               (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-              [
-                activeDosyaId,
-                komisyonId,
-                member.personel_id,
-                member.ad_soyad,
-                member.unvan || null,
-                member.gorev_adi === "Komisyon Başkanı" ? "Başkan" : "Üye",
-                member.asil_mi === 1 ? "Asil" : "Yedek",
-                komisyonData.ad,
-              ],
-            );
-          }
-        }
-      }
-
-      localStorage.setItem(
-        `dta_selected_komisyonlar_${activeDosyaId}`,
-        JSON.stringify(seciliKomisyonIdleri),
-      );
-      setSelectedKomisyonlar(seciliKomisyonIdleri);
-    } catch (e: any) {
-      alert("Komisyon güncellenirken hata oluştu: " + e.message);
-    }
-  };
-
   const validSelectedKomisyonlar = useMemo(() => {
     return selectedKomisyonlar.filter((id) =>
       dbKomisyonlar.some((k) => k.id === id)
@@ -521,17 +466,32 @@ export function MalzemeTablosu({
 
   const komisyonSablons = useMemo(() => {
     const sablonsToAdd: any[] = [];
+    const seenIds = new Set<any>();
+    const seenFiles = new Set<string>();
+
     for (const komisyonId of validSelectedKomisyonlar) {
       const k = dbKomisyonlar.find((k) => k.id === komisyonId);
       if (k && k.sablonlar) {
         for (const s of k.sablonlar) {
-          if (!sablonsToAdd.find((existing) => existing.id === s.id)) {
-            const fullSablon = sablons?.find((fullS: any) =>
-              fullS.dosya_adi === s.dosya_adi || fullS.id === s.id
-            ) ||
-              s;
-            sablonsToAdd.push(fullSablon);
+          const fileKey = (s.dosya_adi || "").toLowerCase().trim();
+          if ((s.id && seenIds.has(s.id)) || (fileKey && seenFiles.has(fileKey))) {
+            continue;
           }
+          const fullSablon = sablons?.find((fullS: any) =>
+            (fileKey && (fullS.dosya_adi || "").toLowerCase().trim() === fileKey) ||
+            (s.id && fullS.id === s.id)
+          ) || s;
+
+          const finalId = fullSablon.id || s.id;
+          const finalFile = (fullSablon.dosya_adi || s.dosya_adi || "").toLowerCase().trim();
+
+          if ((finalId && seenIds.has(finalId)) || (finalFile && seenFiles.has(finalFile))) {
+            continue;
+          }
+
+          if (finalId) seenIds.add(finalId);
+          if (finalFile) seenFiles.add(finalFile);
+          sablonsToAdd.push(fullSablon);
         }
       }
     }
@@ -539,13 +499,22 @@ export function MalzemeTablosu({
   }, [validSelectedKomisyonlar, dbKomisyonlar, sablons]);
 
   const combinedSablons = useMemo(() => {
-    const baseSablons = [...stageSablons];
-    for (const s of komisyonSablons) {
-      if (!baseSablons.find((existing) => existing.id === s.id)) {
-        baseSablons.push(s);
-      }
+    const result: any[] = [];
+    const seenIds = new Set<any>();
+    const seenFiles = new Set<string>();
+
+    for (const s of [...stageSablons, ...komisyonSablons]) {
+      const id = s.id;
+      const fileKey = (s.dosya_adi || "").toLowerCase().trim();
+
+      if (id && seenIds.has(id)) continue;
+      if (fileKey && seenFiles.has(fileKey)) continue;
+
+      if (id) seenIds.add(id);
+      if (fileKey) seenFiles.add(fileKey);
+      result.push(s);
     }
-    return baseSablons;
+    return result;
   }, [stageSablons, komisyonSablons]);
 
   const handleOpenSablonByDosyaAdi = (targetKey: string) => {
@@ -726,34 +695,20 @@ export function MalzemeTablosu({
               handleOpenSablonByDosyaAdi("harcama-talimati")}
             onHarcamaPusulasi={() =>
               handleOpenSablonByDosyaAdi("harcama-pusulasi")}
-            onGorevlendirmeOnayi={() => {
-              setKomisyonModalType("yaklasik_maliyet");
-              setKomisyonModalOpen(true);
-            }}
-            onGorevlendirmeOnayEki={() => {
-              setKomisyonModalType("yaklasik_maliyet");
-              setKomisyonModalOpen(true);
-            }}
-            onFiyatArastirmaKomisyonu={() => {
-              setKomisyonModalType("yaklasik_maliyet");
-              setKomisyonModalOpen(true);
-            }}
-            onPiyasaArastirmaGorevlendirmesi={() => {
-              setKomisyonModalType("yaklasik_maliyet");
-              setKomisyonModalOpen(true);
-            }}
-            onMuayeneKabulBelgesi={() => {
-              setKomisyonModalType("muayene_kabul");
-              setKomisyonModalOpen(true);
-            }}
-            onYaklasikMaliyetKomisyonu={() => {
-              setKomisyonModalType("yaklasik_maliyet");
-              setKomisyonModalOpen(true);
-            }}
-            onMuayeneKabulKomisyonu={() => {
-              setKomisyonModalType("muayene_kabul");
-              setKomisyonModalOpen(true);
-            }}
+            onGorevlendirmeOnayi={() =>
+              handleOpenSablonByDosyaAdi("komisyon-gorevlendirme-onayi")}
+            onGorevlendirmeOnayEki={() =>
+              handleOpenSablonByDosyaAdi("komisyon-gorevlendirme-onayi-eki")}
+            onFiyatArastirmaKomisyonu={() =>
+              handleOpenSablonByDosyaAdi("fiyat-arastirma-tutanagi")}
+            onPiyasaArastirmaGorevlendirmesi={() =>
+              handleOpenSablonByDosyaAdi("piyasa-arastirma-gorevlendirmesi")}
+            onMuayeneKabulBelgesi={() =>
+              handleOpenSablonByDosyaAdi("muayene-kabul-belgesi")}
+            onYaklasikMaliyetKomisyonu={() =>
+              handleOpenSablonByDosyaAdi("yaklasik-maliyet-komisyonu")}
+            onMuayeneKabulKomisyonu={() =>
+              handleOpenSablonByDosyaAdi("muayene-kabul-komisyonu")}
             onSonAlimCetveli={() =>
               handleOpenSablonByDosyaAdi("son-alim-fiyat-cetveli")}
             onOnayBelgesi={() =>
@@ -1054,13 +1009,7 @@ export function MalzemeTablosu({
           </div>
         )}
 
-      <KomisyonAtamaModal
-        isOpen={komisyonModalOpen}
-        onClose={() => setKomisyonModalOpen(false)}
-        initialType={komisyonModalType}
-        activeDosyaId={activeDosyaId}
-        onOpenDocument={(doc) => handleOpenSablonByDosyaAdi(doc)}
-      />
+
 
       <KatalogSenkronizasyonModal
         isOpen={katalogModalOpen}

@@ -26,6 +26,8 @@ export const DATA_TeminKomisyon = {
     { name: 'unvan', type: 'TEXT', description: 'Üyenin Unvanı' },
     { name: 'gorev', type: 'TEXT', description: 'Görevi (Başkan / Üye)' }, // Başkan, Üye vb.
     { name: 'rol', type: 'TEXT', description: 'Asil / Yedek Durumu' }, // Asil, Yedek vb.
+    { name: 'komisyon_turu', type: 'TEXT', description: 'Komisyon Türü Adı' },
+    { name: 'belgede_goster', type: 'INTEGER', default: 1, description: 'Belgede Gösterilsin mi (1: Evet, 0: Hayır)' },
     {
       name: 'created_at',
       type: 'DATETIME',
