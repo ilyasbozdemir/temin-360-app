@@ -177,40 +177,34 @@ export default function KurumScreen(): React.JSX.Element {
     searchParams.get("tab");
 
   let activeTab: TabType = "idari";
-  if (pathname === "/birimler") {
+  if (pathname === "/birimler" || queryTab === "birimler") {
     activeTab = "birimler";
-  } else if (pathname === "/personel") {
+  } else if (pathname === "/personel" || queryTab === "personel") {
     activeTab = "personel";
-  } else if (pathname === "/komisyonlar") {
+  } else if (pathname === "/komisyonlar" || queryTab === "komisyonlar") {
     activeTab = "komisyonlar";
-  } else if (pathname === "/komisyon-gorevleri") {
+  } else if (
+    pathname === "/komisyon-gorevleri" ||
+    queryTab === "komisyon-gorevleri"
+  ) {
     activeTab = "komisyon-gorevleri";
-  } else if (pathname === "/ambar") {
+  } else if (pathname === "/ambar" || queryTab === "ambar") {
     activeTab = "ambar";
+  } else if (queryTab === "mali") {
+    activeTab = "mali";
+  } else if (queryTab === "iletisim") {
+    activeTab = "iletisim";
+  } else if (queryTab === "logolar") {
+    activeTab = "logolar";
   } else {
-    if (queryTab === "mali") activeTab = "mali";
-    else if (queryTab === "iletisim") activeTab = "iletisim";
-    else if (queryTab === "logolar") activeTab = "logolar";
-    else activeTab = "idari";
+    activeTab = "idari";
   }
 
   const handleTabChange = (tabId: string): void => {
-    if (tabId === "birimler") {
-      navigate({ to: "/birimler" as any });
-    } else if (tabId === "personel") {
-      navigate({ to: "/personel" as any });
-    } else if (tabId === "komisyonlar") {
-      navigate({ to: "/komisyonlar" as any });
-    } else if (tabId === "komisyon-gorevleri") {
-      navigate({ to: "/komisyon-gorevleri" as any });
-    } else if (tabId === "ambar") {
-      navigate({ to: "/ambar" as any });
-    } else {
-      navigate({
-        to: "/kurum" as any,
-        search: { tab: tabId } as any,
-      });
-    }
+    navigate({
+      to: "/kurum" as any,
+      search: { tab: tabId } as any,
+    });
   };
 
   const menuItems: InnerMenuItem[] = [
@@ -223,7 +217,7 @@ export default function KurumScreen(): React.JSX.Element {
     {
       id: "idari",
       label: "İdari Bilgiler",
-      icon: <Building2 className="w-4 h-4 shrink-0" />,
+      icon: <Building2 className="w-4 h-4 shrink-0 text-blue-600" />,
     },
     {
       id: "mali",
@@ -233,12 +227,12 @@ export default function KurumScreen(): React.JSX.Element {
     {
       id: "iletisim",
       label: "İletişim & Konum",
-      icon: <MapPin className="w-4 h-4 shrink-0" />,
+      icon: <MapPin className="w-4 h-4 shrink-0 text-emerald-600" />,
     },
     {
       id: "logolar",
       label: "Kurum Logoları",
-      icon: <Building2 className="w-4 h-4 shrink-0 text-blue-500" />,
+      icon: <Building2 className="w-4 h-4 shrink-0 text-violet-600" />,
     },
     {
       id: "div-sep",
@@ -249,7 +243,7 @@ export default function KurumScreen(): React.JSX.Element {
     {
       id: "hdr-tanimlar",
       isHeader: true,
-      label: "Sistem Tanımları",
+      label: "Teşkilat & Yönetim",
       icon: null,
     },
     {
