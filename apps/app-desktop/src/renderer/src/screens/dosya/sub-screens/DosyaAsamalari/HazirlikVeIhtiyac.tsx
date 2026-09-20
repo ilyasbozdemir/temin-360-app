@@ -39,8 +39,7 @@ export function HazirlikVeIhtiyac(): React.JSX.Element {
 
   const state = useMalzemeListesi(activeDosyaId, activeDosya);
 
-  const isYapim =
-    activeDosya?.tur === "yapim_isi" ||
+  const isYapim = activeDosya?.tur === "yapim_isi" ||
     activeDosya?.tur === "yapim" ||
     activeDosya?.ihale_tipi === "Hakediş";
   const isHizmet = activeDosya?.tur === "hizmet";
@@ -77,22 +76,20 @@ export function HazirlikVeIhtiyac(): React.JSX.Element {
 
   return (
     <SubScreen
-      title={
-        isYapim
-          ? "İmalat / Poz Listesi & Maliyet & Onay"
-          : isHizmet
-          ? "Hizmet Listesi & Maliyet & Onay"
-          : "İhtiyaç Listesi & Maliyet & Onay"
-      }
+      title={isYapim
+        ? "İmalat / Poz Listesi & Maliyet & Onay"
+        : isHizmet
+        ? "Hizmet Listesi & Maliyet & Onay"
+        : "İhtiyaç Listesi & Maliyet & Onay"}
       icon={Package}
-      description={
-        isYapim
-          ? "Dosyanıza ait inşaat, tesisat ve onarım imalat kalemlerini (Bakanlık/ÇŞB Poz No) ekleyebilir, yaklaşık maliyet ve onay süreçlerini yönetebilirsiniz."
-          : isHizmet
-          ? "Dosyanıza ait hizmet kalemlerini ve faaliyet kapsamını ekleyebilir, piyasa fiyat araştırması ve onay süreçlerini yönetebilirsiniz."
-          : "Dosyanıza malzeme ve tüketim kalemi ekleyebilir ve yönetebilirsiniz. Son Alım Fiyat Cetveli şablonu sayesinde geçmiş alım analiz verileri otomatik listelenir."
-      }
-      previewDocumentId={previewModalOpen && previewData?.dosyaAdi ? previewData.dosyaAdi : null}
+      description={isYapim
+        ? "Dosyanıza ait inşaat, tesisat ve onarım imalat kalemlerini (Bakanlık/ÇŞB Poz No) ekleyebilir, yaklaşık maliyet ve onay süreçlerini yönetebilirsiniz."
+        : isHizmet
+        ? "Dosyanıza ait hizmet kalemlerini ve faaliyet kapsamını ekleyebilir, piyasa fiyat araştırması ve onay süreçlerini yönetebilirsiniz."
+        : "Dosyanıza malzeme ve tüketim kalemi ekleyebilir ve yönetebilirsiniz. Son Alım Fiyat Cetveli şablonu sayesinde geçmiş alım analiz verileri otomatik listelenir."}
+      previewDocumentId={previewModalOpen && previewData?.dosyaAdi
+        ? previewData.dosyaAdi
+        : null}
       onClosePreview={() => setPreviewModalOpen(false)}
     >
       <MalzemeEkleModal state={state} activeDosya={activeDosya} />

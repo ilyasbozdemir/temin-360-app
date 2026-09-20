@@ -86,12 +86,7 @@ export function TabsBar(): React.JSX.Element {
     label: string,
   ): void => {
     e.stopPropagation();
-    // Close the tab from the main window
-    const nextPath = closeTab(path);
-    if (nextPath) {
-      navigate({ to: nextPath });
-    }
-    // Open in a separate Electron window, passing workspace path so child window can access DB
+    // Open in a separate Electron window WITHOUT closing the tab in main window
     window.electron?.ipcRenderer.send("tab:open-in-window", {
       path,
       title: label,

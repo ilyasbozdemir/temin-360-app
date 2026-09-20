@@ -602,8 +602,10 @@ export default function HizliDosyaEkleScreen(): React.JSX.Element {
 
       {/* İpucu */}
       <p className="text-xs text-slate-400 dark:text-slate-500 -mb-2">
-        Sarı zemin = değiştirilmiş satır • Mavi ID = mevcut kayıt (güncelleme) • Beyaz = yeni kayıt
-        (ekleme) &nbsp;·&nbsp; Excel sütun sırası:{' '}
+        <span className="inline-block w-2.5 h-2.5 rounded bg-slate-200 dark:bg-slate-700 mr-1"></span>Mevcut •{' '}
+        <span className="inline-block w-2.5 h-2.5 rounded bg-amber-200 dark:bg-amber-900 mr-1"></span>Değiştirilen Mevcut •{' '}
+        <span className="inline-block w-2.5 h-2.5 rounded bg-green-200 dark:bg-green-900 mr-1"></span>Yeni Kayıt
+        &nbsp;·&nbsp; Excel sütun sırası:{' '}
         <strong>
           Dosya No | DT No | Dosya Adı | Açıklama | İhale Türü | Şekli | Tarih | Aşama
         </strong>
@@ -646,12 +648,14 @@ export default function HizliDosyaEkleScreen(): React.JSX.Element {
                   key={row._key}
                   className={`group transition-colors ${
                     isSelected
-                      ? 'bg-blue-50/40 dark:bg-blue-900/10 hover:bg-blue-50/60 dark:hover:bg-blue-900/20'
+                      ? 'bg-blue-100/50 dark:bg-blue-900/30 hover:bg-blue-100/80 dark:hover:bg-blue-900/40'
                       : row._dirty && row.dosya_adi.trim()
-                        ? 'bg-amber-50/60 dark:bg-amber-900/10 hover:bg-amber-50 dark:hover:bg-amber-900/20'
+                        ? row.id !== null
+                          ? 'bg-amber-100/50 dark:bg-amber-900/30 hover:bg-amber-100/80 dark:hover:bg-amber-900/40'
+                          : 'bg-green-50/60 dark:bg-green-900/20 hover:bg-green-50 dark:hover:bg-green-900/30'
                         : row.id !== null
-                          ? 'bg-white dark:bg-slate-900 hover:bg-blue-50/20 dark:hover:bg-blue-900/10'
-                          : 'bg-slate-50/60 dark:bg-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                          ? 'bg-slate-100/80 dark:bg-slate-800/40 hover:bg-slate-200/60 dark:hover:bg-slate-800/60'
+                          : 'bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-900'
                   }`}
                 >
                   <td className="px-3 py-1.5 text-center">

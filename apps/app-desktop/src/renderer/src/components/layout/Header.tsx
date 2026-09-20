@@ -765,7 +765,7 @@ export function Header(): React.JSX.Element {
         >
           {/* App Logo */}
           <div className="flex items-center justify-center w-8 h-8 mr-1 opacity-90">
-            <img src={appIcon} alt="Logo" className="w-4 h-4 object-contain drop-shadow-sm" />
+            <img src={appIcon} alt="Logo" className="w-5 h-5 object-contain drop-shadow-sm" />
           </div>
 
           {/* Görünür Ana Menüler */}
