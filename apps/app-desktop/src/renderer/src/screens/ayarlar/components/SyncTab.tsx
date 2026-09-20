@@ -7,7 +7,10 @@ import packageJson from '../../../../../../package.json'
 
 export const SyncTab: React.FC = () => {
   const [closePreferenceMode, setClosePreferenceMode] = React.useState<'ask' | 'auto'>('ask')
-  const [closePreferenceActions, setClosePreferenceActions] = React.useState<string[]>(['backup'])
+  const [closePreferenceActions, setClosePreferenceActions] = React.useState<string[]>([
+    'gdrive',
+    'backup'
+  ])
   const [settingsData, setSettingsData] = React.useState<Record<string, string>>({})
   const [isSavedNotice, setIsSavedNotice] = React.useState<boolean>(false)
 

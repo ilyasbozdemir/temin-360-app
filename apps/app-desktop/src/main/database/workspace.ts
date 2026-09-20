@@ -1671,11 +1671,6 @@ export class DtmWorkspace {
   public hasChanges(target: 'gdrive' | 'email' | 'any' = 'any'): boolean {
     if (!this.db || !this.currentFilePath) return false
 
-    // Hiçbir SQL mutasyonu yapılmadıysa veya veri değişikliği yoksa kesinlikle değişiklik yoktur!
-    if (!this.isDirtyState()) {
-      return false
-    }
-
     const current = this.calculateCurrentHash()
     if (!current) return false
 
@@ -1688,7 +1683,7 @@ export class DtmWorkspace {
           return row.value !== current
         }
       } catch {}
-      return current !== this.initialHash
+      return true
     }
 
     if (target === 'email') {
@@ -1700,10 +1695,10 @@ export class DtmWorkspace {
           return row.value !== current
         }
       } catch {}
-      return current !== this.initialHash
+      return true
     }
 
-    return current !== this.initialHash
+    return this.isDirtyState() || current !== this.initialHash
   }
 
   public markSynced(target: 'gdrive' | 'email'): void {
