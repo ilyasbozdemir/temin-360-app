@@ -10,6 +10,7 @@ export const APP_ROUTES = {
   CIKTI_MERKEZI_DASHBOARD: '/cikti-merkezi',
 
   // Modüller
+  PROJELER: '/projeler',
   FIRMALAR: '/firmalar',
   PERSONEL: '/personel',
   SABLONLAR: '/sablonlar',

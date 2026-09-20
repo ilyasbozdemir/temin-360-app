@@ -71,6 +71,8 @@ export interface UseMalzemeListesiReturn {
       aciklama?: string
     }>
   ) => Promise<boolean>
+  handleCheckKatalogDiffs: (targetItem?: any) => Promise<any[]>
+  handleApplyKatalogUpdates: (selectedDiffs: any[]) => Promise<void>
   filteredSuggestions: any[]
   loadData: () => Promise<void>
 }
@@ -444,6 +446,223 @@ export function useMalzemeListesi(
     }
   }
 
+  // Kütüphane / Katalog ile dosya kalemlerini karşılaştırıp Diff çıkaran fonksiyon
+  const handleCheckKatalogDiffs = async (targetItem?: any): Promise<any[]> => {
+    if (!activeDosyaId) return []
+    try {
+      // 1. Kütüphanedeki tüm TANIM_Kalem kayıtlarını çek
+      const resLib = await (window as any).electron.ipcRenderer.invoke(
+        'db:query',
+        'SELECT * FROM TANIM_Kalem WHERE aktif_mi = 1'
+      )
+      const libData: any[] = resLib.success ? resLib.data || [] : []
+
+      // 2. Varsa TANIM_Poz kayıtlarını da çek (özellikle Yapım işleri için)
+      let pozData: any[] = []
+      try {
+        const resPoz = await (window as any).electron.ipcRenderer.invoke(
+          'db:query',
+          'SELECT * FROM TANIM_Poz WHERE aktif_mi = 1'
+        )
+        if (resPoz.success) pozData = resPoz.data || []
+      } catch {
+        // TANIM_Poz tablosu yoksa devam et
+      }
+
+      // 3. Karşılaştırılacak kalemler (tekil veya tüm liste)
+      const targetItems = targetItem ? [targetItem] : items
+      const diffResults: any[] = []
+
+      for (const dosyaKalem of targetItems) {
+        // Eşleşen kütüphane kaydı ara:
+        // 1. barkod_id üzerinden
+        let matchedLib = libData.find(
+          (l) => l.barkod_id && dosyaKalem.barkod_id && l.barkod_id === dosyaKalem.barkod_id
+        )
+
+        // 2. poz_no üzerinden (yapım işi ise)
+        if (!matchedLib && dosyaKalem.poz_no) {
+          matchedLib =
+            libData.find((l) => l.poz_no && l.poz_no.trim() === dosyaKalem.poz_no.trim()) ||
+            pozData.find((p) => (p.poz_no || p.kod) && (p.poz_no || p.kod).trim() === dosyaKalem.poz_no.trim())
+        }
+
+        // 3. tasinir_kodu + kalem_adi üzerinden
+        if (!matchedLib && dosyaKalem.tasinir_kodu) {
+          matchedLib = libData.find(
+            (l) =>
+              l.tasinir_kodu &&
+              l.tasinir_kodu.trim() === dosyaKalem.tasinir_kodu.trim() &&
+              l.kalem_adi?.trim().toLowerCase() === dosyaKalem.kalem_adi?.trim().toLowerCase()
+          )
+        }
+
+        // 4. Sadece kalem_adi üzerinden tam eşleşme
+        if (!matchedLib && dosyaKalem.kalem_adi) {
+          matchedLib = libData.find(
+            (l) => l.kalem_adi?.trim().toLowerCase() === dosyaKalem.kalem_adi?.trim().toLowerCase()
+          )
+        }
+
+        // 5. Sadece tasinir_kodu üzerinden eşleşme (eğer varsa)
+        if (!matchedLib && dosyaKalem.tasinir_kodu && dosyaKalem.tasinir_kodu.length > 5) {
+          matchedLib = libData.find(
+            (l) => l.tasinir_kodu && l.tasinir_kodu.trim() === dosyaKalem.tasinir_kodu.trim()
+          )
+        }
+
+        // Eğer eşleşen bir kütüphane kaydı bulunduysa alanları karşılaştır
+        if (matchedLib) {
+          const newName = matchedLib.kalem_adi || matchedLib.ad || matchedLib.tanim || dosyaKalem.kalem_adi
+          const newBirim = matchedLib.birim || matchedLib.olcu_birimi || dosyaKalem.birim
+          const newTasinir = matchedLib.tasinir_kodu || dosyaKalem.tasinir_kodu || ''
+          const newOkas = matchedLib.okas_kodu || dosyaKalem.okas_kodu || ''
+          const newKdv = matchedLib.kdv_orani !== undefined && matchedLib.kdv_orani !== null ? Number(matchedLib.kdv_orani) : dosyaKalem.kdv_orani
+          const newTipi = matchedLib.tipi || dosyaKalem.tipi || 'Mal'
+          const newAciklama = matchedLib.ozelligi || matchedLib.aciklama || matchedLib.notlar || matchedLib.poz_tanimi || dosyaKalem.aciklama || ''
+          const newPozNo = matchedLib.poz_no || matchedLib.kod || dosyaKalem.poz_no || ''
+          const newPozTanimi = matchedLib.poz_tanimi || matchedLib.tanim || dosyaKalem.poz_tanimi || ''
+
+          const fields = [
+            {
+              fieldName: 'kalem_adi',
+              fieldLabel: 'Kalem / İş Adı',
+              oldValue: dosyaKalem.kalem_adi || '',
+              newValue: newName || '',
+              isChanged: (dosyaKalem.kalem_adi || '').trim() !== (newName || '').trim()
+            },
+            {
+              fieldName: 'birim',
+              fieldLabel: 'Ölçü Birimi',
+              oldValue: dosyaKalem.birim || '',
+              newValue: newBirim || '',
+              isChanged: (dosyaKalem.birim || '').trim().toLowerCase() !== (newBirim || '').trim().toLowerCase()
+            },
+            {
+              fieldName: 'tasinir_kodu',
+              fieldLabel: 'Taşınır Kodu',
+              oldValue: dosyaKalem.tasinir_kodu || '',
+              newValue: newTasinir || '',
+              isChanged: (dosyaKalem.tasinir_kodu || '').trim() !== (newTasinir || '').trim()
+            },
+            {
+              fieldName: 'okas_kodu',
+              fieldLabel: 'OKAS Kodu',
+              oldValue: dosyaKalem.okas_kodu || '',
+              newValue: newOkas || '',
+              isChanged: (dosyaKalem.okas_kodu || '').trim() !== (newOkas || '').trim()
+            },
+            {
+              fieldName: 'kdv_orani',
+              fieldLabel: 'KDV Oranı (%)',
+              oldValue: dosyaKalem.kdv_orani !== undefined ? `%${dosyaKalem.kdv_orani}` : '',
+              newValue: newKdv !== undefined ? `%${newKdv}` : '',
+              isChanged: Number(dosyaKalem.kdv_orani) !== Number(newKdv)
+            },
+            {
+              fieldName: 'tipi',
+              fieldLabel: 'Alım Türü',
+              oldValue: dosyaKalem.tipi || '',
+              newValue: newTipi || '',
+              isChanged: (dosyaKalem.tipi || '').trim().toLowerCase() !== (newTipi || '').trim().toLowerCase()
+            },
+            {
+              fieldName: 'aciklama',
+              fieldLabel: 'Teknik Açıklama / Özellik',
+              oldValue: dosyaKalem.aciklama || '',
+              newValue: newAciklama || '',
+              isChanged: Boolean(newAciklama) && (dosyaKalem.aciklama || '').trim() !== (newAciklama || '').trim()
+            },
+            {
+              fieldName: 'poz_no',
+              fieldLabel: 'Poz No',
+              oldValue: dosyaKalem.poz_no || '',
+              newValue: newPozNo || '',
+              isChanged: Boolean(newPozNo) && (dosyaKalem.poz_no || '').trim() !== (newPozNo || '').trim()
+            }
+          ]
+
+          const hasChanges = fields.some((f) => f.isChanged)
+
+          diffResults.push({
+            teminKalemId: dosyaKalem.id,
+            katalogId: matchedLib.id,
+            kalemAdi: dosyaKalem.kalem_adi,
+            eskiKalem: dosyaKalem,
+            yeniKatalogVerisi: {
+              ...matchedLib,
+              kalem_adi: newName,
+              birim: newBirim,
+              tasinir_kodu: newTasinir,
+              okas_kodu: newOkas,
+              kdv_orani: newKdv,
+              tipi: newTipi,
+              aciklama: newAciklama,
+              poz_no: newPozNo,
+              poz_tanimi: newPozTanimi
+            },
+            fields,
+            hasChanges
+          })
+        }
+      }
+
+      return diffResults
+    } catch (err: any) {
+      console.error('Katalog diff hatası:', err)
+      alert('Katalog karşılaştırması sırasında hata oluştu: ' + err.message)
+      return []
+    }
+  }
+
+  // Seçilen güncellemeleri dosyadaki DATA_TeminKalem kayıtlarına uygula
+  const handleApplyKatalogUpdates = async (selectedDiffs: any[]): Promise<void> => {
+    if (!activeDosyaId || selectedDiffs.length === 0) return
+    try {
+      for (const diff of selectedDiffs) {
+        const yeni = diff.yeniKatalogVerisi
+        if (!yeni) continue
+
+        await (window as any).electron.ipcRenderer.invoke(
+          'db:run',
+          `UPDATE DATA_TeminKalem SET
+            kalem_adi = COALESCE(?, kalem_adi),
+            birim = COALESCE(?, birim),
+            tasinir_kodu = ?,
+            okas_kodu = ?,
+            kdv_orani = COALESCE(?, kdv_orani),
+            tipi = COALESCE(?, tipi),
+            aciklama = COALESCE(?, aciklama),
+            poz_no = COALESCE(?, poz_no),
+            poz_tanimi = COALESCE(?, poz_tanimi),
+            updated_at = CURRENT_TIMESTAMP
+           WHERE id = ? AND temin_dosya_id = ?`,
+          [
+            yeni.kalem_adi,
+            yeni.birim,
+            yeni.tasinir_kodu || null,
+            yeni.okas_kodu || null,
+            yeni.kdv_orani,
+            yeni.tipi,
+            yeni.aciklama || null,
+            yeni.poz_no || null,
+            yeni.poz_tanimi || null,
+            diff.teminKalemId,
+            activeDosyaId
+          ]
+        )
+      }
+
+      await loadData()
+      emitAppEvent('items:changed', { dosyaId: activeDosyaId })
+      emitAppEvent('dossier:updated', { dosyaId: activeDosyaId })
+      alert(`Seçilen ${selectedDiffs.length} adet kalem kütüphanedeki güncel verilerle başarıyla eşitlendi.`)
+    } catch (err: any) {
+      console.error('Katalog güncelleme hatası:', err)
+      throw err
+    }
+  }
+
   const filteredSuggestions = searchQuery.trim()
     ? libraryItems
         .filter((item) => item.kalem_adi.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -502,7 +721,10 @@ export function useMalzemeListesi(
     handleSaveEdit,
     handleAddSelected,
     handleBatchInsertItems,
+    handleCheckKatalogDiffs,
+    handleApplyKatalogUpdates,
     filteredSuggestions,
     loadData
   }
 }
+

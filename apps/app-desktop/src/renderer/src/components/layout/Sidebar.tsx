@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Database,
   FileText,
+  FolderKanban,
   FolderOpen,
   FolderTree,
   Hammer,
@@ -71,6 +72,12 @@ const menuGroups: MenuGroup[] = [
   {
     title: "Süreç Yönetimi",
     items: [
+      {
+        name: "Proje Yönetimi & Yatırımlar",
+        path: "/projeler",
+        icon: FolderKanban,
+        badge: "YENİ",
+      },
       { name: "Doğrudan Temin Dosyaları", path: "/dosyalar", icon: FileText },
       {
         name: "Hakediş & Harcama İşlemleri",

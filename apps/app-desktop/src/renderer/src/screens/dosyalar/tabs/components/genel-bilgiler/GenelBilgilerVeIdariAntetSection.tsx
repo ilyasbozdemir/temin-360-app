@@ -393,6 +393,40 @@ export function GenelBilgilerVeIdariAntetSection(props: YeniDosyaTabProps): Reac
           />
         </div>
 
+        <div>
+          <label className="block text-xs font-bold text-slate-600 dark:text-slate-455 mb-1.5">
+            Son Teklif Verme Tarih &amp; Saati
+          </label>
+          <input
+            type="datetime-local"
+            value={formData.son_teklif_verme_tarihi || ''}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                son_teklif_verme_tarihi: e.target.value
+              })
+            }
+            className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 font-semibold"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-slate-600 dark:text-slate-455 mb-1.5">
+            Tahmini Bitiş / Teslim Tarihi
+          </label>
+          <input
+            type="date"
+            value={formData.teslim_tarihi || ''}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                teslim_tarihi: e.target.value
+              })
+            }
+            className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 font-semibold"
+          />
+        </div>
+
         <div className="relative">
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-450 mb-1.5">
             İhalesi Yapılacak Birim / Müdürlük

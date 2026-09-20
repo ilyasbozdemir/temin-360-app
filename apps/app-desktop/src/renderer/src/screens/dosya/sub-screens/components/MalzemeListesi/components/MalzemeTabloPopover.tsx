@@ -33,6 +33,7 @@ export interface MalzemeTabloPopoverProps {
   onIstekliFirmaSettings?: () => void;
   onDownloadTemplate?: () => void;
   onExportToLibrary?: () => void;
+  onKatalogSync?: () => void;
   // Talep & Başlangıç Belgeleri
   onIhtiyacListesi?: () => void;
   onIhtiyacTalepFormu?: () => void;

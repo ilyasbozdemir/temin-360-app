@@ -666,24 +666,20 @@ export default function DosyalarScreen(): React.ReactNode {
 
               <div>
                 <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">
-                  KDV Oranı (%)
+                  KDV Durumu
                 </label>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="1"
-                  value={selectedDosyaForMaliyet.kdv !== undefined
-                    ? selectedDosyaForMaliyet.kdv
-                    : "20"}
+                <select
+                  value={selectedDosyaForMaliyet.yaklasik_maliyet_kdv_dahil_mi ?? 0}
                   onChange={(e) =>
                     setSelectedDosyaForMaliyet({
                       ...selectedDosyaForMaliyet,
-                      kdv: e.target.value,
+                      yaklasik_maliyet_kdv_dahil_mi: parseInt(e.target.value, 10),
                     })}
-                  placeholder="Örn: 20"
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200"
-                />
+                >
+                  <option value={0}>KDV Hariç</option>
+                  <option value={1}>KDV Dahil</option>
+                </select>
               </div>
 
               <div className="flex justify-end gap-2 pt-2 text-xs">

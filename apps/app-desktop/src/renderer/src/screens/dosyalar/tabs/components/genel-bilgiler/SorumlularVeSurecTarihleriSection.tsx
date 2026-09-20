@@ -213,7 +213,7 @@ export function SorumlularVeSurecTarihleriSection(
 
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-455 mb-1.5">
-            Son Teklif Verme Tarih &amp; Saati ss
+            Son Teklif Verme Tarih &amp; Saati
           </label>
           <input
             type="datetime-local"

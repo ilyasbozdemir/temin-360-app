@@ -38,6 +38,7 @@ export function getTabLabel(fullPath: string): string {
   if (path === APP_ROUTES.DASHBOARD) return 'Gösterge Paneli'
   if (path === APP_ROUTES.YENI_DOSYA) return 'Yeni Doğrudan Temin Dosyası'
   if (path.startsWith(APP_ROUTES.DOSYALAR)) return 'Doğrudan Temin'
+  if (path.startsWith(APP_ROUTES.PROJELER)) return 'Proje Yönetimi'
   if (path.startsWith(APP_ROUTES.FIRMALAR)) return 'Firmalar'
   if (path.startsWith(APP_ROUTES.PERSONEL)) return 'Personel Yönetimi'
   if (path.startsWith(APP_ROUTES.MEVZUAT)) return 'Mevzuat & Limitler'

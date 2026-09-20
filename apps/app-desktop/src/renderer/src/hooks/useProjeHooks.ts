@@ -152,3 +152,34 @@ export function useProjeHooks() {
     deleteProje: deleteProjeMutation.mutateAsync
   }
 }
+
+export interface ProjeDosyasi {
+  id: number
+  dosya_no: string
+  is_adi: string
+  yaklasik_maliyet: number
+  sozlesme_bedeli?: number
+  surec_durumu?: string
+  alim_turu?: string
+  created_at: string
+}
+
+export function useProjeDosyalari(projeId: number | null | undefined) {
+  return useQuery({
+    queryKey: ['proje-dosyalari', projeId],
+    queryFn: async (): Promise<ProjeDosyasi[]> => {
+      if (!projeId || !window.electron) return []
+      const res = await window.electron.ipcRenderer.invoke(
+        'db:query',
+        `SELECT id, dosya_no, is_adi, yaklasik_maliyet, sozlesme_bedeli, surec_durumu, alim_turu, created_at
+         FROM DATA_TeminDosyasi
+         WHERE project_id = ? AND is_deleted = 0
+         ORDER BY id DESC`,
+        [projeId]
+      )
+      if (!res.success) throw new Error(res.error)
+      return res.data || []
+    },
+    enabled: Boolean(projeId)
+  })
+}

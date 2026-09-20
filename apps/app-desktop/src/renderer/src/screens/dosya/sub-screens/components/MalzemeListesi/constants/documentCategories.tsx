@@ -12,6 +12,7 @@ import {
   FileText,
   FolderPlus,
   Layers,
+  RefreshCw,
   Send,
   ShieldAlert,
   Trash2,
@@ -321,6 +322,7 @@ export function buildTableActionItems(
     onExcelImport,
     onDownloadTemplate,
     onExportToLibrary,
+    onKatalogSync,
     onKomisyonSettings,
     onIstekliFirmaSettings,
   } = props;
@@ -347,6 +349,13 @@ export function buildTableActionItems(
         ? "text-red-600 focus:text-red-600 dark:focus:text-red-400 focus:bg-red-50 dark:focus:bg-red-950/30 font-semibold"
         : "text-slate-400 dark:text-slate-500",
       onClick: onDeleteSelected,
+    },
+    {
+      id: "katalogSync",
+      label: "Katalogdaki Değişiklikleri Eşitle",
+      icon: RefreshCw,
+      iconColorClass: "text-cyan-500 font-medium",
+      onClick: onKatalogSync,
     },
     {
       id: "exportMasterExcel",

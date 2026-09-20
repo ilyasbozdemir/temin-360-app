@@ -10,6 +10,7 @@ import {
   Info,
   Package,
   Plus,
+  RefreshCw,
   Trash2,
   UserCheck,
   Users,
@@ -21,6 +22,10 @@ import {
   KomisyonAtamaModal,
   KomisyonType,
 } from "./components/KomisyonAtamaModal";
+import {
+  KatalogSenkronizasyonModal,
+  KalemDiffItem,
+} from "./components/KatalogSenkronizasyonModal";
 import { useSettingsStore } from "../../../../../store/settingsStore";
 import { PrintDropdownButtonV2 } from "@renderer/screens/dosya/components/PrintDropdownButtonV2";
 import { findSablonByAlias } from "../../DosyaAsamalari/constants/sablonAliases";
@@ -72,6 +77,8 @@ export function MalzemeTablosu({
     handleStartEdit,
     handleSaveEdit,
     handleDeleteItem,
+    handleCheckKatalogDiffs,
+    handleApplyKatalogUpdates,
     loadData,
   } = state;
 
@@ -84,6 +91,26 @@ export function MalzemeTablosu({
   const [komisyonModalType, setKomisyonModalType] = useState<KomisyonType>(
     "yaklasik_maliyet",
   );
+
+  // Katalog Senkronizasyon & Diff Modal State'leri
+  const [katalogModalOpen, setKatalogModalOpen] = useState(false);
+  const [diffItems, setDiffItems] = useState<KalemDiffItem[]>([]);
+  const [isCheckingDiff, setIsCheckingDiff] = useState(false);
+
+  // Tüm dosya veya tekil kalem için diff kontrolü tetikleme
+  const handleTriggerKatalogSync = async (targetItem?: any) => {
+    if (!handleCheckKatalogDiffs) return;
+    setIsCheckingDiff(true);
+    setKatalogModalOpen(true);
+    try {
+      const diffs = await handleCheckKatalogDiffs(targetItem);
+      setDiffItems(diffs);
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setIsCheckingDiff(false);
+    }
+  };
 
   // Checkbox ve toplu işlem state'leri
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -642,6 +669,15 @@ export function MalzemeTablosu({
             </span>
           </button>
 
+          <button
+            onClick={() => handleTriggerKatalogSync()}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-linear-to-r from-sky-500/10 to-indigo-500/10 hover:from-sky-500/20 hover:to-indigo-500/20 border border-sky-300 dark:border-sky-700/50 hover:border-sky-400 text-sky-700 dark:text-sky-300 text-xs font-semibold rounded-xl transition-all shadow-xs cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+            title="Dosyadaki kalemleri kütüphanedeki en güncel kayıtlarla karşılaştırır, farkları (diff) gösterir ve onayınızla senkronize eder."
+          >
+            <RefreshCw className="w-3.5 h-3.5 stroke-2 shrink-0 text-sky-600 dark:text-sky-400" />
+            <span>Katalogla Eşitle</span>
+          </button>
+
           {!disableDocumentGuidance && combinedSablons.length > 0 &&
             onSablonClick && (
             <>
@@ -674,6 +710,7 @@ export function MalzemeTablosu({
             onExcelImport={handleExcelImport}
             onDownloadTemplate={handleDownloadTemplate}
             onExportToLibrary={handleExportToLibrary}
+            onKatalogSync={() => handleTriggerKatalogSync()}
             disableDocumentGuidance={disableDocumentGuidance}
             onIhtiyacListesi={() =>
               handleOpenSablonByDosyaAdi("ihtiyac-listesi")}
@@ -985,6 +1022,13 @@ export function MalzemeTablosu({
                             : (
                               <>
                                 <button
+                                  onClick={() => handleTriggerKatalogSync(item)}
+                                  className="p-1.5 bg-slate-50 hover:bg-sky-50 dark:bg-slate-950 dark:hover:bg-sky-955/30 border border-slate-200 dark:border-slate-800 hover:border-sky-300 dark:hover:border-sky-900/50 text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 rounded-lg transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 flex items-center justify-center"
+                                  title="Kütüphane / Katalog ile Karşılaştır & Eşitle"
+                                >
+                                  <RefreshCw className="w-3.5 h-3.5" />
+                                </button>
+                                <button
                                   onClick={() => handleStartEdit(item)}
                                   className="p-1.5 bg-slate-50 hover:bg-blue-50 dark:bg-slate-950 dark:hover:bg-blue-955/30 border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-900/50 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 rounded-lg transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 flex items-center justify-center"
                                   title="İhtiyaç Kalemi Düzenle"
@@ -1016,6 +1060,17 @@ export function MalzemeTablosu({
         initialType={komisyonModalType}
         activeDosyaId={activeDosyaId}
         onOpenDocument={(doc) => handleOpenSablonByDosyaAdi(doc)}
+      />
+
+      <KatalogSenkronizasyonModal
+        isOpen={katalogModalOpen}
+        onClose={() => setKatalogModalOpen(false)}
+        diffItems={diffItems}
+        isLoading={isCheckingDiff}
+        onApplyUpdates={async (selected) => {
+          await handleApplyKatalogUpdates(selected);
+          setKatalogModalOpen(false);
+        }}
       />
     </div>
   );

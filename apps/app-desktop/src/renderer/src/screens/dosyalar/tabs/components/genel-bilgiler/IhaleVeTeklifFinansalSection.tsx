@@ -266,22 +266,9 @@ export function IhaleVeTeklifFinansalSection(
             value={formData.yaklasik_maliyet_kdv_dahil_mi ?? 0}
             onChange={(e) => {
               const newKdvDahil = parseInt(e.target.value, 10);
-              const oldKdvDahil = formData.yaklasik_maliyet_kdv_dahil_mi ?? 0;
-              const kdvRate = Number(formData.kdv) || 20;
-              let currentVal = formData.yaklasik_maliyet || 0;
-
-              if (newKdvDahil !== oldKdvDahil) {
-                if (newKdvDahil === 1) {
-                  currentVal = currentVal * (1 + kdvRate / 100);
-                } else {
-                  currentVal = currentVal / (1 + kdvRate / 100);
-                }
-              }
-
               setFormData({
                 ...formData,
                 yaklasik_maliyet_kdv_dahil_mi: newKdvDahil,
-                yaklasik_maliyet: Number(currentVal.toFixed(2)),
               });
             }}
             className="w-full px-3.5 py-2.5 bg-slate-55 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 font-semibold"
@@ -289,6 +276,9 @@ export function IhaleVeTeklifFinansalSection(
             <option value={0}>KDV Hariç</option>
             <option value={1}>KDV Dahil</option>
           </select>
+          <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 leading-tight">
+            Kalem bazlı KDV oranları (%1, %10, %20 vb.) İhtiyaç Listesinde satır satır belirlenir.
+          </p>
         </div>
 
         {formData.yaklasik_maliyet_hesaplamasi === "onceden" && (
@@ -312,23 +302,6 @@ export function IhaleVeTeklifFinansalSection(
             />
           </div>
         )}
-
-        <div>
-          <label className="block text-xs font-bold text-slate-600 dark:text-slate-450 mb-1.5">
-            KDV Oranı (%)
-          </label>
-          <select
-            value={formData.kdv || "20"}
-            onChange={(e) => setFormData({ ...formData, kdv: e.target.value })}
-            className="w-full px-3.5 py-2.5 bg-slate-55 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200"
-          >
-            <option value="0">KDV Hariç (%0)</option>
-            <option value="1">KDV (%1)</option>
-            <option value="10">KDV (%10)</option>
-            <option value="20">KDV (%20)</option>
-            <option value="Tevkifat">Tevkifatlı KDV</option>
-          </select>
-        </div>
 
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-450 mb-1.5">
@@ -375,6 +348,56 @@ export function IhaleVeTeklifFinansalSection(
               Kararına Göre
             </option>
           </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-slate-600 dark:text-slate-455 mb-1.5">
+            Son Teklif Verme Tarih &amp; Saati
+          </label>
+          <input
+            type="datetime-local"
+            value={formData.son_teklif_verme_tarihi || ""}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                son_teklif_verme_tarihi: e.target.value,
+              })}
+            className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 font-semibold"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-slate-600 dark:text-slate-455 mb-1.5">
+            Tahmini Bitiş / Teslim Tarihi
+          </label>
+          <input
+            type="date"
+            value={formData.teslim_tarihi || ""}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                teslim_tarihi: e.target.value,
+              })}
+            className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 font-semibold"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-slate-600 dark:text-slate-455 mb-1.5">
+            Teslim Süresi (Gün)
+          </label>
+          <input
+            type="number"
+            min="1"
+            value={formData.teslim_gun ?? 7}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                teslim_gun: parseInt(e.target.value, 10) || 7,
+              })}
+            placeholder="7"
+            className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 font-semibold"
+          />
         </div>
 
         {/* ÜST PROJE / YATIRIM İLİŞKİSİ */}

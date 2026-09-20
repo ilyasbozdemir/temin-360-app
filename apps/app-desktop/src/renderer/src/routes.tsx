@@ -40,6 +40,7 @@ import KomisyonDetayScreen from "./screens/komisyonlar/detay.screen";
 import DosyaDataInspectorScreen from "./screens/dosyalar/DosyaDataInspectorScreen";
 import NotlarVeGorevlerScreen from "./screens/notlar/index.screen";
 import PlaygroundScreen from "./screens/playground/index.screen";
+import ProjelerScreen from "./screens/projeler/index.screen";
 
 const rootRoute = createRootRoute({
   component: PageWrapper,
@@ -55,6 +56,12 @@ const harcamaMerkeziRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.HARCAMA_MERKEZI,
   component: HarcamaMerkeziScreen,
+});
+
+const projelerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: APP_ROUTES.PROJELER,
+  component: ProjelerScreen,
 });
 
 const dosyalarRoute = createRoute({
@@ -367,6 +374,7 @@ const playgroundRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   harcamaMerkeziRoute,
+  projelerRoute,
   dosyalarRoute,
   yeniDosyaRoute,
   firmalarRoute,

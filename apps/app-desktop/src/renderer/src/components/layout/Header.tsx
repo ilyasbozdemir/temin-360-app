@@ -425,6 +425,10 @@ export function Header(): React.JSX.Element {
               onClick: () => navigate({ to: "/dosyalar" }),
             },
             {
+              label: "📁 Proje Yönetimi & Yatırımlar",
+              onClick: () => navigate({ to: "/projeler" }),
+            },
+            {
               label: "Yeni Dosya Oluştur",
               onClick: () => navigate({ to: "/dosyalar/yeni" }),
             },
@@ -623,6 +627,10 @@ export function Header(): React.JSX.Element {
           {
             label: "🛒 Doğrudan Temin İstekli Firmaları",
             onClick: () => navigate({ to: "/firmalar" }),
+          },
+          {
+            label: "📁 Yatırım ve Alım Projeleri",
+            onClick: () => navigate({ to: "/projeler" }),
           },
           {
             label: "🛒 Mal / Hizmet / Tüketim Listesi",

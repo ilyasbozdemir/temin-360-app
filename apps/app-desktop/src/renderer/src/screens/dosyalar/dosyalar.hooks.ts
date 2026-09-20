@@ -51,6 +51,7 @@ export interface TeminDosyasi {
   irtibat_yetkilisi_id: number | null
   son_teklif_verme_tarihi: string | null
   teslim_tarihi: string | null
+  teslim_gun?: number | null
 
   yaklasik_maliyet: number
   butce_kodu: string | null
