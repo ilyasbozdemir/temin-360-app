@@ -2,13 +2,44 @@ import Decimal from 'decimal.js'
 
 Decimal.set({ precision: 20, rounding: Decimal.ROUND_HALF_UP })
 
+export interface NeedItemFirmaTeklif {
+  fiyat: string
+}
+
+export interface NeedItemFirmaTeklifDetay {
+  birimFiyat: string
+  tutar: string
+  hasPrice: boolean
+}
+
+export interface NeedItem {
+  siraNo: number
+  kodu: string
+  malzemeAdi: any
+  ozelligi: string
+  birimi: any
+  kdvOrani: any
+  miktar: string
+  firmaTeklifleri: NeedItemFirmaTeklif[]
+  firmaTeklifleriDetay: NeedItemFirmaTeklifDetay[]
+  enUygunFirmaAdi: string
+  enDusukFiyat: string
+  toplamBedel: string
+}
+
+export interface CalculateNeedItemsResult {
+  needItems: NeedItem[]
+  grandTotal: number
+  totalKdv: number
+}
+
 export function calculateNeedItems(
   kalemlerData: any[],
   firms: any[],
   bidsMap: Record<string, number>,
   isLowestBasis: boolean,
   formatTR: (val: number) => string
-) {
+): CalculateNeedItemsResult {
   let grandTotalDecimal = new Decimal(0)
   let totalKdvDecimal = new Decimal(0)
 

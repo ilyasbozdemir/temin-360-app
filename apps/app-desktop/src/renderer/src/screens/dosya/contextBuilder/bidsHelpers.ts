@@ -3,12 +3,27 @@ import { paraYaziyaCevir } from '../../../constants/sayiEslesmeleri'
 
 Decimal.set({ precision: 20, rounding: Decimal.ROUND_HALF_UP })
 
+export interface CalculateFirmaTeklifleriResult {
+  firmaToplamlari: { toplam: string }[]
+  calculatedTeklifler: {
+    siraNo: number
+    istekliUnvani: string
+    teklifBedeli: string
+    teklifBedeliRaw: number
+    yaziIle: string
+  }[]
+  enAvantajliTeklifSahibi: string
+  enAvantajliTeklifBedeli: string
+  ikinciAvantajliTeklifSahibi: string
+  ikinciAvantajliTeklifBedeli: string
+}
+
 export function calculateFirmaTeklifleri(
   firms: any[],
   kalemlerData: any[],
   bidsMap: Record<string, number>,
   formatTR: (val: number) => string
-) {
+): CalculateFirmaTeklifleriResult {
   const firmaToplamlari = firms.map((f: any) => {
     let sumDecimal = new Decimal(0)
     kalemlerData?.forEach((k: any) => {
