@@ -117,7 +117,7 @@ export function DocumentPreviewCanvas({
                   firmaListesi:
                     (formData as any).firmaListesi || firmaListesi,
                   tarih:
-                    formData.onayaSunulanTarih || formData.tarih || "",
+                    formData.tarih || formData.onayaSunulanTarih || "",
                   onayaSunulanTarih:
                     formData.onayaSunulanTarih || formData.tarih || "",
                   onayTarihi:

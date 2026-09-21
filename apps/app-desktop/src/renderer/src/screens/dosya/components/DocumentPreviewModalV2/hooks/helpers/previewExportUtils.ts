@@ -340,11 +340,11 @@ export async function refreshDocumentFromDb({
   ]);
 
   const baseData: any = { ...resolved };
-  const defaultDate = baseData.onayaSunulanTarih || baseData.tarih || "";
+  const defaultDate = baseData.tarih || baseData.onayaSunulanTarih || "";
   if (defaultDate) {
-    baseData.tarih = defaultDate;
-    baseData.onayaSunulanTarih = defaultDate;
-    baseData.belgeTarihi = defaultDate;
+    if (!baseData.tarih) baseData.tarih = defaultDate;
+    if (!baseData.onayaSunulanTarih) baseData.onayaSunulanTarih = defaultDate;
+    if (!baseData.belgeTarihi) baseData.belgeTarihi = defaultDate;
   }
   const defaultOnayDate = baseData.onayTarihi || baseData.dosyaTarihi || "";
   if (defaultOnayDate) {

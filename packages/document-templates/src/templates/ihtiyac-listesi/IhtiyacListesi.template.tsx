@@ -72,6 +72,8 @@ export function IhtiyacListesi({
         const isFirstPage = pageIdx === 0;
         const isLastPage = pageIdx === pages.length - 1;
 
+        console.log(data);
+
         return (
           <DocumentLayout
             key={pageIdx}
@@ -121,7 +123,8 @@ export function IhtiyacListesi({
                 >
                   <EditableField
                     name="ihtiyacYeri"
-                    value={data.ihtiyacYeri || (data as any).altKurumBizim || (data as any).kurumumuz || "Müdürlüğümüzün"}
+                    value={data.ihtiyacYeri || (data as any).altKurumBizim ||
+                      (data as any).kurumumuz || "Müdürlüğümüzün"}
                     placeholder="İhtiyaç Yeri"
                   />{" "}
                   ihtiyacı olan aşağıda yazılı mal/hizmet kalemlerinin temin

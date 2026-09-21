@@ -129,6 +129,8 @@ export function buildDocumentContext(
     kapakDetaylari,
     tarih: fileDate,
     dosyaTarihi: fileDate,
+    dosyaAcilisTarihi: formatDateString(dosyaResData?.dosya_acilis_tarihi) || fileDate,
+    acilisTarihi: formatDateString(dosyaResData?.dosya_acilis_tarihi) || fileDate,
     onayTarihi: formatDateString(dosyaResData?.onay_tarihi) || fileDate,
     onayaSunulanTarih: formatDateString(dosyaResData?.temin_tarihi) || fileDate,
     kararTarihi: formatDateString(dosyaResData?.karar_tarihi) || fileDate,
@@ -308,7 +310,9 @@ export function buildDocumentContext(
         : (dosyaResData?.teslim_tarihi
           ? (() => {
               const tDate = new Date(dosyaResData.teslim_tarihi)
-              const bDate = dosyaResData.tarih ? new Date(dosyaResData.tarih) : new Date()
+              const bDate = dosyaResData?.dosya_acilis_tarihi
+                ? new Date(dosyaResData.dosya_acilis_tarihi)
+                : (dosyaResData?.tarih ? new Date(dosyaResData.tarih) : new Date())
               const diff = Math.ceil((tDate.getTime() - bDate.getTime()) / (1000 * 60 * 60 * 24))
               return diff > 0 ? String(diff) : '7'
             })()
@@ -320,7 +324,9 @@ export function buildDocumentContext(
         : (dosyaResData?.son_teklif_tarihi
           ? (() => {
               const sDate = new Date(dosyaResData.son_teklif_tarihi)
-              const bDate = dosyaResData.tarih ? new Date(dosyaResData.tarih) : new Date()
+              const bDate = dosyaResData?.dosya_acilis_tarihi
+                ? new Date(dosyaResData.dosya_acilis_tarihi)
+                : (dosyaResData?.tarih ? new Date(dosyaResData.tarih) : new Date())
               const diff = Math.ceil((sDate.getTime() - bDate.getTime()) / (1000 * 60 * 60 * 24))
               return diff > 0 ? String(diff) : undefined
             })()

@@ -3,11 +3,14 @@ export function formatDateString(dateStr: string | null | undefined): string | n
   try {
     const cleanStr = String(dateStr).trim()
     if (/^\d{4}-\d{2}-\d{2}/.test(cleanStr)) {
-      const [y, m, d] = cleanStr.split(' ')[0].split('-')
-      return `${d}.${m}.${y}`
+      const datePart = cleanStr.split('T')[0].split(' ')[0]
+      const [y, m, d] = datePart.split('-')
+      if (y && m && d) {
+        return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
+      }
     }
     if (/^\d{2}\.\d{2}\.\d{4}/.test(cleanStr)) {
-      return cleanStr
+      return cleanStr.substring(0, 10)
     }
     const d = new Date(cleanStr)
     if (isNaN(d.getTime())) return null

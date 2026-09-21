@@ -93,7 +93,7 @@ export async function loadDocumentPreviewData({
     baseData.antetSatirlari = resolved.antetSatirlari;
   }
 
-  baseData.tarih = baseData.tarih || baseData.onayaSunulanTarih || "";
+  baseData.tarih = baseData.tarih || baseData.dosyaTarihi || baseData.onayaSunulanTarih || "";
   baseData.onayTarihi = baseData.onayTarihi || baseData.dosyaTarihi || "";
 
   const dosyaObj = payloadData.dosya || dosyaRecord || {};
@@ -710,11 +710,11 @@ export async function loadDocumentPreviewData({
           finalData[key] = val;
         }
       }
-      const explicitTarih = snapshotData.onayaSunulanTarih || snapshotData.tarih || snapshotData.belgeTarihi;
+      const explicitTarih = snapshotData.tarih || snapshotData.onayaSunulanTarih || snapshotData.belgeTarihi;
       if (explicitTarih) {
-        finalData.tarih = explicitTarih;
-        finalData.onayaSunulanTarih = explicitTarih;
-        finalData.belgeTarihi = explicitTarih;
+        if (!finalData.tarih) finalData.tarih = explicitTarih;
+        if (!finalData.onayaSunulanTarih) finalData.onayaSunulanTarih = explicitTarih;
+        if (!finalData.belgeTarihi) finalData.belgeTarihi = explicitTarih;
       }
       const explicitOnayTarih = snapshotData.onayTarihi || snapshotData.olurTarihi;
       if (explicitOnayTarih) {
