@@ -59,6 +59,9 @@ jobs:
         run: pnpm build && npx electron-builder --win --x64 -p never
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ELECTRON_MIRROR: "https://cdn.npmmirror.com/binaries/electron/"
+          ELECTRON_BUILDER_BINARIES_MIRROR: "https://cdn.npmmirror.com/binaries/electron-builder-binaries/"
+
 
       - name: Prepare Release Notes
         shell: bash

@@ -63,5 +63,6 @@ npmRebuild: true
 publish:
   provider: github
   owner: ilyasbozdemir
-  repo: hakim-pro-app
-  updaterCacheDirName: hakim-pro-app-updater
+  repo: temin-360-app
+  updaterCacheDirName: temin-360-app-updater
+
