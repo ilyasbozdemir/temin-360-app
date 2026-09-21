@@ -19,7 +19,7 @@ import {
   UserCheck,
   Users,
 } from "lucide-react";
-import type { MalzemeTabloPopoverProps } from "../components/MalzemeTabloPopover";
+import type { MalzemeTabloPopoverProps } from "../types";
 
 export interface PopoverItemConfig {
   id: string;
