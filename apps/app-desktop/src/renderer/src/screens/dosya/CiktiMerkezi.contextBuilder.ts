@@ -68,7 +68,7 @@ export function buildDocumentContext(
     settings?.harcamaBirimAdi ||
     ''
   const parentInstitutionName = settings?.parentInstitution || ''
-  const institutionName = settings?.institutionName || 'Kurum Adı Belirtilmedi'
+  const institutionName = settings?.institutionName || ''
   const idareAdi = rawHarcamaBirimi ? `${institutionName} - ${rawHarcamaBirimi}` : institutionName
 
   const rawTur = dosyaResData?.tur || 'mal'
@@ -132,7 +132,7 @@ export function buildDocumentContext(
     dosyaAcilisTarihi: formatDateString(dosyaResData?.dosya_acilis_tarihi) || fileDate,
     acilisTarihi: formatDateString(dosyaResData?.dosya_acilis_tarihi) || fileDate,
     onayTarihi: formatDateString(dosyaResData?.onay_tarihi) || fileDate,
-    onayaSunulanTarih: formatDateString(dosyaResData?.temin_tarihi) || fileDate,
+    onayaSunulanTarih: formatDateString(dosyaResData?.temin_tarihi) || formatDateString(dosyaResData?.dosya_acilis_tarihi) || fileDate,
     kararTarihi: formatDateString(dosyaResData?.karar_tarihi) || fileDate,
     belgeTarihi: fileDate,
     talepTarihi: fileDate,
@@ -160,9 +160,9 @@ export function buildDocumentContext(
     yukleniciEposta: dosyaResData?.yuklenici_firma_email || '',
     yukleniciVergiDairesi: dosyaResData?.yuklenici_firma_vergi_dairesi || '',
     yukleniciVergiNo: dosyaResData?.yuklenici_firma_vergi_no || '',
-    idareAdresi: kurum?.adres || settings?.kurumAdres || 'İdare Adresi Belirtilmedi',
-    idareTelefon: kurum?.telefon || settings?.kurumTelefon || 'Telefon Belirtilmedi',
-    idareEposta: kurum?.eposta || settings?.kurumEposta || 'E-posta Belirtilmedi',
+    idareAdresi: kurum?.adres || settings?.kurumAdres || '',
+    idareTelefon: kurum?.telefon || settings?.kurumTelefon || '',
+    idareEposta: kurum?.eposta || settings?.kurumEposta || '',
     kurumAdres: kurum?.adres || settings?.kurumAdres || '',
     kurumTelefon: kurum?.telefon || settings?.kurumTelefon || '',
     kurumEposta: kurum?.eposta || settings?.kurumEposta || '',
@@ -171,12 +171,12 @@ export function buildDocumentContext(
     kurumIci: true,
     evrakSayisi: formattedEvrakSayisi,
     evrakNo: formattedEvrakSayisi,
-    sayi: dosyaResData?.temin_no || formattedEvrakSayisi || 'Belirtilmedi',
-    sayisi: dosyaResData?.temin_no || formattedEvrakSayisi || 'Belirtilmedi',
-    dosyaSayisi: dosyaResData?.temin_no || 'Belirtilmedi',
+    sayi: dosyaResData?.temin_no || formattedEvrakSayisi || '',
+    sayisi: dosyaResData?.temin_no || formattedEvrakSayisi || '',
+    dosyaSayisi: dosyaResData?.temin_no || '',
     dosyaKonusu: undefined,
-    isAdi: dosyaResData?.konu || 'Konu Belirtilmedi',
-    isinAdi: dosyaResData?.konu || 'Konu Belirtilmedi',
+    isAdi: dosyaResData?.konu || '',
+    isinAdi: dosyaResData?.konu || '',
     sayiYazıyla: SAYI_YAZI_MAP,
     kurumumuz: suffixes.kurumumuz,
     kurumunuz: suffixes.kurumunuz,
@@ -200,16 +200,16 @@ export function buildDocumentContext(
       (antetSatirlari.length > 0 ? antetSatirlari.join(' ') : idareAdi),
     baskanAdi: dosyaResData?.onaylayan_ad_soyad || '',
     baskanUnvan: dosyaResData?.onaylayan_unvan || 'Harcama Yetkilisi',
-    teminNo: dosyaResData?.temin_no || 'Belirtilmedi',
+    teminNo: dosyaResData?.temin_no || '',
     maddeNo: dosyaResData?.ihale_sekli || '22/d',
     yaklasikMaliyet: yaklasikMaliyetText,
     toplamMaliyet: yaklasikMaliyetText,
     toplamTutar: genelToplam,
     yaklasikMaliyetYazi: paraYaziyaCevir(effectiveYaklasikMaliyet),
-    odenekTutari: settings?.kullanilabilirOdenek || '500.000,00 TL',
-    projeNo: dosyaResData?.yatirim_proje_no || 'Yok',
+    odenekTutari: settings?.kullanilabilirOdenek || '',
+    projeNo: dosyaResData?.yatirim_proje_no || '',
     butceTertibi: butceTertibiArray,
-    butceKodu: rawButceKodu || 'Belirtilmedi',
+    butceKodu: rawButceKodu || '',
     avansSartlari:
       dosyaResData?.avans_verilecek_mi === 1 ? 'Avans verilecektir.' : 'Avans verilmeyecek',
     fiyatFarkiSartlari: dosyaResData?.fiyat_farki_dayanagi || 'Fiyat Farkı Ödenmeyecek',
@@ -223,7 +223,7 @@ export function buildDocumentContext(
     komisyonTakdiri:
       dosyaResData?.komisyon_takdiri || 'Sadece araştırma fiyatları dikkate alınacak',
     dokumanHazirlik: 'Hazırlanmayacaktır.',
-    isinAciklamasi: dosyaResData?.isin_aciklamasi || dosyaResData?.konu || 'Belirtilmedi',
+    isinAciklamasi: dosyaResData?.isin_aciklamasi || dosyaResData?.konu || '',
     onaylayanPersonelAdi: dosyaResData?.onaylayan_ad_soyad || '',
     onaylayanPersonelUnvan: dosyaResData?.onaylayan_unvan || '',
     onaylayanlar: [

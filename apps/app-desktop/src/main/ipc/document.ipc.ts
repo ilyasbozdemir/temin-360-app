@@ -885,7 +885,66 @@ export function registerDocumentIpcHandlers(): void {
         teslimGun: (dosya as any)?.teslim_gun !== undefined && (dosya as any)?.teslim_gun !== null && String((dosya as any).teslim_gun).trim() !== '' ? String((dosya as any).teslim_gun) : '7',
         teslimGunu: (dosya as any)?.teslim_gun !== undefined && (dosya as any)?.teslim_gun !== null && String((dosya as any).teslim_gun).trim() !== '' ? String((dosya as any).teslim_gun) : '7',
         teslimTarihi: (dosya as any)?.teslim_tarihi || '',
-        dosyaTarihi: (dosya as any)?.tarih || (dosya as any)?.temin_tarihi || new Date().toLocaleDateString('tr-TR'),
+        dosyaAcilisTarihi: (() => {
+          const raw = (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at
+          if (!raw) return ''
+          const clean = String(raw).trim()
+          if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
+            const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
+            return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
+          }
+          return clean.substring(0, 10)
+        })(),
+        acilisTarihi: (() => {
+          const raw = (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at
+          if (!raw) return ''
+          const clean = String(raw).trim()
+          if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
+            const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
+            return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
+          }
+          return clean.substring(0, 10)
+        })(),
+        dosyaTarihi: (() => {
+          const raw = (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at
+          if (!raw) return ''
+          const clean = String(raw).trim()
+          if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
+            const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
+            return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
+          }
+          return clean.substring(0, 10)
+        })(),
+        onayaSunulanTarih: (() => {
+          const raw = (dosya as any)?.temin_tarihi || (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at
+          if (!raw) return ''
+          const clean = String(raw).trim()
+          if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
+            const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
+            return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
+          }
+          return clean.substring(0, 10)
+        })(),
+        onayTarihi: (() => {
+          const raw = (dosya as any)?.onay_tarihi || (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih
+          if (!raw) return ''
+          const clean = String(raw).trim()
+          if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
+            const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
+            return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
+          }
+          return clean.substring(0, 10)
+        })(),
+        tarih: (() => {
+          const raw = (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at
+          if (!raw) return ''
+          const clean = String(raw).trim()
+          if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
+            const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
+            return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
+          }
+          return clean.substring(0, 10)
+        })(),
         evrakSayisi: (dosya as any)?.evrak_sayisi || (dosya as any)?.temin_no || '',
         ihtiyacKalemleri,
         firmaListesi: combinedFirms,

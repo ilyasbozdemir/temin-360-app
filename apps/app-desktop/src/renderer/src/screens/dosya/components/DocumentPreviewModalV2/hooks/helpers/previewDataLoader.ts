@@ -2,6 +2,7 @@ import { TemplateResolver } from "@temin360/document-templates";
 import { getDefaultMappingForProcess } from "../../../../../../constants/mappings";
 import { useSettingsStore } from "../../../../../../store/settingsStore";
 import { useGlobalDocumentPreviewStore } from "../../../../../../store/globalDocumentPreviewStore";
+import { formatDateString } from "../../../../contextBuilder/dateHelpers";
 import { LoadPreviewDataParams, LoadPreviewDataResult } from "./types";
 
 function dedupeMembers(members: any[]) {
@@ -93,10 +94,30 @@ export async function loadDocumentPreviewData({
     baseData.antetSatirlari = resolved.antetSatirlari;
   }
 
-  baseData.tarih = baseData.tarih || baseData.dosyaTarihi || baseData.onayaSunulanTarih || "";
-  baseData.onayTarihi = baseData.onayTarihi || baseData.dosyaTarihi || "";
-
   const dosyaObj = payloadData.dosya || dosyaRecord || {};
+  const formattedAcilisTarihi =
+    formatDateString(dosyaObj.dosya_acilis_tarihi) ||
+    formatDateString(dosyaObj.tarih) ||
+    formatDateString(dosyaObj.created_at) ||
+    "";
+
+  baseData.dosyaAcilisTarihi =
+    formatDateString(dosyaObj.dosya_acilis_tarihi) || baseData.dosyaAcilisTarihi || formattedAcilisTarihi;
+  baseData.acilisTarihi =
+    formatDateString(dosyaObj.dosya_acilis_tarihi) || baseData.acilisTarihi || formattedAcilisTarihi;
+  baseData.dosyaTarihi =
+    formatDateString(dosyaObj.dosya_acilis_tarihi) || baseData.dosyaTarihi || formattedAcilisTarihi;
+  baseData.onayaSunulanTarih =
+    formatDateString(dosyaObj.temin_tarihi) ||
+    formatDateString(dosyaObj.dosya_acilis_tarihi) ||
+    baseData.onayaSunulanTarih ||
+    formattedAcilisTarihi;
+  baseData.tarih =
+    baseData.tarih || formattedAcilisTarihi || baseData.onayaSunulanTarih || "";
+  baseData.onayTarihi =
+    formatDateString(dosyaObj.onay_tarihi) ||
+    baseData.onayTarihi ||
+    formattedAcilisTarihi;
   const ctx = payloadData.resolvedContext || {};
 
   if (!baseData.hazirlayanPersonelAdi) {

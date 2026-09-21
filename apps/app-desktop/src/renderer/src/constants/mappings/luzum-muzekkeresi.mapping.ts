@@ -130,14 +130,12 @@ export const LuzumMuzekkeresiMapping: ProcessMapping = {
   },
   onayaSunulanTarih: {
     tablo: 'DATA_TeminDosyasi',
-    sutun: 'temin_tarihi',
-    varsayilan: new Date().toLocaleDateString('tr-TR'),
+    sutun: 'dosya_acilis_tarihi',
     aciklama: 'Onaya sunulma tarihi'
   },
   onayTarihi: {
     tablo: 'DATA_TeminDosyasi',
     sutun: 'dosya_acilis_tarihi',
-    varsayilan: new Date().toLocaleDateString('tr-TR'),
     aciklama: 'OLUR / Onay tarihi'
   },
   hazirlayanPersonelAdi: {
