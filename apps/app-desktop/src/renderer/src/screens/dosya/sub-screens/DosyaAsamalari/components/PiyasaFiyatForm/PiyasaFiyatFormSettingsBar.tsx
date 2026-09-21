@@ -4,6 +4,7 @@ import { Award, Calendar } from "lucide-react";
 interface PiyasaFiyatFormSettingsBarProps {
   formMode: "maliyet" | "tutanak";
   hesaplamaEsasi: string;
+  setHesaplamaEsasi?: (val: string) => void;
   maliyetCetveliTarihi: string;
   setMaliyetCetveliTarihi: (val: string) => void;
   tutanakTarihi: string;
@@ -18,6 +19,7 @@ interface PiyasaFiyatFormSettingsBarProps {
 export function PiyasaFiyatFormSettingsBar({
   formMode,
   hesaplamaEsasi,
+  setHesaplamaEsasi,
   maliyetCetveliTarihi,
   setMaliyetCetveliTarihi,
   tutanakTarihi,
@@ -32,12 +34,25 @@ export function PiyasaFiyatFormSettingsBar({
     <div className="bg-slate-50/90 dark:bg-slate-900/80 p-3 px-4 md:px-8 flex flex-wrap items-center justify-between gap-3 text-xs border-b border-slate-100 dark:border-slate-800/40">
       {/* Dates & Basis Info */}
       <div className="flex flex-wrap items-center gap-3">
-        <span className="text-slate-500 dark:text-slate-400 font-medium">
-          Hesaplama Yöntemi:{" "}
-          <strong className="text-slate-700 dark:text-slate-200 font-semibold">
-            {hesaplamaEsasi}
-          </strong>
-        </span>
+        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-2xs h-9">
+          <span className="text-slate-500 dark:text-slate-400 font-medium">
+            Hesaplama Esası:
+          </span>
+          {setHesaplamaEsasi ? (
+            <select
+              value={hesaplamaEsasi || "Ortalama fiyat esasına göre"}
+              onChange={(e) => setHesaplamaEsasi(e.target.value)}
+              className="bg-transparent border-none text-xs font-extrabold focus:outline-none cursor-pointer text-indigo-600 dark:text-indigo-400"
+            >
+              <option value="Ortalama fiyat esasına göre">Ortalama Fiyat Esası</option>
+              <option value="En Düşük fiyat esasına göre">En Düşük Fiyat Esası</option>
+            </select>
+          ) : (
+            <strong className="text-slate-700 dark:text-slate-200 font-semibold">
+              {hesaplamaEsasi}
+            </strong>
+          )}
+        </div>
 
         <span className="text-slate-300 dark:text-slate-700">•</span>
 

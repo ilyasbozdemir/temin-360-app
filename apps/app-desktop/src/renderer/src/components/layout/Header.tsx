@@ -817,7 +817,7 @@ export function Header(): React.JSX.Element {
       )}
 
       {/* ÜST SATIR: Menü Çubuğu, Mod Switcher ve Sistem/Pencere Kontrolleri */}
-      <div className="h-9 flex items-center justify-between px-3 border-b border-slate-200/40 dark:border-slate-800/40 relative z-30">
+      <div className="h-9 flex items-center justify-between px-3 border-b border-slate-200/40 dark:border-slate-800/40 relative z-40">
         {/* SOL: VS Code-Style Responsive Menu Bar */}
         <div
           id="native-menu-bar"
@@ -1253,7 +1253,7 @@ export function Header(): React.JSX.Element {
 
       {/* ALT SATIR: Çalışma Dosyası Seçimi, Mod Rozeti & Süreç Butonları */}
       <div
-        className="min-h-9 py-1 flex items-center justify-between gap-1 sm:gap-2.5 bg-slate-100/50 dark:bg-slate-950/20 border-t border-slate-200/30 dark:border-slate-800/30 select-none px-2 sm:px-3 relative z-30 w-full"
+        className="min-h-9 py-1 flex items-center justify-between gap-1 sm:gap-2.5 bg-slate-100/50 dark:bg-slate-950/20 border-t border-slate-200/30 dark:border-slate-800/30 select-none px-2 sm:px-3 relative z-20 w-full"
         style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
       >
         {/* Sol: İnce ve Şık Aktif Çalışma Modu Rozeti */}

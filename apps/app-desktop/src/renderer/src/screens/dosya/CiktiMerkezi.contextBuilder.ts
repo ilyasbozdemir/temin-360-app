@@ -97,7 +97,8 @@ export function buildDocumentContext(
     })
 
   const dbYaklasikMaliyet = dosyaResData?.yaklasik_maliyet || 0
-  const yaklasikMaliyetText = dbYaklasikMaliyet > 0 ? formatTR(dbYaklasikMaliyet) : '0,00'
+  const effectiveYaklasikMaliyet = dbYaklasikMaliyet > 0 ? dbYaklasikMaliyet : grandTotal
+  const yaklasikMaliyetText = formatTR(effectiveYaklasikMaliyet)
   const teminSekliText =
     dosyaResData?.ihale_sekli || "4734 sayılı Kanun'un 22/d maddesi gereğince Doğrudan Temin"
 
@@ -105,7 +106,7 @@ export function buildDocumentContext(
     dosyaResData,
     alimTuruText,
     teminSekliText,
-    dbYaklasikMaliyet,
+    effectiveYaklasikMaliyet,
     yaklasikMaliyetText,
     butceTertibiArray,
     grandTotal,
@@ -167,6 +168,10 @@ export function buildDocumentContext(
     kurumWeb: kurum?.web_sitesi || '',
     kurumIci: true,
     evrakSayisi: formattedEvrakSayisi,
+    evrakNo: formattedEvrakSayisi,
+    sayi: dosyaResData?.temin_no || formattedEvrakSayisi || 'Belirtilmedi',
+    sayisi: dosyaResData?.temin_no || formattedEvrakSayisi || 'Belirtilmedi',
+    dosyaSayisi: dosyaResData?.temin_no || 'Belirtilmedi',
     dosyaKonusu: undefined,
     isAdi: dosyaResData?.konu || 'Konu Belirtilmedi',
     isinAdi: dosyaResData?.konu || 'Konu Belirtilmedi',
@@ -194,9 +199,11 @@ export function buildDocumentContext(
     baskanAdi: dosyaResData?.onaylayan_ad_soyad || '',
     baskanUnvan: dosyaResData?.onaylayan_unvan || 'Harcama Yetkilisi',
     teminNo: dosyaResData?.temin_no || 'Belirtilmedi',
-    teminSekli: teminSekliText,
     maddeNo: dosyaResData?.ihale_sekli || '22/d',
     yaklasikMaliyet: yaklasikMaliyetText,
+    toplamMaliyet: yaklasikMaliyetText,
+    toplamTutar: genelToplam,
+    yaklasikMaliyetYazi: paraYaziyaCevir(effectiveYaklasikMaliyet),
     odenekTutari: settings?.kullanilabilirOdenek || '500.000,00 TL',
     projeNo: dosyaResData?.yatirim_proje_no || 'Yok',
     butceTertibi: butceTertibiArray,

@@ -12,11 +12,13 @@ import {
   Key,
   Sliders,
   CheckCircle2,
-  ExternalLink
+  ExternalLink,
+  Sparkles
 } from 'lucide-react'
 import { KurumVerisi } from '../kurum.hooks'
 import { DetsisBadge } from '../../../components/ui/DetsisBadge'
 import { KeyValuePair, KurumMetadataManager } from './KurumMetadataManager'
+import { useSettingsStore } from '../../../store/settingsStore'
 
 interface KurumViewCardProps {
   data: Partial<KurumVerisi>
@@ -33,32 +35,69 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
   customMetadata,
   onEditClick
 }) => {
+  const { institutionLogo, logoLeft, logoRight } = useSettingsStore()
+  const displayLogo =
+    institutionLogo ||
+    logoLeft ||
+    logoRight ||
+    (data as any)?.kurum_logo ||
+    (data as any)?.logo_url ||
+    ''
+
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Top Banner Card */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900 p-6 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900 p-6 text-white shadow-xl">
         <div className="absolute right-0 top-0 -mr-12 -mt-12 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-blue-200 border border-blue-400/30 text-xs font-bold backdrop-blur-md">
-                <Building2 className="w-3.5 h-3.5 text-blue-400" />
-                Aktif Resmi Kurum Profili
-              </span>
-              <DetsisBadge detsisNo={data.detsis_kodu} showSearchButton={false} />
-            </div>
-
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug break-words">
-              {data.kurum_adi || 'Kurum Adı Tanımlanmamış'}
-            </h2>
-
-            {data.makam_adi && (
-              <p className="text-xs text-blue-200/80 font-medium flex items-center gap-2">
-                <Landmark className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                <span>Makam / Muhatap:</span>
-                <strong className="text-white">{data.makam_adi}</strong>
-              </p>
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            {displayLogo ? (
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/10 dark:bg-slate-900/60 p-2 border border-white/20 backdrop-blur-md shrink-0 flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
+                <img
+                  src={displayLogo}
+                  alt="Kurum Logosu"
+                  className="w-full h-full object-contain drop-shadow-md"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none'
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-blue-500/20 border border-blue-400/30 backdrop-blur-md shrink-0 flex items-center justify-center text-blue-300 shadow-md">
+                <Building2 className="w-8 h-8" />
+              </div>
             )}
+
+            <div className="space-y-2 flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/25 text-blue-200 border border-blue-400/40 text-xs font-bold backdrop-blur-md shadow-2xs">
+                  <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 fill-blue-500/30" />
+                  <span>Aktif Resmi Kurum Profili</span>
+                </span>
+                {data.detsis_kodu && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 text-xs font-bold backdrop-blur-md">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span>DETSİS Entegre ({data.detsis_kodu})</span>
+                  </span>
+                )}
+                <DetsisBadge detsisNo={data.detsis_kodu} showSearchButton={false} />
+              </div>
+
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug break-words flex items-center gap-2">
+                <span>{data.kurum_adi || 'Kurum Adı Tanımlanmamış'}</span>
+                <span title="Resmi Doğrulanmış Profil">
+                  <CheckCircle2 className="w-6 h-6 text-blue-400 shrink-0 inline-block fill-blue-500/30" />
+                </span>
+              </h2>
+
+              {data.makam_adi && (
+                <p className="text-xs text-blue-200/90 font-medium flex items-center gap-2">
+                  <Landmark className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                  <span>Makam / Muhatap:</span>
+                  <strong className="text-white font-semibold">{data.makam_adi}</strong>
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Quick Edit Action */}

@@ -1,4 +1,7 @@
+import Decimal from 'decimal.js'
 import { paraYaziyaCevir } from '../../../constants/sayiEslesmeleri'
+
+Decimal.set({ precision: 20, rounding: Decimal.ROUND_HALF_UP })
 
 export function calculateFirmaTeklifleri(
   firms: any[],
@@ -7,29 +10,33 @@ export function calculateFirmaTeklifleri(
   formatTR: (val: number) => string
 ) {
   const firmaToplamlari = firms.map((f: any) => {
-    let sum = 0
+    let sumDecimal = new Decimal(0)
     kalemlerData?.forEach((k: any) => {
-      const price = bidsMap[`${k.id}_${f.temin_firma_id}`] || 0
-      sum += price * (k.miktar || 0)
+      const price = new Decimal(bidsMap[`${k.id}_${f.temin_firma_id}`] || 0)
+      const miktar = new Decimal(k.miktar || 0)
+      sumDecimal = sumDecimal.plus(price.times(miktar))
     })
+    const finalSum = sumDecimal.toDecimalPlaces(2).toNumber()
     return {
-      toplam: formatTR(sum)
+      toplam: formatTR(finalSum)
     }
   })
 
   const calculatedTeklifler = firms
     .map((f: any, index: number) => {
-      let sum = 0
+      let sumDecimal = new Decimal(0)
       kalemlerData?.forEach((k: any) => {
-        const price = bidsMap[`${k.id}_${f.temin_firma_id}`] || 0
-        sum += price * (k.miktar || 0)
+        const price = new Decimal(bidsMap[`${k.id}_${f.temin_firma_id}`] || 0)
+        const miktar = new Decimal(k.miktar || 0)
+        sumDecimal = sumDecimal.plus(price.times(miktar))
       })
+      const finalSum = sumDecimal.toDecimalPlaces(2).toNumber()
       return {
         siraNo: index + 1,
         istekliUnvani: f.unvan,
-        teklifBedeli: formatTR(sum),
-        teklifBedeliRaw: sum,
-        yaziIle: paraYaziyaCevir(sum)
+        teklifBedeli: formatTR(finalSum),
+        teklifBedeliRaw: finalSum,
+        yaziIle: paraYaziyaCevir(finalSum)
       }
     })
     .sort((a: any, b: any) => a.teklifBedeliRaw - b.teklifBedeliRaw)

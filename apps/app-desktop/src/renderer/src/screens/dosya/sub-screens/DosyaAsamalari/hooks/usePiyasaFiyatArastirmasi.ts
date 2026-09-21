@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
+import Decimal from 'decimal.js'
 import { useDosyaAsamasiSablons, normalizeForMatch } from '../useDosyaAsamasiSablons'
 
 export interface BiddingFirm {
@@ -75,6 +76,7 @@ export function usePiyasaFiyatArastirmasiLogic() {
   const [isEditingFirms, setIsEditingFirms] = useState<boolean>(false)
   const [maliyetCetveliTarihi, setMaliyetCetveliTarihi] = useState<string>('')
   const [tutanakTarihi, setTutanakTarihi] = useState<string>('')
+  const [dosyaDefaultDate, setDosyaDefaultDate] = useState<string>('')
   const [syncTutanak, setSyncTutanak] = useState<boolean>(true)
   const [setLowestFirmAsWinner, setSetLowestFirmAsWinner] = useState<boolean>(true)
   const [manualWinnerFirmaId, setManualWinnerFirmaId] = useState<number | null>(null)
@@ -219,7 +221,7 @@ export function usePiyasaFiyatArastirmasiLogic() {
 
       const resDosya = await window.electron.ipcRenderer.invoke(
         'db:query',
-        'SELECT hesaplama_esasi, komisyon_takdiri, temin_tarihi, firma_id FROM DATA_TeminDosyasi WHERE id = ?',
+        'SELECT dosya_acilis_tarihi, tarih, temin_no, evrak_sayisi, hesaplama_esasi, komisyon_takdiri, temin_tarihi, firma_id FROM DATA_TeminDosyasi WHERE id = ?',
         [activeDosyaId]
       )
 
@@ -249,11 +251,27 @@ export function usePiyasaFiyatArastirmasiLogic() {
       if (resItems.success) setItems(resItems.data || [])
       let defaultDate = ''
       if (resDosya.success && resDosya.data && resDosya.data.length > 0) {
+        const rawDate =
+          resDosya.data[0].dosya_acilis_tarihi ||
+          resDosya.data[0].temin_tarihi ||
+          resDosya.data[0].tarih ||
+          ''
+        if (rawDate) {
+          const cleanStr = String(rawDate).trim()
+          if (/^\d{4}-\d{2}-\d{2}/.test(cleanStr)) {
+            defaultDate = cleanStr.split(' ')[0]
+          } else if (/^\d{2}\.\d{2}\.\d{4}/.test(cleanStr)) {
+            const [d, m, y] = cleanStr.split('.')
+            defaultDate = `${y}-${m}-${d}`
+          } else {
+            defaultDate = cleanStr
+          }
+        }
+        setDosyaDefaultDate(defaultDate)
         setHesaplamaEsasi(resDosya.data[0].hesaplama_esasi || 'Ortalama fiyat esasına göre')
         setKomisyonTakdiri(
           resDosya.data[0].komisyon_takdiri || 'Sadece araştırma fiyatları dikkate alınacak'
         )
-        defaultDate = resDosya.data[0].temin_tarihi || ''
         // Mevcut kazanan firma varsa state'e yükle
         if (resDosya.data[0].firma_id) {
           setManualWinnerFirmaId(resDosya.data[0].firma_id)
@@ -591,16 +609,16 @@ export function usePiyasaFiyatArastirmasiLogic() {
 
   const getAverageBid = useCallback(
     (kalemId: number): number => {
-      let sum = 0
+      let sumDecimal = new Decimal(0)
       let count = 0
       invitedFirms.forEach((firma) => {
         const price = bids[`${kalemId}_${firma.id}`]
         if (price > 0) {
-          sum += price
+          sumDecimal = sumDecimal.plus(price)
           count++
         }
       })
-      return count > 0 ? sum / count : 0
+      return count > 0 ? sumDecimal.div(count).toDecimalPlaces(2).toNumber() : 0
     },
     [invitedFirms, bids]
   )
@@ -610,10 +628,13 @@ export function usePiyasaFiyatArastirmasiLogic() {
       hesaplamaEsasi?.toLowerCase().includes('en düşük') ||
       hesaplamaEsasi?.toLowerCase().includes('en dusuk')
 
-    return items.reduce((sum, item) => {
+    let totalDecimal = new Decimal(0)
+    items.forEach((item) => {
       const price = isLowestBasis ? getLowestBidInfo(item.id).price : getAverageBid(item.id)
-      return sum + (item.miktar || 0) * price
-    }, 0)
+      const miktar = new Decimal(item.miktar || 0)
+      totalDecimal = totalDecimal.plus(miktar.times(price))
+    })
+    return totalDecimal.toDecimalPlaces(2).toNumber()
   }, [items, getAverageBid, getLowestBidInfo, hesaplamaEsasi])
 
   /**
@@ -622,8 +643,9 @@ export function usePiyasaFiyatArastirmasiLogic() {
   const handleNewDocument = (mode: 'maliyet' | 'tutanak'): void => {
     setFormMode(mode)
     const today = new Date().toISOString().split('T')[0]
-    if (!maliyetCetveliTarihi) setMaliyetCetveliTarihi(today)
-    if (!tutanakTarihi) setTutanakTarihi(today)
+    const defaultTarih = dosyaDefaultDate || today
+    if (!maliyetCetveliTarihi) setMaliyetCetveliTarihi(defaultTarih)
+    if (!tutanakTarihi) setTutanakTarihi(defaultTarih)
     setSyncTutanak(true)
     setBelgeleriKaydet(true)
     setIsFormOpen(true)
@@ -641,11 +663,11 @@ export function usePiyasaFiyatArastirmasiLogic() {
     }
 
     try {
-      // 1. Her durumda Yaklaşık Maliyeti Veritabanında güncelle
+      // 1. Her durumda Yaklaşık Maliyeti ve Hesaplama Esasını Veritabanında güncelle
       await window.electron.ipcRenderer.invoke(
         'db:run',
-        'UPDATE DATA_TeminDosyasi SET yaklasik_maliyet = ? WHERE id = ?',
-        [total, activeDosyaId]
+        'UPDATE DATA_TeminDosyasi SET yaklasik_maliyet = ?, hesaplama_esasi = ? WHERE id = ?',
+        [total, hesaplamaEsasi || 'Ortalama fiyat esasına göre', activeDosyaId]
       )
 
       const effectiveMode = targetMode === 'save_only' ? (formMode || 'tutanak') : targetMode
@@ -1156,6 +1178,7 @@ export function usePiyasaFiyatArastirmasiLogic() {
     bids,
     loading,
     hesaplamaEsasi,
+    setHesaplamaEsasi,
     komisyonTakdiri,
     isFirmModalOpen,
     setIsFirmModalOpen,

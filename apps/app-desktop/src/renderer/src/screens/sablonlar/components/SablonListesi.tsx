@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import { Plus, LayoutTemplate, Edit, Calendar, History, Trash2, Search } from 'lucide-react'
+import React, { useState, useMemo } from 'react'
+import { Plus, LayoutTemplate, Edit, Calendar, History, Trash2, Search, Sparkles } from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
 import { Modal } from '../../../components/ui/Modal'
 import { useSablonlar, Sablon, useSablonHistory, useDeleteSablon } from '../sablonlar.hooks'
@@ -96,10 +96,12 @@ function SablonHistoryModal({
 
 export function SablonListesi({
   onEdit,
-  onCreate
+  onCreate,
+  onOpenPlayground
 }: {
   onEdit: (s: Sablon) => void
   onCreate: () => void
+  onOpenPlayground?: () => void
 }) {
   const { data: sablonlar, isLoading } = useSablonlar()
   const [historySablon, setHistorySablon] = useState<Sablon | null>(null)
@@ -138,7 +140,7 @@ export function SablonListesi({
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
@@ -146,12 +148,25 @@ export function SablonListesi({
               placeholder="Şablonlarda ara..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 w-64 text-slate-800 dark:text-slate-200 transition-all"
+              className="pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 w-48 sm:w-64 text-slate-800 dark:text-slate-200 transition-all"
             />
           </div>
+
+          {onOpenPlayground && (
+            <Button
+              onClick={onOpenPlayground}
+              variant="outline"
+              className="border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/50 font-bold flex items-center gap-1.5 px-3 py-2 text-xs shadow-2xs whitespace-nowrap cursor-pointer"
+              title="Form Builder v2 Oyun Alanı (Playground) Aç"
+            >
+              <Sparkles className="w-4 h-4 text-purple-500" />
+              Form Builder v2 (Oyun Alanı)
+            </Button>
+          )}
+
           <Button
             onClick={onCreate}
-            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold flex items-center gap-2 px-4 shadow-md whitespace-nowrap"
+            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold flex items-center gap-2 px-4 shadow-md whitespace-nowrap cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Yeni Şablon

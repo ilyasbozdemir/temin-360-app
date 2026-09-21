@@ -11,12 +11,13 @@ import {
 interface PiyasaFiyatArastirmasiFormProps {
   isFormFullscreen?: boolean;
   setIsFormOpen: (val: boolean) => void;
-  activeFormTab: "firms" | "matrix" | "comparison";
-  setActiveFormTab: (tab: "firms" | "matrix" | "comparison") => void;
+  activeFormTab: any;
+  setActiveFormTab: (tab: any) => void;
   hesaplamaEsasi: string;
+  setHesaplamaEsasi?: (val: string) => void;
   invitedFirms: any[];
   items: any[];
-  bids: any;
+  bids: Record<string, number>;
   getEstimatedCostTotal: () => number;
   getLowestBidInfo: (itemId: number) => any;
   getAverageBid: (itemId: number) => number;
@@ -52,6 +53,7 @@ export function PiyasaFiyatArastirmasiForm({
   activeFormTab,
   setActiveFormTab,
   hesaplamaEsasi,
+  setHesaplamaEsasi,
   invitedFirms,
   items,
   bids,
@@ -99,6 +101,7 @@ export function PiyasaFiyatArastirmasiForm({
         <PiyasaFiyatFormSettingsBar
           formMode={formMode}
           hesaplamaEsasi={hesaplamaEsasi}
+          setHesaplamaEsasi={setHesaplamaEsasi}
           maliyetCetveliTarihi={maliyetCetveliTarihi}
           setMaliyetCetveliTarihi={setMaliyetCetveliTarihi}
           tutanakTarihi={tutanakTarihi}

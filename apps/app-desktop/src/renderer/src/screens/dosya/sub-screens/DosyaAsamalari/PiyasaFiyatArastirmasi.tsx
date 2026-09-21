@@ -45,6 +45,7 @@ export function PiyasaFiyatArastirmasi(): React.JSX.Element {
     items,
     bids,
     hesaplamaEsasi,
+    setHesaplamaEsasi,
     isFirmModalOpen,
     setIsFirmModalOpen,
     selectedFirmIds,
@@ -186,6 +187,7 @@ export function PiyasaFiyatArastirmasi(): React.JSX.Element {
             activeFormTab={activeFormTab}
             setActiveFormTab={setActiveFormTab}
             hesaplamaEsasi={hesaplamaEsasi}
+            setHesaplamaEsasi={setHesaplamaEsasi}
             invitedFirms={invitedFirms}
             items={items}
             bids={bids}

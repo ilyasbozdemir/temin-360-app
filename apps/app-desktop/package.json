@@ -1,6 +1,6 @@
 {
   "name": "app-desktop",
-  "version": "1.0.0-beta.150",
+  "version": "1.0.0-beta.151",
   "description": "TEMİN 360 - Kamu Alımları, Doğrudan Temin ve Hakediş Yönetim Sistemi",
   "main": "./out/main/index.js",
   "author": "ilyasbozdemir.dev",
@@ -58,6 +58,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cors": "^2.8.6",
+    "decimal.js": "^10.6.0",
     "ee-first": "^1.1.1",
     "electron-is-dev": "^3.0.1",
     "electron-updater": "^6.8.3",
