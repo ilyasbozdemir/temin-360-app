@@ -26,6 +26,7 @@ import KurumScreen from "./screens/kurum/index.screen";
 import ProfilScreen from "./screens/profil/index.screen";
 
 import SablonlarScreen from "./screens/sablonlar/index.screen";
+import FormBuilderScreen from "./screens/sablonlar/formBuilder.screen";
 import DegiskenlerScreen from "./screens/sablonlar/degiskenler.screen";
 import RaporlarScreen from "./screens/raporlar/index.screen";
 import OkasKodScreen from "./screens/okaskod/index.screen";
@@ -98,6 +99,12 @@ const sablonlarRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.SABLONLAR,
   component: SablonlarScreen,
+});
+
+const formBuilderRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: APP_ROUTES.FORM_BUILDER,
+  component: FormBuilderScreen,
 });
 
 const degiskenlerRoute = createRoute({
@@ -386,6 +393,7 @@ const routeTree = rootRoute.addChildren([
   firmalarRoute,
   personelRoute,
   sablonlarRoute,
+  formBuilderRoute,
   degiskenlerRoute,
   komisyonlarRoute,
   komisyonDetayRoute,

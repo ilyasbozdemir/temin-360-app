@@ -728,6 +728,14 @@ export function Header(): React.JSX.Element {
             navigate({ to: "/mevzuat", search: { tab: "yi-ufe" } as any }),
         },
         {
+          label: "Şablon Yönetimi",
+          onClick: () => navigate({ to: "/sablonlar" }),
+        },
+        {
+          label: "🎨 Form Builder v2 (Sürükle & Bırak)",
+          onClick: () => navigate({ to: "/form-builder" }),
+        },
+        {
           label: "Şablon & Kategori Yönetimi",
           onClick: () => navigate({ to: "/degiskenler" }),
         },

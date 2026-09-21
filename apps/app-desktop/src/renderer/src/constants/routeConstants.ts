@@ -15,6 +15,7 @@ export const APP_ROUTES = {
   FIRMALAR: '/firmalar',
   PERSONEL: '/personel',
   SABLONLAR: '/sablonlar',
+  FORM_BUILDER: '/form-builder',
   DEGISKENLER: '/degiskenler',
   KOMISYONLAR: '/komisyonlar',
   KOMISYON_DETAY: '/komisyonlar/detay',

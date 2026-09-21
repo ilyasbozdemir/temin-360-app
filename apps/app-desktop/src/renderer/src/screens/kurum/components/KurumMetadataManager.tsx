@@ -163,7 +163,7 @@ export const KurumMetadataManager: React.FC<KurumMetadataManagerProps> = ({
       </div>
 
       {/* Existing Items List */}
-      <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+      <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-1">
         {metadata.length === 0 ? (
           <p className="text-[11px] text-slate-400 italic text-center py-2">
             Henüz eklenmiş özel parametre bulunmuyor. Yukarıdan hızlı ekleyebilirsiniz.

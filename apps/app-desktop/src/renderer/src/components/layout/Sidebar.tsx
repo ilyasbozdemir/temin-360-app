@@ -31,6 +31,7 @@ import {
   User,
   Users,
   Boxes,
+  LayoutTemplate,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { useSettingsStore } from "../../store/settingsStore";
@@ -40,6 +41,7 @@ interface SubItem {
   name: string;
   path: string;
   icon: React.ElementType;
+  badge?: string;
 }
 
 interface MenuItem {
@@ -161,6 +163,17 @@ const menuGroups: MenuGroup[] = [
           { name: "Kullanıcı Profili & Şifre", path: "/profil", icon: User },
           { name: "Mevzuat ve Parametreler", path: "/mevzuat", icon: Scale },
           { name: "Toplu İçe Aktarma", path: "/import", icon: Database },
+          {
+            name: "Form Builder v2 (Sürükle & Bırak)",
+            path: "/form-builder",
+            icon: LayoutTemplate,
+            badge: "YENİ",
+          },
+          {
+            name: "Şablon Yönetimi",
+            path: "/sablonlar",
+            icon: FileText,
+          },
           {
             name: "Şablon & Kategori Yönetimi",
             path: "/degiskenler",

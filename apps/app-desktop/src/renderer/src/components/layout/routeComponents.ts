@@ -19,6 +19,7 @@ import KurumScreen from '../../screens/kurum/index.screen'
 import ProfilScreen from '../../screens/profil/index.screen'
 
 import SablonlarScreen from '../../screens/sablonlar/index.screen'
+import FormBuilderScreen from '../../screens/sablonlar/formBuilder.screen'
 import DegiskenlerScreen from '../../screens/sablonlar/degiskenler.screen'
 import RaporlarScreen from '../../screens/raporlar/index.screen'
 import OkasKodScreen from '../../screens/okaskod/index.screen'
@@ -59,6 +60,7 @@ export const routeComponents: Record<string, React.ComponentType> = {
   '/firmalar': FirmalarScreen,
   '/personel': PersonelScreen,
   '/sablonlar': SablonlarScreen,
+  '/form-builder': FormBuilderScreen,
   '/degiskenler': DegiskenlerScreen,
   '/komisyonlar': KomisyonlarScreen,
   '/komisyonlar/detay': KomisyonDetayScreen,
