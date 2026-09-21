@@ -1253,7 +1253,7 @@ export function Header(): React.JSX.Element {
 
       {/* ALT SATIR: Çalışma Dosyası Seçimi, Mod Rozeti & Süreç Butonları */}
       <div
-        className="min-h-9 py-1 flex items-center justify-between gap-1 sm:gap-2.5 bg-slate-100/50 dark:bg-slate-950/20 border-t border-slate-200/30 dark:border-slate-800/30 select-none px-2 sm:px-3 relative z-10 w-full overflow-hidden"
+        className="min-h-9 py-1 flex items-center justify-between gap-1 sm:gap-2.5 bg-slate-100/50 dark:bg-slate-950/20 border-t border-slate-200/30 dark:border-slate-800/30 select-none px-2 sm:px-3 relative z-30 w-full"
         style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
       >
         {/* Sol: İnce ve Şık Aktif Çalışma Modu Rozeti */}
@@ -1288,7 +1288,7 @@ export function Header(): React.JSX.Element {
         </div>
 
         {/* Orta: Temin Seçici */}
-        <div className="flex-1 min-w-0 flex justify-center px-1 sm:px-2 overflow-hidden">
+        <div className="flex-1 min-w-0 flex justify-center px-1 sm:px-2">
           <TeminSelector />
         </div>
 
