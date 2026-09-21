@@ -370,8 +370,6 @@ export const TEMPLATE_ALIASES: Record<string, string> = {
   "harcama-pusulasi": "harcama-pusulasi",
   "harcamapusulasi": "harcama-pusulasi",
   "pusula": "harcama-pusulasi",
-  "muayene-kabul-komisyonu": "muayene-kabul-komisyonu",
-  "muayenekabulkomisyonu": "muayene-kabul-komisyonu",
   "muayene-kabul-belgesi": "muayene-kabul-komisyonu",
   "muayene-kabul-tutanagi": "muayene-kabul-komisyonu",
   "muayene-kabul": "muayene-kabul-komisyonu",

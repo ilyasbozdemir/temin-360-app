@@ -593,7 +593,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
   async function getOrCreateAppFolder(token: string): Promise<string> {
     const folderName = 'TEMIN_360_YEDEKLER'
     const query = encodeURIComponent(
-      `mimeType = 'application/vnd.google-apps.folder' and name = '${folderName}' and trashed = false`
+      `mimeType = 'application/vnd.google-apps.folder' and (name = 'TEMIN_360_YEDEKLER' or name = 'TEMIN_360_YEDEKLERİ') and trashed = false`
     )
 
     // 1. Klasörü ara
@@ -613,7 +613,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
     if (searchRes.ok) {
       const data = (await searchRes.json()) as { files?: Array<{ id: string; name: string }> }
       if (data.files && data.files.length > 0) {
-        console.log(`[Google Drive] ${folderName} klasörü bulundu:`, data.files[0].id)
+        console.log(`[Google Drive] ${data.files[0].name} klasörü bulundu:`, data.files[0].id)
         return data.files[0].id
       }
     } else {
@@ -699,7 +699,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
 
       const query = encodeURIComponent(`'${folderId}' in parents and trashed = false`)
       let res = await fetch(
-        `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,size,mimeType,modifiedTime,createdTime)&orderBy=createdTime%20desc`,
+        `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,size,mimeType,modifiedTime,createdTime)&orderBy=modifiedTime%20desc`,
         {
           headers: {
             Authorization: `Bearer ${cleanToken}`
@@ -712,7 +712,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
         if (newToken) {
           cleanToken = newToken
           res = await fetch(
-            `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,size,mimeType,modifiedTime,createdTime)&orderBy=createdTime%20desc`,
+            `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,size,mimeType,modifiedTime,createdTime)&orderBy=modifiedTime%20desc`,
             {
               headers: {
                 Authorization: `Bearer ${cleanToken}`
@@ -931,41 +931,40 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
       }
 
       const db = workspaceManager.getDb()
-      const hostRow = db.prepare("SELECT value FROM settings WHERE key = 'smtpHost'").get() as {
-        value: string
+      const getSmtpSetting = (k1: string, k2: string): string => {
+        try {
+          const row = db
+            .prepare('SELECT value FROM settings WHERE key = ? OR key = ?')
+            .get(k1, k2) as { value?: string } | undefined
+          return row?.value || ''
+        } catch {
+          return ''
+        }
       }
-      const portRow = db.prepare("SELECT value FROM settings WHERE key = 'smtpPort'").get() as {
-        value: string
-      }
-      const userRow = db.prepare("SELECT value FROM settings WHERE key = 'smtpUser'").get() as {
-        value: string
-      }
-      const passRow = db.prepare("SELECT value FROM settings WHERE key = 'smtpPass'").get() as {
-        value: string
-      }
-      const emailRow = db
-        .prepare("SELECT value FROM settings WHERE key = 'smtpReceiver'")
-        .get() as { value: string }
-      const secureRow = db
-        .prepare("SELECT value FROM settings WHERE key = 'smtpSecure'")
-        .get() as { value: string }
 
-      if (!hostRow?.value || !userRow?.value || !passRow?.value) {
+      const host = getSmtpSetting('smtpHost', 'smtp_host')
+      const portStr = getSmtpSetting('smtpPort', 'smtp_port')
+      const user = getSmtpSetting('smtpUser', 'smtp_user')
+      const pass = getSmtpSetting('smtpPass', 'smtp_pass')
+      const receiver = getSmtpSetting('smtpReceiver', 'smtp_receiver') || user
+      const secureStr = getSmtpSetting('smtpSecure', 'smtp_secure')
+
+      if (!host || !user || !pass) {
         return { success: false, error: 'SMTP ayarları yapılandırılmamış!' }
       }
 
-      const receiver = emailRow?.value || userRow.value
-      const port = parseInt(portRow.value) || 587
-      const userSecure = secureRow?.value === 'true'
-      const actualSecure = port === 465 ? true : port === 587 ? false : userSecure
+      const port = parseInt(portStr) || 587
+      const userSecure = secureStr === 'true'
+      const actualSecure =
+        port === 465 ? true : port === 587 || port === 25 || port === 2525 ? false : userSecure
 
       const transporter = nodemailer.createTransport({
-        host: hostRow.value,
+        host: host,
         port: port,
         secure: actualSecure,
         auth: {
-          user: userRow.value,
-          pass: passRow.value
+          user: user,
+          pass: pass
         },
         tls: {
           rejectUnauthorized: false
@@ -974,7 +973,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
 
       const fileName = basename(filePath)
       await transporter.sendMail({
-        from: `"TEMİN 360 Yedekleme" <${userRow.value}>`,
+        from: `"TEMİN 360 Yedekleme" <${user}>`,
         to: receiver,
         subject: `TEMİN 360 Veritabanı Yedeği - ${fileName}`,
         text: `Kurum dosyası yedeğiniz ektedir.\nDosya adı: ${fileName}\nTarih: ${new Date().toLocaleString('tr-TR')}`,

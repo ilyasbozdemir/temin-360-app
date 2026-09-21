@@ -49,9 +49,9 @@ export function useDosyaInspectorData(dosyaOrId?: any, initialDosyaParam?: any) 
            FROM DATA_TeminDosyasi d
            LEFT JOIN TANIM_Birim b ON d.birim_id = b.id
            LEFT JOIN TANIM_Personel p_irt ON d.irtibat_yetkilisi_id = p_irt.id
-           LEFT JOIN TANIM_Personel p_onay ON d.onaylayan_yetkili_id = p_onay.id
-           LEFT JOIN TANIM_Personel p_sunan ON d.sunan_gorevli_id = p_sunan.id
-           LEFT JOIN TANIM_Personel p_haz ON d.piyasa_arastirma_gorevlisi_id = p_haz.id
+           LEFT JOIN TANIM_Personel p_onay ON d.onay_personel_id = p_onay.id
+           LEFT JOIN TANIM_Personel p_sunan ON d.sunan_personel_id = p_sunan.id
+           LEFT JOIN TANIM_Personel p_haz ON d.hazirlayan_personel_id = p_haz.id
            LEFT JOIN TANIM_Personel p_talep ON d.talep_eden_personel_id = p_talep.id
            WHERE d.id = ?`,
           [numId],

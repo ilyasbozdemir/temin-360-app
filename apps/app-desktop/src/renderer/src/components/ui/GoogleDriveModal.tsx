@@ -73,9 +73,12 @@ export function GoogleDriveModal(
         useToken ? { token: useToken } : {},
       );
       if (res.success) {
+        const supportedExts = ['temin', 'hkmp', 'dtal', 'dtm', 'dte', 'dta', 'tmn360', 'sqlite', 'db', 'zip', 'bak'];
         const validList = (res.files || []).filter(
-          (f: GDriveFile) =>
-            f.name.endsWith(".dtal") || f.name.endsWith(".hkmp"),
+          (f: GDriveFile) => {
+            const lower = f.name.toLowerCase();
+            return supportedExts.some((ext) => lower.endsWith('.' + ext));
+          }
         );
         setFiles(validList);
         setIsSavedToken(true);

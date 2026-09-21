@@ -4,6 +4,7 @@ import {
   Briefcase,
   Building2,
   ClipboardList,
+  FolderKanban,
   HelpCircle,
   Home,
   LayoutGrid,
@@ -76,6 +77,12 @@ export function ActiveFileShortcuts(): React.JSX.Element {
       path: '/ambar',
       icon: Warehouse,
       color: 'hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950/20'
+    },
+    {
+      name: 'Proje Yönetimi',
+      path: '/projeler',
+      icon: FolderKanban,
+      color: 'hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20'
     }
   ]
 

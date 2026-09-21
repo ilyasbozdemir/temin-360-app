@@ -911,38 +911,36 @@ export async function performAutoCloudSync(): Promise<void> {
       if (!workspaceManager.hasChanges('email')) {
         console.log('[AutoCloudSync] Dosyada değişiklik bulunmadığı için otomatik e-posta gönderimi atlandı.')
       } else {
-        const hostRow = db
-          .prepare("SELECT value FROM settings WHERE key = 'smtpHost'")
-          .get() as { value: string } | undefined
-        const userRow = db
-          .prepare("SELECT value FROM settings WHERE key = 'smtpUser'")
-          .get() as { value: string } | undefined
-        const passRow = db
-          .prepare("SELECT value FROM settings WHERE key = 'smtpPass'")
-          .get() as { value: string } | undefined
-        const portRow = db
-          .prepare("SELECT value FROM settings WHERE key = 'smtpPort'")
-          .get() as { value: string } | undefined
-        const emailRow = db
-          .prepare("SELECT value FROM settings WHERE key = 'smtpReceiver'")
-          .get() as { value: string } | undefined
-        const secureRow = db
-          .prepare("SELECT value FROM settings WHERE key = 'smtpSecure'")
-          .get() as { value: string } | undefined
+        const getSmtpSetting = (k1: string, k2: string): string => {
+          try {
+            const row = db
+              .prepare('SELECT value FROM settings WHERE key = ? OR key = ?')
+              .get(k1, k2) as { value?: string } | undefined
+            return row?.value || ''
+          } catch {
+            return ''
+          }
+        }
 
-        if (hostRow?.value && userRow?.value && passRow?.value) {
-          const receiver = emailRow?.value || userRow.value
-          const port = parseInt(portRow?.value || '587') || 587
+        const host = getSmtpSetting('smtpHost', 'smtp_host')
+        const user = getSmtpSetting('smtpUser', 'smtp_user')
+        const pass = getSmtpSetting('smtpPass', 'smtp_pass')
+        const portStr = getSmtpSetting('smtpPort', 'smtp_port')
+        const receiver = getSmtpSetting('smtpReceiver', 'smtp_receiver') || user
+        const secureStr = getSmtpSetting('smtpSecure', 'smtp_secure')
+
+        if (host && user && pass) {
+          const port = parseInt(portStr || '587') || 587
           const actualSecure =
-            port === 465 ? true : port === 587 ? false : secureRow?.value === 'true'
+            port === 465 ? true : port === 587 ? false : secureStr === 'true'
 
           const transporter = nodemailer.createTransport({
-            host: hostRow.value,
+            host: host,
             port,
             secure: actualSecure,
             auth: {
-              user: userRow.value,
-              pass: passRow.value
+              user: user,
+              pass: pass
             },
             tls: { rejectUnauthorized: false }
           })
@@ -954,7 +952,7 @@ export async function performAutoCloudSync(): Promise<void> {
               : []
 
           await transporter.sendMail({
-            from: `"TEMİN 360 Otomatik Kapanış Yedeği" <${userRow.value}>`,
+            from: `"TEMİN 360 Otomatik Kapanış Yedeği" <${user}>`,
             to: receiver,
             subject: `TEMİN 360 Otomatik Veritabanı Yedeği - ${new Date().toLocaleDateString('tr-TR')}`,
             text: `Uygulama kapatılırken otomatik veritabanı yedeğiniz alınmıştır.\nAktarılan dosya sayısı: ${dosyalar.length}\nTarih: ${new Date().toLocaleString('tr-TR')}`,

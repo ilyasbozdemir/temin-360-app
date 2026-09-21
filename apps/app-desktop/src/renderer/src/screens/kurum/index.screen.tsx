@@ -4,6 +4,8 @@ import { Button } from "../../components/ui/Button";
 import {
   Building2,
   ClipboardCheck,
+  Edit3,
+  Eye,
   FolderKanban,
   LayoutGrid,
   MapPin,
@@ -17,6 +19,11 @@ import { IdariBilgilerTab } from "./components/IdariBilgilerTab";
 import { MaliBirimTab } from "./components/MaliBirimTab";
 import { IletisimTab } from "./components/IletisimTab";
 import { LogolarTab } from "./components/LogolarTab";
+import { KurumViewCard } from "./components/KurumViewCard";
+import {
+  KeyValuePair,
+  KurumMetadataManager,
+} from "./components/KurumMetadataManager";
 import { useSettingsStore } from "../../store/settingsStore";
 
 import { useNavigate, useRouterState } from "@tanstack/react-router";
@@ -52,6 +59,7 @@ export default function KurumScreen(): React.JSX.Element {
   } = useSettingsStore();
 
   const [saving, setSaving] = useState(false);
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
 
   const [localData, setLocalData] = useState<Partial<KurumVerisi>>({});
   const [institutionLetterhead, setInstitutionLetterhead] = useState<string[]>(
@@ -60,6 +68,7 @@ export default function KurumScreen(): React.JSX.Element {
   const [parentInstitutionLines, setParentInstitutionLines] = useState<
     string[]
   >([]);
+  const [customMetadata, setCustomMetadata] = useState<KeyValuePair[]>([]);
   const [sozlukData, setSozlukData] = useState<any[]>([]);
 
   const [institutionLogo, setInstitutionLogo] = useState<string | null>(
@@ -115,6 +124,17 @@ export default function KurumScreen(): React.JSX.Element {
         }
       }
       setParentInstitutionLines(parsedParent);
+
+      // Load custom metadata from settings or localStorage
+      try {
+        const storedMeta = localStorage.getItem("kurum_custom_metadata");
+        if (storedMeta) {
+          const parsed = JSON.parse(storedMeta);
+          if (Array.isArray(parsed)) setCustomMetadata(parsed);
+        }
+      } catch {
+        // ignore fallback
+      }
     }
   }, [kurumData]);
 
@@ -147,17 +167,23 @@ export default function KurumScreen(): React.JSX.Element {
 
       await saveKurum(dataToSave);
 
-      // Save logos to settings
+      // Save custom metadata & logos to settings
+      localStorage.setItem(
+        "kurum_custom_metadata",
+        JSON.stringify(customMetadata),
+      );
       await window.electron.ipcRenderer.invoke("db:save-settings", {
         institutionLogo,
         logoLeft,
         logoRight,
         showLogoLeft: String(showLogoLeft),
         showLogoRight: String(showLogoRight),
+        kurum_custom_metadata: JSON.stringify(customMetadata),
       });
 
       await reloadSettingsStore(); // refresh app-wide settings store
-      alert("Kurum bilgileri başarıyla kaydedildi.");
+      alert("Kurum bilgileri ve özel parametreler başarıyla kaydedildi.");
+      setIsEditMode(false); // Switch to View mode after successful save
     } catch (err) {
       alert("Kaydetme hatası: " + err);
     } finally {
@@ -168,13 +194,15 @@ export default function KurumScreen(): React.JSX.Element {
   const navigate = useNavigate();
   const routerState = useRouterState();
   const pathname = routerState.location.pathname;
-  
+
   // TanStack Hash Router search resolution
   const locationSearch = routerState.location.search as any;
   const hashSearch = window.location.hash.includes("?")
     ? window.location.hash.substring(window.location.hash.indexOf("?"))
     : "";
-  const searchParams = new URLSearchParams(hashSearch || window.location.search);
+  const searchParams = new URLSearchParams(
+    hashSearch || window.location.search,
+  );
   const queryTab =
     (typeof locationSearch === "object" ? locationSearch?.tab : null) ||
     searchParams.get("tab");
@@ -193,6 +221,8 @@ export default function KurumScreen(): React.JSX.Element {
     activeTab = "komisyon-gorevleri";
   } else if (pathname === "/ambar" || queryTab === "ambar") {
     activeTab = "ambar";
+  } else if (pathname === "/projeler" || queryTab === "projeler") {
+    activeTab = "projeler";
   } else if (queryTab === "mali") {
     activeTab = "mali";
   } else if (queryTab === "iletisim") {
@@ -297,7 +327,6 @@ export default function KurumScreen(): React.JSX.Element {
     <div className="max-w-[1600px] mx-auto flex flex-col gap-6 w-full animate-in fade-in duration-200">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-4">
         {/* SOL MENÜ */}
-
         <InnerMenu
           className="lg:col-span-3"
           items={menuItems}
@@ -310,77 +339,139 @@ export default function KurumScreen(): React.JSX.Element {
           {isKurumTab
             ? (
               <div className="flex flex-col gap-6 w-full animate-in fade-in duration-200">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end border-b border-slate-200 dark:border-slate-800 pb-4 gap-4 sticky top-0 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur-md z-10 pt-4 -mt-4">
+                {/* Mode Switcher & Actions Header */}
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-slate-200 dark:border-slate-800 pb-4 gap-4 sticky top-0 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur-md z-10 pt-4 -mt-4">
                   <div>
-                    <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3 text-slate-850 dark:text-slate-100">
-                      <Building2 className="w-8 h-8 text-blue-600" />
+                    <h1 className="text-2xl font-bold tracking-tight flex items-center gap-3 text-slate-850 dark:text-slate-100">
+                      <Building2 className="w-7 h-7 text-blue-600" />
                       Kurum Bilgileri
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
+                    <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
                       Resmi evrak çıktılarında ve arayüzde gösterilecek idari ve
                       iletişim bilgilerini yönetin.
                     </p>
                   </div>
+
                   <div className="flex items-center gap-3 shrink-0">
-                    <Button
-                      onClick={handleSave}
-                      disabled={saving}
-                      className="gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-2.5 px-6 text-sm font-semibold transition-all shadow-md shadow-blue-500/20 shrink-0"
-                    >
-                      <Save className="w-4 h-4" />
-                      {saving ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
-                    </Button>
+                    {/* View / Edit Mode Switcher */}
+                    <div className="p-1 rounded-xl bg-slate-200/80 dark:bg-slate-800 flex items-center gap-1 shadow-inner">
+                      <button
+                        type="button"
+                        onClick={() => setIsEditMode(false)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          !isEditMode
+                            ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs"
+                            : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
+                        }`}
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Görüntüleme Modu</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setIsEditMode(true)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          isEditMode
+                            ? "bg-blue-600 text-white shadow-xs"
+                            : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
+                        }`}
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>Düzenleme Modu</span>
+                      </button>
+                    </div>
+
+                    {isEditMode && (
+                      <Button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-2 px-5 text-xs font-bold transition-all shadow-md shadow-emerald-500/20 shrink-0 cursor-pointer"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        {saving ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
+                      </Button>
+                    )}
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm min-h-[450px]">
-                  {activeTab === "idari" && (
-                    <IdariBilgilerTab
+                {/* Main Content: View Mode vs Edit Mode */}
+                {!isEditMode
+                  ? (
+                    <KurumViewCard
                       data={localData}
-                      onChange={handleChange}
                       institutionLetterhead={institutionLetterhead}
-                      setInstitutionLetterhead={setInstitutionLetterhead}
                       parentInstitutionLines={parentInstitutionLines}
-                      setParentInstitutionLines={setParentInstitutionLines}
+                      customMetadata={customMetadata}
+                      onEditClick={() => setIsEditMode(true)}
                     />
+                  )
+                  : (
+                    <div className="space-y-6">
+                      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm min-h-[400px]">
+                        {activeTab === "idari" && (
+                          <IdariBilgilerTab
+                            data={localData}
+                            onChange={handleChange}
+                            institutionLetterhead={institutionLetterhead}
+                            setInstitutionLetterhead={setInstitutionLetterhead}
+                            parentInstitutionLines={parentInstitutionLines}
+                            setParentInstitutionLines={
+                              setParentInstitutionLines
+                            }
+                          />
+                        )}
+                        {activeTab === "mali" && (
+                          <MaliBirimTab
+                            data={localData}
+                            onChange={handleChange}
+                            institutionLetterhead={institutionLetterhead}
+                            setInstitutionLetterhead={setInstitutionLetterhead}
+                            parentInstitutionLines={parentInstitutionLines}
+                            setParentInstitutionLines={
+                              setParentInstitutionLines
+                            }
+                            sozlukData={sozlukData}
+                          />
+                        )}
+                        {activeTab === "iletisim" && (
+                          <IletisimTab
+                            data={localData}
+                            onChange={handleChange}
+                            institutionLetterhead={institutionLetterhead}
+                            setInstitutionLetterhead={setInstitutionLetterhead}
+                            parentInstitutionLines={parentInstitutionLines}
+                            setParentInstitutionLines={
+                              setParentInstitutionLines
+                            }
+                          />
+                        )}
+                        {activeTab === "logolar" && (
+                          <LogolarTab
+                            institutionLogo={institutionLogo}
+                            setInstitutionLogo={setInstitutionLogo}
+                            logoLeft={logoLeft}
+                            setLogoLeft={setLogoLeft}
+                            logoRight={logoRight}
+                            setLogoRight={setLogoRight}
+                            showLogoLeft={showLogoLeft}
+                            setShowLogoLeft={setShowLogoLeft}
+                            showLogoRight={showLogoRight}
+                            setShowLogoRight={setShowLogoRight}
+                            detsisKodu={localData.detsis_kodu ||
+                              localData.dtvt_kodu}
+                          />
+                        )}
+                      </div>
+
+                      {/* Dynamic Key-Value Metadata Manager in Edit Mode */}
+                      <KurumMetadataManager
+                        metadata={customMetadata}
+                        onChange={setCustomMetadata}
+                        isReadOnly={false}
+                      />
+                    </div>
                   )}
-                  {activeTab === "mali" && (
-                    <MaliBirimTab
-                      data={localData}
-                      onChange={handleChange}
-                      institutionLetterhead={institutionLetterhead}
-                      setInstitutionLetterhead={setInstitutionLetterhead}
-                      parentInstitutionLines={parentInstitutionLines}
-                      setParentInstitutionLines={setParentInstitutionLines}
-                      sozlukData={sozlukData}
-                    />
-                  )}
-                  {activeTab === "iletisim" && (
-                    <IletisimTab
-                      data={localData}
-                      onChange={handleChange}
-                      institutionLetterhead={institutionLetterhead}
-                      setInstitutionLetterhead={setInstitutionLetterhead}
-                      parentInstitutionLines={parentInstitutionLines}
-                      setParentInstitutionLines={setParentInstitutionLines}
-                    />
-                  )}
-                  {activeTab === "logolar" && (
-                    <LogolarTab
-                      institutionLogo={institutionLogo}
-                      setInstitutionLogo={setInstitutionLogo}
-                      logoLeft={logoLeft}
-                      setLogoLeft={setLogoLeft}
-                      logoRight={logoRight}
-                      setLogoRight={setLogoRight}
-                      showLogoLeft={showLogoLeft}
-                      setShowLogoLeft={setShowLogoLeft}
-                      showLogoRight={showLogoRight}
-                      setShowLogoRight={setShowLogoRight}
-                      detsisKodu={localData.detsis_kodu || localData.dtvt_kodu}
-                    />
-                  )}
-                </div>
               </div>
             )
             : (
@@ -394,9 +485,7 @@ export default function KurumScreen(): React.JSX.Element {
                   <KomisyonGorevleriScreen isSubComponent />
                 )}
                 {activeTab === "ambar" && <AmbarScreen isSubComponent />}
-                {activeTab === "projeler" && (
-                  <ProjelerScreen isSubComponent />
-                )}
+                {activeTab === "projeler" && <ProjelerScreen isSubComponent />}
               </div>
             )}
         </div>

@@ -403,17 +403,19 @@ export function PageWrapper(): React.ReactNode {
 
   // Sync route with tab store
   useEffect(() => {
+    if (isAnyWindowMode) return
     if (activeFilePath && isAuthenticated) {
       addTab(routerState.location.href)
     }
-  }, [routerState.location.href, activeFilePath, isAuthenticated, addTab])
+  }, [routerState.location.href, activeFilePath, isAuthenticated, addTab, isAnyWindowMode])
 
   // Reset tabs when workspace/auth is closed
   useEffect(() => {
+    if (isAnyWindowMode) return
     if (!activeFilePath || !isAuthenticated) {
       clearTabs()
     }
-  }, [activeFilePath, isAuthenticated, clearTabs])
+  }, [activeFilePath, isAuthenticated, clearTabs, isAnyWindowMode])
 
   // Reset file-specific tabs when no active document is selected
   useEffect(() => {
@@ -468,18 +470,25 @@ export function PageWrapper(): React.ReactNode {
       // Set sessionStorage so the workspace store picks it up
       sessionStorage.setItem('workspace_path', decodedPath)
       sessionStorage.setItem('workspace_auth', 'true')
-      // Open the workspace in the main process (it may already be open, which is fine)
-      openWorkspace(decodedPath).then((result) => {
-        if (result.success) {
-          // Mark as authenticated since parent was already authenticated
-          useWorkspaceStore.getState().setIsAuthenticated(true)
-        }
+      
+      // Do NOT call openWorkspace here! Main process ALREADY has the workspace DB open.
+      // Calling openWorkspace triggers IPC 'workspace:open', which calls closeAllSecondaryWindows()
+      // and destroys this newly created secondary window!
+      useWorkspaceStore.setState({
+        activeFilePath: decodedPath,
+        fileName: decodedPath.split(/[/\\]/).pop() || 'Bilinmeyen Dosya',
+        isAuthenticated: true,
+        activeDosyaId: dosyaId ? parseInt(dosyaId, 10) : null
       })
+      loadSettings()
+      loadActiveMeta()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // Run once on mount
 
   useEffect(() => {
+    if (isAnyWindowMode) return
+
     const handleDteFileOpen = async (filePath: string) => {
       const currentActivePath = useWorkspaceStore.getState().activeFilePath
       if (!currentActivePath) {
@@ -618,7 +627,7 @@ export function PageWrapper(): React.ReactNode {
       if (removeListener) removeListener()
       if (removeNavListener) removeNavListener()
     }
-  }, [openWorkspace, queryClient])
+  }, [openWorkspace, queryClient, isAnyWindowMode])
 
   if (isAnyWindowMode) {
     // Extract the real path from the hash (strip mode=window param)

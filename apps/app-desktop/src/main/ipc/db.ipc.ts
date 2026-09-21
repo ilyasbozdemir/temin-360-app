@@ -283,11 +283,14 @@ export function registerDbIpcHandlers(): void {
       // Check if SMTP is configured
       if (smtpHost && smtpUser && smtpPass) {
         try {
+          const actualSecure =
+            smtpPort === 465 ? true : smtpPort === 587 || smtpPort === 25 || smtpPort === 2525 ? false : smtpSecure
+
           const nodemailer = await import('nodemailer')
           const transporter = nodemailer.createTransport({
             host: smtpHost,
             port: smtpPort,
-            secure: smtpSecure,
+            secure: actualSecure,
             auth: {
               user: smtpUser,
               pass: smtpPass
@@ -382,16 +385,29 @@ export function registerDbIpcHandlers(): void {
         }
       }
 
+      const smtpHost = getSetting('smtpHost') || getSetting('smtp_host')
+      const smtpPort = getSetting('smtpPort') || getSetting('smtp_port') || '587'
+      const smtpUser = getSetting('smtpUser') || getSetting('smtp_user')
+      const smtpPass = getSetting('smtpPass') || getSetting('smtp_pass')
+      const smtpReceiver = getSetting('smtpReceiver') || getSetting('smtp_receiver')
+      const smtpSecure = getSetting('smtpSecure') || getSetting('smtp_secure') || 'false'
+
       const smtpData = {
         _exportType: 'temin360_smtp_config',
         version: '1.0',
         exportedAt: new Date().toISOString(),
-        smtpHost: getSetting('smtpHost') || getSetting('smtp_host'),
-        smtpPort: getSetting('smtpPort') || getSetting('smtp_port') || '587',
-        smtpUser: getSetting('smtpUser') || getSetting('smtp_user'),
-        smtpPass: getSetting('smtpPass') || getSetting('smtp_pass'),
-        smtpReceiver: getSetting('smtpReceiver') || getSetting('smtp_receiver'),
-        smtpSecure: getSetting('smtpSecure') || getSetting('smtp_secure') || 'false'
+        smtpHost,
+        smtp_host: smtpHost,
+        smtpPort,
+        smtp_port: smtpPort,
+        smtpUser,
+        smtp_user: smtpUser,
+        smtpPass,
+        smtp_pass: smtpPass,
+        smtpReceiver,
+        smtp_receiver: smtpReceiver,
+        smtpSecure,
+        smtp_secure: smtpSecure
       }
 
       const { canceled, filePath } = await dialog.showSaveDialog({
@@ -432,15 +448,38 @@ export function registerDbIpcHandlers(): void {
         return { success: false, error: 'Geçersiz ayar dosyası formatı!' }
       }
 
+      const host = String(data.smtpHost || data.smtp_host || data.host || '').trim()
+      const port = String(data.smtpPort || data.smtp_port || data.port || '587').trim()
+      const user = String(data.smtpUser || data.smtp_user || data.user || data.username || '').trim()
+      const pass = String(data.smtpPass || data.smtp_pass || data.pass || data.password || '').trim()
+      const receiver = String(data.smtpReceiver || data.smtp_receiver || data.receiver || '').trim()
+
+      let secureVal = 'false'
+      if (data.smtpSecure !== undefined) secureVal = String(data.smtpSecure)
+      else if (data.smtp_secure !== undefined) secureVal = String(data.smtp_secure)
+      else if (data.secure !== undefined) secureVal = String(data.secure)
+
       const db = workspaceManager.getDb()
       const stmt = db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)')
-      const keys = ['smtpHost', 'smtpPort', 'smtpUser', 'smtpPass', 'smtpReceiver', 'smtpSecure']
+
+      const entries: [string, string][] = [
+        ['smtpHost', host],
+        ['smtp_host', host],
+        ['smtpPort', port],
+        ['smtp_port', port],
+        ['smtpUser', user],
+        ['smtp_user', user],
+        ['smtpPass', pass],
+        ['smtp_pass', pass],
+        ['smtpReceiver', receiver],
+        ['smtp_receiver', receiver],
+        ['smtpSecure', secureVal],
+        ['smtp_secure', secureVal]
+      ]
 
       const insertMany = db.transaction(() => {
-        for (const key of keys) {
-          if (data[key] !== undefined) {
-            stmt.run(key, String(data[key]))
-          }
+        for (const [k, v] of entries) {
+          stmt.run(k, v)
         }
       })
       insertMany()

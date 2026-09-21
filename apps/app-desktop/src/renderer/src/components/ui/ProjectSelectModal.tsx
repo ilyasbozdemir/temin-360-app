@@ -9,6 +9,7 @@ export interface ProjectSelectModalProps {
   isOpen: boolean
   onClose: () => void
   selectedProjectId?: number | null
+  initialMode?: 'select' | 'create'
   onSelect: (proje: Proje | null) => void
 }
 
@@ -30,11 +31,15 @@ export function ProjectSelectModal({
   isOpen,
   onClose,
   selectedProjectId,
+  initialMode = 'select',
   onSelect
 }: ProjectSelectModalProps): React.JSX.Element {
   const { projeler, isLoadingProjeler, addProje } = useProjeHooks()
   const [search, setSearch] = useState('')
-  const [isCreating, setIsCreating] = useState(false)
+  const [internalCreating, setInternalCreating] = useState<boolean | null>(null)
+
+  const isCreating = internalCreating ?? initialMode === 'create'
+  const setIsCreating = (val: boolean): void => setInternalCreating(val)
 
   // New Project Form State
   const [newCode, setNewCode] = useState(generateDefaultProjectCode)
@@ -53,16 +58,36 @@ export function ProjectSelectModal({
     e.preventDefault()
     if (!newName.trim()) return
 
-    await addProje({
+    const res = (await addProje({
       proje_kodu: newCode.trim(),
       proje_adi: newName.trim(),
       aciklama: newDesc.trim(),
       toplam_butce: Number(newBudget) || 0,
       renk: newColor,
       durum: 'devam'
-    })
+    })) as Record<string, unknown>
 
-    setIsCreating(false)
+    const resData = res?.data as Record<string, unknown> | undefined
+    const newId = resData?.lastInsertRowid || res?.lastInsertRowid || resData?.id
+
+    if (newId) {
+      onSelect({
+        id: Number(newId),
+        proje_kodu: newCode.trim(),
+        proje_adi: newName.trim(),
+        aciklama: newDesc.trim(),
+        toplam_butce: Number(newBudget) || 0,
+        renk: newColor,
+        durum: 'devam',
+        aktif_mi: 1,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      onClose()
+    } else {
+      setInternalCreating(false)
+    }
+
     setNewName('')
     setNewDesc('')
     setNewBudget('')
@@ -206,7 +231,7 @@ export function ProjectSelectModal({
                 <div className="py-8 text-center text-xs text-slate-400">Yükleniyor...</div>
               ) : filtered.length === 0 ? (
                 <div className="py-8 text-center text-xs text-slate-400">
-                  Kayıtlı proje bulunamadı. "Yeni Proje" butonundan ekleyebilirsiniz.
+                  Kayıtlı proje bulunamadı. &quot;Yeni Proje&quot; butonundan ekleyebilirsiniz.
                 </div>
               ) : (
                 filtered.map((p) => {

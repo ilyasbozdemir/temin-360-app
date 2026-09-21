@@ -69,9 +69,12 @@ export function GoogleDriveFooterWidget(): React.JSX.Element | null {
       setAuthError(false)
 
       const allFiles: GDriveFile[] = res.files || []
+      const supportedExts = ['temin', 'hkmp', 'dtal', 'dtm', 'dte', 'dta', 'tmn360', 'sqlite', 'db', 'zip', 'bak']
       const validBackups = allFiles.filter(
-        (f) =>
-          f.name.endsWith('.temin') || f.name.endsWith('.dtal') || f.name.endsWith('.hkmp')
+        (f) => {
+          const lower = f.name.toLowerCase()
+          return supportedExts.some((ext) => lower.endsWith('.' + ext))
+        }
       )
 
       if (validBackups.length === 0) {

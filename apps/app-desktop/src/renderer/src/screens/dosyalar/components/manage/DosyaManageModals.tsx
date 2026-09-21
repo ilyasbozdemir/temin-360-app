@@ -13,7 +13,7 @@ export interface DosyaManageModalsProps {
     title: string
     fieldName: string
     systemInstruction?: string
-    targetField: string
+    targetField: any
   }
   setTextGenConfig: React.Dispatch<
     React.SetStateAction<{
@@ -21,7 +21,7 @@ export interface DosyaManageModalsProps {
       title: string
       fieldName: string
       systemInstruction?: string
-      targetField: string
+      targetField: any
     }>
   >
   formData: any
@@ -33,7 +33,7 @@ export interface DosyaManageModalsProps {
   showKopyalaModal: boolean
   setShowKopyalaModal: (show: boolean) => void
   dosyalar: any[]
-  handleCopyDosya: (dosyaId: number) => void
+  handleCopyDosya: (dosya: any, options?: any) => void | Promise<void>
 }
 
 export const DosyaManageModals: React.FC<DosyaManageModalsProps> = ({

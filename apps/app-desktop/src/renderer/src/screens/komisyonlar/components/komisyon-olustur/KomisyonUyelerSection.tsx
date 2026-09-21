@@ -78,7 +78,8 @@ export const KomisyonUyelerSection: React.FC<KomisyonUyelerSectionProps> = ({
                 <PersonelCombobox
                   personeller={tumPersonel}
                   selectedId={uye.personelId}
-                  onSelect={(p) => {
+                  onChange={(personelId) => {
+                    const p = tumPersonel.find((tp) => tp.id === personelId)
                     if (p) {
                       onPersonelSec(uye.id, p)
                     } else {

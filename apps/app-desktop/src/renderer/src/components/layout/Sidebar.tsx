@@ -115,6 +115,7 @@ const menuGroups: MenuGroup[] = [
           { name: "Birim Yönetimi", path: "/birimler", icon: LayoutGrid },
           { name: "Personel Yönetimi", path: "/personel", icon: Users },
           { name: "Ambar & Stok Yönetimi", path: "/ambar", icon: Boxes },
+          { name: "Proje Yönetimi & Yatırımlar", path: "/projeler", icon: FolderKanban },
           { name: "Komisyon Yönetimi", path: "/komisyonlar", icon: Users },
           {
             name: "Görev Tanımları",

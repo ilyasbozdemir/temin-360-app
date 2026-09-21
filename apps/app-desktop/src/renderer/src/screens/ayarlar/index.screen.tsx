@@ -105,11 +105,11 @@ export default function AyarlarScreen(): React.ReactNode {
   useEffect(() => {
     if (settings) {
       setTimeout(() => {
-        setSmtpHost(settings.smtp_host || '')
-        setSmtpPort(settings.smtp_port || '')
-        setSmtpUser(settings.smtp_user || '')
-        setSmtpPass(settings.smtp_pass || '')
-        setSmtpSecure(settings.smtp_secure === 'true')
+        setSmtpHost(settings.smtp_host || settings.smtpHost || '')
+        setSmtpPort(settings.smtp_port || settings.smtpPort || '')
+        setSmtpUser(settings.smtp_user || settings.smtpUser || '')
+        setSmtpPass(settings.smtp_pass || settings.smtpPass || '')
+        setSmtpSecure(settings.smtp_secure === 'true' || settings.smtpSecure === 'true')
 
         const mode = settings.devUpdateTestMode === 'true'
         const ver = settings.devUpdateVersion || ''
@@ -181,6 +181,7 @@ export default function AyarlarScreen(): React.ReactNode {
   const handleImportSmtp = async (): Promise<void> => {
     try {
       await importSmtp()
+      await reloadSettingsStore()
       alert('SMTP Ayarları başarıyla içe aktarıldı.')
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : String(err)
@@ -221,10 +222,15 @@ export default function AyarlarScreen(): React.ReactNode {
         dataToSave.unifiedStepperMode = unifiedStepperMode ? 'true' : 'false'
       } else if (tab === 'smtp') {
         dataToSave.smtp_host = smtpHost
+        dataToSave.smtpHost = smtpHost
         dataToSave.smtp_port = smtpPort
+        dataToSave.smtpPort = smtpPort
         dataToSave.smtp_user = smtpUser
+        dataToSave.smtpUser = smtpUser
         dataToSave.smtp_pass = smtpPass
+        dataToSave.smtpPass = smtpPass
         dataToSave.smtp_secure = smtpSecure ? 'true' : 'false'
+        dataToSave.smtpSecure = smtpSecure ? 'true' : 'false'
       } else if (tab === 'developer') {
         dataToSave.devUpdateTestMode = devUpdateTestMode ? 'true' : 'false'
         dataToSave.devUpdateVersion = devUpdateVersion
