@@ -27,7 +27,6 @@ import { SABLON_DOSYAADI_KATEGORI } from "../../constants/sablonKategorileri";
 import { BelgeAksiyonlari } from "../../components/ui/BelgeAksiyonlari";
 import { CiktiPresetManager } from "./components/CiktiPresetManager";
 import { CiktiSidebar } from "./components/CiktiSidebar";
-import { CiktiPreviewModal } from "./components/CiktiPreviewModal";
 import { buildExportFileName, buildBatchZipFileName } from "../../utils/exportFileName";
 import {
   usePrintQueueStore,
@@ -86,7 +85,7 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     new Set(),
   );
-  const [previewSablon, setPreviewSablon] = useState<Sablon | null>(null);
+
   const [isPrintManagerOpen, setIsPrintManagerOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<
     "all" | "ready" | "starred" | "printed"
@@ -896,7 +895,14 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
                                   </button>
 
                                   <BelgeAksiyonlari
-                                    onPreview={() => setPreviewSablon(sablon)}
+                                    onPreview={() => {
+                                      const key = (sablon.dosya_adi || "").replace(/\.html$/, "");
+                                      openDocument({
+                                        documentId: key,
+                                        dosyaId: activeDosyaId || undefined,
+                                        documentTitle: sablon.ad,
+                                      });
+                                    }}
                                     onQuickPrint={() =>
                                       handleAction("print", [sablon.id])}
                                     onExport={(fmt) =>
@@ -991,28 +997,7 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
         />
       </div>
 
-      {/* ÖNİZLEME MODALI */}
-      {previewSablon && (
-        <CiktiPreviewModal
-          previewSablon={previewSablon}
-          activeStarredDocs={activeStarredDocs}
-          onClose={() => setPreviewSablon(null)}
-          onToggleStar={toggleStar}
-          srcDoc={renderHtml(previewSablon)}
-          onPrintSingle={async (id) => {
-            await handleAction("print", [id]);
-          }}
-          onOpenAdvancedEditor={(sab) => {
-            setPreviewSablon(null);
-            const key = (sab.dosya_adi || "").replace(/\.html$/, "");
-            openDocument({
-              documentId: key,
-              dosyaId: activeDosyaId || undefined,
-              documentTitle: sab.ad,
-            });
-          }}
-        />
-      )}
+
 
       <TekTikYazdirModal
         isOpen={isPrintManagerOpen}

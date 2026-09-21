@@ -120,6 +120,10 @@ export async function loadDocumentPreviewData({
     formattedAcilisTarihi;
   const ctx = payloadData.resolvedContext || {};
 
+  baseData.kurumumuz = baseData.kurumumuz || ctx.kurumumuz || ctx.altKurumBizim || "Belediyemiz";
+  baseData.altKurumBizim = baseData.altKurumBizim || ctx.altKurumBizim || ctx.kurumumuz || "Belediyemiz";
+  baseData.ihtiyacYeri = baseData.ihtiyacYeri || ctx.ihtiyacYeri || "Belediyemizin";
+
   if (!baseData.hazirlayanPersonelAdi) {
     baseData.hazirlayanPersonelAdi = ctx.hazirlayanPersonelAdi || "";
     baseData.hazirlayanPersonelUnvan = ctx.hazirlayanPersonelUnvan || "";

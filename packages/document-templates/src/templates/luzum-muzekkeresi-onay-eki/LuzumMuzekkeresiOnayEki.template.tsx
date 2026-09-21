@@ -138,10 +138,14 @@ export function LuzumMuzekkeresiOnayEki({
                 >
                   <EditableField
                     name="kurumMetni"
-                    value={data.kurumMetni ||
+                    value={
+                      data.kurumMetni ||
+                      data.kurumumuz ||
+                      (data as any).altKurumBizim ||
                       getKurumName(data.kurumAdi, data.altKurumTipi) ||
-                      "Müdürlüğümüz"}
-                    placeholder="Müdürlüğümüz"
+                      "Belediyemiz"
+                    }
+                    placeholder="Belediyemiz"
                   />{" "}
                   için aşağıda müfredatı ve evsafı yazılı malzemelere ihtiyaç
                   görüldüğünden satın alınması arz olunur.

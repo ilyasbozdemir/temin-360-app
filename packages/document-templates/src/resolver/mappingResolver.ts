@@ -1,7 +1,7 @@
 import { ProcessMapping, TableColumnMapping } from './types';
 
 export function toPossessiveSuffix(str: string): string {
-  if (!str) return 'Müdürlüğümüzün';
+  if (!str) return 'Kurumumuzun';
   const trimmed = str.trim();
   const lower = trimmed.toLowerCase();
   if (
@@ -797,7 +797,7 @@ export async function resolveTemplateData(
                     kurul: 'Kurulumuzun',
                     diger: 'Kurumumuzun'
                   };
-                  foundIhtiyacYeri = map[kRow.alt_kurum_tipi] || 'Müdürlüğümüzün';
+                  foundIhtiyacYeri = map[kRow.alt_kurum_tipi] || 'Kurumumuzun';
                 } else if (kRow.kurum_tipi === 'belediye') {
                   foundIhtiyacYeri = 'Belediyemizin';
                 } else if (kRow.kurum_tipi === 'ozel_butce') {
@@ -806,6 +806,8 @@ export async function resolveTemplateData(
                   foundIhtiyacYeri = 'Kurulumuzun';
                 } else if (kRow.kurum_tipi === 'genel_butce') {
                   foundIhtiyacYeri = 'Müdürlüğümüzün';
+                } else {
+                  foundIhtiyacYeri = 'Kurumumuzun';
                 }
               }
             }

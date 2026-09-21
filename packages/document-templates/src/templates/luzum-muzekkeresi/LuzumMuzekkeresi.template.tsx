@@ -15,6 +15,7 @@ import {
   paginateData,
 } from "../../document/DynamicPaginatedTable";
 import { LuzumMuzekkeresiType } from "./LuzumMuzekkeresi.schema";
+import { toPossessiveSuffix } from "../../resolver/mappingResolver";
 
 interface LuzumMuzekkeresiProps {
   data?: Partial<LuzumMuzekkeresiType>;
@@ -175,7 +176,10 @@ export function LuzumMuzekkeresi({
                 >
                   <EditableField
                     name="ihtiyacYeri"
-                    value={data.ihtiyacYeri || (data as any).altKurumBizim || (data as any).kurumumuz || "Müdürlüğümüzün"}
+                    value={
+                      data.ihtiyacYeri ||
+                      toPossessiveSuffix((data as any).altKurumBizim || (data as any).kurumumuz || "")
+                    }
                     placeholder="İhtiyaç Yeri"
                   />{" "}
                   ihtiyacı olan aşağıda yazılı mal/hizmet kalemlerinin temin

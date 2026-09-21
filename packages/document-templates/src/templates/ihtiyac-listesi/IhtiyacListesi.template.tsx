@@ -14,6 +14,7 @@ import {
   paginateData,
 } from "../../document/DynamicPaginatedTable";
 import { IhtiyacListesiType } from "./IhtiyacListesi.schema";
+import { toPossessiveSuffix } from "../../resolver/mappingResolver";
 
 interface IhtiyacListesiProps {
   data?: Partial<IhtiyacListesiType>;
@@ -123,8 +124,10 @@ export function IhtiyacListesi({
                 >
                   <EditableField
                     name="ihtiyacYeri"
-                    value={data.ihtiyacYeri || (data as any).altKurumBizim ||
-                      (data as any).kurumumuz || "Müdürlüğümüzün"}
+                    value={
+                      data.ihtiyacYeri ||
+                      toPossessiveSuffix((data as any).altKurumBizim || (data as any).kurumumuz || "")
+                    }
                     placeholder="İhtiyaç Yeri"
                   />{" "}
                   ihtiyacı olan aşağıda yazılı mal/hizmet kalemlerinin temin

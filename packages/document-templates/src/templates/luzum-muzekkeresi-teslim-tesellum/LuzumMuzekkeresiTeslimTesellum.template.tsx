@@ -242,8 +242,8 @@ export function LuzumMuzekkeresiTeslimTesellum({
                 >
                   <EditableField
                     name="kurumumuz"
-                    value={data.kurumumuz || "Müdürlüğümüz"}
-                    placeholder="Müdürlüğümüz"
+                    value={data.kurumumuz || (data as any).altKurumBizim || "Belediyemiz"}
+                    placeholder="Belediyemiz"
                   />{" "}
                   bünyesinde gerçekleştirilen{" "}
                   <strong>

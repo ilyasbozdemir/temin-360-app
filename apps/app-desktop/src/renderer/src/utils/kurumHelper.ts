@@ -145,7 +145,7 @@ export function getKurumumuzText(
 }
 
 export function toPossessiveSuffix(str: string): string {
-  if (!str) return 'Müdürlüğümüzün'
+  if (!str) return 'Kurumumuzun'
   const trimmed = str.trim()
   const lower = trimmed.toLowerCase()
   if (
@@ -179,7 +179,7 @@ export function getKurumIhtiyacYeriDefault(
     kurum_tipi?: string
   } | null
 ): string {
-  if (!kurum) return 'Müdürlüğümüzün'
+  if (!kurum) return 'Kurumumuzun'
   if (kurum.alt_kurum_bizim && String(kurum.alt_kurum_bizim).trim()) {
     return toPossessiveSuffix(kurum.alt_kurum_bizim.trim())
   }
@@ -203,5 +203,5 @@ export function getKurumIhtiyacYeriDefault(
   if (kurum.kurum_tipi === 'ozel_butce') return 'Üniversitemizin'
   if (kurum.kurum_tipi === 'duzenleyici') return 'Kurulumuzun'
   if (kurum.kurum_tipi === 'genel_butce') return 'Müdürlüğümüzün'
-  return 'Müdürlüğümüzün'
+  return 'Kurumumuzun'
 }

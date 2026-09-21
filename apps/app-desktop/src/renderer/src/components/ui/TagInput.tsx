@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import { TagBadge } from '../../screens/dosyalar/components/Badges'
-import { Plus, Tag as TagIcon } from 'lucide-react'
+import { Plus, Sparkles, Tag as TagIcon } from 'lucide-react'
+import { slugifyTag, suggestTagsFromTitle } from '../../utils/tagUtils'
 
 export interface TagInputProps {
   tags: string[]
   onChange: (tags: string[]) => void
   placeholder?: string
   presetTags?: string[]
+  autoSuggestText?: string | null
 }
 
 const DEFAULT_PRESETS = [
@@ -25,20 +27,34 @@ const DEFAULT_PRESETS = [
 export function TagInput({
   tags = [],
   onChange,
-  placeholder = 'Etiket ekle ve Enter\'a bas...',
-  presetTags = DEFAULT_PRESETS
+  placeholder = "Etiket ekle ve Enter'a bas...",
+  presetTags = DEFAULT_PRESETS,
+  autoSuggestText
 }: TagInputProps): React.JSX.Element {
   const [inputVal, setInputVal] = useState('')
   const [showPresets, setShowPresets] = useState(false)
 
+  const suggestedFromText = autoSuggestText ? suggestTagsFromTitle(autoSuggestText) : []
+
   const handleAdd = (val: string): void => {
     let clean = val.trim()
     if (!clean) return
-    if (!clean.startsWith('#')) clean = `#${clean}`
-    if (!tags.includes(clean)) {
+    clean = slugifyTag(clean)
+    if (clean && !tags.includes(clean)) {
       onChange([...tags, clean])
     }
     setInputVal('')
+  }
+
+  const handleAddMultiple = (newItems: string[]): void => {
+    const updated = [...tags]
+    for (const item of newItems) {
+      const clean = slugifyTag(item)
+      if (clean && !updated.includes(clean)) {
+        updated.push(clean)
+      }
+    }
+    onChange(updated)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
@@ -81,11 +97,47 @@ export function TagInput({
         )}
       </div>
 
+      {suggestedFromText.length > 0 && (
+        <div className="p-2 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/60 dark:border-purple-900/40 text-[11px] space-y-1.5">
+          <div className="flex items-center justify-between text-purple-700 dark:text-purple-300 font-bold">
+            <span className="flex items-center gap-1">
+              <Sparkles size={12} className="text-purple-500" /> İş Konusundan Önerilen Etiketler:
+            </span>
+            <button
+              type="button"
+              onClick={() => handleAddMultiple(suggestedFromText)}
+              className="text-[10px] bg-purple-600 text-white hover:bg-purple-700 px-2 py-0.5 rounded-md font-medium transition-colors"
+            >
+              Tümünü Ekle
+            </button>
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {suggestedFromText.map((st) => {
+              const isAdded = tags.includes(st)
+              return (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => (isAdded ? handleRemove(st) : handleAdd(st))}
+                  className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold transition-all border ${
+                    isAdded
+                      ? 'bg-purple-200 text-purple-900 border-purple-300 dark:bg-purple-900 dark:text-purple-100'
+                      : 'bg-white dark:bg-slate-900 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 hover:bg-purple-100'
+                  }`}
+                >
+                  {st} {isAdded ? '✓' : '+'}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {showPresets && (
-        <div className="flex items-center gap-1.5 flex-wrap pt-1 text-[11px] text-slate-500">
-          <span className="font-semibold text-slate-400">Önerilenler:</span>
+        <div className="flex items-center gap-1.5 flex-wrap pt-0.5 text-[11px] text-slate-500">
+          <span className="font-semibold text-slate-400">Hızlı Şablonlar:</span>
           {presetTags.map((p) => {
-            const formatted = `#${p}`
+            const formatted = slugifyTag(p)
             const isSelected = tags.includes(formatted)
             return (
               <button

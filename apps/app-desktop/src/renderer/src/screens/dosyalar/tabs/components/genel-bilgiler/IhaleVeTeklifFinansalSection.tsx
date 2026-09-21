@@ -2,23 +2,18 @@ import React, { useState } from "react";
 import {
   Building2,
   Calculator,
-  FolderKanban,
   HelpCircle,
   Info,
   Loader2,
-  Plus,
-  Search,
   Sparkles,
   Tag,
-  Trash2,
 } from "lucide-react";
 import { YeniDosyaTabProps } from "../../../types";
 import { useWorkspaceStore } from "../../../../../store/workspaceStore";
 import { useSettingsStore } from "../../../../../store/settingsStore";
 import { useDosyalarHooks } from "../../../../dosyalar/dosyalar.hooks";
 import { TagInput } from "../../../../../components/ui/TagInput";
-import { ProjectSelectModal } from "../../../../../components/ui/ProjectSelectModal";
-import { useProjeHooks } from "../../../../../hooks/useProjeHooks";
+import { ProjectInlineSection } from "../../../../../components/ui/ProjectInlineSection";
 
 export function IhaleVeTeklifFinansalSection(
   props: YeniDosyaTabProps,
@@ -34,11 +29,6 @@ export function IhaleVeTeklifFinansalSection(
     "Ortalama fiyat esasına göre";
 
   const [isAiChecking, setIsAiChecking] = useState(false);
-  const [showProjectModal, setShowProjectModal] = useState(false);
-  const [projectModalMode, setProjectModalMode] = useState<"select" | "create">("select");
-
-  const { projeler } = useProjeHooks();
-  const selectedProject = projeler.find((p) => p.id === formData.project_id);
 
   React.useEffect(() => {
     loadSettings();
@@ -495,6 +485,7 @@ export function IhaleVeTeklifFinansalSection(
             Dosya Etiketleri (Tags)
           </label>
           <TagInput
+            autoSuggestText={(formData.konu || formData.isin_aciklamasi) ?? undefined}
             tags={(() => {
               if (!formData.tags) return [];
               try {
@@ -515,81 +506,20 @@ export function IhaleVeTeklifFinansalSection(
           />
         </div>
 
-        {/* YATIRIM / ALIM PROJESİ BAĞLANTISI */}
-        <div className="col-span-full space-y-2 p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-              <FolderKanban size={16} className="text-blue-600 dark:text-blue-400" />
-              Yatırım &amp; Alım Projesi Bağlantısı
-            </label>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setProjectModalMode('select')
-                  setShowProjectModal(true)
-                }}
-                className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer px-2.5 py-1 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200/60 dark:border-blue-900/50"
-              >
-                <Search size={12} /> {formData.project_id ? 'Projeyi Değiştir' : 'Proje Seç & Bağla'}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setProjectModalMode('create')
-                  setShowProjectModal(true)
-                }}
-                className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer px-2.5 py-1 rounded-lg bg-emerald-50/80 dark:bg-emerald-950/40 hover:bg-emerald-100 border border-emerald-200/60 dark:border-emerald-900/50"
-              >
-                <Plus size={12} /> Yeni Proje Oluştur
-              </button>
-            </div>
-          </div>
-
-          {formData.project_id ? (
-            <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-850 border border-blue-200 dark:border-blue-900/60 shadow-xs">
-              <div className="flex items-center gap-2.5">
-                <div
-                  className="w-3.5 h-3.5 rounded-full shrink-0"
-                  style={{ backgroundColor: selectedProject?.renk || formData.proje_renk || '#3b82f6' }}
-                />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/80 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-900/50">
-                      {selectedProject?.proje_kodu || formData.proje_kodu || 'PROJE'}
-                    </span>
-                    <span className="text-xs font-bold text-slate-900 dark:text-white">
-                      {selectedProject?.proje_adi || formData.proje_adi || 'Bağlı Proje'}
-                    </span>
-                  </div>
-                  {selectedProject?.toplam_butce ? (
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-                      Proje Toplam Bütçesi: {Number(selectedProject.toplam_butce).toLocaleString('tr-TR')} ₺
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setFormData({
-                    ...formData,
-                    project_id: null,
-                    proje_adi: null,
-                    proje_kodu: null,
-                    proje_renk: null
-                  })
-                }}
-                className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer"
-              >
-                <Trash2 size={13} /> Bağlantıyı Kaldır
-              </button>
-            </div>
-          ) : (
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Bu dosya henüz bir yatırım veya alım projesine bağlanmamış. Yukarıdaki butonlarla mevcut bir projeye bağlayabilir veya yeni proje tanımlayabilirsiniz.
-            </p>
-          )}
+        {/* YATIRIM / ALIM PROJESİ BAĞLANTISI (INLINE EKRAN BİLEŞENİ) */}
+        <div className="col-span-full">
+          <ProjectInlineSection
+            selectedProjectId={formData.project_id}
+            onSelect={(proje) =>
+              setFormData({
+                ...formData,
+                project_id: proje?.id || null,
+                proje_adi: proje?.proje_adi || null,
+                proje_kodu: proje?.proje_kodu || null,
+                proje_renk: proje?.renk || null
+              })
+            }
+          />
         </div>
 
 

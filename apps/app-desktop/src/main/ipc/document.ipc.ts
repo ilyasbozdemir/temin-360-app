@@ -845,9 +845,75 @@ export function registerDocumentIpcHandlers(): void {
         (p: any) => p.id === (dosya as any)?.onay_personel_id
       )
 
+      const getIpcKurumBizimText = (k: any): string => {
+        if (k?.alt_kurum_bizim && String(k.alt_kurum_bizim).trim()) return String(k.alt_kurum_bizim).trim()
+        if (k?.alt_kurum_tipi) {
+          const map: Record<string, string> = {
+            belediye: 'Belediyemiz',
+            mudurluk: 'Müdürlüğümüz',
+            bakanlik: 'Bakanlığımız',
+            valilik: 'Valiliğimiz',
+            kaymakamlik: 'Kaymakamlığımız',
+            universite: 'Üniversitemiz',
+            il_ozel: 'İl Özel İdaremiz',
+            koy: 'Muhtarlığımız',
+            sgk: 'Müdürlüğümüz',
+            kurul: 'Kurulumuz',
+            diger: 'Kurumumuz'
+          }
+          if (map[k.alt_kurum_tipi]) return map[k.alt_kurum_tipi]
+        }
+        if (k?.kurum_tipi === 'belediye') return 'Belediyemiz'
+        if (k?.kurum_tipi === 'ozel_butce') return 'Üniversitemiz'
+        if (k?.kurum_tipi === 'duzenleyici') return 'Kurulumuz'
+        if (k?.kurum_tipi === 'genel_butce') return 'Müdürlüğümüz'
+        return 'Kurumumuz'
+      }
+
+      const getIpcKurumIhtiyacYeri = (k: any): string => {
+        if (k?.alt_kurum_bizim && String(k.alt_kurum_bizim).trim()) {
+          const str = String(k.alt_kurum_bizim).trim()
+          const lower = str.toLowerCase()
+          if (lower.endsWith('n') || lower.endsWith('in') || lower.endsWith('ın') || lower.endsWith('un') || lower.endsWith('ün')) return str
+          if (lower.endsWith('miz') || lower.endsWith('müz')) return `${str}in`
+          if (lower.endsWith('mız') || lower.endsWith('muz')) return `${str}ın`
+          if (lower.endsWith('si') || lower.endsWith('su') || lower.endsWith('sü') || lower.endsWith('sı')) return `${str}nin`
+          if (lower.endsWith('i') || lower.endsWith('ü')) return `${str}nin`
+          if (lower.endsWith('ı') || lower.endsWith('u')) return `${str}nun`
+          return `${str}in`
+        }
+        if (k?.alt_kurum_tipi) {
+          const map: Record<string, string> = {
+            belediye: 'Belediyemizin',
+            mudurluk: 'Müdürlüğümüzün',
+            bakanlik: 'Bakanlığımızın',
+            valilik: 'Valiliğimizin',
+            kaymakamlik: 'Kaymakamlığımızın',
+            universite: 'Üniversitemizin',
+            il_ozel: 'İl Özel İdaremizin',
+            koy: 'Muhtarlığımızın',
+            sgk: 'Müdürlüğümüzün',
+            kurul: 'Kurulumuzun',
+            diger: 'Kurumumuzun'
+          }
+          if (map[k.alt_kurum_tipi]) return map[k.alt_kurum_tipi]
+        }
+        if (k?.kurum_tipi === 'belediye') return 'Belediyemizin'
+        if (k?.kurum_tipi === 'ozel_butce') return 'Üniversitemizin'
+        if (k?.kurum_tipi === 'duzenleyici') return 'Kurulumuzun'
+        if (k?.kurum_tipi === 'genel_butce') return 'Müdürlüğümüzün'
+        return 'Kurumumuzun'
+      }
+
+      const ipcKurumBizim = getIpcKurumBizimText(kurum)
+      const ipcIhtiyacYeri = (dosya as any)?.ihtiyac_yeri || (dosya as any)?.ihtiyac_yeri_eki || getIpcKurumIhtiyacYeri(kurum)
+
       const resolvedContext = {
         kurumAdi,
         harcamaBirimi,
+        kurumumuz: ipcKurumBizim,
+        altKurumBizim: ipcKurumBizim,
+        ihtiyacYeri: ipcIhtiyacYeri,
         birimAdi: birimAntet,
         birimAnteti: birimAntet,
         antetEkSatir: birimAntet,

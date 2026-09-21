@@ -262,7 +262,6 @@ const kurumRoute = createRoute({
 });
 
 import {
-  CiktiMerkezi,
   FaturaVeIrsaliye,
   HazirlikVeIhtiyac,
   ImzaliBelgeler,
@@ -332,7 +331,7 @@ const yaklasikMaliyetRoute = createRoute({
 const ciktiMerkeziRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.DOSYA_CIKTI_MERKEZI,
-  component: CiktiMerkezi,
+  component: CiktiMerkeziScreen,
 });
 
 const olcubirimleriRoute = createRoute({
