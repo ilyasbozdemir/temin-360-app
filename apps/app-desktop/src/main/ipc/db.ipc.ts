@@ -219,12 +219,32 @@ export function registerDbIpcHandlers(): void {
         .prepare("SELECT value FROM settings WHERE key = 'adminPassword'")
         .get() as { value: string } | undefined
 
-      const expectedUser = userRow?.value || ''
+      const expectedUser = userRow?.value || 'admin'
       const expectedPass = passRow?.value || ''
 
       if (user === expectedUser && pass === expectedPass) {
-        return { success: true }
+        return { success: true, username: expectedUser }
       }
+
+      // Check additionalUsers in settings if multi-user setup exists
+      const additionalUsersRow = db
+        .prepare("SELECT value FROM settings WHERE key = 'additionalUsers'")
+        .get() as { value: string } | undefined
+
+      if (additionalUsersRow?.value) {
+        try {
+          const list = JSON.parse(additionalUsersRow.value)
+          if (Array.isArray(list)) {
+            const matched = list.find((u: any) => u.username === user && u.password === pass)
+            if (matched) {
+              return { success: true, username: matched.username, role: matched.role || 'user' }
+            }
+          }
+        } catch (e) {
+          console.error('Failed to parse additionalUsers:', e)
+        }
+      }
+
       return { success: false, error: 'Kullanıcı adı veya şifre hatalı!' }
     } catch (error: any) {
       console.error('Login error:', error)

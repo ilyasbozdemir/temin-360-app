@@ -14,6 +14,7 @@ interface LockScreenLoginFormProps {
   loading: boolean
   onSubmit: (e: React.FormEvent) => void
   onForgotPassword: () => void
+  recentUsers?: string[]
 }
 
 export function LockScreenLoginForm({
@@ -28,7 +29,8 @@ export function LockScreenLoginForm({
   setRememberMe,
   loading,
   onSubmit,
-  onForgotPassword
+  onForgotPassword,
+  recentUsers = []
 }: LockScreenLoginFormProps): React.JSX.Element {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
@@ -42,10 +44,18 @@ export function LockScreenLoginForm({
             type="text"
             required
             placeholder="Kullanıcı Adı"
+            list="recent-usernames-list"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600"
           />
+          {recentUsers.length > 0 && (
+            <datalist id="recent-usernames-list">
+              {recentUsers.map((user) => (
+                <option key={user} value={user} />
+              ))}
+            </datalist>
+          )}
         </div>
       </div>
 

@@ -23,6 +23,14 @@ export default function LockScreen(): React.JSX.Element {
 
   const [username, setUsername] = useState('admin')
   const [password, setPassword] = useState('')
+  const [recentUsers] = useState<string[]>(() => {
+    try {
+      const savedRecent = JSON.parse(localStorage.getItem('recent_usernames') || '[]')
+      return Array.isArray(savedRecent) ? savedRecent : []
+    } catch {
+      return []
+    }
+  })
   const [recoveryCode, setRecoveryCode] = useState('')
   const [recoveryEmail, setRecoveryEmail] = useState('')
   const [testCode, setTestCode] = useState<string | null>(null)
@@ -50,16 +58,44 @@ export default function LockScreen(): React.JSX.Element {
       const isRemembered = localStorage.getItem(`rememberMe_${fileName}`) === 'true'
       setRememberMe(isRemembered)
       if (isRemembered) {
-        const savedUser = localStorage.getItem(`rememberedUser_${fileName}`) || 'admin'
+        const savedUser =
+          localStorage.getItem(`rememberedUser_${fileName}`) ||
+          localStorage.getItem('active_username') ||
+          'admin'
         const savedPass = localStorage.getItem(`rememberedPass_${fileName}`) || ''
         setUsername(savedUser)
         setPassword(savedPass)
       } else {
-        setUsername('admin')
+        const activeUser = localStorage.getItem('active_username') || 'admin'
+        setUsername(activeUser)
         setPassword('')
       }
     }
   }, [loadSettings, fileName])
+
+  const handleAuthSuccess = async (userToSave: string, passToSave: string): Promise<void> => {
+    localStorage.setItem('active_username', userToSave)
+    try {
+      const raw = localStorage.getItem('recent_usernames')
+      const list = raw ? JSON.parse(raw) : []
+      const updated = Array.from(new Set([userToSave, ...list]))
+      localStorage.setItem('recent_usernames', JSON.stringify(updated))
+    } catch (e) {
+      console.error('Failed saving recent users:', e)
+    }
+
+    if (rememberMe && fileName) {
+      localStorage.setItem(`rememberMe_${fileName}`, 'true')
+      localStorage.setItem(`rememberedUser_${fileName}`, userToSave)
+      localStorage.setItem(`rememberedPass_${fileName}`, passToSave)
+    } else if (fileName) {
+      localStorage.setItem(`rememberMe_${fileName}`, 'false')
+      localStorage.removeItem(`rememberedUser_${fileName}`)
+      localStorage.removeItem(`rememberedPass_${fileName}`)
+    }
+    setIsAuthenticated(true)
+    await loadSettings()
+  }
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault()
@@ -76,17 +112,7 @@ export default function LockScreen(): React.JSX.Element {
           password
         )
         if (res.success) {
-          if (rememberMe && fileName) {
-            localStorage.setItem(`rememberMe_${fileName}`, 'true')
-            localStorage.setItem(`rememberedUser_${fileName}`, username)
-            localStorage.setItem(`rememberedPass_${fileName}`, password)
-          } else if (fileName) {
-            localStorage.setItem(`rememberMe_${fileName}`, 'false')
-            localStorage.removeItem(`rememberedUser_${fileName}`)
-            localStorage.removeItem(`rememberedPass_${fileName}`)
-          }
-          setIsAuthenticated(true)
-          await loadSettings()
+          await handleAuthSuccess(username, password)
         } else {
           setError(res.error || 'Bilgiler kaydedilemedi!')
         }
@@ -94,17 +120,7 @@ export default function LockScreen(): React.JSX.Element {
         // Login with existing credentials
         const res = await window.electron.ipcRenderer.invoke('db:login', '', username, password)
         if (res.success) {
-          if (rememberMe && fileName) {
-            localStorage.setItem(`rememberMe_${fileName}`, 'true')
-            localStorage.setItem(`rememberedUser_${fileName}`, username)
-            localStorage.setItem(`rememberedPass_${fileName}`, password)
-          } else if (fileName) {
-            localStorage.setItem(`rememberMe_${fileName}`, 'false')
-            localStorage.removeItem(`rememberedUser_${fileName}`)
-            localStorage.removeItem(`rememberedPass_${fileName}`)
-          }
-          setIsAuthenticated(true)
-          await loadSettings()
+          await handleAuthSuccess(res.username || username, password)
         } else {
           setError(res.error || 'Giriş bilgileri hatalı!')
         }
@@ -233,6 +249,7 @@ export default function LockScreen(): React.JSX.Element {
             rememberMe={rememberMe}
             setRememberMe={setRememberMe}
             loading={loading}
+            recentUsers={recentUsers}
             onSubmit={handleSubmit}
             onForgotPassword={() => {
               setError(null)
