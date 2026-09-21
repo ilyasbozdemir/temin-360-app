@@ -79,22 +79,60 @@ export function PageWrapper(): React.ReactNode {
 
   // Global Güvenlik Koruması: Radix UI / Modal veya Popover'ların kapanışında body üzerinde takılı kalan pointer-events: none, aria-hidden veya inert kilitlerini anında temizler
   useEffect(() => {
+    const isElementVisible = (el: Element): boolean => {
+      if (!(el instanceof HTMLElement)) return false
+      const rect = el.getBoundingClientRect()
+      if (rect.width === 0 || rect.height === 0) return false
+      const style = window.getComputedStyle(el)
+      return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0'
+    }
+
     const ensureInteractivity = () => {
-      // Aktif açık bir modal/dialog olup olmadığını kontrol et
-      const hasActiveModal = document.querySelector(
-        '[role="dialog"], [data-radix-portal] [role="dialog"], .fixed.inset-0.z-\\[99999\\], .fixed.inset-0.z-\\[100\\], .fixed.inset-0.z-\\[200\\], .fixed.inset-0.z-\\[9999\\]'
+      // Aktif ve GERÇEKTEN GÖRÜNÜR bir modal/dialog olup olmadığını kontrol et
+      const candidateModals = Array.from(
+        document.querySelectorAll(
+          '[role="dialog"], [data-radix-portal] [role="dialog"], .fixed.inset-0.z-\\[99999\\], .fixed.inset-0.z-\\[100\\], .fixed.inset-0.z-\\[200\\], .fixed.inset-0.z-\\[9999\\], .fixed.inset-0.z-50'
+        )
       )
 
-      if (!hasActiveModal) {
-        // Body ve Html pointer-events kilidini kaldır
-        if (document.body.style.pointerEvents === 'none') {
-          document.body.style.pointerEvents = 'auto'
-        }
-        if (document.documentElement.style.pointerEvents === 'none') {
-          document.documentElement.style.pointerEvents = 'auto'
+      const hasVisibleModal = candidateModals.some(isElementVisible)
+
+      if (!hasVisibleModal) {
+        // 1. Radix UI scroll-lock niteliğini temizle
+        if (document.body.hasAttribute('data-scroll-locked')) {
+          document.body.removeAttribute('data-scroll-locked')
         }
 
-        // #root üzerindeki aria-hidden ve inert kilitlerini kaldır
+        // 2. Radix UI tarafından inject edilen <style data-radix-scroll-lock> elemanlarını sil
+        document
+          .querySelectorAll('style[data-radix-scroll-lock], style[data-radix-body-lock]')
+          .forEach((el) => {
+            try {
+              el.remove()
+            } catch {
+              // ignore
+            }
+          })
+
+        // 3. Body ve Html pointer-events kilidini temizle (!important kuralını kır)
+        if (
+          document.body.style.pointerEvents === 'none' ||
+          window.getComputedStyle(document.body).pointerEvents === 'none'
+        ) {
+          document.body.style.setProperty('pointer-events', 'auto', 'important')
+        }
+        if (
+          document.documentElement.style.pointerEvents === 'none' ||
+          window.getComputedStyle(document.documentElement).pointerEvents === 'none'
+        ) {
+          document.documentElement.style.setProperty('pointer-events', 'auto', 'important')
+        }
+
+        if (document.body.style.overflow === 'hidden') {
+          document.body.style.overflow = 'unset'
+        }
+
+        // 4. #root üzerindeki aria-hidden ve inert kilitlerini kaldır
         const root = document.getElementById('root')
         if (root) {
           if (root.getAttribute('aria-hidden') === 'true') {
@@ -105,7 +143,7 @@ export function PageWrapper(): React.ReactNode {
           }
         }
 
-        // Kalan gizli aria-hidden etiketlerini temizle
+        // 5. Kalan gizli aria-hidden etiketlerini temizle
         document.querySelectorAll('[data-aria-hidden="true"]').forEach((el) => {
           el.removeAttribute('data-aria-hidden')
           el.removeAttribute('aria-hidden')
@@ -113,9 +151,9 @@ export function PageWrapper(): React.ReactNode {
       }
     }
 
-    // İlk çalıştırma ve periyodik kontrol
+    // İlk çalıştırma ve periyodik kontrol (250ms)
     ensureInteractivity()
-    const interval = setInterval(ensureInteractivity, 500)
+    const interval = setInterval(ensureInteractivity, 250)
 
     // DOM değişikliklerini (style/attribute eklemelerini) anında izle
     const observer = new MutationObserver(() => {
@@ -124,19 +162,22 @@ export function PageWrapper(): React.ReactNode {
 
     observer.observe(document.body, {
       attributes: true,
-      attributeFilter: ['style', 'aria-hidden', 'inert', 'class']
+      attributeFilter: ['style', 'aria-hidden', 'inert', 'class', 'data-scroll-locked']
     })
 
-    // Kullanıcı etkileşimlerinde (capture phase) kilidi aç
+    // Kullanıcı etkileşimlerinde (capture phase) kilidi aç ve odaklanmayı garantile
     const handleUserInteraction = (e: Event) => {
       ensureInteractivity()
-      // Tıklanan eleman bir input/textarea ise odaklanmasını garantile
+
+      // Tıklanan veya odaklanılan eleman bir input/textarea/select ise odaklanmasını garantile
       if (
         e.target instanceof HTMLInputElement ||
         e.target instanceof HTMLTextAreaElement ||
         e.target instanceof HTMLSelectElement
       ) {
-        const isReadOnly = (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) && e.target.readOnly
+        const isReadOnly =
+          (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) &&
+          e.target.readOnly
         if (document.activeElement !== e.target && !e.target.disabled && !isReadOnly) {
           e.target.focus()
         }

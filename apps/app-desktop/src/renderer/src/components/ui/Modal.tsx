@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '../../utils/cn'
+import { ModalErrorBoundary } from './ModalErrorBoundary'
 
 interface ModalProps {
   isOpen: boolean
@@ -20,16 +21,26 @@ export function Modal({ isOpen, onClose, title, description, children, className
       if (e.key === 'Escape') onClose()
     }
 
+    const cleanupLocks = () => {
+      document.body.style.overflow = 'unset'
+      document.body.removeAttribute('data-scroll-locked')
+      document.body.style.setProperty('pointer-events', 'auto', 'important')
+      document.documentElement.style.setProperty('pointer-events', 'auto', 'important')
+      document.querySelectorAll('style[data-radix-scroll-lock], style[data-radix-body-lock]').forEach((el) => {
+        el.remove()
+      })
+    }
+
     if (isOpen) {
       document.addEventListener('keydown', handleEscape)
       document.body.style.overflow = 'hidden'
     } else {
-      document.body.style.overflow = 'unset'
+      cleanupLocks()
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape)
-      document.body.style.overflow = 'unset'
+      cleanupLocks()
     }
   }, [isOpen, onClose])
 
@@ -65,14 +76,18 @@ export function Modal({ isOpen, onClose, title, description, children, className
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-300 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[70vh] custom-scrollbar flex-1">{children}</div>
+        {/* Content wrapped in Error Boundary */}
+        <div className="p-6 overflow-y-auto max-h-[70vh] custom-scrollbar flex-1">
+          <ModalErrorBoundary onClose={onClose} modalTitle={title}>
+            {children}
+          </ModalErrorBoundary>
+        </div>
 
         {/* Fixed Footer */}
         {footer && (
@@ -84,3 +99,4 @@ export function Modal({ isOpen, onClose, title, description, children, className
     </div>
   )
 }
+
