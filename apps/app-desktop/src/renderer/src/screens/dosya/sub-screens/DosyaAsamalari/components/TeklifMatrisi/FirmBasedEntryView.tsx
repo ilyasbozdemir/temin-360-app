@@ -1,17 +1,7 @@
 import React from "react";
 import { Award } from "lucide-react";
-import { BiddingFirm, BiddingKalem } from "./types";
+import { BiddingFirm, BiddingKalem, FirmBasedEntryViewProps } from "./types";
 import { BidPriceInput } from "./BidPriceInput";
-
-interface FirmBasedEntryViewProps {
-  invitedFirms: BiddingFirm[];
-  items: BiddingKalem[];
-  bids: Record<string, number>;
-  selectedFirmId: number;
-  setSelectedFirmId: (id: number) => void;
-  getLowestBidInfo: (kalemId: number) => { price: number; firmaId: number | null };
-  handlePriceChange: (kalemId: number, firmaId: number, val: string) => Promise<void>;
-}
 
 export function FirmBasedEntryView({
   invitedFirms,

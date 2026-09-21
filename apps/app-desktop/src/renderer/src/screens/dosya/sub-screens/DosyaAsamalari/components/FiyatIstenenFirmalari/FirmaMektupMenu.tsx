@@ -9,15 +9,7 @@ import {
   Tag,
 } from "lucide-react";
 import { MEKTUP_MENU_ITEMS } from "./constants";
-import { Firma } from "./types";
-
-export interface FirmaMektupMenuProps {
-  firma: Firma;
-  onFiyatPiyasaFormu?: (firma: Firma) => void;
-  onIdareFiyatArastirmaMektubu?: (firma: Firma) => void;
-  onBirimFiyatArastirmasi?: (firma: Firma) => void;
-  onBosTeklifCetveli?: (firma: Firma) => void;
-}
+import { Firma, FirmaMektupMenuProps } from "./types";
 
 export function FirmaMektupMenu({
   firma,

@@ -1,17 +1,7 @@
 import React from "react";
 import { Award } from "lucide-react";
-import { BiddingFirm, BiddingKalem } from "./types";
+import { BiddingFirm, BiddingKalem, TableViewProps } from "./types";
 import { BidPriceInput } from "./BidPriceInput";
-
-interface TableViewProps {
-  invitedFirms: BiddingFirm[];
-  items: BiddingKalem[];
-  bids: Record<string, number>;
-  getEstimatedCostTotal: () => number;
-  getLowestBidInfo: (kalemId: number) => { price: number; firmaId: number | null };
-  getAverageBid: (kalemId: number) => number;
-  handlePriceChange: (kalemId: number, firmaId: number, val: string) => Promise<void>;
-}
 
 export function TableView({
   invitedFirms,

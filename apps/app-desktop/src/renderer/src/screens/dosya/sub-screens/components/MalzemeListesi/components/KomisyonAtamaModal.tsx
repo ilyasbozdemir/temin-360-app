@@ -29,15 +29,9 @@ interface KomisyonRow {
   belgedeGoster: boolean;
 }
 
-export type KomisyonType = "yaklasik_maliyet" | "muayene_kabul";
+import type { KomisyonAtamaModalProps, KomisyonType } from "../types";
 
-interface KomisyonAtamaModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  initialType?: KomisyonType;
-  activeDosyaId?: number | null;
-  onOpenDocument?: (dosyaAdi: string) => void;
-}
+export type { KomisyonAtamaModalProps, KomisyonType };
 
 const DEFAULT_MALIYET_ROLES: { gorev: string; belgedeGoster: boolean }[] = [
   { gorev: "Harcama Yetkilisi", belgedeGoster: false },

@@ -23,14 +23,16 @@ export function SonucBelgesiKartlari({
               Piyasa Fiyat Araştırması Tutanağı
             </h4>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-              İsteklilerden toplanan tüm teklifleri ve komisyon/görevli kararını içeren resmi piyasa fiyat araştırması tutanağı.
+              İsteklilerden toplanan tüm teklifleri ve komisyon/görevli kararını
+              içeren resmi piyasa fiyat araştırması tutanağı.
             </p>
           </div>
         </div>
         <div className="mt-4 flex items-center gap-2">
           <button
             type="button"
-            onClick={() => handleOpenSablonByDosyaAdi("piyasa-fiyat-arastirma-tutanagi")}
+            onClick={() =>
+              handleOpenSablonByDosyaAdi("piyasa-fiyat-arastirma-tutanagi")}
             className="w-full py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer border-0"
           >
             <FileText className="w-4 h-4" />
@@ -58,14 +60,16 @@ export function SonucBelgesiKartlari({
               Yaklaşık Maliyet Hesap Cetveli
             </h4>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-              Alıma ait kalemlerin piyasa teklifleri ortalamasına göre hesaplanan resmi yaklaşık maliyet cetveli.
+              Alıma ait kalemlerin piyasa teklifleri ortalamasına göre
+              hesaplanan resmi yaklaşık maliyet cetveli.
             </p>
           </div>
         </div>
         <div className="mt-4 flex items-center gap-2">
           <button
             type="button"
-            onClick={() => handleOpenSablonByDosyaAdi("yaklasik-maliyet-hesap-cetveli")}
+            onClick={() =>
+              handleOpenSablonByDosyaAdi("yaklasik-maliyet-hesap-cetveli")}
             className="w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer border-0"
           >
             <FileSpreadsheet className="w-4 h-4" />

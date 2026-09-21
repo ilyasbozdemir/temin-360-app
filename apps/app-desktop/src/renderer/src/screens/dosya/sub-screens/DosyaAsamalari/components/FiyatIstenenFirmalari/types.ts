@@ -54,3 +54,74 @@ export interface FiyatIstenenFirmalarınSecilmesiProps {
   winnerFirmaId?: number | null;
   onSetWinnerFirma?: (firma: Firma) => void;
 }
+
+export interface FirmaHeaderProps {
+  title?: string;
+  addedCount: number;
+  canAdd: boolean;
+  onOpenModal: () => void;
+  onOpenNewFirmModal: () => void;
+  onFiyatGir?: () => void;
+  extraHeaderAction?: React.ReactNode;
+}
+
+export interface FirmaFooterBarProps {
+  addedCount: number;
+  onFiyatGir?: () => void;
+}
+
+export interface FirmaTabloProps {
+  columns: FirmaColumn[];
+  addedFirms: Firma[];
+  winnerFirmaId?: number | null;
+  onOpenModal: () => void;
+  onOpenNewFirmModal: () => void;
+  onFirmaCikar?: (firma: Firma) => void;
+  onFiyatGir?: () => void;
+  onFiyatPiyasaFormu?: (firma: Firma) => void;
+  onIdareFiyatArastirmaMektubu?: (firma: Firma) => void;
+  onBirimFiyatArastirmasi?: (firma: Firma) => void;
+  onBosTeklifCetveli?: (firma: Firma) => void;
+  onEkapSorgula?: (firma: Firma) => void;
+  onSetWinnerFirma?: (firma: Firma) => void;
+}
+
+export interface RowMenuProps {
+  firma: Firma;
+  onFirmaCikar?: (firma: Firma) => void;
+  onFiyatGir?: () => void;
+  onFiyatPiyasaFormu?: (firma: Firma) => void;
+  onBirimFiyatArastirmasi?: (firma: Firma) => void;
+  onBosTeklifCetveli?: (firma: Firma) => void;
+  onEkapSorgula?: (firma: Firma) => void;
+  onSetWinnerFirma?: (firma: Firma) => void;
+  isWinner?: boolean;
+}
+
+export interface FirmaMektupMenuProps {
+  firma: Firma;
+  onFiyatPiyasaFormu?: (firma: Firma) => void;
+  onIdareFiyatArastirmaMektubu?: (firma: Firma) => void;
+  onBirimFiyatArastirmasi?: (firma: Firma) => void;
+  onBosTeklifCetveli?: (firma: Firma) => void;
+}
+
+export interface FirmaEkleModaliProps {
+  availableFirms: Firma[];
+  addedCount: number;
+  onConfirm: (firms: Firma[]) => void | Promise<void>;
+  onOpenNewFirm: () => void;
+  onClose: () => void;
+}
+
+export interface YeniFirmaModaliProps {
+  onClose: () => void;
+  onSave: (firmaData: {
+    unvan: string;
+    vergi_no?: string;
+    telefon?: string;
+    email?: string;
+    sehir?: string;
+  }) => Promise<void>;
+}
+

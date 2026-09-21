@@ -29,13 +29,9 @@ export interface KalemDiffItem {
   hasChanges: boolean
 }
 
-export interface KatalogSenkronizasyonModalProps {
-  isOpen: boolean
-  onClose: () => void
-  diffItems: KalemDiffItem[]
-  isLoading?: boolean
-  onApplyUpdates: (selectedDiffs: KalemDiffItem[]) => Promise<void>
-}
+import type { KatalogSenkronizasyonModalProps } from "../types";
+
+export type { KatalogSenkronizasyonModalProps };
 
 export function KatalogSenkronizasyonModal({
   isOpen,

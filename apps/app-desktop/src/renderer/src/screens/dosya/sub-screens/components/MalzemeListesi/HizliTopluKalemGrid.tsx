@@ -15,35 +15,9 @@ import {
 } from "lucide-react";
 import { cn } from "../../../../../utils/cn";
 
-export interface HizliKalemRow {
-  id: string;
-  tipi?: string;
-  kalem_adi: string;
-  miktar: number;
-  birim: string;
-  tasinir_kodu?: string;
-  okas_kodu?: string;
-  kdv_orani?: number;
-  aciklama?: string;
-}
+import type { HizliKalemRow, HizliTopluKalemGridProps } from "./types";
 
-interface HizliTopluKalemGridProps {
-  activeDosya?: any;
-  activeDosyaId?: number | null;
-  units?: any[];
-  onSaveBatch: (
-    commonData: {
-      tipi: string;
-      okas_kodu?: string;
-      tasinir_kodu_prefix?: string;
-      kdv_orani: number;
-      birim: string;
-    },
-    rows: HizliKalemRow[],
-  ) => Promise<boolean>;
-  onCancel?: () => void;
-  isModal?: boolean;
-}
+export type { HizliKalemRow, HizliTopluKalemGridProps };
 
 const PRESET_PACKAGES = [
   {

@@ -2,21 +2,7 @@ import React from "react";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { BelgeItem, BelgeListesi } from "../BelgeListesi";
 import { SonucBelgesiKartlari } from "./SonucBelgesiKartlari";
-
-interface Step3TutanakVeMaliyetProps {
-  mappedBelgeler: BelgeItem[];
-  docViewMode: "grid" | "list" | "table";
-  changeDocViewMode: (mode: "grid" | "list" | "table") => void;
-  handleOpenSablonByDosyaAdi: (targetKey: string) => void;
-  handleNewDocument: (mode: "maliyet" | "tutanak") => void;
-  handleOpenBelgePreview: (belge: BelgeItem) => void;
-  handleOpenExternalForBelge: (belge: BelgeItem) => void;
-  handleQuickPrintForBelge: (belge: BelgeItem) => void;
-  handleDeleteDocument?: (id: number) => void;
-  setCurrentStep: (step: 1 | 2 | 3) => void;
-  setIsFormOpen: (val: boolean) => void;
-  setActiveFormTab: (tab: "firms" | "matrix") => void;
-}
+import { Step3TutanakVeMaliyetProps } from "./types";
 
 export function Step3TutanakVeMaliyet({
   mappedBelgeler,

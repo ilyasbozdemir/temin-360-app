@@ -17,6 +17,8 @@ export const InspectorGenelBakisTab: React.FC<InspectorGenelBakisTabProps> = ({
 }) => {
   const d = dosya;
 
+  console.log(d);
+
   return (
     <div className="space-y-5 text-xs">
       {/* ÜST KPI KARTLARI */}
@@ -140,37 +142,39 @@ export const InspectorGenelBakisTab: React.FC<InspectorGenelBakisTabProps> = ({
             </button>
           </div>
           <div className="p-3">
-            {subData.kalemler.length === 0 ? (
-              <div className="p-6 text-center text-slate-400 text-xs italic">
-                Henüz kalem eklenmemiş.
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {subData.kalemler.slice(0, 4).map((k: any, idx: number) => (
-                  <div
-                    key={k.id || idx}
-                    className="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800"
-                  >
-                    <div className="min-w-0 pr-2">
-                      <span className="font-bold text-slate-800 dark:text-slate-200 block truncate text-xs">
-                        {k.kalem_adi}
-                      </span>
-                      <span className="text-[10px] text-slate-400">
-                        {k.miktar} {k.olcu_birimi || k.birim || "Adet"}
+            {subData.kalemler.length === 0
+              ? (
+                <div className="p-6 text-center text-slate-400 text-xs italic">
+                  Henüz kalem eklenmemiş.
+                </div>
+              )
+              : (
+                <div className="space-y-2">
+                  {subData.kalemler.slice(0, 4).map((k: any, idx: number) => (
+                    <div
+                      key={k.id || idx}
+                      className="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800"
+                    >
+                      <div className="min-w-0 pr-2">
+                        <span className="font-bold text-slate-800 dark:text-slate-200 block truncate text-xs">
+                          {k.kalem_adi}
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          {k.miktar} {k.olcu_birimi || k.birim || "Adet"}
+                        </span>
+                      </div>
+                      <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-xs whitespace-nowrap">
+                        ₺{formatMoney(k.yaklasik_maliyet_toplam)}
                       </span>
                     </div>
-                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-xs whitespace-nowrap">
-                      ₺{formatMoney(k.yaklasik_maliyet_toplam)}
-                    </span>
-                  </div>
-                ))}
-                {subData.kalemler.length > 4 && (
-                  <div className="text-center pt-1 text-[11px] text-slate-400">
-                    +{subData.kalemler.length - 4} diğer kalem daha mevcut
-                  </div>
-                )}
-              </div>
-            )}
+                  ))}
+                  {subData.kalemler.length > 4 && (
+                    <div className="text-center pt-1 text-[11px] text-slate-400">
+                      +{subData.kalemler.length - 4} diğer kalem daha mevcut
+                    </div>
+                  )}
+                </div>
+              )}
           </div>
         </div>
       </div>

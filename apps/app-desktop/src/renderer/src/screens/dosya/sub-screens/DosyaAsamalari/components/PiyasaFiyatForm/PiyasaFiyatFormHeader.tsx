@@ -14,14 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@renderer/components/ui/DropdownMenu";
 
-interface PiyasaFiyatFormHeaderProps {
-  formMode: "maliyet" | "tutanak";
-  itemsCount: number;
-  invitedFirmsCount: number;
-  estimatedCostTotal: number;
-  setIsFormOpen: (val: boolean) => void;
-  handleSaveToDosya: (docType?: "maliyet" | "tutanak" | "save_only") => void;
-}
+import { PiyasaFiyatFormHeaderProps } from "./types";
 
 export function PiyasaFiyatFormHeader({
   formMode,

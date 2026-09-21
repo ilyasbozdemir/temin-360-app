@@ -1,13 +1,7 @@
 import React from "react";
 import { CheckCircle2, DollarSign, Percent, TrendingDown, TrendingUp } from "lucide-react";
 
-interface KarsilastirmaStatCardsProps {
-  totalBefore: number;
-  totalAfter: number;
-  netSavings: number;
-  overallSavingsRate: number;
-  formatCurrency: (val: number) => string;
-}
+import { KarsilastirmaStatCardsProps } from "./types";
 
 export function KarsilastirmaStatCards({
   totalBefore,

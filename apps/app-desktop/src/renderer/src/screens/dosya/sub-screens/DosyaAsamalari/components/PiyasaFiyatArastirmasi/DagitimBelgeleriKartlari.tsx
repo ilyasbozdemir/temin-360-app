@@ -7,11 +7,7 @@ import {
   Info,
 } from "lucide-react";
 import { DAGITIM_BELGELERI_KARTLARI } from "../FiyatIstenenFirmalari/constants";
-
-interface DagitimBelgeleriKartlariProps {
-  handleOpenSablonByDosyaAdi: (targetKey: string, firmData?: any) => void;
-  handleOpenEkapSorgu?: (firma?: any) => void;
-}
+import { DagitimBelgeleriKartlariProps } from "./types";
 
 const ICON_MAP = {
   Send,

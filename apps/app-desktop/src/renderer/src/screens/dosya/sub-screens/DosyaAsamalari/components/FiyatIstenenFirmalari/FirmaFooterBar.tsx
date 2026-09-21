@@ -1,11 +1,6 @@
 import React from "react";
 import { Calculator } from "lucide-react";
-import { MIN_FIRMS } from "./types";
-
-interface FirmaFooterBarProps {
-  addedCount: number;
-  onFiyatGir?: () => void;
-}
+import { FirmaFooterBarProps, MIN_FIRMS } from "./types";
 
 export function FirmaFooterBar({ addedCount, onFiyatGir }: FirmaFooterBarProps): React.JSX.Element | null {
   if (addedCount < MIN_FIRMS || !onFiyatGir) return null;

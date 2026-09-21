@@ -1,16 +1,6 @@
 import React from "react";
 import { Building2, Calculator, Plus, UserPlus } from "lucide-react";
-import { MAX_FIRMS, MIN_FIRMS } from "./types";
-
-interface FirmaHeaderProps {
-  title?: string;
-  addedCount: number;
-  canAdd: boolean;
-  onOpenModal: () => void;
-  onOpenNewFirmModal: () => void;
-  onFiyatGir?: () => void;
-  extraHeaderAction?: React.ReactNode;
-}
+import { FirmaHeaderProps, MAX_FIRMS, MIN_FIRMS } from "./types";
 
 export function FirmaHeader({
   title = "Fiyat İstenen Firmaların Seçilmesi",

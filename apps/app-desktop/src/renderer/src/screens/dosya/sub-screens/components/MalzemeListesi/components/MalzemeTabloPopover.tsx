@@ -20,7 +20,11 @@ import {
 } from "../constants/documentCategories";
 import type { MalzemeTabloPopoverProps } from "../types";
 
-export type { MalzemeTabloPopoverProps, PopoverCategoryConfig, PopoverItemConfig };
+export type {
+  MalzemeTabloPopoverProps,
+  PopoverCategoryConfig,
+  PopoverItemConfig,
+};
 
 export function MalzemeTabloPopover(
   props: MalzemeTabloPopoverProps,
@@ -98,10 +102,14 @@ export function MalzemeTabloPopover(
                     setActiveSubId(null);
                     if (item.onClick) item.onClick();
                   }}
-                  className={`rounded-lg text-xs font-medium cursor-pointer ${item.itemClassName || ""}`}
+                  className={`rounded-lg text-xs font-medium cursor-pointer ${
+                    item.itemClassName || ""
+                  }`}
                 >
                   <ItemIcon
-                    className={`w-3.5 h-3.5 mr-2 shrink-0 ${item.iconColorClass || ""}`}
+                    className={`w-3.5 h-3.5 mr-2 shrink-0 ${
+                      item.iconColorClass || ""
+                    }`}
                   />
                   <span className="truncate">{item.label}</span>
                 </DropdownMenuItem>
@@ -140,7 +148,9 @@ export function MalzemeTabloPopover(
                   >
                     <div className="flex items-center gap-2 min-w-0 pr-2">
                       <CatIcon
-                        className={`w-3.5 h-3.5 shrink-0 ${cat.iconColorClass || ""}`}
+                        className={`w-3.5 h-3.5 shrink-0 ${
+                          cat.iconColorClass || ""
+                        }`}
                       />
                       <span className="truncate">{cat.title}</span>
                     </div>

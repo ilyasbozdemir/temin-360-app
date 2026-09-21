@@ -1,16 +1,6 @@
 import React from "react";
 import { BarChart3, Building2, FileSpreadsheet } from "lucide-react";
-import { ComparisonRow } from "./types";
-
-interface KarsilastirmaTableProps {
-  comparisonData: ComparisonRow[];
-  totalBefore: number;
-  totalAfter: number;
-  netSavings: number;
-  overallSavingsRate: number;
-  formatCurrency: (val: number) => string;
-  onExportComparison?: () => void;
-}
+import { ComparisonRow, KarsilastirmaTableProps } from "./types";
 
 export function KarsilastirmaTable({
   comparisonData,

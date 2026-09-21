@@ -10,19 +10,7 @@ import {
   Trash2,
   Trophy,
 } from "lucide-react";
-import { Firma } from "./types";
-
-export interface RowMenuProps {
-  firma: Firma;
-  onFirmaCikar?: (firma: Firma) => void;
-  onFiyatGir?: () => void;
-  onFiyatPiyasaFormu?: (firma: Firma) => void;
-  onBirimFiyatArastirmasi?: (firma: Firma) => void;
-  onBosTeklifCetveli?: (firma: Firma) => void;
-  onEkapSorgula?: (firma: Firma) => void;
-  onSetWinnerFirma?: (firma: Firma) => void;
-  isWinner?: boolean;
-}
+import { Firma, RowMenuProps } from "./types";
 
 export function RowMenu({
   firma,

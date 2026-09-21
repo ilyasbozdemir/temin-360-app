@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-
-export interface BidPriceInputProps {
-  initialValue: number;
-  onChange: (val: string) => void;
-  isLowest: boolean;
-  isExcelStyle?: boolean;
-}
+import { BidPriceInputProps } from "./types";
 
 export const BidPriceInput: React.FC<BidPriceInputProps> = ({
   initialValue,

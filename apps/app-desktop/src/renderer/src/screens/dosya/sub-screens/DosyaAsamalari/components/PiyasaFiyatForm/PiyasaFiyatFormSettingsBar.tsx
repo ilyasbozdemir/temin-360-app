@@ -1,20 +1,7 @@
 import React from "react";
 import { Award, Calendar } from "lucide-react";
 
-interface PiyasaFiyatFormSettingsBarProps {
-  formMode: "maliyet" | "tutanak";
-  hesaplamaEsasi: string;
-  setHesaplamaEsasi?: (val: string) => void;
-  maliyetCetveliTarihi: string;
-  setMaliyetCetveliTarihi: (val: string) => void;
-  tutanakTarihi: string;
-  setTutanakTarihi: (val: string) => void;
-  setLowestFirmAsWinner: boolean;
-  setSetLowestFirmAsWinner: (val: boolean) => void;
-  manualWinnerFirmaId: number | null;
-  setManualWinnerFirmaId: (id: number | null) => void;
-  invitedFirms: any[];
-}
+import { PiyasaFiyatFormSettingsBarProps } from "./types";
 
 export function PiyasaFiyatFormSettingsBar({
   formMode,

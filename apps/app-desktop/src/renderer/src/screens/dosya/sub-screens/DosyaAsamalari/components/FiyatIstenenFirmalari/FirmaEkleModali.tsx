@@ -1,14 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { AlertTriangle, CheckSquare, Plus, Search, Square, UserPlus, X } from "lucide-react";
-import { Firma, MAX_FIRMS } from "./types";
-
-export interface FirmaEkleModaliProps {
-  availableFirms: Firma[];
-  addedCount: number;
-  onConfirm: (firms: Firma[]) => void | Promise<void>;
-  onOpenNewFirm: () => void;
-  onClose: () => void;
-}
+import { Firma, FirmaEkleModaliProps, MAX_FIRMS } from "./types";
 
 export function FirmaEkleModali({
   availableFirms,

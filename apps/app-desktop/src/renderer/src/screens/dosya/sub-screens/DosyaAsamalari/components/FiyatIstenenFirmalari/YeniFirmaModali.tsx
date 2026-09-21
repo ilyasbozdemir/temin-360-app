@@ -1,16 +1,7 @@
 import React, { useState } from "react";
 import { AlertTriangle, UserPlus, X } from "lucide-react";
 
-export interface YeniFirmaModaliProps {
-  onClose: () => void;
-  onSave: (firmaData: {
-    unvan: string;
-    vergi_no?: string;
-    telefon?: string;
-    email?: string;
-    sehir?: string;
-  }) => Promise<void>;
-}
+import { YeniFirmaModaliProps } from "./types";
 
 export function YeniFirmaModali({ onClose, onSave }: YeniFirmaModaliProps): React.JSX.Element {
   const [unvan, setUnvan] = useState("");

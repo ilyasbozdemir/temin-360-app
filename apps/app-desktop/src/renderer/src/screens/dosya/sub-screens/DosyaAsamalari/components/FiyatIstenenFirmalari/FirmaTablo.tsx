@@ -1,24 +1,8 @@
 import React from "react";
 import { Calculator, ShieldAlert, Trophy } from "lucide-react";
-import { Firma, FirmaColumn } from "./types";
+import { Firma, FirmaColumn, FirmaTabloProps } from "./types";
 import { FirmaMektupMenu } from "./FirmaMektupMenu";
 import { RowMenu } from "./RowMenu";
-
-interface FirmaTabloProps {
-  columns: FirmaColumn[];
-  addedFirms: Firma[];
-  winnerFirmaId?: number | null;
-  onOpenModal: () => void;
-  onOpenNewFirmModal: () => void;
-  onFirmaCikar?: (firma: Firma) => void;
-  onFiyatGir?: () => void;
-  onFiyatPiyasaFormu?: (firma: Firma) => void;
-  onIdareFiyatArastirmaMektubu?: (firma: Firma) => void;
-  onBirimFiyatArastirmasi?: (firma: Firma) => void;
-  onBosTeklifCetveli?: (firma: Firma) => void;
-  onEkapSorgula?: (firma: Firma) => void;
-  onSetWinnerFirma?: (firma: Firma) => void;
-}
 
 export function FirmaTablo({
   columns,

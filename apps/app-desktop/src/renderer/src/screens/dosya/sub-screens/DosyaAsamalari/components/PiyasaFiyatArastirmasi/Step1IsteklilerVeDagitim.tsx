@@ -97,7 +97,8 @@ export function Step1IsteklilerVeDagitim({
       {/* Adım 1 Alt İlerleme Çubuğu */}
       <div className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
         <div className="text-xs text-slate-500 dark:text-slate-400">
-          Firmaları ekleyip teklif mektuplarını dağıttıktan sonra toplanan fiyatları girmek için sonraki adıma geçin.
+          Firmaları ekleyip teklif mektuplarını dağıttıktan sonra toplanan
+          fiyatları girmek için sonraki adıma geçin.
         </div>
         <button
           type="button"

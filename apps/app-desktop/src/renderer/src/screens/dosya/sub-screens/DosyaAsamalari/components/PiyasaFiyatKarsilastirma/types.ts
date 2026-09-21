@@ -37,3 +37,22 @@ export interface PiyasaFiyatKarsilastirmaTabProps {
   getAverageBid: (itemId: number) => number
   onExportComparison?: () => void
 }
+
+export interface KarsilastirmaTableProps {
+  comparisonData: ComparisonRow[]
+  totalBefore: number
+  totalAfter: number
+  netSavings: number
+  overallSavingsRate: number
+  formatCurrency: (val: number) => string
+  onExportComparison?: () => void
+}
+
+export interface KarsilastirmaStatCardsProps {
+  totalBefore: number
+  totalAfter: number
+  netSavings: number
+  overallSavingsRate: number
+  formatCurrency: (val: number) => string
+}
+

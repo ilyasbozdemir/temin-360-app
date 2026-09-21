@@ -2,10 +2,7 @@ import React from "react";
 import { Award, FileSpreadsheet } from "lucide-react";
 import { cn } from "@renderer/utils/cn";
 
-interface PiyasaFiyatFormTabSwitcherProps {
-  activeFormTab: "firms" | "matrix" | "comparison";
-  setActiveFormTab: (tab: "firms" | "matrix" | "comparison") => void;
-}
+import { PiyasaFiyatFormTabSwitcherProps } from "./types";
 
 export function PiyasaFiyatFormTabSwitcher({
   activeFormTab,

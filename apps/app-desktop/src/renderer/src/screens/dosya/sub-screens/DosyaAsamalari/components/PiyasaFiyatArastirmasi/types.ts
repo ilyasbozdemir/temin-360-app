@@ -47,3 +47,82 @@ export interface PiyasaFiyatArastirmasiDashboardProps {
   handleSetWinnerFirma?: (firmaMasterId: number | null) => Promise<void>;
   lowestTotalFirmaId?: number | null;
 }
+
+export interface DagitimBelgeleriKartlariProps {
+  handleOpenSablonByDosyaAdi: (targetKey: string, firmData?: any) => void;
+  handleOpenEkapSorgu?: (firma?: any) => void;
+}
+
+export interface KazananKararPaneliProps {
+  activeWinnerFirma: any;
+  lowestBidFirm: any;
+  handleSetWinnerFirma?: (firmaMasterId: number | null) => Promise<void>;
+  setIsFormOpen: (val: boolean) => void;
+  setActiveFormTab: (tab: "firms" | "matrix") => void;
+}
+
+export interface PiyasaFiyatStepperProps {
+  currentStep: 1 | 2 | 3;
+  setCurrentStep: (step: 1 | 2 | 3) => void;
+  isStep1Done: boolean;
+  isStep2Done: boolean;
+  isStep3Done: boolean;
+  invitedFirmsCount: number;
+  activeWinnerFirma: any;
+  mappedBelgelerCount: number;
+}
+
+export interface SonucBelgesiKartlariProps {
+  handleOpenSablonByDosyaAdi: (targetKey: string) => void;
+  handleNewDocument: (mode: "maliyet" | "tutanak") => void;
+}
+
+export interface Step1IsteklilerVeDagitimProps {
+  formattedFirms: any[];
+  firmaColumns: any[];
+  manualWinnerFirmaId?: number | null;
+  handleSetWinnerFirma?: (firmaMasterId: number | null) => Promise<void>;
+  handleCreateNewFirm?: (firmaData: {
+    unvan: string;
+    vergi_no?: string;
+    telefon?: string;
+    email?: string;
+    sehir?: string;
+  }) => Promise<void>;
+  setCurrentStep: (step: 1 | 2 | 3) => void;
+  setIsFormOpen: (val: boolean) => void;
+  setActiveFormTab: (tab: "firms" | "matrix") => void;
+  handleOpenSablonByDosyaAdi: (targetKey: string, firmData?: any) => void;
+  handleOpenEkapSorgu: (firma?: any) => void;
+  handleAddSingleFirm?: (firma: any) => void;
+  handleRemoveFirm?: (id: number) => void;
+}
+
+export interface Step2FiyatlarVeKazananProps {
+  activeWinnerFirma: any;
+  lowestBidFirm: any;
+  invitedFirms: any[];
+  items: any[];
+  bids: any;
+  manualWinnerFirmaId?: number | null;
+  handleSetWinnerFirma?: (firmaMasterId: number | null) => Promise<void>;
+  setIsFormOpen: (val: boolean) => void;
+  setActiveFormTab: (tab: "firms" | "matrix") => void;
+  setCurrentStep: (step: 1 | 2 | 3) => void;
+}
+
+export interface Step3TutanakVeMaliyetProps {
+  mappedBelgeler: any[];
+  docViewMode: "grid" | "list" | "table";
+  changeDocViewMode: (mode: "grid" | "list" | "table") => void;
+  handleOpenSablonByDosyaAdi: (targetKey: string) => void;
+  handleNewDocument: (mode: "maliyet" | "tutanak") => void;
+  handleOpenBelgePreview: (belge: any) => void;
+  handleOpenExternalForBelge: (belge: any) => void;
+  handleQuickPrintForBelge: (belge: any) => void;
+  handleDeleteDocument?: (id: number) => void;
+  setCurrentStep: (step: 1 | 2 | 3) => void;
+  setIsFormOpen: (val: boolean) => void;
+  setActiveFormTab: (tab: "firms" | "matrix") => void;
+}
+

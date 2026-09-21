@@ -1,13 +1,6 @@
 import React from "react";
 import { Calculator, RotateCcw, Sparkles, Trophy } from "lucide-react";
-
-interface KazananKararPaneliProps {
-  activeWinnerFirma: any;
-  lowestBidFirm: any;
-  handleSetWinnerFirma?: (firmaMasterId: number | null) => Promise<void>;
-  setIsFormOpen: (val: boolean) => void;
-  setActiveFormTab: (tab: "firms" | "matrix") => void;
-}
+import { KazananKararPaneliProps } from "./types";
 
 export function KazananKararPaneli({
   activeWinnerFirma,
