@@ -137,8 +137,8 @@ export function LuzumMuzekkeresi({
                     <strong>Tarih:</strong>{" "}
                     <DateEditableField
                       name="tarih"
-                      value={data.onayaSunulanTarih || data.tarih ||
-                        data.dosyaTarihi}
+                      value={data.tarih || (data as any).dosya_acilis_tarihi ||
+                        data.dosyaAcilisTarihi || data.dosyaTarihi}
                       defaultDate={defaultToday}
                     />
                   </div>

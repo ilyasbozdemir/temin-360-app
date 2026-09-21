@@ -20,8 +20,8 @@ import { cn } from "../../../../../utils/cn";
 import { MalzemeTabloPopover } from "./components/MalzemeTabloPopover";
 
 import {
-  KatalogSenkronizasyonModal,
   KalemDiffItem,
+  KatalogSenkronizasyonModal,
 } from "./components/KatalogSenkronizasyonModal";
 import { useSettingsStore } from "../../../../../store/settingsStore";
 import { PrintDropdownButtonV2 } from "@renderer/screens/dosya/components/PrintDropdownButtonV2";
@@ -429,11 +429,12 @@ export function MalzemeTablosu({
               if (res.success && res.data) {
                 for (const member of res.data) {
                   if (!member.personel_id) continue;
-                  const existsRes = await (window as any).electron.ipcRenderer.invoke(
-                    "db:query",
-                    "SELECT id FROM DATA_TeminKomisyon WHERE temin_dosya_id = ? AND komisyon_id = ? AND personel_id = ? LIMIT 1",
-                    [activeDosyaId, komisyonData.id, member.personel_id],
-                  );
+                  const existsRes = await (window as any).electron.ipcRenderer
+                    .invoke(
+                      "db:query",
+                      "SELECT id FROM DATA_TeminKomisyon WHERE temin_dosya_id = ? AND komisyon_id = ? AND personel_id = ? LIMIT 1",
+                      [activeDosyaId, komisyonData.id, member.personel_id],
+                    );
                   if (existsRes.data && existsRes.data.length > 0) continue;
 
                   await (window as any).electron.ipcRenderer.invoke(
@@ -482,22 +483,31 @@ export function MalzemeTablosu({
       if (k && k.sablonlar) {
         for (const s of k.sablonlar) {
           const fileKey = (s.dosya_adi || "").toLowerCase().trim();
-          if ((s.id && seenIds.has(s.id)) || (fileKey && seenFiles.has(fileKey))) {
+          if (
+            (s.id && seenIds.has(s.id)) || (fileKey && seenFiles.has(fileKey))
+          ) {
             continue;
           }
           const fullSablon = sablons?.find((fullS: any) =>
-            (fileKey && (fullS.dosya_adi || "").toLowerCase().trim() === fileKey) ||
+            (fileKey &&
+              (fullS.dosya_adi || "").toLowerCase().trim() === fileKey) ||
             (s.id && fullS.id === s.id)
           ) || s;
 
           const finalId = fullSablon.id || s.id;
-          const finalFile = (fullSablon.dosya_adi || s.dosya_adi || "").toLowerCase().trim();
+          const finalFile = (fullSablon.dosya_adi || s.dosya_adi || "")
+            .toLowerCase().trim();
 
-          if ((finalId && seenIds.has(finalId)) || (finalFile && seenFiles.has(finalFile))) {
+          if (
+            (finalId && seenIds.has(finalId)) ||
+            (finalFile && seenFiles.has(finalFile))
+          ) {
             continue;
           }
 
-          if (finalId) seenIds.add(finalId);
+          if (finalId) {
+            seenIds.add(finalId);
+          }
           if (finalFile) seenFiles.add(finalFile);
           sablonsToAdd.push(fullSablon);
         }
@@ -838,7 +848,11 @@ export function MalzemeTablosu({
                   </th>
                   <th className="p-3 pl-4">Sıra No</th>
                   <th className="p-3 pl-4">
-                    {isYapim ? "Poz No" : isHizmet ? "Hizmet Kodu" : "Kodu"}
+                    {isYapim
+                      ? "Poz No"
+                      : isHizmet
+                      ? "Hizmet Kodu"
+                      : "Taşınır Kodu"}
                   </th>
                   <th className="p-3 pl-4">
                     {isYapim
@@ -1016,8 +1030,6 @@ export function MalzemeTablosu({
             </table>
           </div>
         )}
-
-
 
       <KatalogSenkronizasyonModal
         isOpen={katalogModalOpen}

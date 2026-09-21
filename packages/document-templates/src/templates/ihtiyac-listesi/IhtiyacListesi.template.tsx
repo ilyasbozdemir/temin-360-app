@@ -89,8 +89,8 @@ export function IhtiyacListesi({
               <>
                 <MetadataBlock
                   evrakSayisi={data.evrakSayisi}
-                  tarih={data.onayaSunulanTarih || data.tarih ||
-                    data.dosyaTarihi}
+                  tarih={data.tarih || (data as any).dosya_acilis_tarihi ||
+                    data.dosyaAcilisTarihi || data.dosyaTarihi}
                   dosyaKonusu={data.dosyaKonusu}
                   showBorder={false}
                 />
@@ -185,8 +185,9 @@ export function IhtiyacListesi({
                   <div style={{ marginTop: "auto" }}>
                     <ApprovalSignature
                       title={(data as any).olurBaslik || "OLUR"}
-                      date={data.onayTarihi || data.dosyaTarihi || data.tarih ||
-                        data.onayaSunulanTarih}
+                      date={data.onayTarihi || data.tarih ||
+                        (data as any).dosya_acilis_tarihi ||
+                        data.dosyaTarihi}
                       adSoyad={data.onaylayanPersonelAdi}
                       unvan={data.onaylayanPersonelUnvan}
                       showSpace={true}

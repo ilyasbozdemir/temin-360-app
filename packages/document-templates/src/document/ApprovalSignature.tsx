@@ -579,7 +579,7 @@ export const MetadataBlock: React.FC<MetadataBlockProps> = ({
   dosyaKonusu,
   showBorder = false,
 }) => {
-  const displayTarih = onayaSunulanTarih || tarih;
+  const displayTarih = tarih || onayaSunulanTarih;
 
   // Sanitize dosyaKonusu if it contains accidental JSON string keys or quotes
   let cleanKonu = dosyaKonusu;
