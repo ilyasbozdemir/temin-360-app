@@ -10,6 +10,7 @@ import {
   perFormatFilters
 } from '../config/fileFormats'
 import { recentFilesStore } from '../store/recentFiles'
+import { pocketBaseSyncService, PocketBaseConfig } from '../services/pocketbaseSyncService'
 
 export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => void): void {
   ipcMain.handle('workspace:create', async (_, filePath: string, institutionName: string) => {
@@ -186,6 +187,28 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
       console.error('Backup to server error:', error)
       return { success: false, error: error.message }
     }
+  })
+
+  // PocketBase Self-Hosted API Handlers
+  ipcMain.handle('workspace:pocketbase-test', async (_, config: PocketBaseConfig) => {
+    return await pocketBaseSyncService.testConnection(config)
+  })
+
+  ipcMain.handle('workspace:pocketbase-push', async (_, config: PocketBaseConfig) => {
+    try {
+      const filePath = workspaceManager.getCurrentFilePath()
+      if (!filePath) {
+        return { success: false, message: 'Aktif bir çalışma dosyası açık değil!' }
+      }
+      workspaceManager.save()
+      return await pocketBaseSyncService.pushWorkspace(config, filePath)
+    } catch (err: any) {
+      return { success: false, message: err?.message || String(err) }
+    }
+  })
+
+  ipcMain.handle('workspace:pocketbase-list', async (_, config: PocketBaseConfig) => {
+    return await pocketBaseSyncService.listWorkspaces(config)
   })
 
   // Shared Google Drive Token Refresh Helper (DB'den dinamik okunur, asla hardcoded değil)

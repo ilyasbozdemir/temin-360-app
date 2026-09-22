@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  # TEMİN 360 - Standalone Lightweight PocketBase Service
+  pocketbase:
+    image: ghcr.io/muchsciencemuchwow/pocketbase:latest
+    container_name: temin360-pocketbase
+    restart: always
+    ports:
+      - "8090:8090"
+    volumes:
+      - pbdata:/pb/pb_data
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider http://localhost:8090/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pbdata:
+    driver: local

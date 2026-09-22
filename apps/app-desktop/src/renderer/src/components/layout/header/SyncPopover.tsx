@@ -24,6 +24,15 @@ export function SyncPopover(): React.JSX.Element {
     dbVersionCloud,
     activeProvider,
     setActiveProvider,
+    pocketbaseUrl,
+    setPocketbaseUrl,
+    pocketbaseEmail,
+    setPocketbaseEmail,
+    pocketbasePassword,
+    setPocketbasePassword,
+    testPocketBase,
+    pushPocketBase,
+    isPushing,
     loadSettings,
     testConnection,
     triggerSync
@@ -109,17 +118,27 @@ export function SyncPopover(): React.JSX.Element {
           <div className="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-xl gap-1 border border-slate-200/60 dark:border-slate-800/80">
             <button
               onClick={() => setActiveProvider('server')}
-              className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              className={`flex-1 py-1.5 px-1.5 rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
                 activeProvider === 'server'
                   ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs'
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              🌐 API Web Sunucu
+              🌐 API Sunucu
+            </button>
+            <button
+              onClick={() => setActiveProvider('pocketbase')}
+              className={`flex-1 py-1.5 px-1.5 rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                activeProvider === 'pocketbase'
+                  ? 'bg-white dark:bg-slate-800 text-amber-600 dark:text-amber-400 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+            >
+              ⚡ PocketBase
             </button>
             <button
               onClick={() => setActiveProvider('gdrive')}
-              className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              className={`flex-1 py-1.5 px-1.5 rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
                 activeProvider === 'gdrive'
                   ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xs'
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
@@ -216,6 +235,101 @@ export function SyncPopover(): React.JSX.Element {
                   className="flex-1 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer shadow-sm shadow-blue-500/10"
                 >
                   {isSyncing ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : 'Şimdi Eşitle'}
+                </button>
+              </div>
+
+              {syncMessage && (
+                <p
+                  className={`text-[10px] font-semibold p-2 rounded-lg text-center ${
+                    syncStatus === 'ok'
+                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                      : 'bg-rose-500/10 text-rose-650 dark:text-rose-400'
+                  }`}
+                >
+                  {syncMessage}
+                </p>
+              )}
+            </div>
+          ) : activeProvider === 'pocketbase' ? (
+            <div className="space-y-3 pt-1">
+              <div className="bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40 p-3 rounded-xl space-y-1 text-xs">
+                <div className="flex items-center justify-between font-bold text-amber-800 dark:text-amber-300">
+                  <span className="flex items-center gap-1.5">
+                    ⚡ PocketBase Self-Hosted API
+                  </span>
+                  <span className="text-[9px] px-2 py-0.5 rounded bg-amber-200/60 dark:bg-amber-900/60 font-mono">
+                    Hafif & Hızlı REST/Realtime
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                  Kendi sunucunuzdaki PocketBase servisine çalışma dosyalarınızı tek tıkla gönderip web uygulamanızla senkronize edin.
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[10px] font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider">
+                  PocketBase Sunucu URL (Örn: http://localhost:8090)
+                </label>
+                <input
+                  type="text"
+                  placeholder="http://localhost:8090"
+                  value={pocketbaseUrl}
+                  onChange={(e) => setPocketbaseUrl(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-955 border border-slate-250 dark:border-slate-800/80 rounded-lg p-2 font-mono text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider">
+                    E-Posta / Kullanıcı
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="admin@temin360.com"
+                    value={pocketbaseEmail}
+                    onChange={(e) => setPocketbaseEmail(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-955 border border-slate-250 dark:border-slate-800/80 rounded-lg p-2 font-mono text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider">
+                    Parola
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    value={pocketbasePassword}
+                    onChange={(e) => setPocketbasePassword(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-955 border border-slate-250 dark:border-slate-800/80 rounded-lg p-2 font-mono text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={() => testPocketBase()}
+                  disabled={syncStatus === 'loading'}
+                  className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer border border-slate-250 dark:border-slate-700"
+                >
+                  {syncStatus === 'loading' ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    'Sına & Doğrula'
+                  )}
+                </button>
+
+                <button
+                  onClick={() => pushPocketBase()}
+                  disabled={isPushing || !pocketbaseUrl}
+                  className="flex-1 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 disabled:opacity-50 text-white rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm shadow-amber-500/10"
+                >
+                  {isPushing ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    '⚡ Webe Gönder (PocketBase)'
+                  )}
                 </button>
               </div>
 

@@ -13,16 +13,26 @@ export interface SyncState {
   syncLastResult: { type: 'ok' | 'error'; msg: string } | null
   dbVersionLocal: number
   dbVersionCloud: number
-  activeProvider: 'server' | 'gdrive'
+  activeProvider: 'server' | 'gdrive' | 'pocketbase'
+  pocketbaseUrl: string
+  pocketbaseToken: string
+  pocketbaseEmail: string
+  pocketbasePassword: string
 
   setSyncUrl: (url: string) => void
   setSyncPort: (port: string) => void
   setSyncToken: (token: string) => void
+  setPocketbaseUrl: (url: string) => void
+  setPocketbaseToken: (token: string) => void
+  setPocketbaseEmail: (email: string) => void
+  setPocketbasePassword: (password: string) => void
   setIsOnlineMode: (val: boolean) => Promise<void>
-  setActiveProvider: (provider: 'server' | 'gdrive') => void
+  setActiveProvider: (provider: 'server' | 'gdrive' | 'pocketbase') => void
   loadSettings: () => Promise<void>
   saveSettings: () => Promise<void>
   testConnection: () => Promise<{ success: boolean; message?: string }>
+  testPocketBase: () => Promise<{ success: boolean; message?: string }>
+  pushPocketBase: () => Promise<{ success: boolean; message?: string }>
   triggerSync: () => Promise<void>
   triggerPush: () => Promise<void>
   triggerPull: () => Promise<void>
@@ -32,6 +42,10 @@ export const useSyncStore = create<SyncState>((set, get) => ({
   syncUrl: 'https://temin360app.demo.ilyasbozdemir.dev/',
   syncPort: '',
   syncToken: '',
+  pocketbaseUrl: 'http://localhost:8090',
+  pocketbaseToken: '',
+  pocketbaseEmail: '',
+  pocketbasePassword: '',
   isOnlineMode: true,
   syncStatus: 'idle',
   syncMessage: '',
@@ -46,6 +60,10 @@ export const useSyncStore = create<SyncState>((set, get) => ({
   setSyncUrl: (syncUrl) => set({ syncUrl }),
   setSyncPort: (syncPort) => set({ syncPort }),
   setSyncToken: (syncToken) => set({ syncToken }),
+  setPocketbaseUrl: (pocketbaseUrl) => set({ pocketbaseUrl }),
+  setPocketbaseToken: (pocketbaseToken) => set({ pocketbaseToken }),
+  setPocketbaseEmail: (pocketbaseEmail) => set({ pocketbaseEmail }),
+  setPocketbasePassword: (pocketbasePassword) => set({ pocketbasePassword }),
   setActiveProvider: (activeProvider) => set({ activeProvider }),
 
   setIsOnlineMode: async (checked: boolean) => {
@@ -214,6 +232,84 @@ export const useSyncStore = create<SyncState>((set, get) => ({
       })
     } finally {
       set({ isSyncing: false })
+    }
+  },
+
+  testPocketBase: async () => {
+    const { pocketbaseUrl, pocketbaseEmail, pocketbasePassword, pocketbaseToken } = get()
+    if (!pocketbaseUrl) {
+      set({ syncStatus: 'error', syncMessage: 'Lütfen PocketBase URL adresini girin.' })
+      return { success: false, message: 'Lütfen PocketBase URL adresini girin.' }
+    }
+
+    set({ syncStatus: 'loading', syncMessage: 'PocketBase bağlantısı sınanıyor...' })
+    try {
+      if (window.electron?.ipcRenderer) {
+        const res = await window.electron.ipcRenderer.invoke('workspace:pocketbase-test', {
+          url: pocketbaseUrl,
+          email: pocketbaseEmail,
+          password: pocketbasePassword,
+          token: pocketbaseToken
+        })
+
+        if (res.success) {
+          if (res.token) {
+            set({ pocketbaseToken: res.token })
+          }
+          set({
+            syncStatus: 'ok',
+            syncMessage: res.message || 'PocketBase bağlantısı başarılı ✓'
+          })
+          return { success: true, message: res.message }
+        } else {
+          set({
+            syncStatus: 'error',
+            syncMessage: res.message || 'PocketBase bağlantı başarısız.'
+          })
+          return { success: false, message: res.message }
+        }
+      }
+      return { success: false, message: 'Electron IPC mevcut değil.' }
+    } catch (err: any) {
+      const msg = err.message || 'PocketBase sına hatası'
+      set({ syncStatus: 'error', syncMessage: msg })
+      return { success: false, message: msg }
+    }
+  },
+
+  pushPocketBase: async () => {
+    const { pocketbaseUrl, pocketbaseToken, isPushing } = get()
+    if (isPushing) return { success: false, message: 'İşlem devam ediyor...' }
+    set({ isPushing: true, syncStatus: 'loading', syncMessage: 'Dosya PocketBase\'e aktarılıyor...' })
+
+    try {
+      if (window.electron?.ipcRenderer) {
+        const res = await window.electron.ipcRenderer.invoke('workspace:pocketbase-push', {
+          url: pocketbaseUrl,
+          token: pocketbaseToken
+        })
+
+        if (res.success) {
+          set({
+            syncStatus: 'ok',
+            syncMessage: res.message || 'Dosya PocketBase sunucusuna aktarıldı ✓'
+          })
+          return { success: true, message: res.message }
+        } else {
+          set({
+            syncStatus: 'error',
+            syncMessage: res.message || 'Aktarım başarısız.'
+          })
+          return { success: false, message: res.message }
+        }
+      }
+      return { success: false, message: 'Electron IPC bulunamadı.' }
+    } catch (err: any) {
+      const msg = err.message || 'PocketBase aktarım hatası'
+      set({ syncStatus: 'error', syncMessage: msg })
+      return { success: false, message: msg }
+    } finally {
+      set({ isPushing: false })
     }
   },
 
