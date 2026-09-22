@@ -10,7 +10,7 @@ import {
   ChevronRight
 } from 'lucide-react'
 import { DirtySummaryData } from './header.types'
-import { TABLE_DESCRIPTIONS } from 'src/shared/constants/databaseConstants'
+import { TABLE_DESCRIPTIONS } from '../../../../../shared/constants/databaseConstants'
 
 interface DirtySummaryPopoverProps {
   fileName?: string
