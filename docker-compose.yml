@@ -52,7 +52,7 @@ services:
 
   # 4. PocketBase Light Self-Hosted Backend Service (Port 8090)
   pocketbase:
-    image: pocketbase/pocketbase:latest
+    image: ghcr.io/pocketbase/pocketbase:latest
     container_name: temin360-pocketbase
     restart: always
     ports:

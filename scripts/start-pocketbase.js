@@ -1,7 +1,6 @@
 const fs = require('fs')
 const path = require('path')
 const { spawn, execSync } = require('child_process')
-const https = require('https')
 
 const POCKETBASE_VERSION = '0.23.4'
 const BIN_DIR = path.join(__dirname, '..', 'pocketbase_bin')
@@ -14,29 +13,16 @@ async function downloadFile(url, dest) {
   execSync(command, { stdio: 'inherit' })
 }
 
-async function main() {
+async function startLocalExecutable() {
   if (!fs.existsSync(BIN_DIR)) {
     fs.mkdirSync(BIN_DIR, { recursive: true })
   }
 
-  // Docker kontrolü dene (Docker çalışıyorsa docker compose ile başlat)
-  try {
-    const dockerCheck = execSync('docker info', { stdio: 'ignore', timeout: 3000 })
-    console.log('⚡ Docker daemon tespit edildi. Docker Compose ile başlatılıyor...')
-    const child = spawn('docker', ['compose', 'up', '-d', 'pocketbase'], { stdio: 'inherit', shell: true })
-    child.on('exit', (code) => process.exit(code || 0))
-    return
-  } catch {
-    console.log('ℹ️ Docker aktif değil. Yerel PocketBase Executable (.exe) kontrol ediliyor...')
-  }
-
-  // Docker yoksa veya çalışmıyorsa doğrudan PocketBase .exe indir & çalıştır
   if (!fs.existsSync(EXE_PATH)) {
-    console.log(`📥 PocketBase v${POCKETBASE_VERSION} indiriliyor (${DOWNLOAD_URL})...`)
+    console.log(`📥 Yerel PocketBase v${POCKETBASE_VERSION} indiriliyor...`)
     try {
       await downloadFile(DOWNLOAD_URL, ZIP_PATH)
       console.log('📦 Zip dosyası açılıyor...')
-      // PowerShell tar/Expand-Archive ile zipten çıkar
       execSync(`powershell -Command "Expand-Archive -Path '${ZIP_PATH}' -DestinationPath '${BIN_DIR}' -Force"`, { stdio: 'inherit' })
       if (fs.existsSync(ZIP_PATH)) fs.unlinkSync(ZIP_PATH)
       console.log('✓ PocketBase.exe hazırlandı!')
@@ -47,14 +33,28 @@ async function main() {
     }
   }
 
-  console.log('🚀 PocketBase 8090 portunda başlatılıyor (http://127.0.0.1:8090)...')
-  console.log('📌 Admin Paneli: http://127.0.0.1:8090/_/')
+  console.log('\n🚀 PocketBase 8090 portunda çalışıyor (http://127.0.0.1:8090)...')
+  console.log('📌 PocketBase Admin Paneli: http://127.0.0.1:8090/_/\n')
   
   const pbProcess = spawn(EXE_PATH, ['serve', '--http=127.0.0.1:8090'], { stdio: 'inherit', cwd: BIN_DIR })
-
   pbProcess.on('error', (err) => {
     console.error('PocketBase çalıştırma hatası:', err)
   })
+}
+
+async function main() {
+  // Docker dene, hata alırsan veya imaj çekilemezse otomatik olarak yerel .exe'ye düş
+  try {
+    const dockerCheck = execSync('docker info', { stdio: 'ignore', timeout: 2000 })
+    console.log('⚡ Docker daemon tespit edildi. Docker Compose ile deneniyor...')
+    execSync('docker compose up -d pocketbase', { stdio: 'inherit', shell: true })
+    console.log('✓ PocketBase Docker kapsayıcısı başarıyla başlatıldı!')
+    return
+  } catch (dockerErr) {
+    console.log('ℹ️ Docker kapalı veya imaj çekilemedi. Otomatik Yerel Executable (.exe) moduna geçiliyor...')
+  }
+
+  await startLocalExecutable()
 }
 
 main()

@@ -1,7 +1,7 @@
 services:
   # TEMİN 360 - Standalone Lightweight PocketBase Service
   pocketbase:
-    image: pocketbase/pocketbase:latest
+    image: ghcr.io/pocketbase/pocketbase:latest
     container_name: temin360-pocketbase
     restart: always
     ports:
