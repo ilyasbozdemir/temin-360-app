@@ -532,10 +532,12 @@ export function usePiyasaFiyatArastirmasiLogic() {
     const price = parseFloat(priceStr) || 0
     const key = `${kalemId}_${teminFirmaId}`
 
-    setBids((prev) => ({
-      ...prev,
+    const nextBids = {
+      ...bids,
       [key]: price
-    }))
+    }
+
+    setBids(nextBids)
 
     try {
       await window.electron.ipcRenderer.invoke(
@@ -580,7 +582,52 @@ export function usePiyasaFiyatArastirmasiLogic() {
          ORDER BY df.id ASC`,
         [activeDosyaId]
       )
-      if (resInvited.success) setInvitedFirms(resInvited.data || [])
+      const currentInvitedFirms: BiddingFirm[] = resInvited.success ? resInvited.data || [] : invitedFirms
+      if (resInvited.success) setInvitedFirms(currentInvitedFirms)
+
+      // Otomatik olarak Yaklaşık Maliyeti de hesaplayıp veritabanındaki DATA_TeminDosyasi tablosuna yazalım
+      const isLowestBasis =
+        hesaplamaEsasi?.toLowerCase().includes('en düşük') ||
+        hesaplamaEsasi?.toLowerCase().includes('en dusuk')
+
+      let totalDecimal = new Decimal(0)
+      items.forEach((item) => {
+        let p = 0
+        if (isLowestBasis) {
+          let minPrice = Infinity
+          currentInvitedFirms.forEach((firma) => {
+            const val = nextBids[`${item.id}_${firma.id}`]
+            if (val > 0 && val < minPrice) {
+              minPrice = val
+            }
+          })
+          p = minPrice === Infinity ? 0 : minPrice
+        } else {
+          let sumDecimal = new Decimal(0)
+          let count = 0
+          currentInvitedFirms.forEach((firma) => {
+            const val = nextBids[`${item.id}_${firma.id}`]
+            if (val > 0) {
+              sumDecimal = sumDecimal.plus(val)
+              count++
+            }
+          })
+          p = count > 0 ? sumDecimal.div(count).toDecimalPlaces(2).toNumber() : 0
+        }
+        const miktar = new Decimal(item.miktar || 0)
+        totalDecimal = totalDecimal.plus(miktar.times(p))
+      })
+      const newYaklasikMaliyet = totalDecimal.toDecimalPlaces(2).toNumber()
+
+      if (newYaklasikMaliyet > 0) {
+        await window.electron.ipcRenderer.invoke(
+          'db:run',
+          'UPDATE DATA_TeminDosyasi SET yaklasik_maliyet = ? WHERE id = ?',
+          [newYaklasikMaliyet, activeDosyaId]
+        )
+      }
+
+      emitAppEvent('dossier:updated', { dosyaId: activeDosyaId })
     } catch (err) {
       console.error('Error saving bid:', err)
     }
@@ -636,6 +683,36 @@ export function usePiyasaFiyatArastirmasiLogic() {
     })
     return totalDecimal.toDecimalPlaces(2).toNumber()
   }, [items, getAverageBid, getLowestBidInfo, hesaplamaEsasi])
+
+  const handleSetHesaplamaEsasi = useCallback(
+    async (newEsas: string): Promise<void> => {
+      setHesaplamaEsasi(newEsas)
+      if (!activeDosyaId) return
+      try {
+        const isLowestBasis =
+          newEsas?.toLowerCase().includes('en düşük') ||
+          newEsas?.toLowerCase().includes('en dusuk')
+
+        let totalDecimal = new Decimal(0)
+        items.forEach((item) => {
+          const price = isLowestBasis ? getLowestBidInfo(item.id).price : getAverageBid(item.id)
+          const miktar = new Decimal(item.miktar || 0)
+          totalDecimal = totalDecimal.plus(miktar.times(price))
+        })
+        const total = totalDecimal.toDecimalPlaces(2).toNumber()
+
+        await window.electron.ipcRenderer.invoke(
+          'db:run',
+          'UPDATE DATA_TeminDosyasi SET hesaplama_esasi = ?, yaklasik_maliyet = CASE WHEN ? > 0 THEN ? ELSE yaklasik_maliyet END WHERE id = ?',
+          [newEsas, total, total, activeDosyaId]
+        )
+        emitAppEvent('dossier:updated', { dosyaId: activeDosyaId })
+      } catch (err) {
+        console.error('Error updating hesaplama esasi:', err)
+      }
+    },
+    [activeDosyaId, items, getLowestBidInfo, getAverageBid]
+  )
 
   /**
    * "Yeni PFAT / Yaklaşık Maliyet Oluştur" butonuna tıklandığında çağrılır.
@@ -1130,11 +1207,12 @@ export function usePiyasaFiyatArastirmasiLogic() {
     async (firmaMasterId: number | null): Promise<void> => {
       if (!activeDosyaId) return
       try {
+        const estTotal = getEstimatedCostTotal()
         // 1. DATA_TeminDosyasi tablosunu güncelle
         await window.electron.ipcRenderer.invoke(
           'db:run',
-          'UPDATE DATA_TeminDosyasi SET firma_id = ? WHERE id = ?',
-          [firmaMasterId, activeDosyaId]
+          'UPDATE DATA_TeminDosyasi SET firma_id = ?, yaklasik_maliyet = CASE WHEN ? > 0 THEN ? ELSE yaklasik_maliyet END WHERE id = ?',
+          [firmaMasterId, estTotal, estTotal, activeDosyaId]
         )
 
         // 2. DATA_TeminFirma tablosundaki kazanan_mi durumunu senkronize et
@@ -1167,7 +1245,7 @@ export function usePiyasaFiyatArastirmasiLogic() {
         console.error('Error setting winner firma:', err)
       }
     },
-    [activeDosyaId]
+    [activeDosyaId, getEstimatedCostTotal]
   )
 
   return {
@@ -1178,7 +1256,7 @@ export function usePiyasaFiyatArastirmasiLogic() {
     bids,
     loading,
     hesaplamaEsasi,
-    setHesaplamaEsasi,
+    setHesaplamaEsasi: handleSetHesaplamaEsasi,
     komisyonTakdiri,
     isFirmModalOpen,
     setIsFirmModalOpen,

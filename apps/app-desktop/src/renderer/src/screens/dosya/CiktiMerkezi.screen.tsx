@@ -27,11 +27,14 @@ import { SABLON_DOSYAADI_KATEGORI } from "../../constants/sablonKategorileri";
 import { BelgeAksiyonlari } from "../../components/ui/BelgeAksiyonlari";
 import { CiktiPresetManager } from "./components/CiktiPresetManager";
 import { CiktiSidebar } from "./components/CiktiSidebar";
-import { buildExportFileName, buildBatchZipFileName } from "../../utils/exportFileName";
 import {
-  usePrintQueueStore,
+  buildBatchZipFileName,
+  buildExportFileName,
+} from "../../utils/exportFileName";
+import {
   CURRENT_APP_VERSION,
   PrintSettings,
+  usePrintQueueStore,
 } from "../../store/printQueueStore";
 import { useGlobalDocumentPreviewStore } from "../../store/globalDocumentPreviewStore";
 import { exportDogrudanTeminMasterExcel } from "../../services/excelExportService";
@@ -304,11 +307,13 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
 
   const groupedSablons = useMemo((): Record<string, Sablon[]> => {
     const groups: Record<string, Sablon[]> = {};
-    
+
     // Filter sablons based on statusFilter
     const filteredSablons = sablons.filter((s) => {
       const docKey = (s.dosya_adi || "").replace(/\.html$/, "");
-      const st = activeDosyaId ? getDocumentStatus(activeDosyaId, docKey) : "draft";
+      const st = activeDosyaId
+        ? getDocumentStatus(activeDosyaId, docKey)
+        : "draft";
 
       if (statusFilter === "ready") {
         return st === "ready_to_print";
@@ -330,7 +335,13 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
       groups[cat].push(s);
     });
     return groups;
-  }, [sablons, statusFilter, activeDosyaId, getDocumentStatus, activeStarredDocs]);
+  }, [
+    sablons,
+    statusFilter,
+    activeDosyaId,
+    getDocumentStatus,
+    activeStarredDocs,
+  ]);
 
   const toggleGroup = (cat: string) => {
     const groupItems = groupedSablons[cat] || [];
@@ -722,10 +733,14 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
               <div className="flex-1 overflow-y-auto pr-2 space-y-6 custom-scrollbar">
                 {Object.keys(groupedSablons).length === 0 && (
                   <div className="py-12 text-center text-slate-400 text-sm">
-                    {statusFilter === "ready" && "Yazdırmaya hazır olarak işaretlenmiş belge bulunamadı."}
-                    {statusFilter === "starred" && "Hızlı erişim için yıldızlanmış belge bulunamadı."}
-                    {statusFilter === "printed" && "Bu dosyada henüz yazdırılan belge bulunamadı."}
-                    {statusFilter === "all" && "Kayıtlı belge şablonu bulunamadı."}
+                    {statusFilter === "ready" &&
+                      "Yazdırmaya hazır olarak işaretlenmiş belge bulunamadı."}
+                    {statusFilter === "starred" &&
+                      "Hızlı erişim için yıldızlanmış belge bulunamadı."}
+                    {statusFilter === "printed" &&
+                      "Bu dosyada henüz yazdırılan belge bulunamadı."}
+                    {statusFilter === "all" &&
+                      "Kayıtlı belge şablonu bulunamadı."}
                   </div>
                 )}
                 {Object.entries(groupedSablons).map(([kategori, items]) => {
@@ -768,7 +783,10 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-4">
                           {items.map((sablon) => {
                             const missingMsg = getMissingRequirement(sablon);
-                            const docKey = (sablon.dosya_adi || "").replace(/\.html$/, "");
+                            const docKey = (sablon.dosya_adi || "").replace(
+                              /\.html$/,
+                              "",
+                            );
                             const docStatus = activeDosyaId
                               ? getDocumentStatus(activeDosyaId, docKey)
                               : "draft";
@@ -822,12 +840,18 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
                                     </p>
                                     {isLocked && (
                                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300/50">
-                                        <Lock className="w-2.5 h-2.5 text-amber-500" /> {lockInfo?.lockedAtVersion || CURRENT_APP_VERSION} Kilitli
+                                        <Lock className="w-2.5 h-2.5 text-amber-500" />
+                                        {" "}
+                                        {lockInfo?.lockedAtVersion ||
+                                          CURRENT_APP_VERSION} Kilitli
                                       </span>
                                     )}
-                                    {!isLocked && docStatus === "ready_to_print" && (
+                                    {!isLocked &&
+                                      docStatus === "ready_to_print" && (
                                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300/50">
-                                        <CheckCircle2 className="w-2.5 h-2.5" /> Hazır
+                                        <CheckCircle2 className="w-2.5 h-2.5" />
+                                        {" "}
+                                        Hazır
                                       </span>
                                     )}
                                     {!isLocked && docStatus === "modified" && (
@@ -837,7 +861,8 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
                                     )}
                                     {!isLocked && docStatus === "printed" && (
                                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-300/50">
-                                        <Printer className="w-2.5 h-2.5" /> Yazdırıldı
+                                        <Printer className="w-2.5 h-2.5" />{" "}
+                                        Yazdırıldı
                                       </span>
                                     )}
                                   </div>
@@ -857,11 +882,14 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
                                         e.stopPropagation();
                                         if (
                                           confirm(
-                                            `"${sablon.ad}" belgesinin yazdırma kilidini açmak ve yeniden düzenlemeye izin vermek istiyor musunuz?`
+                                            `"${sablon.ad}" belgesinin yazdırma kilidini açmak ve yeniden düzenlemeye izin vermek istiyor musunuz?`,
                                           )
                                         ) {
                                           if (activeDosyaId) {
-                                            unlockDocument(activeDosyaId, docKey);
+                                            unlockDocument(
+                                              activeDosyaId,
+                                              docKey,
+                                            );
                                           }
                                         }
                                       }}
@@ -877,7 +905,11 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       if (activeDosyaId) {
-                                        toggleReadyToPrint(activeDosyaId, docKey, sablon.ad);
+                                        toggleReadyToPrint(
+                                          activeDosyaId,
+                                          docKey,
+                                          sablon.ad,
+                                        );
                                       }
                                     }}
                                     className={`p-1 rounded-lg border transition-all ${
@@ -885,18 +917,17 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
                                         ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-950/60 dark:border-emerald-800 hover:bg-emerald-100"
                                         : "text-slate-400 hover:text-emerald-600 hover:border-emerald-300 border-slate-200 dark:border-slate-800"
                                     }`}
-                                    title={
-                                      docStatus === "ready_to_print"
-                                        ? "Yazdırmaya hazır işaretini kaldır"
-                                        : "Yazdırmaya hazır olarak işaretle"
-                                    }
+                                    title={docStatus === "ready_to_print"
+                                      ? "Yazdırmaya hazır işaretini kaldır"
+                                      : "Yazdırmaya hazır olarak işaretle"}
                                   >
                                     <CheckCircle2 className="w-3.5 h-3.5" />
                                   </button>
 
                                   <BelgeAksiyonlari
                                     onPreview={() => {
-                                      const key = (sablon.dosya_adi || "").replace(/\.html$/, "");
+                                      const key = (sablon.dosya_adi || "")
+                                        .replace(/\.html$/, "");
                                       openDocument({
                                         documentId: key,
                                         dosyaId: activeDosyaId || undefined,
@@ -909,9 +940,8 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
                                       handleAction(fmt, [sablon.id])}
                                     docName={sablon.ad}
                                     onOpenExternal={async () => {
-                                      const processCtx =
-                                        contextsByPath
-                                          ?.[sablon.route_path || ""] ||
+                                      const processCtx = contextsByPath
+                                        ?.[sablon.route_path || ""] ||
                                         dosyaContext;
                                       const eksikAlanlar: string[] = [];
                                       const doluAlanlar: string[] = [];
@@ -996,8 +1026,6 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
           onDownloadClick={(action) => handleAction(action)}
         />
       </div>
-
-
 
       <TekTikYazdirModal
         isOpen={isPrintManagerOpen}
