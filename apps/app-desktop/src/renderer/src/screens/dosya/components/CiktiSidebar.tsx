@@ -1,5 +1,5 @@
 import React from 'react'
-import { Printer, Download, FileText, CheckCircle2, Archive, FileSpreadsheet } from 'lucide-react'
+import { Printer, Download, FileText, CheckCircle2, Archive, FileSpreadsheet, Zap } from 'lucide-react'
 import { usePrintQueueStore } from '../../../store/printQueueStore'
 import { useWorkspaceStore } from '../../../store/workspaceStore'
 
@@ -9,6 +9,7 @@ interface CiktiSidebarProps {
   hasStarredDocs: boolean
   onPrintClick: () => void
   onDownloadClick: (action: 'pdf' | 'docx' | 'udf' | 'zip' | 'excel') => void
+  onAutoProcessQueue?: () => void
 }
 
 export function CiktiSidebar({
@@ -16,7 +17,8 @@ export function CiktiSidebar({
   processing,
   hasStarredDocs,
   onPrintClick,
-  onDownloadClick
+  onDownloadClick,
+  onAutoProcessQueue
 }: CiktiSidebarProps): React.JSX.Element {
   const { activeDosyaId } = useWorkspaceStore()
   const { getReadyCountForDosya } = usePrintQueueStore()
@@ -32,6 +34,27 @@ export function CiktiSidebar({
           Seçtiğiniz {selectedCount} belge {readyCount > 0 ? `ve kuyrukta bekleyen ${readyCount} belge ` : ''}için işlem yapın.
         </p>
       </div>
+
+      {readyCount > 0 && (
+        <button
+          onClick={onAutoProcessQueue || onPrintClick}
+          disabled={processing}
+          className="w-full flex items-center gap-3 p-3.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-700 hover:to-indigo-700 text-white rounded-2xl shadow-lg shadow-emerald-600/20 transition-all cursor-pointer border border-emerald-500/30"
+        >
+          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white shrink-0">
+            <Zap className="w-4 h-4 fill-amber-300 text-amber-300" />
+          </div>
+          <div className="text-left flex-1">
+            <div className="text-xs font-extrabold text-white flex items-center justify-between">
+              <span>Kuyruktakileri Otomatik İşle</span>
+              <span className="bg-white/25 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+                {readyCount}
+              </span>
+            </div>
+            <div className="text-[9px] text-emerald-100/90 mt-0.5">Kuyruktaki hazır belgeleri tek tıkla yazdır</div>
+          </div>
+        </button>
+      )}
 
       <button
         onClick={onPrintClick}
@@ -56,15 +79,15 @@ export function CiktiSidebar({
       {/* TOPLU ZIP İNDİR */}
       <button
         onClick={() => onDownloadClick('zip')}
-        disabled={processing || selectedCount === 0}
-        className="w-full flex items-center gap-3 p-3.5 bg-linear-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-indigo-600/15 cursor-pointer"
+        disabled={processing || (selectedCount === 0 && readyCount === 0)}
+        className="w-full flex items-center gap-3 p-3.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-indigo-600/15 cursor-pointer"
       >
         <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white shrink-0">
           <Archive className="w-4 h-4" />
         </div>
         <div className="text-left flex-1">
           <div className="text-xs font-bold text-white">Toplu İndir (ZIP Arşivi)</div>
-          <div className="text-[9px] text-white/80">Seçili tüm belgeleri tek ZIP&apos;te topla</div>
+          <div className="text-[9px] text-white/80">Seçili / kuyruktaki belgeleri tek ZIP&apos;te topla</div>
         </div>
       </button>
 
@@ -72,7 +95,7 @@ export function CiktiSidebar({
       <button
         onClick={() => onDownloadClick('excel')}
         disabled={processing}
-        className="w-full flex items-center gap-3 p-3.5 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-emerald-600/15 cursor-pointer"
+        className="w-full flex items-center gap-3 p-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-emerald-600/15 cursor-pointer"
       >
         <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white shrink-0">
           <FileSpreadsheet className="w-4 h-4" />
@@ -87,7 +110,7 @@ export function CiktiSidebar({
 
       <button
         onClick={() => onDownloadClick('pdf')}
-        disabled={processing || selectedCount === 0}
+        disabled={processing || (selectedCount === 0 && readyCount === 0)}
         className="w-full flex items-center gap-3 p-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-rose-300 dark:hover:border-rose-900 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
       >
         <div className="w-8 h-8 rounded-full bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center text-rose-600 shrink-0">
@@ -103,7 +126,7 @@ export function CiktiSidebar({
 
       <button
         onClick={() => onDownloadClick('docx')}
-        disabled={processing || selectedCount === 0}
+        disabled={processing || (selectedCount === 0 && readyCount === 0)}
         className="w-full flex items-center gap-3 p-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-900 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
       >
         <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 shrink-0">
@@ -119,7 +142,7 @@ export function CiktiSidebar({
 
       <button
         onClick={() => onDownloadClick('udf')}
-        disabled={processing || selectedCount === 0}
+        disabled={processing || (selectedCount === 0 && readyCount === 0)}
         className="w-full flex items-center gap-3 p-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-amber-300 dark:hover:border-amber-900 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
       >
         <div className="w-8 h-8 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 shrink-0">
@@ -133,3 +156,4 @@ export function CiktiSidebar({
     </div>
   )
 }
+

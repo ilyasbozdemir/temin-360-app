@@ -368,6 +368,26 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
     }
   };
 
+  const handleAutoProcessQueue = () => {
+    if (!activeDosyaId) return;
+    const readyIds = sablons
+      .filter((s) => {
+        if (getMissingRequirement(s)) return false;
+        const docKey = (s.dosya_adi || "").replace(/\.html$/, "");
+        return getDocumentStatus(activeDosyaId, docKey) === "ready_to_print";
+      })
+      .map((s) => s.id);
+
+    if (readyIds.length === 0) {
+      showToast("Kuyrukta işlenecek hazır belge bulunamadı.", "warning");
+      return;
+    }
+
+    setSelectedIds(new Set(readyIds));
+    setIsPrintManagerOpen(true);
+    showToast(`Kuyruktaki ${readyIds.length} adet hazır belge otomatik olarak seçildi.`, "success");
+  };
+
   const handleAction = async (
     action: "pdf" | "udf" | "docx" | "print" | "zip" | "excel",
     specificIds?: number[]
@@ -422,10 +442,23 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
       return;
     }
 
-    const targetIds = specificIds ? new Set(specificIds) : selectedIds;
+    let targetIds = specificIds ? new Set(specificIds) : selectedIds;
+
+    if (targetIds.size === 0 && activeDosyaId) {
+      const readyIds = sablons
+        .filter((s) => {
+          if (getMissingRequirement(s)) return false;
+          const docKey = (s.dosya_adi || "").replace(/\.html$/, "");
+          return getDocumentStatus(activeDosyaId, docKey) === "ready_to_print";
+        })
+        .map((s) => s.id);
+      if (readyIds.length > 0) {
+        targetIds = new Set(readyIds);
+      }
+    }
 
     if (targetIds.size === 0) {
-      showToast("Lütfen en az bir belge seçin.", "warning");
+      showToast("Lütfen en az bir belge seçin veya kuyruğa hazır belge ekleyin.", "warning");
       return;
     }
 
@@ -525,9 +558,10 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
             silent: true,
           });
           await logDocument(sablon.ad, "Yazdırıldı");
-          if (activeDosyaId) {
-            markAsPrinted(activeDosyaId, docKey);
-          }
+        }
+
+        if (activeDosyaId) {
+          markAsPrinted(activeDosyaId, docKey);
         }
       }
 
@@ -786,6 +820,7 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
           hasStarredDocs={activeStarredDocs.length > 0}
           onPrintClick={() => setIsPrintManagerOpen(true)}
           onDownloadClick={(action) => handleAction(action)}
+          onAutoProcessQueue={handleAutoProcessQueue}
         />
       </div>
 
