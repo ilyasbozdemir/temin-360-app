@@ -10,7 +10,7 @@ import {
   ChevronRight
 } from 'lucide-react'
 import { DirtySummaryData } from './header.types'
-import { TABLE_DESCRIPTIONS } from '../../../../../shared/constants/databaseConstants'
+import { TABLE_DESCRIPTIONS, TABLE_FRIENDLY_NAMES } from '../../../../../shared/constants/databaseConstants'
 
 interface DirtySummaryPopoverProps {
   fileName?: string
@@ -114,6 +114,11 @@ export function DirtySummaryPopover({
                 ) : dirtySummary && dirtySummary.items.length > 0 ? (
                   dirtySummary.items.map((item, idx) => {
                     const isExpanded = expandedIdx === idx
+                    const displayTitle =
+                      TABLE_FRIENDLY_NAMES[item.tableName] ||
+                      (item.title && item.title !== 'Veritabanı'
+                        ? item.title
+                        : 'Çalışma Dosyası Bilgileri')
                     const description =
                       TABLE_DESCRIPTIONS[item.tableName] ||
                       'Bu modülde kullanıcı tarafından veri değişiklikleri yapıldı.'
@@ -137,9 +142,9 @@ export function DirtySummaryPopover({
                             <div className="flex flex-col min-w-0">
                               <span
                                 className="font-bold text-xs text-slate-800 dark:text-slate-100 truncate"
-                                title={item.title}
+                                title={displayTitle}
                               >
-                                {item.title}
+                                {displayTitle}
                               </span>
                               <span className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
                                 <span className="text-amber-600 dark:text-amber-400 font-semibold">
@@ -165,14 +170,14 @@ export function DirtySummaryPopover({
 
                         {/* Tıklayınca Açılan Detay Açıklaması */}
                         {isExpanded && (
-                          <div className="px-2.5 pb-2 pt-1 border-t border-amber-200/50 dark:border-amber-800/40 bg-white/60 dark:bg-slate-900/60 text-[10px] space-y-1 animate-in fade-in-0 duration-150">
-                            <div className="flex items-start gap-1 text-slate-600 dark:text-slate-300">
-                              <Info className="w-3 h-3 text-amber-500 shrink-0 mt-0.5" />
-                              <span>{description}</span>
+                          <div className="px-2.5 pb-2.5 pt-1.5 border-t border-amber-200/50 dark:border-amber-800/40 bg-white/70 dark:bg-slate-900/70 text-[10px] space-y-1.5 animate-in fade-in-0 duration-150">
+                            <div className="flex items-start gap-1.5 text-slate-700 dark:text-slate-200">
+                              <Info className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+                              <span className="leading-tight">{description}</span>
                             </div>
-                            <div className="flex items-center justify-between text-slate-400 font-mono pt-1 text-[9px]">
-                              <span>Tablo: {item.tableName}</span>
-                              <span>İşlem Saati: {item.lastTime}</span>
+                            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 font-mono pt-1 text-[9px] border-t border-slate-100 dark:border-slate-800">
+                              <span>İşlem: <strong className="text-amber-700 dark:text-amber-300">{item.actionLabel} ({item.count} adet)</strong></span>
+                              <span>Son Güncelleme: {item.lastTime}</span>
                             </div>
                           </div>
                         )}

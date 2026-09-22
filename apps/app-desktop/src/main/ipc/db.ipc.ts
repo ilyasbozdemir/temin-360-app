@@ -1601,7 +1601,6 @@ export function registerDbIpcHandlers(): void {
     try {
       const db = workspaceManager.getDb()
       ensureSchemaIntegrity(db)
-      workspaceManager.recordMutation()
       workspaceManager.save()
       return { success: true }
     } catch (err: any) {

@@ -33,7 +33,8 @@ export const TABLE_FRIENDLY_NAMES: Record<string, string> = {
   TANIM_Pozlar: 'Poz / Birim Fiyatlar',
   TANIM_Ambar: 'Ambar Tanımları',
   settings: 'Sistem Ayarları',
-  attachments: 'Ek Dosyalar & Belgeler'
+  attachments: 'Ek Dosyalar & Belgeler',
+  Veritabanı: 'Çalışma Dosyası Bilgileri'
 }
 
 export const TABLE_DESCRIPTIONS: Record<string, string> = {
@@ -47,5 +48,6 @@ export const TABLE_DESCRIPTIONS: Record<string, string> = {
   DATA_YaklasikMaliyet: 'Yaklaşık maliyet hesap cetvelleri ve ortalama fiyat analizleri.',
   DATA_NotVeGorev: 'Dosyaya bağlı özel notlar ve yapılacak işler listesi.',
   TANIM_Personel: 'Kurum personeli, unvan ve yetkili imzacı kayıtları.',
-  TANIM_Firma: 'Kayıtlı tedarikçi ve yüklenici firma rehberi.'
+  TANIM_Firma: 'Kayıtlı tedarikçi ve yüklenici firma rehberi.',
+  Veritabanı: 'Çalışma dosyasındaki veri, ayar ve ihale süreci güncellemeleri.'
 }
