@@ -87,7 +87,7 @@ export function extractTableAndAction(sql: string): {
   else if (upper.startsWith('DELETE')) action = 'delete'
 
   let tableName = 'Veritabanı'
-  const match = clean.match(/(?:FROM|INTO|UPDATE)\s+([A-Za-z0-9_]+)/i)
+  const match = clean.match(/(?:FROM|INTO|UPDATE)\s+(?:["`'\[]?[A-Za-z0-9_]+["`'\]]?\.)?["`'\[]?([A-Za-z0-9_]+)["`'\]]?/i)
   if (match && match[1]) {
     tableName = match[1]
   }
@@ -1466,6 +1466,7 @@ export class DtmWorkspace {
       zip.writeZip(this.currentFilePath)
       console.log('Workspace saved successfully to zip.')
       this.initialHash = this.calculateCurrentHash()
+      this.resetDirty()
     } catch (zipErr) {
       console.error('Error while writing zip file:', zipErr)
       throw new Error('Dosya kaydedilirken hata oluştu: ' + (zipErr as Error).message)
@@ -1645,8 +1646,14 @@ export class DtmWorkspace {
 
   public recordMutation(tableName?: string, action?: string, count: number = 1): void {
     const table = tableName || 'Veritabanı'
-    if (table.toUpperCase() === 'LOG_SYSTEMLOG') {
-      return // Sistem logları kullanıcı mutasyonu değildir!
+    const tableUpper = table.toUpperCase()
+    if (
+      tableUpper === 'LOG_SYSTEMLOG' ||
+      tableUpper === 'SETTINGS' ||
+      tableUpper === 'SCHEMA_MIGRATIONS' ||
+      tableUpper === 'SQLITE_SEQUENCE'
+    ) {
+      return // Sistem logları ve ayarları kullanıcı mutasyonu değildir!
     }
 
     this.userMutationCount += count
@@ -1665,9 +1672,9 @@ export class DtmWorkspace {
 
     const actionLabels: Record<string, string> = {
       insert: 'Yeni Kayıt Eklendi',
-      update: 'Güncellendi',
-      delete: 'Silindi',
-      other: 'İşlem Yapıldı'
+      update: 'Bilgiler Güncellendi',
+      delete: 'Kayıt Silindi',
+      other: 'Veri Düzenlendi'
     }
 
     const title = TABLE_FRIENDLY_NAMES[table] || table

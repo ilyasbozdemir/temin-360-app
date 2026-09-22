@@ -1,19 +1,14 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { SubScreen } from "./SubScreens.screen";
 import {
-  AlertCircle,
-  CheckCircle2,
   CheckSquare,
   ChevronDown,
   ChevronRight,
   Layers,
   Loader2,
-  Lock,
   Printer,
   RefreshCw,
-  Sparkles,
   Square,
-  Unlock,
 } from "lucide-react";
 import { useWorkspaceStore } from "../../store/workspaceStore";
 import Mustache from "mustache";
@@ -22,20 +17,17 @@ import { useCiktiMerkeziData } from "./CiktiMerkezi.hooks";
 import { useDocumentLogger } from "../../hooks/useDocumentLogger";
 import { useRouterState } from "@tanstack/react-router";
 import { TekTikYazdirModal } from "./components/TekTikYazdirModal";
-import { PrintManagerModal } from "./components/PrintManagerModal";
 import { SABLON_DOSYAADI_KATEGORI } from "../../constants/sablonKategorileri";
-import { BelgeAksiyonlari } from "../../components/ui/BelgeAksiyonlari";
 import { CiktiPresetManager } from "./components/CiktiPresetManager";
 import { CiktiSidebar } from "./components/CiktiSidebar";
+import { CiktiStatusFilterTabs, StatusFilterType } from "./components/CiktiStatusFilterTabs";
+import { CiktiBelgeCard } from "./components/CiktiBelgeCard";
+import { CiktiToast, ToastInfo } from "./components/CiktiToast";
 import {
   buildBatchZipFileName,
   buildExportFileName,
 } from "../../utils/exportFileName";
-import {
-  CURRENT_APP_VERSION,
-  PrintSettings,
-  usePrintQueueStore,
-} from "../../store/printQueueStore";
+import { usePrintQueueStore } from "../../store/printQueueStore";
 import { useGlobalDocumentPreviewStore } from "../../store/globalDocumentPreviewStore";
 import { exportDogrudanTeminMasterExcel } from "../../services/excelExportService";
 
@@ -57,6 +49,12 @@ const getSablonGroup = (sablon: Sablon): string => {
   const dosyaAdiNoExt = (sablon.dosya_adi || "").replace(/\.html$/, "");
   return SABLON_DOSYAADI_KATEGORI[dosyaAdiNoExt] || "Genel";
 };
+
+interface DocumentPreset {
+  id: string;
+  name: string;
+  docs: string[];
+}
 
 export function CiktiMerkeziScreen(): React.JSX.Element {
   const { activeDosyaId, activeStarredDocs, setActiveStarredDocs } =
@@ -86,39 +84,26 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
   const [processing, setProcessing] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set(),
+    new Set()
   );
 
   const [isPrintManagerOpen, setIsPrintManagerOpen] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<
-    "all" | "ready" | "starred" | "printed"
-  >("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilterType>("all");
 
   const readyCount = getReadyCountForDosya(activeDosyaId);
   const printedCount = getPrintedCountForDosya(activeDosyaId);
-  const [toast, setToast] = useState<
-    {
-      message: string;
-      type: "success" | "error" | "warning";
-    } | null
-  >(null);
+  const [toast, setToast] = useState<ToastInfo | null>(null);
 
   const showToast = useCallback(
     (message: string, type: "success" | "error" | "warning" = "success") => {
       setToast({ message, type });
       setTimeout(() => setToast(null), 4000);
     },
-    [],
+    []
   );
 
   const router = useRouterState();
   const searchSablonAd = (router.location.search as any)?.sablonAd;
-
-  interface DocumentPreset {
-    id: string;
-    name: string;
-    docs: string[];
-  }
 
   const [presets, setPresets] = useState<DocumentPreset[]>(() => {
     try {
@@ -141,18 +126,15 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
       const ids = new Set<number>();
       sablons.forEach((s) => {
         if (
-          preset.docs.some((docAd) =>
-            normalizeForMatch(docAd) === normalizeForMatch(s.ad)
+          preset.docs.some(
+            (docAd) => normalizeForMatch(docAd) === normalizeForMatch(s.ad)
           )
         ) {
           ids.add(s.id);
         }
       });
       setSelectedIds(ids);
-      showToast(
-        `'${preset.name}' paketi seçildi. (${ids.size} belge)`,
-        "success",
-      );
+      showToast(`'${preset.name}' paketi seçildi. (${ids.size} belge)`, "success");
     }
   };
 
@@ -160,16 +142,16 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
     if (selectedIds.size === 0) {
       showToast(
         "Lütfen paket oluşturmak için önce en az bir belge seçin.",
-        "warning",
+        "warning"
       );
       return;
     }
     const name = prompt("Lütfen bu belge paketi taslağı için bir isim girin:");
     if (!name || name.trim() === "") return;
 
-    const selectedDocs = sablons.filter((s) => selectedIds.has(s.id)).map((s) =>
-      s.ad
-    );
+    const selectedDocs = sablons
+      .filter((s) => selectedIds.has(s.id))
+      .map((s) => s.ad);
     const newPreset: DocumentPreset = {
       id: Date.now().toString(),
       name: name.trim(),
@@ -202,7 +184,6 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
     showToast(`'${preset.name}' paketi silindi.`, "success");
   };
 
-  // localStarredDocs artık global store'dan geliyor; DB'deki starred_docs ile sync
   React.useEffect(() => {
     if (activeDosya?.starred_docs) {
       try {
@@ -223,7 +204,7 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
         const res = await window.electron.ipcRenderer.invoke(
           "db:query",
           "SELECT starred_docs FROM DATA_TeminDosyasi WHERE id = ?",
-          [activeDosyaId],
+          [activeDosyaId]
         );
         if (res.success && res.data.length > 0) {
           try {
@@ -252,7 +233,7 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
   React.useEffect(() => {
     if (searchSablonAd && sablons.length > 0) {
       const found = sablons.find(
-        (s) => normalizeForMatch(s.ad) === normalizeForMatch(searchSablonAd),
+        (s) => normalizeForMatch(s.ad) === normalizeForMatch(searchSablonAd)
       );
       if (found && !selectedIds.has(found.id)) {
         setSelectedIds((prev) => new Set([...prev, found.id]));
@@ -282,33 +263,9 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
     }
   };
 
-  const toggleStar = async (sablonAd: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    if (!activeDosyaId) return;
-
-    const existingIdx = activeStarredDocs.findIndex(
-      (d) => normalizeForMatch(d) === normalizeForMatch(sablonAd),
-    );
-    const newDocs = [...activeStarredDocs];
-
-    if (existingIdx >= 0) {
-      newDocs.splice(existingIdx, 1);
-    } else {
-      newDocs.push(sablonAd);
-    }
-
-    setActiveStarredDocs(newDocs); // Instantly update global store
-    await window.electron.ipcRenderer.invoke(
-      "db:run",
-      "UPDATE DATA_TeminDosyasi SET starred_docs = ? WHERE id = ?",
-      [JSON.stringify(newDocs), activeDosyaId],
-    );
-  };
-
   const groupedSablons = useMemo((): Record<string, Sablon[]> => {
     const groups: Record<string, Sablon[]> = {};
 
-    // Filter sablons based on statusFilter
     const filteredSablons = sablons.filter((s) => {
       const docKey = (s.dosya_adi || "").replace(/\.html$/, "");
       const st = activeDosyaId
@@ -323,7 +280,7 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
       }
       if (statusFilter === "starred") {
         return activeStarredDocs.some(
-          (d) => normalizeForMatch(d) === normalizeForMatch(s.ad),
+          (d) => normalizeForMatch(d) === normalizeForMatch(s.ad)
         );
       }
       return true;
@@ -347,7 +304,7 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
     const groupItems = groupedSablons[cat] || [];
     const groupIds = groupItems.map((s) => s.id);
     const validIds = groupIds.filter(
-      (id) => !getMissingRequirement(sablons.find((s) => s.id === id)!),
+      (id) => !getMissingRequirement(sablons.find((s) => s.id === id)!)
     );
     const allSelected = validIds.every((id) => selectedIds.has(id));
     const newSet = new Set(selectedIds);
@@ -386,7 +343,7 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
 
   const toggleSelect = (id: number) => {
     const sablon = sablons.find((s) => s.id === id);
-    if (sablon && getMissingRequirement(sablon)) return; // Block selection if missing requirement
+    if (sablon && getMissingRequirement(sablon)) return;
 
     const newSet = new Set(selectedIds);
     if (newSet.has(id)) newSet.delete(id);
@@ -398,8 +355,8 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
     try {
       if (!masterHtml) return sablon.icerik;
 
-      const processContext = contextsByPath?.[sablon.route_path || ""] ||
-        dosyaContext;
+      const processContext =
+        contextsByPath?.[sablon.route_path || ""] || dosyaContext;
       const templateContext = { ...processContext };
 
       const renderedContent = Mustache.render(sablon.icerik, templateContext);
@@ -413,7 +370,7 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
 
   const handleAction = async (
     action: "pdf" | "udf" | "docx" | "print" | "zip" | "excel",
-    specificIds?: number[],
+    specificIds?: number[]
   ) => {
     if (action === "excel") {
       setProcessing(true);
@@ -421,7 +378,7 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
         const kalemlerRes = await window.electron.ipcRenderer.invoke(
           "db:query",
           "SELECT * FROM DATA_TeminKalem WHERE temin_dosya_id = ?",
-          [activeDosyaId],
+          [activeDosyaId]
         );
         const firmalarRes = await window.electron.ipcRenderer.invoke(
           "db:query",
@@ -429,21 +386,21 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
            FROM DATA_TeminFirma tf 
            JOIN TANIM_Firma f ON tf.firma_id = f.id 
            WHERE tf.temin_dosya_id = ?`,
-          [activeDosyaId],
+          [activeDosyaId]
         );
         const tekliflerRes = await window.electron.ipcRenderer.invoke(
           "db:query",
           "SELECT * FROM DATA_TeminKalemTeklif WHERE temin_dosya_id = ?",
-          [activeDosyaId],
+          [activeDosyaId]
         );
         const komisyonRes = await window.electron.ipcRenderer.invoke(
           "db:query",
           "SELECT * FROM DATA_TeminKomisyon WHERE temin_dosya_id = ?",
-          [activeDosyaId],
+          [activeDosyaId]
         );
         const kurumRes = await window.electron.ipcRenderer.invoke(
           "db:query",
-          "SELECT * FROM TANIM_Kurum LIMIT 1",
+          "SELECT * FROM TANIM_Kurum LIMIT 1"
         );
 
         await exportDogrudanTeminMasterExcel({
@@ -518,14 +475,14 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
           {
             fileName: defaultZipName,
             files: zipFiles,
-          },
+          }
         );
 
         if (res && res.success && !res.canceled) {
           await logDocument("Toplu Belge Paketi", defaultZipName);
           showToast(
             `ZIP arşivi başarıyla kaydedildi (${selectedSablons.length} belge).`,
-            "success",
+            "success"
           );
         }
         return;
@@ -546,27 +503,27 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
             "export-pdf",
             html,
             null,
-            fileBase,
+            fileBase
           );
           await logDocument(sablon.ad, `${fileBase}.pdf`);
         } else if (action === "udf") {
           await window.electron.ipcRenderer.invoke(
             "export-udf",
             html,
-            fileBase,
+            fileBase
           );
           await logDocument(sablon.ad, `${fileBase}.udf`);
         } else if (action === "docx") {
           await window.electron.ipcRenderer.invoke(
             "export-docx",
             html,
-            fileBase,
+            fileBase
           );
           await logDocument(sablon.ad, `${fileBase}.docx`);
         } else if (action === "print") {
           await window.electron.ipcRenderer.invoke("print-html", html, {
             silent: true,
-          }); // Silent true for batch printing
+          });
           await logDocument(sablon.ad, "Yazdırıldı");
           if (activeDosyaId) {
             markAsPrinted(activeDosyaId, docKey);
@@ -578,7 +535,7 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
         setIsPrintManagerOpen(false);
         showToast(
           "Belgeler başarıyla yazdırıldı ve 'Yazdırıldı' olarak işaretlendi.",
-          "success",
+          "success"
         );
       } else {
         showToast("Belgeler başarıyla oluşturuldu ve kaydedildi.", "success");
@@ -587,6 +544,45 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
       showToast(`İşlem sırasında hata oluştu: ${error.message}`, "error");
     } finally {
       setProcessing(false);
+    }
+  };
+
+  const handleOpenExternal = async (sablon: Sablon) => {
+    const processCtx =
+      contextsByPath?.[sablon.route_path || ""] || dosyaContext;
+    const eksikAlanlar: string[] = [];
+    const doluAlanlar: string[] = [];
+    for (const [key, value] of Object.entries(processCtx)) {
+      if (key === "icerik" || key.startsWith("_")) continue;
+      if (typeof value === "string" && value.includes("[Belirtilmedi:")) {
+        const match = value.match(/\[Belirtilmedi:\s*(.+?)\]/);
+        eksikAlanlar.push(match ? match[1] : key);
+      } else if (Array.isArray(value)) {
+        if (value.length > 0) {
+          doluAlanlar.push(key);
+        }
+      } else if (value !== null && value !== undefined && value !== "") {
+        doluAlanlar.push(key);
+      }
+    }
+    if (eksikAlanlar.length > 0) {
+      const maxGoster = 12;
+      const eksikListesi = eksikAlanlar
+        .slice(0, maxGoster)
+        .map((m) => `  • ${m}`)
+        .join("\n");
+      const fazla =
+        eksikAlanlar.length > maxGoster
+          ? `\n  ... ve ${eksikAlanlar.length - maxGoster} alan daha`
+          : "";
+      const devam = confirm(
+        `⚠️ ${eksikAlanlar.length} alan eksik / belirtilmemiş:\n\n${eksikListesi}${fazla}\n\n✅ ${doluAlanlar.length} alan dolu.\n\nYine de PDF olarak açmak istiyor musunuz?`
+      );
+      if (!devam) return;
+    }
+    const html = renderHtml(sablon);
+    if (html) {
+      await window.electron.ipcRenderer.invoke("open-pdf-external", html);
     }
   };
 
@@ -624,8 +620,8 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
                 title="Tüm Grupları Aç / Kapat"
               >
                 {Object.keys(groupedSablons).every((cat) =>
-                    expandedCategories.has(cat)
-                  )
+                  expandedCategories.has(cat)
+                )
                   ? "Hepsini Kapat"
                   : "Hepsini Aç"}
               </button>
@@ -633,85 +629,14 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
           </div>
 
           {/* DURUM FİLTRELEME SEKMELERİ */}
-          <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 dark:bg-slate-800/60 rounded-2xl mb-4 text-xs font-semibold overflow-x-auto border border-slate-200/60 dark:border-slate-800">
-            <button
-              onClick={() => setStatusFilter("all")}
-              className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 shrink-0 ${
-                statusFilter === "all"
-                  ? "bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-xs font-bold"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5 text-blue-500" />
-              Tüm Belgeler
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300">
-                {sablons.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setStatusFilter("ready")}
-              className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 shrink-0 ${
-                statusFilter === "ready"
-                  ? "bg-emerald-500 text-white shadow-xs font-bold"
-                  : "text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
-              }`}
-            >
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              Yazdırmaya Hazır
-              <span
-                className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                  statusFilter === "ready"
-                    ? "bg-emerald-600 text-white"
-                    : "bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300"
-                }`}
-              >
-                {readyCount}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setStatusFilter("starred")}
-              className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 shrink-0 ${
-                statusFilter === "starred"
-                  ? "bg-amber-500 text-white shadow-xs font-bold"
-                  : "text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40"
-              }`}
-            >
-              <span>⭐</span>
-              Hızlı Erişim
-              <span
-                className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                  statusFilter === "starred"
-                    ? "bg-amber-600 text-white"
-                    : "bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300"
-                }`}
-              >
-                {activeStarredDocs.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setStatusFilter("printed")}
-              className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 shrink-0 ${
-                statusFilter === "printed"
-                  ? "bg-blue-600 text-white shadow-xs font-bold"
-                  : "text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40"
-              }`}
-            >
-              <Printer className="w-3.5 h-3.5" />
-              Yazdırılanlar
-              <span
-                className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                  statusFilter === "printed"
-                    ? "bg-blue-700 text-white"
-                    : "bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-300"
-                }`}
-              >
-                {printedCount}
-              </span>
-            </button>
-          </div>
+          <CiktiStatusFilterTabs
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            totalCount={sablons.length}
+            readyCount={readyCount}
+            starredCount={activeStarredDocs.length}
+            printedCount={printedCount}
+          />
 
           {/* BELGE PAKETLERİ VE TASLAKLAR */}
           <CiktiPresetManager
@@ -723,298 +648,135 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
             onDeletePreset={handleDeletePreset}
           />
 
-          {loading
-            ? (
-              <div className="flex-1 flex items-center justify-center text-slate-400">
-                <Loader2 className="w-6 h-6 animate-spin" />
-              </div>
-            )
-            : (
-              <div className="flex-1 overflow-y-auto pr-2 space-y-6 custom-scrollbar">
-                {Object.keys(groupedSablons).length === 0 && (
-                  <div className="py-12 text-center text-slate-400 text-sm">
-                    {statusFilter === "ready" &&
-                      "Yazdırmaya hazır olarak işaretlenmiş belge bulunamadı."}
-                    {statusFilter === "starred" &&
-                      "Hızlı erişim için yıldızlanmış belge bulunamadı."}
-                    {statusFilter === "printed" &&
-                      "Bu dosyada henüz yazdırılan belge bulunamadı."}
-                    {statusFilter === "all" &&
-                      "Kayıtlı belge şablonu bulunamadı."}
-                  </div>
-                )}
-                {Object.entries(groupedSablons).map(([kategori, items]) => {
-                  const isExpanded = expandedCategories.has(kategori);
-                  return (
-                    <div key={kategori} className="space-y-2">
-                      <div
-                        className="flex items-center justify-between px-2 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg cursor-pointer transition-colors"
-                        onClick={() => toggleCategory(kategori)}
-                      >
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleGroup(kategori);
-                            }}
-                            className="p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                          >
-                            {items
-                                .filter((i) => !getMissingRequirement(i))
-                                .every((i) => selectedIds.has(i.id))
-                              ? (
-                                <CheckSquare className="w-4 h-4 text-blue-600" />
-                              )
-                              : <Square className="w-4 h-4 text-slate-400" />}
-                          </button>
-                          <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                            {kategori} ({items.length})
-                          </h4>
-                        </div>
-                        <div>
-                          {isExpanded
-                            ? <ChevronDown className="w-4 h-4 text-slate-400" />
-                            : (
-                              <ChevronRight className="w-4 h-4 text-slate-400" />
-                            )}
-                        </div>
+          {loading ? (
+            <div className="flex-1 flex items-center justify-center text-slate-400">
+              <Loader2 className="w-6 h-6 animate-spin" />
+            </div>
+          ) : (
+            <div className="flex-1 overflow-y-auto pr-2 space-y-6 custom-scrollbar">
+              {Object.keys(groupedSablons).length === 0 && (
+                <div className="py-12 text-center text-slate-400 text-sm">
+                  {statusFilter === "ready" &&
+                    "Yazdırmaya hazır olarak işaretlenmiş belge bulunamadı."}
+                  {statusFilter === "starred" &&
+                    "Hızlı erişim için yıldızlanmış belge bulunamadı."}
+                  {statusFilter === "printed" &&
+                    "Bu dosyada henüz yazdırılan belge bulunamadı."}
+                  {statusFilter === "all" &&
+                    "Kayıtlı belge şablonu bulunamadı."}
+                </div>
+              )}
+              {Object.entries(groupedSablons).map(([kategori, items]) => {
+                const isExpanded = expandedCategories.has(kategori);
+                return (
+                  <div key={kategori} className="space-y-2">
+                    <div
+                      className="flex items-center justify-between px-2 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg cursor-pointer transition-colors"
+                      onClick={() => toggleCategory(kategori)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleGroup(kategori);
+                          }}
+                          className="p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                        >
+                          {items
+                            .filter((i) => !getMissingRequirement(i))
+                            .every((i) => selectedIds.has(i.id)) ? (
+                            <CheckSquare className="w-4 h-4 text-blue-600" />
+                          ) : (
+                            <Square className="w-4 h-4 text-slate-400" />
+                          )}
+                        </button>
+                        <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                          {kategori} ({items.length})
+                        </h4>
                       </div>
-                      {isExpanded && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-4">
-                          {items.map((sablon) => {
-                            const missingMsg = getMissingRequirement(sablon);
-                            const docKey = (sablon.dosya_adi || "").replace(
-                              /\.html$/,
-                              "",
-                            );
-                            const docStatus = activeDosyaId
-                              ? getDocumentStatus(activeDosyaId, docKey)
-                              : "draft";
-                            const isLocked = activeDosyaId
-                              ? isDocumentLocked(activeDosyaId, docKey)
-                              : false;
-                            const lockInfo = activeDosyaId
-                              ? getDocumentLockInfo(activeDosyaId, docKey)
-                              : null;
-
-                            return (
-                              <div
-                                key={`cikti_${sablon.id}_${docKey}`}
-                                onClick={() => toggleSelect(sablon.id)}
-                                className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
-                                  missingMsg
-                                    ? "bg-slate-50 border-slate-200 opacity-70 cursor-not-allowed dark:bg-slate-900 dark:border-slate-800"
-                                    : selectedIds.has(sablon.id)
-                                    ? "bg-blue-50/50 border-blue-200 text-blue-800 cursor-pointer dark:bg-blue-900/20 dark:border-blue-800/50 dark:text-blue-300"
-                                    : "bg-white border-slate-200 text-slate-700 cursor-pointer hover:border-blue-300 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-300 dark:hover:border-slate-700"
-                                }`}
-                              >
-                                <div className="shrink-0">
-                                  {missingMsg
-                                    ? (
-                                      <span title={missingMsg ?? undefined}>
-                                        <AlertCircle className="w-4 h-4 text-rose-500" />
-                                      </span>
-                                    )
-                                    : selectedIds.has(sablon.id)
-                                    ? (
-                                      <CheckSquare className="w-4 h-4 text-blue-600" />
-                                    )
-                                    : (
-                                      <Square className="w-4 h-4 text-slate-300 dark:text-slate-600" />
-                                    )}
-                                </div>
-                                <div
-                                  className="flex-1 min-w-0"
-                                  title={missingMsg || sablon.ad}
-                                >
-                                  <div className="flex items-center gap-1.5 flex-wrap">
-                                    <p
-                                      className={`text-xs font-bold truncate ${
-                                        missingMsg
-                                          ? "text-slate-500 line-through"
-                                          : ""
-                                      }`}
-                                    >
-                                      {sablon.ad}
-                                    </p>
-                                    {isLocked && (
-                                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300/50">
-                                        <Lock className="w-2.5 h-2.5 text-amber-500" />
-                                        {" "}
-                                        {lockInfo?.lockedAtVersion ||
-                                          CURRENT_APP_VERSION} Kilitli
-                                      </span>
-                                    )}
-                                    {!isLocked &&
-                                      docStatus === "ready_to_print" && (
-                                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300/50">
-                                        <CheckCircle2 className="w-2.5 h-2.5" />
-                                        {" "}
-                                        Hazır
-                                      </span>
-                                    )}
-                                    {!isLocked && docStatus === "modified" && (
-                                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-300/50">
-                                        Kontrol Bekliyor
-                                      </span>
-                                    )}
-                                    {!isLocked && docStatus === "printed" && (
-                                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-300/50">
-                                        <Printer className="w-2.5 h-2.5" />{" "}
-                                        Yazdırıldı
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p
-                                    className="text-[10px] text-slate-500 truncate mt-0.5"
-                                    title={sablon.dosya_adi}
-                                  >
-                                    {sablon.dosya_adi}
-                                  </p>
-                                </div>
-
-                                <div className="flex items-center gap-1 shrink-0">
-                                  {isLocked && (
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (
-                                          confirm(
-                                            `"${sablon.ad}" belgesinin yazdırma kilidini açmak ve yeniden düzenlemeye izin vermek istiyor musunuz?`,
-                                          )
-                                        ) {
-                                          if (activeDosyaId) {
-                                            unlockDocument(
-                                              activeDosyaId,
-                                              docKey,
-                                            );
-                                          }
-                                        }
-                                      }}
-                                      className="p-1 rounded-lg border text-amber-500 hover:text-amber-700 border-amber-200 dark:border-amber-800"
-                                      title="Yazdırma Kilidini Aç"
-                                    >
-                                      <Unlock className="w-3.5 h-3.5" />
-                                    </button>
-                                  )}
-                                  {/* Quick toggle ready to print button */}
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (activeDosyaId) {
-                                        toggleReadyToPrint(
-                                          activeDosyaId,
-                                          docKey,
-                                          sablon.ad,
-                                        );
-                                      }
-                                    }}
-                                    className={`p-1 rounded-lg border transition-all ${
-                                      docStatus === "ready_to_print"
-                                        ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-950/60 dark:border-emerald-800 hover:bg-emerald-100"
-                                        : "text-slate-400 hover:text-emerald-600 hover:border-emerald-300 border-slate-200 dark:border-slate-800"
-                                    }`}
-                                    title={docStatus === "ready_to_print"
-                                      ? "Yazdırmaya hazır işaretini kaldır"
-                                      : "Yazdırmaya hazır olarak işaretle"}
-                                  >
-                                    <CheckCircle2 className="w-3.5 h-3.5" />
-                                  </button>
-
-                                  <BelgeAksiyonlari
-                                    onPreview={() => {
-                                      const key = (sablon.dosya_adi || "")
-                                        .replace(/\.html$/, "");
-                                      openDocument({
-                                        documentId: key,
-                                        dosyaId: activeDosyaId || undefined,
-                                        documentTitle: sablon.ad,
-                                      });
-                                    }}
-                                    onQuickPrint={() =>
-                                      handleAction("print", [sablon.id])}
-                                    onExport={(fmt) =>
-                                      handleAction(fmt, [sablon.id])}
-                                    docName={sablon.ad}
-                                    onOpenExternal={async () => {
-                                      const processCtx = contextsByPath
-                                        ?.[sablon.route_path || ""] ||
-                                        dosyaContext;
-                                      const eksikAlanlar: string[] = [];
-                                      const doluAlanlar: string[] = [];
-                                      for (
-                                        const [key, value] of Object.entries(
-                                          processCtx,
-                                        )
-                                      ) {
-                                        if (
-                                          key === "icerik" ||
-                                          key.startsWith("_")
-                                        ) continue;
-                                        if (
-                                          typeof value === "string" &&
-                                          value.includes("[Belirtilmedi:")
-                                        ) {
-                                          const match = value.match(
-                                            /\[Belirtilmedi:\s*(.+?)\]/,
-                                          );
-                                          eksikAlanlar.push(
-                                            match ? match[1] : key,
-                                          );
-                                        } else if (Array.isArray(value)) {
-                                          if (value.length > 0) {
-                                            doluAlanlar.push(key);
-                                          }
-                                        } else if (
-                                          value !== null &&
-                                          value !== undefined &&
-                                          value !== ""
-                                        ) {
-                                          doluAlanlar.push(key);
-                                        }
-                                      }
-                                      if (eksikAlanlar.length > 0) {
-                                        const maxGoster = 12;
-                                        const eksikListesi = eksikAlanlar
-                                          .slice(0, maxGoster)
-                                          .map((m) => `  • ${m}`)
-                                          .join("\n");
-                                        const fazla =
-                                          eksikAlanlar.length > maxGoster
-                                            ? `\n  ... ve ${
-                                              eksikAlanlar.length - maxGoster
-                                            } alan daha`
-                                            : "";
-                                        const devam = confirm(
-                                          `⚠️ ${eksikAlanlar.length} alan eksik / belirtilmemiş:\n\n${eksikListesi}${fazla}\n\n✅ ${doluAlanlar.length} alan dolu.\n\nYine de PDF olarak açmak istiyor musunuz?`,
-                                        );
-                                        if (!devam) return;
-                                      }
-                                      const html = renderHtml(sablon);
-                                      if (html) {
-                                        await window.electron.ipcRenderer
-                                          .invoke(
-                                            "open-pdf-external",
-                                            html,
-                                          );
-                                      }
-                                    }}
-                                    disabled={!!missingMsg}
-                                  />
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
+                      <div>
+                        {isExpanded ? (
+                          <ChevronDown className="w-4 h-4 text-slate-400" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4 text-slate-400" />
+                        )}
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                    {isExpanded && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-4">
+                        {items.map((sablon) => {
+                          const missingMsg = getMissingRequirement(sablon);
+                          const docKey = (sablon.dosya_adi || "").replace(
+                            /\.html$/,
+                            ""
+                          );
+                          const docStatus = activeDosyaId
+                            ? getDocumentStatus(activeDosyaId, docKey)
+                            : "draft";
+                          const isLocked = activeDosyaId
+                            ? isDocumentLocked(activeDosyaId, docKey)
+                            : false;
+                          const lockInfo = activeDosyaId
+                            ? getDocumentLockInfo(activeDosyaId, docKey)
+                            : null;
+
+                          return (
+                            <CiktiBelgeCard
+                              key={`cikti_${sablon.id}_${docKey}`}
+                              sablon={sablon}
+                              isSelected={selectedIds.has(sablon.id)}
+                              missingMsg={missingMsg}
+                              docStatus={docStatus}
+                              isLocked={isLocked}
+                              lockInfo={lockInfo}
+                              activeDosyaId={activeDosyaId}
+                              dosyaContext={dosyaContext}
+                              contextsByPath={contextsByPath}
+                              onToggleSelect={toggleSelect}
+                              onUnlock={(dKey, dName) => {
+                                if (
+                                  confirm(
+                                    `"${dName}" belgesinin yazdırma kilidini açmak ve yeniden düzenlemeye izin vermek istiyor musunuz?`
+                                  )
+                                ) {
+                                  if (activeDosyaId) {
+                                    unlockDocument(activeDosyaId, dKey);
+                                  }
+                                }
+                              }}
+                              onToggleReady={(dKey, dName) => {
+                                if (activeDosyaId) {
+                                  toggleReadyToPrint(
+                                    activeDosyaId,
+                                    dKey,
+                                    dName
+                                  );
+                                }
+                              }}
+                              onPreview={(s) => {
+                                const key = (s.dosya_adi || "").replace(
+                                  /\.html$/,
+                                  ""
+                                );
+                                openDocument({
+                                  documentId: key,
+                                  dosyaId: activeDosyaId || undefined,
+                                  documentTitle: s.ad,
+                                });
+                              }}
+                              onQuickPrint={(sId) => handleAction("print", [sId])}
+                              onExport={(fmt, sId) => handleAction(fmt, [sId])}
+                              onOpenExternal={handleOpenExternal}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* SAĞ: İŞLEM MENÜSÜ */}
@@ -1035,31 +797,14 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
         activeStarredDocs={activeStarredDocs}
         initialSelectedIds={Array.from(selectedIds)}
         renderHtml={renderHtml}
-        onExecutePrint={async (selected, action, settings) => {
+        onExecutePrint={async (selected, action) => {
           await handleAction(action, selected.map((s) => s.id));
         }}
         getMissingRequirement={getMissingRequirement}
         normalizeForMatch={normalizeForMatch}
       />
 
-      {toast && (
-        <div
-          className={`fixed bottom-6 right-6 px-4 py-3 rounded-2xl shadow-xl border backdrop-blur-md text-sm flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4 z-[9999] transition-all duration-300 ${
-            toast.type === "success"
-              ? "bg-emerald-50/90 border-emerald-200 text-emerald-800 dark:bg-emerald-950/90 dark:border-emerald-800 dark:text-emerald-300"
-              : toast.type === "warning"
-              ? "bg-amber-50/90 border-amber-200 text-amber-800 dark:bg-amber-950/90 dark:border-amber-800 dark:text-amber-300"
-              : "bg-rose-50/90 border-rose-200 text-rose-800 dark:bg-rose-950/90 dark:border-rose-800 dark:text-rose-300"
-          }`}
-        >
-          {toast.type === "success"
-            ? <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-500" />
-            : toast.type === "warning"
-            ? <AlertCircle className="w-5 h-5 shrink-0 text-amber-500" />
-            : <AlertCircle className="w-5 h-5 shrink-0 text-rose-500" />}
-          <div className="font-semibold">{toast.message}</div>
-        </div>
-      )}
+      <CiktiToast toast={toast} />
     </SubScreen>
   );
 }
