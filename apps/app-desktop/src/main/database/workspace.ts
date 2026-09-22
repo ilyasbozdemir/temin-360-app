@@ -117,6 +117,13 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
 
   // Explicit migration for DATA_TeminDosyasi columns
   const teminDosyasiColumns = [
+    { name: 'tarih', def: 'DATE' },
+    { name: 'temin_tarihi', def: 'DATE' },
+    { name: 'dosya_acilis_tarihi', def: 'DATE' },
+    { name: 'temin_no', def: 'TEXT' },
+    { name: 'evrak_sayisi', def: 'TEXT' },
+    { name: 'hesaplama_esasi', def: "TEXT DEFAULT 'ortalama'" },
+    { name: 'komisyon_takdiri', def: 'TEXT' },
     { name: 'teslim_gun', def: 'INTEGER DEFAULT 7' },
     { name: 'teslim_tarihi', def: 'DATE' },
     { name: 'sozlesme_yapilacak_mi', def: 'INTEGER DEFAULT 0' },
