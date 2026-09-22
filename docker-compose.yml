@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # 1. PostgreSQL Database Service (Local & Server)
   db:
@@ -54,7 +52,7 @@ services:
 
   # 4. PocketBase Light Self-Hosted Backend Service (Port 8090)
   pocketbase:
-    image: ghcr.io/muchsciencemuchwow/pocketbase:latest
+    image: pocketbase/pocketbase:latest
     container_name: temin360-pocketbase
     restart: always
     ports:

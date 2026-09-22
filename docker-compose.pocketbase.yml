@@ -1,9 +1,7 @@
-version: "3.8"
-
 services:
   # TEMİN 360 - Standalone Lightweight PocketBase Service
   pocketbase:
-    image: ghcr.io/muchsciencemuchwow/pocketbase:latest
+    image: pocketbase/pocketbase:latest
     container_name: temin360-pocketbase
     restart: always
     ports:
