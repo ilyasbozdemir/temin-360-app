@@ -6,3 +6,5 @@ dist/
 *.log
 .pnpm-store/
 TODO.md
+pocketbase_bin/
+pb_data/
