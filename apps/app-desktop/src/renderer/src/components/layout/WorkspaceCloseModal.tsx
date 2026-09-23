@@ -308,6 +308,17 @@ export function WorkspaceCloseModal({
           </div>
         ) : null}
 
+        {/* Kullanım Önerisi Rehberi */}
+        <div className="p-3 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-900/30 text-amber-900 dark:text-amber-300 text-xs flex items-start gap-2.5">
+          <ShieldCheck className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+          <div className="space-y-0.5">
+            <span className="font-bold block">Bulut Senkronizasyonu Kullanım Önerisi</span>
+            <p className="text-[11px] leading-relaxed opacity-90">
+              Çoklu bilgisayarda çalışıyorsanız yapılan değişiklikleri en güncel sürüm olarak <strong>Google Drive / Sunucu</strong>&apos;ya yüklemeniz önerilir. Tekli kullanımda ise bulutu periyodik yedek alanı olarak değerlendirebilirsiniz.
+            </p>
+          </div>
+        </div>
+
         {/* Header & Quick Action Buttons */}
         <div className="flex items-center justify-between gap-2 pt-0.5">
           <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">

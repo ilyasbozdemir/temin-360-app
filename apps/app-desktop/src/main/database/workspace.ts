@@ -1658,9 +1658,13 @@ export class DtmWorkspace {
       tableUpper === 'LOG_SYSTEMLOG' ||
       tableUpper === 'SETTINGS' ||
       tableUpper === 'SCHEMA_MIGRATIONS' ||
-      tableUpper === 'SQLITE_SEQUENCE'
+      tableUpper === 'SQLITE_SEQUENCE' ||
+      tableUpper === 'TANIM_SABLON' ||
+      tableUpper === 'TANIM_DETSISCACHE' ||
+      tableUpper === 'TANIM_TASINIRKOD' ||
+      tableUpper.startsWith('SYS_')
     ) {
-      return // Sistem logları ve ayarları kullanıcı mutasyonu değildir!
+      return // Sistem logları, ayarları, varsayılan şablonlar ve önbellekler kullanıcı mutasyonu değildir!
     }
 
     this.userMutationCount += count
@@ -1726,7 +1730,7 @@ export class DtmWorkspace {
     lastModifiedAt: string | null
     items: MutationSummaryItem[]
   } {
-    const isDirty = this.isDirtyState() || this.isDirty || this.hasChanges('any')
+    const isDirty = this.isDirtyState()
     const items = Array.from(this.mutationMap.values())
 
     if (isDirty && items.length === 0) {
@@ -1742,13 +1746,15 @@ export class DtmWorkspace {
 
     return {
       isDirty,
-      totalChanges: Math.max(
-        this.userMutationCount,
-        items.reduce((acc, it) => acc + (it.count || 1), 0),
-        isDirty ? 1 : 0
-      ),
+      totalChanges: isDirty
+        ? Math.max(
+            this.userMutationCount,
+            items.reduce((acc, it) => acc + (it.count || 1), 0),
+            1
+          )
+        : 0,
       lastModifiedAt: this.lastMutationTime,
-      items
+      items: isDirty ? items : []
     }
   }
 
@@ -1771,6 +1777,9 @@ export class DtmWorkspace {
 
   public hasChanges(target: 'gdrive' | 'email' | 'any' = 'any'): boolean {
     if (!this.db || !this.currentFilePath) return false
+
+    // Kullanıcı tarafından gerçekleştirilen en az bir gerçek mutasyon yoksa hasChanges false dönmeli
+    if (!this.isDirtyState()) return false
 
     const current = this.calculateCurrentHash()
     if (!current) return false
@@ -1799,7 +1808,7 @@ export class DtmWorkspace {
       return true
     }
 
-    return this.isDirtyState() || current !== this.initialHash
+    return current !== this.initialHash
   }
 
   public markSynced(target: 'gdrive' | 'email'): void {
