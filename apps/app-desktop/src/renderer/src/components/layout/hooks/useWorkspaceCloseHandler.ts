@@ -4,12 +4,23 @@ import { useAppEventListener } from "../../../utils/appEvents";
 
 export type CloseActionType = "none" | "backup" | "email" | "server" | "gdrive";
 
+export interface ShutdownStep {
+  id: CloseActionType | "close";
+  label: string;
+  icon: string;
+  status: "pending" | "running" | "completed" | "error";
+  errorDetails?: string;
+}
+
 export interface WorkspaceCloseHandlerState {
   isCloseModalOpen: boolean;
   setIsCloseModalOpen: (open: boolean) => void;
   isQuittingApp: boolean;
   isGDriveModalOpen: boolean;
   setIsGDriveModalOpen: (open: boolean) => void;
+  isShuttingDown: boolean;
+  shutdownStatusText: string;
+  shutdownSteps: ShutdownStep[];
   handleConfirmClose: (
     types: CloseActionType[] | CloseActionType,
     forceQuit?: boolean,
@@ -23,6 +34,9 @@ export function useWorkspaceCloseHandler(
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
   const [isQuittingApp, setIsQuittingApp] = useState(false);
   const [isGDriveModalOpen, setIsGDriveModalOpen] = useState(false);
+  const [isShuttingDown, setIsShuttingDown] = useState(false);
+  const [shutdownStatusText, setShutdownStatusText] = useState("");
+  const [shutdownSteps, setShutdownSteps] = useState<ShutdownStep[]>([]);
 
   const parseSavedClosePreferences = (
     pref: any,
@@ -50,50 +64,114 @@ export function useWorkspaceCloseHandler(
     forceQuit?: boolean,
   ): Promise<void> => {
     const actionList = Array.isArray(types) ? types : [types];
+    const filteredActions = actionList.filter((a) => a !== "none");
 
-    for (const type of actionList) {
-      if (type === "backup") {
-        const res = await window.electron.ipcRenderer.invoke(
-          "workspace:backup",
-        );
-        if (!res.success && res.error !== "Yedekleme iptal edildi") {
-          throw new Error(`Yerel yedekleme hatası: ${res.error}`);
-        }
-      } else if (type === "email") {
-        const res = await window.electron.ipcRenderer.invoke(
-          "workspace:backup-email",
-        );
-        if (!res.success) {
-          throw new Error(`E-posta yedekleme hatası: ${res.error}`);
-        }
-      } else if (type === "server") {
-        const res = await window.electron.ipcRenderer.invoke(
-          "workspace:backup-server",
-        );
-        if (!res?.success) {
-          throw new Error(
-            res?.error || "Sunucuya yedekleme işlemi başarısız oldu.",
+    const steps: ShutdownStep[] = filteredActions.map((type) => {
+      let label = "";
+      if (type === "gdrive") label = "Google Drive Bulut Yedeği";
+      else if (type === "server") label = "Merkezi Sunucu Senkronizasyonu";
+      else if (type === "email") label = "E-Posta İle Yedek Gönderimi";
+      else if (type === "backup") label = "Farklı Konuma Yerel Yedek Kopya";
+      return {
+        id: type,
+        label,
+        icon: type,
+        status: "pending",
+      };
+    });
+
+    steps.push({
+      id: "close",
+      label: "Çalışma Alanı & Oturum Kapatılıyor",
+      icon: "close",
+      status: "pending",
+    });
+
+    setShutdownSteps(steps);
+    setIsShuttingDown(true);
+    setIsCloseModalOpen(false);
+
+    for (const type of filteredActions) {
+      setShutdownSteps((prev) =>
+        prev.map((s) => (s.id === type ? { ...s, status: "running" } : s)),
+      );
+
+      try {
+        if (type === "backup") {
+          setShutdownStatusText("Farklı konuma yerel yedek alınıyor...");
+          const res = await window.electron.ipcRenderer.invoke(
+            "workspace:backup",
           );
-        }
-      } else if (type === "gdrive") {
-        const res = await window.electron.ipcRenderer.invoke(
-          "workspace:backup-gdrive",
-          { force: true },
-        );
-        if (!res?.success) {
-          throw new Error(
-            res?.error || "Google Drive bulut yedekleme işlemi başarısız oldu.",
+          if (!res.success && res.error !== "Yedekleme iptal edildi") {
+            throw new Error(`Yerel yedekleme hatası: ${res.error}`);
+          }
+        } else if (type === "email") {
+          setShutdownStatusText("Yedek dosyası e-posta ile gönderiliyor...");
+          const res = await window.electron.ipcRenderer.invoke(
+            "workspace:backup-email",
           );
+          if (!res.success) {
+            throw new Error(`E-posta yedekleme hatası: ${res.error}`);
+          }
+        } else if (type === "server") {
+          setShutdownStatusText("Sunucuya senkronize ediliyor...");
+          const res = await window.electron.ipcRenderer.invoke(
+            "workspace:backup-server",
+          );
+          if (!res?.success) {
+            throw new Error(
+              res?.error || "Sunucuya yedekleme işlemi başarısız oldu.",
+            );
+          }
+        } else if (type === "gdrive") {
+          setShutdownStatusText("Google Drive bulutuna yükleniyor...");
+          const res = await window.electron.ipcRenderer.invoke(
+            "workspace:backup-gdrive",
+            { force: true },
+          );
+          if (!res?.success) {
+            throw new Error(
+              res?.error || "Google Drive bulut yedekleme işlemi başarısız oldu.",
+            );
+          }
         }
+
+        setShutdownSteps((prev) =>
+          prev.map((s) => (s.id === type ? { ...s, status: "completed" } : s)),
+        );
+      } catch (err: any) {
+        setShutdownSteps((prev) =>
+          prev.map((s) =>
+            s.id === type
+              ? { ...s, status: "error", errorDetails: err?.message || String(err) }
+              : s,
+          ),
+        );
+        console.error(`[Shutdown] Error on ${type}:`, err);
       }
     }
+
+    // Final closing step
+    setShutdownSteps((prev) =>
+      prev.map((s) => (s.id === "close" ? { ...s, status: "running" } : s)),
+    );
+    setShutdownStatusText("Çalışma dosyası kapatılıyor...");
 
     await closeWorkspace();
     queryClient.clear();
 
+    setShutdownSteps((prev) =>
+      prev.map((s) => (s.id === "close" ? { ...s, status: "completed" } : s)),
+    );
+    setShutdownStatusText("İşlemler tamamlandı, çıkış yapılıyor...");
+
+    await new Promise((resolve) => setTimeout(resolve, 400));
+
     const shouldQuit = forceQuit !== undefined ? forceQuit : isQuittingApp;
     if (shouldQuit) {
       await window.electron.ipcRenderer.invoke("app:force-quit");
+    } else {
+      setIsShuttingDown(false);
     }
   };
 
@@ -195,6 +273,9 @@ export function useWorkspaceCloseHandler(
     isQuittingApp,
     isGDriveModalOpen,
     setIsGDriveModalOpen,
+    isShuttingDown,
+    shutdownStatusText,
+    shutdownSteps,
     handleConfirmClose,
   };
 }

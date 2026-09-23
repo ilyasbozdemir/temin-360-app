@@ -15,6 +15,7 @@ import { DisclaimerModal } from "../modals/DisclaimerModal";
 import { routeComponents } from "./routeComponents";
 import { FindInPage } from "./FindInPage";
 import { WorkspaceCloseModal } from "./WorkspaceCloseModal";
+import { ShutdownOverlay } from "./ShutdownOverlay";
 import { GoogleDriveModal } from "../ui/GoogleDriveModal";
 import { GlobalDocumentPreviewHost } from "./GlobalDocumentPreviewHost";
 import { FormatUpgradeModal } from "../modals/FormatUpgradeModal";
@@ -90,6 +91,9 @@ export function PageWrapper(): React.ReactNode {
     setIsCloseModalOpen,
     isGDriveModalOpen,
     setIsGDriveModalOpen,
+    isShuttingDown,
+    shutdownStatusText,
+    shutdownSteps,
     handleConfirmClose,
   } = useWorkspaceCloseHandler(closeWorkspace, queryClient);
 
@@ -212,6 +216,12 @@ export function PageWrapper(): React.ReactNode {
           setShowFormatUpgradeModal(false);
         }}
         onUpgradeAndOpen={handleUpgradeAndOpen}
+      />
+      <ShutdownOverlay
+        isOpen={isShuttingDown}
+        fileName={fileName}
+        statusText={shutdownStatusText}
+        steps={shutdownSteps}
       />
     </div>
   );
