@@ -32,7 +32,7 @@ export interface QueuedDocument {
   printSettings?: PrintSettings
 }
 
-export const CURRENT_APP_VERSION = 'v1.0.0-beta.126'
+export const CURRENT_APP_VERSION = 'v1.0.0-beta.157'
 
 export interface PrintQueueState {
   items: QueuedDocument[]
