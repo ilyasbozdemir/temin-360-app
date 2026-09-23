@@ -10,6 +10,7 @@ let codeLines = 0 // lines that are not empty
 
 const allowedExtensions = ['.ts', '.tsx', '.css', '.html', '.js', '.jsx']
 
+
 function countLoc(dir) {
   if (!fs.existsSync(dir)) return
   const files = fs.readdirSync(dir)
