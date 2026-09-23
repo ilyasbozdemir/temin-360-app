@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require('fs')
 const path = require('path')
 
@@ -10,7 +11,11 @@ let codeLines = 0 // lines that are not empty
 
 const allowedExtensions = ['.ts', '.tsx', '.css', '.html', '.js', '.jsx']
 
-
+/**
+ * Recursively counts lines of code in the given directory.
+ * @param {string} dir
+ * @returns {void}
+ */
 function countLoc(dir) {
   if (!fs.existsSync(dir)) return
   const files = fs.readdirSync(dir)

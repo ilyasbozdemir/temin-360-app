@@ -154,7 +154,9 @@ const allowedChannels = new Set([
   'updater:download',
   'updater:quit-and-install',
   'updater:set-dev-version',
-  'app:cancel-quit-timeout'
+  'app:cancel-quit-timeout',
+  // Dev & Testing
+  'dev:run-tests'
 ])
 
 
@@ -183,7 +185,8 @@ const api = {
   aiTest: (provider: string, apiKey: string) => ipcRenderer.invoke('ai:test', provider, apiKey),
   getAppVersion: () => ipcRenderer.invoke('app:get-version'),
   setDevVersion: (mode: boolean, version: string) =>
-    ipcRenderer.invoke('updater:set-dev-version', mode, version)
+    ipcRenderer.invoke('updater:set-dev-version', mode, version),
+  runTests: () => ipcRenderer.invoke('dev:run-tests')
 }
 
 if (process.contextIsolated) {

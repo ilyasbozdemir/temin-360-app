@@ -1,7 +1,14 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require('fs')
 const path = require('path')
 
-function printTree(dir, depth = 0, isLast = false, prefix = '') {
+/**
+ * Recursively prints directory tree structure.
+ * @param {string} dir
+ * @param {string} [prefix='']
+ * @returns {void}
+ */
+function printTree(dir, prefix = '') {
   const files = fs.readdirSync(dir)
   files.forEach((file, index) => {
     const isFileLast = index === files.length - 1
@@ -13,7 +20,7 @@ function printTree(dir, depth = 0, isLast = false, prefix = '') {
 
     if (stats.isDirectory()) {
       console.log(`${prefix}${branch}📁 ${file}/`)
-      printTree(filePath, depth + 1, isFileLast, nextPrefix)
+      printTree(filePath, nextPrefix)
     } else {
       console.log(`${prefix}${branch}📄 ${file}`)
     }
