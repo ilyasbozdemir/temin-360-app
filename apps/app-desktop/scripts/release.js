@@ -1,5 +1,5 @@
-/* eslint-disable */
 #!/usr/bin/env node
+/* eslint-disable */
 
 /**
  * release.js - Otomatik Release & Tag Yönetim Scripti
