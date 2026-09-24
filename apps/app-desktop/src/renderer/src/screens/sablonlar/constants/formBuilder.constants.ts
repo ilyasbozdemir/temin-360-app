@@ -1,213 +1,270 @@
-import { FormFieldV2, PresetController } from '../types/formBuilder.types'
+import { FormFieldV2, FormFieldType, PresetController } from '../types/formBuilder.types'
 
 export const INITIAL_FIELDS: FormFieldV2[] = [
   {
     id: 'f-1',
-    label: 'Kurum / İdare Antet Bilgisi',
+    label: 'Resmi Kurum Anteti & Logolar',
     variableName: 'antet_bilgisi',
-    type: 'text',
+    tabName: 'Genel Bilgiler',
+    type: 'header',
     required: true,
-    placeholder: 'Örn: T.C. İÇİŞLERİ BAKANLIĞI - Destek Hizmetleri Dairesi',
-    helpText: 'Resmi belgenin üst kısmındaki idare amblemi ve antet başlığı',
-    category: 'header'
+    placeholder: 'T.C. İÇİŞLERİ BAKANLIĞI - Destek Hizmetleri Dairesi',
+    helpText: 'Belgenin üst kısmındaki sağ-sol amblem ve resmi idare başlığı',
+    category: 'header',
+    headerInstitution: 'T.C. İÇİŞLERİ BAKANLIĞI',
+    headerDepartment: 'Destek Hizmetleri Dairesi Başkanlığı',
+    headerLeftLogo: true,
+    headerRightLogo: true
   },
   {
     id: 'f-2',
-    label: 'Evrak Kayıt Sayı / Kod No',
-    variableName: 'evrak_sayisi',
+    label: 'Evrak & Kayıt Bilgileri',
+    variableName: 'evrak_bilgileri',
+    tabName: 'Genel Bilgiler',
     type: 'text',
     required: true,
-    placeholder: 'Örn: E-74389201-934.01-1029',
-    helpText: 'EBYS veya Desimal kayıt numarası',
+    placeholder: 'Sayı: E-74389201-934.01-1029 | Tarih: 24.09.2026',
+    defaultValue: 'Sayı: E-74389201-934.01-1029 | Tarih: 24.09.2026',
+    helpText: 'EBYS veya resmi desimal evrak kayıt bilgisi',
     category: 'document'
   },
   {
     id: 'f-3',
-    label: 'Alım / İş Konusu',
+    label: 'Alım / İş Tanımı',
     variableName: 'isin_aciklamasi',
+    tabName: 'Genel Bilgiler',
     type: 'text',
     required: true,
-    placeholder: 'Örn: Bilgisayar ve Donanım Malzemesi Alımı İşi',
-    helpText: 'Onay ve teklif mektuplarında gözükecek ana iş konusu',
+    placeholder: 'Bilgisayar ve Donanım Malzemesi Alımı İşi',
+    defaultValue: 'Bilgisayar ve Donanım Malzemesi Alımı İşi',
+    helpText: 'Belgede yer alan resmi iş ve talep tanımı',
     category: 'document'
   },
   {
     id: 'f-4',
-    label: 'Muhatap / Teklif Veren Firma',
-    variableName: 'muhatap_firma',
-    type: 'text',
+    label: 'Mevzuat & Gerekçe Metni',
+    variableName: 'gerekce_metni',
+    tabName: 'Genel Bilgiler',
+    type: 'paragraph',
     required: false,
-    placeholder: 'Örn: ABC Teknoloji Ltd. Şti.',
-    helpText: 'Fiyat araştırma ve teklif mektubunun hitap edeceği firma',
+    staticContent:
+      '4734 sayılı Kamu İhale Kanununun ilgili maddesi uyarınca doğrudan temin usulüyle yapılması planlanan alım için piyasa araştırması yapılmış ve fiyat cetveli düzenlenmiştir.',
     category: 'document'
   },
   {
     id: 'f-5',
-    label: 'Tahmini Yaklaşık Maliyet',
-    variableName: 'yaklasik_maliyet',
-    type: 'money',
+    label: 'Dinamik Hesaplama & Kalem Tablosu',
+    variableName: 'kalem_ve_fiyat_tablosu',
+    tabName: 'Maliyet & Teklifler',
+    type: 'table',
+    tableType: 'yaklasik_maliyet',
     required: true,
-    placeholder: '0,00 ₺',
-    category: 'financial'
+    helpText: 'Kalemler, miktarlar, birim fiyatlar ve toplam tutar tablosu',
+    category: 'financial',
+    tableRows: [
+      {
+        id: 'r-1',
+        sira: 1,
+        ad: 'Dizüstü Bilgisayar (İş İstasyonu)',
+        miktar: 5,
+        birim: 'Adet',
+        birimFiyat: 35000,
+        toplamFiyat: 175000
+      },
+      {
+        id: 'r-2',
+        sira: 2,
+        ad: 'Lazer Çok Fonksiyonlu Yazıcı',
+        miktar: 2,
+        birim: 'Adet',
+        birimFiyat: 12500,
+        toplamFiyat: 25000
+      },
+      {
+        id: 'r-3',
+        sira: 3,
+        ad: '27 inç 4K IPS Monitör',
+        miktar: 5,
+        birim: 'Adet',
+        birimFiyat: 8500,
+        toplamFiyat: 42500
+      }
+    ]
   },
   {
     id: 'f-6',
-    label: 'Alım Türü (Mevzuat)',
-    variableName: 'alim_turu',
-    type: 'select',
+    label: 'Komisyon / Görevli Heyet İmza Bloğu',
+    variableName: 'komisyon_imza_blogu',
+    tabName: 'Onay & İmzalar',
+    type: 'signature',
+    signatureType: 'komisyon',
     required: true,
-    options: [
-      'Mal Alımı (4734 22/d)',
-      'Hizmet Alımı (4734 22/d)',
-      'Yapım İşi (4734 22/d)',
-      'Danışmanlık Alımı'
-    ],
-    category: 'document'
+    helpText: 'Görevli heyet veya komisyon üyelerinin ad, unvan ve imza alanı',
+    category: 'commission',
+    signatureMembers: [
+      {
+        id: 'm-1',
+        adSoyad: 'Ahmet YILMAZ',
+        unvan: 'Bilgisayar Mühendisi',
+        gorev: 'Komisyon Üyesi'
+      },
+      {
+        id: 'm-2',
+        adSoyad: 'Mehmet DEMİR',
+        unvan: 'V.H.K.İ.',
+        gorev: 'Komisyon Üyesi'
+      },
+      {
+        id: 'm-3',
+        adSoyad: 'Ayşe KAYA',
+        unvan: 'Tekniker',
+        gorev: 'Komisyon Üyesi'
+      }
+    ]
   },
   {
     id: 'f-7',
-    label: 'İhtiyaç Kalemleri Cetveli',
-    variableName: 'kalemler_tablosu',
-    type: 'table',
-    required: true,
-    helpText: 'Sıra no, malzeme adı, miktar, birim ve teklif tutarlarını içeren tablo',
-    category: 'financial'
-  },
-  {
-    id: 'f-8',
-    label: 'Harcama Yetkilisi & Komisyon İmza Bloğu',
-    variableName: 'komisyon_listesi',
+    label: 'Makam / Yetkili Onay Bloğu',
+    variableName: 'yetkili_onay_blogu',
+    tabName: 'Onay & İmzalar',
     type: 'signature',
+    signatureType: 'olur',
     required: true,
-    helpText: 'Resmi onay yetkilileri, piyasa araştırma görevlileri ve imza alanları',
-    category: 'commission'
+    helpText: 'Yetkili makamın O L U R onay kutusu ve resmi imzası',
+    category: 'commission',
+    signatureMembers: [
+      {
+        id: 'm-olur',
+        adSoyad: 'Mustafa ÖZTÜRK',
+        unvan: 'Daire Başkanı',
+        gorev: 'Yetkili Makam'
+      }
+    ]
   }
 ]
 
-export const TYPE_LABELS: Record<FormFieldV2['type'], string> = {
-  text: 'Tek Satır Metin',
-  textarea: 'Açıklama / Paragraf',
-  number: 'Sayısal Değer',
-  money: 'Tutar (₺)',
-  date: 'Tarih Seçici',
-  select: 'Seçim Kutusu',
+export const TYPE_LABELS: Record<FormFieldType, string> = {
+  header: 'Kurum Antet & Logo Bloğu',
+  paragraph: 'Metin & Paragraf Bloğu',
+  text: 'Tek Satır Metin Alanı',
+  textarea: 'Geniş Metin & Açıklama',
+  number: 'Sayısal Değer Alanı',
+  money: 'Para Tutarı (₺) Alanı',
+  date: 'Resmi Tarih Alanı',
+  select: 'Seçim Listesi',
   checkbox: 'Onay Kutusu',
-  table: 'Dinamik Tablo',
-  signature: 'İmza Bloğu'
+  table: 'Dinamik Tablo Bloğu',
+  signature: 'İmza & Onay Bloğu',
+  divider: 'Sayfa Bölücü Çizgi',
+  custom: 'Özel Kullanıcı Bileşeni'
 }
 
 export const PRESET_CONTROLLERS: PresetController[] = [
   {
-    id: 'ctrl-antet',
-    name: 'İdare Antet Bilgisi',
+    id: 'preset-antet',
+    name: 'Resmi Kurum Antet & Logo Bloğu',
     category: 'header',
-    description: 'Resmi onay evraklarının başında yer alan Kurum / İdare ve Birim başlığı',
+    description: 'Sol/Sağ amblem ve çok satırlı kurum başlığı',
     defaultField: {
-      label: 'İdare / Birim Antet Başlığı',
-      variableName: 'antet_bilgisi',
-      type: 'text',
+      label: 'Resmi Kurum Anteti',
+      variableName: 'kurum_anteti',
+      type: 'header',
       required: true,
-      placeholder: 'T.C. ... BAKANLIĞI / BELEDİYESİ',
-      category: 'header'
+      category: 'header',
+      headerInstitution: 'T.C. İÇİŞLERİ BAKANLIĞI',
+      headerDepartment: 'Destek Hizmetleri Dairesi Başkanlığı',
+      headerLeftLogo: true,
+      headerRightLogo: true
     }
   },
   {
-    id: 'ctrl-evrak',
-    name: 'Evrak Sayı / Desimal Kodu',
-    category: 'document',
-    description: 'Resmi yazışma desimal kayıt numarası ve tarih alanı',
-    defaultField: {
-      label: 'Evrak Kayıt / Sayı No',
-      variableName: 'evrak_sayisi',
-      type: 'text',
-      required: true,
-      placeholder: 'E-00000000-000.00-000',
-      category: 'document'
-    }
-  },
-  {
-    id: 'ctrl-muhatap',
-    name: 'Muhatap Firma / İstekli Bilgisi',
-    category: 'document',
-    description: 'Fiyat teklif isteme mektubunda teklif istenen firma unvanı ve adresi',
-    defaultField: {
-      label: 'Muhatap Firma Unvanı',
-      variableName: 'muhatap_firma',
-      type: 'text',
-      required: true,
-      placeholder: 'Firma Unvanı / İlgili Makama',
-      category: 'document'
-    }
-  },
-  {
-    id: 'ctrl-konu',
-    name: 'İşin Konusu / İhale Başlığı',
-    category: 'document',
-    description: 'Doğrudan temin alımına konu olan Mal/Hizmet/Yapım iş tanımı',
-    defaultField: {
-      label: 'İşin Konusu / Alım Amacı',
-      variableName: 'isin_aciklamasi',
-      type: 'textarea',
-      required: true,
-      placeholder: 'Alımı yapılacak malzeme veya işin detaylı açıklaması...',
-      category: 'document'
-    }
-  },
-  {
-    id: 'ctrl-maliyet',
-    name: 'Yaklaşık Maliyet (₺)',
-    category: 'financial',
-    description: 'Alımın tahmini tutarı, KDV hariç yaklaşık maliyet cetveli',
-    defaultField: {
-      label: 'Tahmini Yaklaşık Maliyet',
-      variableName: 'yaklasik_maliyet',
-      type: 'money',
-      required: true,
-      placeholder: '0,00 ₺',
-      category: 'financial'
-    }
-  },
-  {
-    id: 'ctrl-tablo',
-    name: 'Malzeme / Kalem Cetveli',
-    category: 'financial',
-    description: 'Sıra No, Malzeme Adı, Miktar, Birim, Birim Fiyat ve Toplam Fiyat Tablosu',
-    defaultField: {
-      label: 'İhtiyaç Kalemleri ve Miktar Tablosu',
-      variableName: 'kalemler_tablosu',
-      type: 'table',
-      required: true,
-      helpText: 'Dinamik malzeme ve miktar cetveli',
-      category: 'financial'
-    }
-  },
-  {
-    id: 'ctrl-imza',
-    name: 'İmza & Komisyon Bloğu',
+    id: 'preset-yetkili-onay',
+    name: 'Yetkili Makam Onay Bloğu (OLUR)',
     category: 'commission',
-    description:
-      'Harcama Yetkilisi, Gerçekleştirme Görevlisi ve Piyasa Araştırma Üyeleri İmza Bloğu',
+    description: 'Tekli makam onay ve imza yetkili alanı',
     defaultField: {
-      label: 'Onay Yetkilileri ve İmza Bloğu',
-      variableName: 'komisyon_listesi',
+      label: 'Yetkili Makam Onayı',
+      variableName: 'yetkili_onay',
       type: 'signature',
+      signatureType: 'olur',
       required: true,
-      helpText: 'Harcama Yetkilisi Oluru ve Piyasa Araştırma Üyeleri',
-      category: 'commission'
+      category: 'commission',
+      signatureMembers: [
+        {
+          id: 'm-olur',
+          adSoyad: 'Mustafa ÖZTÜRK',
+          unvan: 'Daire Başkanı',
+          gorev: 'Yetkili Makam'
+        }
+      ]
     }
   },
   {
-    id: 'ctrl-sartlar',
-    name: 'Teslimat & Ödeme Şartları',
-    category: 'terms',
-    description: 'Teslim süresi, garanti süresi, nakliye ve ödeme yeri özel şartları',
+    id: 'preset-komisyon-heyet',
+    name: 'Komisyon & Heyet İmza Bloğu',
+    category: 'commission',
+    description: 'Çoklu görevli personelin yan yana imza bloğu',
     defaultField: {
-      label: 'Teslimat ve Ödeme Şartları',
-      variableName: 'teslimat_sartlari',
-      type: 'textarea',
+      label: 'Komisyon İmza Bloğu',
+      variableName: 'komisyon_imzalari',
+      type: 'signature',
+      signatureType: 'komisyon',
+      required: true,
+      category: 'commission',
+      signatureMembers: [
+        {
+          id: 'm-1',
+          adSoyad: 'Ahmet YILMAZ',
+          unvan: 'Mühendis',
+          gorev: 'Üye'
+        },
+        {
+          id: 'm-2',
+          adSoyad: 'Mehmet DEMİR',
+          unvan: 'V.H.K.İ.',
+          gorev: 'Üye'
+        }
+      ]
+    }
+  },
+  {
+    id: 'preset-dinamik-tablo',
+    name: 'Dinamik Veri & Hesap Tablosu',
+    category: 'financial',
+    description: 'Kalemler, miktarlar, birim fiyatlar ve toplam tutar matrisi',
+    defaultField: {
+      label: 'Dinamik Hesaplama Tablosu',
+      variableName: 'hesaplama_tablosu',
+      type: 'table',
+      tableType: 'yaklasik_maliyet',
+      required: true,
+      category: 'financial',
+      tableRows: [
+        {
+          id: 'r-1',
+          sira: 1,
+          ad: 'Örnek Malzeme / Hizmet Kalemi',
+          miktar: 10,
+          birim: 'Adet',
+          birimFiyat: 1500,
+          toplamFiyat: 15000
+        }
+      ]
+    }
+  },
+  {
+    id: 'preset-metin-gerekce',
+    name: 'Yasal Metin & Paragraf Bloğu',
+    category: 'document',
+    description: 'Kanun maddeleri, açıklamalar veya gerekçe metinleri',
+    defaultField: {
+      label: 'Yasal Dayanak & Gerekçe',
+      variableName: 'yasal_gerekce_metni',
+      type: 'paragraph',
+      staticContent:
+        'Yukarıda nitelik ve miktarı belirtilen alım için mevzuatın ilgili maddesi gereğince işlem yapılmış olup onayınıza arz olunur.',
       required: false,
-      placeholder: 'Malzemeler ... gün içerisinde muayene kabul komisyonuna teslim edilecektir.',
-      category: 'terms'
+      category: 'document'
     }
   }
 ]
