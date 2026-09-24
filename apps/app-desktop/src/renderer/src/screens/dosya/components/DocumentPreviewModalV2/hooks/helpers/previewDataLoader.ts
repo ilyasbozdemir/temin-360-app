@@ -81,7 +81,7 @@ export async function loadDocumentPreviewData({
     if (!fileFirms || fileFirms.length === 0) {
       try {
         const dbFirms = await queryExecutor(
-          `SELECT tf.*, f.unvan, f.firma_adi, f.vergi_no, f.adres, f.telefon, f.email, f.yetkili_ad_soyad 
+          `SELECT tf.*, f.unvan, f.vergi_no, f.adres, f.telefon, f.email 
            FROM DATA_TeminFirma tf 
            LEFT JOIN TANIM_Firma f ON tf.firma_id = f.id 
            WHERE tf.temin_dosya_id = ? 
@@ -94,8 +94,8 @@ export async function loadDocumentPreviewData({
             id: f.id,
             temin_firma_id: f.id,
             firma_id: f.firma_id,
-            unvan: f.unvan || f.firma_adi || f.firmaUnvan || `Firma ${f.id}`,
-            firma_adi: f.firma_adi || f.unvan || '',
+            unvan: f.unvan || f.firmaUnvan || `Firma ${f.id}`,
+            firma_adi: f.unvan || '',
             vergi_no: f.vergi_no || '',
             adres: f.adres || '',
             telefon: f.telefon || '',
@@ -110,7 +110,7 @@ export async function loadDocumentPreviewData({
     if (!items || items.length === 0) {
       try {
         const dbKalemler = await queryExecutor(
-          `SELECT * FROM DATA_TeminKalem WHERE temin_dosya_id = ? ORDER BY sira_no ASC, id ASC`,
+          `SELECT * FROM DATA_TeminKalem WHERE temin_dosya_id = ? ORDER BY id ASC`,
           [activeDosyaId]
         )
         if (dbKalemler && dbKalemler.length > 0) {
@@ -143,7 +143,7 @@ export async function loadDocumentPreviewData({
   if (!combinedFirms || combinedFirms.length === 0) {
     try {
       combinedFirms = await queryExecutor(
-        `SELECT id, unvan, firma_adi, vergi_no, adres, telefon, email FROM TANIM_Firma ORDER BY unvan ASC LIMIT 100`,
+        `SELECT id, unvan, vergi_no, adres, telefon, email FROM TANIM_Firma ORDER BY unvan ASC LIMIT 100`,
         []
       )
     } catch (e) {
