@@ -7,8 +7,9 @@ import {
   FileCheck,
   GitBranch,
   Globe,
-  Sparkles,
-  Zap
+  Landmark,
+  ShieldCheck,
+  Sparkles
 } from 'lucide-react'
 import defaultAppIcon from '../../assets/icon.png'
 import { useSettingsStore } from '../../store/settingsStore'
@@ -24,31 +25,36 @@ const LOADING_STEPS = [
     progress: 15,
     title: 'Sistem Çekirdeği Başlatılıyor',
     subtitle: 'Bellek ve Electron IPC iletişim kanalları yapılandırılıyor...',
-    icon: Cpu
+    icon: Cpu,
+    color: 'from-blue-500 to-cyan-400'
   },
   {
     progress: 40,
     title: 'Veritabanı & Şema Manifestleri',
     subtitle: 'SQLite yerel çalışma alanı ve şablon tabloları doğrulanıyor...',
-    icon: Database
+    icon: Database,
+    color: 'from-indigo-500 to-blue-500'
   },
   {
     progress: 70,
     title: '4734 Sayılı KİK Mevzuat & Şablon Motoru',
     subtitle: 'Doğrudan temin formülleri, hesaplama cetvelleri ve matrisler yükleniyor...',
-    icon: FileCheck
+    icon: FileCheck,
+    color: 'from-sky-500 to-indigo-500'
   },
   {
     progress: 90,
     title: 'Geliştirici Mimarisi Doğrulandı',
     subtitle: 'İlyas BOZDEMİR (ilyasbozdemir.dev) • Modüller Hazırlanıyor...',
-    icon: Code2
+    icon: Code2,
+    color: 'from-violet-500 to-purple-500'
   },
   {
     progress: 100,
     title: 'Temin 360 Hazır',
     subtitle: 'Arayüz açılıyor, keyifli çalışmalar dileriz!',
-    icon: Sparkles
+    icon: Sparkles,
+    color: 'from-emerald-500 to-teal-400'
   }
 ]
 
@@ -138,139 +144,167 @@ export function SplashScreen({
 
   if (!visible) return null
 
-  const CurrentIcon = LOADING_STEPS[currentStepIdx].icon
+  const CurrentStep = LOADING_STEPS[currentStepIdx]
+  const CurrentIcon = CurrentStep.icon
 
   return (
     <div
-      className={`fixed inset-0 z-99999 flex items-center justify-center bg-slate-900/40 dark:bg-slate-950/95 backdrop-blur-2xl text-slate-900 dark:text-slate-100 select-none transition-opacity duration-500 ease-out ${
-        fadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      className={`fixed inset-0 z-99999 flex items-center justify-center bg-slate-950/60 dark:bg-black/85 backdrop-blur-xl text-slate-900 dark:text-slate-100 select-none transition-all duration-500 ease-out ${
+        fadingOut ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'
       }`}
       onClick={finishImmediately}
-      title="Hızlı geçmek için tıklayın veya ESC tuşuna basın"
+      title="Hemen başlatmak için tıklayın veya ESC tuşuna basın"
     >
-      {/* Background glow effects (Theme responsive) */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-500/15 dark:bg-blue-600/20 rounded-full blur-3xl pointer-events-none animate-pulse" />
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-indigo-500/15 dark:bg-indigo-600/20 rounded-full blur-3xl pointer-events-none animate-pulse" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-sky-400/10 dark:bg-sky-500/10 rounded-full blur-[120px] pointer-events-none" />
+      {/* Dynamic Background Ambient Glows */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-500/20 dark:bg-blue-600/25 rounded-full blur-[100px] pointer-events-none animate-pulse" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-500/20 dark:bg-indigo-600/25 rounded-full blur-[100px] pointer-events-none animate-pulse" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-sky-400/10 dark:bg-cyan-500/10 rounded-full blur-[130px] pointer-events-none" />
 
-      {/* Main card */}
+      {/* Main Glassmorphic Card */}
       <div
-        className="relative w-full max-w-lg mx-4 p-8 rounded-3xl bg-white/95 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl shadow-slate-900/10 dark:shadow-blue-950/50 flex flex-col items-center text-center overflow-hidden"
+        className="relative w-full max-w-135 mx-4 p-8 sm:p-9 rounded-4xl bg-white/95 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800/80 shadow-[0_25px_70px_-15px_rgba(0,0,0,0.25)] dark:shadow-[0_30px_90px_rgba(0,0,0,0.85)] ring-1 ring-black/5 dark:ring-white/10 flex flex-col items-center text-center overflow-hidden transition-all backdrop-blur-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top App / User Custom Logo & Version Badge */}
-        <div className="relative mb-5 group">
-          <div className="w-20 h-20 rounded-2xl bg-linear-to-tr from-blue-600 via-indigo-600 to-sky-400 p-0.5 shadow-xl shadow-blue-500/20 flex items-center justify-center transform transition-transform group-hover:scale-105">
-            <div className="w-full h-full bg-white dark:bg-slate-950 rounded-[14px] flex items-center justify-center p-2.5 overflow-hidden">
+        {/* Top Header Shimmer Line */}
+        <div className="absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-transparent via-blue-500/70 dark:via-sky-400/70 to-transparent" />
+
+        {/* Top App / Institution Logo Presentation */}
+        <div className="relative mb-4 group">
+          <div className="relative w-21 h-21 rounded-3xl bg-linear-to-tr from-blue-600 via-indigo-600 to-sky-400 p-0.5 shadow-xl shadow-blue-500/25 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-blue-500/40">
+            <div className="w-full h-full bg-white dark:bg-slate-950 rounded-[22px] flex items-center justify-center p-2.5 overflow-hidden">
               <img
                 src={activeLogo}
                 alt="Logo"
-                className="w-full h-full object-contain drop-shadow-md"
+                className="w-full h-full object-contain drop-shadow-md transition-transform duration-300 group-hover:scale-105"
               />
             </div>
           </div>
-          <span className="absolute -bottom-2 -right-2 px-2 py-0.5 rounded-full bg-blue-600 dark:bg-blue-500 text-white dark:text-slate-950 text-[10px] font-black tracking-wider uppercase shadow-xs">
-            {isCustomLogo ? 'KURUM' : 'v1.0'}
+          <span className="absolute -bottom-2 -right-2 px-2.5 py-0.5 rounded-full bg-slate-900 dark:bg-blue-500 text-white dark:text-slate-950 text-[10px] font-black tracking-wider uppercase shadow-md ring-2 ring-white dark:ring-slate-900">
+            {isCustomLogo ? 'KURUM' : 'PRO'}
           </span>
         </div>
 
-        {/* Title & Slogan */}
-        <h1 className="text-2xl font-black tracking-tight bg-linear-to-r from-slate-900 via-blue-950 to-slate-700 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent">
-          TEMİN 360 PRO
-        </h1>
-        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1 max-w-sm truncate">
-          {institutionName && institutionName !== 'Kurum Bilgisi Bekleniyor...'
-            ? institutionName
-            : 'Kamu Satınalma & Doğrudan Temin Süreç Yönetim Platformu'}
-        </p>
+        {/* Title */}
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl sm:text-[26px] font-black tracking-tight bg-linear-to-r from-slate-900 via-blue-900 to-slate-800 dark:from-white dark:via-sky-100 dark:to-slate-300 bg-clip-text text-transparent">
+            TEMİN 360 PRO
+          </h1>
+          <span className="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-sky-400 text-[10px] font-extrabold border border-blue-500/20">
+            v2.0
+          </span>
+        </div>
+
+        {/* Institution Info Pill */}
+        <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 max-w-full">
+          <Landmark className="w-3.5 h-3.5 text-blue-600 dark:text-sky-400 shrink-0" />
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate">
+            {institutionName && institutionName !== 'Kurum Bilgisi Bekleniyor...'
+              ? institutionName
+              : 'Kamu Satınalma & Doğrudan Temin Süreç Yönetim Platformu'}
+          </span>
+        </div>
 
         {/* Developer Credit Box */}
-        <div className="mt-5 w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800/60 flex flex-col gap-3 shadow-2xs">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 text-left">
-              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-indigo-500 via-blue-600 to-sky-500 flex items-center justify-center text-white font-black text-sm shadow-xs shrink-0">
-                İB
+        <div className="mt-5 w-full p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-950/70 border border-slate-200/90 dark:border-slate-800/80 flex flex-col gap-3 shadow-xs">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-3 text-left w-full sm:w-auto">
+              <div className="relative w-11 h-11 rounded-2xl bg-linear-to-br from-indigo-500 via-blue-600 to-sky-500 p-[1.5px] shadow-md shadow-blue-500/20 shrink-0">
+                <div className="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center text-white font-black text-sm tracking-wider">
+                  İB
+                </div>
               </div>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-xs font-extrabold text-slate-900 dark:text-white">
                     İlyas BOZDEMİR
                   </span>
-                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-blue-50 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-500/30">
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-500/30">
                     Developer & Architect
                   </span>
                 </div>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono block">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono block mt-0.5 truncate">
                   Lead Software Architect
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
               <button
                 type="button"
                 onClick={(e) => handleOpenLink(e, 'https://github.com/ilyasbozdemir')}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] font-mono font-bold text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-300 dark:hover:border-blue-700 transition-all cursor-pointer shadow-2xs"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] font-mono font-bold text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-sky-400 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-xs transition-all cursor-pointer"
                 title="GitHub Profilini Aç"
               >
                 <GitBranch className="w-3.5 h-3.5 text-blue-600 dark:text-sky-400" />
                 <span>GitHub</span>
-                <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                <ExternalLink className="w-2.5 h-2.5 opacity-50" />
               </button>
 
               <button
                 type="button"
                 onClick={(e) => handleOpenLink(e, 'https://ilyasbozdemir.dev')}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/60 text-[11px] font-mono font-bold text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-all cursor-pointer shadow-2xs"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/70 border border-blue-200/90 dark:border-blue-800/80 text-[11px] font-mono font-bold text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/80 hover:shadow-xs transition-all cursor-pointer"
                 title="ilyasbozdemir.dev Web Sitesini Aç"
               >
                 <Globe className="w-3.5 h-3.5 text-blue-600 dark:text-sky-400" />
                 <span>ilyasbozdemir.dev</span>
-                <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                <ExternalLink className="w-2.5 h-2.5 opacity-50" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Dynamic Step Info */}
+        {/* Dynamic Loading Step Section */}
         <div className="mt-6 w-full text-left">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2 min-w-0">
-              <CurrentIcon className="w-4 h-4 text-blue-600 dark:text-sky-400 shrink-0" />
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
-                {LOADING_STEPS[currentStepIdx].title}
+              <div className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-800/60 flex items-center justify-center shrink-0">
+                <CurrentIcon className="w-3.5 h-3.5 text-blue-600 dark:text-sky-400 animate-pulse" />
+              </div>
+              <span className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+                {CurrentStep.title}
               </span>
             </div>
-            <span className="text-xs font-mono font-extrabold text-blue-600 dark:text-sky-400 shrink-0">
+            <span className="text-xs font-mono font-black text-blue-600 dark:text-sky-400 shrink-0 ml-2">
               %{progress}
             </span>
           </div>
 
-          {/* Progress bar */}
-          <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 overflow-hidden p-0.5">
+          {/* Progress Bar with Glowing Shimmer Beam */}
+          <div className="relative w-full h-2.5 rounded-full bg-slate-100 dark:bg-slate-950 border border-slate-200/90 dark:border-slate-800 overflow-hidden p-0.5">
             <div
-              className="h-full rounded-full bg-linear-to-r from-blue-500 via-indigo-500 to-sky-400 transition-all duration-100 ease-out shadow-xs shadow-blue-500/50"
+              className={`relative h-full rounded-full bg-linear-to-r ${CurrentStep.color} transition-all duration-150 ease-out shadow-xs`}
               style={{ width: `${progress}%` }}
-            />
+            >
+              {/* Shimmer light sweep on active progress */}
+              <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/40 to-transparent animate-[shimmer_2s_infinite]" />
+            </div>
           </div>
 
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2 truncate font-mono">
-            {LOADING_STEPS[currentStepIdx].subtitle}
-          </p>
+          <div className="flex items-center gap-1.5 mt-2.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping shrink-0" />
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate font-mono">
+              {CurrentStep.subtitle}
+            </p>
+          </div>
         </div>
 
-        {/* Footer skip hint */}
-        <div className="mt-6 pt-3 border-t border-slate-100 dark:border-slate-800/60 w-full flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 font-semibold">
-          <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
-            <Zap className="w-3 h-3 text-amber-500 dark:text-amber-400" />
-            <span>Hızlı & Güvenli Yerel SQLite Mimarisi</span>
+        {/* Footer Bar with Status and Quick-Skip Kbd Badge */}
+        <div className="mt-6 pt-3.5 border-t border-slate-100 dark:border-slate-800/80 w-full flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 font-semibold">
+          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span className="text-[11px]">Hızlı & Güvenli Yerel SQLite Mimarisi</span>
           </div>
+
           <button
             type="button"
             onClick={finishImmediately}
-            className="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer bg-transparent border-0 underline font-bold"
+            className="flex items-center gap-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer group bg-transparent border-0"
           >
-            Hemen Başlat (ESC)
+            <span className="text-[11px] font-medium group-hover:underline">Hemen Başlat</span>
+            <kbd className="px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-mono font-bold text-slate-700 dark:text-slate-300 border border-slate-300/80 dark:border-slate-700 shadow-2xs group-hover:bg-slate-200 dark:group-hover:bg-slate-700">
+              ESC
+            </kbd>
           </button>
         </div>
       </div>

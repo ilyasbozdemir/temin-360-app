@@ -72,10 +72,84 @@ export async function loadDocumentPreviewData({
     }
   }
 
-  const fileFirms = payloadData.fileFirms || []
-  const combinedFirms = payloadData.firmaListesi || []
-  const items = payloadData.items || []
-  const bids = payloadData.bids || []
+  let fileFirms = payloadData.fileFirms || []
+  let combinedFirms = payloadData.firmaListesi || []
+  let items = payloadData.items || []
+  let bids = payloadData.bids || []
+
+  if (activeDosyaId) {
+    if (!fileFirms || fileFirms.length === 0) {
+      try {
+        const dbFirms = await queryExecutor(
+          `SELECT tf.*, f.unvan, f.firma_adi, f.vergi_no, f.adres, f.telefon, f.email, f.yetkili_ad_soyad 
+           FROM DATA_TeminFirma tf 
+           LEFT JOIN TANIM_Firma f ON tf.firma_id = f.id 
+           WHERE tf.temin_dosya_id = ? 
+           ORDER BY tf.id ASC`,
+          [activeDosyaId]
+        )
+        if (dbFirms && dbFirms.length > 0) {
+          fileFirms = dbFirms.map((f: any) => ({
+            ...f,
+            id: f.id,
+            temin_firma_id: f.id,
+            firma_id: f.firma_id,
+            unvan: f.unvan || f.firma_adi || f.firmaUnvan || `Firma ${f.id}`,
+            firma_adi: f.firma_adi || f.unvan || '',
+            vergi_no: f.vergi_no || '',
+            adres: f.adres || '',
+            telefon: f.telefon || '',
+            email: f.email || ''
+          }))
+        }
+      } catch (e) {
+        console.error('Direct fileFirms query error:', e)
+      }
+    }
+
+    if (!items || items.length === 0) {
+      try {
+        const dbKalemler = await queryExecutor(
+          `SELECT * FROM DATA_TeminKalem WHERE temin_dosya_id = ? ORDER BY sira_no ASC, id ASC`,
+          [activeDosyaId]
+        )
+        if (dbKalemler && dbKalemler.length > 0) {
+          items = dbKalemler
+        }
+      } catch (e) {
+        console.error('Direct items query error:', e)
+      }
+    }
+
+    if (!bids || bids.length === 0) {
+      try {
+        const dbTeklifler = await queryExecutor(
+          `SELECT * FROM DATA_TeminKalemTeklif WHERE temin_dosya_id = ?`,
+          [activeDosyaId]
+        )
+        if (dbTeklifler && dbTeklifler.length > 0) {
+          bids = dbTeklifler
+        }
+      } catch (e) {
+        console.error('Direct bids query error:', e)
+      }
+    }
+  }
+
+  if ((!fileFirms || fileFirms.length === 0) && propInvitedFirms && propInvitedFirms.length > 0) {
+    fileFirms = propInvitedFirms
+  }
+
+  if (!combinedFirms || combinedFirms.length === 0) {
+    try {
+      combinedFirms = await queryExecutor(
+        `SELECT id, unvan, firma_adi, vergi_no, adres, telefon, email FROM TANIM_Firma ORDER BY unvan ASC LIMIT 100`,
+        []
+      )
+    } catch (e) {
+      console.error('Direct TANIM_Firma query error:', e)
+    }
+  }
 
   const baseData: any = { ...resolved }
 
@@ -85,6 +159,32 @@ export async function loadDocumentPreviewData({
     resolved.antetSatirlari.length > 0
   ) {
     baseData.antetSatirlari = resolved.antetSatirlari
+  } else {
+    try {
+      const kurumRows = await queryExecutor(
+        'SELECT kurum_anteti, kurum_adi, mudurluk FROM TANIM_Kurum LIMIT 1',
+        []
+      )
+      if (kurumRows && kurumRows[0]) {
+        const kRow = kurumRows[0]
+        if (kRow.kurum_anteti) {
+          try {
+            const parsed = JSON.parse(kRow.kurum_anteti)
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              baseData.antetSatirlari = parsed.filter((s: string) => s && s.trim() !== '')
+            } else {
+              baseData.antetSatirlari = [kRow.kurum_anteti]
+            }
+          } catch {
+            baseData.antetSatirlari = [kRow.kurum_anteti]
+          }
+        }
+        if (!baseData.kurumAdi && kRow.kurum_adi) baseData.kurumAdi = kRow.kurum_adi
+        if (!baseData.mudurluk && kRow.mudurluk) baseData.mudurluk = kRow.mudurluk
+      }
+    } catch (e) {
+      console.error('Failed to load kurum_anteti fallback in previewDataLoader:', e)
+    }
   }
 
   const dosyaObj = payloadData.dosya || dosyaRecord || {}
@@ -309,105 +409,152 @@ export async function loadDocumentPreviewData({
   }
 
   // Global Komisyon Yönetimi (TANIM_KomisyonUye) ve Personel tablosu Fallback'i
+  let globalKomisyonlar: any[] = []
+  try {
+    globalKomisyonlar = await queryExecutor(
+      `SELECT u.*, p.ad_soyad, p.unvan, g.ad as gorev, k.ad as komisyon_adi, k.id as komisyon_id
+       FROM TANIM_KomisyonUye u
+       LEFT JOIN TANIM_Personel p ON u.personel_id = p.id
+       LEFT JOIN TANIM_KomisyonGorevi g ON u.gorev_id = g.id
+       LEFT JOIN TANIM_Komisyon k ON u.komisyon_id = k.id
+       WHERE u.personel_id IS NOT NULL
+       ORDER BY u.sira ASC, u.id ASC`,
+      []
+    )
+  } catch (err) {
+    console.error('Global komisyon query error in preview:', err)
+  }
+
+  if (globalKomisyonlar && globalKomisyonlar.length > 0) {
+    if (
+      !baseData.mutemetAdi ||
+      baseData.mutemetAdi === '......' ||
+      !baseData.muhasebeYetkilisiAdi
+    ) {
+      const mRow = globalKomisyonlar.find((k: any) => {
+        const g = (k.gorev || '').toLowerCase()
+        return g.includes('muhasebe') || g.includes('mutemet')
+      })
+      if (mRow && mRow.ad_soyad) {
+        const cleanName = mRow.ad_soyad.split('(')[0].trim()
+        if (!baseData.mutemetAdi || baseData.mutemetAdi === '......') {
+          baseData.mutemetAdi = cleanName
+          baseData.mutemetUnvan = mRow.unvan || 'Muhasebe Yetkilisi'
+        }
+        baseData.muhasebeYetkilisiAdi = baseData.muhasebeYetkilisiAdi || cleanName
+        baseData.muhasebeYetkilisiUnvan =
+          baseData.muhasebeYetkilisiUnvan || mRow.unvan || 'Muhasebe Yetkilisi'
+        baseData.muhasebeYetkilisi = baseData.muhasebeYetkilisi || cleanName
+      }
+    }
+
+    if (!baseData.onaylayanPersonelAdi || !baseData.harcamaYetkilisiAdi) {
+      const hRow = globalKomisyonlar.find((k: any) =>
+        (k.gorev || '').toLowerCase().includes('harcama yetkili')
+      )
+      if (hRow && hRow.ad_soyad) {
+        baseData.onaylayanPersonelAdi = baseData.onaylayanPersonelAdi || hRow.ad_soyad
+        baseData.onaylayanPersonelUnvan =
+          baseData.onaylayanPersonelUnvan || hRow.unvan || 'Harcama Yetkilisi'
+        baseData.harcamaYetkilisiAdi = baseData.harcamaYetkilisiAdi || hRow.ad_soyad
+        baseData.harcamaYetkilisiUnvan =
+          baseData.harcamaYetkilisiUnvan || hRow.unvan || 'Harcama Yetkilisi'
+      }
+    }
+
+    if (!baseData.hazirlayanPersonelAdi || !baseData.gerceklestirmeGorevlisiAdi) {
+      const gRow = globalKomisyonlar.find((k: any) => {
+        const g = (k.gorev || '').toLowerCase()
+        return (
+          g.includes('gerçekleştirme') ||
+          g.includes('gerceklestirme') ||
+          g.includes('hazırlayan')
+        )
+      })
+      if (gRow && gRow.ad_soyad) {
+        baseData.hazirlayanPersonelAdi = baseData.hazirlayanPersonelAdi || gRow.ad_soyad
+        baseData.hazirlayanPersonelUnvan =
+          baseData.hazirlayanPersonelUnvan || gRow.unvan || 'Gerçekleştirme Görevlisi'
+        baseData.gerceklestirmeGorevlisiAdi =
+          baseData.gerceklestirmeGorevlisiAdi || gRow.ad_soyad
+        baseData.gerceklestirmeGorevlisiUnvan =
+          baseData.gerceklestirmeGorevlisiUnvan || gRow.unvan || 'Gerçekleştirme Görevlisi'
+      }
+    }
+
+    // Fiyat komisyonu fallback'i
+    if (
+      !baseData.fiyatKomisyonu ||
+      (Array.isArray(baseData.fiyatKomisyonu) && baseData.fiyatKomisyonu.length === 0)
+    ) {
+      const globalFiyatKom = globalKomisyonlar.filter((k: any) => {
+        const kId = k.komisyon_id
+        const kAd = (k.komisyon_adi || '').toLowerCase()
+        return (
+          kId === 1 ||
+          kAd.includes('fiyat') ||
+          kAd.includes('maliyet') ||
+          kAd.includes('araştırma') ||
+          kAd.includes('arastirma')
+        )
+      })
+      if (globalFiyatKom.length > 0) {
+        const mapped = globalFiyatKom.map((m: any) => ({
+          adSoyad: m.ad_soyad || '',
+          unvan: m.unvan || '',
+          gorev: m.gorev || 'Fiyat Araştırma Görevlisi',
+          gorevi: m.gorev || 'Fiyat Araştırma Görevlisi',
+          komisyonGorevi: m.gorev || 'Fiyat Araştırma Görevlisi',
+          rol: m.rol || 'Üye'
+        }))
+        baseData.fiyatKomisyonu = mapped
+        baseData.gorevlendirilenler = mapped
+        baseData.gorevliler = mapped
+        baseData.dagitimListesi = mapped
+        baseData.komisyon = mapped
+      }
+    }
+
+    // Muayene komisyonu fallback'i
+    if (
+      !baseData.muayeneKomisyonu ||
+      (Array.isArray(baseData.muayeneKomisyonu) && baseData.muayeneKomisyonu.length === 0)
+    ) {
+      const globalMuayeneKom = globalKomisyonlar.filter((k: any) => {
+        const kId = k.komisyon_id
+        const kAd = (k.komisyon_adi || '').toLowerCase()
+        return kId === 2 || kAd.includes('muayene') || kAd.includes('kabul')
+      })
+      if (globalMuayeneKom.length > 0) {
+        baseData.muayeneKomisyonu = globalMuayeneKom.map((m: any) => ({
+          adSoyad: m.ad_soyad || '',
+          unvan: m.unvan || '',
+          gorev: m.gorev || 'Üye',
+          rol: m.rol || 'Üye'
+        }))
+      }
+    }
+  }
+
   if (
     !baseData.mutemetAdi ||
     baseData.mutemetAdi === '......' ||
-    !baseData.muhasebeYetkilisiAdi ||
-    !baseData.onaylayanPersonelAdi ||
-    !baseData.hazirlayanPersonelAdi
+    !baseData.muhasebeYetkilisiAdi
   ) {
-    try {
-      const globalKomisyonlar = await queryExecutor(
-        `SELECT u.*, p.ad_soyad, p.unvan, g.ad as gorev, k.ad as komisyon_adi, k.id as komisyon_id
-         FROM TANIM_KomisyonUye u
-         LEFT JOIN TANIM_Personel p ON u.personel_id = p.id
-         LEFT JOIN TANIM_KomisyonGorevi g ON u.gorev_id = g.id
-         LEFT JOIN TANIM_Komisyon k ON u.komisyon_id = k.id
-         WHERE u.personel_id IS NOT NULL
-         ORDER BY u.sira ASC, u.id ASC`,
-        []
-      )
-      if (globalKomisyonlar && globalKomisyonlar.length > 0) {
-        if (
-          !baseData.mutemetAdi ||
-          baseData.mutemetAdi === '......' ||
-          !baseData.muhasebeYetkilisiAdi
-        ) {
-          const mRow = globalKomisyonlar.find((k: any) => {
-            const g = (k.gorev || '').toLowerCase()
-            return g.includes('muhasebe') || g.includes('mutemet')
-          })
-          if (mRow && mRow.ad_soyad) {
-            const cleanName = mRow.ad_soyad.split('(')[0].trim()
-            if (!baseData.mutemetAdi || baseData.mutemetAdi === '......') {
-              baseData.mutemetAdi = cleanName
-              baseData.mutemetUnvan = mRow.unvan || 'Muhasebe Yetkilisi'
-            }
-            baseData.muhasebeYetkilisiAdi = baseData.muhasebeYetkilisiAdi || cleanName
-            baseData.muhasebeYetkilisiUnvan =
-              baseData.muhasebeYetkilisiUnvan || mRow.unvan || 'Muhasebe Yetkilisi'
-            baseData.muhasebeYetkilisi = baseData.muhasebeYetkilisi || cleanName
-          }
-        }
-
-        if (!baseData.onaylayanPersonelAdi || !baseData.harcamaYetkilisiAdi) {
-          const hRow = globalKomisyonlar.find((k: any) =>
-            (k.gorev || '').toLowerCase().includes('harcama yetkili')
-          )
-          if (hRow && hRow.ad_soyad) {
-            baseData.onaylayanPersonelAdi = baseData.onaylayanPersonelAdi || hRow.ad_soyad
-            baseData.onaylayanPersonelUnvan =
-              baseData.onaylayanPersonelUnvan || hRow.unvan || 'Harcama Yetkilisi'
-            baseData.harcamaYetkilisiAdi = baseData.harcamaYetkilisiAdi || hRow.ad_soyad
-            baseData.harcamaYetkilisiUnvan =
-              baseData.harcamaYetkilisiUnvan || hRow.unvan || 'Harcama Yetkilisi'
-          }
-        }
-
-        if (!baseData.hazirlayanPersonelAdi || !baseData.gerceklestirmeGorevlisiAdi) {
-          const gRow = globalKomisyonlar.find((k: any) => {
-            const g = (k.gorev || '').toLowerCase()
-            return (
-              g.includes('gerçekleştirme') ||
-              g.includes('gerceklestirme') ||
-              g.includes('hazırlayan')
-            )
-          })
-          if (gRow && gRow.ad_soyad) {
-            baseData.hazirlayanPersonelAdi = baseData.hazirlayanPersonelAdi || gRow.ad_soyad
-            baseData.hazirlayanPersonelUnvan =
-              baseData.hazirlayanPersonelUnvan || gRow.unvan || 'Gerçekleştirme Görevlisi'
-            baseData.gerceklestirmeGorevlisiAdi =
-              baseData.gerceklestirmeGorevlisiAdi || gRow.ad_soyad
-            baseData.gerceklestirmeGorevlisiUnvan =
-              baseData.gerceklestirmeGorevlisiUnvan || gRow.unvan || 'Gerçekleştirme Görevlisi'
-          }
-        }
+    const pMuhasebe = (personelList || []).find((p: any) => {
+      const u = `${p.unvan || ''} ${p.gorev || ''} ${p.birim || ''}`.toLowerCase()
+      return u.includes('muhasebe') || u.includes('mutemet')
+    })
+    if (pMuhasebe && pMuhasebe.ad_soyad) {
+      const cleanName = pMuhasebe.ad_soyad.split('(')[0].trim()
+      if (!baseData.mutemetAdi || baseData.mutemetAdi === '......') {
+        baseData.mutemetAdi = cleanName
+        baseData.mutemetUnvan = pMuhasebe.unvan || 'Muhasebe Yetkilisi'
       }
-
-      if (
-        !baseData.mutemetAdi ||
-        baseData.mutemetAdi === '......' ||
-        !baseData.muhasebeYetkilisiAdi
-      ) {
-        const pMuhasebe = (personelList || []).find((p: any) => {
-          const u = `${p.unvan || ''} ${p.gorev || ''} ${p.birim || ''}`.toLowerCase()
-          return u.includes('muhasebe') || u.includes('mutemet')
-        })
-        if (pMuhasebe && pMuhasebe.ad_soyad) {
-          const cleanName = pMuhasebe.ad_soyad.split('(')[0].trim()
-          if (!baseData.mutemetAdi || baseData.mutemetAdi === '......') {
-            baseData.mutemetAdi = cleanName
-            baseData.mutemetUnvan = pMuhasebe.unvan || 'Muhasebe Yetkilisi'
-          }
-          baseData.muhasebeYetkilisiAdi = baseData.muhasebeYetkilisiAdi || cleanName
-          baseData.muhasebeYetkilisiUnvan =
-            baseData.muhasebeYetkilisiUnvan || pMuhasebe.unvan || 'Muhasebe Yetkilisi'
-          baseData.muhasebeYetkilisi = baseData.muhasebeYetkilisi || cleanName
-        }
-      }
-    } catch (err) {
-      console.error('Global komisyon/personel fallback query error in preview:', err)
+      baseData.muhasebeYetkilisiAdi = baseData.muhasebeYetkilisiAdi || cleanName
+      baseData.muhasebeYetkilisiUnvan =
+        baseData.muhasebeYetkilisiUnvan || pMuhasebe.unvan || 'Muhasebe Yetkilisi'
+      baseData.muhasebeYetkilisi = baseData.muhasebeYetkilisi || cleanName
     }
   }
 
@@ -434,8 +581,30 @@ export async function loadDocumentPreviewData({
       baseData.gorevlendirilenler = activeFromCtx.length > 0 ? activeFromCtx : ctx.fiyatKomisyonu
       baseData.gorevliler = baseData.gorevlendirilenler
       baseData.dagitimListesi = baseData.gorevlendirilenler
+    } else {
+      const defaultPersonnel = (personelList || [])
+        .filter((p: any) => {
+          const u = `${p.unvan || ''} ${p.ad_soyad || ''}`.toLowerCase()
+          return !u.includes('harcama yetkili') && !u.includes('belediye başkanı')
+        })
+        .slice(0, 2)
+        .map((p: any) => ({
+          adSoyad: p.ad_soyad || '',
+          unvan: p.unvan || 'Memur',
+          gorev: 'Fiyat Araştırma Görevlisi',
+          gorevi: 'Fiyat Araştırma Görevlisi',
+          rol: 'Üye'
+        }))
+      if (defaultPersonnel.length > 0) {
+        baseData.fiyatKomisyonu = defaultPersonnel
+        baseData.gorevlendirilenler = defaultPersonnel
+        baseData.gorevliler = defaultPersonnel
+        baseData.dagitimListesi = defaultPersonnel
+        baseData.komisyon = defaultPersonnel
+      }
     }
   }
+
   if (
     !baseData.muayeneKomisyonu ||
     (Array.isArray(baseData.muayeneKomisyonu) && baseData.muayeneKomisyonu.length === 0)
@@ -447,6 +616,8 @@ export async function loadDocumentPreviewData({
   if (!baseData.komisyon || (Array.isArray(baseData.komisyon) && baseData.komisyon.length === 0)) {
     if (ctx.komisyon && ctx.komisyon.length > 0) {
       baseData.komisyon = ctx.komisyon
+    } else if (baseData.fiyatKomisyonu && baseData.fiyatKomisyonu.length > 0) {
+      baseData.komisyon = baseData.fiyatKomisyonu
     }
   }
 
@@ -462,7 +633,20 @@ export async function loadDocumentPreviewData({
     baseData.muayeneKomisyonu = dedupeMembers(baseData.muayeneKomisyonu)
   if (Array.isArray(baseData.komisyon)) baseData.komisyon = dedupeMembers(baseData.komisyon)
 
-  const activeFirms = fileFirms.length > 0 ? fileFirms : combinedFirms
+  const activeFirms =
+    fileFirms.length > 0
+      ? fileFirms
+      : propInvitedFirms && propInvitedFirms.length > 0
+        ? propInvitedFirms
+        : baseData.firmalar && Array.isArray(baseData.firmalar) && baseData.firmalar.length > 0
+          ? baseData.firmalar
+          : baseData.firmaListesi &&
+              Array.isArray(baseData.firmaListesi) &&
+              baseData.firmaListesi.length > 0
+            ? baseData.firmaListesi.slice(0, 3)
+            : combinedFirms && combinedFirms.length > 0
+              ? combinedFirms.slice(0, 3)
+              : []
   baseData.firmalar = activeFirms
   baseData.firmaListesi = combinedFirms
 
@@ -483,6 +667,7 @@ export async function loadDocumentPreviewData({
         f.isWinner
     ) ||
     fileFirms[0] ||
+    activeFirms[0] ||
     combinedFirms[0]
 
   if (winnerFirm && (winnerFirm.unvan || winnerFirm.firma_adi)) {
@@ -592,19 +777,70 @@ export async function loadDocumentPreviewData({
       let bestFirmName = ''
       let winnerPrice = 0
 
-      const teklifler = activeFirms.map((firm: any) => {
+      const teklifler = activeFirms.map((firm: any, fIdx: number) => {
+        const firmId = firm.id ?? firm.temin_firma_id ?? firm.firma_id
+        const firmUnvan = (firm.unvan || firm.firma_adi || firm.firmaUnvan || '').trim().toLowerCase()
+
+        // 1. Match from bids list
         const bid = bids.find(
           (b: any) =>
             (b.temin_kalem_id === kalemId ||
               b.temin_kalem_id === kalem.siraNo ||
-              b.temin_kalem_id === idx + 1) &&
-            (b.temin_firma_id === firm.temin_firma_id || b.temin_firma_id === firm.id)
+              b.temin_kalem_id === idx + 1 ||
+              b.kalem_id === kalemId) &&
+            (b.temin_firma_id === firmId ||
+              b.temin_firma_id === firm.temin_firma_id ||
+              b.temin_firma_id === firm.id ||
+              b.firma_id === firm.firma_id ||
+              b.firma_id === firm.id)
         )
 
-        const priceNum = bid ? Number(bid.birim_fiyat || 0) : 0
+        let priceVal: any = bid ? (bid.birim_fiyat ?? bid.fiyat ?? bid.birimFiyat) : undefined
+
+        // 2. Check in kalem's existing teklifler/firmaTeklifleri if not found
+        if (priceVal === undefined || priceVal === null || priceVal === '' || priceVal === '-') {
+          const existingOffers =
+            kalem.firmaTeklifleriDetay || kalem.firmaTeklifleri || kalem.teklifler || []
+          if (Array.isArray(existingOffers) && existingOffers.length > 0) {
+            const foundOffer =
+              existingOffers.find((eo: any) => {
+                const eoId = eo.firmaId ?? eo.temin_firma_id ?? eo.firma_id ?? eo.id
+                if (firmId !== undefined && eoId !== undefined && String(firmId) === String(eoId))
+                  return true
+                const eoUnvan = (eo.firmaUnvan || eo.unvan || eo.firma_adi || '')
+                  .trim()
+                  .toLowerCase()
+                if (firmUnvan && eoUnvan && firmUnvan === eoUnvan) return true
+                return false
+              }) || existingOffers[fIdx]
+
+            if (foundOffer) {
+              priceVal = foundOffer.birimFiyat ?? foundOffer.fiyat ?? foundOffer.birim_fiyat
+            }
+          }
+        }
+
+        let priceNum = 0
+        if (priceVal !== undefined && priceVal !== null && priceVal !== '' && priceVal !== '-') {
+          if (typeof priceVal === 'number') {
+            priceNum = isNaN(priceVal) ? 0 : priceVal
+          } else {
+            const clean = String(priceVal).replace(/[^0-9.,-]/g, '')
+            let parsed = 0
+            if (clean.includes(',') && !clean.includes('.')) {
+              parsed = parseFloat(clean.replace(',', '.'))
+            } else if (clean.includes('.') && clean.includes(',')) {
+              parsed = parseFloat(clean.replace(/\./g, '').replace(',', '.'))
+            } else {
+              parsed = parseFloat(clean)
+            }
+            priceNum = isNaN(parsed) ? 0 : parsed
+          }
+        }
+
         if (priceNum > 0 && priceNum < minPrice) {
           minPrice = priceNum
-          bestFirmName = firm.unvan || ''
+          bestFirmName = firm.unvan || firm.firma_adi || ''
         }
 
         if (
@@ -621,7 +857,7 @@ export async function loadDocumentPreviewData({
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
               })
-            : ''
+            : '-'
 
         const itemTotalNum = priceNum * miktarNum
         const formattedTutar =
@@ -630,11 +866,11 @@ export async function loadDocumentPreviewData({
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
               })
-            : ''
+            : '-'
 
         return {
           firmaId: firm.id,
-          firmaUnvan: firm.unvan,
+          firmaUnvan: firm.unvan || firm.firma_adi || `Firma ${fIdx + 1}`,
           birimFiyat: priceNum,
           fiyat: formattedPrice,
           tutar: formattedTutar
@@ -680,7 +916,9 @@ export async function loadDocumentPreviewData({
       baseData.ihtiyacKalemleri.forEach((kalem: any) => {
         const miktarNum = Number(kalem.miktar || 0)
         const tf = (kalem.firmaTeklifleriDetay || []).find(
-          (t: any) => t.firmaId === firm.id || t.firmaUnvan === firm.unvan
+          (t: any) =>
+            (firm.id && t.firmaId === firm.id) ||
+            (firm.unvan && t.firmaUnvan === firm.unvan)
         )
         if (tf && tf.birimFiyat > 0) {
           firmTotalNum += tf.birimFiyat * miktarNum
@@ -689,7 +927,7 @@ export async function loadDocumentPreviewData({
 
       return {
         firmaId: firm.id,
-        unvan: firm.unvan,
+        unvan: firm.unvan || firm.firma_adi || '',
         toplam:
           firmTotalNum > 0
             ? firmTotalNum.toLocaleString('tr-TR', {

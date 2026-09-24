@@ -2,7 +2,7 @@ import React from "react";
 import { EditableField } from "../../document/EditableField";
 import { TableRowSplitDivider } from "../../document/TableRowSplitDivider";
 import { YaklasikMaliyetCetveliData } from "./YaklasikMaliyetCetveli.schema";
-
+import { useYaklasikMaliyetCetveli } from "./YaklasikMaliyetCetveli.hook";
 
 interface Props {
   data?: Partial<YaklasikMaliyetCetveliData> & Record<string, any>;
@@ -12,47 +12,25 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
   const {
     solLogo,
     sagLogo,
-    kurumAdi = "",
-    mudurluk = "",
-    isAdi = "",
-    tarih = "",
-    firmalar = [],
-    ihtiyacKalemleri = [],
-    firmaToplamlari = [],
-    genelToplam = "",
-    komisyon = [],
-  } = data || {};
-
-  const displayFirmalar = (firmalar && firmalar.length > 0)
-    ? firmalar
-    : (data?.firmaListesi && data.firmaListesi.length > 0)
-    ? data.firmaListesi
-    : [];
-
-  const displayKomisyon = (komisyon && komisyon.length > 0)
-    ? komisyon
-    : (data?.fiyatKomisyonu && data.fiyatKomisyonu.length > 0)
-    ? data.fiyatKomisyonu
-    : (data?.gorevlendirilenler && data.gorevlendirilenler.length > 0)
-    ? data.gorevlendirilenler
-    : (data?.komisyonUyeleri && data.komisyonUyeleri.length > 0)
-    ? data.komisyonUyeleri
-    : [];
-
-  const displayFirmaToplamlari = (firmaToplamlari && firmaToplamlari.length > 0)
-    ? firmaToplamlari
-    : (data?.firmaToplamlariDetay && data.firmaToplamlariDetay.length > 0)
-    ? data.firmaToplamlariDetay
-    : displayFirmalar.map((f: any) => ({
-      toplam: f.total
-        ? f.total.toLocaleString("tr-TR", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })
-        : "0,00",
-    }));
-
-  const firmalarColspan = Math.max(displayFirmalar.length, 1);
+    kurumAdi,
+    mudurluk,
+    isAdi,
+    tarih,
+    antetLines,
+    displayFirmalar,
+    processedKalemler,
+    displayFirmaToplamlari,
+    formattedGenelToplam,
+    displayKomisyon,
+    hesaplamaEsasiText,
+    olurBaslik,
+    olurTarihi,
+    baskanAdi,
+    baskanUnvan,
+    showOlurBlock,
+    firmalarColspan,
+    getFirmTitle,
+  } = useYaklasikMaliyetCetveli(data);
 
   return (
     <div
@@ -61,7 +39,6 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
         fontSize: "10pt",
         lineHeight: 1.4,
         color: "#000",
-        backgroundColor: "#fff",
         padding: "1.5cm 1.2cm",
         width: "100%",
         maxWidth: "29.7cm",
@@ -103,16 +80,35 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                 textAlign: "center",
                 verticalAlign: "top",
                 padding: "5px",
+                lineHeight: 1.3,
               }}
             >
-              <div style={{ fontWeight: "bold", fontSize: "12pt" }}>T.C.</div>
-              <div style={{ fontWeight: "bold", fontSize: "12pt" }}>
-                {kurumAdi || "BELEDİYE BAŞKANLIĞI"}
-              </div>
-              {mudurluk && (
-                <div style={{ fontWeight: "bold", fontSize: "11pt" }}>
-                  {mudurluk}
-                </div>
+              {antetLines.length > 0 ? (
+                antetLines.map((line: string, idx: number) => (
+                  <div
+                    key={idx}
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: idx === 0 ? "12pt" : "11pt",
+                      marginBottom: idx < antetLines.length - 1 ? "2px" : "0",
+                    }}
+                  >
+                    {line}
+                  </div>
+                ))
+              ) : (
+                <>
+                  {kurumAdi && (
+                    <div style={{ fontWeight: "bold", fontSize: "12pt" }}>
+                      {kurumAdi}
+                    </div>
+                  )}
+                  {mudurluk && (
+                    <div style={{ fontWeight: "bold", fontSize: "11pt" }}>
+                      {mudurluk}
+                    </div>
+                  )}
+                </>
               )}
             </td>
 
@@ -164,10 +160,12 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
         <tbody>
           <tr>
             <td style={{ textAlign: "left", width: "70%" }}>
-              <strong>İşin Adı:</strong> {isAdi}
+              <strong>İşin Adı:</strong>{" "}
+              <EditableField name="isAdi" value={isAdi} placeholder="İşin Adı" />
             </td>
             <td style={{ textAlign: "right", width: "30%" }}>
-              <strong>Düzenleme Tarihi :</strong> {tarih}
+              <strong>Düzenleme Tarihi :</strong>{" "}
+              <EditableField name="tarih" value={tarih} placeholder="Tarih" />
             </td>
           </tr>
         </tbody>
@@ -191,7 +189,6 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                 padding: "6px 4px",
                 textAlign: "center",
                 fontWeight: "normal",
-                backgroundColor: "#fff",
               }}
             >
               Talep Edilen Mal/Hizmet
@@ -203,7 +200,6 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                 padding: "6px 4px",
                 textAlign: "center",
                 fontWeight: "normal",
-                backgroundColor: "#fff",
               }}
             >
               Alınan Fiyatlar
@@ -215,7 +211,6 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                 padding: "6px 4px",
                 textAlign: "center",
                 fontWeight: "normal",
-                backgroundColor: "#fff",
               }}
             >
               Hesaplanan Maliyet
@@ -277,20 +272,32 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
             >
               Miktarı
             </th>
-            {displayFirmalar.map((f: any, idx: number) => (
+            {displayFirmalar.length > 0 ? (
+              displayFirmalar.map((f: any, idx: number) => (
+                <th
+                  key={idx}
+                  style={{
+                    border: "1px solid #000",
+                    padding: "6px 4px",
+                    textAlign: "center",
+                    fontWeight: "normal",
+                  }}
+                >
+                  {getFirmTitle(f, idx)}
+                </th>
+              ))
+            ) : (
               <th
-                key={idx}
                 style={{
                   border: "1px solid #000",
                   padding: "6px 4px",
                   textAlign: "center",
                   fontWeight: "normal",
-                  backgroundColor: "#fff",
                 }}
               >
-                {f.unvan || `Firma ${idx + 1}`}
+                Teklif Fiyatı
               </th>
-            ))}
+            )}
             <th
               style={{
                 border: "1px solid #000",
@@ -298,7 +305,6 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                 width: "10%",
                 textAlign: "center",
                 fontWeight: "bold",
-                backgroundColor: "#e0e0e0",
               }}
             >
               En Düşük<br />Birim Fiyat
@@ -310,7 +316,6 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                 width: "12%",
                 textAlign: "center",
                 fontWeight: "bold",
-                backgroundColor: "#d6d6d6",
               }}
             >
               Toplam Maliyet
@@ -318,8 +323,8 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
           </tr>
         </thead>
         <tbody>
-          {ihtiyacKalemleri.map((kalem, idx) => {
-            const rowNum = idx + 1;
+          {processedKalemler.map((kalem, idx) => {
+            const rowNum = kalem.siraNo ?? idx + 1;
             return (
               <React.Fragment key={idx}>
                 <tr>
@@ -330,7 +335,7 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                       textAlign: "center",
                     }}
                   >
-                    {kalem.siraNo ?? rowNum}
+                    {rowNum}
                   </td>
                   <td
                     style={{
@@ -339,7 +344,10 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                       textAlign: "left",
                     }}
                   >
-                    {kalem.malzemeAdi}
+                    <EditableField
+                      name={`ihtiyacKalemleri.${idx}.malzemeAdi`}
+                      value={kalem.malzemeAdi}
+                    />
                   </td>
                   <td
                     style={{
@@ -348,7 +356,10 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                       textAlign: "left",
                     }}
                   >
-                    {kalem.ozelligi}
+                    <EditableField
+                      name={`ihtiyacKalemleri.${idx}.ozelligi`}
+                      value={kalem.ozelligi}
+                    />
                   </td>
                   <td
                     style={{
@@ -357,7 +368,10 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                       textAlign: "center",
                     }}
                   >
-                    {kalem.birimi}
+                    <EditableField
+                      name={`ihtiyacKalemleri.${idx}.birimi`}
+                      value={kalem.birimi}
+                    />
                   </td>
                   <td
                     style={{
@@ -366,11 +380,31 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                       textAlign: "center",
                     }}
                   >
-                    {kalem.miktar}
+                    <EditableField
+                      name={`ihtiyacKalemleri.${idx}.miktar`}
+                      value={String(kalem.miktar)}
+                    />
                   </td>
-                  {(kalem.firmaTeklifleri || []).map((ft, fIdx) => (
+                  {displayFirmalar.length > 0 ? (
+                    kalem.firmOffers.map((offerPrice: string, fIdx: number) => (
+                      <td
+                        key={fIdx}
+                        style={{
+                          border: "1px solid #000",
+                          padding: "6px 4px",
+                          textAlign: "right",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        <EditableField
+                          name={`ihtiyacKalemleri.${idx}.firmaTeklifleri.${fIdx}.fiyat`}
+                          value={offerPrice}
+                          placeholder="0,00"
+                        />
+                      </td>
+                    ))
+                  ) : (
                     <td
-                      key={fIdx}
                       style={{
                         border: "1px solid #000",
                         padding: "6px 4px",
@@ -378,20 +412,23 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {ft.fiyat}
+                      {kalem.enDusukFiyat}
                     </td>
-                  ))}
+                  )}
                   <td
                     style={{
                       border: "1px solid #000",
                       padding: "6px 4px",
                       textAlign: "right",
                       whiteSpace: "nowrap",
-                      backgroundColor: "#f0f0f0",
                       fontWeight: "bold",
                     }}
                   >
-                    {kalem.enDusukFiyat}
+                    <EditableField
+                      name={`ihtiyacKalemleri.${idx}.enDusukFiyat`}
+                      value={kalem.enDusukFiyat}
+                      placeholder="0,00"
+                    />
                   </td>
                   <td
                     style={{
@@ -399,24 +436,28 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                       padding: "6px 4px",
                       textAlign: "right",
                       whiteSpace: "nowrap",
-                      backgroundColor: "#e6e6e6",
                       fontWeight: "bold",
                     }}
                   >
-                    {kalem.toplamBedel}
+                    <EditableField
+                      name={`ihtiyacKalemleri.${idx}.toplamBedel`}
+                      value={kalem.toplamBedel}
+                      placeholder="0,00"
+                    />
                   </td>
                 </tr>
                 <TableRowSplitDivider
                   rowIndex={rowNum}
                   colSpan={7 + displayFirmalar.length}
-                  currentSplitIndex={data?.firstPageLimit ? Number(data.firstPageLimit) : null}
+                  currentSplitIndex={data?.firstPageLimit
+                    ? Number(data.firstPageLimit)
+                    : null}
                 />
               </React.Fragment>
             );
           })}
 
-
-          {ihtiyacKalemleri.length > 0 && (
+          {processedKalemler.length > 0 && (
             <tr style={{ fontWeight: "bold" }}>
               <td
                 colSpan={5}
@@ -428,24 +469,40 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
               >
                 Toplam Tutar :
               </td>
-              {firmaToplamlari.map((ft, idx) => (
+              {displayFirmalar.length > 0 ? (
+                displayFirmalar.map((_: any, idx: number) => {
+                  const ft = displayFirmaToplamlari[idx];
+                  return (
+                    <td
+                      key={idx}
+                      style={{
+                        border: "1px solid #000",
+                        padding: "6px 4px",
+                        textAlign: "right",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      <EditableField
+                        name={`firmaToplamlari.${idx}.toplam`}
+                        value={ft?.toplam ?? "-"}
+                        placeholder="0,00"
+                      />
+                    </td>
+                  );
+                })
+              ) : (
                 <td
-                  key={idx}
                   style={{
                     border: "1px solid #000",
                     padding: "6px 4px",
-                    textAlign: "right",
-                    whiteSpace: "nowrap",
                   }}
                 >
-                  {ft.toplam}
                 </td>
-              ))}
+              )}
               <td
                 style={{
                   border: "1px solid #000",
                   padding: "6px 4px",
-                  backgroundColor: "#f0f0f0",
                 }}
               >
               </td>
@@ -455,11 +512,14 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                   padding: "6px 4px",
                   textAlign: "right",
                   whiteSpace: "nowrap",
-                  backgroundColor: "#e6e6e6",
                   fontWeight: "bold",
                 }}
               >
-                {genelToplam}
+                <EditableField
+                  name="genelToplam"
+                  value={formattedGenelToplam}
+                  placeholder="0,00"
+                />
               </td>
             </tr>
           )}
@@ -494,19 +554,15 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
           Yapılan fiyat araştırmasına göre, firmaların vermiş olduğu{" "}
           <EditableField
             name="hesaplamaEsasiText"
-            value={data?.hesaplamaEsasiText ||
-              (String(
-                  data?.hesaplamaEsasi ||
-                    data?.hesaplama_esasi ||
-                    data?.yaklasikMaliyetEsasi ||
-                    data?.yaklasik_maliyet_hesaplamasi ||
-                    "",
-                ).toLowerCase().includes("ortalama")
-                ? "birim fiyatların ortalaması"
-                : "en düşük fiyatlar")}
+            value={hesaplamaEsasiText}
           />{" "}
-          alınarak maliyet KDV hariç ({genelToplam}) TL olarak tespit
-          edilmiştir.
+          alınarak maliyet KDV hariç (
+          <EditableField
+            name="genelToplam"
+            value={formattedGenelToplam}
+            placeholder="0,00"
+          />
+          ) TL olarak tespit edilmiştir.
         </div>
 
         <div
@@ -544,31 +600,39 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
       </div>
 
       {/* OLUR / ONAY BLOĞU */}
-      {(data?.showOlurBlock ?? data?.olurGoster ?? true) && (
+      {showOlurBlock && (
         <div style={{ marginTop: "35px", pageBreakInside: "avoid" }}>
-          <div style={{ textAlign: "center", width: "260px", margin: "0 auto" }}>
-            <div style={{ fontWeight: "bold", fontSize: "11pt", marginBottom: "5px" }}>
+          <div
+            style={{ textAlign: "center", width: "260px", margin: "0 auto" }}
+          >
+            <div
+              style={{
+                fontWeight: "bold",
+                fontSize: "11pt",
+                marginBottom: "5px",
+              }}
+            >
               <EditableField
                 name="olurBaslik"
-                value={data?.olurBaslik || "O L U R"}
+                value={olurBaslik}
               />
             </div>
             <div style={{ fontSize: "9.5pt", marginBottom: "15px" }}>
               <EditableField
                 name="olurTarihi"
-                value={data?.olurTarihi || data?.tarih || ""}
+                value={olurTarihi}
               />
             </div>
             <div style={{ fontWeight: "bold", fontSize: "10pt" }}>
               <EditableField
                 name="baskanAdi"
-                value={data?.baskanAdi || data?.onaylayanPersonelAdi || data?.onaylayan_ad_soyad || ""}
+                value={baskanAdi}
               />
             </div>
             <div style={{ fontSize: "9.5pt", color: "#333" }}>
               <EditableField
                 name="baskanUnvan"
-                value={data?.baskanUnvan || data?.onaylayanPersonelUnvan || data?.onaylayan_unvan || "Harcama Yetkilisi"}
+                value={baskanUnvan}
               />
             </div>
           </div>

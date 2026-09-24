@@ -316,8 +316,10 @@ export function usePiyasaFiyatDocuments(
           yaklasikMaliyet: formatTR(total),
           genelToplam: formatTR(total),
           firmalar: invitedFirms.map((f) => ({ unvan: f.unvan })),
+          firmaListesi: invitedFirms.map((f) => ({ unvan: f.unvan })),
           firmalarColspan: invitedFirms.length + 2,
           firmaToplamlari,
+          firmaToplamlariDetay: firmaToplamlari,
           calculatedTeklifler,
           enAvantajliTeklifSahibi,
           enAvantajliTeklifBedeli,
@@ -325,6 +327,7 @@ export function usePiyasaFiyatDocuments(
           ikinciAvantajliTeklifBedeli: calculatedTeklifler[1]?.teklifBedeli || '',
           items: needItems,
           kalemler: needItems,
+          ihtiyacKalemleri: needItems,
           komisyon: formattedKomisyon.length > 0 ? formattedKomisyon : baseCtx.komisyon || [],
           komisyonUyeleri:
             formattedKomisyon.length > 0

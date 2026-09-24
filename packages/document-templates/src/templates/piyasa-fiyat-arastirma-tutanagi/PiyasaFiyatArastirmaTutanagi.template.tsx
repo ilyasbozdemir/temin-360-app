@@ -8,7 +8,7 @@ import {
 } from "../../document/ApprovalSignature";
 import { TableRowSplitDivider } from "../../document/TableRowSplitDivider";
 import { PiyasaFiyatArastirmaTutanagiData } from "./PiyasaFiyatArastirmaTutanagi.schema";
-
+import { usePiyasaFiyatArastirmaTutanagi } from "./PiyasaFiyatArastirmaTutanagi.hook";
 
 interface Props {
   data?: Partial<PiyasaFiyatArastirmaTutanagiData> & Record<string, any>;
@@ -24,99 +24,23 @@ export const PiyasaFiyatArastirmaTutanagi: React.FC<Props> = ({
   const {
     idareAdi,
     kurumAdi,
-    dosyaTarihi = "",
-    evrakSayisi = "",
-    tarih = "",
-    firmalar = [],
-    ihtiyacKalemleri = [],
-    firmaToplamlariDetay = [],
-    genelToplam = "",
+    dosyaTarihi,
+    evrakSayisi,
+    tarih,
+    isAdi,
+    isBasligi,
     aciklama,
-    komisyon = [],
-    baskanAdi = "",
-    baskanUnvan = "",
-  } = data || {};
-
-  const isAdi = data?.isAdi || data?.isinAdi || data?.dosyaKonusu ||
-    data?.konu || "";
-
-  const turLower = String(
-    data?.alimTuru || data?.tur || data?.ihale_tipi || "",
-  ).toLowerCase();
-  const isBasligi = data?.isHizmet || turLower.includes("hizmet")
-    ? "Alınan Hizmetin Adı, Niteliği:"
-    : data?.isYapim || turLower.includes("yapı") || turLower.includes("yapim")
-    ? "Yapılan İşin Adı, Niteliği:"
-    : data?.isMal || turLower.includes("mal")
-    ? "Alınan Malın Adı, Niteliği:"
-    : "Yapılan İş / Mal / Hizmetin Adı, Niteliği:";
-
-  const displayKomisyon = (komisyon && komisyon.length > 0)
-    ? komisyon
-    : (data?.fiyatKomisyonu && data.fiyatKomisyonu.length > 0)
-    ? data.fiyatKomisyonu
-    : (data?.gorevlendirilenler && data.gorevlendirilenler.length > 0)
-    ? data.gorevlendirilenler
-    : [];
-
-  const displayFirmalar = (firmalar && firmalar.length > 0)
-    ? firmalar
-    : (data?.firmaListesi && data.firmaListesi.length > 0)
-    ? data.firmaListesi
-    : [];
-
-  // Tablo 2: Alım Yapılması Uygun Görülen Kişiler için en düşük teklifi veren firmanın dinamik tespiti
-  const processedKalemler = (ihtiyacKalemleri || []).map((kalem) => {
-    const malzemeAdi = kalem.malzemeAdi || (kalem as any).kalem_adi ||
-      (kalem as any).kalemAdi || "";
-    const ozelligi = kalem.ozelligi || (kalem as any).aciklama || "";
-    const birimi = kalem.birimi || (kalem as any).birim || "";
-    const miktar = kalem.miktar ?? "";
-
-    let enUygunFirmaAdi = kalem.enUygunFirmaAdi || "";
-    let enDusukFiyat = kalem.enDusukFiyat;
-    let kalemToplamBedel = kalem.toplamBedel;
-
-    if (
-      !enUygunFirmaAdi &&
-      kalem.firmaTeklifleriDetay &&
-      kalem.firmaTeklifleriDetay.length > 0
-    ) {
-      let minTutar = Infinity;
-      let minIdx = -1;
-
-      kalem.firmaTeklifleriDetay.forEach((tf, idx) => {
-        const valStr = String(tf.birimFiyat || tf.tutar || "");
-        const numPrice = typeof tf.birimFiyat === "number"
-          ? tf.birimFiyat
-          : parseFloat(valStr.replace(/[^0-9.,]/g, "").replace(",", "."));
-
-        if (!isNaN(numPrice) && numPrice > 0 && numPrice < minTutar) {
-          minTutar = numPrice;
-          minIdx = idx;
-        }
-      });
-
-      if (minIdx !== -1 && displayFirmalar[minIdx]) {
-        enUygunFirmaAdi = displayFirmalar[minIdx].unvan ||
-          `Firma ${minIdx + 1}`;
-        const tf = kalem.firmaTeklifleriDetay[minIdx];
-        if (!enDusukFiyat) enDusukFiyat = tf.birimFiyat;
-        if (!kalemToplamBedel) kalemToplamBedel = tf.tutar;
-      }
-    }
-
-    return {
-      ...kalem,
-      malzemeAdi,
-      ozelligi,
-      birimi,
-      miktar,
-      enUygunFirmaAdi: enUygunFirmaAdi || "-",
-      enDusukFiyat: enDusukFiyat ?? "-",
-      toplamBedel: kalemToplamBedel ?? "-",
-    };
-  });
+    displayFirmalar,
+    processedKalemler,
+    displayFirmaToplamlari,
+    formattedGenelToplam,
+    displayKomisyon,
+    baskanAdi,
+    baskanUnvan,
+    hesaplamaEsasiText,
+    olurYazisi,
+    formatMoney,
+  } = usePiyasaFiyatArastirmaTutanagi(data);
 
   return (
     <DocumentLayout
@@ -349,96 +273,133 @@ export const PiyasaFiyatArastirmaTutanagi: React.FC<Props> = ({
             {processedKalemler.map((kalem, idx) => (
               <React.Fragment key={idx}>
                 <tr>
+                  <td
+                    style={{
+                      border: "1px solid #000",
+                      padding: "4px",
+                      textAlign: "center",
+                    }}
+                  >
+                    {kalem.siraNo ?? idx + 1}
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #000",
+                      padding: "4px",
+                      textAlign: "left",
+                    }}
+                  >
+                    {kalem.malzemeAdi}
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #000",
+                      padding: "4px",
+                      textAlign: "left",
+                    }}
+                  >
+                    {kalem.ozelligi}
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #000",
+                      padding: "4px",
+                      textAlign: "center",
+                    }}
+                  >
+                    {kalem.birimi}
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #000",
+                      padding: "4px",
+                      textAlign: "center",
+                    }}
+                  >
+                    {kalem.miktar}
+                  </td>
+                  {displayFirmalar.map((_: any, fIdx: number) => {
+                    const tf =
+                      (kalem.firmaTeklifleriDetay &&
+                        kalem.firmaTeklifleriDetay[fIdx]) ||
+                      (kalem.firmaTeklifleri &&
+                        kalem.firmaTeklifleri[fIdx]) ||
+                      {};
+                    const birimFiyatStr =
+                      tf.birimFiyat !== undefined &&
+                      tf.birimFiyat !== null &&
+                      tf.birimFiyat !== "-" &&
+                      tf.birimFiyat !== ""
+                        ? formatMoney(tf.birimFiyat)
+                        : "-";
+                    const tutarStr =
+                      tf.tutar !== undefined &&
+                      tf.tutar !== null &&
+                      tf.tutar !== "-" &&
+                      tf.tutar !== ""
+                        ? formatMoney(tf.tutar)
+                        : birimFiyatStr !== "-"
+                        ? formatMoney(
+                            (parseFloat(
+                              String(birimFiyatStr)
+                                .replace(/\./g, "")
+                                .replace(",", ".")
+                            ) || 0) *
+                              (typeof kalem.miktar === "number"
+                                ? kalem.miktar
+                                : parseFloat(
+                                    String(kalem.miktar || 1)
+                                      .replace(/\./g, "")
+                                      .replace(",", ".")
+                                  ) || 1)
+                          )
+                        : "-";
 
-                <td
-                  style={{
-                    border: "1px solid #000",
-                    padding: "4px",
-                    textAlign: "center",
-                  }}
-                >
-                  {kalem.siraNo ?? idx + 1}
-                </td>
-                <td
-                  style={{
-                    border: "1px solid #000",
-                    padding: "4px",
-                    textAlign: "left",
-                  }}
-                >
-                  {kalem.malzemeAdi}
-                </td>
-                <td
-                  style={{
-                    border: "1px solid #000",
-                    padding: "4px",
-                    textAlign: "left",
-                  }}
-                >
-                  {kalem.ozelligi}
-                </td>
-                <td
-                  style={{
-                    border: "1px solid #000",
-                    padding: "4px",
-                    textAlign: "center",
-                  }}
-                >
-                  {kalem.birimi}
-                </td>
-                <td
-                  style={{
-                    border: "1px solid #000",
-                    padding: "4px",
-                    textAlign: "center",
-                  }}
-                >
-                  {kalem.miktar}
-                </td>
-                {displayFirmalar.map((_: any, fIdx: number) => {
-                  const tf = kalem.firmaTeklifleriDetay?.[fIdx] || {};
-                  return (
-                    <React.Fragment key={fIdx}>
-                      <td
-                        style={{
-                          border: "1px solid #000",
-                          padding: "4px",
-                          textAlign: "right",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        <EditableField
-                          name={`ihtiyacKalemleri.${idx}.firmaTeklifleriDetay.${fIdx}.birimFiyat`}
-                          value={String(tf.birimFiyat ?? "-")}
-                          placeholder="0,00"
-                        />
-                      </td>
-                      <td
-                        style={{
-                          border: "1px solid #000",
-                          padding: "4px",
-                          textAlign: "right",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        <EditableField
-                          name={`ihtiyacKalemleri.${idx}.firmaTeklifleriDetay.${fIdx}.tutar`}
-                          value={String(tf.tutar ?? "-")}
-                          placeholder="0,00"
-                        />
-                      </td>
-                    </React.Fragment>
-                  );
-                })}
-              </tr>
-              <TableRowSplitDivider
-                rowIndex={idx + 1}
-                colSpan={5 + displayFirmalar.length * 2}
-                currentSplitIndex={data?.firstPageLimit ? Number(data.firstPageLimit) : null}
-              />
-            </React.Fragment>
-          ))}
-
+                    return (
+                      <React.Fragment key={fIdx}>
+                        <td
+                          style={{
+                            border: "1px solid #000",
+                            padding: "4px",
+                            textAlign: "right",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          <EditableField
+                            name={`ihtiyacKalemleri.${idx}.firmaTeklifleriDetay.${fIdx}.birimFiyat`}
+                            value={birimFiyatStr}
+                            placeholder="0,00"
+                          />
+                        </td>
+                        <td
+                          style={{
+                            border: "1px solid #000",
+                            padding: "4px",
+                            textAlign: "right",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          <EditableField
+                            name={`ihtiyacKalemleri.${idx}.firmaTeklifleriDetay.${fIdx}.tutar`}
+                            value={tutarStr}
+                            placeholder="0,00"
+                          />
+                        </td>
+                      </React.Fragment>
+                    );
+                  })}
+                </tr>
+                <TableRowSplitDivider
+                  rowIndex={idx + 1}
+                  colSpan={5 + displayFirmalar.length * 2}
+                  currentSplitIndex={
+                    data?.firstPageLimit
+                      ? Number(data.firstPageLimit)
+                      : null
+                  }
+                />
+              </React.Fragment>
+            ))}
 
             {processedKalemler.length > 0 && (
               <tr style={{ fontWeight: "bold", backgroundColor: "#fafafa" }}>
@@ -453,7 +414,7 @@ export const PiyasaFiyatArastirmaTutanagi: React.FC<Props> = ({
                   Toplam Tutar :
                 </td>
                 {displayFirmalar.map((_: any, fIdx: number) => {
-                  const ft = firmaToplamlariDetay?.[fIdx] || {};
+                  const ft = displayFirmaToplamlari[fIdx] || {};
                   return (
                     <React.Fragment key={fIdx}>
                       <td style={{ border: "1px solid #000", padding: "4px" }}>
@@ -468,7 +429,7 @@ export const PiyasaFiyatArastirmaTutanagi: React.FC<Props> = ({
                       >
                         <EditableField
                           name={`firmaToplamlariDetay.${fIdx}.toplam`}
-                          value={String(ft.toplam ?? "-")}
+                          value={ft.toplam || "-"}
                           placeholder="0,00"
                         />
                       </td>
@@ -705,7 +666,11 @@ export const PiyasaFiyatArastirmaTutanagi: React.FC<Props> = ({
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {genelToplam}
+                  <EditableField
+                    name="genelToplam"
+                    value={formattedGenelToplam}
+                    placeholder="0,00"
+                  />
                 </td>
               </tr>
             )}
@@ -727,20 +692,14 @@ export const PiyasaFiyatArastirmaTutanagi: React.FC<Props> = ({
           Yapılan fiyat araştırmasına göre, firmaların vermiş olduğu{" "}
           <EditableField
             name="hesaplamaEsasiText"
-            value={
-              data?.hesaplamaEsasiText ||
-              (String(
-                  data?.hesaplamaEsasi ||
-                    data?.hesaplama_esasi ||
-                    data?.yaklasikMaliyetEsasi ||
-                    data?.yaklasik_maliyet_hesaplamasi ||
-                    ""
-                ).toLowerCase().includes("ortalama")
-                ? "birim fiyatların ortalaması"
-                : "en düşük fiyatlar")
-            }
+            value={hesaplamaEsasiText}
           />{" "}
-          alınarak maliyet KDV hariç {genelToplam ?? "0,00"}{" "}
+          alınarak maliyet KDV hariç{" "}
+          <EditableField
+            name="genelToplam"
+            value={formattedGenelToplam}
+            placeholder="0,00"
+          />{" "}
           TL olarak tespit edilmiştir.
         </div>
 
@@ -821,7 +780,7 @@ export const PiyasaFiyatArastirmaTutanagi: React.FC<Props> = ({
         </div>
 
         {/* HARCAMA YETKİLİSİ ONAYI (OLUR) */}
-        {data.olurYazisi !== false
+        {olurYazisi
           ? (
             <ApprovalSignature
               title="OLUR"

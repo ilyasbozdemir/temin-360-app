@@ -106,19 +106,47 @@ export function SiparisVeSozlesme(): React.JSX.Element {
 
         if (res.success && res.data && res.data.length > 0) {
           const row = res.data[0]
-          setKazananFirmaId(row.firma_id || null)
-          setKazananFirmaUnvan(row.unvan || '')
+          let effectiveFirmaId = row.firma_id || null
+          let effectiveUnvan = row.unvan || ''
+          let effectiveVergiNo = row.vergi_no || null
+
+          // Fiyatlar girilmişse ve henüz manuel kazanan seçilmemişse, en düşük teklif veren firmayı otomatik kazanan yap
+          if (!effectiveFirmaId) {
+            const autoLowestRes = await window.electron.ipcRenderer.invoke(
+              'db:query',
+              `SELECT tf.firma_id, f.unvan, f.vergi_no, tf.teklif_toplami, tf.yasaklilik_durumu
+               FROM DATA_TeminFirma tf
+               JOIN TANIM_Firma f ON tf.firma_id = f.id
+               WHERE tf.temin_dosya_id = ? AND tf.teklif_toplami > 0
+               ORDER BY tf.teklif_toplami ASC LIMIT 1`,
+              [activeDosyaId]
+            )
+            if (autoLowestRes.success && autoLowestRes.data?.length > 0) {
+              const lowest = autoLowestRes.data[0]
+              effectiveFirmaId = lowest.firma_id
+              effectiveUnvan = lowest.unvan
+              effectiveVergiNo = lowest.vergi_no
+              await window.electron.ipcRenderer.invoke(
+                'db:run',
+                'UPDATE DATA_TeminDosyasi SET firma_id = ? WHERE id = ?',
+                [lowest.firma_id, activeDosyaId]
+              )
+            }
+          }
+
+          setKazananFirmaId(effectiveFirmaId)
+          setKazananFirmaUnvan(effectiveUnvan)
 
           // Kazanan firmanın teklif toplamı ve yasaklılık durumu
           let teklifToplami: number | null = null
           let yasaklilikDurumu: string | null = null
-          if (row.firma_id) {
+          if (effectiveFirmaId) {
             const teklifRes = await window.electron.ipcRenderer.invoke(
               'db:query',
               `SELECT tf.teklif_toplami, tf.yasaklilik_durumu
                FROM DATA_TeminFirma tf
                WHERE tf.temin_dosya_id = ? AND tf.firma_id = ?`,
-              [activeDosyaId, row.firma_id]
+              [activeDosyaId, effectiveFirmaId]
             )
             if (teklifRes.success && teklifRes.data?.length > 0) {
               teklifToplami = teklifRes.data[0].teklif_toplami
@@ -155,7 +183,7 @@ export function SiparisVeSozlesme(): React.JSX.Element {
             yaklasikMaliyet: row.yaklasik_maliyet || null,
             teslimTarihi: row.teslim_tarihi || null,
             yasaklilikDurumu,
-            vergiNo: row.vergi_no || null,
+            vergiNo: effectiveVergiNo || row.vergi_no || null,
             teklifSozlesmeTuru: row.teklif_sozlesme_turu || 'Mal Alımı',
             sozlesmeYapilacakMi: row.sozlesme_yapilacak_mi || 0,
             istekliFirmaSayisi
