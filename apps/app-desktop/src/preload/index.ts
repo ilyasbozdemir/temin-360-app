@@ -156,7 +156,12 @@ const allowedChannels = new Set([
   'updater:set-dev-version',
   'app:cancel-quit-timeout',
   // Dev & Testing
-  'dev:run-tests'
+  'dev:run-tests',
+  // Logs
+  'logs:get-path',
+  'logs:open-file',
+  'logs:open-dir',
+  'logs:read-recent'
 ])
 
 // Secure gated wrapper exposing only authorized channels to renderer
@@ -185,7 +190,10 @@ const api = {
   getAppVersion: () => ipcRenderer.invoke('app:get-version'),
   setDevVersion: (mode: boolean, version: string) =>
     ipcRenderer.invoke('updater:set-dev-version', mode, version),
-  runTests: () => ipcRenderer.invoke('dev:run-tests')
+  runTests: () => ipcRenderer.invoke('dev:run-tests'),
+  openLogFile: () => ipcRenderer.invoke('logs:open-file'),
+  openLogFolder: () => ipcRenderer.invoke('logs:open-dir'),
+  readRecentLogs: (lineCount?: number) => ipcRenderer.invoke('logs:read-recent', lineCount)
 }
 
 if (process.contextIsolated) {

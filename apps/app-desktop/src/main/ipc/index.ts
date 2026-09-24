@@ -8,6 +8,7 @@ import { registerDialogIpcHandlers } from './dialog.ipc'
 import { registerAiIpcHandlers } from './ai.ipc'
 import { registerUpdaterIpcHandlers } from './updater.ipc'
 import { registerTestIpcHandlers } from './test.ipc'
+import { registerLoggerIpcHandlers } from '../logger'
 
 export interface IpcRegistrationOptions {
   closeAllSecondaryWindows: () => void
@@ -26,4 +27,5 @@ export function registerAllIpcHandlers(options: IpcRegistrationOptions): void {
   registerAiIpcHandlers()
   registerUpdaterIpcHandlers()
   registerTestIpcHandlers()
+  registerLoggerIpcHandlers()
 }

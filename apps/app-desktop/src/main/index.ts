@@ -132,6 +132,9 @@ try {
   console.error('Failed to configure userData path:', e)
 }
 
+import { appLogger } from './logger'
+appLogger.init()
+
 const logDir = join(app.getPath('userData'), 'logs')
 try {
   fs.mkdirSync(logDir, { recursive: true })

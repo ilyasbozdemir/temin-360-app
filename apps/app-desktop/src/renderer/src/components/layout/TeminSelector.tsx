@@ -318,8 +318,6 @@ export function TeminSelector(): React.JSX.Element {
   // Seçili dosyanın İhale mi DT mi olduğunu tespit et
   const selectedIsIhale = selectedDosya ? isIhaleOrYapim(selectedDosya) : false
 
-  console.log(selectedDosya)
-
   return (
     <>
       <div className="relative max-w-full min-w-0 flex justify-center" ref={containerRef}>
