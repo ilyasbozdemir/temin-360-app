@@ -1,17 +1,17 @@
-import React from 'react'
+import React from "react";
 import {
   PiyasaFiyatArastirmasiDashboardProps,
   PiyasaFiyatStepper,
   Step1IsteklilerVeDagitim,
   Step2FiyatlarVeKazanan,
   Step3TutanakVeMaliyet,
-  usePiyasaFiyatArastirmasiDashboard
-} from './PiyasaFiyatArastirmasi'
+  usePiyasaFiyatArastirmasiDashboard,
+} from "./PiyasaFiyatArastirmasi";
 
-export type { PiyasaFiyatArastirmasiDashboardProps }
+export type { PiyasaFiyatArastirmasiDashboardProps };
 
 export function PiyasaFiyatArastirmasiDashboard(
-  props: PiyasaFiyatArastirmasiDashboardProps
+  props: PiyasaFiyatArastirmasiDashboardProps,
 ): React.JSX.Element {
   const {
     currentStep,
@@ -28,8 +28,8 @@ export function PiyasaFiyatArastirmasiDashboard(
     lowestBidFirm,
     isStep1Done,
     isStep2Done,
-    isStep3Done
-  } = usePiyasaFiyatArastirmasiDashboard(props)
+    isStep3Done,
+  } = usePiyasaFiyatArastirmasiDashboard(props);
 
   const {
     setIsFormOpen,
@@ -45,8 +45,8 @@ export function PiyasaFiyatArastirmasiDashboard(
     setActiveFormTab,
     handleDeleteDocument,
     manualWinnerFirmaId,
-    handleSetWinnerFirma
-  } = props
+    handleSetWinnerFirma,
+  } = props;
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-300">
@@ -116,5 +116,5 @@ export function PiyasaFiyatArastirmasiDashboard(
         />
       )}
     </div>
-  )
+  );
 }
