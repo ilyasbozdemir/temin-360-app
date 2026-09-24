@@ -87,7 +87,9 @@ export function extractTableAndAction(sql: string): {
   else if (upper.startsWith('DELETE')) action = 'delete'
 
   let tableName = 'Veritabanı'
-  const match = clean.match(/(?:FROM|INTO|UPDATE)\s+(?:["`'\[]?[A-Za-z0-9_]+["`'\]]?\.)?["`'\[]?([A-Za-z0-9_]+)["`'\]]?/i)
+  const match = clean.match(
+    /(?:FROM|INTO|UPDATE)\s+(?:["`'\[]?[A-Za-z0-9_]+["`'\]]?\.)?["`'\[]?([A-Za-z0-9_]+)["`'\]]?/i
+  )
   if (match && match[1]) {
     tableName = match[1]
   }
@@ -264,10 +266,14 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
 
   // Ensure default unit conversions exist in TANIM_BirimDonusum
   try {
-    const donusumCountRes = db.prepare('SELECT COUNT(*) as cnt FROM TANIM_BirimDonusum').get() as { cnt: number }
+    const donusumCountRes = db.prepare('SELECT COUNT(*) as cnt FROM TANIM_BirimDonusum').get() as {
+      cnt: number
+    }
     if (donusumCountRes.cnt === 0) {
       const getBirimId = (ad: string) => {
-        const row = db.prepare('SELECT id FROM TANIM_OlcuBirimi WHERE ad = ? COLLATE NOCASE').get(ad) as { id: number } | undefined
+        const row = db
+          .prepare('SELECT id FROM TANIM_OlcuBirimi WHERE ad = ? COLLATE NOCASE')
+          .get(ad) as { id: number } | undefined
         return row?.id
       }
 
@@ -278,49 +284,266 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
 
       const defaultConversions = [
         // Ağırlık
-        { from: 'Kilogram', to: 'Gram', factor: 1000, formula: 'x * 1000', rev: 'x / 1000', desc: '1 kg = 1000 g' },
-        { from: 'Gram', to: 'Kilogram', factor: 0.001, formula: 'x / 1000', rev: 'x * 1000', desc: '1 g = 0.001 kg' },
-        { from: 'Ton', to: 'Kilogram', factor: 1000, formula: 'x * 1000', rev: 'x / 1000', desc: '1 ton = 1000 kg' },
-        { from: 'Kilogram', to: 'Ton', factor: 0.001, formula: 'x / 1000', rev: 'x * 1000', desc: '1 kg = 0.001 ton' },
-        { from: 'Gram', to: 'Miligram', factor: 1000, formula: 'x * 1000', rev: 'x / 1000', desc: '1 g = 1000 mg' },
+        {
+          from: 'Kilogram',
+          to: 'Gram',
+          factor: 1000,
+          formula: 'x * 1000',
+          rev: 'x / 1000',
+          desc: '1 kg = 1000 g'
+        },
+        {
+          from: 'Gram',
+          to: 'Kilogram',
+          factor: 0.001,
+          formula: 'x / 1000',
+          rev: 'x * 1000',
+          desc: '1 g = 0.001 kg'
+        },
+        {
+          from: 'Ton',
+          to: 'Kilogram',
+          factor: 1000,
+          formula: 'x * 1000',
+          rev: 'x / 1000',
+          desc: '1 ton = 1000 kg'
+        },
+        {
+          from: 'Kilogram',
+          to: 'Ton',
+          factor: 0.001,
+          formula: 'x / 1000',
+          rev: 'x * 1000',
+          desc: '1 kg = 0.001 ton'
+        },
+        {
+          from: 'Gram',
+          to: 'Miligram',
+          factor: 1000,
+          formula: 'x * 1000',
+          rev: 'x / 1000',
+          desc: '1 g = 1000 mg'
+        },
 
         // Uzunluk
-        { from: 'Kilometre', to: 'Metre', factor: 1000, formula: 'x * 1000', rev: 'x / 1000', desc: '1 km = 1000 m' },
-        { from: 'Metre', to: 'Kilometre', factor: 0.001, formula: 'x / 1000', rev: 'x * 1000', desc: '1 m = 0.001 km' },
-        { from: 'Metre', to: 'Santimetre', factor: 100, formula: 'x * 100', rev: 'x / 100', desc: '1 m = 100 cm' },
-        { from: 'Santimetre', to: 'Metre', factor: 0.01, formula: 'x / 100', rev: 'x * 100', desc: '1 cm = 0.01 m' },
-        { from: 'Metre', to: 'Milimetre', factor: 1000, formula: 'x * 1000', rev: 'x / 1000', desc: '1 m = 1000 mm' },
-        { from: 'Santimetre', to: 'Milimetre', factor: 10, formula: 'x * 10', rev: 'x / 10', desc: '1 cm = 10 mm' },
-        { from: 'İnç', to: 'Santimetre', factor: 2.54, formula: 'x * 2.54', rev: 'x / 2.54', desc: '1 in = 2.54 cm' },
+        {
+          from: 'Kilometre',
+          to: 'Metre',
+          factor: 1000,
+          formula: 'x * 1000',
+          rev: 'x / 1000',
+          desc: '1 km = 1000 m'
+        },
+        {
+          from: 'Metre',
+          to: 'Kilometre',
+          factor: 0.001,
+          formula: 'x / 1000',
+          rev: 'x * 1000',
+          desc: '1 m = 0.001 km'
+        },
+        {
+          from: 'Metre',
+          to: 'Santimetre',
+          factor: 100,
+          formula: 'x * 100',
+          rev: 'x / 100',
+          desc: '1 m = 100 cm'
+        },
+        {
+          from: 'Santimetre',
+          to: 'Metre',
+          factor: 0.01,
+          formula: 'x / 100',
+          rev: 'x * 100',
+          desc: '1 cm = 0.01 m'
+        },
+        {
+          from: 'Metre',
+          to: 'Milimetre',
+          factor: 1000,
+          formula: 'x * 1000',
+          rev: 'x / 1000',
+          desc: '1 m = 1000 mm'
+        },
+        {
+          from: 'Santimetre',
+          to: 'Milimetre',
+          factor: 10,
+          formula: 'x * 10',
+          rev: 'x / 10',
+          desc: '1 cm = 10 mm'
+        },
+        {
+          from: 'İnç',
+          to: 'Santimetre',
+          factor: 2.54,
+          formula: 'x * 2.54',
+          rev: 'x / 2.54',
+          desc: '1 in = 2.54 cm'
+        },
 
         // Alan
-        { from: 'Metrekare', to: 'Santimetrekare', factor: 10000, formula: 'x * 10000', rev: 'x / 10000', desc: '1 m² = 10.000 cm²' },
-        { from: 'Hektar', to: 'Metrekare', factor: 10000, formula: 'x * 10000', rev: 'x / 10000', desc: '1 ha = 10.000 m²' },
-        { from: 'Dönüm', to: 'Metrekare', factor: 1000, formula: 'x * 1000', rev: 'x / 1000', desc: '1 dönüm = 1000 m²' },
+        {
+          from: 'Metrekare',
+          to: 'Santimetrekare',
+          factor: 10000,
+          formula: 'x * 10000',
+          rev: 'x / 10000',
+          desc: '1 m² = 10.000 cm²'
+        },
+        {
+          from: 'Hektar',
+          to: 'Metrekare',
+          factor: 10000,
+          formula: 'x * 10000',
+          rev: 'x / 10000',
+          desc: '1 ha = 10.000 m²'
+        },
+        {
+          from: 'Dönüm',
+          to: 'Metrekare',
+          factor: 1000,
+          formula: 'x * 1000',
+          rev: 'x / 1000',
+          desc: '1 dönüm = 1000 m²'
+        },
 
         // Hacim
-        { from: 'Litre', to: 'Mililitre', factor: 1000, formula: 'x * 1000', rev: 'x / 1000', desc: '1 L = 1000 ml' },
-        { from: 'Mililitre', to: 'Litre', factor: 0.001, formula: 'x / 1000', rev: 'x * 1000', desc: '1 ml = 0.001 L' },
-        { from: 'Metreküp', to: 'Litre', factor: 1000, formula: 'x * 1000', rev: 'x / 1000', desc: '1 m³ = 1000 L' },
-        { from: 'Galon', to: 'Litre', factor: 3.78541, formula: 'x * 3.78541', rev: 'x / 3.78541', desc: '1 gal ≈ 3.785 L' },
+        {
+          from: 'Litre',
+          to: 'Mililitre',
+          factor: 1000,
+          formula: 'x * 1000',
+          rev: 'x / 1000',
+          desc: '1 L = 1000 ml'
+        },
+        {
+          from: 'Mililitre',
+          to: 'Litre',
+          factor: 0.001,
+          formula: 'x / 1000',
+          rev: 'x * 1000',
+          desc: '1 ml = 0.001 L'
+        },
+        {
+          from: 'Metreküp',
+          to: 'Litre',
+          factor: 1000,
+          formula: 'x * 1000',
+          rev: 'x / 1000',
+          desc: '1 m³ = 1000 L'
+        },
+        {
+          from: 'Galon',
+          to: 'Litre',
+          factor: 3.78541,
+          formula: 'x * 3.78541',
+          rev: 'x / 3.78541',
+          desc: '1 gal ≈ 3.785 L'
+        },
 
         // Adet
-        { from: 'Deste', to: 'Adet', factor: 10, formula: 'x * 10', rev: 'x / 10', desc: '1 deste = 10 adet' },
-        { from: 'Düzine', to: 'Adet', factor: 12, formula: 'x * 12', rev: 'x / 12', desc: '1 düzine = 12 adet' },
-        { from: 'Çift', to: 'Adet', factor: 2, formula: 'x * 2', rev: 'x / 2', desc: '1 çift = 2 adet' },
+        {
+          from: 'Deste',
+          to: 'Adet',
+          factor: 10,
+          formula: 'x * 10',
+          rev: 'x / 10',
+          desc: '1 deste = 10 adet'
+        },
+        {
+          from: 'Düzine',
+          to: 'Adet',
+          factor: 12,
+          formula: 'x * 12',
+          rev: 'x / 12',
+          desc: '1 düzine = 12 adet'
+        },
+        {
+          from: 'Çift',
+          to: 'Adet',
+          factor: 2,
+          formula: 'x * 2',
+          rev: 'x / 2',
+          desc: '1 çift = 2 adet'
+        },
 
         // Zaman
-        { from: 'Gün', to: 'Saat', factor: 24, formula: 'x * 24', rev: 'x / 24', desc: '1 gün = 24 saat' },
-        { from: 'Saat', to: 'Dakika', factor: 60, formula: 'x * 60', rev: 'x / 60', desc: '1 sa = 60 dk' },
-        { from: 'Hafta', to: 'Gün', factor: 7, formula: 'x * 7', rev: 'x / 7', desc: '1 hafta = 7 gün' },
-        { from: 'Ay', to: 'Gün', factor: 30, formula: 'x * 30', rev: 'x / 30', desc: '1 ay ≈ 30 gün' },
-        { from: 'Yıl', to: 'Gün', factor: 365, formula: 'x * 365', rev: 'x / 365', desc: '1 yıl = 365 gün' },
+        {
+          from: 'Gün',
+          to: 'Saat',
+          factor: 24,
+          formula: 'x * 24',
+          rev: 'x / 24',
+          desc: '1 gün = 24 saat'
+        },
+        {
+          from: 'Saat',
+          to: 'Dakika',
+          factor: 60,
+          formula: 'x * 60',
+          rev: 'x / 60',
+          desc: '1 sa = 60 dk'
+        },
+        {
+          from: 'Hafta',
+          to: 'Gün',
+          factor: 7,
+          formula: 'x * 7',
+          rev: 'x / 7',
+          desc: '1 hafta = 7 gün'
+        },
+        {
+          from: 'Ay',
+          to: 'Gün',
+          factor: 30,
+          formula: 'x * 30',
+          rev: 'x / 30',
+          desc: '1 ay ≈ 30 gün'
+        },
+        {
+          from: 'Yıl',
+          to: 'Gün',
+          factor: 365,
+          formula: 'x * 365',
+          rev: 'x / 365',
+          desc: '1 yıl = 365 gün'
+        },
 
         // Sıcaklık (Formüllü)
-        { from: 'Santigrat', to: 'Fahrenhayt', factor: 0, formula: '(x * 9/5) + 32', rev: '(x - 32) * 5/9', desc: '°F = (°C × 9/5) + 32' },
-        { from: 'Fahrenhayt', to: 'Santigrat', factor: 0, formula: '(x - 32) * 5/9', rev: '(x * 9/5) + 32', desc: '°C = (°F - 32) × 5/9' },
-        { from: 'Santigrat', to: 'Kelvin', factor: 0, formula: 'x + 273.15', rev: 'x - 273.15', desc: 'K = °C + 273.15' },
-        { from: 'Kelvin', to: 'Santigrat', factor: 0, formula: 'x - 273.15', rev: 'x + 273.15', desc: '°C = K - 273.15' }
+        {
+          from: 'Santigrat',
+          to: 'Fahrenhayt',
+          factor: 0,
+          formula: '(x * 9/5) + 32',
+          rev: '(x - 32) * 5/9',
+          desc: '°F = (°C × 9/5) + 32'
+        },
+        {
+          from: 'Fahrenhayt',
+          to: 'Santigrat',
+          factor: 0,
+          formula: '(x - 32) * 5/9',
+          rev: '(x * 9/5) + 32',
+          desc: '°C = (°F - 32) × 5/9'
+        },
+        {
+          from: 'Santigrat',
+          to: 'Kelvin',
+          factor: 0,
+          formula: 'x + 273.15',
+          rev: 'x - 273.15',
+          desc: 'K = °C + 273.15'
+        },
+        {
+          from: 'Kelvin',
+          to: 'Santigrat',
+          factor: 0,
+          formula: 'x - 273.15',
+          rev: 'x + 273.15',
+          desc: '°C = K - 273.15'
+        }
       ]
 
       for (const conv of defaultConversions) {
@@ -352,7 +575,9 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
       );
     `)
 
-    const ufeCount = db.prepare('SELECT COUNT(*) as cnt FROM TANIM_YiUfeEndeks').get() as { cnt: number }
+    const ufeCount = db.prepare('SELECT COUNT(*) as cnt FROM TANIM_YiUfeEndeks').get() as {
+      cnt: number
+    }
     if (ufeCount.cnt === 0 && (yiUfeSeed as any)?.monthly) {
       const insertUfe = db.prepare(`
         INSERT OR IGNORE INTO TANIM_YiUfeEndeks (yil, ay, ay_adi, endeks, kaynak)
@@ -364,7 +589,9 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
         }
       })
       insertMany((yiUfeSeed as any).monthly)
-      console.log(`[Schema Self-Healing] Seeded ${(yiUfeSeed as any).monthly.length} Yİ-ÜFE monthly records into TANIM_YiUfeEndeks`)
+      console.log(
+        `[Schema Self-Healing] Seeded ${(yiUfeSeed as any).monthly.length} Yİ-ÜFE monthly records into TANIM_YiUfeEndeks`
+      )
     }
   } catch (e: any) {
     console.error('[Schema Self-Healing] TANIM_YiUfeEndeks initialization failed:', e.message)
@@ -574,21 +801,33 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
 
   // Ensure DATA_TeminKomisyon and TANIM_KomisyonUye have necessary columns
   try {
-    const checkTK = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='DATA_TeminKomisyon'").get()
+    const checkTK = db
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='DATA_TeminKomisyon'")
+      .get()
     if (checkTK) {
-      const cols = (db.prepare("PRAGMA table_info(DATA_TeminKomisyon)").all() as any[]).map((c) => c.name)
+      const cols = (db.prepare('PRAGMA table_info(DATA_TeminKomisyon)').all() as any[]).map(
+        (c) => c.name
+      )
       if (!cols.includes('komisyon_turu')) {
         db.prepare('ALTER TABLE DATA_TeminKomisyon ADD COLUMN komisyon_turu TEXT').run()
       }
       if (!cols.includes('belgede_goster')) {
-        db.prepare('ALTER TABLE DATA_TeminKomisyon ADD COLUMN belgede_goster INTEGER DEFAULT 1').run()
+        db.prepare(
+          'ALTER TABLE DATA_TeminKomisyon ADD COLUMN belgede_goster INTEGER DEFAULT 1'
+        ).run()
       }
     }
-    const checkKU = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='TANIM_KomisyonUye'").get()
+    const checkKU = db
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='TANIM_KomisyonUye'")
+      .get()
     if (checkKU) {
-      const cols = (db.prepare("PRAGMA table_info(TANIM_KomisyonUye)").all() as any[]).map((c) => c.name)
+      const cols = (db.prepare('PRAGMA table_info(TANIM_KomisyonUye)').all() as any[]).map(
+        (c) => c.name
+      )
       if (!cols.includes('belgede_goster')) {
-        db.prepare('ALTER TABLE TANIM_KomisyonUye ADD COLUMN belgede_goster INTEGER DEFAULT 1').run()
+        db.prepare(
+          'ALTER TABLE TANIM_KomisyonUye ADD COLUMN belgede_goster INTEGER DEFAULT 1'
+        ).run()
       }
     }
   } catch (err: any) {
@@ -602,7 +841,9 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
       .get()
     if (checkKomisyon) {
       // 1. Yaklaşık Maliyet Tespit Komisyonu
-      const yaklasikExisting = db.prepare(`
+      const yaklasikExisting = db
+        .prepare(
+          `
         SELECT id, ad FROM TANIM_Komisyon 
         WHERE LOWER(TRIM(ad)) IN (
           'yaklaşık maliyet tespit komisyonu',
@@ -613,49 +854,69 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
           'fiyat arastirma ve yaklasik maliyet tespit komisyonu'
         )
         ORDER BY CASE WHEN LOWER(TRIM(ad)) LIKE '%yaklaşık%' OR LOWER(TRIM(ad)) LIKE '%yaklasik%' THEN 1 ELSE 2 END, id ASC
-      `).all() as { id: number; ad: string }[]
+      `
+        )
+        .all() as { id: number; ad: string }[]
 
       let yaklasikId = 1
       if (yaklasikExisting.length > 0) {
         yaklasikId = yaklasikExisting[0].id
-        db.prepare("UPDATE TANIM_Komisyon SET ad = 'Yaklaşık Maliyet Tespit Komisyonu', aktif_mi = 1 WHERE id = ?").run(yaklasikId)
+        db.prepare(
+          "UPDATE TANIM_Komisyon SET ad = 'Yaklaşık Maliyet Tespit Komisyonu', aktif_mi = 1 WHERE id = ?"
+        ).run(yaklasikId)
         for (let i = 1; i < yaklasikExisting.length; i++) {
           const dupId = yaklasikExisting[i].id
-          db.prepare("UPDATE OR IGNORE TANIM_KomisyonUye SET komisyon_id = ? WHERE komisyon_id = ?").run(yaklasikId, dupId)
-          db.prepare("DELETE FROM TANIM_Komisyon_Sablon WHERE komisyon_id = ?").run(dupId)
-          db.prepare("DELETE FROM TANIM_Komisyon WHERE id = ?").run(dupId)
+          db.prepare(
+            'UPDATE OR IGNORE TANIM_KomisyonUye SET komisyon_id = ? WHERE komisyon_id = ?'
+          ).run(yaklasikId, dupId)
+          db.prepare('DELETE FROM TANIM_Komisyon_Sablon WHERE komisyon_id = ?').run(dupId)
+          db.prepare('DELETE FROM TANIM_Komisyon WHERE id = ?').run(dupId)
         }
       } else {
-        db.prepare("INSERT OR IGNORE INTO TANIM_Komisyon (id, ad, aktif_mi) VALUES (1, 'Yaklaşık Maliyet Tespit Komisyonu', 1)").run()
+        db.prepare(
+          "INSERT OR IGNORE INTO TANIM_Komisyon (id, ad, aktif_mi) VALUES (1, 'Yaklaşık Maliyet Tespit Komisyonu', 1)"
+        ).run()
       }
 
       // 2. Muayene Kabul ve Tespit Komisyonu
-      const muayeneExisting = db.prepare(`
+      const muayeneExisting = db
+        .prepare(
+          `
         SELECT id, ad FROM TANIM_Komisyon 
         WHERE LOWER(TRIM(ad)) IN (
           'muayene kabul ve tespit komisyonu',
           'muayene kabul ve teslim alma komisyonu'
         )
         ORDER BY CASE WHEN LOWER(TRIM(ad)) LIKE '%muayene kabul ve tespit%' THEN 1 ELSE 2 END, id ASC
-      `).all() as { id: number; ad: string }[]
+      `
+        )
+        .all() as { id: number; ad: string }[]
 
       let muayeneId = 2
       if (muayeneExisting.length > 0) {
         muayeneId = muayeneExisting[0].id
-        db.prepare("UPDATE TANIM_Komisyon SET ad = 'Muayene Kabul ve Tespit Komisyonu', aktif_mi = 1 WHERE id = ?").run(muayeneId)
+        db.prepare(
+          "UPDATE TANIM_Komisyon SET ad = 'Muayene Kabul ve Tespit Komisyonu', aktif_mi = 1 WHERE id = ?"
+        ).run(muayeneId)
         for (let i = 1; i < muayeneExisting.length; i++) {
           const dupId = muayeneExisting[i].id
-          db.prepare("UPDATE OR IGNORE TANIM_KomisyonUye SET komisyon_id = ? WHERE komisyon_id = ?").run(muayeneId, dupId)
-          db.prepare("DELETE FROM TANIM_Komisyon_Sablon WHERE komisyon_id = ?").run(dupId)
-          db.prepare("DELETE FROM TANIM_Komisyon WHERE id = ?").run(dupId)
+          db.prepare(
+            'UPDATE OR IGNORE TANIM_KomisyonUye SET komisyon_id = ? WHERE komisyon_id = ?'
+          ).run(muayeneId, dupId)
+          db.prepare('DELETE FROM TANIM_Komisyon_Sablon WHERE komisyon_id = ?').run(dupId)
+          db.prepare('DELETE FROM TANIM_Komisyon WHERE id = ?').run(dupId)
         }
       } else {
-        db.prepare("INSERT OR IGNORE INTO TANIM_Komisyon (id, ad, aktif_mi) VALUES (2, 'Muayene Kabul ve Tespit Komisyonu', 1)").run()
+        db.prepare(
+          "INSERT OR IGNORE INTO TANIM_Komisyon (id, ad, aktif_mi) VALUES (2, 'Muayene Kabul ve Tespit Komisyonu', 1)"
+        ).run()
       }
 
       // 3. Şablon bağlantıları (TANIM_Komisyon_Sablon)
       const checkSablonTable = db
-        .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='TANIM_Komisyon_Sablon'")
+        .prepare(
+          "SELECT name FROM sqlite_master WHERE type='table' AND name='TANIM_Komisyon_Sablon'"
+        )
         .get()
       if (checkSablonTable) {
         const insertSablonStmt = db.prepare(`
@@ -1073,11 +1334,16 @@ export class DtmWorkspace {
         zip.extractAllTo(this.tempDir, true)
         zipOpened = true
       } catch (zipErr: any) {
-        console.warn(`[Workspace] Zip açma başarısız: ${zipErr.message}. Akıllı SQLite kurtarma deneniyor...`)
+        console.warn(
+          `[Workspace] Zip açma başarısız: ${zipErr.message}. Akıllı SQLite kurtarma deneniyor...`
+        )
         // Eğer zip açma başarısız olduysa ve dosya içinde yine de sqlite varsa kurtar
         const containsSqlite =
           headerPrefix.includes('SQLite format 3') ||
-          zipBuffer.subarray(0, Math.min(zipBuffer.length, 4096)).toString('latin1').includes('SQLite format 3')
+          zipBuffer
+            .subarray(0, Math.min(zipBuffer.length, 4096))
+            .toString('latin1')
+            .includes('SQLite format 3')
         if (containsSqlite) {
           const targetDb = path.join(this.tempDir, 'database.sqlite')
           fs.copyFileSync(filePath, targetDb)
@@ -1110,7 +1376,8 @@ export class DtmWorkspace {
             rawMeta = {
               dtal_version: '1.0',
               schema_version: aMeta.schema_version || 1,
-              institution_name: aMeta.institution_name || path.basename(filePath, path.extname(filePath)),
+              institution_name:
+                aMeta.institution_name || path.basename(filePath, path.extname(filePath)),
               created_at: aMeta.archived_at || new Date().toISOString(),
               updated_at: new Date().toISOString(),
               active_db_file: hasArchiveSqlite ? 'archive.sqlite' : 'database.sqlite'
@@ -1171,7 +1438,6 @@ export class DtmWorkspace {
     }
 
     const meta = normalizeMeta(rawMeta)
-
 
     // Hash Validation
     if (meta.integrity_hash) {
@@ -1817,7 +2083,9 @@ export class DtmWorkspace {
     if (!current) return
     try {
       const key = target === 'gdrive' ? 'lastGdriveSyncHash' : 'lastEmailSyncHash'
-      this.db.prepare(`INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)`).run(key, current)
+      this.db
+        .prepare(`INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)`)
+        .run(key, current)
       console.log(`[Workspace] Marked ${target} synced with hash: ${current.substring(0, 8)}...`)
     } catch (err) {
       console.error(`Failed to mark ${target} synced:`, err)

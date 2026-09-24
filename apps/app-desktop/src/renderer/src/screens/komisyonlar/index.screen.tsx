@@ -64,7 +64,9 @@ export default function KomisyonlarScreen({
 
   // Hızlı Kadro Güncelle Modalı
   const [hizliKadroOpen, setHizliKadroOpen] = useState(false)
-  const [hizliKadroKomisyon, setHizliKadroKomisyon] = useState<{ id: number; ad: string } | null>(null)
+  const [hizliKadroKomisyon, setHizliKadroKomisyon] = useState<{ id: number; ad: string } | null>(
+    null
+  )
 
   // Üretilebilir Belgeler Açılır/Kapanır State
   const [expandedBelgelerMap, setExpandedBelgelerMap] = useState<Record<number, boolean>>({})
@@ -266,10 +268,12 @@ export default function KomisyonlarScreen({
     }
   })
 
-  const [procurementFilter, setProcurementFilter] = useState<'all' | 'dogrudan_temin' | 'ihale'>(() => {
-    const saved = localStorage.getItem('temin_procurement_mode')
-    return (saved as 'dogrudan_temin' | 'ihale') || 'dogrudan_temin'
-  })
+  const [procurementFilter, setProcurementFilter] = useState<'all' | 'dogrudan_temin' | 'ihale'>(
+    () => {
+      const saved = localStorage.getItem('temin_procurement_mode')
+      return (saved as 'dogrudan_temin' | 'ihale') || 'dogrudan_temin'
+    }
+  )
 
   // Global mod değişimini dinle
   React.useEffect(() => {
@@ -342,10 +346,16 @@ export default function KomisyonlarScreen({
         <div>
           <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
             <Users className="w-6 h-6 text-blue-500" />
-            Komisyon Yönetimi {procurementFilter === 'dogrudan_temin' ? '(Doğrudan Temin)' : procurementFilter === 'ihale' ? '(İhale Süreçleri)' : ''}
+            Komisyon Yönetimi{' '}
+            {procurementFilter === 'dogrudan_temin'
+              ? '(Doğrudan Temin)'
+              : procurementFilter === 'ihale'
+                ? '(İhale Süreçleri)'
+                : ''}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Kurum içi görevlendirilecek komisyon asil ve yedek üyelerini (KİK 22/d Fiyat Araştırma & KİK 19/21 İhale Heyetleri) buradan yönetebilirsiniz.
+            Kurum içi görevlendirilecek komisyon asil ve yedek üyelerini (KİK 22/d Fiyat Araştırma &
+            KİK 19/21 İhale Heyetleri) buradan yönetebilirsiniz.
           </p>
         </div>
 
@@ -399,10 +409,17 @@ export default function KomisyonlarScreen({
                 }`}
               >
                 <span>🛒 Doğrudan Temin</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                  procurementFilter === 'dogrudan_temin' ? 'bg-blue-700 text-white' : 'bg-slate-200 dark:bg-slate-800'
-                }`}>
-                  {komisyonlar.filter((k: any) => isKomisyonMatchingMode(k, 'dogrudan_temin')).length}
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                    procurementFilter === 'dogrudan_temin'
+                      ? 'bg-blue-700 text-white'
+                      : 'bg-slate-200 dark:bg-slate-800'
+                  }`}
+                >
+                  {
+                    komisyonlar.filter((k: any) => isKomisyonMatchingMode(k, 'dogrudan_temin'))
+                      .length
+                  }
                 </span>
               </button>
               <button
@@ -415,9 +432,13 @@ export default function KomisyonlarScreen({
                 }`}
               >
                 <span>🏛️ İhale Komisyonları</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                  procurementFilter === 'ihale' ? 'bg-indigo-700 text-white' : 'bg-slate-200 dark:bg-slate-800'
-                }`}>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                    procurementFilter === 'ihale'
+                      ? 'bg-indigo-700 text-white'
+                      : 'bg-slate-200 dark:bg-slate-800'
+                  }`}
+                >
                   {komisyonlar.filter((k: any) => isKomisyonMatchingMode(k, 'ihale')).length}
                 </span>
               </button>
@@ -444,9 +465,16 @@ export default function KomisyonlarScreen({
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {filteredKomisyonlar.map((komisyon: any) => {
-                  const assignedMembers = komisyon.uyeler?.filter((m: any) => m.personel_id || m.ad_soyad) || []
-                  const asilCount = komisyon.uyeler?.filter((m: any) => m.asil_mi === 1 && (m.personel_id || m.ad_soyad)).length || 0
-                  const yedekCount = komisyon.uyeler?.filter((m: any) => m.asil_mi === 0 && (m.personel_id || m.ad_soyad)).length || 0
+                  const assignedMembers =
+                    komisyon.uyeler?.filter((m: any) => m.personel_id || m.ad_soyad) || []
+                  const asilCount =
+                    komisyon.uyeler?.filter(
+                      (m: any) => m.asil_mi === 1 && (m.personel_id || m.ad_soyad)
+                    ).length || 0
+                  const yedekCount =
+                    komisyon.uyeler?.filter(
+                      (m: any) => m.asil_mi === 0 && (m.personel_id || m.ad_soyad)
+                    ).length || 0
 
                   return (
                     <div
@@ -519,7 +547,9 @@ export default function KomisyonlarScreen({
                           ) : (
                             <button
                               onClick={async () => {
-                                if (window.confirm('Bu komisyonu silmek istediğinize emin misiniz?')) {
+                                if (
+                                  window.confirm('Bu komisyonu silmek istediğinize emin misiniz?')
+                                ) {
                                   const res = await window.electron.ipcRenderer.invoke(
                                     'db:run',
                                     "UPDATE TANIM_Komisyon SET aktif_mi = 0, ad = ad || ' (Silindi ' || id || ')' WHERE id = ?",
@@ -572,7 +602,9 @@ export default function KomisyonlarScreen({
                                     : 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-200/60 dark:border-amber-800/50 text-amber-800 dark:text-amber-300'
                                 }`}
                               >
-                                <span className={`w-2 h-2 rounded-full ${m.asil_mi === 1 ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                                <span
+                                  className={`w-2 h-2 rounded-full ${m.asil_mi === 1 ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                                />
                                 <span className="font-bold">{m.ad_soyad || 'Atanmamış'}</span>
                                 {m.gorev_adi && (
                                   <span className="text-[10px] text-slate-400 font-normal">
@@ -674,8 +706,7 @@ export default function KomisyonlarScreen({
                             setHizliKadroOpen(true)
                           }}
                         >
-                          <Zap className="w-3.5 h-3.5" />
-                          ⚡ Hızlı Kadro Düzenle
+                          <Zap className="w-3.5 h-3.5" />⚡ Hızlı Kadro Düzenle
                         </Button>
 
                         <Button

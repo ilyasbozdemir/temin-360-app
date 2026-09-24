@@ -13,7 +13,15 @@ interface ModalProps {
   footer?: React.ReactNode
 }
 
-export function Modal({ isOpen, onClose, title, description, children, className, footer }: ModalProps) {
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  description,
+  children,
+  className,
+  footer
+}: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -26,9 +34,11 @@ export function Modal({ isOpen, onClose, title, description, children, className
       document.body.removeAttribute('data-scroll-locked')
       document.body.style.setProperty('pointer-events', 'auto', 'important')
       document.documentElement.style.setProperty('pointer-events', 'auto', 'important')
-      document.querySelectorAll('style[data-radix-scroll-lock], style[data-radix-body-lock]').forEach((el) => {
-        el.remove()
-      })
+      document
+        .querySelectorAll('style[data-radix-scroll-lock], style[data-radix-body-lock]')
+        .forEach((el) => {
+          el.remove()
+        })
     }
 
     if (isOpen) {
@@ -99,4 +109,3 @@ export function Modal({ isOpen, onClose, title, description, children, className
     </div>
   )
 }
-

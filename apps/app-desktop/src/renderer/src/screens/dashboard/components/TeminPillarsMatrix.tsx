@@ -1,13 +1,6 @@
 import React from 'react'
 import { Link } from '@tanstack/react-router'
-import {
-  Activity,
-  Building2,
-  ClipboardCheck,
-  Coins,
-  FileText,
-  Scale
-} from 'lucide-react'
+import { Activity, Building2, ClipboardCheck, Coins, FileText, Scale } from 'lucide-react'
 import { cn } from '../../../utils/cn'
 
 export interface PillarItem {

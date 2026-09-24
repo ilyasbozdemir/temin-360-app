@@ -1,7 +1,7 @@
-import React from "react";
-import { Award } from "lucide-react";
-import { BiddingFirm, BiddingKalem, TableViewProps } from "./types";
-import { BidPriceInput } from "./BidPriceInput";
+import React from 'react'
+import { Award } from 'lucide-react'
+import { BiddingFirm, BiddingKalem, TableViewProps } from './types'
+import { BidPriceInput } from './BidPriceInput'
 
 export function TableView({
   invitedFirms,
@@ -10,7 +10,7 @@ export function TableView({
   getEstimatedCostTotal,
   getLowestBidInfo,
   getAverageBid,
-  handlePriceChange,
+  handlePriceChange
 }: TableViewProps): React.JSX.Element {
   return (
     <div className="overflow-x-auto w-full border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs animate-in fade-in duration-300">
@@ -43,8 +43,8 @@ export function TableView({
         </thead>
         <tbody>
           {items.map((kalem) => {
-            const lowest = getLowestBidInfo(kalem.id);
-            const avgPrice = getAverageBid(kalem.id);
+            const lowest = getLowestBidInfo(kalem.id)
+            const avgPrice = getAverageBid(kalem.id)
 
             return (
               <tr
@@ -58,16 +58,16 @@ export function TableView({
                   {kalem.miktar} {kalem.birim}
                 </td>
                 {invitedFirms.map((firma) => {
-                  const val = bids[`${kalem.id}_${firma.id}`] || 0;
-                  const isLowest = lowest.price > 0 && lowest.firmaId === firma.id;
+                  const val = bids[`${kalem.id}_${firma.id}`] || 0
+                  const isLowest = lowest.price > 0 && lowest.firmaId === firma.id
 
                   return (
                     <td
                       key={firma.id}
                       className={`p-0 border border-slate-200 dark:border-slate-805 text-right transition-colors ${
                         isLowest
-                          ? "bg-emerald-500/[0.05] dark:bg-emerald-500/[0.02]"
-                          : "bg-white dark:bg-slate-950"
+                          ? 'bg-emerald-500/[0.05] dark:bg-emerald-500/[0.02]'
+                          : 'bg-white dark:bg-slate-950'
                       }`}
                     >
                       <div className="relative flex items-center w-full h-full">
@@ -82,31 +82,31 @@ export function TableView({
                         />
                       </div>
                     </td>
-                  );
+                  )
                 })}
                 <td className="p-3 border border-slate-200 dark:border-slate-805 text-right font-bold text-slate-700 dark:text-slate-300 bg-slate-100/10 dark:bg-slate-950/10 font-mono">
                   {avgPrice > 0
-                    ? `${avgPrice.toLocaleString("tr-TR", {
+                    ? `${avgPrice.toLocaleString('tr-TR', {
                         minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
+                        maximumFractionDigits: 2
                       })} ₺`
-                    : "-"}
+                    : '-'}
                 </td>
                 <td className="p-3 border border-slate-200 dark:border-slate-805 text-right font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-500/[0.02] dark:bg-emerald-500/[0.005] font-mono">
                   <div className="flex items-center justify-end gap-1">
                     {lowest.price > 0 && <Award className="w-3.5 h-3.5 text-emerald-500" />}
                     <span>
                       {lowest.price > 0
-                        ? `${lowest.price.toLocaleString("tr-TR", {
+                        ? `${lowest.price.toLocaleString('tr-TR', {
                             minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
+                            maximumFractionDigits: 2
                           })} ₺`
-                        : "-"}
+                        : '-'}
                     </span>
                   </div>
                 </td>
               </tr>
-            );
+            )
           })}
           {/* TOPLAM TEKLİFLER SATIRI */}
           <tr className="bg-slate-50/80 dark:bg-slate-950/40 font-bold text-slate-850 dark:text-slate-100">
@@ -120,25 +120,25 @@ export function TableView({
                 className="p-3.5 border border-slate-200 dark:border-slate-800 text-right text-sm font-extrabold text-slate-900 dark:text-slate-100 font-mono"
               >
                 {firma.teklif_toplami
-                  ? `${firma.teklif_toplami.toLocaleString("tr-TR", {
+                  ? `${firma.teklif_toplami.toLocaleString('tr-TR', {
                       minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
+                      maximumFractionDigits: 2
                     })} ₺`
-                  : "0,00 ₺"}
+                  : '0,00 ₺'}
               </td>
             ))}
             <td className="p-3.5 border border-slate-200 dark:border-slate-800 bg-slate-100/10 dark:bg-slate-950/10 text-right font-extrabold text-slate-900 dark:text-slate-100 font-mono">
               {getEstimatedCostTotal() > 0
-                ? `${getEstimatedCostTotal().toLocaleString("tr-TR", {
+                ? `${getEstimatedCostTotal().toLocaleString('tr-TR', {
                     minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
+                    maximumFractionDigits: 2
                   })} ₺`
-                : "-"}
+                : '-'}
             </td>
             <td className="p-3.5 border border-slate-200 dark:border-slate-800 bg-emerald-500/[0.02] dark:bg-emerald-500/[0.005]"></td>
           </tr>
         </tbody>
       </table>
     </div>
-  );
+  )
 }

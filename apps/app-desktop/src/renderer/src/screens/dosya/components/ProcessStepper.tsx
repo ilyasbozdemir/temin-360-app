@@ -67,11 +67,7 @@ const STEPS: StepConfig[] = [
     shortLabel: 'Muayene & Kabul & Ödeme',
     route: '/dosya/kabul-ve-odeme',
     icon: CheckCircle2,
-    docTemplates: [
-      'muayene-kabul-tutanagi',
-      'muayene-kabul-komisyonu',
-      'fatura-ve-odeme-belgesi'
-    ]
+    docTemplates: ['muayene-kabul-tutanagi', 'muayene-kabul-komisyonu', 'fatura-ve-odeme-belgesi']
   }
 ]
 
@@ -97,11 +93,7 @@ export function ProcessStepper({ currentRoute }: ProcessStepperProps): React.JSX
 
   const handleWarmStep = (step: StepConfig | null) => {
     if (activeDosyaId && step && step.docTemplates) {
-      documentPreloadService.warmStageDocuments(
-        step.shortLabel,
-        activeDosyaId,
-        step.docTemplates
-      )
+      documentPreloadService.warmStageDocuments(step.shortLabel, activeDosyaId, step.docTemplates)
     }
   }
 

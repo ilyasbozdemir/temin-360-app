@@ -1,7 +1,7 @@
-import React from "react";
-import { Award, Calendar } from "lucide-react";
+import React from 'react'
+import { Award, Calendar } from 'lucide-react'
 
-import { PiyasaFiyatFormSettingsBarProps } from "./types";
+import { PiyasaFiyatFormSettingsBarProps } from './types'
 
 export function PiyasaFiyatFormSettingsBar({
   formMode,
@@ -15,19 +15,17 @@ export function PiyasaFiyatFormSettingsBar({
   setSetLowestFirmAsWinner,
   manualWinnerFirmaId,
   setManualWinnerFirmaId,
-  invitedFirms,
+  invitedFirms
 }: PiyasaFiyatFormSettingsBarProps): React.JSX.Element {
   return (
     <div className="bg-slate-50/90 dark:bg-slate-900/80 p-3 px-4 md:px-8 flex flex-wrap items-center justify-between gap-3 text-xs border-b border-slate-100 dark:border-slate-800/40">
       {/* Dates & Basis Info */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-2xs h-9">
-          <span className="text-slate-500 dark:text-slate-400 font-medium">
-            Hesaplama Esası:
-          </span>
+          <span className="text-slate-500 dark:text-slate-400 font-medium">Hesaplama Esası:</span>
           {setHesaplamaEsasi ? (
             <select
-              value={hesaplamaEsasi || "Ortalama fiyat esasına göre"}
+              value={hesaplamaEsasi || 'Ortalama fiyat esasına göre'}
               onChange={(e) => setHesaplamaEsasi(e.target.value)}
               className="bg-transparent border-none text-xs font-extrabold focus:outline-none cursor-pointer text-indigo-600 dark:text-indigo-400"
             >
@@ -44,7 +42,7 @@ export function PiyasaFiyatFormSettingsBar({
         <span className="text-slate-300 dark:text-slate-700">•</span>
 
         {/* Date Inputs */}
-        {formMode !== "tutanak" && (
+        {formMode !== 'tutanak' && (
           <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-2xs h-9">
             <Calendar className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
             <span className="text-slate-500 dark:text-slate-400 font-medium">
@@ -59,12 +57,10 @@ export function PiyasaFiyatFormSettingsBar({
           </div>
         )}
 
-        {formMode !== "maliyet" && (
+        {formMode !== 'maliyet' && (
           <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-2xs h-9">
             <Calendar className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-            <span className="text-slate-500 dark:text-slate-400 font-medium">
-              Tutanak Tarihi:
-            </span>
+            <span className="text-slate-500 dark:text-slate-400 font-medium">Tutanak Tarihi:</span>
             <input
               type="date"
               value={tutanakTarihi}
@@ -96,19 +92,15 @@ export function PiyasaFiyatFormSettingsBar({
               Kazanan Firma:
             </span>
             <select
-              value={manualWinnerFirmaId ?? ""}
+              value={manualWinnerFirmaId ?? ''}
               onChange={(e) =>
-                setManualWinnerFirmaId(
-                  e.target.value ? Number(e.target.value) : null,
-                )}
+                setManualWinnerFirmaId(e.target.value ? Number(e.target.value) : null)
+              }
               className="bg-transparent border-none text-xs font-extrabold focus:outline-none cursor-pointer text-slate-800 dark:text-slate-200 max-w-45 truncate"
             >
               <option value="">-- Firma Seç --</option>
               {invitedFirms.map((f, idx) => (
-                <option
-                  key={`winner_firm_${f.id || f.firma_id}_${idx}`}
-                  value={f.firma_id}
-                >
+                <option key={`winner_firm_${f.id || f.firma_id}_${idx}`} value={f.firma_id}>
                   {f.unvan}
                 </option>
               ))}
@@ -117,5 +109,5 @@ export function PiyasaFiyatFormSettingsBar({
         )}
       </div>
     </div>
-  );
+  )
 }

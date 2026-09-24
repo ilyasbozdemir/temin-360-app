@@ -71,8 +71,7 @@ export function usePiyasaFiyatCalculation(
       if (!activeDosyaId) return
       try {
         const isLowestBasis =
-          newEsas?.toLowerCase().includes('en düşük') ||
-          newEsas?.toLowerCase().includes('en dusuk')
+          newEsas?.toLowerCase().includes('en düşük') || newEsas?.toLowerCase().includes('en dusuk')
 
         let totalDecimal = new Decimal(0)
         items.forEach((item) => {

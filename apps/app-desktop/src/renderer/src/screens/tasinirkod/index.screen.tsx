@@ -1,13 +1,5 @@
 import React, { useState } from 'react'
-import {
-  FolderTree,
-  Plus,
-  Trash2,
-  Search,
-  Hash,
-  AlertCircle,
-  ExternalLink
-} from 'lucide-react'
+import { FolderTree, Plus, Trash2, Search, Hash, AlertCircle, ExternalLink } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Modal } from '../../components/ui/Modal'

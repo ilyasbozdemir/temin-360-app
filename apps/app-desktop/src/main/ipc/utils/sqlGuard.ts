@@ -19,7 +19,9 @@ export function validateSqlQuery(sql: string, _params: any[] = []): void {
 
   // 2. Reject destructive DDL statements (DROP, TRUNCATE, ALTER)
   if (/\b(DROP|TRUNCATE|ALTER)\s+TABLE\b/i.test(cleanSql)) {
-    throw new Error('[sqlGuard] Destructive DDL operations (DROP/TRUNCATE/ALTER) are prohibited via IPC.')
+    throw new Error(
+      '[sqlGuard] Destructive DDL operations (DROP/TRUNCATE/ALTER) are prohibited via IPC.'
+    )
   }
 
   // 3. Reject mass DELETE / UPDATE without WHERE clause (whitespace-resilient regex)

@@ -32,8 +32,7 @@ export function PiyasaFiyatKarsilastirmaTab({
       })
 
       if (firmPricesBefore.length > 0) {
-        beforeUnitPrice =
-          firmPricesBefore.reduce((a, b) => a + b, 0) / firmPricesBefore.length
+        beforeUnitPrice = firmPricesBefore.reduce((a, b) => a + b, 0) / firmPricesBefore.length
       } else {
         beforeUnitPrice = getAverageBid(item.id) || 0
       }
@@ -46,8 +45,7 @@ export function PiyasaFiyatKarsilastirmaTab({
 
       const diffTotal = beforeTotal - afterTotal
       const diffUnitPrice = beforeUnitPrice - afterUnitPrice
-      const percentage =
-        beforeTotal > 0 ? ((beforeTotal - afterTotal) / beforeTotal) * 100 : 0
+      const percentage = beforeTotal > 0 ? ((beforeTotal - afterTotal) / beforeTotal) * 100 : 0
 
       return {
         id: item.id,
@@ -80,7 +78,9 @@ export function PiyasaFiyatKarsilastirmaTab({
   const overallSavingsRate = totalBefore > 0 ? (netSavings / totalBefore) * 100 : 0
 
   const formatCurrency = (val: number): string => {
-    return val.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₺'
+    return (
+      val.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₺'
+    )
   }
 
   if (items.length === 0) {
@@ -89,7 +89,8 @@ export function PiyasaFiyatKarsilastirmaTab({
         <AlertCircle className="w-8 h-8 mx-auto mb-2 text-amber-500" />
         <h4 className="font-bold text-sm">Karşılaştırma Yapılacak Kalem Bulunamadı</h4>
         <p className="text-xs mt-1 text-amber-600 dark:text-amber-400">
-          Öncesi-Sonrası karşılaştırma tablosunu görüntülemek için önce ihtiyaç listesini ve teklifleri giriniz.
+          Öncesi-Sonrası karşılaştırma tablosunu görüntülemek için önce ihtiyaç listesini ve
+          teklifleri giriniz.
         </p>
       </div>
     )

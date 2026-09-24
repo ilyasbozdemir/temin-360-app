@@ -121,7 +121,9 @@ export default function KomisyonGorevleriScreen({
             tableName="TANIM_KomisyonGorevi"
             title="Komisyon Görevleri"
             uniqueCol="id"
-            onImportSuccess={() => queryClient.invalidateQueries({ queryKey: ['komisyon_gorevleri'] })}
+            onImportSuccess={() =>
+              queryClient.invalidateQueries({ queryKey: ['komisyon_gorevleri'] })
+            }
           />
           <Button
             onClick={handleAdd}

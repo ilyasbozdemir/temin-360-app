@@ -162,7 +162,9 @@ export const DatabaseArchiveTab: React.FC<DatabaseArchiveTabProps> = ({
               <Input
                 type="number"
                 value={archiveYear}
-                onChange={(e) => setArchiveYear(parseInt(e.target.value, 10) || new Date().getFullYear())}
+                onChange={(e) =>
+                  setArchiveYear(parseInt(e.target.value, 10) || new Date().getFullYear())
+                }
                 className="w-24 h-8 text-xs font-bold text-center bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800"
                 min={2000}
                 max={2050}
@@ -175,7 +177,9 @@ export const DatabaseArchiveTab: React.FC<DatabaseArchiveTabProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50">
             <div className="flex items-center justify-between text-slate-500 mb-1">
-              <span className="text-[11px] font-semibold uppercase tracking-wider">Toplam Dosya</span>
+              <span className="text-[11px] font-semibold uppercase tracking-wider">
+                Toplam Dosya
+              </span>
               <FolderArchive className="w-4 h-4 text-blue-500" />
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-slate-100">
@@ -208,16 +212,23 @@ export const DatabaseArchiveTab: React.FC<DatabaseArchiveTabProps> = ({
 
           <div className="p-3.5 rounded-xl border border-purple-200/80 dark:border-purple-900/40 bg-purple-50/40 dark:bg-purple-950/20">
             <div className="flex items-center justify-between text-purple-600 dark:text-purple-400 mb-1">
-              <span className="text-[11px] font-semibold uppercase tracking-wider">Toplam Harcama</span>
+              <span className="text-[11px] font-semibold uppercase tracking-wider">
+                Toplam Harcama
+              </span>
               <Coins className="w-4 h-4" />
             </div>
             <div className="text-base font-bold text-purple-700 dark:text-purple-300 truncate">
               {loadingSummary
                 ? '...'
-                : (yearSummary?.totalSozlesmeBedeli || yearSummary?.totalYaklasikMaliyet || 0).toLocaleString(
-                    'tr-TR',
-                    { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }
-                  )}
+                : (
+                    yearSummary?.totalSozlesmeBedeli ||
+                    yearSummary?.totalYaklasikMaliyet ||
+                    0
+                  ).toLocaleString('tr-TR', {
+                    style: 'currency',
+                    currency: 'TRY',
+                    maximumFractionDigits: 0
+                  })}
             </div>
             <span className="text-[10px] text-purple-600/70">Yıllık gerçekleşme</span>
           </div>
@@ -234,7 +245,8 @@ export const DatabaseArchiveTab: React.FC<DatabaseArchiveTabProps> = ({
             </div>
             <p className="text-xs text-slate-500 max-w-xl">
               Ödemesi ve kabulü tamamlanmış dosyaların durumunu resmi olarak <b>KAPANDI</b> yapar.
-              Bu sayede yıl sonu Sayıştay denetimleri ve kesin hesap raporları için evraklar sabitlenir.
+              Bu sayede yıl sonu Sayıştay denetimleri ve kesin hesap raporları için evraklar
+              sabitlenir.
             </p>
           </div>
 
@@ -257,8 +269,8 @@ export const DatabaseArchiveTab: React.FC<DatabaseArchiveTabProps> = ({
               Doğrudan Temin & İhale Arşivi Oluştur
             </h2>
             <p className="text-xs text-slate-500">
-              Belirlediğiniz mali yıla ait dosyaları bağımsız ve taşınabilir bir <b>.tmn360</b> arşiv
-              paketine dönüştürür.
+              Belirlediğiniz mali yıla ait dosyaları bağımsız ve taşınabilir bir <b>.tmn360</b>{' '}
+              arşiv paketine dönüştürür.
             </p>
           </div>
         </div>
@@ -296,8 +308,9 @@ export const DatabaseArchiveTab: React.FC<DatabaseArchiveTabProps> = ({
                   Arşivlendikten sonra ana veritabanından kaldır (Veritabanını hafiflet)
                 </span>
                 <p className="text-[11px] text-slate-500">
-                  İşaretlenirse, arşivlenen dosyalar mevcut çalışma alanınızdan silinerek sistem hızlandırılır.
-                  İstediğiniz zaman oluşturulan <b>.tmn360</b> dosyasını açıp eski verilere ulaşabilirsiniz.
+                  İşaretlenirse, arşivlenen dosyalar mevcut çalışma alanınızdan silinerek sistem
+                  hızlandırılır. İstediğiniz zaman oluşturulan <b>.tmn360</b> dosyasını açıp eski
+                  verilere ulaşabilirsiniz.
                 </p>
               </div>
             </label>
@@ -306,15 +319,20 @@ export const DatabaseArchiveTab: React.FC<DatabaseArchiveTabProps> = ({
           <div className="pt-2 flex items-center justify-between border-t border-slate-200/60 dark:border-slate-800">
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span>Arşiv paketi tüm kalemleri, firmaları, teklifleri ve şablon verilerini eksiksiz barındırır.</span>
+              <span>
+                Arşiv paketi tüm kalemleri, firmaları, teklifleri ve şablon verilerini eksiksiz
+                barındırır.
+              </span>
             </div>
 
             <Button
               onClick={handleStartArchive}
-              disabled={isArchiving || (yearSummary?.totalCount === 0)}
+              disabled={isArchiving || yearSummary?.totalCount === 0}
               className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl px-5 py-2.5 text-xs font-bold shadow-sm"
             >
-              {isArchiving ? 'Arşiv Paketi Hazırlanıyor...' : `${archiveYear} Yılı Arşivini Oluştur (.tmn360)`}
+              {isArchiving
+                ? 'Arşiv Paketi Hazırlanıyor...'
+                : `${archiveYear} Yılı Arşivini Oluştur (.tmn360)`}
             </Button>
           </div>
         </div>
@@ -344,7 +362,8 @@ export const DatabaseArchiveTab: React.FC<DatabaseArchiveTabProps> = ({
               </h3>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 h-9">
-              Tüm kalemlerinizi, dosyalarınızı, birimlerinizi ve komisyon bilgilerinizi tam yedekleyin.
+              Tüm kalemlerinizi, dosyalarınızı, birimlerinizi ve komisyon bilgilerinizi tam
+              yedekleyin.
             </p>
             <Button
               onClick={async () => {
@@ -375,7 +394,8 @@ export const DatabaseArchiveTab: React.FC<DatabaseArchiveTabProps> = ({
               </h3>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 h-9">
-              Daha önce aldığınız bir .sqlite yedeğini geri yükleyin. Mevcut verilerin üzerine yazılır.
+              Daha önce aldığınız bir .sqlite yedeğini geri yükleyin. Mevcut verilerin üzerine
+              yazılır.
             </p>
             <Button
               onClick={async () => {
@@ -410,4 +430,3 @@ export const DatabaseArchiveTab: React.FC<DatabaseArchiveTabProps> = ({
     </div>
   )
 }
-

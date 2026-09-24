@@ -178,10 +178,8 @@ export const TEMPLATE_GROUPS: TemplateGroup[] = [
  * Hızlı lookup Record: dosya_adi → { grup, etiket, siralama }
  * useDosyaAsamasiSablons ve diğer UI bileşenleri için dinamik olarak üretilir.
  */
-export const SABLON_GRUPLARI: Record<
-  string,
-  { grup: string; etiket: string; siralama: number }
-> = {}
+export const SABLON_GRUPLARI: Record<string, { grup: string; etiket: string; siralama: number }> =
+  {}
 
 for (const g of TEMPLATE_GROUPS) {
   g.sablonlar.forEach((s, i) => {

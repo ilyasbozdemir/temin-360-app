@@ -21,7 +21,16 @@ export interface Proje {
   harcama_yuzdesi?: number
 }
 
-export type ProjeInput = Omit<Proje, 'id' | 'created_at' | 'updated_at' | 'dosya_sayisi' | 'harcanan_tutar' | 'kalan_butce' | 'harcama_yuzdesi'>
+export type ProjeInput = Omit<
+  Proje,
+  | 'id'
+  | 'created_at'
+  | 'updated_at'
+  | 'dosya_sayisi'
+  | 'harcanan_tutar'
+  | 'kalan_butce'
+  | 'harcama_yuzdesi'
+>
 
 const fetchProjeler = async (): Promise<Proje[]> => {
   if (!window.electron) return []
@@ -37,7 +46,7 @@ const fetchProjeler = async (): Promise<Proje[]> => {
     ORDER BY p.id DESC`
   )
   if (!res.success) throw new Error(res.error)
-  
+
   return (res.data || []).map((p: any) => {
     const toplam = Number(p.toplam_butce) || 0
     const harcanan = Number(p.harcanan_tutar) || 0
@@ -69,7 +78,8 @@ export function useProjeHooks() {
         `INSERT INTO TANIM_Proje (proje_kodu, proje_adi, aciklama, toplam_butce, baslangic_tarihi, bitis_tarihi, lokasyon, durum, renk, aktif_mi)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
         [
-          proje.proje_kodu || `PRJ-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
+          proje.proje_kodu ||
+            `PRJ-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
           proje.proje_adi || '',
           proje.aciklama || '',
           Number(proje.toplam_butce) || 0,

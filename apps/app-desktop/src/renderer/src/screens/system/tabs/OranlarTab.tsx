@@ -65,7 +65,12 @@ export function OranlarTab(): React.JSX.Element {
     { id: '2', ad: 'Özel Güvenlik ve İşgücü Temin Hizmetleri', pay: 9, payda: 10 },
     { id: '3', ad: 'Danışmanlık, Denetim ve Müşavirlik Hizmetleri', pay: 9, payda: 10 },
     { id: '4', ad: 'Makine, Teçhizat, Demirbaş Bakım Onarım', pay: 7, payda: 10 },
-    { id: '5', ad: 'Yapım İşleri ile Mimarlık-Mühendislik ve Etüt-Proje Hizmetleri', pay: 4, payda: 10 },
+    {
+      id: '5',
+      ad: 'Yapım İşleri ile Mimarlık-Mühendislik ve Etüt-Proje Hizmetleri',
+      pay: 4,
+      payda: 10
+    },
     { id: '6', ad: 'Yemek Servis ve Organizasyon Hizmetleri', pay: 5, payda: 10 },
     { id: '7', ad: 'Servis ve Servis Taşımacılığı Hizmetleri', pay: 5, payda: 10 },
     { id: '8', ad: 'Diğer Hizmet Alımları', pay: 5, payda: 10 }

@@ -66,7 +66,11 @@ export function MalzemeGridCard({
 
       {item.gorsel_url && (
         <div className="w-full h-32 mb-3 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800 flex items-center justify-center">
-          <img src={item.gorsel_url} alt={item.kalem_adi} className="w-full h-full object-contain" />
+          <img
+            src={item.gorsel_url}
+            alt={item.kalem_adi}
+            className="w-full h-full object-contain"
+          />
         </div>
       )}
 
@@ -127,4 +131,3 @@ export function MalzemeGridCard({
     </div>
   )
 }
-

@@ -74,7 +74,6 @@ export function SayiyiYaziyaCevirModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
-        
         {/* Header */}
         <div className="p-5 md:p-6 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-slate-50/60 dark:from-blue-950/30 dark:via-slate-900 dark:to-slate-900 flex items-center justify-between">
           <div className="flex items-center gap-3.5">
@@ -89,7 +88,8 @@ export function SayiyiYaziyaCevirModal({
                 </span>
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                İhale, teklif ve hakediş dokümanlarında kullanılan resmi &quot;Yazı ile&quot; çevirici
+                İhale, teklif ve hakediş dokümanlarında kullanılan resmi &quot;Yazı ile&quot;
+                çevirici
               </p>
             </div>
           </div>
@@ -103,7 +103,6 @@ export function SayiyiYaziyaCevirModal({
 
         {/* Body */}
         <div className="p-5 md:p-6 space-y-5 overflow-y-auto max-h-[calc(85vh-140px)]">
-          
           {/* Tutar Giriş Alanı */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
@@ -208,7 +207,9 @@ export function SayiyiYaziyaCevirModal({
                     onClick={() => handleCurrencyChange(curr)}
                     className={cn(
                       'flex-1 py-1.5 text-xs font-bold rounded-lg transition-all',
-                      paraBirimi.startsWith(curr === 'TL' ? 'TL' : curr === 'USD' ? 'DOLAR' : 'EURO')
+                      paraBirimi.startsWith(
+                        curr === 'TL' ? 'TL' : curr === 'USD' ? 'DOLAR' : 'EURO'
+                      )
                         ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-sm'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                     )}
@@ -272,8 +273,13 @@ export function SayiyiYaziyaCevirModal({
           <div className="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/70 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed flex items-start gap-2.5">
             <Info size={16} className="text-blue-500 shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold text-slate-700 dark:text-slate-300">Kamu Mevzuat Kuralı: </span>
-              4734 sayılı Kamu İhale Kanunu ve Muhasebat standartlarına göre <b>&quot;BİR BİN&quot;</b> yerine yalnızca <b>&quot;BİN&quot;</b>, <b>&quot;BİR YÜZ&quot;</b> yerine <b>&quot;YÜZ&quot;</b> ifadeleri kullanılır. Tutarlar otomatik olarak bu kurala göre sadeleştirilir.
+              <span className="font-bold text-slate-700 dark:text-slate-300">
+                Kamu Mevzuat Kuralı:{' '}
+              </span>
+              4734 sayılı Kamu İhale Kanunu ve Muhasebat standartlarına göre{' '}
+              <b>&quot;BİR BİN&quot;</b> yerine yalnızca <b>&quot;BİN&quot;</b>,{' '}
+              <b>&quot;BİR YÜZ&quot;</b> yerine <b>&quot;YÜZ&quot;</b> ifadeleri kullanılır.
+              Tutarlar otomatik olarak bu kurala göre sadeleştirilir.
             </div>
           </div>
         </div>
@@ -292,7 +298,6 @@ export function SayiyiYaziyaCevirModal({
             Kapat
           </button>
         </div>
-
       </div>
     </div>
   )

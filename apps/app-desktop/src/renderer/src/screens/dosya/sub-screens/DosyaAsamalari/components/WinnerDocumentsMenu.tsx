@@ -108,7 +108,11 @@ export function WinnerDocumentsMenu({
           </DropdownMenuItem>
         )}
 
-        <DropdownMenuItem onClick={onPrintContract} disabled={!onPrintContract} className="cursor-pointer">
+        <DropdownMenuItem
+          onClick={onPrintContract}
+          disabled={!onPrintContract}
+          className="cursor-pointer"
+        >
           <FileSignature className="mr-2 h-4 w-4 text-violet-600" />
           <span>Doğrudan Temin Sözleşmesi (Standart)</span>
         </DropdownMenuItem>
@@ -170,4 +174,3 @@ export function WinnerDocumentsMenu({
     </DropdownMenu>
   )
 }
-

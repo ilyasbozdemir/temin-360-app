@@ -118,7 +118,10 @@ function formatCase(text: string, caseType: 'UPPER' | 'LOWER' | 'TITLE'): string
   if (caseType === 'TITLE') {
     return text
       .split(' ')
-      .map((word) => word.charAt(0).toLocaleUpperCase('tr-TR') + word.slice(1).toLocaleLowerCase('tr-TR'))
+      .map(
+        (word) =>
+          word.charAt(0).toLocaleUpperCase('tr-TR') + word.slice(1).toLocaleLowerCase('tr-TR')
+      )
       .join(' ')
   }
   return text
@@ -131,31 +134,31 @@ export const SAMPLE_YIUFE_INDEXES = [
   { yil: 2024, ay: 'Ocak', endeks: 3120.45 },
   { yil: 2024, ay: 'Şubat', endeks: 3237.15 },
   { yil: 2024, ay: 'Mart', endeks: 3343.82 },
-  { yil: 2024, ay: 'Nisan', endeks: 3464.20 },
+  { yil: 2024, ay: 'Nisan', endeks: 3464.2 },
   { yil: 2024, ay: 'Mayıs', endeks: 3532.11 },
   { yil: 2024, ay: 'Haziran', endeks: 3534.62 },
-  { yil: 2024, ay: 'Temmuz', endeks: 3603.20 },
+  { yil: 2024, ay: 'Temmuz', endeks: 3603.2 },
   { yil: 2024, ay: 'Ağustos', endeks: 3663.95 },
-  { yil: 2024, ay: 'Eylül', endeks: 3714.50 },
-  { yil: 2024, ay: 'Ekim', endeks: 3762.40 },
+  { yil: 2024, ay: 'Eylül', endeks: 3714.5 },
+  { yil: 2024, ay: 'Ekim', endeks: 3762.4 },
   { yil: 2024, ay: 'Kasım', endeks: 3821.15 },
-  { yil: 2024, ay: 'Aralık', endeks: 3878.80 },
-  { yil: 2025, ay: 'Ocak', endeks: 3995.20 },
-  { yil: 2025, ay: 'Şubat', endeks: 4085.60 },
-  { yil: 2025, ay: 'Mart', endeks: 4180.10 },
-  { yil: 2025, ay: 'Nisan', endeks: 4290.40 },
-  { yil: 2025, ay: 'Mayıs', endeks: 4385.00 },
-  { yil: 2025, ay: 'Haziran', endeks: 4470.20 },
-  { yil: 2025, ay: 'Temmuz', endeks: 4575.80 },
-  { yil: 2025, ay: 'Ağustos', endeks: 4660.10 },
-  { yil: 2025, ay: 'Eylül', endeks: 4745.30 },
-  { yil: 2025, ay: 'Ekim', endeks: 4830.00 },
-  { yil: 2025, ay: 'Kasım', endeks: 4910.50 },
-  { yil: 2025, ay: 'Aralık', endeks: 4995.00 },
-  { yil: 2026, ay: 'Ocak', endeks: 5120.00 },
-  { yil: 2026, ay: 'Şubat', endeks: 5210.00 },
-  { yil: 2026, ay: 'Mart', endeks: 5315.00 },
-  { yil: 2026, ay: 'Nisan', endeks: 5420.00 }
+  { yil: 2024, ay: 'Aralık', endeks: 3878.8 },
+  { yil: 2025, ay: 'Ocak', endeks: 3995.2 },
+  { yil: 2025, ay: 'Şubat', endeks: 4085.6 },
+  { yil: 2025, ay: 'Mart', endeks: 4180.1 },
+  { yil: 2025, ay: 'Nisan', endeks: 4290.4 },
+  { yil: 2025, ay: 'Mayıs', endeks: 4385.0 },
+  { yil: 2025, ay: 'Haziran', endeks: 4470.2 },
+  { yil: 2025, ay: 'Temmuz', endeks: 4575.8 },
+  { yil: 2025, ay: 'Ağustos', endeks: 4660.1 },
+  { yil: 2025, ay: 'Eylül', endeks: 4745.3 },
+  { yil: 2025, ay: 'Ekim', endeks: 4830.0 },
+  { yil: 2025, ay: 'Kasım', endeks: 4910.5 },
+  { yil: 2025, ay: 'Aralık', endeks: 4995.0 },
+  { yil: 2026, ay: 'Ocak', endeks: 5120.0 },
+  { yil: 2026, ay: 'Şubat', endeks: 5210.0 },
+  { yil: 2026, ay: 'Mart', endeks: 5315.0 },
+  { yil: 2026, ay: 'Nisan', endeks: 5420.0 }
 ]
 
 /**
@@ -213,14 +216,62 @@ export interface TevkifatSecenegi {
 }
 
 export const TEVKIFAT_ORANLARI: TevkifatSecenegi[] = [
-  { kod: '0/10', ad: 'Tevkifatsız (0/10)', pay: 0, payda: 10, aciklama: 'Normal alımlar ve tevkifata tabi olmayan işlemler' },
-  { kod: '2/10', ad: '2/10 Tevkifat', pay: 2, payda: 10, aciklama: 'Et ve et ürünleri, pamuk, tiftik vb.' },
-  { kod: '3/10', ad: '3/10 Tevkifat', pay: 3, payda: 10, aciklama: 'Yapım işleri ile bu işlerle birlikte ifa edilen mühendislik/mimarlık hizmetleri' },
-  { kod: '4/10', ad: '4/10 Tevkifat', pay: 4, payda: 10, aciklama: 'Yemek servis ve organizasyon hizmetleri' },
-  { kod: '5/10', ad: '5/10 Tevkifat', pay: 5, payda: 10, aciklama: 'Servis taşımacılığı, baskı-basım, makine-teçhizat bakım ve onarım hizmetleri' },
-  { kod: '7/10', ad: '7/10 Tevkifat', pay: 7, payda: 10, aciklama: 'Özel güvenlik ve koruma hizmetleri' },
-  { kod: '9/10', ad: '9/10 Tevkifat', pay: 9, payda: 10, aciklama: 'Temizlik, çevre ve bahçe bakım, işgücü temin hizmetleri' },
-  { kod: '10/10', ad: '10/10 Tam Tevkifat', pay: 10, payda: 10, aciklama: 'KDV’nin tamamının idare tarafından kesilerek beyan edilmesi' }
+  {
+    kod: '0/10',
+    ad: 'Tevkifatsız (0/10)',
+    pay: 0,
+    payda: 10,
+    aciklama: 'Normal alımlar ve tevkifata tabi olmayan işlemler'
+  },
+  {
+    kod: '2/10',
+    ad: '2/10 Tevkifat',
+    pay: 2,
+    payda: 10,
+    aciklama: 'Et ve et ürünleri, pamuk, tiftik vb.'
+  },
+  {
+    kod: '3/10',
+    ad: '3/10 Tevkifat',
+    pay: 3,
+    payda: 10,
+    aciklama: 'Yapım işleri ile bu işlerle birlikte ifa edilen mühendislik/mimarlık hizmetleri'
+  },
+  {
+    kod: '4/10',
+    ad: '4/10 Tevkifat',
+    pay: 4,
+    payda: 10,
+    aciklama: 'Yemek servis ve organizasyon hizmetleri'
+  },
+  {
+    kod: '5/10',
+    ad: '5/10 Tevkifat',
+    pay: 5,
+    payda: 10,
+    aciklama: 'Servis taşımacılığı, baskı-basım, makine-teçhizat bakım ve onarım hizmetleri'
+  },
+  {
+    kod: '7/10',
+    ad: '7/10 Tevkifat',
+    pay: 7,
+    payda: 10,
+    aciklama: 'Özel güvenlik ve koruma hizmetleri'
+  },
+  {
+    kod: '9/10',
+    ad: '9/10 Tevkifat',
+    pay: 9,
+    payda: 10,
+    aciklama: 'Temizlik, çevre ve bahçe bakım, işgücü temin hizmetleri'
+  },
+  {
+    kod: '10/10',
+    ad: '10/10 Tam Tevkifat',
+    pay: 10,
+    payda: 10,
+    aciklama: 'KDV’nin tamamının idare tarafından kesilerek beyan edilmesi'
+  }
 ]
 
 export interface KdvTevkifatHesaplaParams {
@@ -296,7 +347,11 @@ export interface DamgaVergisiSonuc {
 
 export function calculateDamgaVergisi(
   matrah: number,
-  options: { includeKararPulu?: boolean; includeSozlesmeDamga?: boolean; includeKikPayi?: boolean } = {}
+  options: {
+    includeKararPulu?: boolean
+    includeSozlesmeDamga?: boolean
+    includeKikPayi?: boolean
+  } = {}
 ): DamgaVergisiSonuc {
   const { includeKararPulu = true, includeSozlesmeDamga = true, includeKikPayi = true } = options
 

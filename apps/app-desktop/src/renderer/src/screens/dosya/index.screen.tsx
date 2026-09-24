@@ -575,10 +575,7 @@ export default function DosyaScreen(): React.JSX.Element {
 
                   {/* Dosya Notları & Yapılacaklar (To-Do) Widget'ı */}
                   {activeDosyaId && (
-                    <DosyaNotlariWidget
-                      dosyaId={activeDosyaId}
-                      dosyaNo={dosyaData.temin_no}
-                    />
+                    <DosyaNotlariWidget dosyaId={activeDosyaId} dosyaNo={dosyaData.temin_no} />
                   )}
 
                   {/* Aşamalar Kısayolu */}
@@ -717,7 +714,8 @@ export default function DosyaScreen(): React.JSX.Element {
                   Aktif Çalışma Dosyası Seçilmedi
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Lütfen işlem yapmak istediğiniz süreç türünü seçin veya mevcut dosyalardan birini açın.
+                  Lütfen işlem yapmak istediğiniz süreç türünü seçin veya mevcut dosyalardan birini
+                  açın.
                 </p>
               </div>
 
@@ -736,7 +734,8 @@ export default function DosyaScreen(): React.JSX.Element {
                       Doğrudan Temin (22/d, 22/a)
                     </h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                      Piyasa fiyat araştırması, yaklaşık maliyet, onay belgesi ve doğrudan alım süreçleri.
+                      Piyasa fiyat araştırması, yaklaşık maliyet, onay belgesi ve doğrudan alım
+                      süreçleri.
                     </p>
                   </div>
                   <div className="flex items-center gap-2 pt-2 border-t border-blue-100 dark:border-blue-900/40">
@@ -768,7 +767,8 @@ export default function DosyaScreen(): React.JSX.Element {
                       Açık İhale & Hakediş Yönetimi
                     </h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                      Yapım ve hizmet işleri hakedişleri, pursantaj, fiyat farkı ve ihale sözleşme takibi.
+                      Yapım ve hizmet işleri hakedişleri, pursantaj, fiyat farkı ve ihale sözleşme
+                      takibi.
                     </p>
                   </div>
                   <div className="flex items-center gap-2 pt-2 border-t border-purple-100 dark:border-purple-900/40">

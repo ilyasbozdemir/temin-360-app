@@ -1,13 +1,5 @@
 import React, { useState } from 'react'
-import {
-  AlertTriangle,
-  ArrowRight,
-  FileCheck2,
-  FileCode,
-  Loader2,
-  Sparkles,
-  X
-} from 'lucide-react'
+import { AlertTriangle, ArrowRight, FileCheck2, FileCode, Loader2, Sparkles, X } from 'lucide-react'
 
 interface FormatUpgradeModalProps {
   isOpen: boolean
@@ -96,7 +88,10 @@ export function FormatUpgradeModal({
                     Eski (.{oldExt})
                   </span>
                 </div>
-                <div className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate" title={fileName}>
+                <div
+                  className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate"
+                  title={fileName}
+                >
                   {fileName}
                 </div>
               </div>
@@ -113,7 +108,10 @@ export function FormatUpgradeModal({
                     Yeni (.temin)
                   </span>
                 </div>
-                <div className="text-xs font-bold text-blue-900 dark:text-blue-200 truncate" title={newFileName}>
+                <div
+                  className="text-xs font-bold text-blue-900 dark:text-blue-200 truncate"
+                  title={newFileName}
+                >
                   {newFileName}
                 </div>
               </div>
@@ -123,8 +121,9 @@ export function FormatUpgradeModal({
           <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-2 bg-slate-100/60 dark:bg-slate-800/40 p-3 rounded-lg">
             <Sparkles className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
             <span>
-              <strong>Güvenli Koruma:</strong> Orijinal <code>.{oldExt}</code> dosyanız silinmez, aynı
-              klasörde yeni <code>.temin</code> formatında oluşturularak otomatik olarak açılacaktır.
+              <strong>Güvenli Koruma:</strong> Orijinal <code>.{oldExt}</code> dosyanız silinmez,
+              aynı klasörde yeni <code>.temin</code> formatında oluşturularak otomatik olarak
+              açılacaktır.
             </span>
           </div>
 

@@ -1,10 +1,10 @@
 /**
  * TÜRKÇE SAYI -> YAZI DÖNÜŞTÜRÜCÜ (TL & KURUŞ)
- * 
+ *
  * İhale, doğrudan temin, hakediş ve yaklaşık maliyet evraklarında
  * rakamla belirtilen parasal tutarları mevzuata uygun biçimde
  * büyük harfli Türkçe yazıya çevirir.
- * 
+ *
  * Örnek:
  *   282112      -> "İKİYÜZSEKSENİKİBİN YÜZONİKİ TL"
  *   "282.112,50" -> "İKİYÜZSEKSENİKİBİN YÜZONİKİ TL ELLİ KURUŞ"
@@ -79,7 +79,7 @@ export interface SayiyiYaziyaCevirOptions {
 
 /**
  * Sayısal veya metinsel bir tutarı Türkçe para birimi formatında yazıya çevirir.
- * 
+ *
  * @param raw - "282.112,00", "282112.50" veya 282112.50 gibi değerler
  * @param options - Ek yapılandırma seçenekleri
  */

@@ -109,11 +109,7 @@ export const HizliKadroRow: React.FC<HizliKadroRowProps> = ({
       <button
         type="button"
         onClick={() => onToggleBelgedeGoster(row.id)}
-        title={
-          row.belgedeGoster
-            ? 'Belgede görünür — tıkla gizle'
-            : 'Belgede gizli — tıkla göster'
-        }
+        title={row.belgedeGoster ? 'Belgede görünür — tıkla gizle' : 'Belgede gizli — tıkla göster'}
         className={`inline-flex items-center justify-center px-2 py-1 rounded-xl text-xs font-semibold border transition-all cursor-pointer w-full gap-1 ${
           row.belgedeGoster
             ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'

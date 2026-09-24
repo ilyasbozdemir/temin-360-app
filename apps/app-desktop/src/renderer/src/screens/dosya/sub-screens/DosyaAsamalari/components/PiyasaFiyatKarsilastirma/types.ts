@@ -55,4 +55,3 @@ export interface KarsilastirmaStatCardsProps {
   overallSavingsRate: number
   formatCurrency: (val: number) => string
 }
-

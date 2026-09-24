@@ -30,11 +30,13 @@ export const FirmaList: React.FC<FirmaListProps> = ({
                 : 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-150 dark:border-slate-850'
             }`}
           >
-            <div className={`w-10 h-10 shrink-0 rounded-xl flex items-center justify-center border text-blue-600 dark:text-blue-400 ${
-              firma.kara_liste === 1
-                ? 'bg-red-100 dark:bg-red-950/50 border-red-200 dark:border-red-800 text-red-600'
-                : 'bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50'
-            }`}>
+            <div
+              className={`w-10 h-10 shrink-0 rounded-xl flex items-center justify-center border text-blue-600 dark:text-blue-400 ${
+                firma.kara_liste === 1
+                  ? 'bg-red-100 dark:bg-red-950/50 border-red-200 dark:border-red-800 text-red-600'
+                  : 'bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50'
+              }`}
+            >
               <Building2 className="w-5 h-5" />
             </div>
 

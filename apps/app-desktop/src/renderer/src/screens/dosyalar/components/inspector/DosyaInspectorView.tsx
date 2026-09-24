@@ -1,60 +1,55 @@
-import React, { useState } from "react";
-import { TabType } from "./types";
-import { useDosyaInspectorData } from "./useDosyaInspectorData";
-import { InspectorHeader } from "./InspectorHeader";
-import { InspectorTabBar } from "./InspectorTabBar";
-import { InspectorFooter } from "./InspectorFooter";
-import { InspectorGenelBakisTab } from "./tabs/InspectorGenelBakisTab";
-import { InspectorKunyeTab } from "./tabs/InspectorKunyeTab";
-import { InspectorKalemlerTab } from "./tabs/InspectorKalemlerTab";
-import { InspectorFirmalarTab } from "./tabs/InspectorFirmalarTab";
-import { InspectorKomisyonTab } from "./tabs/InspectorKomisyonTab";
-import { InspectorRawJsonTab } from "./tabs/InspectorRawJsonTab";
+import React, { useState } from 'react'
+import { TabType } from './types'
+import { useDosyaInspectorData } from './useDosyaInspectorData'
+import { InspectorHeader } from './InspectorHeader'
+import { InspectorTabBar } from './InspectorTabBar'
+import { InspectorFooter } from './InspectorFooter'
+import { InspectorGenelBakisTab } from './tabs/InspectorGenelBakisTab'
+import { InspectorKunyeTab } from './tabs/InspectorKunyeTab'
+import { InspectorKalemlerTab } from './tabs/InspectorKalemlerTab'
+import { InspectorFirmalarTab } from './tabs/InspectorFirmalarTab'
+import { InspectorKomisyonTab } from './tabs/InspectorKomisyonTab'
+import { InspectorRawJsonTab } from './tabs/InspectorRawJsonTab'
 
 export interface DosyaInspectorViewProps {
-  dosya: any;
-  mode?: "modal" | "screen";
-  onClose?: () => void;
-  className?: string;
+  dosya: any
+  mode?: 'modal' | 'screen'
+  onClose?: () => void
+  className?: string
 }
 
 export const DosyaInspectorView: React.FC<DosyaInspectorViewProps> = ({
   dosya,
-  mode = "modal",
+  mode = 'modal',
   onClose,
-  className = "",
+  className = ''
 }) => {
-  const [activeTab, setActiveTab] = useState<TabType>("genel");
+  const [activeTab, setActiveTab] = useState<TabType>('genel')
   const {
     dosya: d,
     subData,
     loading,
     toplamYaklasikMaliyet,
-    fullPayload,
-  } = useDosyaInspectorData(dosya);
+    fullPayload
+  } = useDosyaInspectorData(dosya)
 
   if (!d || !d.id) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-slate-400">
         <p className="text-sm font-medium">Dosya verisi bulunamadı veya henüz seçilmedi.</p>
       </div>
-    );
+    )
   }
 
   const containerClasses =
-    mode === "screen"
+    mode === 'screen'
       ? `flex-1 flex flex-col h-full min-h-0 bg-slate-50 dark:bg-slate-950 overflow-hidden ${className}`
-      : `bg-white dark:bg-slate-900 w-full max-w-6xl max-h-[92vh] rounded-3xl shadow-2xl flex flex-col border border-slate-200/80 dark:border-slate-800 overflow-hidden ring-1 ring-slate-900/10 dark:ring-white/10 ${className}`;
+      : `bg-white dark:bg-slate-900 w-full max-w-6xl max-h-[92vh] rounded-3xl shadow-2xl flex flex-col border border-slate-200/80 dark:border-slate-800 overflow-hidden ring-1 ring-slate-900/10 dark:ring-white/10 ${className}`
 
   return (
     <div className={containerClasses} onClick={(e) => e.stopPropagation()}>
       {/* HEADER */}
-      <InspectorHeader
-        dosya={d}
-        subData={subData}
-        mode={mode}
-        onClose={onClose}
-      />
+      <InspectorHeader dosya={d} subData={subData} mode={mode} onClose={onClose} />
 
       {/* TAB BAR */}
       <InspectorTabBar
@@ -75,7 +70,7 @@ export const DosyaInspectorView: React.FC<DosyaInspectorViewProps> = ({
           </div>
         )}
 
-        {activeTab === "genel" && (
+        {activeTab === 'genel' && (
           <InspectorGenelBakisTab
             dosya={d}
             subData={subData}
@@ -84,35 +79,26 @@ export const DosyaInspectorView: React.FC<DosyaInspectorViewProps> = ({
           />
         )}
 
-        {activeTab === "kunye" && (
-          <InspectorKunyeTab
-            dosya={d}
-            toplamYaklasikMaliyet={toplamYaklasikMaliyet}
-          />
+        {activeTab === 'kunye' && (
+          <InspectorKunyeTab dosya={d} toplamYaklasikMaliyet={toplamYaklasikMaliyet} />
         )}
 
-        {activeTab === "kalemler" && (
+        {activeTab === 'kalemler' && (
           <InspectorKalemlerTab
             kalemler={subData.kalemler}
             toplamYaklasikMaliyet={toplamYaklasikMaliyet}
           />
         )}
 
-        {activeTab === "firmalar" && (
-          <InspectorFirmalarTab firmalar={subData.firmalar} />
-        )}
+        {activeTab === 'firmalar' && <InspectorFirmalarTab firmalar={subData.firmalar} />}
 
-        {activeTab === "komisyon" && (
-          <InspectorKomisyonTab komisyon={subData.komisyon} />
-        )}
+        {activeTab === 'komisyon' && <InspectorKomisyonTab komisyon={subData.komisyon} />}
 
-        {activeTab === "rawjson" && (
-          <InspectorRawJsonTab payload={fullPayload} />
-        )}
+        {activeTab === 'rawjson' && <InspectorRawJsonTab payload={fullPayload} />}
       </div>
 
       {/* FOOTER */}
       <InspectorFooter dosya={d} mode={mode} onClose={onClose} />
     </div>
-  );
-};
+  )
+}

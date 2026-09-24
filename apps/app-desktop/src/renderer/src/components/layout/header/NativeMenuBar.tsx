@@ -124,8 +124,7 @@ export function NativeMenuBar({
             }}
             title="Diğer Menüler"
             className={`p-1 px-1.5 rounded-md transition-colors cursor-pointer flex items-center justify-center ${
-              activeMenu === '__overflow__' ||
-              overflowMenus.some((m) => m.name === activeMenu)
+              activeMenu === '__overflow__' || overflowMenus.some((m) => m.name === activeMenu)
                 ? isDt
                   ? 'bg-blue-100 dark:bg-blue-950 text-blue-900 dark:text-blue-200 font-semibold'
                   : 'bg-indigo-100 dark:bg-indigo-950 text-indigo-900 dark:text-indigo-200 font-semibold'

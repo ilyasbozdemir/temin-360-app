@@ -142,30 +142,60 @@
     <!-- TEK SAYFA BÜTÜNLEŞİK BİRİM FİYAT TEKLİF MEKTUBU VE CETVELİ -->
     <div class="page-container">
       <div class="paged-header">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 8px;">
-          <div style="font-weight: bold; font-size: 14pt; color: #cc0000;">
-            {{#if kurumLogo}}<img src="{{kurumLogo}}" style="max-height: 40px;" alt="Logo" />{{else}}ACME{{/if}}
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+          "
+        >
+          <div style="font-weight: bold; font-size: 14pt; color: #cc0000">
+            {{#if kurumLogo}}<img
+              src="{{kurumLogo}}"
+              style="max-height: 40px"
+              alt="Logo"
+            />{{else}}ACME{{/if}}
           </div>
-          <div style="text-align: center; line-height: 1.2;">
-            <div style="font-size: 9pt; font-weight: bold;">T.C.</div>
-            <div style="font-size: 10.5pt; font-weight: bold;">{{#if idareUstBirim}}{{idareUstBirim}}{{else}}SAĞLIK BAKANLIĞI{{/if}}</div>
-            <div style="font-size: 9.5pt; font-weight: bold;">{{#if idareAdi}}{{idareAdi}}{{else}}Ankara İl Sağlık Müdürlüğü{{/if}}</div>
-            <div style="font-size: 8.5pt;">{{#if altBirim}}{{altBirim}}{{else}}Destek Hizmetleri Başkanlığı (Satınalma Birimi){/if}}</div>
+          <div style="text-align: center; line-height: 1.2">
+            <div style="font-size: 9pt; font-weight: bold">T.C.</div>
+            <div style="font-size: 10.5pt; font-weight: bold">
+              {{#if idareUstBirim}}{{idareUstBirim}}{{else}}SAĞLIK BAKANLIĞI{{/if}}
+            </div>
+            <div style="font-size: 9.5pt; font-weight: bold">
+              {{#if idareAdi}}{{idareAdi}}{{else}}Ankara İl Sağlık Müdürlüğü{{/if}}
+            </div>
+            <div style="font-size: 8.5pt">
+              {{#if altBirim}}{{altBirim}}{{else}}Destek Hizmetleri Başkanlığı (Satınalma
+              Birimi){/if}}
+            </div>
           </div>
-          <div style="font-weight: bold; font-size: 14pt; color: #cc0000;">
-            {{#if kurumLogo}}<img src="{{kurumLogo}}" style="max-height: 40px;" alt="Logo" />{{else}}ACME{{/if}}
+          <div style="font-weight: bold; font-size: 14pt; color: #cc0000">
+            {{#if kurumLogo}}<img
+              src="{{kurumLogo}}"
+              style="max-height: 40px"
+              alt="Logo"
+            />{{else}}ACME{{/if}}
           </div>
         </div>
       </div>
 
       <div class="content-body">
-        <div style="text-align: right; font-weight: bold; margin-bottom: 4px; font-size: 9.5pt;">
-          <span class="editable" data-field="dosyaTarihi">{{#if dosyaTarihi}}{{dosyaTarihi}}{{else if tarih}}{{tarih}}{{else}}07.09.2026{{/if}}</span>
+        <div style="text-align: right; font-weight: bold; margin-bottom: 4px; font-size: 9.5pt">
+          <span class="editable" data-field="dosyaTarihi"
+            >{{#if dosyaTarihi}}{{dosyaTarihi}}{{else if
+            tarih}}{{tarih}}{{else}}07.09.2026{{/if}}</span
+          >
         </div>
 
         <div class="title">BİRİM FİYAT TEKLİF MEKTUBU VE CETVELİ</div>
         <div class="subtitle">
-          <span class="editable" data-field="hitap">{{#if hitap}}{{hitap}}{{else if idareAdi}}{{idareAdi}}{{else}}KURUM / MAKAM ADINA{{/if}}</span>
+          <span class="editable" data-field="hitap"
+            >{{#if hitap}}{{hitap}}{{else if idareAdi}}{{idareAdi}}{{else}}KURUM / MAKAM
+            ADINA{{/if}}</span
+          >
         </div>
 
         <table class="info-table">
@@ -173,25 +203,37 @@
             <tr>
               <td class="info-label">İşin Adı / Konusu</td>
               <td class="info-value">
-                <span class="editable" data-field="isinAdi">{{#if isinAdi}}{{isinAdi}}{{else if dosyaKonusu}}{{dosyaKonusu}}{{else}}-{{/if}}</span>
+                <span class="editable" data-field="isinAdi"
+                  >{{#if isinAdi}}{{isinAdi}}{{else if
+                  dosyaKonusu}}{{dosyaKonusu}}{{else}}-{{/if}}</span
+                >
               </td>
             </tr>
             <tr>
               <td class="info-label">Teklif Sahibinin Adı / Ünvanı</td>
               <td class="info-value">
-                <span class="editable" data-field="teklifSahibi">{{#if teklifSahibi}}{{teklifSahibi}}{{else if firmaUnvani}}{{firmaUnvani}}{{else}}-{{/if}}</span>
+                <span class="editable" data-field="teklifSahibi"
+                  >{{#if teklifSahibi}}{{teklifSahibi}}{{else if
+                  firmaUnvani}}{{firmaUnvani}}{{else}}-{{/if}}</span
+                >
               </td>
             </tr>
             <tr>
               <td class="info-label">T.C. / Vergi Kimlik No</td>
               <td class="info-value">
-                <span class="editable" data-field="vergiNo">{{#if vergiNo}}{{vergiNo}}{{else if firmaVergiNo}}{{firmaVergiNo}}{{else if tcKimlikNo}}{{tcKimlikNo}}{{else}}-{{/if}}</span>
+                <span class="editable" data-field="vergiNo"
+                  >{{#if vergiNo}}{{vergiNo}}{{else if firmaVergiNo}}{{firmaVergiNo}}{{else if
+                  tcKimlikNo}}{{tcKimlikNo}}{{else}}-{{/if}}</span
+                >
               </td>
             </tr>
             <tr>
               <td class="info-label">Tebligat Adresi / İletişim</td>
               <td class="info-value">
-                <span class="editable" data-field="tebligatAdresi">{{#if tebligatAdresi}}{{tebligatAdresi}}{{else if firmaAdresi}}{{firmaAdresi}}{{else}}-{{/if}}</span>
+                <span class="editable" data-field="tebligatAdresi"
+                  >{{#if tebligatAdresi}}{{tebligatAdresi}}{{else if
+                  firmaAdresi}}{{firmaAdresi}}{{else}}-{{/if}}</span
+                >
               </td>
             </tr>
           </tbody>
@@ -202,9 +244,13 @@
           <div class="editable" data-field="aciklama">{{aciklama}}</div>
           {{else}}
           <div>
-            1. Yukarıda adı ve konusu belirtilen işe / alıma ait tüm şartları okudum ve aynen kabul ettim.<br />
-            2. Teklifimiz teklif tarihinden itibaren geçerli olup teklifimize Damga Vergisi, Harç, Nakliye ve Sigorta giderleri dahildir.<br />
-            3. Alıma konu işin / malların tamamını aşağıdaki Birim Fiyat Teklif Cetvelinde belirttiğimiz birim fiyatlar üzerinden KDV HARİÇ bedel karşılığında vermeyi kabul ve taahhüt ederiz.
+            1. Yukarıda adı ve konusu belirtilen işe / alıma ait tüm şartları okudum ve aynen kabul
+            ettim.<br />
+            2. Teklifimiz teklif tarihinden itibaren geçerli olup teklifimize Damga Vergisi, Harç,
+            Nakliye ve Sigorta giderleri dahildir.<br />
+            3. Alıma konu işin / malların tamamını aşağıdaki Birim Fiyat Teklif Cetvelinde
+            belirttiğimiz birim fiyatlar üzerinden KDV HARİÇ bedel karşılığında vermeyi kabul ve
+            taahhüt ederiz.
           </div>
           {{/if}}
         </div>
@@ -212,67 +258,101 @@
         <table class="items-table">
           <thead>
             <tr>
-              <th style="width: 6%;">S.No</th>
-              <th style="width: 38%; text-align: left;">Mal/Hizmet Kaleminin Adı ve Kısa Açıklaması</th>
-              <th style="width: 18%; text-align: left;">Özelliği</th>
-              <th style="width: 9%;">Birimi</th>
-              <th style="width: 9%;">Miktarı</th>
-              <th style="width: 10%;">Birim Fiyat (TL)</th>
-              <th style="width: 10%;">Tutarı (TL)</th>
+              <th style="width: 6%">S.No</th>
+              <th style="width: 38%; text-align: left">
+                Mal/Hizmet Kaleminin Adı ve Kısa Açıklaması
+              </th>
+              <th style="width: 18%; text-align: left">Özelliği</th>
+              <th style="width: 9%">Birimi</th>
+              <th style="width: 9%">Miktarı</th>
+              <th style="width: 10%">Birim Fiyat (TL)</th>
+              <th style="width: 10%">Tutarı (TL)</th>
             </tr>
           </thead>
           <tbody>
-            {{#if ihtiyacKalemleri}}
-              {{#each ihtiyacKalemleri}}
-              <tr>
-                <td style="text-align: center;">{{#if siraNo}}{{siraNo}}{{else}}{{@index_1}}{{/if}}</td>
-                <td style="text-align: left;">{{malzemeAdi}}</td>
-                <td style="text-align: left;">{{#if ozelligi}}{{ozelligi}}{{else}}-{{/if}}</td>
-                <td style="text-align: center;">{{#if birimi}}{{birimi}}{{else}}-{{/if}}</td>
-                <td style="text-align: right;">{{miktar}}</td>
-                <td style="text-align: right;">{{#if birimFiyat}}{{birimFiyat}} ₺{{/if}}</td>
-                <td style="text-align: right;">{{#if tutar}}{{tutar}} ₺{{/if}}</td>
-              </tr>
-              {{/each}}
-            {{else}}
-              <tr>
-                <td style="text-align: center;">1</td>
-                <td>-</td>
-                <td>-</td>
-                <td style="text-align: center;">-</td>
-                <td style="text-align: right;">-</td>
-                <td style="text-align: right;"></td>
-                <td style="text-align: right;"></td>
-              </tr>
+            {{#if ihtiyacKalemleri}} {{#each ihtiyacKalemleri}}
+            <tr>
+              <td style="text-align: center">
+                {{#if siraNo}}{{siraNo}}{{else}}{{@index_1}}{{/if}}
+              </td>
+              <td style="text-align: left">{{malzemeAdi}}</td>
+              <td style="text-align: left">{{#if ozelligi}}{{ozelligi}}{{else}}-{{/if}}</td>
+              <td style="text-align: center">{{#if birimi}}{{birimi}}{{else}}-{{/if}}</td>
+              <td style="text-align: right">{{miktar}}</td>
+              <td style="text-align: right">{{#if birimFiyat}}{{birimFiyat}} ₺{{/if}}</td>
+              <td style="text-align: right">{{#if tutar}}{{tutar}} ₺{{/if}}</td>
+            </tr>
+            {{/each}} {{else}}
+            <tr>
+              <td style="text-align: center">1</td>
+              <td>-</td>
+              <td>-</td>
+              <td style="text-align: center">-</td>
+              <td style="text-align: right">-</td>
+              <td style="text-align: right"></td>
+              <td style="text-align: right"></td>
+            </tr>
             {{/if}}
           </tbody>
           <tfoot>
             <tr>
-              <td colspan="5" style="border: none; text-align: left; padding: 4px 0; font-style: italic;">Para birimi: TL</td>
-              <td style="border: 1px solid #000; text-align: center; font-weight: bold; background-color: #f2f2f2;">Toplam Tutar (KDV Hariç)</td>
-              <td style="border: 1px solid #000; height: 26px; text-align: right; font-weight: bold;">
-                <span class="editable" data-field="toplamTutar">{{#if toplamTutar}}{{toplamTutar}} ₺{{/if}}</span>
+              <td
+                colspan="5"
+                style="border: none; text-align: left; padding: 4px 0; font-style: italic"
+              >
+                Para birimi: TL
+              </td>
+              <td
+                style="
+                  border: 1px solid #000;
+                  text-align: center;
+                  font-weight: bold;
+                  background-color: #f2f2f2;
+                "
+              >
+                Toplam Tutar (KDV Hariç)
+              </td>
+              <td
+                style="border: 1px solid #000; height: 26px; text-align: right; font-weight: bold"
+              >
+                <span class="editable" data-field="toplamTutar"
+                  >{{#if toplamTutar}}{{toplamTutar}} ₺{{/if}}</span
+                >
               </td>
             </tr>
           </tfoot>
         </table>
 
         <div class="signature-section">
-          <div style="font-style: italic; color: #333; font-size: 9pt;">
+          <div style="font-style: italic; color: #333; font-size: 9pt">
             Para Birimi: Türk Lirası (TL)
           </div>
           <div class="signature-box">
-            <div class="editable" data-field="tarih">{{#if tarih}}{{tarih}}{{else if dosyaTarihi}}{{dosyaTarihi}}{{else}}07.09.2026{{/if}}</div>
-            <div style="margin-top: 4px; font-weight: bold;">
-              <span class="editable" data-field="teklifSahibi">{{#if teklifSahibi}}{{teklifSahibi}}{{else if firmaUnvani}}{{firmaUnvani}}{{else}}Firma / Yetkili Adı{{/if}}</span>
+            <div class="editable" data-field="tarih">
+              {{#if tarih}}{{tarih}}{{else if dosyaTarihi}}{{dosyaTarihi}}{{else}}07.09.2026{{/if}}
             </div>
-            <div style="margin-top: 16px;">Kaşe - İmza</div>
+            <div style="margin-top: 4px; font-weight: bold">
+              <span class="editable" data-field="teklifSahibi"
+                >{{#if teklifSahibi}}{{teklifSahibi}}{{else if
+                firmaUnvani}}{{firmaUnvani}}{{else}}Firma / Yetkili Adı{{/if}}</span
+              >
+            </div>
+            <div style="margin-top: 16px">Kaşe - İmza</div>
           </div>
         </div>
       </div>
 
       <div class="paged-footer">
-        <div style="display: flex; justify-content: space-between; font-size: 8pt; color: #666; border-top: 1px solid #ccc; padding-top: 4px;">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            font-size: 8pt;
+            color: #666;
+            border-top: 1px solid #ccc;
+            padding-top: 4px;
+          "
+        >
           <div>4734 Sayılı KİK Doğrudan Temin Formu</div>
           <div>Sayfa 1 / 1</div>
         </div>

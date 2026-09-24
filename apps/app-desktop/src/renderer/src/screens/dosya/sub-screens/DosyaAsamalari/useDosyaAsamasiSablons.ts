@@ -92,7 +92,7 @@ export const V2_TEMPLATES_NAMES = [
   'sozlesmeye-davet',
   'sozlesmedavet',
   'muayene-kabul-komisyonu',
-  'muayenekabulkomisyonu',
+  'muayenekabulkomisyonu'
 ]
 
 export function isV2Template(dosyaAdiOrTitle?: string | null): boolean {
@@ -246,7 +246,7 @@ export function useDosyaAsamasiSablons() {
       templateTestVerisi: '',
       snapshotContext: snapshotCtx,
       dosyaAdi: sablon.dosya_adi,
-      selectedFirma: selectedFirma || null,
+      selectedFirma: selectedFirma || null
     })
     setPreviewModalOpen(true)
     setPreviewModalOpen(true)

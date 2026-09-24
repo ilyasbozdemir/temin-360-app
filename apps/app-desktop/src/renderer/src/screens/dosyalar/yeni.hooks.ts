@@ -44,7 +44,10 @@ export interface UseYeniDosyaScreenReturn {
   filteredBirimler: DBBirim[]
   filteredPersoneller: DBPersonel[]
   handleCopyKonuToAciklama: () => void
-  handleCopyDosya: (eskiDosya: TeminDosyasi, options?: CloneDosyaCustomOptions) => Promise<void> | void
+  handleCopyDosya: (
+    eskiDosya: TeminDosyasi,
+    options?: CloneDosyaCustomOptions
+  ) => Promise<void> | void
   showAIModal: boolean
   setShowAIModal: React.Dispatch<React.SetStateAction<boolean>>
   showAiMenu: boolean
@@ -237,9 +240,9 @@ export function useYeniDosyaScreen(): UseYeniDosyaScreenReturn {
               ...doc,
               dosya_acilis_tarihi: formatForInput(doc.dosya_acilis_tarihi),
               son_teklif_verme_tarihi: doc.son_teklif_verme_tarihi
-                ? (/^\d{4}-\d{2}-\d{2}$/.test(String(doc.son_teklif_verme_tarihi).trim())
-                    ? `${String(doc.son_teklif_verme_tarihi).trim()}T10:00`
-                    : String(doc.son_teklif_verme_tarihi).replace(' ', 'T').slice(0, 16))
+                ? /^\d{4}-\d{2}-\d{2}$/.test(String(doc.son_teklif_verme_tarihi).trim())
+                  ? `${String(doc.son_teklif_verme_tarihi).trim()}T10:00`
+                  : String(doc.son_teklif_verme_tarihi).replace(' ', 'T').slice(0, 16)
                 : '',
               teslim_tarihi: formatForInput(doc.teslim_tarihi)
             })
@@ -253,7 +256,8 @@ export function useYeniDosyaScreen(): UseYeniDosyaScreenReturn {
 
           const qParams = new URLSearchParams(window.location.search)
           const urlTur = search?.tur || qParams.get('tur')
-          const isKopyala = search?.kopyala === '1' || search?.kopyala === true || qParams.get('kopyala') === '1'
+          const isKopyala =
+            search?.kopyala === '1' || search?.kopyala === true || qParams.get('kopyala') === '1'
           if (isKopyala) {
             setShowKopyalaModal(true)
           }
@@ -331,15 +335,19 @@ export function useYeniDosyaScreen(): UseYeniDosyaScreenReturn {
         temin_no: getNextTeminNo(year)
       }))
     }
-  }, [isEdit, formData.temin_no, loadingDb, dosyalar, formData.dosya_acilis_tarihi, formData.butce_yili])
+  }, [
+    isEdit,
+    formData.temin_no,
+    loadingDb,
+    dosyalar,
+    formData.dosya_acilis_tarihi,
+    formData.butce_yili
+  ])
 
   // Active Tab (Stepper)
   const [activeTab, setActiveTab] = useState<'genel' | 'ihtiyac'>('genel')
 
-  const handleCopyDosya = async (
-    eskiDosya: TeminDosyasi,
-    options?: CloneDosyaCustomOptions
-  ) => {
+  const handleCopyDosya = async (eskiDosya: TeminDosyasi, options?: CloneDosyaCustomOptions) => {
     if (options) {
       const res = await cloneDosyaWithItems(eskiDosya, dosyalar, addDosya, options)
       setShowKopyalaModal(false)

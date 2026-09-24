@@ -60,7 +60,7 @@ export function usePiyasaFiyatDocuments(
         [total, hesaplamaEsasi || 'Ortalama fiyat esasına göre', activeDosyaId]
       )
 
-      const effectiveMode = targetMode === 'save_only' ? (formMode || 'tutanak') : targetMode
+      const effectiveMode = targetMode === 'save_only' ? formMode || 'tutanak' : targetMode
 
       if (effectiveMode === 'tutanak' || targetMode === 'tutanak') {
         await window.electron.ipcRenderer.invoke(
@@ -304,7 +304,8 @@ export function usePiyasaFiyatDocuments(
             c.adSoyad.trim() !== ''
           )
         })
-        const gorevlendirilenListesi = filteredGorevliler.length > 0 ? filteredGorevliler : formattedKomisyon
+        const gorevlendirilenListesi =
+          filteredGorevliler.length > 0 ? filteredGorevliler : formattedKomisyon
 
         const mergedCtx = {
           ...baseCtx,
@@ -325,10 +326,20 @@ export function usePiyasaFiyatDocuments(
           items: needItems,
           kalemler: needItems,
           komisyon: formattedKomisyon.length > 0 ? formattedKomisyon : baseCtx.komisyon || [],
-          komisyonUyeleri: formattedKomisyon.length > 0 ? formattedKomisyon : baseCtx.komisyonUyeleri || baseCtx.komisyon || [],
-          fiyatKomisyonu: formattedKomisyon.length > 0 ? formattedKomisyon : baseCtx.fiyatKomisyonu || [],
-          gorevlendirilenler: gorevlendirilenListesi.length > 0 ? gorevlendirilenListesi : baseCtx.gorevlendirilenler || [],
-          dagitimListesi: gorevlendirilenListesi.length > 0 ? gorevlendirilenListesi : baseCtx.dagitimListesi || [],
+          komisyonUyeleri:
+            formattedKomisyon.length > 0
+              ? formattedKomisyon
+              : baseCtx.komisyonUyeleri || baseCtx.komisyon || [],
+          fiyatKomisyonu:
+            formattedKomisyon.length > 0 ? formattedKomisyon : baseCtx.fiyatKomisyonu || [],
+          gorevlendirilenler:
+            gorevlendirilenListesi.length > 0
+              ? gorevlendirilenListesi
+              : baseCtx.gorevlendirilenler || [],
+          dagitimListesi:
+            gorevlendirilenListesi.length > 0
+              ? gorevlendirilenListesi
+              : baseCtx.dagitimListesi || [],
           yukleniciFirma:
             targetMode === 'tutanak'
               ? enAvantajliTeklifSahibi

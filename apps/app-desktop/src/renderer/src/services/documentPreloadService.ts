@@ -37,14 +37,14 @@ class DocumentPreloadService {
   }
 
   private getKey(documentId: string, dosyaId: number = 0): string {
-    const cleanDoc = documentId.replace(/\.html$/i, '').trim().toLowerCase()
+    const cleanDoc = documentId
+      .replace(/\.html$/i, '')
+      .trim()
+      .toLowerCase()
     return `${dosyaId}_${cleanDoc}`
   }
 
-  public getCachedDocument(
-    documentId: string,
-    dosyaId: number = 0
-  ): PreloadedDocumentData | null {
+  public getCachedDocument(documentId: string, dosyaId: number = 0): PreloadedDocumentData | null {
     if (!documentId) return null
     const key = this.getKey(documentId, dosyaId)
     const cached = this.cache.get(key)
@@ -59,7 +59,11 @@ class DocumentPreloadService {
     return cached
   }
 
-  public updateCachedResolvedData(documentId: string, dosyaId: number = 0, resolvedData: any): void {
+  public updateCachedResolvedData(
+    documentId: string,
+    dosyaId: number = 0,
+    resolvedData: any
+  ): void {
     if (!documentId) return
     const key = this.getKey(documentId, dosyaId)
     const existing = this.cache.get(key)

@@ -34,8 +34,7 @@ export interface PozItem {
   aktif_mi?: number
 }
 
-const generateBarcode = () =>
-  Math.floor(1000000000000 + Math.random() * 9000000000000).toString()
+const generateBarcode = () => Math.floor(1000000000000 + Math.random() * 9000000000000).toString()
 
 const fetchPozlar = async (): Promise<PozItem[]> => {
   const res = await window.electron.ipcRenderer.invoke(

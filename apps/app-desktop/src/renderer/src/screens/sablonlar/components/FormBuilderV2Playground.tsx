@@ -107,9 +107,7 @@ export function FormBuilderV2Playground({ onBack }: { onBack: () => void }): Rea
 
   const handleUpdateActiveField = (updates: Partial<FormFieldV2>): void => {
     if (!activeFieldId) return
-    setFields((prev) =>
-      prev.map((f) => (f.id === activeFieldId ? { ...f, ...updates } : f))
-    )
+    setFields((prev) => prev.map((f) => (f.id === activeFieldId ? { ...f, ...updates } : f)))
   }
 
   const handleDeleteField = (id: string, e: React.MouseEvent): void => {
@@ -221,7 +219,9 @@ export function FormBuilderV2Playground({ onBack }: { onBack: () => void }): Rea
                         <Building className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                         <span>{preset.name}</span>
                       </div>
-                      <p className="text-[10px] text-slate-400 line-clamp-1">{preset.description}</p>
+                      <p className="text-[10px] text-slate-400 line-clamp-1">
+                        {preset.description}
+                      </p>
                     </div>
                     <GripVertical className="w-3.5 h-3.5 text-slate-600 group-hover:text-slate-400 shrink-0 mt-0.5" />
                   </button>
@@ -236,14 +236,54 @@ export function FormBuilderV2Playground({ onBack }: { onBack: () => void }): Rea
 
               <div className="space-y-1.5">
                 {[
-                  { type: 'text' as const, label: 'Tek Satır Metin', icon: AlignLeft, color: 'text-blue-400' },
-                  { type: 'textarea' as const, label: 'Çok Satırlı Metin', icon: AlignLeft, color: 'text-sky-400' },
-                  { type: 'money' as const, label: 'Para Birimi (₺ Tutar)', icon: DollarSign, color: 'text-emerald-400' },
-                  { type: 'date' as const, label: 'Tarih Seçici', icon: Calendar, color: 'text-indigo-400' },
-                  { type: 'select' as const, label: 'Açılır Liste (Select)', icon: ListFilter, color: 'text-purple-400' },
-                  { type: 'checkbox' as const, label: 'Onay Kutusu (Checkbox)', icon: CheckSquare, color: 'text-amber-400' },
-                  { type: 'table' as const, label: 'Dinamik Kalem Tablosu', icon: Grid, color: 'text-rose-400' },
-                  { type: 'signature' as const, label: 'İmza / Komisyon Bloğu', icon: Users, color: 'text-teal-400' }
+                  {
+                    type: 'text' as const,
+                    label: 'Tek Satır Metin',
+                    icon: AlignLeft,
+                    color: 'text-blue-400'
+                  },
+                  {
+                    type: 'textarea' as const,
+                    label: 'Çok Satırlı Metin',
+                    icon: AlignLeft,
+                    color: 'text-sky-400'
+                  },
+                  {
+                    type: 'money' as const,
+                    label: 'Para Birimi (₺ Tutar)',
+                    icon: DollarSign,
+                    color: 'text-emerald-400'
+                  },
+                  {
+                    type: 'date' as const,
+                    label: 'Tarih Seçici',
+                    icon: Calendar,
+                    color: 'text-indigo-400'
+                  },
+                  {
+                    type: 'select' as const,
+                    label: 'Açılır Liste (Select)',
+                    icon: ListFilter,
+                    color: 'text-purple-400'
+                  },
+                  {
+                    type: 'checkbox' as const,
+                    label: 'Onay Kutusu (Checkbox)',
+                    icon: CheckSquare,
+                    color: 'text-amber-400'
+                  },
+                  {
+                    type: 'table' as const,
+                    label: 'Dinamik Kalem Tablosu',
+                    icon: Grid,
+                    color: 'text-rose-400'
+                  },
+                  {
+                    type: 'signature' as const,
+                    label: 'İmza / Komisyon Bloğu',
+                    icon: Users,
+                    color: 'text-teal-400'
+                  }
                 ].map((item) => {
                   const IconComp = item.icon
                   return (
@@ -260,7 +300,9 @@ export function FormBuilderV2Playground({ onBack }: { onBack: () => void }): Rea
                       className="w-full flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-blue-500/50 hover:bg-blue-500/10 text-slate-300 hover:text-white text-xs font-semibold transition-all cursor-grab active:cursor-grabbing group"
                     >
                       <div className="flex items-center gap-2">
-                        <IconComp className={`w-3.5 h-3.5 ${item.color} group-hover:scale-110 transition-transform`} />
+                        <IconComp
+                          className={`w-3.5 h-3.5 ${item.color} group-hover:scale-110 transition-transform`}
+                        />
                         <span>{item.label}</span>
                       </div>
                       <GripVertical className="w-3.5 h-3.5 text-slate-600 group-hover:text-slate-400" />
@@ -317,7 +359,10 @@ export function FormBuilderV2Playground({ onBack }: { onBack: () => void }): Rea
                     draggable
                     onDragStart={(e) => {
                       setDraggedIndex(idx)
-                      e.dataTransfer.setData('application/json', JSON.stringify({ isPaletteItem: false, index: idx }))
+                      e.dataTransfer.setData(
+                        'application/json',
+                        JSON.stringify({ isPaletteItem: false, index: idx })
+                      )
                     }}
                     onDragOver={(e) => {
                       e.preventDefault()
@@ -502,7 +547,9 @@ export function FormBuilderV2Playground({ onBack }: { onBack: () => void }): Rea
                       onChange={(e) => handleUpdateActiveField({ required: e.target.checked })}
                       className="rounded border-slate-800 bg-slate-900 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-xs font-semibold text-slate-300">Bu Alan Zorunlu Mu?</span>
+                    <span className="text-xs font-semibold text-slate-300">
+                      Bu Alan Zorunlu Mu?
+                    </span>
                   </label>
                 </div>
               </div>

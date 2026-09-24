@@ -1,10 +1,10 @@
-import React from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { Button } from "../../../components/ui/Button";
-import { Input } from "../../../components/ui/Input";
-import { Modal } from "../../../components/ui/Modal";
-import { FirmaInput } from "../firmalar.hooks";
-import { cn } from "../../../utils/cn";
+import React from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
+import { Button } from '../../../components/ui/Button'
+import { Input } from '../../../components/ui/Input'
+import { Modal } from '../../../components/ui/Modal'
+import { FirmaInput } from '../firmalar.hooks'
+import { cn } from '../../../utils/cn'
 
 const Field = ({
   label,
@@ -13,15 +13,15 @@ const Field = ({
   handleChange,
   required,
   placeholder,
-  readOnly,
+  readOnly
 }: {
-  label: string;
-  field: keyof FirmaInput;
-  form: FirmaInput;
-  handleChange: (field: keyof FirmaInput, value: string) => void;
-  required?: boolean;
-  placeholder?: string;
-  readOnly?: boolean;
+  label: string
+  field: keyof FirmaInput
+  form: FirmaInput
+  handleChange: (field: keyof FirmaInput, value: string) => void
+  required?: boolean
+  placeholder?: string
+  readOnly?: boolean
 }) => (
   <div>
     <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 text-left">
@@ -34,23 +34,22 @@ const Field = ({
       required={required}
       disabled={readOnly}
       className={cn(
-        "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-xs py-1.5 h-9",
-        readOnly &&
-          "opacity-60 cursor-not-allowed bg-slate-100 dark:bg-slate-900",
+        'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-xs py-1.5 h-9',
+        readOnly && 'opacity-60 cursor-not-allowed bg-slate-100 dark:bg-slate-900'
       )}
     />
   </div>
-);
+)
 
 interface FirmaModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  editingId: number | null;
-  form: FirmaInput;
-  handleChange: (key: keyof FirmaInput, value: string) => void;
-  handleSubmit: (e: React.FormEvent) => Promise<void>;
-  showExtraFields: boolean;
-  setShowExtraFields: (val: boolean) => void;
+  isOpen: boolean
+  onClose: () => void
+  editingId: number | null
+  form: FirmaInput
+  handleChange: (key: keyof FirmaInput, value: string) => void
+  handleSubmit: (e: React.FormEvent) => Promise<void>
+  showExtraFields: boolean
+  setShowExtraFields: (val: boolean) => void
 }
 
 export const FirmaModal: React.FC<FirmaModalProps> = ({
@@ -61,43 +60,31 @@ export const FirmaModal: React.FC<FirmaModalProps> = ({
   handleChange,
   handleSubmit,
   showExtraFields,
-  setShowExtraFields,
+  setShowExtraFields
 }) => {
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={editingId
-        ? "Firma Bilgilerini Düzenle"
-        : "Yeni Tedarikçi Firma Ekle"}
-      description={editingId
-        ? "Firma bilgilerini güncelleyerek kaydedin."
-        : "Tedarikçi firma bilgilerini sisteme kaydedin. Firma kodu otomatik atanacaktır."}
+      title={editingId ? 'Firma Bilgilerini Düzenle' : 'Yeni Tedarikçi Firma Ekle'}
+      description={
+        editingId
+          ? 'Firma bilgilerini güncelleyerek kaydedin.'
+          : 'Tedarikçi firma bilgilerini sisteme kaydedin. Firma kodu otomatik atanacaktır.'
+      }
       className="max-w-2xl"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-4">
-          {editingId
-            ? (
-              <div className="grid grid-cols-2 gap-4">
-                <Field
-                  label="Firma Kodu"
-                  field="firma_kodu"
-                  form={form}
-                  handleChange={handleChange}
-                  placeholder="Firma kodu"
-                />
-                <Field
-                  label="Firma Ünvanı"
-                  field="unvan"
-                  form={form}
-                  handleChange={handleChange}
-                  required
-                  placeholder="Firma ticari ünvanı"
-                />
-              </div>
-            )
-            : (
+          {editingId ? (
+            <div className="grid grid-cols-2 gap-4">
+              <Field
+                label="Firma Kodu"
+                field="firma_kodu"
+                form={form}
+                handleChange={handleChange}
+                placeholder="Firma kodu"
+              />
               <Field
                 label="Firma Ünvanı"
                 field="unvan"
@@ -106,22 +93,22 @@ export const FirmaModal: React.FC<FirmaModalProps> = ({
                 required
                 placeholder="Firma ticari ünvanı"
               />
-            )}
+            </div>
+          ) : (
+            <Field
+              label="Firma Ünvanı"
+              field="unvan"
+              form={form}
+              handleChange={handleChange}
+              required
+              placeholder="Firma ticari ünvanı"
+            />
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <Field
-            label="İlgili Kişi"
-            field="ilgili_adi"
-            form={form}
-            handleChange={handleChange}
-          />
-          <Field
-            label="Uyruğu"
-            field="uyrugu"
-            form={form}
-            handleChange={handleChange}
-          />
+          <Field label="İlgili Kişi" field="ilgili_adi" form={form} handleChange={handleChange} />
+          <Field label="Uyruğu" field="uyrugu" form={form} handleChange={handleChange} />
         </div>
         <Field
           label="İştigal Konusu"
@@ -136,63 +123,35 @@ export const FirmaModal: React.FC<FirmaModalProps> = ({
           onClick={() => setShowExtraFields(!showExtraFields)}
           className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 font-semibold mt-2 cursor-pointer w-full justify-center bg-blue-50 dark:bg-blue-900/20 py-2.5 rounded-xl transition-colors"
         >
+          {showExtraFields ? (
+            <ChevronUp className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronDown className="w-3.5 h-3.5" />
+          )}
           {showExtraFields
-            ? <ChevronUp className="w-3.5 h-3.5" />
-            : <ChevronDown className="w-3.5 h-3.5" />}
-          {showExtraFields
-            ? "Adres, Banka & Vergi Bilgilerini Gizle"
-            : "Adres, Banka & Vergi Bilgilerini Göster"}
+            ? 'Adres, Banka & Vergi Bilgilerini Gizle'
+            : 'Adres, Banka & Vergi Bilgilerini Göster'}
         </button>
 
         {showExtraFields && (
           <div className="space-y-4 pt-2 border-t border-slate-100 dark:border-slate-800 animate-in fade-in slide-in-from-top-2 duration-300">
-            <Field
-              label="Adres"
-              field="adres"
-              form={form}
-              handleChange={handleChange}
-            />
+            <Field label="Adres" field="adres" form={form} handleChange={handleChange} />
             <div className="grid grid-cols-3 gap-4">
-              <Field
-                label="İlçe"
-                field="ilce"
-                form={form}
-                handleChange={handleChange}
-              />
+              <Field label="İlçe" field="ilce" form={form} handleChange={handleChange} />
               <Field
                 label="Posta Kodu"
                 field="posta_kodu"
                 form={form}
                 handleChange={handleChange}
               />
-              <Field
-                label="İl"
-                field="il"
-                form={form}
-                handleChange={handleChange}
-              />
+              <Field label="İl" field="il" form={form} handleChange={handleChange} />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <Field
-                label="Telefon"
-                field="telefon"
-                form={form}
-                handleChange={handleChange}
-              />
-              <Field
-                label="Faks"
-                field="faks"
-                form={form}
-                handleChange={handleChange}
-              />
+              <Field label="Telefon" field="telefon" form={form} handleChange={handleChange} />
+              <Field label="Faks" field="faks" form={form} handleChange={handleChange} />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <Field
-                label="E-mail"
-                field="email"
-                form={form}
-                handleChange={handleChange}
-              />
+              <Field label="E-mail" field="email" form={form} handleChange={handleChange} />
               <Field
                 label="Web Adresi"
                 field="web_adresi"
@@ -202,12 +161,7 @@ export const FirmaModal: React.FC<FirmaModalProps> = ({
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <Field
-                label="Banka Adı"
-                field="banka_adi"
-                form={form}
-                handleChange={handleChange}
-              />
+              <Field label="Banka Adı" field="banka_adi" form={form} handleChange={handleChange} />
               <Field
                 label="Şube Kodu / Adı"
                 field="sube_kodu_adi"
@@ -215,12 +169,7 @@ export const FirmaModal: React.FC<FirmaModalProps> = ({
                 handleChange={handleChange}
               />
             </div>
-            <Field
-              label="Hesap No"
-              field="hesap_no"
-              form={form}
-              handleChange={handleChange}
-            />
+            <Field label="Hesap No" field="hesap_no" form={form} handleChange={handleChange} />
 
             <div className="grid grid-cols-2 gap-4">
               <Field
@@ -244,12 +193,7 @@ export const FirmaModal: React.FC<FirmaModalProps> = ({
                 form={form}
                 handleChange={handleChange}
               />
-              <Field
-                label="Vergi No"
-                field="vergi_no"
-                form={form}
-                handleChange={handleChange}
-              />
+              <Field label="Vergi No" field="vergi_no" form={form} handleChange={handleChange} />
             </div>
 
             {/* CRM Alanları */}
@@ -266,10 +210,8 @@ export const FirmaModal: React.FC<FirmaModalProps> = ({
                   <select
                     value={form.deneyim_skoru || 0}
                     onChange={(e) =>
-                      handleChange(
-                        "deneyim_skoru" as any,
-                        Number(e.target.value) as any,
-                      )}
+                      handleChange('deneyim_skoru' as any, Number(e.target.value) as any)
+                    }
                     className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs py-1.5 h-9 rounded-xl px-2 outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value={0}>Seçilmedi (0)</option>
@@ -288,10 +230,8 @@ export const FirmaModal: React.FC<FirmaModalProps> = ({
                   <select
                     value={form.kalite_skoru || 0}
                     onChange={(e) =>
-                      handleChange(
-                        "kalite_skoru" as any,
-                        Number(e.target.value) as any,
-                      )}
+                      handleChange('kalite_skoru' as any, Number(e.target.value) as any)
+                    }
                     className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs py-1.5 h-9 rounded-xl px-2 outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value={0}>Seçilmedi (0)</option>
@@ -310,10 +250,8 @@ export const FirmaModal: React.FC<FirmaModalProps> = ({
                   <select
                     value={form.odeme_disiplini ?? 1}
                     onChange={(e) =>
-                      handleChange(
-                        "odeme_disiplini" as any,
-                        Number(e.target.value) as any,
-                      )}
+                      handleChange('odeme_disiplini' as any, Number(e.target.value) as any)
+                    }
                     className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs py-1.5 h-9 rounded-xl px-2 outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value={1}>✅ Zamanında Ödeme / Düzenli</option>
@@ -333,14 +271,11 @@ export const FirmaModal: React.FC<FirmaModalProps> = ({
                       type="checkbox"
                       checked={Boolean(form.kara_liste)}
                       onChange={(e) =>
-                        handleChange(
-                          "kara_liste" as any,
-                          (e.target.checked ? 1 : 0) as any,
-                        )}
+                        handleChange('kara_liste' as any, (e.target.checked ? 1 : 0) as any)
+                      }
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:after:border-slate-600 peer-checked:bg-red-600">
-                    </div>
+                    <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:after:border-slate-600 peer-checked:bg-red-600"></div>
                   </label>
                 </div>
 
@@ -350,12 +285,10 @@ export const FirmaModal: React.FC<FirmaModalProps> = ({
                       Kara Liste Nedeni / Açıklaması
                     </label>
                     <textarea
-                      value={form.kara_liste_neden || ""}
+                      value={form.kara_liste_neden || ''}
                       onChange={(e) =>
-                        handleChange(
-                          "kara_liste_neden" as any,
-                          e.target.value as any,
-                        )}
+                        handleChange('kara_liste_neden' as any, e.target.value as any)
+                      }
                       placeholder="Örn: 2 defa taahhüt edilen teslimatı 30 gün geciktirdi veya eksik/hasarlı ürün teslim etti."
                       rows={2}
                       className="w-full bg-white dark:bg-slate-900 border border-red-300 dark:border-red-800 rounded-xl p-2.5 text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-red-500"
@@ -371,14 +304,11 @@ export const FirmaModal: React.FC<FirmaModalProps> = ({
           <Button type="button" variant="outline" onClick={onClose}>
             İptal
           </Button>
-          <Button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 shadow-md"
-          >
-            {editingId ? "Güncelle" : "Firmayı Kaydet"}
+          <Button type="submit" className="bg-blue-600 hover:bg-blue-700 shadow-md">
+            {editingId ? 'Güncelle' : 'Firmayı Kaydet'}
           </Button>
         </div>
       </form>
     </Modal>
-  );
-};
+  )
+}

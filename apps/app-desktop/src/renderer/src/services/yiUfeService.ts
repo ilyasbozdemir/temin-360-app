@@ -99,9 +99,7 @@ class YiUfeService {
       return { yil: 2026, ay: 8, ay_adi: 'Ağustos', endeks: 5781.74 }
     }
     // List is ordered DESC, or find highest (yil * 100 + ay)
-    return [...this.inMemoryMonthly].sort(
-      (a, b) => b.yil * 100 + b.ay - (a.yil * 100 + a.ay)
-    )[0]
+    return [...this.inMemoryMonthly].sort((a, b) => b.yil * 100 + b.ay - (a.yil * 100 + a.ay))[0]
   }
 
   public getIndex(yil: number, ay?: number): number | null {

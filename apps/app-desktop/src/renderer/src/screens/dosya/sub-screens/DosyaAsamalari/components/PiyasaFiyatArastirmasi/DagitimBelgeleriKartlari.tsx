@@ -1,50 +1,44 @@
-import React from "react";
-import {
-  FileSpreadsheet,
-  Layers,
-  Send,
-  Tag,
-  Info,
-} from "lucide-react";
-import { DAGITIM_BELGELERI_KARTLARI } from "../FiyatIstenenFirmalari/constants";
-import { DagitimBelgeleriKartlariProps } from "./types";
+import React from 'react'
+import { FileSpreadsheet, Layers, Send, Tag, Info } from 'lucide-react'
+import { DAGITIM_BELGELERI_KARTLARI } from '../FiyatIstenenFirmalari/constants'
+import { DagitimBelgeleriKartlariProps } from './types'
 
 const ICON_MAP = {
   Send,
   Layers,
   Tag,
-  FileSpreadsheet,
-};
+  FileSpreadsheet
+}
 
 const COLOR_STYLES = {
   indigo: {
-    hoverBorder: "hover:border-indigo-300 dark:hover:border-indigo-700",
-    iconBg: "bg-indigo-500/10",
-    iconColor: "text-indigo-600 dark:text-indigo-400",
-    buttonBg: "bg-indigo-600 hover:bg-indigo-700",
+    hoverBorder: 'hover:border-indigo-300 dark:hover:border-indigo-700',
+    iconBg: 'bg-indigo-500/10',
+    iconColor: 'text-indigo-600 dark:text-indigo-400',
+    buttonBg: 'bg-indigo-600 hover:bg-indigo-700'
   },
   purple: {
-    hoverBorder: "hover:border-purple-300 dark:hover:border-purple-700",
-    iconBg: "bg-purple-500/10",
-    iconColor: "text-purple-600 dark:text-purple-400",
-    buttonBg: "bg-purple-600 hover:bg-purple-700",
+    hoverBorder: 'hover:border-purple-300 dark:hover:border-purple-700',
+    iconBg: 'bg-purple-500/10',
+    iconColor: 'text-purple-600 dark:text-purple-400',
+    buttonBg: 'bg-purple-600 hover:bg-purple-700'
   },
   violet: {
-    hoverBorder: "hover:border-violet-300 dark:hover:border-violet-700",
-    iconBg: "bg-violet-500/10",
-    iconColor: "text-violet-600 dark:text-violet-400",
-    buttonBg: "bg-violet-600 hover:bg-violet-700",
+    hoverBorder: 'hover:border-violet-300 dark:hover:border-violet-700',
+    iconBg: 'bg-violet-500/10',
+    iconColor: 'text-violet-600 dark:text-violet-400',
+    buttonBg: 'bg-violet-600 hover:bg-violet-700'
   },
   emerald: {
-    hoverBorder: "hover:border-emerald-300 dark:hover:border-emerald-700",
-    iconBg: "bg-emerald-500/10",
-    iconColor: "text-emerald-600 dark:text-emerald-400",
-    buttonBg: "bg-emerald-600 hover:bg-emerald-700",
-  },
-};
+    hoverBorder: 'hover:border-emerald-300 dark:hover:border-emerald-700',
+    iconBg: 'bg-emerald-500/10',
+    iconColor: 'text-emerald-600 dark:text-emerald-400',
+    buttonBg: 'bg-emerald-600 hover:bg-emerald-700'
+  }
+}
 
 export function DagitimBelgeleriKartlari({
-  handleOpenSablonByDosyaAdi,
+  handleOpenSablonByDosyaAdi
 }: DagitimBelgeleriKartlariProps): React.JSX.Element {
   return (
     <div className="rounded-2xl border border-indigo-100 dark:border-indigo-900/50 bg-gradient-to-br from-indigo-50/50 via-white to-blue-50/40 dark:from-slate-900 dark:via-slate-950 dark:to-indigo-950/20 p-5 shadow-xs flex flex-col gap-4">
@@ -61,7 +55,8 @@ export function DagitimBelgeleriKartlari({
               </span>
             </h3>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Fiyat araştırma tutanağı öncesinde firmalara genel/anonim (&quot;Sayın İlgili&quot;) olarak iletilecek resmi teklif mektuplarını ve boş cetvelleri üretin.
+              Fiyat araştırma tutanağı öncesinde firmalara genel/anonim (&quot;Sayın İlgili&quot;)
+              olarak iletilecek resmi teklif mektuplarını ve boş cetvelleri üretin.
             </p>
           </div>
         </div>
@@ -69,8 +64,8 @@ export function DagitimBelgeleriKartlari({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {DAGITIM_BELGELERI_KARTLARI.map((kart) => {
-          const IconComponent = ICON_MAP[kart.iconName];
-          const style = COLOR_STYLES[kart.themeColor];
+          const IconComponent = ICON_MAP[kart.iconName]
+          const style = COLOR_STYLES[kart.themeColor]
 
           return (
             <div
@@ -109,9 +104,9 @@ export function DagitimBelgeleriKartlari({
                 <span>{kart.buttonText}</span>
               </button>
             </div>
-          );
+          )
         })}
       </div>
     </div>
-  );
+  )
 }

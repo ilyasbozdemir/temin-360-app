@@ -1,5 +1,14 @@
 import React, { useState, useMemo } from 'react'
-import { Plus, LayoutTemplate, Edit, Calendar, History, Trash2, Search, Sparkles } from 'lucide-react'
+import {
+  Plus,
+  LayoutTemplate,
+  Edit,
+  Calendar,
+  History,
+  Trash2,
+  Search,
+  Sparkles
+} from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
 import { Modal } from '../../../components/ui/Modal'
 import { useSablonlar, Sablon, useSablonHistory, useDeleteSablon } from '../sablonlar.hooks'

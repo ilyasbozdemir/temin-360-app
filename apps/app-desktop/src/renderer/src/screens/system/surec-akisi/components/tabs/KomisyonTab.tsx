@@ -80,9 +80,7 @@ export const KomisyonTab: React.FC<KomisyonTabProps> = ({
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-1 flex-wrap">
-                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                  {k.tur}
-                </h3>
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">{k.tur}</h3>
                 <span
                   className={`text-[10px] px-2.5 py-0.5 rounded-lg border font-bold ${getKomisyonDurumBadge(
                     k.durum
@@ -121,7 +119,11 @@ export const KomisyonTab: React.FC<KomisyonTabProps> = ({
                     {k.uyeler.map((u, i) => (
                       <tr
                         key={u.id}
-                        className={i % 2 === 0 ? 'bg-white dark:bg-slate-955' : 'bg-slate-50/50 dark:bg-slate-900/30'}
+                        className={
+                          i % 2 === 0
+                            ? 'bg-white dark:bg-slate-955'
+                            : 'bg-slate-50/50 dark:bg-slate-900/30'
+                        }
                       >
                         <td className="px-6 py-3 font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                           <UserCheck size={16} className="text-slate-400" /> {u.adSoyad}

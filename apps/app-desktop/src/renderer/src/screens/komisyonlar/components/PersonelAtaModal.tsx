@@ -137,7 +137,10 @@ export function PersonelAtaModal({
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-slate-400" />
               <span className="text-xs text-slate-600 dark:text-slate-300">
-                Görev: <strong className="text-slate-900 dark:text-slate-100">{roleDetail.gorev_adi || 'Üye'}</strong>
+                Görev:{' '}
+                <strong className="text-slate-900 dark:text-slate-100">
+                  {roleDetail.gorev_adi || 'Üye'}
+                </strong>
               </span>
             </div>
           </div>
@@ -162,7 +165,11 @@ export function PersonelAtaModal({
           <div className="p-3.5 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 rounded-xl flex items-center justify-between animate-in fade-in duration-200">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-sm">
-                {selectedPerson.ad_soyad ? selectedPerson.ad_soyad.substring(0, 2).toLocaleUpperCase('tr-TR') : <User className="w-4 h-4" />}
+                {selectedPerson.ad_soyad ? (
+                  selectedPerson.ad_soyad.substring(0, 2).toLocaleUpperCase('tr-TR')
+                ) : (
+                  <User className="w-4 h-4" />
+                )}
               </div>
               <div className="min-w-0">
                 <div className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate flex items-center gap-2">

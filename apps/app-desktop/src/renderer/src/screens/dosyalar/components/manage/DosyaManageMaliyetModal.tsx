@@ -17,10 +17,7 @@ export const DosyaManageMaliyetModal: React.FC<DosyaManageMaliyetModalProps> = (
 
   return (
     <>
-      <div
-        className="fixed inset-0 bg-black/25 dark:bg-black/50 z-[9998]"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-black/25 dark:bg-black/50 z-[9998]" onClick={onClose} />
       <div className="fixed right-4 top-[52px] w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-[9999] p-4 animate-in slide-in-from-top-2 duration-200">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
           <h3 className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">

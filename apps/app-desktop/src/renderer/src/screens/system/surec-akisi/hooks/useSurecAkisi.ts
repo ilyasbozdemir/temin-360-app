@@ -167,9 +167,7 @@ export function useSurecAkisi(): UseSurecAkisiReturn {
       return raw.map((f: any, idx: number) => {
         const bidsSum = f.bidsSum
         const teklifBedeli =
-          bidsSum && bidsSum > 0
-            ? bidsSum
-            : f.teklif_toplami ?? f.teklif_bedeli ?? f.teklifBedeli
+          bidsSum && bidsSum > 0 ? bidsSum : (f.teklif_toplami ?? f.teklif_bedeli ?? f.teklifBedeli)
 
         const davetTarihi = f.davet_tarihi || f.davetTarihi || '—'
         const teklifTarihi =

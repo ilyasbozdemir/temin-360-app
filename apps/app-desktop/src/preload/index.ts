@@ -159,7 +159,6 @@ const allowedChannels = new Set([
   'dev:run-tests'
 ])
 
-
 // Secure gated wrapper exposing only authorized channels to renderer
 const secureElectronAPI = {
   ...electronAPI,

@@ -24,12 +24,7 @@ export function CiktiPreviewModal({
   onOpenAdvancedEditor
 }: CiktiPreviewModalProps): React.JSX.Element {
   const { activeDosyaId } = useWorkspaceStore()
-  const {
-    isInQueue,
-    toggleReadyToPrint,
-    getDocumentStatus,
-    markAsPrinted
-  } = usePrintQueueStore()
+  const { isInQueue, toggleReadyToPrint, getDocumentStatus, markAsPrinted } = usePrintQueueStore()
 
   const docKey = (previewSablon.dosya_adi || '').replace(/\.html$/, '')
   const isQueued = activeDosyaId ? isInQueue(activeDosyaId, docKey) : false
@@ -83,7 +78,9 @@ export function CiktiPreviewModal({
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-slate-400 mt-0.5 font-mono truncate">{previewSablon.dosya_adi}</p>
+              <p className="text-[11px] text-slate-400 mt-0.5 font-mono truncate">
+                {previewSablon.dosya_adi}
+              </p>
             </div>
           </div>
 
@@ -170,4 +167,3 @@ export function CiktiPreviewModal({
     </div>
   )
 }
-

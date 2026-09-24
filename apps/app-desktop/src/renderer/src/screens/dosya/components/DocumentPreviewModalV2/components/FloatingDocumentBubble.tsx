@@ -1,20 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  Download,
-  FileText,
-  Layers,
-  Maximize2,
-  Printer,
-  X,
-} from "lucide-react";
+import React, { useEffect, useRef, useState } from 'react'
+import { Download, FileText, Layers, Maximize2, Printer, X } from 'lucide-react'
 
 interface FloatingDocumentBubbleProps {
-  documentTitle?: string;
-  onExpand: () => void;
-  onClose: () => void;
-  onPrint?: () => void;
-  onPdf?: () => void;
-  isPrinting?: boolean;
+  documentTitle?: string
+  onExpand: () => void
+  onClose: () => void
+  onPrint?: () => void
+  onPdf?: () => void
+  isPrinting?: boolean
 }
 
 export const FloatingDocumentBubble: React.FC<FloatingDocumentBubbleProps> = ({
@@ -23,85 +16,75 @@ export const FloatingDocumentBubble: React.FC<FloatingDocumentBubbleProps> = ({
   onClose,
   onPrint,
   onPdf,
-  isPrinting = false,
+  isPrinting = false
 }) => {
   // Position state (default: bottom-right offset)
   const [position, setPosition] = useState<{ x: number; y: number }>(() => {
-    const defaultX = typeof window !== "undefined"
-      ? window.innerWidth - 380
-      : 20;
-    const defaultY = typeof window !== "undefined"
-      ? window.innerHeight - 100
-      : 20;
+    const defaultX = typeof window !== 'undefined' ? window.innerWidth - 380 : 20
+    const defaultY = typeof window !== 'undefined' ? window.innerHeight - 100 : 20
     return {
       x: Math.max(20, defaultX),
-      y: Math.max(20, defaultY),
-    };
-  });
-  const [isDragging, setIsDragging] = useState(false);
-  const dragRef = useRef<
-    { startX: number; startY: number; posX: number; posY: number } | null
-  >(null);
-  const bubbleRef = useRef<HTMLDivElement | null>(null);
+      y: Math.max(20, defaultY)
+    }
+  })
+  const [isDragging, setIsDragging] = useState(false)
+  const dragRef = useRef<{ startX: number; startY: number; posX: number; posY: number } | null>(
+    null
+  )
+  const bubbleRef = useRef<HTMLDivElement | null>(null)
 
   const handleMouseDown = (e: React.MouseEvent) => {
     // Only drag from handle or card background, not buttons
-    if ((e.target as HTMLElement).closest("button")) return;
-    e.preventDefault();
-    setIsDragging(true);
+    if ((e.target as HTMLElement).closest('button')) return
+    e.preventDefault()
+    setIsDragging(true)
     dragRef.current = {
       startX: e.clientX,
       startY: e.clientY,
       posX: position.x,
-      posY: position.y,
-    };
-  };
+      posY: position.y
+    }
+  }
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging || !dragRef.current) return;
-      const dx = e.clientX - dragRef.current.startX;
-      const dy = e.clientY - dragRef.current.startY;
+      if (!isDragging || !dragRef.current) return
+      const dx = e.clientX - dragRef.current.startX
+      const dy = e.clientY - dragRef.current.startY
 
-      const newX = Math.min(
-        Math.max(10, dragRef.current.posX + dx),
-        window.innerWidth - 360,
-      );
-      const newY = Math.min(
-        Math.max(10, dragRef.current.posY + dy),
-        window.innerHeight - 80,
-      );
+      const newX = Math.min(Math.max(10, dragRef.current.posX + dx), window.innerWidth - 360)
+      const newY = Math.min(Math.max(10, dragRef.current.posY + dy), window.innerHeight - 80)
 
-      setPosition({ x: newX, y: newY });
-    };
+      setPosition({ x: newX, y: newY })
+    }
 
     const handleMouseUp = () => {
-      setIsDragging(false);
-      dragRef.current = null;
-    };
+      setIsDragging(false)
+      dragRef.current = null
+    }
 
     if (isDragging) {
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", handleMouseUp);
+      window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener('mouseup', handleMouseUp)
     }
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [isDragging]);
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isDragging])
 
   return (
     <div
       ref={bubbleRef}
       onMouseDown={handleMouseDown}
       style={{
-        position: "fixed",
+        position: 'fixed',
         left: `${position.x}px`,
         top: `${position.y}px`,
-        zIndex: 60,
+        zIndex: 60
       }}
       className={`group select-none transition-shadow duration-200 ${
-        isDragging ? "cursor-grabbing opacity-95 scale-102" : "cursor-grab"
+        isDragging ? 'cursor-grabbing opacity-95 scale-102' : 'cursor-grab'
       }`}
     >
       {/* Balloon Glow Layer */}
@@ -129,7 +112,7 @@ export const FloatingDocumentBubble: React.FC<FloatingDocumentBubbleProps> = ({
             <span>Yüzen Belge Modu</span>
           </div>
           <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate mt-0.5">
-            {documentTitle || "Belge Önizleme"}
+            {documentTitle || 'Belge Önizleme'}
           </p>
         </div>
 
@@ -140,8 +123,8 @@ export const FloatingDocumentBubble: React.FC<FloatingDocumentBubbleProps> = ({
             <button
               type="button"
               onClick={(e) => {
-                e.stopPropagation();
-                onPrint();
+                e.stopPropagation()
+                onPrint()
               }}
               disabled={isPrinting}
               title="Hızlı Yazdır"
@@ -156,8 +139,8 @@ export const FloatingDocumentBubble: React.FC<FloatingDocumentBubbleProps> = ({
             <button
               type="button"
               onClick={(e) => {
-                e.stopPropagation();
-                onPdf();
+                e.stopPropagation()
+                onPdf()
               }}
               title="PDF İndir"
               className="p-1.5 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition-colors cursor-pointer"
@@ -170,8 +153,8 @@ export const FloatingDocumentBubble: React.FC<FloatingDocumentBubbleProps> = ({
           <button
             type="button"
             onClick={(e) => {
-              e.stopPropagation();
-              onExpand();
+              e.stopPropagation()
+              onExpand()
             }}
             title="Belgeyi Büyüt / Genişlet"
             className="p-1.5 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-lg font-bold transition-all cursor-pointer shadow-2xs"
@@ -183,8 +166,8 @@ export const FloatingDocumentBubble: React.FC<FloatingDocumentBubbleProps> = ({
           <button
             type="button"
             onClick={(e) => {
-              e.stopPropagation();
-              onClose();
+              e.stopPropagation()
+              onClose()
             }}
             title="Belgeyi Kapat"
             className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition-colors cursor-pointer"
@@ -194,5 +177,5 @@ export const FloatingDocumentBubble: React.FC<FloatingDocumentBubbleProps> = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

@@ -75,14 +75,30 @@ export const BirimlerTable: React.FC<BirimlerTableProps> = ({
         <table className="w-full text-left border-collapse min-w-[900px]">
           <thead className="bg-slate-50 dark:bg-slate-800/60 sticky top-0 z-10 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700">
             <tr>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300 w-16">ID</th>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">Ölçü Birimi</th>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">Kategori</th>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">Kısa Ad / Sembol</th>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">Dönüşüm Faktörü</th>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">Ondalık</th>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300 text-center">Durum</th>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300 text-right w-24">İşlem</th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300 w-16">
+                ID
+              </th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">
+                Ölçü Birimi
+              </th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">
+                Kategori
+              </th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">
+                Kısa Ad / Sembol
+              </th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">
+                Dönüşüm Faktörü
+              </th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">
+                Ondalık
+              </th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300 text-center">
+                Durum
+              </th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300 text-right w-24">
+                İşlem
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
@@ -102,7 +118,10 @@ export const BirimlerTable: React.FC<BirimlerTableProps> = ({
               </tr>
             ) : (
               filteredBirimler.map((b) => (
-                <tr key={b.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors group">
+                <tr
+                  key={b.id}
+                  className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors group"
+                >
                   <td className="py-3 px-4 font-mono text-slate-400">#{b.id}</td>
                   <td className="py-3 px-4 font-bold text-slate-900 dark:text-slate-100">
                     <div className="flex items-center gap-2">
@@ -117,7 +136,9 @@ export const BirimlerTable: React.FC<BirimlerTableProps> = ({
                         </span>
                       ) : null}
                     </div>
-                    {b.aciklama && <p className="text-[11px] text-slate-400 font-normal mt-0.5">{b.aciklama}</p>}
+                    {b.aciklama && (
+                      <p className="text-[11px] text-slate-400 font-normal mt-0.5">{b.aciklama}</p>
+                    )}
                   </td>
                   <td className="py-3 px-4">
                     <span className="inline-flex items-center gap-1.5 font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
@@ -128,7 +149,8 @@ export const BirimlerTable: React.FC<BirimlerTableProps> = ({
                   <td className="py-3 px-4 font-mono font-bold text-slate-700 dark:text-slate-300">
                     {b.kisa_ad || b.sembol ? (
                       <span className="bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
-                        {b.kisa_ad || '-'} {b.sembol && b.sembol !== b.kisa_ad ? `(${b.sembol})` : ''}
+                        {b.kisa_ad || '-'}{' '}
+                        {b.sembol && b.sembol !== b.kisa_ad ? `(${b.sembol})` : ''}
                       </span>
                     ) : (
                       <span className="text-slate-400">-</span>
@@ -136,7 +158,9 @@ export const BirimlerTable: React.FC<BirimlerTableProps> = ({
                   </td>
                   <td className="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">
                     {b.donusum_tipi === 'formula' ? (
-                      <span className="text-purple-600 dark:text-purple-400 font-sans text-[11px]">Formüllü</span>
+                      <span className="text-purple-600 dark:text-purple-400 font-sans text-[11px]">
+                        Formüllü
+                      </span>
                     ) : (
                       <span>{b.donusum_faktoru ?? 1.0}</span>
                     )}

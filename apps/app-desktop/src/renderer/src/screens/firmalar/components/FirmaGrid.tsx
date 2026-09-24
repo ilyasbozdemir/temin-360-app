@@ -28,11 +28,13 @@ export const FirmaGrid: React.FC<FirmaGridProps> = ({
           }`}
         >
           {/* Accent line on top of card */}
-          <div className={`absolute top-0 left-0 right-0 h-1 transition-opacity duration-300 ${
-            firma.kara_liste === 1
-              ? 'bg-red-500 opacity-100'
-              : 'bg-gradient-to-r from-blue-500 to-indigo-500 opacity-0 group-hover:opacity-100'
-          }`} />
+          <div
+            className={`absolute top-0 left-0 right-0 h-1 transition-opacity duration-300 ${
+              firma.kara_liste === 1
+                ? 'bg-red-500 opacity-100'
+                : 'bg-gradient-to-r from-blue-500 to-indigo-500 opacity-0 group-hover:opacity-100'
+            }`}
+          />
 
           {/* Action buttons */}
           <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">

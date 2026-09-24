@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo } from 'react'
 import {
   AlertTriangle,
   ArrowLeft,
@@ -19,51 +19,51 @@ import {
   Share2,
   Sparkles,
   Tag,
-  Trash2,
-} from "lucide-react";
-import { useNavigate, useSearch } from "@tanstack/react-router";
-import { PozFiyatGecmisi, PozItem, usePozlarHooks } from "./pozlar.hooks";
-import { APP_ROUTES } from "../../constants/routeConstants";
-import { Button } from "../../components/ui/Button";
-import { cn } from "../../utils/cn";
+  Trash2
+} from 'lucide-react'
+import { useNavigate, useSearch } from '@tanstack/react-router'
+import { PozFiyatGecmisi, PozItem, usePozlarHooks } from './pozlar.hooks'
+import { APP_ROUTES } from '../../constants/routeConstants'
+import { Button } from '../../components/ui/Button'
+import { cn } from '../../utils/cn'
 
 export default function PozDetayScreen(): React.JSX.Element {
-  const search: any = useSearch({ strict: false });
-  const id = search?.id ? Number(search.id) : null;
+  const search: any = useSearch({ strict: false })
+  const id = search?.id ? Number(search.id) : null
 
-  const navigate = useNavigate();
-  const { pozList, isLoading, deletePoz } = usePozlarHooks();
+  const navigate = useNavigate()
+  const { pozList, isLoading, deletePoz } = usePozlarHooks()
 
   const poz = useMemo(() => {
-    if (!id || !pozList) return null;
-    return pozList.find((p) => p.id === id) || null;
-  }, [id, pozList]);
+    if (!id || !pozList) return null
+    return pozList.find((p) => p.id === id) || null
+  }, [id, pozList])
 
   // Eski poz eşleşmesi kaydı
   const eskiPozItem = useMemo(() => {
-    if (!poz?.eski_poz_no || !pozList) return null;
-    return pozList.find((p) =>
-      p.poz_no === poz.eski_poz_no ||
-      (p.id !== poz.id && p.eski_poz_no === poz.eski_poz_no)
-    ) || null;
-  }, [poz, pozList]);
+    if (!poz?.eski_poz_no || !pozList) return null
+    return (
+      pozList.find(
+        (p) =>
+          p.poz_no === poz.eski_poz_no || (p.id !== poz.id && p.eski_poz_no === poz.eski_poz_no)
+      ) || null
+    )
+  }, [poz, pozList])
 
   // Bu poz eski bir poz ise, 2019+ yeni karşılığı var mı?
   const yeniKarsilikPozItem = useMemo(() => {
-    if (!poz?.poz_no || !pozList) return null;
-    return pozList.find((p) =>
-      p.eski_poz_no === poz.poz_no && p.id !== poz.id
-    ) || null;
-  }, [poz, pozList]);
+    if (!poz?.poz_no || !pozList) return null
+    return pozList.find((p) => p.eski_poz_no === poz.poz_no && p.id !== poz.id) || null
+  }, [poz, pozList])
 
   // Fiyat geçmişini ayrıştır
   const fiyatListesi = useMemo<PozFiyatGecmisi[]>(() => {
-    if (!poz) return [];
+    if (!poz) return []
     if (poz.birim_fiyatlar) {
       try {
-        const parsed = JSON.parse(poz.birim_fiyatlar);
+        const parsed = JSON.parse(poz.birim_fiyatlar)
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+          return parsed
         }
       } catch {
         // Fallback below
@@ -72,47 +72,40 @@ export default function PozDetayScreen(): React.JSX.Element {
     if (poz.birim_fiyat) {
       return [
         {
-          donem: poz.fiyat_donemi ||
-            `${poz.poz_yili || new Date().getFullYear()}/1`,
-          fiyat: poz.birim_fiyat,
-        },
-      ];
+          donem: poz.fiyat_donemi || `${poz.poz_yili || new Date().getFullYear()}/1`,
+          fiyat: poz.birim_fiyat
+        }
+      ]
     }
-    return [];
-  }, [poz]);
+    return []
+  }, [poz])
 
   const handleDelete = async () => {
-    if (!poz || !poz.id) return;
-    if (
-      confirm(`"${poz.poz_no}" numaralı pozu silmek istediğinize emin misiniz?`)
-    ) {
+    if (!poz || !poz.id) return
+    if (confirm(`"${poz.poz_no}" numaralı pozu silmek istediğinize emin misiniz?`)) {
       try {
-        await deletePoz(poz.id);
-        navigate({ to: APP_ROUTES.POZLAR });
+        await deletePoz(poz.id)
+        navigate({ to: APP_ROUTES.POZLAR })
       } catch (err: any) {
-        alert("Silinirken hata oluştu: " + (err?.message || "Bilinmeyen hata"));
+        alert('Silinirken hata oluştu: ' + (err?.message || 'Bilinmeyen hata'))
       }
     }
-  };
+  }
 
   if (isLoading) {
     return (
-      <div className="p-12 text-center text-xs text-slate-400">
-        Poz bilgileri yükleniyor...
-      </div>
-    );
+      <div className="p-12 text-center text-xs text-slate-400">Poz bilgileri yükleniyor...</div>
+    )
   }
 
   if (!poz) {
     return (
       <div className="p-16 text-center max-w-lg mx-auto space-y-4">
         <Building2 size={48} className="mx-auto text-amber-500 opacity-40" />
-        <h2 className="text-lg font-bold text-slate-800 dark:text-white">
-          Poz Bulunamadı
-        </h2>
+        <h2 className="text-lg font-bold text-slate-800 dark:text-white">Poz Bulunamadı</h2>
         <p className="text-xs text-slate-500">
-          Görüntülemek istediğiniz birim fiyat pozu silinmiş veya mevcut
-          veritabanında bulunamamış olabilir.
+          Görüntülemek istediğiniz birim fiyat pozu silinmiş veya mevcut veritabanında bulunamamış
+          olabilir.
         </p>
         <Button
           onClick={() => navigate({ to: APP_ROUTES.POZLAR })}
@@ -122,7 +115,7 @@ export default function PozDetayScreen(): React.JSX.Element {
           <span>Poz Listesine Geri Dön</span>
         </Button>
       </div>
-    );
+    )
   }
 
   return (
@@ -145,7 +138,7 @@ export default function PozDetayScreen(): React.JSX.Element {
               </span>
               <span className="text-xs text-slate-400">/</span>
               <span className="text-xs text-slate-500 font-medium">
-                {poz.kategori || poz.poz_kurumu || "ÇŞB"} Kitabı
+                {poz.kategori || poz.poz_kurumu || 'ÇŞB'} Kitabı
               </span>
             </div>
             <h1 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
@@ -184,8 +177,9 @@ export default function PozDetayScreen(): React.JSX.Element {
             onClick={() =>
               navigate({
                 to: APP_ROUTES.YENI_POZ,
-                search: { id: poz.id },
-              })}
+                search: { id: poz.id }
+              })
+            }
             className="bg-amber-600 hover:bg-amber-700 text-white gap-2 text-xs shadow-xs px-4"
           >
             <Edit2 size={14} />
@@ -204,10 +198,9 @@ export default function PozDetayScreen(): React.JSX.Element {
             Resmî Bülten & Yaklaşık Maliyet Teyit Uyarısı
           </p>
           <p className="text-[11px] text-amber-800/90 dark:text-amber-300/90 leading-relaxed">
-            Bu poz kalemi ilgili idarenin (ÇŞB, KGM, DSİ, İLBANK vb.)
-            yayımladığı resmî birim fiyat ve analiz kitaplarına uygun olarak
-            saklanmaktadır. İhale ve hakediş çalışmalarınızda bülten dönemini ve
-            rayiçlerini kontrol ediniz.
+            Bu poz kalemi ilgili idarenin (ÇŞB, KGM, DSİ, İLBANK vb.) yayımladığı resmî birim fiyat
+            ve analiz kitaplarına uygun olarak saklanmaktadır. İhale ve hakediş çalışmalarınızda
+            bülten dönemini ve rayiçlerini kontrol ediniz.
           </p>
         </div>
       </div>
@@ -219,20 +212,16 @@ export default function PozDetayScreen(): React.JSX.Element {
           {/* 1. KART: Pozu Detay Bilgileri (Kullanıcının İstediği Tasarım) */}
           <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
             <div className="bg-[#f97316] text-white px-5 py-3.5 font-bold text-sm flex items-center justify-between">
-              <span className="text-base tracking-tight">
-                {poz.poz_no} Pozu Detay Bilgileri
-              </span>
+              <span className="text-base tracking-tight">{poz.poz_no} Pozu Detay Bilgileri</span>
               <span className="text-xs bg-white/20 px-2.5 py-0.5 rounded uppercase font-extrabold tracking-wider">
-                {poz.kategori || poz.poz_kurumu || "ÇŞB"}
+                {poz.kategori || poz.poz_kurumu || 'ÇŞB'}
               </span>
             </div>
 
             <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
               {/* Poz No & Eski Poz No */}
               <div className="grid grid-cols-12 p-4 bg-slate-50/50 dark:bg-slate-950/40 items-center">
-                <div className="col-span-4 font-bold text-slate-500">
-                  Poz No
-                </div>
+                <div className="col-span-4 font-bold text-slate-500">Poz No</div>
                 <div className="col-span-8 font-mono font-bold text-slate-900 dark:text-white flex items-center gap-3 flex-wrap">
                   <span className="text-sm px-2.5 py-1 bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-800 rounded-md text-amber-900 dark:text-amber-200 font-extrabold">
                     {poz.poz_no}
@@ -244,16 +233,18 @@ export default function PozDetayScreen(): React.JSX.Element {
                         if (eskiPozItem) {
                           navigate({
                             to: APP_ROUTES.POZ_DETAY,
-                            search: { id: eskiPozItem.id },
-                          });
+                            search: { id: eskiPozItem.id }
+                          })
                         } else {
-                          navigate({ to: APP_ROUTES.POZLAR });
+                          navigate({ to: APP_ROUTES.POZLAR })
                         }
                       }}
                       className="text-blue-600 dark:text-blue-400 font-bold underline underline-offset-4 text-xs flex items-center gap-1 hover:text-blue-800 dark:hover:text-blue-300 cursor-pointer"
-                      title={eskiPozItem
-                        ? `Eski poz kaydına git (${eskiPozItem.poz_no})`
-                        : "Eski poz numarasını ara"}
+                      title={
+                        eskiPozItem
+                          ? `Eski poz kaydına git (${eskiPozItem.poz_no})`
+                          : 'Eski poz numarasını ara'
+                      }
                     >
                       <Link2 size={13} /> Eski Poz No : {poz.eski_poz_no}
                     </button>
@@ -264,13 +255,13 @@ export default function PozDetayScreen(): React.JSX.Element {
                       onClick={() =>
                         navigate({
                           to: APP_ROUTES.POZ_DETAY,
-                          search: { id: yeniKarsilikPozItem.id },
-                        })}
+                          search: { id: yeniKarsilikPozItem.id }
+                        })
+                      }
                       className="text-emerald-600 dark:text-emerald-400 font-bold underline underline-offset-4 text-xs flex items-center gap-1 hover:text-emerald-800 dark:hover:text-emerald-300 cursor-pointer"
                       title="2019+ Güncel Yeni Poz Karşılığına Git"
                     >
-                      <Sparkles size={13} /> 2019+ Yeni Karşılığı :{" "}
-                      {yeniKarsilikPozItem.poz_no}
+                      <Sparkles size={13} /> 2019+ Yeni Karşılığı : {yeniKarsilikPozItem.poz_no}
                     </button>
                   )}
                 </div>
@@ -280,17 +271,15 @@ export default function PozDetayScreen(): React.JSX.Element {
               <div className="grid grid-cols-12 p-4">
                 <div className="col-span-4 font-bold text-slate-500">Tanım</div>
                 <div className="col-span-8 text-slate-900 dark:text-slate-100 leading-relaxed font-semibold">
-                  {poz.kalem_adi || poz.poz_tanimi || "-"}
+                  {poz.kalem_adi || poz.poz_tanimi || '-'}
                 </div>
               </div>
 
               {/* Uzun Tanım */}
               <div className="grid grid-cols-12 p-4 bg-slate-50/50 dark:bg-slate-950/40">
-                <div className="col-span-4 font-bold text-slate-500">
-                  Uzun Tanım
-                </div>
+                <div className="col-span-4 font-bold text-slate-500">Uzun Tanım</div>
                 <div className="col-span-8 text-slate-700 dark:text-slate-300 leading-relaxed text-xs">
-                  {poz.ozelligi || poz.poz_tanimi || poz.kalem_adi || "-"}
+                  {poz.ozelligi || poz.poz_tanimi || poz.kalem_adi || '-'}
                 </div>
               </div>
 
@@ -298,28 +287,23 @@ export default function PozDetayScreen(): React.JSX.Element {
               <div className="grid grid-cols-12 p-4">
                 <div className="col-span-4 font-bold text-slate-500">Birim</div>
                 <div className="col-span-8 font-extrabold font-mono text-slate-900 dark:text-white uppercase text-sm">
-                  {poz.birim || "m³"}
+                  {poz.birim || 'm³'}
                 </div>
               </div>
 
               {/* Pozun Tipi */}
               <div className="grid grid-cols-12 p-4 bg-slate-50/50 dark:bg-slate-950/40">
-                <div className="col-span-4 font-bold text-slate-500">
-                  Pozun Tipi
-                </div>
+                <div className="col-span-4 font-bold text-slate-500">Pozun Tipi</div>
                 <div className="col-span-8 font-bold text-emerald-700 dark:text-emerald-300 text-xs">
-                  {poz.poz_tipi || "Analiz"}
+                  {poz.poz_tipi || 'Analiz'}
                 </div>
               </div>
 
               {/* Bulunduğu Kitap */}
               <div className="grid grid-cols-12 p-4">
-                <div className="col-span-4 font-bold text-slate-500">
-                  Bulunduğu Kitap
-                </div>
+                <div className="col-span-4 font-bold text-slate-500">Bulunduğu Kitap</div>
                 <div className="col-span-8 font-semibold text-slate-900 dark:text-white">
-                  {poz.fasikul ||
-                    "Çevre ve Şehircilik Bakanlığı 2019 ve Sonrası"}
+                  {poz.fasikul || 'Çevre ve Şehircilik Bakanlığı 2019 ve Sonrası'}
                 </div>
               </div>
             </div>
@@ -340,8 +324,8 @@ export default function PozDetayScreen(): React.JSX.Element {
                     {poz.eski_poz_no}
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
-                    Bu poz için eski bülten kodu kayıtlıdır. Arama ve hakediş
-                    kontrollerinde eşleştirme sağlanır.
+                    Bu poz için eski bülten kodu kayıtlıdır. Arama ve hakediş kontrollerinde
+                    eşleştirme sağlanır.
                   </span>
                 </div>
               </div>
@@ -353,8 +337,9 @@ export default function PozDetayScreen(): React.JSX.Element {
                   onClick={() =>
                     navigate({
                       to: APP_ROUTES.POZ_DETAY,
-                      search: { id: eskiPozItem.id },
-                    })}
+                      search: { id: eskiPozItem.id }
+                    })
+                  }
                   className="shrink-0 text-xs text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-800 hover:bg-blue-100/50"
                 >
                   Eski Poz Kaydına Git
@@ -388,8 +373,9 @@ export default function PozDetayScreen(): React.JSX.Element {
                 onClick={() =>
                   navigate({
                     to: APP_ROUTES.POZ_DETAY,
-                    search: { id: yeniKarsilikPozItem.id },
-                  })}
+                    search: { id: yeniKarsilikPozItem.id }
+                  })
+                }
                 className="shrink-0 text-xs text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800 hover:bg-emerald-100/50"
               >
                 Yeni Pozu İncele
@@ -406,27 +392,21 @@ export default function PozDetayScreen(): React.JSX.Element {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
               <div className="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] text-slate-400 block mb-1">
-                  OKAS / CPV Kodu:
-                </span>
+                <span className="text-[10px] text-slate-400 block mb-1">OKAS / CPV Kodu:</span>
                 <span className="font-mono font-bold text-purple-700 dark:text-purple-300 text-sm">
-                  {poz.okas_kodu || "45000000"}
+                  {poz.okas_kodu || '45000000'}
                 </span>
               </div>
 
               <div className="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] text-slate-400 block mb-1">
-                  Yapı Sınıfı:
-                </span>
+                <span className="text-[10px] text-slate-400 block mb-1">Yapı Sınıfı:</span>
                 <span className="font-semibold text-slate-800 dark:text-slate-200 line-clamp-1">
-                  {poz.yapi_sinifi || "Genel Yapım İşleri"}
+                  {poz.yapi_sinifi || 'Genel Yapım İşleri'}
                 </span>
               </div>
 
               <div className="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] text-slate-400 block mb-1">
-                  KDV Oranı:
-                </span>
+                <span className="text-[10px] text-slate-400 block mb-1">KDV Oranı:</span>
                 <span className="font-bold text-slate-900 dark:text-white">
                   %{poz.kdv_orani ?? 20}
                 </span>
@@ -438,9 +418,7 @@ export default function PozDetayScreen(): React.JSX.Element {
                 <span className="font-bold text-amber-800 dark:text-amber-300">
                   Özel Şartname / Keşif Notları:
                 </span>
-                <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                  {poz.notlar}
-                </p>
+                <p className="text-slate-700 dark:text-slate-300 leading-relaxed">{poz.notlar}</p>
               </div>
             )}
           </div>
@@ -451,9 +429,7 @@ export default function PozDetayScreen(): React.JSX.Element {
           {/* 2. KART: Pozu Birim Fiyatları Tablosu (Kullanıcının İstediği Tasarım) */}
           <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
             <div className="bg-[#f97316] text-white px-5 py-3.5 font-bold text-sm flex items-center justify-between">
-              <span className="text-base tracking-tight">
-                {poz.poz_no} Pozu Birim Fiyatları
-              </span>
+              <span className="text-base tracking-tight">{poz.poz_no} Pozu Birim Fiyatları</span>
               <span className="text-xs bg-white/20 px-2 py-0.5 rounded font-mono">
                 {fiyatListesi.length} Kayıtlı Dönem
               </span>
@@ -468,44 +444,39 @@ export default function PozDetayScreen(): React.JSX.Element {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-xs">
-                  {fiyatListesi.length === 0
-                    ? (
-                      <tr>
-                        <td
-                          colSpan={2}
-                          className="p-6 text-center text-slate-400 font-sans"
-                        >
-                          Henüz dönemsel birim fiyat kaydedilmedi.
+                  {fiyatListesi.length === 0 ? (
+                    <tr>
+                      <td colSpan={2} className="p-6 text-center text-slate-400 font-sans">
+                        Henüz dönemsel birim fiyat kaydedilmedi.
+                      </td>
+                    </tr>
+                  ) : (
+                    fiyatListesi.map((f, i) => (
+                      <tr
+                        key={i}
+                        className={cn(
+                          'hover:bg-amber-50/30 dark:hover:bg-amber-950/20 transition-colors',
+                          i === 0 && 'bg-amber-50/10 dark:bg-amber-950/10 font-bold'
+                        )}
+                      >
+                        <td className="p-3.5 pl-5 text-slate-900 dark:text-white flex items-center gap-2">
+                          <span>{f.donem || '-'}</span>
+                          {i === 0 && (
+                            <span className="text-[10px] font-sans font-extrabold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                              GÜNCEL
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-3.5 text-right pr-5 font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">
+                          {Number(f.fiyat || 0).toLocaleString('tr-TR', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          })}{' '}
+                          TL
                         </td>
                       </tr>
-                    )
-                    : (
-                      fiyatListesi.map((f, i) => (
-                        <tr
-                          key={i}
-                          className={cn(
-                            "hover:bg-amber-50/30 dark:hover:bg-amber-950/20 transition-colors",
-                            i === 0 &&
-                              "bg-amber-50/10 dark:bg-amber-950/10 font-bold",
-                          )}
-                        >
-                          <td className="p-3.5 pl-5 text-slate-900 dark:text-white flex items-center gap-2">
-                            <span>{f.donem || "-"}</span>
-                            {i === 0 && (
-                              <span className="text-[10px] font-sans font-extrabold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                                GÜNCEL
-                              </span>
-                            )}
-                          </td>
-                          <td className="p-3.5 text-right pr-5 font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">
-                            {Number(f.fiyat || 0).toLocaleString("tr-TR", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })} TL
-                          </td>
-                        </tr>
-                      ))
-                    )}
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -513,17 +484,16 @@ export default function PozDetayScreen(): React.JSX.Element {
 
           {/* Aksiyon Kutusu */}
           <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs space-y-3">
-            <h4 className="text-xs font-bold text-slate-900 dark:text-white">
-              Hızlı İşlemler
-            </h4>
+            <h4 className="text-xs font-bold text-slate-900 dark:text-white">Hızlı İşlemler</h4>
             <div className="space-y-2">
               <Button
                 type="button"
                 onClick={() =>
                   navigate({
                     to: APP_ROUTES.YENI_POZ,
-                    search: { id: poz.id },
-                  })}
+                    search: { id: poz.id }
+                  })
+                }
                 className="w-full bg-[#f97316] hover:bg-orange-600 text-white gap-2 text-xs py-2.5 font-bold shadow-xs"
               >
                 <Edit2 size={14} />
@@ -544,5 +514,5 @@ export default function PozDetayScreen(): React.JSX.Element {
         </div>
       </div>
     </div>
-  );
+  )
 }

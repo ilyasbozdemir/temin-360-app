@@ -48,10 +48,11 @@ export function ProjectSelectModal({
   const [newBudget, setNewBudget] = useState('')
   const [newColor, setNewColor] = useState(COLOR_PRESETS[0])
 
-  const filtered = projeler.filter((p) =>
-    (p.proje_adi || '').toLowerCase().includes(search.toLowerCase()) ||
-    (p.proje_kodu || '').toLowerCase().includes(search.toLowerCase()) ||
-    (p.aciklama || '').toLowerCase().includes(search.toLowerCase())
+  const filtered = projeler.filter(
+    (p) =>
+      (p.proje_adi || '').toLowerCase().includes(search.toLowerCase()) ||
+      (p.proje_kodu || '').toLowerCase().includes(search.toLowerCase()) ||
+      (p.aciklama || '').toLowerCase().includes(search.toLowerCase())
   )
 
   const handleCreate = async (e: React.FormEvent): Promise<void> => {
@@ -166,7 +167,9 @@ export function ProjectSelectModal({
                     type="button"
                     onClick={() => setNewColor(c)}
                     className={`w-6 h-6 rounded-full transition-transform ${
-                      newColor === c ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'hover:scale-105'
+                      newColor === c
+                        ? 'ring-2 ring-offset-2 ring-blue-500 scale-110'
+                        : 'hover:scale-105'
                     }`}
                     style={{ backgroundColor: c }}
                   />
@@ -212,7 +215,9 @@ export function ProjectSelectModal({
 
             {selectedProjectId && (
               <div className="flex items-center justify-between p-2 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl text-xs">
-                <span className="text-amber-800 dark:text-amber-300">Bu dosya bir projeye bağlı.</span>
+                <span className="text-amber-800 dark:text-amber-300">
+                  Bu dosya bir projeye bağlı.
+                </span>
                 <button
                   type="button"
                   onClick={() => {
@@ -271,7 +276,10 @@ export function ProjectSelectModal({
                             <span>•</span>
                             <span>İş Sayısı: {p.dosya_sayisi || 0}</span>
                             <span>•</span>
-                            <span>Harcanan: {Number(p.harcanan_tutar).toLocaleString('tr-TR')} ₺ (%{p.harcama_yuzdesi || 0})</span>
+                            <span>
+                              Harcanan: {Number(p.harcanan_tutar).toLocaleString('tr-TR')} ₺ (%
+                              {p.harcama_yuzdesi || 0})
+                            </span>
                           </div>
                         </div>
                       </div>

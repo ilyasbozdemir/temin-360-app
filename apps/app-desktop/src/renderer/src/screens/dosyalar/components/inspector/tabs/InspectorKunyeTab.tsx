@@ -1,17 +1,17 @@
-import React from "react";
-import { Briefcase, Building2, DollarSign, Info } from "lucide-react";
-import { formatDate, formatMoney, turLabelMap } from "../types";
+import React from 'react'
+import { Briefcase, Building2, DollarSign, Info } from 'lucide-react'
+import { formatDate, formatMoney, turLabelMap } from '../types'
 
 interface InspectorKunyeTabProps {
-  dosya: any;
-  toplamYaklasikMaliyet: number;
+  dosya: any
+  toplamYaklasikMaliyet: number
 }
 
 export const InspectorKunyeTab: React.FC<InspectorKunyeTabProps> = ({
   dosya,
-  toplamYaklasikMaliyet,
+  toplamYaklasikMaliyet
 }) => {
-  const d = dosya;
+  const d = dosya
 
   return (
     <div className="space-y-4 text-xs">
@@ -26,11 +26,9 @@ export const InspectorKunyeTab: React.FC<InspectorKunyeTabProps> = ({
           </span>
         </div>
         <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
-          <span className="text-[10px] font-bold text-slate-400 block uppercase">
-            İhale Usulü
-          </span>
+          <span className="text-[10px] font-bold text-slate-400 block uppercase">İhale Usulü</span>
           <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-            {d.ihale_sekli || "22/d* Doğrudan Temin"}
+            {d.ihale_sekli || '22/d* Doğrudan Temin'}
           </span>
         </div>
         <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
@@ -63,47 +61,43 @@ export const InspectorKunyeTab: React.FC<InspectorKunyeTabProps> = ({
             <div className="flex justify-between items-center px-3.5 py-2">
               <span className="text-slate-500">Alım Türü</span>
               <span className="font-bold text-slate-800 dark:text-slate-200">
-                {turLabelMap[d.tur] || "Mal Alımı"}
+                {turLabelMap[d.tur] || 'Mal Alımı'}
               </span>
             </div>
             <div className="flex justify-between items-center px-3.5 py-2">
               <span className="text-slate-500">KİK Dayanağı / Madde</span>
               <span className="font-bold text-slate-800 dark:text-slate-200">
-                {d.ihale_sekli || "22/d*"}
+                {d.ihale_sekli || '22/d*'}
               </span>
             </div>
             <div className="flex justify-between items-center px-3.5 py-2">
               <span className="text-slate-500">Teklif & Sözleşme Türü</span>
               <span className="font-bold text-slate-800 dark:text-slate-200">
-                {d.teklif_sozlesme_turu || "Birim Fiyat"}
+                {d.teklif_sozlesme_turu || 'Birim Fiyat'}
               </span>
             </div>
             <div className="flex justify-between items-center px-3.5 py-2">
               <span className="text-slate-500">Sözleşme Düzenleme</span>
               <span className="font-bold text-slate-800 dark:text-slate-200">
-                {d.sozlesme_yapilacak_mi
-                  ? "Sözleşme Yapılacak"
-                  : "Sözleşme Yapılmayacak"}
+                {d.sozlesme_yapilacak_mi ? 'Sözleşme Yapılacak' : 'Sözleşme Yapılmayacak'}
               </span>
             </div>
             <div className="flex justify-between items-center px-3.5 py-2">
               <span className="text-slate-500">KDV Oranı</span>
               <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
-                %{d.kdv || "20"}
+                %{d.kdv || '20'}
               </span>
             </div>
             <div className="flex justify-between items-center px-3.5 py-2">
               <span className="text-slate-500">Kısmi Teklif Durumu</span>
               <span className="font-bold text-slate-800 dark:text-slate-200">
-                {d.kismi_teklif_verilecek_mi
-                  ? "Kısmi Teklife Açık"
-                  : "Kısmi Teklife Kapalı"}
+                {d.kismi_teklif_verilecek_mi ? 'Kısmi Teklife Açık' : 'Kısmi Teklife Kapalı'}
               </span>
             </div>
             <div className="flex justify-between items-center px-3.5 py-2">
               <span className="text-slate-500">Fiyat Farkı</span>
               <span className="font-bold text-slate-800 dark:text-slate-200">
-                {d.fiyat_farki_dayanagi || "Ödenmeyecek"}
+                {d.fiyat_farki_dayanagi || 'Ödenmeyecek'}
               </span>
             </div>
             <div className="flex justify-between items-center px-3.5 py-2">
@@ -125,45 +119,43 @@ export const InspectorKunyeTab: React.FC<InspectorKunyeTabProps> = ({
             <div className="flex justify-between items-center px-3.5 py-2">
               <span className="text-slate-500">Talep Eden Birim</span>
               <span className="font-bold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">
-                {d.birim_adi || d.harcama_birimi || "-"}
+                {d.birim_adi || d.harcama_birimi || '-'}
               </span>
             </div>
             <div className="flex justify-between items-center px-3.5 py-2">
               <span className="text-slate-500">İhtiyaç Yeri</span>
               <span className="font-bold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">
-                {d.ihtiyac_yeri || "-"}
+                {d.ihtiyac_yeri || '-'}
               </span>
             </div>
             <div className="flex justify-between items-center px-3.5 py-2">
               <span className="text-slate-500">İrtibat Yetkilisi</span>
               <span className="font-bold text-slate-800 dark:text-slate-200">
-                {d.irtibat_ad || "-"}
+                {d.irtibat_ad || '-'}
               </span>
             </div>
             <div className="flex justify-between items-center px-3.5 py-2">
-              <span className="text-slate-500">
-                Harcama Yetkilisi (Onaylayan)
-              </span>
+              <span className="text-slate-500">Harcama Yetkilisi (Onaylayan)</span>
               <span className="font-bold text-slate-800 dark:text-slate-200">
-                {d.onaylayan_ad || "-"}
+                {d.onaylayan_ad || '-'}
               </span>
             </div>
             <div className="flex justify-between items-center px-3.5 py-2">
               <span className="text-slate-500">Gerçekleştirme Görevlisi</span>
               <span className="font-bold text-slate-800 dark:text-slate-200">
-                {d.sunan_ad || "-"}
+                {d.sunan_ad || '-'}
               </span>
             </div>
             <div className="flex justify-between items-center px-3.5 py-2">
               <span className="text-slate-500">Piyasa Araştırma Görevlisi</span>
               <span className="font-bold text-slate-800 dark:text-slate-200">
-                {d.hazirlayan_ad || "-"}
+                {d.hazirlayan_ad || '-'}
               </span>
             </div>
             <div className="flex justify-between items-center px-3.5 py-2">
               <span className="text-slate-500">Talep Eden Personel</span>
               <span className="font-bold text-slate-800 dark:text-slate-200">
-                {d.talep_eden_ad || "-"}
+                {d.talep_eden_ad || '-'}
               </span>
             </div>
             <div className="flex justify-between items-center px-3.5 py-2">
@@ -184,51 +176,39 @@ export const InspectorKunyeTab: React.FC<InspectorKunyeTabProps> = ({
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-6 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800 text-center p-2.5">
           <div className="p-1.5">
-            <span className="text-[10px] text-slate-400 block font-bold">
-              Harcama Birimi
-            </span>
+            <span className="text-[10px] text-slate-400 block font-bold">Harcama Birimi</span>
             <span className="font-mono font-bold text-slate-800 dark:text-slate-200 text-xs">
-              {d.harcama_birimi || "-"}
+              {d.harcama_birimi || '-'}
             </span>
           </div>
           <div className="p-1.5">
-            <span className="text-[10px] text-slate-400 block font-bold">
-              Muhasebe Birimi
-            </span>
+            <span className="text-[10px] text-slate-400 block font-bold">Muhasebe Birimi</span>
             <span className="font-mono font-bold text-slate-800 dark:text-slate-200 text-xs">
-              {d.muhasebe_birimi || "-"}
+              {d.muhasebe_birimi || '-'}
             </span>
           </div>
           <div className="p-1.5">
-            <span className="text-[10px] text-slate-400 block font-bold">
-              Bütçe Kodu
-            </span>
+            <span className="text-[10px] text-slate-400 block font-bold">Bütçe Kodu</span>
             <span className="font-mono font-bold text-slate-800 dark:text-slate-200 text-xs">
-              {d.butce_kodu || "-"}
+              {d.butce_kodu || '-'}
             </span>
           </div>
           <div className="p-1.5">
-            <span className="text-[10px] text-slate-400 block font-bold">
-              Fonksiyonel Kod
-            </span>
+            <span className="text-[10px] text-slate-400 block font-bold">Fonksiyonel Kod</span>
             <span className="font-mono font-bold text-slate-800 dark:text-slate-200 text-xs">
-              {d.fonksiyonel_kod || "-"}
+              {d.fonksiyonel_kod || '-'}
             </span>
           </div>
           <div className="p-1.5">
-            <span className="text-[10px] text-slate-400 block font-bold">
-              Finansman Kodu
-            </span>
+            <span className="text-[10px] text-slate-400 block font-bold">Finansman Kodu</span>
             <span className="font-mono font-bold text-slate-800 dark:text-slate-200 text-xs">
-              {d.finansman_kodu || "-"}
+              {d.finansman_kodu || '-'}
             </span>
           </div>
           <div className="p-1.5">
-            <span className="text-[10px] text-slate-400 block font-bold">
-              Ekonomik Kod
-            </span>
+            <span className="text-[10px] text-slate-400 block font-bold">Ekonomik Kod</span>
             <span className="font-mono font-bold text-slate-800 dark:text-slate-200 text-xs">
-              {d.ekonomik_kod || "-"}
+              {d.ekonomik_kod || '-'}
             </span>
           </div>
         </div>
@@ -249,5 +229,5 @@ export const InspectorKunyeTab: React.FC<InspectorKunyeTabProps> = ({
         </div>
       )}
     </div>
-  );
-};
+  )
+}

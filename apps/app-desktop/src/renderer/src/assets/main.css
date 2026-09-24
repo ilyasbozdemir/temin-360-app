@@ -109,7 +109,7 @@
 input,
 textarea,
 select,
-[contenteditable="true"] {
+[contenteditable='true'] {
   -webkit-app-region: no-drag !important;
   user-select: text !important;
   -webkit-user-select: text !important;
@@ -117,7 +117,6 @@ select,
 
 button,
 a,
-[role="button"] {
+[role='button'] {
   -webkit-app-region: no-drag !important;
 }
-

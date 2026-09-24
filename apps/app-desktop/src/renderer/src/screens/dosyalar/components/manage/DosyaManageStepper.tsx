@@ -139,7 +139,8 @@ export const DosyaManageStepper: React.FC<DosyaManageStepperProps> = ({
         <div className="bg-slate-50 dark:bg-slate-900/30 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 flex items-start gap-2">
           <Info size={14} className="text-blue-500 shrink-0 mt-0.5" />
           <p className="text-[10px] text-slate-500 leading-relaxed">
-            4734 sayılı KİK 22/d doğrudan temin limit kontrolü KDV hariç tutar üzerinden otomatik hesaplanır.
+            4734 sayılı KİK 22/d doğrudan temin limit kontrolü KDV hariç tutar üzerinden otomatik
+            hesaplanır.
           </p>
         </div>
       </div>

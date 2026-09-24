@@ -16,17 +16,7 @@ export const KOMISYON_SABLONLARI = {
   },
   muayene_kabul: {
     label: 'Muayene Kabul ve Tespit Komisyonu',
-    roller: [
-      'Komisyon Başkanı',
-      'Üye',
-      'Üye',
-      'Üye',
-      'Üye',
-      'Üye',
-      'Üye',
-      'Üye',
-      'Üye'
-    ]
+    roller: ['Komisyon Başkanı', 'Üye', 'Üye', 'Üye', 'Üye', 'Üye', 'Üye', 'Üye', 'Üye']
   }
 } as const
 

@@ -2,7 +2,8 @@ import { ProcessMapping } from './types'
 
 export const HarcamaTalimatiMapping: ProcessMapping = {
   evrakSayisi: {
-    aciklama: 'E-DETSİS-SDP-NO standart formatına uygun resmi evrak sayısı (örn: E-10234521-934.01-0001)'
+    aciklama:
+      'E-DETSİS-SDP-NO standart formatına uygun resmi evrak sayısı (örn: E-10234521-934.01-0001)'
   },
   tarih: {
     tablo: 'DATA_TeminDosyasi',

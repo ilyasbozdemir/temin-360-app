@@ -2,7 +2,16 @@ export interface FormFieldV2 {
   id: string
   label: string
   variableName: string
-  type: 'text' | 'textarea' | 'number' | 'money' | 'date' | 'select' | 'checkbox' | 'table' | 'signature'
+  type:
+    | 'text'
+    | 'textarea'
+    | 'number'
+    | 'money'
+    | 'date'
+    | 'select'
+    | 'checkbox'
+    | 'table'
+    | 'signature'
   required: boolean
   placeholder?: string
   options?: string[]
@@ -20,4 +29,3 @@ export interface PresetController {
   description: string
   defaultField: Omit<FormFieldV2, 'id'>
 }
-

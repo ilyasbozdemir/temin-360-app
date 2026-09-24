@@ -1,21 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import {
-  Coins,
-  FileCheck,
-  FileText,
-  Scale,
-  ShieldCheck
-} from 'lucide-react'
+import { Coins, FileCheck, FileText, Scale, ShieldCheck } from 'lucide-react'
 
 import { useSettingsStore } from '../../store/settingsStore'
 import { useWorkspaceStore } from '../../store/workspaceStore'
-import {
-  useAnnouncements,
-  useDashboardStats,
-  useSmartAlerts
-} from './dashboard.hooks'
+import { useAnnouncements, useDashboardStats, useSmartAlerts } from './dashboard.hooks'
 import { useDosyalarHooks } from '../dosyalar/dosyalar.hooks'
 import { useAyarlarHooks } from '../ayarlar/ayarlar.hooks'
 import { logActivity } from '../../utils/logger'
@@ -52,14 +42,12 @@ export default function DashboardScreenV2(): React.JSX.Element {
   const { activeDosyaId, setActiveDosyaId } = useWorkspaceStore()
 
   // Mod Seçici Durumu: 'dogrudan_temin' (KİK 22), 'ihale' (KİK 19/21) veya 'all'
-  const [procurementMode, setProcurementMode] = useState<'dogrudan_temin' | 'ihale' | 'all'>(
-    () => {
-      return (
-        (localStorage.getItem('temin_procurement_mode') as 'dogrudan_temin' | 'ihale') ||
-        'dogrudan_temin'
-      )
-    }
-  )
+  const [procurementMode, setProcurementMode] = useState<'dogrudan_temin' | 'ihale' | 'all'>(() => {
+    return (
+      (localStorage.getItem('temin_procurement_mode') as 'dogrudan_temin' | 'ihale') ||
+      'dogrudan_temin'
+    )
+  })
 
   const isIhale = procurementMode === 'ihale'
 
@@ -95,8 +83,8 @@ export default function DashboardScreenV2(): React.JSX.Element {
   const isMailConfigured = !!settings.smtp_host
   const isAiConfigured = Boolean(
     settings.ai_gemini_api_key?.trim() ||
-      settings.ai_openai_api_key?.trim() ||
-      settings.ai_anthropic_api_key?.trim()
+    settings.ai_openai_api_key?.trim() ||
+    settings.ai_anthropic_api_key?.trim()
   )
 
   const [showAIModal, setShowAIModal] = useState(false)

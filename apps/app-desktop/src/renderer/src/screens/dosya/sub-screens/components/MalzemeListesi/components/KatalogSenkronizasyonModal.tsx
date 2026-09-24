@@ -29,9 +29,9 @@ export interface KalemDiffItem {
   hasChanges: boolean
 }
 
-import type { KatalogSenkronizasyonModalProps } from "../types";
+import type { KatalogSenkronizasyonModalProps } from '../types'
 
-export type { KatalogSenkronizasyonModalProps };
+export type { KatalogSenkronizasyonModalProps }
 
 export function KatalogSenkronizasyonModal({
   isOpen,

@@ -69,13 +69,23 @@ export function GoogleDriveFooterWidget(): React.JSX.Element | null {
       setAuthError(false)
 
       const allFiles: GDriveFile[] = res.files || []
-      const supportedExts = ['temin', 'hkmp', 'dtal', 'dtm', 'dte', 'dta', 'tmn360', 'sqlite', 'db', 'zip', 'bak']
-      const validBackups = allFiles.filter(
-        (f) => {
-          const lower = f.name.toLowerCase()
-          return supportedExts.some((ext) => lower.endsWith('.' + ext))
-        }
-      )
+      const supportedExts = [
+        'temin',
+        'hkmp',
+        'dtal',
+        'dtm',
+        'dte',
+        'dta',
+        'tmn360',
+        'sqlite',
+        'db',
+        'zip',
+        'bak'
+      ]
+      const validBackups = allFiles.filter((f) => {
+        const lower = f.name.toLowerCase()
+        return supportedExts.some((ext) => lower.endsWith('.' + ext))
+      })
 
       if (validBackups.length === 0) {
         setHasNewerVersion(false)
@@ -220,7 +230,8 @@ export function GoogleDriveFooterWidget(): React.JSX.Element | null {
           <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-linear-to-r from-amber-500/20 via-emerald-500/20 to-blue-500/20 border border-emerald-500/50 text-emerald-800 dark:text-emerald-300 font-bold text-[11px] shadow-xs animate-pulse">
             <CloudDownload className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span className="truncate max-w-[220px]">
-              Drive&apos;da daha güncel sürüm var! ({formatDateTime(newerFile.modifiedTime || newerFile.createdTime)})
+              Drive&apos;da daha güncel sürüm var! (
+              {formatDateTime(newerFile.modifiedTime || newerFile.createdTime)})
             </span>
             <button
               type="button"
@@ -330,8 +341,8 @@ export function GoogleDriveFooterWidget(): React.JSX.Element | null {
               <span>Daha Güncel Bir Sürüm Tespit Edildi</span>
             </div>
             <p className="text-[11px] leading-relaxed opacity-95">
-              Google Drive üzerindeki <strong>TEMIN_360_YEDEKLER</strong> klasöründe yerel dosyanızdan
-              daha yeni tarihte kaydedilmiş bir kopya bulunmaktadır.
+              Google Drive üzerindeki <strong>TEMIN_360_YEDEKLER</strong> klasöründe yerel
+              dosyanızdan daha yeni tarihte kaydedilmiş bir kopya bulunmaktadır.
             </p>
           </div>
 

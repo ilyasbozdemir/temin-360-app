@@ -26,7 +26,10 @@ import { useAyarlarHooks } from '../ayarlar.hooks'
 const FONT_OPTIONS = [
   { label: 'Times New Roman (Resmi Standart)', value: "'Times New Roman', Times, serif" },
   { label: 'Arial (Sade / Modern)', value: 'Arial, Helvetica, sans-serif' },
-  { label: 'Calibri (Kurumsal)', value: 'Calibri, Candara, Segoe, Segoe UI, Optima, Arial, sans-serif' },
+  {
+    label: 'Calibri (Kurumsal)',
+    value: 'Calibri, Candara, Segoe, Segoe UI, Optima, Arial, sans-serif'
+  },
   { label: 'Inter (Dijital / Net)', value: 'Inter, system-ui, -apple-system, sans-serif' },
   { label: 'Georgia (Zarif Serif)', value: 'Georgia, serif' },
   { label: 'DejaVu Sans (Açık Kaynak)', value: "'DejaVu Sans', sans-serif" }
@@ -42,11 +45,16 @@ export function DocumentThemeTab(): React.JSX.Element {
     return { ...DEFAULT_DOCUMENT_THEME }
   })
 
-  const [activeSection, setActiveSection] = useState<'typography' | 'page' | 'colors' | 'table' | 'spacing'>('typography')
+  const [activeSection, setActiveSection] = useState<
+    'typography' | 'page' | 'colors' | 'table' | 'spacing'
+  >('typography')
   const [isSaving, setIsSaving] = useState(false)
   const [jsonModalOpen, setJsonModalOpen] = useState(false)
   const [jsonText, setJsonText] = useState('')
-  const [notification, setNotification] = useState<{ text: string; type: 'success' | 'error' | 'info' } | null>(null)
+  const [notification, setNotification] = useState<{
+    text: string
+    type: 'success' | 'error' | 'info'
+  } | null>(null)
 
   const showNotification = (text: string, type: 'success' | 'error' | 'info' = 'success'): void => {
     setNotification({ text, type })
@@ -84,17 +92,28 @@ export function DocumentThemeTab(): React.JSX.Element {
   }
 
   const handleResetToDefault = (): void => {
-    if (window.confirm('Şablon temasını sistem varsayılan ayarlarına sıfırlamak istediğinize emin misiniz?')) {
+    if (
+      window.confirm(
+        'Şablon temasını sistem varsayılan ayarlarına sıfırlamak istediğinize emin misiniz?'
+      )
+    ) {
       setTheme({ ...DEFAULT_DOCUMENT_THEME })
-      showNotification('Şablon teması varsayılan değerlere döndürüldü. Değişiklikleri kalıcı yapmak için "DB\'ye Kaydet" butonuna basınız.', 'info')
+      showNotification(
+        'Şablon teması varsayılan değerlere döndürüldü. Değişiklikleri kalıcı yapmak için "DB\'ye Kaydet" butonuna basınız.',
+        'info'
+      )
     }
   }
 
   const handleExportJson = (): void => {
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(theme, null, 2))
+    const dataStr =
+      'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(theme, null, 2))
     const downloadAnchor = document.createElement('a')
     downloadAnchor.setAttribute('href', dataStr)
-    downloadAnchor.setAttribute('download', `temin360-belge-temasi-${new Date().toISOString().slice(0, 10)}.json`)
+    downloadAnchor.setAttribute(
+      'download',
+      `temin360-belge-temasi-${new Date().toISOString().slice(0, 10)}.json`
+    )
     document.body.appendChild(downloadAnchor)
     downloadAnchor.click()
     downloadAnchor.remove()
@@ -108,7 +127,10 @@ export function DocumentThemeTab(): React.JSX.Element {
       setTheme(merged)
       setJsonModalOpen(false)
       setJsonText('')
-      showNotification('Tema JSON verisinden başarıyla yüklendi. Kalıcı olması için kaydedin.', 'success')
+      showNotification(
+        'Tema JSON verisinden başarıyla yüklendi. Kalıcı olması için kaydedin.',
+        'success'
+      )
     } catch {
       showNotification('Geçersiz JSON formatı!', 'error')
     }
@@ -123,12 +145,16 @@ export function DocumentThemeTab(): React.JSX.Element {
             notification.type === 'success'
               ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-800'
               : notification.type === 'error'
-              ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-300 border border-rose-300/80 dark:border-rose-800'
-              : 'bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-300 border border-blue-300/80 dark:border-blue-800'
+                ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-300 border border-rose-300/80 dark:border-rose-800'
+                : 'bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-300 border border-blue-300/80 dark:border-blue-800'
           }`}
         >
-          {notification.type === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />}
-          {notification.type === 'error' && <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />}
+          {notification.type === 'success' && (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          )}
+          {notification.type === 'error' && (
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+          )}
           {notification.type === 'info' && <Info className="w-4 h-4 text-blue-600 shrink-0" />}
           <span>{notification.text}</span>
         </div>
@@ -150,7 +176,8 @@ export function DocumentThemeTab(): React.JSX.Element {
               </span>
             </div>
             <p className="text-xs text-slate-300 mt-0.5">
-              İhtiyaç listesi, yaklaşık maliyet, onay belgesi ve tüm resmi çıktıların tipografi, kenar boşluğu, tablo ve renk standartlarını yapılandırın.
+              İhtiyaç listesi, yaklaşık maliyet, onay belgesi ve tüm resmi çıktıların tipografi,
+              kenar boşluğu, tablo ve renk standartlarını yapılandırın.
             </p>
           </div>
         </div>
@@ -186,7 +213,7 @@ export function DocumentThemeTab(): React.JSX.Element {
             className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
-            <span>{isSaving ? 'Kaydediliyor...' : 'DB\'ye Kaydet'}</span>
+            <span>{isSaving ? 'Kaydediliyor...' : "DB'ye Kaydet"}</span>
           </button>
         </div>
       </div>
@@ -322,7 +349,10 @@ export function DocumentThemeTab(): React.JSX.Element {
                       onChange={(e) =>
                         setTheme({
                           ...theme,
-                          typography: { ...theme.typography, lineHeight: parseFloat(e.target.value) || 1.5 }
+                          typography: {
+                            ...theme.typography,
+                            lineHeight: parseFloat(e.target.value) || 1.5
+                          }
                         })
                       }
                       className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -331,7 +361,9 @@ export function DocumentThemeTab(): React.JSX.Element {
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 text-xs text-slate-600 dark:text-slate-400">
-                  💡 <strong>Resmi Yazışma Kuralı:</strong> Kamu İhale Mevzuatı ve Resmi Yazışma Yönetmeliği gereği resmi yazılarda <strong>Times New Roman (12pt)</strong> veya <strong>Arial (11pt)</strong> tercih edilir.
+                  💡 <strong>Resmi Yazışma Kuralı:</strong> Kamu İhale Mevzuatı ve Resmi Yazışma
+                  Yönetmeliği gereği resmi yazılarda <strong>Times New Roman (12pt)</strong> veya{' '}
+                  <strong>Arial (11pt)</strong> tercih edilir.
                 </div>
               </div>
             )}
@@ -369,7 +401,10 @@ export function DocumentThemeTab(): React.JSX.Element {
                       onChange={(e) =>
                         setTheme({
                           ...theme,
-                          page: { ...theme.page, printableHeight: parseInt(e.target.value, 10) || 890 }
+                          page: {
+                            ...theme.page,
+                            printableHeight: parseInt(e.target.value, 10) || 890
+                          }
                         })
                       }
                       className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -383,7 +418,9 @@ export function DocumentThemeTab(): React.JSX.Element {
                   </span>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400">Üst (Top)</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Üst (Top)
+                      </span>
                       <input
                         type="number"
                         step="0.1"
@@ -395,7 +432,10 @@ export function DocumentThemeTab(): React.JSX.Element {
                             ...theme,
                             page: {
                               ...theme.page,
-                              margins: { ...theme.page.margins, top: parseFloat(e.target.value) || 1.5 }
+                              margins: {
+                                ...theme.page.margins,
+                                top: parseFloat(e.target.value) || 1.5
+                              }
                             }
                           })
                         }
@@ -404,7 +444,9 @@ export function DocumentThemeTab(): React.JSX.Element {
                     </div>
 
                     <div>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400">Sağ (Right)</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Sağ (Right)
+                      </span>
                       <input
                         type="number"
                         step="0.1"
@@ -416,7 +458,10 @@ export function DocumentThemeTab(): React.JSX.Element {
                             ...theme,
                             page: {
                               ...theme.page,
-                              margins: { ...theme.page.margins, right: parseFloat(e.target.value) || 1.5 }
+                              margins: {
+                                ...theme.page.margins,
+                                right: parseFloat(e.target.value) || 1.5
+                              }
                             }
                           })
                         }
@@ -425,7 +470,9 @@ export function DocumentThemeTab(): React.JSX.Element {
                     </div>
 
                     <div>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400">Alt (Bottom)</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Alt (Bottom)
+                      </span>
                       <input
                         type="number"
                         step="0.1"
@@ -437,7 +484,10 @@ export function DocumentThemeTab(): React.JSX.Element {
                             ...theme,
                             page: {
                               ...theme.page,
-                              margins: { ...theme.page.margins, bottom: parseFloat(e.target.value) || 1.5 }
+                              margins: {
+                                ...theme.page.margins,
+                                bottom: parseFloat(e.target.value) || 1.5
+                              }
                             }
                           })
                         }
@@ -446,7 +496,9 @@ export function DocumentThemeTab(): React.JSX.Element {
                     </div>
 
                     <div>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400">Sol (Left)</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Sol (Left)
+                      </span>
                       <input
                         type="number"
                         step="0.1"
@@ -458,7 +510,10 @@ export function DocumentThemeTab(): React.JSX.Element {
                             ...theme,
                             page: {
                               ...theme.page,
-                              margins: { ...theme.page.margins, left: parseFloat(e.target.value) || 1.5 }
+                              margins: {
+                                ...theme.page.margins,
+                                left: parseFloat(e.target.value) || 1.5
+                              }
                             }
                           })
                         }
@@ -810,31 +865,97 @@ export function DocumentThemeTab(): React.JSX.Element {
                       border: `${theme.table.borderWidth} solid ${theme.table.borderColor}`
                     }}
                   >
-                    <th className="p-1 text-center font-bold border" style={{ borderColor: theme.table.borderColor }}>S.No</th>
-                    <th className="p-1 text-left font-bold border" style={{ borderColor: theme.table.borderColor }}>Mal / Malzeme Adı</th>
-                    <th className="p-1 text-center font-bold border" style={{ borderColor: theme.table.borderColor }}>Miktar</th>
-                    <th className="p-1 text-center font-bold border" style={{ borderColor: theme.table.borderColor }}>Birim</th>
+                    <th
+                      className="p-1 text-center font-bold border"
+                      style={{ borderColor: theme.table.borderColor }}
+                    >
+                      S.No
+                    </th>
+                    <th
+                      className="p-1 text-left font-bold border"
+                      style={{ borderColor: theme.table.borderColor }}
+                    >
+                      Mal / Malzeme Adı
+                    </th>
+                    <th
+                      className="p-1 text-center font-bold border"
+                      style={{ borderColor: theme.table.borderColor }}
+                    >
+                      Miktar
+                    </th>
+                    <th
+                      className="p-1 text-center font-bold border"
+                      style={{ borderColor: theme.table.borderColor }}
+                    >
+                      Birim
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr style={{ border: `${theme.table.borderWidth} solid ${theme.table.borderColor}` }}>
-                    <td className="p-1 text-center border" style={{ borderColor: theme.table.borderColor }}>1</td>
-                    <td className="p-1 border" style={{ borderColor: theme.table.borderColor }}>A4 Fotokopi Kağıdı (80 gr)</td>
-                    <td className="p-1 text-center border" style={{ borderColor: theme.table.borderColor }}>50</td>
-                    <td className="p-1 text-center border" style={{ borderColor: theme.table.borderColor }}>Paket</td>
+                  <tr
+                    style={{
+                      border: `${theme.table.borderWidth} solid ${theme.table.borderColor}`
+                    }}
+                  >
+                    <td
+                      className="p-1 text-center border"
+                      style={{ borderColor: theme.table.borderColor }}
+                    >
+                      1
+                    </td>
+                    <td className="p-1 border" style={{ borderColor: theme.table.borderColor }}>
+                      A4 Fotokopi Kağıdı (80 gr)
+                    </td>
+                    <td
+                      className="p-1 text-center border"
+                      style={{ borderColor: theme.table.borderColor }}
+                    >
+                      50
+                    </td>
+                    <td
+                      className="p-1 text-center border"
+                      style={{ borderColor: theme.table.borderColor }}
+                    >
+                      Paket
+                    </td>
                   </tr>
-                  <tr style={{ border: `${theme.table.borderWidth} solid ${theme.table.borderColor}` }}>
-                    <td className="p-1 text-center border" style={{ borderColor: theme.table.borderColor }}>2</td>
-                    <td className="p-1 border" style={{ borderColor: theme.table.borderColor }}>Mavi Tükenmez Kalem (0.7 mm)</td>
-                    <td className="p-1 text-center border" style={{ borderColor: theme.table.borderColor }}>100</td>
-                    <td className="p-1 text-center border" style={{ borderColor: theme.table.borderColor }}>Adet</td>
+                  <tr
+                    style={{
+                      border: `${theme.table.borderWidth} solid ${theme.table.borderColor}`
+                    }}
+                  >
+                    <td
+                      className="p-1 text-center border"
+                      style={{ borderColor: theme.table.borderColor }}
+                    >
+                      2
+                    </td>
+                    <td className="p-1 border" style={{ borderColor: theme.table.borderColor }}>
+                      Mavi Tükenmez Kalem (0.7 mm)
+                    </td>
+                    <td
+                      className="p-1 text-center border"
+                      style={{ borderColor: theme.table.borderColor }}
+                    >
+                      100
+                    </td>
+                    <td
+                      className="p-1 text-center border"
+                      style={{ borderColor: theme.table.borderColor }}
+                    >
+                      Adet
+                    </td>
                   </tr>
                 </tbody>
               </table>
 
               {/* Sample Paragraph */}
-              <p className="text-[9px] text-justify my-2 leading-relaxed" style={{ color: theme.colors.textLight }}>
-                Yukarıda cins ve miktarları belirtilen malzemelerin 4734 sayılı Kamu İhale Kanununun 22/d maddesi kapsamında temini hususunu olurlarınıza arz ederim.
+              <p
+                className="text-[9px] text-justify my-2 leading-relaxed"
+                style={{ color: theme.colors.textLight }}
+              >
+                Yukarıda cins ve miktarları belirtilen malzemelerin 4734 sayılı Kamu İhale Kanununun
+                22/d maddesi kapsamında temini hususunu olurlarınıza arz ederim.
               </p>
 
               {/* Signature Block */}

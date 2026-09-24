@@ -58,7 +58,8 @@ export default function OlcuBirimleriScreen(): React.JSX.Element {
   // Filtered unit list
   const filteredBirimler = useMemo(() => {
     return birimler.filter((b) => {
-      const matchKat = selectedKategori === 'TÜMÜ' || (b.kategori || 'Adet/Miktar') === selectedKategori
+      const matchKat =
+        selectedKategori === 'TÜMÜ' || (b.kategori || 'Adet/Miktar') === selectedKategori
       const q = searchQuery.toLowerCase()
       return (
         matchKat &&
@@ -199,7 +200,10 @@ export default function OlcuBirimleriScreen(): React.JSX.Element {
       kaynak_birim_id: oldHedef,
       hedef_birim_id: oldKaynak,
       donusum_faktoru: factor,
-      aciklama: kUnit && hUnit && factor ? `1 ${kUnit.ad} = ${factor} ${hUnit.ad} dönüşümü` : editingDonusum.aciklama
+      aciklama:
+        kUnit && hUnit && factor
+          ? `1 ${kUnit.ad} = ${factor} ${hUnit.ad} dönüşümü`
+          : editingDonusum.aciklama
     })
   }
 
@@ -234,7 +238,8 @@ export default function OlcuBirimleriScreen(): React.JSX.Element {
               Ölçü Birimleri & Dönüşüm Yönetimi
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
-              Malzeme, Yapım İşi ve Hizmet kalemleri için birim havuzu, doğrusal ve formüllü dönüşüm kuralları.
+              Malzeme, Yapım İşi ve Hizmet kalemleri için birim havuzu, doğrusal ve formüllü dönüşüm
+              kuralları.
             </p>
           </div>
         </div>

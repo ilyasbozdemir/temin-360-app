@@ -21,9 +21,13 @@ interface WorkspaceState {
   isDirty: boolean
   setIsDirty: (dirty: boolean) => void
   saveWorkspace: () => Promise<{ success: boolean; error?: string }>
-  saveAsWorkspace: (targetFilePath?: string) => Promise<{ success: boolean; newFilePath?: string; error?: string }>
+  saveAsWorkspace: (
+    targetFilePath?: string
+  ) => Promise<{ success: boolean; newFilePath?: string; error?: string }>
   upgradeToTemin: () => Promise<{ success: boolean; newPath?: string; error?: string }>
-  convertAndOpenWorkspace: (filePath: string) => Promise<{ success: boolean; newFilePath?: string; error?: string }>
+  convertAndOpenWorkspace: (
+    filePath: string
+  ) => Promise<{ success: boolean; newFilePath?: string; error?: string }>
   setIsCreatingDosya: (flag: boolean) => void
   setActiveFile: (path: string | null) => void
   setIsAuthenticated: (auth: boolean) => void
@@ -52,16 +56,10 @@ interface WorkspaceState {
 
 export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   activeFilePath:
-    sessionStorage.getItem('workspace_path') ||
-    localStorage.getItem('workspace_path') ||
-    null,
+    sessionStorage.getItem('workspace_path') || localStorage.getItem('workspace_path') || null,
   fileName:
-    sessionStorage.getItem('workspace_path') ||
-    localStorage.getItem('workspace_path')
-      ? (
-          sessionStorage.getItem('workspace_path') ||
-          localStorage.getItem('workspace_path')
-        )!
+    sessionStorage.getItem('workspace_path') || localStorage.getItem('workspace_path')
+      ? (sessionStorage.getItem('workspace_path') || localStorage.getItem('workspace_path'))!
           .split('\\')
           .pop()
           ?.split('/')
@@ -118,7 +116,10 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   },
   convertAndOpenWorkspace: async (filePath: string) => {
     try {
-      const result = await window.electron.ipcRenderer.invoke('workspace:convert-and-open', filePath)
+      const result = await window.electron.ipcRenderer.invoke(
+        'workspace:convert-and-open',
+        filePath
+      )
       if (result.success) {
         const actualFilePath = result.newFilePath || filePath
         sessionStorage.setItem('workspace_path', actualFilePath)

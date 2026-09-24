@@ -192,8 +192,12 @@ export const BelgelerTab: React.FC<BelgelerTabProps> = ({
                   <div className="font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
                     <FileCheck2 size={16} /> İmzalı PDF Yüklendi
                   </div>
-                  <div className="text-slate-600 dark:text-slate-300 truncate">{selectedBelge.pdfDosyaAdi}</div>
-                  <div className="text-[10px] text-slate-400">{selectedBelge.pdfYuklenmeTarihi}</div>
+                  <div className="text-slate-600 dark:text-slate-300 truncate">
+                    {selectedBelge.pdfDosyaAdi}
+                  </div>
+                  <div className="text-[10px] text-slate-400">
+                    {selectedBelge.pdfYuklenmeTarihi}
+                  </div>
                 </div>
               )}
 
@@ -223,10 +227,10 @@ export const BelgelerTab: React.FC<BelgelerTabProps> = ({
                     {selectedBelge.durum === 'oluşturulmadı'
                       ? 'Taslak Oluştur'
                       : selectedBelge.durum === 'taslak'
-                      ? 'Onaya Gönder'
-                      : selectedBelge.durum === 'oluşturuldu'
-                      ? 'İmzaya Gönder'
-                      : 'İmzalandı İşaretle'}
+                        ? 'Onaya Gönder'
+                        : selectedBelge.durum === 'oluşturuldu'
+                          ? 'İmzaya Gönder'
+                          : 'İmzalandı İşaretle'}
                   </button>
                 )}
 
@@ -261,7 +265,8 @@ export const BelgelerTab: React.FC<BelgelerTabProps> = ({
           Taranan İmzalı Belgeler Kütüğü ({taranmisBelgeler.length} Dosya)
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-4">
-          Fiziksel imzalı belgelerin taranmış (PDF) hallerini buraya yükleyin — ilgili resmi belgeye otomatik bağlanır.
+          Fiziksel imzalı belgelerin taranmış (PDF) hallerini buraya yükleyin — ilgili resmi belgeye
+          otomatik bağlanır.
         </p>
 
         <label
@@ -283,7 +288,8 @@ export const BelgelerTab: React.FC<BelgelerTabProps> = ({
         >
           <Upload size={24} className={surukleniyor ? 'text-blue-500' : 'text-slate-400'} />
           <div className="text-xs text-slate-600 dark:text-slate-300 text-center font-medium">
-            <span className="font-bold text-blue-600 dark:text-blue-400">PDF Seç</span> veya sürükleyip bırak
+            <span className="font-bold text-blue-600 dark:text-blue-400">PDF Seç</span> veya
+            sürükleyip bırak
           </div>
           <div className="text-[10px] text-slate-400">Yalnızca PDF</div>
           <input

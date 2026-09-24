@@ -359,10 +359,7 @@ export function useCiktiMerkeziData(activeDosyaId: number | null): UseCiktiMerke
                       sablonKey.toLowerCase().includes('tarih'))
                   ) {
                     val =
-                      dRow.dosya_acilis_tarihi ||
-                      dRow.tarih ||
-                      dRow.temin_tarihi ||
-                      dRow.created_at
+                      dRow.dosya_acilis_tarihi || dRow.tarih || dRow.temin_tarihi || dRow.created_at
                   }
                 }
               }

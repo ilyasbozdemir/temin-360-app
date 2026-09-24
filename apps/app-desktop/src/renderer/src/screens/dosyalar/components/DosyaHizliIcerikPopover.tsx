@@ -313,7 +313,10 @@ export function DosyaHizliIcerikPopover({
               <div className="space-y-3">
                 {/* Empty Alert Card */}
                 <div className="p-3.5 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 text-center">
-                  <Package size={26} className="mx-auto text-slate-300 dark:text-slate-600 mb-1.5" />
+                  <Package
+                    size={26}
+                    className="mx-auto text-slate-300 dark:text-slate-600 mb-1.5"
+                  />
                   <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
                     Bu dosyada henüz kayıtlı kalem bulunmuyor.
                   </p>
@@ -422,7 +425,10 @@ export function DosyaHizliIcerikPopover({
             <div className="space-y-3">
               {/* Empty Alert Card */}
               <div className="p-3.5 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 text-center">
-                <Building2 size={26} className="mx-auto text-slate-300 dark:text-slate-600 mb-1.5" />
+                <Building2
+                  size={26}
+                  className="mx-auto text-slate-300 dark:text-slate-600 mb-1.5"
+                />
                 <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
                   Bu dosyaya henüz istekli firma eklenmemiş.
                 </p>
@@ -488,9 +494,7 @@ export function DosyaHizliIcerikPopover({
                         {firma.unvan || `Firma #${firma.id}`}
                       </p>
                       <div className="flex items-center gap-2 text-[9px] text-slate-400 mt-0.5">
-                        {firma.vergi_no && (
-                          <span className="font-mono">VN: {firma.vergi_no}</span>
-                        )}
+                        {firma.vergi_no && <span className="font-mono">VN: {firma.vergi_no}</span>}
                         {firma.il && <span>{firma.il}</span>}
                         {firma.teklif_durumu && (
                           <span className="bg-slate-200/60 dark:bg-slate-800 px-1 py-0.2 rounded font-medium text-slate-600 dark:text-slate-300">
@@ -512,9 +516,7 @@ export function DosyaHizliIcerikPopover({
                         </span>
                       </div>
                     ) : (
-                      <span className="text-[10px] text-slate-400 italic">
-                        Teklif bekleniyor
-                      </span>
+                      <span className="text-[10px] text-slate-400 italic">Teklif bekleniyor</span>
                     )}
                   </div>
                 </div>
@@ -548,4 +550,3 @@ export function DosyaHizliIcerikPopover({
     </Popover>
   )
 }
-

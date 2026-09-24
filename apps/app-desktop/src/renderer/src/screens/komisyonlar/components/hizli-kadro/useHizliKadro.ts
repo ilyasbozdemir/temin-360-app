@@ -66,18 +66,21 @@ export function useHizliKadro({
 
     const fetchCurrentMembers = async () => {
       try {
-        await window.electron.ipcRenderer.invoke(
-          'db:run',
-          'ALTER TABLE TANIM_KomisyonUye ADD COLUMN belgede_goster INTEGER DEFAULT 1'
-        ).catch(() => {})
-        await window.electron.ipcRenderer.invoke(
-          'db:run',
-          'ALTER TABLE DATA_TeminKomisyon ADD COLUMN komisyon_turu TEXT'
-        ).catch(() => {})
-        await window.electron.ipcRenderer.invoke(
-          'db:run',
-          'ALTER TABLE DATA_TeminKomisyon ADD COLUMN belgede_goster INTEGER DEFAULT 1'
-        ).catch(() => {})
+        await window.electron.ipcRenderer
+          .invoke(
+            'db:run',
+            'ALTER TABLE TANIM_KomisyonUye ADD COLUMN belgede_goster INTEGER DEFAULT 1'
+          )
+          .catch(() => {})
+        await window.electron.ipcRenderer
+          .invoke('db:run', 'ALTER TABLE DATA_TeminKomisyon ADD COLUMN komisyon_turu TEXT')
+          .catch(() => {})
+        await window.electron.ipcRenderer
+          .invoke(
+            'db:run',
+            'ALTER TABLE DATA_TeminKomisyon ADD COLUMN belgede_goster INTEGER DEFAULT 1'
+          )
+          .catch(() => {})
       } catch {
         /* zaten mevcut */
       }
@@ -200,13 +203,13 @@ export function useHizliKadro({
   }
 
   const handleSelectPersonel = (rowId: string | number, pId: number | null) => {
-    setRows((prev) => (prev.map((r) => (r.id === rowId ? { ...r, personelId: pId } : r))))
+    setRows((prev) => prev.map((r) => (r.id === rowId ? { ...r, personelId: pId } : r)))
     setActiveDropdownRowId(null)
     setSearchPersonelTerm('')
   }
 
   const handleSelectGorev = (rowId: string | number, gorevAd: string, gorevId: number | null) => {
-    setRows((prev) => (prev.map((r) => (r.id === rowId ? { ...r, gorevAd, gorevId } : r))))
+    setRows((prev) => prev.map((r) => (r.id === rowId ? { ...r, gorevAd, gorevId } : r)))
   }
 
   const handleToggleAsil = (rowId: string | number) => {
@@ -284,25 +287,32 @@ export function useHizliKadro({
         await window.electron.ipcRenderer.invoke(
           'db:run',
           'INSERT INTO TANIM_KomisyonUye (komisyon_id, gorev_id, personel_id, asil_mi, sira, belgede_goster) VALUES (?, ?, ?, ?, ?, ?)',
-          [komisyonId, r.gorevId || 1, r.personelId || null, r.asilMi, i + 1, r.belgedeGoster ? 1 : 0]
+          [
+            komisyonId,
+            r.gorevId || 1,
+            r.personelId || null,
+            r.asilMi,
+            i + 1,
+            r.belgedeGoster ? 1 : 0
+          ]
         )
       }
 
       // Aktif dosyaya senkronize et (belgede_goster dahil)
       if (syncToActiveFile && activeDosyaId) {
         const lower = komisyonAdi.toLowerCase()
-        const isMaliyet =
-          lower.includes('maliyet') || lower.includes('fiyat') || komisyonId === 1
+        const isMaliyet = lower.includes('maliyet') || lower.includes('fiyat') || komisyonId === 1
 
         try {
-          await window.electron.ipcRenderer.invoke(
-            'db:run',
-            'ALTER TABLE DATA_TeminKomisyon ADD COLUMN komisyon_turu TEXT'
-          ).catch(() => {})
-          await window.electron.ipcRenderer.invoke(
-            'db:run',
-            'ALTER TABLE DATA_TeminKomisyon ADD COLUMN belgede_goster INTEGER DEFAULT 1'
-          ).catch(() => {})
+          await window.electron.ipcRenderer
+            .invoke('db:run', 'ALTER TABLE DATA_TeminKomisyon ADD COLUMN komisyon_turu TEXT')
+            .catch(() => {})
+          await window.electron.ipcRenderer
+            .invoke(
+              'db:run',
+              'ALTER TABLE DATA_TeminKomisyon ADD COLUMN belgede_goster INTEGER DEFAULT 1'
+            )
+            .catch(() => {})
         } catch {
           /* zaten mevcut */
         }

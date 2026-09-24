@@ -308,4 +308,3 @@ export function useFirmaNotlariHooks(firmaId?: number | null) {
     deleteNot: deleteNotMutation.mutateAsync
   }
 }
-

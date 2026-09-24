@@ -99,7 +99,9 @@ export function useTeminNoChecker(
 
           const fileYear =
             Number(file.butce_yili) ||
-            (file.dosya_acilis_tarihi ? new Date(file.dosya_acilis_tarihi).getFullYear() : targetYear)
+            (file.dosya_acilis_tarihi
+              ? new Date(file.dosya_acilis_tarihi).getFullYear()
+              : targetYear)
 
           // Only compare files belonging to the same budget year
           if (fileYear !== targetYear && fileYear !== 0) {
@@ -136,7 +138,9 @@ export function useTeminNoChecker(
         for (const file of files) {
           const fileYear =
             Number(file.butce_yili) ||
-            (file.dosya_acilis_tarihi ? new Date(file.dosya_acilis_tarihi).getFullYear() : targetYear)
+            (file.dosya_acilis_tarihi
+              ? new Date(file.dosya_acilis_tarihi).getFullYear()
+              : targetYear)
           if (fileYear === targetYear) {
             const fNo = (file.temin_no || '').trim()
             const match = fNo.match(/(\d+)$/)

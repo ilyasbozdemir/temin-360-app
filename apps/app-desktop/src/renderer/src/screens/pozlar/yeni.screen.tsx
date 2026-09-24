@@ -25,10 +25,7 @@ import {
 } from 'lucide-react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { PozItem, usePozlarHooks, PozFiyatGecmisi } from './pozlar.hooks'
-import {
-  POZ_KURUMLARI,
-  getDinamikFiyatDonemleri
-} from '../malzemeler/components/pozKitaplari.data'
+import { POZ_KURUMLARI, getDinamikFiyatDonemleri } from '../malzemeler/components/pozKitaplari.data'
 import { APP_ROUTES } from '../../constants/routeConstants'
 import { Button } from '../../components/ui/Button'
 import { cn } from '../../utils/cn'
@@ -52,11 +49,23 @@ const OLCU_BIRIMLERI_LIST = [
 ]
 
 const POZ_TIPLERI = [
-  { id: 'Analiz', ad: 'Analiz Pozu', desc: 'Malzeme + İşçilik + Makine + Müteahhit Kârı içeren komple imalat' },
-  { id: 'Rayiç', ad: 'Rayiç (Malzeme / İşçilik / Makine)', desc: 'Tekil malzeme rayici veya işçilik saat ücreti' },
+  {
+    id: 'Analiz',
+    ad: 'Analiz Pozu',
+    desc: 'Malzeme + İşçilik + Makine + Müteahhit Kârı içeren komple imalat'
+  },
+  {
+    id: 'Rayiç',
+    ad: 'Rayiç (Malzeme / İşçilik / Makine)',
+    desc: 'Tekil malzeme rayici veya işçilik saat ücreti'
+  },
   { id: 'İmalat', ad: 'İmalat / Montajsız', desc: 'Doğrudan yerinde montajı yapılan kalem' },
   { id: 'Montaj', ad: 'Sadece Montaj Bedeli', desc: 'Cihaz veya ekipman montaj ücreti' },
-  { id: 'Nakliye', ad: 'Nakliye & Taşıma Zammı', desc: 'Mesafe ve ağırlık bazlı taşıma formülleri' },
+  {
+    id: 'Nakliye',
+    ad: 'Nakliye & Taşıma Zammı',
+    desc: 'Mesafe ve ağırlık bazlı taşıma formülleri'
+  },
   { id: 'Özel', ad: 'Özel İdare / Kurum Pozu', desc: 'Özel teknik şartnameye bağlı imalat' }
 ]
 
@@ -134,16 +143,18 @@ const ORNEK_POZ_SABLONLARI = [
     eski_poz_no: '14.040/1',
     fasikul: 'Çevre ve Şehircilik Bakanlığı 2019 ve Sonrası',
     poz_tipi: 'Analiz',
-    kalem_adi: 'Her cins zeminde el ile yapılan (geniş-dar) derin kazılarda derinlik zammı (iksasız kazılarda) F=103,125 x H -206,25 (%25 yüklenici karı ve genel giderler dahil)',
+    kalem_adi:
+      'Her cins zeminde el ile yapılan (geniş-dar) derin kazılarda derinlik zammı (iksasız kazılarda) F=103,125 x H -206,25 (%25 yüklenici karı ve genel giderler dahil)',
     birim: 'm³',
     yapi_sinifi: 'İnşaat İmalatları (Kaba & İnce İşler)',
     okas_kodu: '45112000',
-    ozelligi: 'Her cins zeminde el ile yapılan (geniş-dar) derin kazılara derinlik zammı (iksasız kazılarda) F=103,125 x H -206,25 (%25 yüklenici kârı ve genel giderler dahil)',
+    ozelligi:
+      'Her cins zeminde el ile yapılan (geniş-dar) derin kazılara derinlik zammı (iksasız kazılarda) F=103,125 x H -206,25 (%25 yüklenici kârı ve genel giderler dahil)',
     fiyatlar: [
-      { donem: '2026/1', fiyat: 425.50 },
-      { donem: '2025/2', fiyat: 365.00 },
+      { donem: '2026/1', fiyat: 425.5 },
+      { donem: '2025/2', fiyat: 365.0 },
       { donem: '2025/1', fiyat: 310.25 },
-      { donem: '2024/2', fiyat: 245.00 }
+      { donem: '2024/2', fiyat: 245.0 }
     ]
   },
   {
@@ -159,9 +170,9 @@ const ORNEK_POZ_SABLONLARI = [
     okas_kodu: '45000000',
     ozelligi: 'Beton pompası, mikser ve vibratör ile yerleştirme, sıkıştırma ve kürü dahil.',
     fiyatlar: [
-      { donem: '2026/1', fiyat: 2850.00 },
-      { donem: '2025/2', fiyat: 2450.00 },
-      { donem: '2025/1', fiyat: 2100.00 }
+      { donem: '2026/1', fiyat: 2850.0 },
+      { donem: '2025/2', fiyat: 2450.0 },
+      { donem: '2025/1', fiyat: 2100.0 }
     ]
   },
   {
@@ -177,9 +188,9 @@ const ORNEK_POZ_SABLONLARI = [
     okas_kodu: '45000000',
     ozelligi: 'Bağlama teli, paspayı, kesme, bükme ve montaj zayiyatları dahil.',
     fiyatlar: [
-      { donem: '2026/1', fiyat: 38500.00 },
-      { donem: '2025/2', fiyat: 34000.00 },
-      { donem: '2025/1', fiyat: 29500.00 }
+      { donem: '2026/1', fiyat: 38500.0 },
+      { donem: '2025/2', fiyat: 34000.0 },
+      { donem: '2025/1', fiyat: 29500.0 }
     ]
   },
   {
@@ -195,8 +206,8 @@ const ORNEK_POZ_SABLONLARI = [
     okas_kodu: '45400000',
     ozelligi: 'İdarece onaylı özel teknik şartnameye ve birim fiyat analizine uygun olarak.',
     fiyatlar: [
-      { donem: '2026/1', fiyat: 650.00 },
-      { donem: '2025/2', fiyat: 520.00 }
+      { donem: '2026/1', fiyat: 650.0 },
+      { donem: '2025/2', fiyat: 520.0 }
     ]
   }
 ]
@@ -264,9 +275,7 @@ export default function YeniPozScreen(): React.JSX.Element {
 
   // Edit modunda mevcut poz verisini doldur
   useEffect(() => {
-    document.title = editId
-      ? 'Birim Fiyat Pozu Düzenle - DT'
-      : 'Yeni Birim Fiyat Pozu Tanımla - DT'
+    document.title = editId ? 'Birim Fiyat Pozu Düzenle - DT' : 'Yeni Birim Fiyat Pozu Tanımla - DT'
 
     if (editId && pozList.length > 0) {
       const existing = pozList.find((p) => p.id === editId)
@@ -295,13 +304,19 @@ export default function YeniPozScreen(): React.JSX.Element {
           } catch {
             if (existing.birim_fiyat) {
               setFiyatListesi([
-                { donem: existing.fiyat_donemi || `${existing.poz_yili || 2026}/1`, fiyat: existing.birim_fiyat }
+                {
+                  donem: existing.fiyat_donemi || `${existing.poz_yili || 2026}/1`,
+                  fiyat: existing.birim_fiyat
+                }
               ])
             }
           }
         } else if (existing.birim_fiyat) {
           setFiyatListesi([
-            { donem: existing.fiyat_donemi || `${existing.poz_yili || 2026}/1`, fiyat: existing.birim_fiyat }
+            {
+              donem: existing.fiyat_donemi || `${existing.poz_yili || 2026}/1`,
+              fiyat: existing.birim_fiyat
+            }
           ])
         }
       }
@@ -420,13 +435,19 @@ export default function YeniPozScreen(): React.JSX.Element {
 
     setIsSaving(true)
     try {
-      const guncelFiyat = fiyatListesi.length > 0 ? fiyatListesi[0].fiyat : (Number(formData.birim_fiyat) || 0)
-      const guncelDonem = fiyatListesi.length > 0 ? fiyatListesi[0].donem : (formData.fiyat_donemi || '2026/1')
+      const guncelFiyat =
+        fiyatListesi.length > 0 ? fiyatListesi[0].fiyat : Number(formData.birim_fiyat) || 0
+      const guncelDonem =
+        fiyatListesi.length > 0 ? fiyatListesi[0].donem : formData.fiyat_donemi || '2026/1'
 
       const payload: Partial<PozItem> = {
         ...formData,
         kalem_adi: formData.kalem_adi?.trim() || formData.poz_tanimi?.trim() || formData.poz_no,
-        poz_tanimi: formData.ozelligi?.trim() || formData.poz_tanimi?.trim() || formData.kalem_adi?.trim() || '',
+        poz_tanimi:
+          formData.ozelligi?.trim() ||
+          formData.poz_tanimi?.trim() ||
+          formData.kalem_adi?.trim() ||
+          '',
         eski_poz_no: formData.eski_poz_no?.trim() || null,
         fasikul: formData.fasikul?.trim() || 'Çevre ve Şehircilik Bakanlığı 2019 ve Sonrası',
         poz_tipi: formData.poz_tipi || 'Analiz',
@@ -486,7 +507,8 @@ export default function YeniPozScreen(): React.JSX.Element {
                   Kaydedilmemiş Değişiklikler
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Formda kaydedilmemiş değişiklikler var. Çıkarsanız yaptığınız değişiklikler kaybolacak.
+                  Formda kaydedilmemiş değişiklikler var. Çıkarsanız yaptığınız değişiklikler
+                  kaybolacak.
                 </p>
               </div>
             </div>
@@ -524,7 +546,6 @@ export default function YeniPozScreen(): React.JSX.Element {
         </div>
       )}
 
-
       {/* Üst Bar / Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
         <div className="flex items-center gap-4">
@@ -542,13 +563,16 @@ export default function YeniPozScreen(): React.JSX.Element {
                 {editId ? 'DÜZENLEME MODU' : 'YENİ POZ TANIMI'}
               </span>
               <span className="text-xs text-slate-400">/</span>
-              <span className="text-xs text-slate-500 font-medium">Birim Fiyat Kitapları & Fasiküller</span>
+              <span className="text-xs text-slate-500 font-medium">
+                Birim Fiyat Kitapları & Fasiküller
+              </span>
             </div>
             <h1 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
               {editId ? 'Birim Fiyat Pozunu Düzenle' : 'Yeni Birim Fiyat Pozu Tanımla'}
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Fasikül, kitap, eski/yeni poz numarası eşleşmesi, analiz/rayiç tipi ve dönemsel birim fiyatları yönetin.
+              Fasikül, kitap, eski/yeni poz numarası eşleşmesi, analiz/rayiç tipi ve dönemsel birim
+              fiyatları yönetin.
             </p>
           </div>
         </div>
@@ -561,7 +585,11 @@ export default function YeniPozScreen(): React.JSX.Element {
             className="gap-2 text-xs"
           >
             <RotateCcw size={14} />
-            {isDirty ? <span className="text-amber-600 dark:text-amber-400">Değişiklikleri Geri Al</span> : <span>Kapat</span>}
+            {isDirty ? (
+              <span className="text-amber-600 dark:text-amber-400">Değişiklikleri Geri Al</span>
+            ) : (
+              <span>Kapat</span>
+            )}
           </Button>
 
           <Button
@@ -590,7 +618,11 @@ export default function YeniPozScreen(): React.JSX.Element {
             <span>Eski/Yeni Poz Eşleşmesi & Fasikül Rayiç Takibi</span>
           </p>
           <p className="text-[11px] text-amber-800/90 dark:text-amber-300/90 leading-relaxed">
-            2019 yılında yürürlüğe giren yeni poz kod sistemi (örn: <code className="font-bold">15.110.1001</code>) ile önceki bülten poz kodları (örn: <code className="font-bold">14.040/1</code>) arasında eşleşme kurarak aramalarda her iki kodla da hızlıca ulaşabilirsiniz. Girdiğiniz dönemsel birim fiyatlar yaklaşık maliyet ve hakediş hesaplamalarında doğrudan kullanılır.
+            2019 yılında yürürlüğe giren yeni poz kod sistemi (örn:{' '}
+            <code className="font-bold">15.110.1001</code>) ile önceki bülten poz kodları (örn:{' '}
+            <code className="font-bold">14.040/1</code>) arasında eşleşme kurarak aramalarda her iki
+            kodla da hızlıca ulaşabilirsiniz. Girdiğiniz dönemsel birim fiyatlar yaklaşık maliyet ve
+            hakediş hesaplamalarında doğrudan kullanılır.
           </p>
         </div>
       </div>
@@ -627,7 +659,20 @@ export default function YeniPozScreen(): React.JSX.Element {
                     <button
                       key={kurum.id}
                       type="button"
-                      onClick={() => handleKurumPrefix(kurum.id === 'ÇŞB' ? '15.' : kurum.id === 'KGM' ? '04.' : kurum.id === 'DSİ' ? '07.' : kurum.id === 'İLBANK' ? '18.' : 'ÖZEL.', kurum.id)}
+                      onClick={() =>
+                        handleKurumPrefix(
+                          kurum.id === 'ÇŞB'
+                            ? '15.'
+                            : kurum.id === 'KGM'
+                              ? '04.'
+                              : kurum.id === 'DSİ'
+                                ? '07.'
+                                : kurum.id === 'İLBANK'
+                                  ? '18.'
+                                  : 'ÖZEL.',
+                          kurum.id
+                        )
+                      }
                       className={cn(
                         'p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between gap-1',
                         isSelected
@@ -655,7 +700,9 @@ export default function YeniPozScreen(): React.JSX.Element {
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                     Yeni Poz No <span className="text-red-500">*</span>
                   </label>
-                  <span className="text-[10px] text-amber-600 font-mono font-bold">2019+ Formatı</span>
+                  <span className="text-[10px] text-amber-600 font-mono font-bold">
+                    2019+ Formatı
+                  </span>
                 </div>
                 <input
                   type="text"
@@ -966,7 +1013,11 @@ export default function YeniPozScreen(): React.JSX.Element {
             {/* 1. KART: Pozu Detay Bilgileri */}
             <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
               <div className="bg-[#f97316] text-white px-5 py-3 font-bold text-sm flex items-center justify-between">
-                <span>{formData.poz_no ? `${formData.poz_no} Pozu Detay Bilgileri` : 'Poz Detay Bilgileri (Önizleme)'}</span>
+                <span>
+                  {formData.poz_no
+                    ? `${formData.poz_no} Pozu Detay Bilgileri`
+                    : 'Poz Detay Bilgileri (Önizleme)'}
+                </span>
                 <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded uppercase font-extrabold tracking-wider">
                   {formData.poz_kurumu || 'ÇŞB'}
                 </span>
@@ -1031,7 +1082,11 @@ export default function YeniPozScreen(): React.JSX.Element {
             {/* 2. KART: Pozu Birim Fiyatları */}
             <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
               <div className="bg-[#f97316] text-white px-5 py-3 font-bold text-sm flex items-center justify-between">
-                <span>{formData.poz_no ? `${formData.poz_no} Pozu Birim Fiyatları` : 'Poz Birim Fiyatları (Önizleme)'}</span>
+                <span>
+                  {formData.poz_no
+                    ? `${formData.poz_no} Pozu Birim Fiyatları`
+                    : 'Poz Birim Fiyatları (Önizleme)'}
+                </span>
                 <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded font-mono">
                   {fiyatListesi.length} Dönem
                 </span>
@@ -1121,7 +1176,9 @@ export default function YeniPozScreen(): React.JSX.Element {
               ) : (
                 <Save size={16} />
               )}
-              <span>{editId ? 'Değişiklikleri Kaydet' : 'Pozu & Fiyat Geçmişini Sisteme Ekle'}</span>
+              <span>
+                {editId ? 'Değişiklikleri Kaydet' : 'Pozu & Fiyat Geçmişini Sisteme Ekle'}
+              </span>
             </Button>
           </div>
         </div>

@@ -1,13 +1,5 @@
 import React, { useMemo } from 'react'
-import {
-  CheckCircle2,
-  Copy,
-  FileText,
-  Loader2,
-  RefreshCw,
-  Search,
-  Sparkles
-} from 'lucide-react'
+import { CheckCircle2, Copy, FileText, Loader2, RefreshCw, Search, Sparkles } from 'lucide-react'
 import { cn } from '../../../../../utils/cn'
 import { YeniDosyaTabProps } from '../../../types'
 import { useTeminNoChecker } from '../../../../../hooks/useTeminNoChecker'
@@ -47,7 +39,9 @@ export function GenelBilgilerVeIdariAntetSection(props: YeniDosyaTabProps): Reac
     )
   }, [formData.butce_yili, formData.dosya_acilis_tarihi])
 
-  const currentTargetId = isEdit ? (editId || (formData as any)?.id || null) : ((formData as any)?.id || null)
+  const currentTargetId = isEdit
+    ? editId || (formData as any)?.id || null
+    : (formData as any)?.id || null
 
   // Gerçek Zamanlı (Canlı) SQLite Temin No Mükerrerlik ve Müsaitlik Kontrolü
   const {
@@ -191,15 +185,17 @@ export function GenelBilgilerVeIdariAntetSection(props: YeniDosyaTabProps): Reac
                 isDuplicateTeminNo
                   ? 'border-amber-300 dark:border-amber-700/60 focus:ring-amber-400/20 bg-amber-50/20'
                   : isAvailableTeminNo
-                  ? 'border-emerald-300 dark:border-emerald-700/50 focus:ring-emerald-400/20'
-                  : 'border-slate-200 dark:border-slate-800 focus:ring-blue-500'
+                    ? 'border-emerald-300 dark:border-emerald-700/50 focus:ring-emerald-400/20'
+                    : 'border-slate-200 dark:border-slate-800 focus:ring-blue-500'
               )}
             />
             <button
               type="button"
               title="Sıradaki müsait benzersiz numarayı ata"
               onClick={() => {
-                const nextNo = nextAvailableNo || (getNextTeminNo ? getNextTeminNo(targetYear) : `${targetYear}/1`)
+                const nextNo =
+                  nextAvailableNo ||
+                  (getNextTeminNo ? getNextTeminNo(targetYear) : `${targetYear}/1`)
                 setFormData({ ...formData, temin_no: nextNo })
               }}
               className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-blue-600 hover:text-blue-700 dark:text-blue-400 font-bold px-2 py-1 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors flex items-center gap-1 cursor-pointer border-none"
@@ -214,7 +210,11 @@ export function GenelBilgilerVeIdariAntetSection(props: YeniDosyaTabProps): Reac
               <div className="flex items-center gap-1.5 min-w-0">
                 <span className="text-amber-500 shrink-0">ℹ️</span>
                 <span className="truncate">
-                  Bu numara <strong>#{duplicateInfo.id} - {duplicateInfo.konu}</strong> dosyasında kayıtlı.
+                  Bu numara{' '}
+                  <strong>
+                    #{duplicateInfo.id} - {duplicateInfo.konu}
+                  </strong>{' '}
+                  dosyasında kayıtlı.
                 </span>
               </div>
               {nextAvailableNo && (

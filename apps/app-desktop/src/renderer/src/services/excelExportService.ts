@@ -100,7 +100,10 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   const dosyaNoStr = formatDosyaNo(dosya)
   const kurumAdi = (kurum?.ad || kurum?.kurum_adi || 'T.C. KAMU İDARESİ').toUpperCase()
   const birimAdi = (
-    dosya?.birim_adi || dosya?.harcama_birimi || kurum?.birim_adi || 'Satınalma / Destek Hizmetleri Birimi'
+    dosya?.birim_adi ||
+    dosya?.harcama_birimi ||
+    kurum?.birim_adi ||
+    'Satınalma / Destek Hizmetleri Birimi'
   ).toUpperCase()
   const dosyaKonusu = dosya?.konu || dosya?.isin_adi || 'Doğrudan Temin Alım İşi'
   const ihaleSekli = dosya?.ihale_sekli || '4734 Sayılı KİK Madde 22/d (Doğrudan Temin)'
@@ -216,22 +219,40 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   for (const r of infoRows) {
     wsDash.getRow(curRow).height = 21
     wsDash.getCell(`B${curRow}`).value = r[0]
-    wsDash.getCell(`B${curRow}`).font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FF1F2937' } }
+    wsDash.getCell(`B${curRow}`).font = {
+      name: FONT_FAMILY,
+      size: 10,
+      bold: true,
+      color: { argb: 'FF1F2937' }
+    }
     wsDash.getCell(`B${curRow}`).fill = softGrayFill
     wsDash.getCell(`B${curRow}`).border = thinBorder
 
     wsDash.getCell(`C${curRow}`).value = r[1]
-    wsDash.getCell(`C${curRow}`).font = { name: FONT_FAMILY, size: 10, bold: r[0].includes('No') || r[0].includes('Konu') }
+    wsDash.getCell(`C${curRow}`).font = {
+      name: FONT_FAMILY,
+      size: 10,
+      bold: r[0].includes('No') || r[0].includes('Konu')
+    }
     wsDash.getCell(`C${curRow}`).border = thinBorder
 
     wsDash.getCell(`D${curRow}`).value = r[2]
-    wsDash.getCell(`D${curRow}`).font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FF1F2937' } }
+    wsDash.getCell(`D${curRow}`).font = {
+      name: FONT_FAMILY,
+      size: 10,
+      bold: true,
+      color: { argb: 'FF1F2937' }
+    }
     wsDash.getCell(`D${curRow}`).fill = softGrayFill
     wsDash.getCell(`D${curRow}`).border = thinBorder
 
     wsDash.mergeCells(`E${curRow}:F${curRow}`)
     wsDash.getCell(`E${curRow}`).value = r[3]
-    wsDash.getCell(`E${curRow}`).font = { name: FONT_FAMILY, size: 10, bold: r[2].includes('Kalem') || r[2].includes('Türü') }
+    wsDash.getCell(`E${curRow}`).font = {
+      name: FONT_FAMILY,
+      size: 10,
+      bold: r[2].includes('Kalem') || r[2].includes('Türü')
+    }
     wsDash.getCell(`E${curRow}`).border = thinBorder
     wsDash.getCell(`F${curRow}`).border = thinBorder
     curRow++
@@ -420,7 +441,13 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   wsDash.getRow(curRow).height = 24
 
   curRow++
-  const procCols = ['Adım', 'Süreç Aşaması', 'Mevzuat Dayanağı', 'Üretilen Belgeler / Çıktılar', 'Durum']
+  const procCols = [
+    'Adım',
+    'Süreç Aşaması',
+    'Mevzuat Dayanağı',
+    'Üretilen Belgeler / Çıktılar',
+    'Durum'
+  ]
   const procColCells = ['B', 'C', 'D', 'E', 'F']
   wsDash.getRow(curRow).height = 22
   procCols.forEach((pc, i) => {
@@ -433,12 +460,48 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   })
 
   const processSteps = [
-    ['1', 'İhtiyaç Tespiti & Lüzum', '4734 Sayılı KİK Md. 22', 'İhtiyaç Listesi, Lüzum Müzekkeresi, Talep Formu', 'Tamamlandı'],
-    ['2', 'Harcama Yetkilisi Onayı', 'KİK Md. 22 & Tebliğ', 'Doğrudan Temin Onay Belgesi, Harcama Talimatı', 'Tamamlandı'],
-    ['3', 'Piyasa Fiyat Araştırması', 'KİK Md. 22/d', 'Görevlendirme Oluru, Teklif İsteme Mektubu', 'Tamamlandı'],
-    ['4', 'Yaklaşık Maliyet & Fiyat Tespiti', 'KİK Tebliği Md. 22', 'Piyasa Fiyat Araştırma Tutanağı, Fiyat Karşılaştırma', 'Tamamlandı'],
-    ['5', 'Sipariş / Sözleşme İşlemleri', '4734 / Borçlar Kanunu', 'Sözleşme Tasarısı, Sipariş Mektubu, Taahhütname', 'Tamamlandı'],
-    ['6', 'Muayene Kabul & Ödeme', 'Muayene ve Kabul Yön.', 'Muayene ve Kabul Tutanağı, Taşınır İşlem Fişi', 'İşlemde / Hazır']
+    [
+      '1',
+      'İhtiyaç Tespiti & Lüzum',
+      '4734 Sayılı KİK Md. 22',
+      'İhtiyaç Listesi, Lüzum Müzekkeresi, Talep Formu',
+      'Tamamlandı'
+    ],
+    [
+      '2',
+      'Harcama Yetkilisi Onayı',
+      'KİK Md. 22 & Tebliğ',
+      'Doğrudan Temin Onay Belgesi, Harcama Talimatı',
+      'Tamamlandı'
+    ],
+    [
+      '3',
+      'Piyasa Fiyat Araştırması',
+      'KİK Md. 22/d',
+      'Görevlendirme Oluru, Teklif İsteme Mektubu',
+      'Tamamlandı'
+    ],
+    [
+      '4',
+      'Yaklaşık Maliyet & Fiyat Tespiti',
+      'KİK Tebliği Md. 22',
+      'Piyasa Fiyat Araştırma Tutanağı, Fiyat Karşılaştırma',
+      'Tamamlandı'
+    ],
+    [
+      '5',
+      'Sipariş / Sözleşme İşlemleri',
+      '4734 / Borçlar Kanunu',
+      'Sözleşme Tasarısı, Sipariş Mektubu, Taahhütname',
+      'Tamamlandı'
+    ],
+    [
+      '6',
+      'Muayene Kabul & Ödeme',
+      'Muayene ve Kabul Yön.',
+      'Muayene ve Kabul Tutanağı, Taşınır İşlem Fişi',
+      'İşlemde / Hazır'
+    ]
   ]
 
   for (const step of processSteps) {
@@ -870,7 +933,14 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   wsA4Ihtiyac.getCell('B8').font = { name: FONT_FAMILY, size: 10 }
 
   // A4 Table Header
-  const a4Headers = ['Sıra No', 'Taşınır / Poz No', 'Malzeme / Hizmet / İmalat Tanımı', 'Miktar', 'Birim', 'Açıklama']
+  const a4Headers = [
+    'Sıra No',
+    'Taşınır / Poz No',
+    'Malzeme / Hizmet / İmalat Tanımı',
+    'Miktar',
+    'Birim',
+    'Açıklama'
+  ]
   const a4HeaderRow = wsA4Ihtiyac.getRow(10)
   a4HeaderRow.height = 22
   a4Headers.forEach((ah, idx) => {
@@ -879,7 +949,10 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
     c.font = { name: FONT_FAMILY, size: 10, bold: true }
     c.fill = softGrayFill
     c.border = thinBorder
-    c.alignment = { vertical: 'middle', horizontal: idx === 0 || idx === 3 || idx === 4 ? 'center' : 'left' }
+    c.alignment = {
+      vertical: 'middle',
+      horizontal: idx === 0 || idx === 3 || idx === 4 ? 'center' : 'left'
+    }
   })
 
   let a4RowIdx = 11
@@ -948,11 +1021,7 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
     views: [{ showGridLines: true }]
   })
 
-  wsA4Onay.columns = [
-    { width: 6 },
-    { width: 28 },
-    { width: 44 }
-  ]
+  wsA4Onay.columns = [{ width: 6 }, { width: 28 }, { width: 44 }]
 
   wsA4Onay.mergeCells('A1:C1')
   wsA4Onay.getCell('A1').value = kurumAdi
@@ -970,11 +1039,30 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
     ['2', 'Harcama Birimi:', birimAdi],
     ['3', 'İşin / Alımın Adı ve Niteliği:', dosyaKonusu],
     ['4', 'Alım / İhale Usulü:', ihaleSekli],
-    ['5', 'Bütçe Tertibi & Yılı:', `${dosya?.butce_yili || '2026'} / ${dosya?.butce_kodu || '03.2'}`],
-    ['6', 'Yaklaşık Maliyet Tutarı (KDV Hariç):', { formula: `'${kalemlerSheetName}'!J${kalemTotalRow}` }],
+    [
+      '5',
+      'Bütçe Tertibi & Yılı:',
+      `${dosya?.butce_yili || '2026'} / ${dosya?.butce_kodu || '03.2'}`
+    ],
+    [
+      '6',
+      'Yaklaşık Maliyet Tutarı (KDV Hariç):',
+      { formula: `'${kalemlerSheetName}'!J${kalemTotalRow}` }
+    ],
     ['7', 'Kullanılabilir Ödenek Tutarı:', { formula: `'${kalemlerSheetName}'!J${kalemTotalRow}` }],
-    ['8', 'Piyasa Fiyat Araştırması Görevlileri:', komisyon.map(k => k.ad_soyad || k.personel_adi).filter(Boolean).join(', ') || 'Satınalma Görevlileri'],
-    ['9', 'Açıklamalar / Gerekçe:', '4734 Sayılı Kanun Madde 22/d uyarınca doğrudan temin usulüyle yapılması uygundur.']
+    [
+      '8',
+      'Piyasa Fiyat Araştırması Görevlileri:',
+      komisyon
+        .map((k) => k.ad_soyad || k.personel_adi)
+        .filter(Boolean)
+        .join(', ') || 'Satınalma Görevlileri'
+    ],
+    [
+      '9',
+      'Açıklamalar / Gerekçe:',
+      '4734 Sayılı Kanun Madde 22/d uyarınca doğrudan temin usulüyle yapılması uygundur.'
+    ]
   ]
 
   let oRow = 4
@@ -1013,7 +1101,8 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
 
   oRow++
   wsA4Onay.mergeCells(`A${oRow}:C${oRow}`)
-  wsA4Onay.getCell(`A${oRow}`).value = 'Yukarıda belirtilen harcamanın 4734 Sayılı Kanun Md. 22/d uyarınca doğrudan temin usulüyle yapılması UYGUNDUR.'
+  wsA4Onay.getCell(`A${oRow}`).value =
+    'Yukarıda belirtilen harcamanın 4734 Sayılı Kanun Md. 22/d uyarınca doğrudan temin usulüyle yapılması UYGUNDUR.'
   wsA4Onay.getCell(`A${oRow}`).font = { name: FONT_FAMILY, size: 10, italic: true }
   wsA4Onay.getCell(`A${oRow}`).alignment = { horizontal: 'center' }
   wsA4Onay.getCell(`A${oRow}`).border = thinBorder
@@ -1086,7 +1175,10 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
     c.font = { name: FONT_FAMILY, size: 10, bold: true }
     c.fill = softGrayFill
     c.border = thinBorder
-    c.alignment = { vertical: 'middle', horizontal: idx === 0 || idx === 2 ? 'center' : idx >= 3 ? 'right' : 'left' }
+    c.alignment = {
+      vertical: 'middle',
+      horizontal: idx === 0 || idx === 2 ? 'center' : idx >= 3 ? 'right' : 'left'
+    }
   })
 
   let pRowIdx = 7
@@ -1183,7 +1275,14 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
   komTitle.alignment = { vertical: 'middle', horizontal: 'center' }
   wsKom.getRow(1).height = 26
 
-  const komHeaders = ['Sıra', 'Adı Soyadı', 'Ünvanı / Mesleği', 'Komisyon Türü', 'Görevi / Rolü', 'İmza ve Görev Durumu']
+  const komHeaders = [
+    'Sıra',
+    'Adı Soyadı',
+    'Ünvanı / Mesleği',
+    'Komisyon Türü',
+    'Görevi / Rolü',
+    'İmza ve Görev Durumu'
+  ]
   const komHeaderRow = wsKom.getRow(3)
   komHeaderRow.height = 24
   komHeaders.forEach((kh, idx) => {
@@ -1310,17 +1409,94 @@ export async function exportDogrudanTeminMasterExcel(data: MasterExcelExportData
           s.aciklama || 'Doğrudan temin süreci resmi evrak çıktısı'
         ])
       : [
-          ['1', 'İhtiyaç Listesi & Talep Formu', '1. İhtiyaç & Başlangıç', 'ihtiyac-listesi.html', 'KİK Md. 22', 'Birimlerin talep ettiği malzeme/hizmet kalemlerinin resmi dökümü'],
-          ['2', 'Lüzum Müzekkeresi', '1. İhtiyaç & Başlangıç', 'luzum-muzekkeresi.html', 'KİK Md. 22', 'Alımın idari ve teknik gerekçesini belirten resmi talep yazısı'],
-          ['3', 'Doğrudan Temin Onay Belgesi / Harcama Talimatı', '1. İhtiyaç & Başlangıç', 'harcama-talimati.html', 'KİK Md. 22 & Tebliğ', 'Harcama yetkilisinden alım izni ve bütçe kullanımı onayı'],
-          ['4', 'Piyasa Fiyat Araştırma Görevlendirmesi', '2. Teklifler & Piyasa', 'piyasa-fiyat-arastirma-gorevlendirmesi.html', 'KİK Md. 22/d', 'Piyasa fiyat araştırması yapacak personelin görev onayı'],
-          ['5', 'Birim Fiyat Teklif Mektubu', '2. Teklifler & Piyasa', 'birim-fiyat-teklif-mektubu.html', 'KİK Md. 22/d', 'İstekli firmalara fiyat teklifi vermeleri için gönderilen davet mektubu'],
-          ['6', 'Piyasa Fiyat Araştırma Tutanağı', '2. Teklifler & Piyasa', 'piyasa-fiyat-arastirma-tutanagi.html', 'KİK Md. 22/d & Tebliğ', 'Alınan tüm tekliflerin karşılaştırılarak en uygunun belirlendiği tutanak'],
-          ['7', 'Yaklaşık Maliyet Hesap Cetveli', '2. Teklifler & Piyasa', 'yaklasik-maliyet-cetveli.html', 'KİK Tebliği Md. 22', 'Alımın tahmini bütçe ve piyasa ortalama maliyetinin tespit cetveli'],
-          ['8', 'Doğrudan Temin Sözleşmesi', '3. Sipariş & Sözleşme', 'dogrudan-temin-sozlesmesi.html', '4734 / Borçlar Kanunu', 'Yüklenici firma ile idare arasında yapılan resmi alım sözleşmesi'],
-          ['9', 'Sipariş Mektubu / Taahhütname', '3. Sipariş & Sözleşme', 'siparis-mektubu.html', 'KİK Md. 22', 'Sözleşme yapılmayan hallerde işin yapılmasını bildiren resmi sipariş emri'],
-          ['10', 'Muayene ve Kabul Tutanağı', '4. Muayene & Ödeme', 'muayene-kabul-tutanagi.html', 'Muayene ve Kabul Yön.', 'Mal veya hizmetin teknik şartlara uygun teslim alındığına dair kabul tutanağı'],
-          ['11', 'Harcama Pusulası & Ödeme Emri', '4. Muayene & Ödeme', 'harcama-pusulasi.html', '5018 Sayılı KMYKK', 'Faturanın muhasebeleştirilip yükleniciye ödeme yapılması talimatı']
+          [
+            '1',
+            'İhtiyaç Listesi & Talep Formu',
+            '1. İhtiyaç & Başlangıç',
+            'ihtiyac-listesi.html',
+            'KİK Md. 22',
+            'Birimlerin talep ettiği malzeme/hizmet kalemlerinin resmi dökümü'
+          ],
+          [
+            '2',
+            'Lüzum Müzekkeresi',
+            '1. İhtiyaç & Başlangıç',
+            'luzum-muzekkeresi.html',
+            'KİK Md. 22',
+            'Alımın idari ve teknik gerekçesini belirten resmi talep yazısı'
+          ],
+          [
+            '3',
+            'Doğrudan Temin Onay Belgesi / Harcama Talimatı',
+            '1. İhtiyaç & Başlangıç',
+            'harcama-talimati.html',
+            'KİK Md. 22 & Tebliğ',
+            'Harcama yetkilisinden alım izni ve bütçe kullanımı onayı'
+          ],
+          [
+            '4',
+            'Piyasa Fiyat Araştırma Görevlendirmesi',
+            '2. Teklifler & Piyasa',
+            'piyasa-fiyat-arastirma-gorevlendirmesi.html',
+            'KİK Md. 22/d',
+            'Piyasa fiyat araştırması yapacak personelin görev onayı'
+          ],
+          [
+            '5',
+            'Birim Fiyat Teklif Mektubu',
+            '2. Teklifler & Piyasa',
+            'birim-fiyat-teklif-mektubu.html',
+            'KİK Md. 22/d',
+            'İstekli firmalara fiyat teklifi vermeleri için gönderilen davet mektubu'
+          ],
+          [
+            '6',
+            'Piyasa Fiyat Araştırma Tutanağı',
+            '2. Teklifler & Piyasa',
+            'piyasa-fiyat-arastirma-tutanagi.html',
+            'KİK Md. 22/d & Tebliğ',
+            'Alınan tüm tekliflerin karşılaştırılarak en uygunun belirlendiği tutanak'
+          ],
+          [
+            '7',
+            'Yaklaşık Maliyet Hesap Cetveli',
+            '2. Teklifler & Piyasa',
+            'yaklasik-maliyet-cetveli.html',
+            'KİK Tebliği Md. 22',
+            'Alımın tahmini bütçe ve piyasa ortalama maliyetinin tespit cetveli'
+          ],
+          [
+            '8',
+            'Doğrudan Temin Sözleşmesi',
+            '3. Sipariş & Sözleşme',
+            'dogrudan-temin-sozlesmesi.html',
+            '4734 / Borçlar Kanunu',
+            'Yüklenici firma ile idare arasında yapılan resmi alım sözleşmesi'
+          ],
+          [
+            '9',
+            'Sipariş Mektubu / Taahhütname',
+            '3. Sipariş & Sözleşme',
+            'siparis-mektubu.html',
+            'KİK Md. 22',
+            'Sözleşme yapılmayan hallerde işin yapılmasını bildiren resmi sipariş emri'
+          ],
+          [
+            '10',
+            'Muayene ve Kabul Tutanağı',
+            '4. Muayene & Ödeme',
+            'muayene-kabul-tutanagi.html',
+            'Muayene ve Kabul Yön.',
+            'Mal veya hizmetin teknik şartlara uygun teslim alındığına dair kabul tutanağı'
+          ],
+          [
+            '11',
+            'Harcama Pusulası & Ödeme Emri',
+            '4. Muayene & Ödeme',
+            'harcama-pusulasi.html',
+            '5018 Sayılı KMYKK',
+            'Faturanın muhasebeleştirilip yükleniciye ödeme yapılması talimatı'
+          ]
         ]
 
   let sabRowIdx = 4

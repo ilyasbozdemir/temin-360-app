@@ -37,8 +37,7 @@ export function MevzuatKutuphanesiTab(): React.JSX.Element {
   // Filtered legislations list
   const filteredMevzuatlar = useMemo(() => {
     return MEVZUAT_KUTUPHANESI.filter((item) => {
-      const matchKategori =
-        selectedKategori === 'Tümü' || item.kategori === selectedKategori
+      const matchKategori = selectedKategori === 'Tümü' || item.kategori === selectedKategori
 
       if (!searchQuery.trim()) return matchKategori
 
@@ -129,7 +128,8 @@ export function MevzuatKutuphanesiTab(): React.JSX.Element {
             Kamu İhale Mevzuat Kütüphanesi
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Kanun, uygulama yönetmelikleri, tebliğler, muayene-kabul ve genel şartnamelerin madde madde fihristi ve arama sistemi.
+            Kanun, uygulama yönetmelikleri, tebliğler, muayene-kabul ve genel şartnamelerin madde
+            madde fihristi ve arama sistemi.
           </p>
         </div>
 
@@ -156,7 +156,13 @@ export function MevzuatKutuphanesiTab(): React.JSX.Element {
             Önemli Bilgilendirme & Sorumluluk Reddi (Ücretsiz Yardımcı Yazılım)
           </p>
           <p className="text-[11px] text-amber-800/90 dark:text-amber-300/90 leading-relaxed">
-            Bu uygulama, kamu personeli ve satın alma birimlerinin iş süreçlerini hızlandırmak, evrak düzenini sağlamak ve dosya takibini kolaylaştırmak amacıyla geliştirilmiş <strong>ücretsiz bir yardımcı araçtır</strong>. Resmî mevzuat hükümleri, parasal limitler ve tebliğler değişkenlik gösterebileceğinden; işlemlerinizde nihai teyit ve kontrol sorumluluğu kullanıcıya (kamu görevlisine / idareye) aittir. Resmî güncel metinler için <strong>Resmî Gazete</strong>, <strong>mevzuat.gov.tr</strong> ve <strong>ihale.gov.tr</strong> kaynaklarını düzenli olarak kontrol ediniz.
+            Bu uygulama, kamu personeli ve satın alma birimlerinin iş süreçlerini hızlandırmak,
+            evrak düzenini sağlamak ve dosya takibini kolaylaştırmak amacıyla geliştirilmiş{' '}
+            <strong>ücretsiz bir yardımcı araçtır</strong>. Resmî mevzuat hükümleri, parasal
+            limitler ve tebliğler değişkenlik gösterebileceğinden; işlemlerinizde nihai teyit ve
+            kontrol sorumluluğu kullanıcıya (kamu görevlisine / idareye) aittir. Resmî güncel
+            metinler için <strong>Resmî Gazete</strong>, <strong>mevzuat.gov.tr</strong> ve{' '}
+            <strong>ihale.gov.tr</strong> kaynaklarını düzenli olarak kontrol ediniz.
           </p>
         </div>
       </div>

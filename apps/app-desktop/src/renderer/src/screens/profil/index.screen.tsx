@@ -68,9 +68,10 @@ export default function ProfilScreen(): React.JSX.Element {
   })
   const [modalSwitchImmediately, setModalSwitchImmediately] = useState(true)
   const [modalSaving, setModalSaving] = useState(false)
-  const [feedbackMsg, setFeedbackMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(
-    null
-  )
+  const [feedbackMsg, setFeedbackMsg] = useState<{
+    text: string
+    type: 'success' | 'error'
+  } | null>(null)
 
   useEffect(() => {
     async function loadData(): Promise<void> {
@@ -242,7 +243,8 @@ export default function ProfilScreen(): React.JSX.Element {
             Kullanıcı Profili ve Güvenlik
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1.5 text-sm">
-            Kurum profillerinizi yönetin, birden fazla kurum arasında geçiş yapın ve kullanıcı giriş yetkilerini yapılandırın.
+            Kurum profillerinizi yönetin, birden fazla kurum arasında geçiş yapın ve kullanıcı giriş
+            yetkilerini yapılandırın.
           </p>
         </div>
 
@@ -266,7 +268,8 @@ export default function ProfilScreen(): React.JSX.Element {
             </h2>
           </div>
           <span className="text-xs text-slate-400">
-            İşlem yapmak istediğiniz kurum profilini seçerek tüm şablon ve süreçleri o kurum adına yürütebilirsiniz.
+            İşlem yapmak istediğiniz kurum profilini seçerek tüm şablon ve süreçleri o kurum adına
+            yürütebilirsiniz.
           </span>
         </div>
 
@@ -436,7 +439,8 @@ export default function ProfilScreen(): React.JSX.Element {
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-5">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-850 pb-3">
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                <KeyRound className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Giriş ve Yönetici Bilgileri
+                <KeyRound className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Giriş ve Yönetici
+                Bilgileri
               </h3>
               <span className="text-[11px] text-slate-400">
                 Uygulama açılışında kimlik doğrulama için kullanılır
@@ -534,7 +538,11 @@ export default function ProfilScreen(): React.JSX.Element {
                       onClick={() => setShowEkapPassword(!showEkapPassword)}
                       className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                     >
-                      {showEkapPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showEkapPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -570,23 +578,50 @@ export default function ProfilScreen(): React.JSX.Element {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
           <div className="bg-slate-50 dark:bg-slate-950/50 p-4 rounded-xl border border-slate-100 dark:border-slate-850 space-y-1">
-            <span className="font-bold text-slate-700 dark:text-slate-300">İşlem İzleme Alanları</span>
+            <span className="font-bold text-slate-700 dark:text-slate-300">
+              İşlem İzleme Alanları
+            </span>
             <p className="text-slate-500 leading-relaxed">
-              Tüm operasyonel ve tanım tabloları <code className="bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded text-[11px]">created_by</code>, <code className="bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded text-[11px]">created_at</code>, <code className="bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded text-[11px]">updated_by</code>, <code className="bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded text-[11px]">updated_at</code> kolonları ile izlenir.
+              Tüm operasyonel ve tanım tabloları{' '}
+              <code className="bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded text-[11px]">
+                created_by
+              </code>
+              ,{' '}
+              <code className="bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded text-[11px]">
+                created_at
+              </code>
+              ,{' '}
+              <code className="bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded text-[11px]">
+                updated_by
+              </code>
+              ,{' '}
+              <code className="bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded text-[11px]">
+                updated_at
+              </code>{' '}
+              kolonları ile izlenir.
             </p>
           </div>
 
           <div className="bg-slate-50 dark:bg-slate-950/50 p-4 rounded-xl border border-slate-100 dark:border-slate-850 space-y-1">
-            <span className="font-bold text-slate-700 dark:text-slate-300">Güvenli Silme (Soft Delete)</span>
+            <span className="font-bold text-slate-700 dark:text-slate-300">
+              Güvenli Silme (Soft Delete)
+            </span>
             <p className="text-slate-500 leading-relaxed">
-              Kayıtlar doğrudan silinmek yerine <code className="bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded text-[11px]">is_deleted</code> bayrağı ile korunur ve Sayıştay denetim standartlarına uygun saklanır.
+              Kayıtlar doğrudan silinmek yerine{' '}
+              <code className="bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded text-[11px]">
+                is_deleted
+              </code>{' '}
+              bayrağı ile korunur ve Sayıştay denetim standartlarına uygun saklanır.
             </p>
           </div>
 
           <div className="bg-slate-50 dark:bg-slate-950/50 p-4 rounded-xl border border-slate-100 dark:border-slate-850 space-y-1">
-            <span className="font-bold text-slate-700 dark:text-slate-300">Çoklu Kurum İzolasyonu</span>
+            <span className="font-bold text-slate-700 dark:text-slate-300">
+              Çoklu Kurum İzolasyonu
+            </span>
             <p className="text-slate-500 leading-relaxed">
-              Aktif seçilen kurum profili, tüm yazdırma şablonlarına, onay belgelerine ve harcama talimatlarına anında yansır.
+              Aktif seçilen kurum profili, tüm yazdırma şablonlarına, onay belgelerine ve harcama
+              talimatlarına anında yansır.
             </p>
           </div>
         </div>
@@ -719,9 +754,7 @@ export default function ProfilScreen(): React.JSX.Element {
                   </label>
                   <Input
                     value={modalFormData.eposta || ''}
-                    onChange={(e) =>
-                      setModalFormData({ ...modalFormData, eposta: e.target.value })
-                    }
+                    onChange={(e) => setModalFormData({ ...modalFormData, eposta: e.target.value })}
                     placeholder="destek@kurum.gov.tr"
                     className="bg-slate-50/50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-xs"
                   />
@@ -787,4 +820,3 @@ export default function ProfilScreen(): React.JSX.Element {
     </div>
   )
 }
-

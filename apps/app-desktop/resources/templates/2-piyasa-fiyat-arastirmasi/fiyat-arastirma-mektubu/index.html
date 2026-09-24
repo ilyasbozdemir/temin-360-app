@@ -211,7 +211,6 @@
           ({{gunSayisiYazi}}) gün içinde bildirmenizi rica ederim.
         </div>
 
-
         <div class="separator-line"></div>
 
         <!-- ═══════════════════════════════════════════════════ -->
@@ -247,18 +246,38 @@
 
         <!-- AÇIKLAMA / TAAHHÜT METNİ -->
         {{#aciklama}}
-        <div class="aciklama-kutusu" style="white-space: pre-wrap; text-align: justify">{{aciklama}}</div>
-        {{/aciklama}}
-        {{^aciklama}}
+        <div class="aciklama-kutusu" style="white-space: pre-wrap; text-align: justify">
+          {{aciklama}}
+        </div>
+        {{/aciklama}} {{^aciklama}}
         <div class="aciklama-kutusu">
           <ol>
             <li>Teklifimiz ……/……/20…… tarihine kadar geçerlidir.</li>
             <li>Teklifimize Damga Vergisi, Resim Harç, Pul ve Ulaştırma Giderleri dahildir.</li>
-            <li>İhale konusu iş için sermayesinin %50'sinden fazlasına sahip olduğumuz başka bir tüzel kişinin bu işe ayrı bir teklif vermediğini beyan ediyoruz.</li>
-            <li>Aldığınız herhangi bir teklifi veya en düşük teklifi seçmek zorunda olmadığınızı kabul ediyoruz.</li>
-            <li>İhale konusu işle ilgili olmak üzere idarenizce yapılacak/yaptırılacak diğer işlerde idarenizin çıkarlarına aykırı düşecek hiçbir eylem ve oluşum içerisinde olmayacağımızı taahhüt ediyoruz.</li>
-            <li>4734 Sayılı Kamu İhale Kanununun 4. maddesindeki "Yerli İstekli" tanımı gereğince yerli istekli durumundayız.</li>
-            <li>İhale konusu işin tamamını Teklif Mektubumuzun ekindeki Birim Fiyat Teklif Cetvelinde belirtilen her bir iş kalemi için teklif ettiğimiz birim fiyatları üzerinden <strong>KDV HARİÇ</strong> toplam (rakamla) <span class="field-fill">&nbsp;</span> TL (yazı ile) <span class="field-fill-lg">&nbsp;</span> TL bedel karşılığında kabul ve taahhüt ederiz.</li>
+            <li>
+              İhale konusu iş için sermayesinin %50'sinden fazlasına sahip olduğumuz başka bir tüzel
+              kişinin bu işe ayrı bir teklif vermediğini beyan ediyoruz.
+            </li>
+            <li>
+              Aldığınız herhangi bir teklifi veya en düşük teklifi seçmek zorunda olmadığınızı kabul
+              ediyoruz.
+            </li>
+            <li>
+              İhale konusu işle ilgili olmak üzere idarenizce yapılacak/yaptırılacak diğer işlerde
+              idarenizin çıkarlarına aykırı düşecek hiçbir eylem ve oluşum içerisinde olmayacağımızı
+              taahhüt ediyoruz.
+            </li>
+            <li>
+              4734 Sayılı Kamu İhale Kanununun 4. maddesindeki "Yerli İstekli" tanımı gereğince
+              yerli istekli durumundayız.
+            </li>
+            <li>
+              İhale konusu işin tamamını Teklif Mektubumuzun ekindeki Birim Fiyat Teklif Cetvelinde
+              belirtilen her bir iş kalemi için teklif ettiğimiz birim fiyatları üzerinden
+              <strong>KDV HARİÇ</strong> toplam (rakamla) <span class="field-fill">&nbsp;</span> TL
+              (yazı ile) <span class="field-fill-lg">&nbsp;</span> TL bedel karşılığında kabul ve
+              taahhüt ederiz.
+            </li>
           </ol>
         </div>
         {{/aciklama}}
@@ -296,8 +315,7 @@
               <td></td>
               <td style="height: 24px"></td>
             </tr>
-            {{/ihtiyacKalemleri}}
-            {{^ihtiyacKalemleri}}
+            {{/ihtiyacKalemleri}} {{^ihtiyacKalemleri}}
             <tr>
               <td colspan="7" style="text-align: center; font-style: italic">Kalem bulunamadı</td>
             </tr>

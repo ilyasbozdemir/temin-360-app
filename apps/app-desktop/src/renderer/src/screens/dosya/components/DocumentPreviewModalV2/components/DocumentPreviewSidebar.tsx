@@ -1,29 +1,27 @@
-import React from "react";
-import { ChevronLeft, Edit3, FileText, Layers, Sliders } from "lucide-react";
-import { IhtiyacListesiType } from "@temin360/document-templates";
-import { TemplateOptionItem } from "../templateResolver";
-import { useSettingsStore } from "../../../../../store/settingsStore";
+import React from 'react'
+import { ChevronLeft, Edit3, FileText, Layers, Sliders } from 'lucide-react'
+import { IhtiyacListesiType } from '@temin360/document-templates'
+import { TemplateOptionItem } from '../templateResolver'
+import { useSettingsStore } from '../../../../../store/settingsStore'
 
 interface DocumentPreviewSidebarProps {
-  sidebarOpen: boolean;
-  setSidebarOpen: (open: boolean) => void;
-  selectedDocId?: string;
-  supportsOlur?: boolean;
-  supportsLogos?: boolean;
-  onSelectTemplate?: (id: string) => void;
-  templateOptions?: TemplateOptionItem[];
-  isEditingMode: boolean;
-  setIsEditingMode: (editing: boolean) => void;
-  orientation: "portrait" | "landscape";
-  setOrientation: (orientation: "portrait" | "landscape") => void;
-  formData: Partial<IhtiyacListesiType>;
-  setFormData: React.Dispatch<
-    React.SetStateAction<Partial<IhtiyacListesiType>>
-  >;
-  localShowLogoLeft: boolean;
-  setLocalShowLogoLeft: (show: boolean) => void;
-  localShowLogoRight: boolean;
-  setLocalShowLogoRight: (show: boolean) => void;
+  sidebarOpen: boolean
+  setSidebarOpen: (open: boolean) => void
+  selectedDocId?: string
+  supportsOlur?: boolean
+  supportsLogos?: boolean
+  onSelectTemplate?: (id: string) => void
+  templateOptions?: TemplateOptionItem[]
+  isEditingMode: boolean
+  setIsEditingMode: (editing: boolean) => void
+  orientation: 'portrait' | 'landscape'
+  setOrientation: (orientation: 'portrait' | 'landscape') => void
+  formData: Partial<IhtiyacListesiType>
+  setFormData: React.Dispatch<React.SetStateAction<Partial<IhtiyacListesiType>>>
+  localShowLogoLeft: boolean
+  setLocalShowLogoLeft: (show: boolean) => void
+  localShowLogoRight: boolean
+  setLocalShowLogoRight: (show: boolean) => void
 }
 
 export function DocumentPreviewSidebar({
@@ -43,14 +41,14 @@ export function DocumentPreviewSidebar({
   localShowLogoLeft,
   setLocalShowLogoLeft,
   localShowLogoRight,
-  setLocalShowLogoRight,
+  setLocalShowLogoRight
 }: DocumentPreviewSidebarProps): React.JSX.Element {
   return (
     <div
       className={`bg-slate-50 dark:bg-slate-900/50 transition-all duration-200 flex flex-col shrink-0 h-full overflow-hidden ${
         sidebarOpen
-          ? "w-72 border-r border-slate-200 dark:border-slate-800 opacity-100"
-          : "w-0 border-0 opacity-0 pointer-events-none hidden"
+          ? 'w-72 border-r border-slate-200 dark:border-slate-800 opacity-100'
+          : 'w-0 border-0 opacity-0 pointer-events-none hidden'
       }`}
     >
       {/* Sidebar Header */}
@@ -72,9 +70,8 @@ export function DocumentPreviewSidebar({
 
       <div className="flex-1 overflow-y-auto p-4 space-y-5 custom-scrollbar min-h-0">
         <div className="p-3 bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-800/40 rounded-xl text-xs text-blue-900 dark:text-blue-300 leading-relaxed">
-          💡 <strong>Canlı Düzenleme:</strong>{" "}
-          Belge üzerindeki metin, sayı, tarih ve imza alanlarını sağdaki A4
-          sayfasında doğrudan tıklayarak düzenleyebilirsiniz.
+          💡 <strong>Canlı Düzenleme:</strong> Belge üzerindeki metin, sayı, tarih ve imza
+          alanlarını sağdaki A4 sayfasında doğrudan tıklayarak düzenleyebilirsiniz.
         </div>
 
         {/* Toggles & Settings */}
@@ -92,9 +89,7 @@ export function DocumentPreviewSidebar({
                   Belge Düzenleme Modu
                 </span>
                 <span className="text-[10px] text-slate-500 dark:text-slate-400 block">
-                  {isEditingMode
-                    ? "Canlı düzenleme açık"
-                    : "Önizleme modu (Sabit Metin)"}
+                  {isEditingMode ? 'Canlı düzenleme açık' : 'Önizleme modu (Sabit Metin)'}
                 </span>
               </div>
             </div>
@@ -114,11 +109,11 @@ export function DocumentPreviewSidebar({
             <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 dark:bg-slate-900 rounded-lg">
               <button
                 type="button"
-                onClick={() => setOrientation("portrait")}
+                onClick={() => setOrientation('portrait')}
                 className={`px-2.5 py-1.5 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                  orientation === "portrait"
-                    ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-2xs"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
+                  orientation === 'portrait'
+                    ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-2xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                 }`}
               >
                 <FileText className="w-3.5 h-3.5" />
@@ -126,11 +121,11 @@ export function DocumentPreviewSidebar({
               </button>
               <button
                 type="button"
-                onClick={() => setOrientation("landscape")}
+                onClick={() => setOrientation('landscape')}
                 className={`px-2.5 py-1.5 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                  orientation === "landscape"
-                    ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-2xs"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
+                  orientation === 'landscape'
+                    ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-2xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                 }`}
               >
                 <FileText className="w-3.5 h-3.5 rotate-90" />
@@ -144,18 +139,18 @@ export function DocumentPreviewSidebar({
             const tableRows = (formData.ihtiyacKalemleri ||
               formData.kalemler ||
               formData.items ||
-              []) as any[];
-            const totalRowCount = tableRows.length;
-            if (totalRowCount <= 1) return null;
+              []) as any[]
+            const totalRowCount = tableRows.length
+            if (totalRowCount <= 1) return null
 
             // Generate smart quick split buttons based on actual row count
             const quickRowOptions: { label: string; val: number | null }[] = [
-              { label: "Otomatik", val: null },
-            ];
-            const candidateValues = [2, 3, 5, 7, 10, 15, 20];
+              { label: 'Otomatik', val: null }
+            ]
+            const candidateValues = [2, 3, 5, 7, 10, 15, 20]
             for (const c of candidateValues) {
               if (c < totalRowCount) {
-                quickRowOptions.push({ label: `${c}. Satır`, val: c });
+                quickRowOptions.push({ label: `${c}. Satır`, val: c })
               }
             }
             if (
@@ -165,14 +160,14 @@ export function DocumentPreviewSidebar({
             ) {
               quickRowOptions.push({
                 label: `${formData.firstPageLimit}. Satır`,
-                val: formData.firstPageLimit,
-              });
+                val: formData.firstPageLimit
+              })
             }
 
             const currentLimit =
               formData.firstPageLimit && formData.firstPageLimit < totalRowCount
                 ? formData.firstPageLimit
-                : null;
+                : null
 
             return (
               <div className="p-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl space-y-2.5">
@@ -180,27 +175,26 @@ export function DocumentPreviewSidebar({
                   <span className="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
                     <span>✂️ Sayfa Bölme & Denge</span>
                   </span>
-                  {currentLimit
-                    ? (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setFormData((prev: any) => ({
-                            ...prev,
-                            firstPageLimit: null,
-                          }))}
-                        className="text-[10px] font-bold text-red-600 dark:text-red-400 hover:underline cursor-pointer flex items-center gap-0.5"
-                        title="Bölmeyi kaldır, tek sayfaya al"
-                      >
-                        <span>{currentLimit}. Satırdan Sonra</span>
-                        <span>✕</span>
-                      </button>
-                    )
-                    : (
-                      <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md">
-                        Otomatik
-                      </span>
-                    )}
+                  {currentLimit ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev: any) => ({
+                          ...prev,
+                          firstPageLimit: null
+                        }))
+                      }
+                      className="text-[10px] font-bold text-red-600 dark:text-red-400 hover:underline cursor-pointer flex items-center gap-0.5"
+                      title="Bölmeyi kaldır, tek sayfaya al"
+                    >
+                      <span>{currentLimit}. Satırdan Sonra</span>
+                      <span>✕</span>
+                    </button>
+                  ) : (
+                    <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md">
+                      Otomatik
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
@@ -211,8 +205,8 @@ export function DocumentPreviewSidebar({
                 </div>
 
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
-                  1. sayfada kalacak satır sayısını belirleyin. Kalan satırlar
-                  ve imza bloğu 2. sayfaya aktarılır.
+                  1. sayfada kalacak satır sayısını belirleyin. Kalan satırlar ve imza bloğu 2.
+                  sayfaya aktarılır.
                 </p>
 
                 {/* Hızlı Satır Seçim Grid */}
@@ -222,15 +216,13 @@ export function DocumentPreviewSidebar({
                     <span className="font-bold text-blue-600 dark:text-blue-400 font-mono">
                       {currentLimit
                         ? `${currentLimit} Satır (1..${currentLimit})`
-                        : "Tümü (Otomatik)"}
+                        : 'Tümü (Otomatik)'}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-3 gap-1">
                     {quickRowOptions.slice(0, 6).map((item, idx) => {
-                      const isActive = item.val === null
-                        ? !currentLimit
-                        : currentLimit === item.val;
+                      const isActive = item.val === null ? !currentLimit : currentLimit === item.val
                       return (
                         <button
                           key={idx}
@@ -238,17 +230,18 @@ export function DocumentPreviewSidebar({
                           onClick={() =>
                             setFormData((prev: any) => ({
                               ...prev,
-                              firstPageLimit: item.val,
-                            }))}
+                              firstPageLimit: item.val
+                            }))
+                          }
                           className={`py-1 text-[10px] font-bold rounded-lg transition-all cursor-pointer border ${
                             isActive
-                              ? "bg-blue-600 text-white border-blue-600 shadow-2xs"
-                              : "bg-slate-50 dark:bg-slate-850 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800"
+                              ? 'bg-blue-600 text-white border-blue-600 shadow-2xs'
+                              : 'bg-slate-50 dark:bg-slate-850 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
                           }`}
                         >
                           {item.label}
                         </button>
-                      );
+                      )
                     })}
                   </div>
 
@@ -261,10 +254,10 @@ export function DocumentPreviewSidebar({
                           ...prev,
                           firstPageLimit: Math.max(
                             1,
-                            (currentLimit ?? Math.min(totalRowCount - 1, 10)) -
-                              1,
-                          ),
-                        }))}
+                            (currentLimit ?? Math.min(totalRowCount - 1, 10)) - 1
+                          )
+                        }))
+                      }
                       className="w-6 h-6 flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-md text-xs font-bold cursor-pointer shrink-0"
                       title="1. sayfadan satır azalt"
                     >
@@ -278,8 +271,9 @@ export function DocumentPreviewSidebar({
                       onChange={(e) =>
                         setFormData((prev: any) => ({
                           ...prev,
-                          firstPageLimit: Number(e.target.value),
-                        }))}
+                          firstPageLimit: Number(e.target.value)
+                        }))
+                      }
                       className="flex-1 accent-blue-600 cursor-pointer h-1 bg-slate-200 dark:bg-slate-800 rounded-lg"
                     />
                     <button
@@ -287,11 +281,9 @@ export function DocumentPreviewSidebar({
                       onClick={() =>
                         setFormData((prev: any) => ({
                           ...prev,
-                          firstPageLimit: Math.min(
-                            totalRowCount - 1,
-                            (currentLimit ?? 1) + 1,
-                          ),
-                        }))}
+                          firstPageLimit: Math.min(totalRowCount - 1, (currentLimit ?? 1) + 1)
+                        }))
+                      }
                       className="w-6 h-6 flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-md text-xs font-bold cursor-pointer shrink-0"
                       title="1. sayfaya satır ekle"
                     >
@@ -300,7 +292,7 @@ export function DocumentPreviewSidebar({
                   </div>
                 </div>
               </div>
-            );
+            )
           })()}
 
           {/* Newline / Boşluk Satırı Ekleme */}
@@ -319,8 +311,9 @@ export function DocumentPreviewSidebar({
                 onClick={() =>
                   setFormData((prev: any) => ({
                     ...prev,
-                    ekstraBosluk: Math.max(0, (prev.ekstraBosluk || 0) - 24),
-                  }))}
+                    ekstraBosluk: Math.max(0, (prev.ekstraBosluk || 0) - 24)
+                  }))
+                }
                 className="flex-1 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-md text-[11px] font-semibold cursor-pointer transition-colors"
               >
                 - Satır
@@ -330,8 +323,9 @@ export function DocumentPreviewSidebar({
                 onClick={() =>
                   setFormData((prev: any) => ({
                     ...prev,
-                    ekstraBosluk: (prev.ekstraBosluk || 0) + 24,
-                  }))}
+                    ekstraBosluk: (prev.ekstraBosluk || 0) + 24
+                  }))
+                }
                 className="flex-1 py-1 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/60 border border-blue-200/60 dark:border-blue-800/50 text-blue-700 dark:text-blue-300 rounded-md text-[11px] font-bold cursor-pointer transition-colors"
               >
                 + Satır
@@ -342,8 +336,9 @@ export function DocumentPreviewSidebar({
                   onClick={() =>
                     setFormData((prev: any) => ({
                       ...prev,
-                      ekstraBosluk: 0,
-                    }))}
+                      ekstraBosluk: 0
+                    }))
+                  }
                   className="py-1 px-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-md text-[10px] font-bold cursor-pointer"
                   title="Boşluğu Sıfırla"
                 >
@@ -354,7 +349,7 @@ export function DocumentPreviewSidebar({
           </div>
 
           {/* OLUR Bloğu Toggle (Şablon registry tanımında veya veride supportsOlur varsa gösterilir) */}
-          {(supportsOlur || typeof (formData as any).olurYazisi === "boolean") && (
+          {(supportsOlur || typeof (formData as any).olurYazisi === 'boolean') && (
             <label className="flex items-center justify-between p-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl cursor-pointer hover:border-slate-300 transition-colors">
               <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
                 OLUR Bloğunu Göster
@@ -365,8 +360,9 @@ export function DocumentPreviewSidebar({
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    olurYazisi: e.target.checked,
-                  }))}
+                    olurYazisi: e.target.checked
+                  }))
+                }
                 className="w-4 h-4 text-blue-600 rounded cursor-pointer"
               />
             </label>
@@ -384,21 +380,19 @@ export function DocumentPreviewSidebar({
                   type="checkbox"
                   checked={localShowLogoLeft}
                   onChange={(e) => {
-                    const checked = e.target.checked;
-                    setLocalShowLogoLeft(checked);
+                    const checked = e.target.checked
+                    setLocalShowLogoLeft(checked)
                     if (checked) {
-                      const store = useSettingsStore.getState();
-                      const fallback =
-                        store.logoLeft || store.institutionLogo || null;
+                      const store = useSettingsStore.getState()
+                      const fallback = store.logoLeft || store.institutionLogo || null
                       if (
                         fallback &&
-                        (!formData.solLogo ||
-                          String(formData.solLogo).trim() === "")
+                        (!formData.solLogo || String(formData.solLogo).trim() === '')
                       ) {
                         setFormData((prev: any) => ({
                           ...prev,
-                          solLogo: fallback,
-                        }));
+                          solLogo: fallback
+                        }))
                       }
                     }
                   }}
@@ -415,20 +409,19 @@ export function DocumentPreviewSidebar({
                   type="checkbox"
                   checked={localShowLogoRight}
                   onChange={(e) => {
-                    const checked = e.target.checked;
-                    setLocalShowLogoRight(checked);
+                    const checked = e.target.checked
+                    setLocalShowLogoRight(checked)
                     if (checked) {
-                      const store = useSettingsStore.getState();
-                      const fallback = store.logoRight || null;
+                      const store = useSettingsStore.getState()
+                      const fallback = store.logoRight || null
                       if (
                         fallback &&
-                        (!formData.sagLogo ||
-                          String(formData.sagLogo).trim() === "")
+                        (!formData.sagLogo || String(formData.sagLogo).trim() === '')
                       ) {
                         setFormData((prev: any) => ({
                           ...prev,
-                          sagLogo: fallback,
-                        }));
+                          sagLogo: fallback
+                        }))
                       }
                     }
                   }}
@@ -440,5 +433,5 @@ export function DocumentPreviewSidebar({
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -3,13 +3,13 @@ import { Modal } from './Modal'
 import { Button } from './Button'
 import { Input } from './Input'
 import { useAmbarHooks } from '../../screens/ambar/ambar.hooks'
-import { 
-  PackageCheck, 
-  Archive, 
-  Layers, 
-  Plus, 
-  Trash2, 
-  CheckCircle2, 
+import {
+  PackageCheck,
+  Archive,
+  Layers,
+  Plus,
+  Trash2,
+  CheckCircle2,
   AlertCircle,
   Hash,
   Calendar,
@@ -68,12 +68,14 @@ export const TifOlusturModal: React.FC<TifOlusturModalProps> = ({
       setSuccessMessage(null)
       setErrorMessage(null)
       const year = new Date().getFullYear()
-      const cleanNo = dosyaNo ? dosyaNo.replace(/[^0-9a-zA-Z]/g, '') : Math.floor(1000 + Math.random() * 9000)
+      const cleanNo = dosyaNo
+        ? dosyaNo.replace(/[^0-9a-zA-Z]/g, '')
+        : Math.floor(1000 + Math.random() * 9000)
       setFisNo(`TİF-${year}-${cleanNo}`)
       setFisTarihi(new Date().toISOString().split('T')[0])
       setFisTuru('giris')
       setAciklama(`${dosyaNo ? dosyaNo + ' - ' : ''}${dosyaAdi || 'Temin'} alımı ambara aktarımı`)
-      
+
       // Auto-select first ambar if available
       if (ambarlar.length > 0 && !selectedAmbarId) {
         setSelectedAmbarId(ambarlar[0].id)
@@ -83,23 +85,37 @@ export const TifOlusturModal: React.FC<TifOlusturModalProps> = ({
       if (initialKalemler && initialKalemler.length > 0) {
         setKalemler(initialKalemler)
       } else if (teminDosyaId) {
-        window.electron.ipcRenderer.invoke(
-          'db:query',
-          'SELECT * FROM DATA_TeminKalem WHERE temin_dosya_id = ? OR dosya_id = ?',
-          [teminDosyaId, teminDosyaId]
-        ).then((res: any) => {
-          if (res.success && res.data && res.data.length > 0) {
-            setKalemler(
-              res.data.map((k: any) => ({
-                temin_kalem_id: k.id,
-                kalem_adi: k.kalem_adi || k.malzeme_adi || k.ad || '',
-                miktar: Number(k.miktar) || 1,
-                olcu_birimi: k.olcu_birimi || k.birim || 'Adet',
-                birim_fiyat: Number(k.birim_fiyat) || Number(k.yaklasik_maliyet) || 0,
-                tasinir_kodu: k.tasinir_kodu || '150.01.01'
-              }))
-            )
-          } else {
+        window.electron.ipcRenderer
+          .invoke(
+            'db:query',
+            'SELECT * FROM DATA_TeminKalem WHERE temin_dosya_id = ? OR dosya_id = ?',
+            [teminDosyaId, teminDosyaId]
+          )
+          .then((res: any) => {
+            if (res.success && res.data && res.data.length > 0) {
+              setKalemler(
+                res.data.map((k: any) => ({
+                  temin_kalem_id: k.id,
+                  kalem_adi: k.kalem_adi || k.malzeme_adi || k.ad || '',
+                  miktar: Number(k.miktar) || 1,
+                  olcu_birimi: k.olcu_birimi || k.birim || 'Adet',
+                  birim_fiyat: Number(k.birim_fiyat) || Number(k.yaklasik_maliyet) || 0,
+                  tasinir_kodu: k.tasinir_kodu || '150.01.01'
+                }))
+              )
+            } else {
+              setKalemler([
+                {
+                  kalem_adi: '',
+                  miktar: 1,
+                  olcu_birimi: 'Adet',
+                  birim_fiyat: 0,
+                  tasinir_kodu: '150.01.01'
+                }
+              ])
+            }
+          })
+          .catch(() => {
             setKalemler([
               {
                 kalem_adi: '',
@@ -109,18 +125,7 @@ export const TifOlusturModal: React.FC<TifOlusturModalProps> = ({
                 tasinir_kodu: '150.01.01'
               }
             ])
-          }
-        }).catch(() => {
-          setKalemler([
-            {
-              kalem_adi: '',
-              miktar: 1,
-              olcu_birimi: 'Adet',
-              birim_fiyat: 0,
-              tasinir_kodu: '150.01.01'
-            }
-          ])
-        })
+          })
       }
     }
   }, [isOpen, teminDosyaId, dosyaNo, dosyaAdi, ambarlar])
@@ -152,7 +157,10 @@ export const TifOlusturModal: React.FC<TifOlusturModalProps> = ({
   }
 
   const calculateTotal = () => {
-    return kalemler.reduce((sum, item) => sum + (Number(item.miktar) || 0) * (Number(item.birim_fiyat) || 0), 0)
+    return kalemler.reduce(
+      (sum, item) => sum + (Number(item.miktar) || 0) * (Number(item.birim_fiyat) || 0),
+      0
+    )
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -191,7 +199,9 @@ export const TifOlusturModal: React.FC<TifOlusturModalProps> = ({
         kalemler: validItems
       })
 
-      setSuccessMessage('Taşınır İşlem Fişi (TİF) başarıyla oluşturuldu ve ambar stoklarına aktarıldı!')
+      setSuccessMessage(
+        'Taşınır İşlem Fişi (TİF) başarıyla oluşturuldu ve ambar stoklarına aktarıldı!'
+      )
       if (onSuccess && result.tifId) {
         onSuccess(result.tifId)
       }
@@ -343,7 +353,9 @@ export const TifOlusturModal: React.FC<TifOlusturModalProps> = ({
                           step="any"
                           min="0.001"
                           value={item.miktar}
-                          onChange={(e) => handleItemChange(idx, 'miktar', parseFloat(e.target.value) || 0)}
+                          onChange={(e) =>
+                            handleItemChange(idx, 'miktar', parseFloat(e.target.value) || 0)
+                          }
                           className="h-8 text-xs text-center font-medium bg-slate-50/50 dark:bg-slate-900/50"
                           required
                         />
@@ -362,12 +374,18 @@ export const TifOlusturModal: React.FC<TifOlusturModalProps> = ({
                           step="0.01"
                           min="0"
                           value={item.birim_fiyat || 0}
-                          onChange={(e) => handleItemChange(idx, 'birim_fiyat', parseFloat(e.target.value) || 0)}
+                          onChange={(e) =>
+                            handleItemChange(idx, 'birim_fiyat', parseFloat(e.target.value) || 0)
+                          }
                           className="h-8 text-xs text-right font-mono bg-slate-50/50 dark:bg-slate-900/50"
                         />
                       </td>
                       <td className="p-2 text-right font-mono font-semibold text-slate-700 dark:text-slate-300">
-                        {subTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+                        {subTotal.toLocaleString('tr-TR', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}{' '}
+                        ₺
                       </td>
                       <td className="p-2 text-center">
                         <Button
@@ -391,7 +409,11 @@ export const TifOlusturModal: React.FC<TifOlusturModalProps> = ({
                     Genel TİF Toplamı:
                   </td>
                   <td className="p-2.5 text-right text-blue-600 dark:text-blue-400 font-mono text-sm">
-                    {calculateTotal().toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+                    {calculateTotal().toLocaleString('tr-TR', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    })}{' '}
+                    ₺
                   </td>
                   <td></td>
                 </tr>
@@ -406,8 +428,14 @@ export const TifOlusturModal: React.FC<TifOlusturModalProps> = ({
           onClick={() => setShowAdvanced(!showAdvanced)}
           className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 font-semibold cursor-pointer w-full justify-center bg-blue-50/60 dark:bg-blue-900/20 py-2 rounded-lg transition-colors"
         >
-          {showAdvanced ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          {showAdvanced ? 'Ek Lokasyon & İrsaliye Alanlarını Gizle' : 'Ek Ambar Detayları (Raf/Lokasyon, Teslim Eden, Lot, SKT)'}
+          {showAdvanced ? (
+            <ChevronUp className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronDown className="w-3.5 h-3.5" />
+          )}
+          {showAdvanced
+            ? 'Ek Lokasyon & İrsaliye Alanlarını Gizle'
+            : 'Ek Ambar Detayları (Raf/Lokasyon, Teslim Eden, Lot, SKT)'}
         </button>
 
         {showAdvanced && (
@@ -476,12 +504,7 @@ export const TifOlusturModal: React.FC<TifOlusturModalProps> = ({
 
         {/* ACTIONS */}
         <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
+          <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
             İptal
           </Button>
           <Button

@@ -64,8 +64,11 @@ export default function NotlarVeGorevlerScreen(): React.JSX.Element {
   }, [location.search, location.hash])
 
   // Kullanıcı filtreyi elle değiştirdiğinde override kullanılır, aksi halde URL parametresi veya 'all' geçerlidir
-  const [selectedDosyaOverride, setSelectedDosyaOverride] = useState<number | 'all' | 'general' | null>(null)
-  const selectedDosya = selectedDosyaOverride !== null ? selectedDosyaOverride : (paramDosyaId ?? 'all')
+  const [selectedDosyaOverride, setSelectedDosyaOverride] = useState<
+    number | 'all' | 'general' | null
+  >(null)
+  const selectedDosya =
+    selectedDosyaOverride !== null ? selectedDosyaOverride : (paramDosyaId ?? 'all')
   const setSelectedDosya = (
     val:
       | number
@@ -149,9 +152,12 @@ export default function NotlarVeGorevlerScreen(): React.JSX.Element {
     if (!quickTitle.trim()) return
 
     try {
-      const defaultDosya = typeof selectedDosya === 'number'
-        ? selectedDosya
-        : (selectedDosya === 'general' ? null : (activeDosyaId || null))
+      const defaultDosya =
+        typeof selectedDosya === 'number'
+          ? selectedDosya
+          : selectedDosya === 'general'
+            ? null
+            : activeDosyaId || null
 
       await createNot({
         baslik: quickTitle.trim(),

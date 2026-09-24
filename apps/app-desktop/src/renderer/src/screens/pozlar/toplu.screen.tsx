@@ -27,13 +27,7 @@ import { Button } from '../../components/ui/Button'
 import { cn } from '../../utils/cn'
 
 const GithubIcon = ({ size = 15, className = '' }: { size?: number; className?: string }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className={className}
-  >
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -279,9 +273,7 @@ export default function TopluPozEkleScreen(): React.JSX.Element {
           const poz_tipi = item['Poz Tipi'] || item['poz_tipi'] || 'Analiz'
           const poz_kurumu = item['Kurum'] || item['poz_kurumu'] || item['Kategori'] || 'ÇŞB'
           const fasikul =
-            item['Fasikül'] ||
-            item['fasikul'] ||
-            'Çevre ve Şehircilik Bakanlığı 2019 ve Sonrası'
+            item['Fasikül'] || item['fasikul'] || 'Çevre ve Şehircilik Bakanlığı 2019 ve Sonrası'
           const birim_fiyat =
             item['Güncel Birim Fiyat (TL)'] ||
             item['Birim Fiyat'] ||

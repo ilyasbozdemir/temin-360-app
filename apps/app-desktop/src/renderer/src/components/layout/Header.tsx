@@ -18,8 +18,7 @@ export function Header(): React.JSX.Element {
   const { theme, setTheme } = useTheme()
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [hoveredSubMenu, setHoveredSubMenu] = useState<string | null>(null)
-  const { activeDosyaId, fileName, isDirty, activeFilePath } =
-    useWorkspaceStore()
+  const { activeDosyaId, fileName, isDirty, activeFilePath } = useWorkspaceStore()
   const { institutionLogo, logoLeft } = useSettingsStore()
   const activeExt = (activeFilePath?.split('.').pop() || '').toLowerCase()
   const isOldFormat = Boolean(activeFilePath && activeExt !== 'temin')
@@ -28,9 +27,7 @@ export function Header(): React.JSX.Element {
   const [upgradeFilePath, setUpgradeFilePath] = useState<string | null>(null)
 
   const handleUpgradeAndOpen = async (filePath: string): Promise<void> => {
-    const result = await useWorkspaceStore
-      .getState()
-      .convertAndOpenWorkspace(filePath)
+    const result = await useWorkspaceStore.getState().convertAndOpenWorkspace(filePath)
     if (result.success) {
       window.location.reload()
     } else {
@@ -39,18 +36,14 @@ export function Header(): React.JSX.Element {
   }
 
   const [isDirtySummaryOpen, setIsDirtySummaryOpen] = useState(false)
-  const [dirtySummary, setDirtySummary] = useState<DirtySummaryData | null>(
-    null
-  )
+  const [dirtySummary, setDirtySummary] = useState<DirtySummaryData | null>(null)
   const [isLoadingSummary, setIsLoadingSummary] = useState(false)
   const dirtySummaryRef = React.useRef<HTMLDivElement>(null)
 
   const loadDirtySummary = async (): Promise<void> => {
     try {
       setIsLoadingSummary(true)
-      const res = await window.electron?.ipcRenderer.invoke(
-        'workspace:get-dirty-summary'
-      )
+      const res = await window.electron?.ipcRenderer.invoke('workspace:get-dirty-summary')
       if (res?.success) {
         setDirtySummary({
           totalChanges: res.totalChanges ?? 0,
@@ -103,10 +96,7 @@ export function Header(): React.JSX.Element {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent): void => {
-      if (
-        dirtySummaryRef.current &&
-        !dirtySummaryRef.current.contains(event.target as Node)
-      ) {
+      if (dirtySummaryRef.current && !dirtySummaryRef.current.contains(event.target as Node)) {
         setIsDirtySummaryOpen(false)
       }
     }
@@ -130,13 +120,10 @@ export function Header(): React.JSX.Element {
   }, [])
 
   // Mod Seçici Durumu
-  const [procurementMode, setProcurementMode] = useState<
-    'dogrudan_temin' | 'ihale'
-  >(() => {
+  const [procurementMode, setProcurementMode] = useState<'dogrudan_temin' | 'ihale'>(() => {
     return (
-      (localStorage.getItem('temin_procurement_mode') as
-        | 'dogrudan_temin'
-        | 'ihale') || 'dogrudan_temin'
+      (localStorage.getItem('temin_procurement_mode') as 'dogrudan_temin' | 'ihale') ||
+      'dogrudan_temin'
     )
   })
 
@@ -177,20 +164,17 @@ export function Header(): React.JSX.Element {
       const s = await window.electron?.ipcRenderer.invoke('db:get-settings')
       if (s?.gdriveAccessToken) {
         setSaveFeedback('☁️ Google Drive bulutuna yedekleniyor...')
-        const gdriveRes = await window.electron?.ipcRenderer.invoke(
-          'workspace:backup-gdrive',
-          { force: true }
-        )
+        const gdriveRes = await window.electron?.ipcRenderer.invoke('workspace:backup-gdrive', {
+          force: true
+        })
         if (gdriveRes?.success) {
           if (gdriveRes?.skipped) {
             setSaveFeedback('✓ Kaydedildi (Google Drive yedeği zaten güncel)')
           } else {
-            setSaveFeedback('✓ Kaydedildi ve Google Drive\'a başarıyla yedeklendi')
+            setSaveFeedback("✓ Kaydedildi ve Google Drive'a başarıyla yedeklendi")
           }
         } else {
-          setSaveFeedback(
-            `⚠️ Kaydedildi, ancak bulut: ${gdriveRes?.error || 'Yetki hatası'}`
-          )
+          setSaveFeedback(`⚠️ Kaydedildi, ancak bulut: ${gdriveRes?.error || 'Yetki hatası'}`)
         }
       } else {
         setSaveFeedback('✓ Çalışma dosyası başarıyla kaydedildi')
@@ -200,7 +184,7 @@ export function Header(): React.JSX.Element {
       setSaveFeedback(`❌ Kaydetme hatası: ${errorMsg}`)
     } finally {
       setTimeout(() => {
-        setSaveFeedback(null);
+        setSaveFeedback(null)
       }, 3500)
     }
   }
@@ -255,8 +239,7 @@ export function Header(): React.JSX.Element {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const handleClose = (): void =>
-    window.electron?.ipcRenderer.send('window-close')
+  const handleClose = (): void => window.electron?.ipcRenderer.send('window-close')
 
   const menus: HeaderMenu[] = [
     {
@@ -275,16 +258,14 @@ export function Header(): React.JSX.Element {
           onClick: () => navigate({ to: '/dosya' })
         },
         {
-          label: '💾 Değişiklikleri Kaydet & Drive\'a Gönder (Ctrl+S)',
+          label: "💾 Değişiklikleri Kaydet & Drive'a Gönder (Ctrl+S)",
           onClick: handleSaveAndSync
         },
         {
           label: '💾 Farklı Kaydet (Yeni Format .temin)...',
           onClick: async () => {
             try {
-              const res = await window.electron?.ipcRenderer.invoke(
-                'workspace:save-as'
-              )
+              const res = await window.electron?.ipcRenderer.invoke('workspace:save-as')
               if (res?.success && res.newFilePath) {
                 alert(
                   `Çalışma dosyanız yeni konuma (.temin) başarıyla kaydedildi:\n\n${res.newFilePath}`
@@ -304,20 +285,14 @@ export function Header(): React.JSX.Element {
                 label: '⚡ Güncel Formata Dönüştür & Kaydet (.temin)',
                 onClick: async () => {
                   try {
-                    const res = await useWorkspaceStore
-                      .getState()
-                      .upgradeToTemin()
+                    const res = await useWorkspaceStore.getState().upgradeToTemin()
                     if (res?.success && res.newPath) {
                       alert(
                         `Dosyanız başarıyla yeni nesil TEMİN 360 formatına (.temin) dönüştürüldü ve kaydedildi:\n\n${res.newPath}`
                       )
                       window.location.reload()
                     } else {
-                      alert(
-                        `Format dönüştürülemedi!\nHata: ${
-                          res?.error || 'Bilinmeyen hata'
-                        }`
-                      )
+                      alert(`Format dönüştürülemedi!\nHata: ${res?.error || 'Bilinmeyen hata'}`)
                     }
                   } catch (e: any) {
                     alert(`Hata: ${e.message}`)
@@ -335,9 +310,7 @@ export function Header(): React.JSX.Element {
           label: 'Farklı Çalışma Dosyası Aç (.temin, .dtal, .hkmp...)...',
           onClick: async () => {
             try {
-              const res = await window.electron?.ipcRenderer.invoke(
-                'dialog:showOpenDialog'
-              )
+              const res = await window.electron?.ipcRenderer.invoke('dialog:showOpenDialog')
               if (!res?.canceled && res?.filePath) {
                 const filePath = res.filePath as string
                 const ext = (filePath.split('.').pop() || '').toLowerCase()
@@ -345,17 +318,11 @@ export function Header(): React.JSX.Element {
                   setUpgradeFilePath(filePath)
                   setShowFormatUpgradeModal(true)
                 } else {
-                  const result = await useWorkspaceStore
-                    .getState()
-                    .openWorkspace(filePath, false)
+                  const result = await useWorkspaceStore.getState().openWorkspace(filePath, false)
                   if (result.success) {
                     window.location.reload()
                   } else {
-                    alert(
-                      `Çalışma dosyası açılamadı!\nHata: ${
-                        result.error || 'Bilinmeyen hata'
-                      }`
-                    )
+                    alert(`Çalışma dosyası açılamadı!\nHata: ${result.error || 'Bilinmeyen hata'}`)
                   }
                 }
               }
@@ -440,8 +407,7 @@ export function Header(): React.JSX.Element {
                     },
                     {
                       label: '2. Piyasa Fiyat Araştırması',
-                      onClick: () =>
-                        navigate({ to: '/dosya/piyasa-fiyat-arastirmasi' })
+                      onClick: () => navigate({ to: '/dosya/piyasa-fiyat-arastirmasi' })
                     },
                     {
                       label: '3. Sipariş & Sözleşme',
@@ -499,8 +465,7 @@ export function Header(): React.JSX.Element {
                     },
                     {
                       label: '2. İhale İlanı & Davet Mektupları',
-                      onClick: () =>
-                        navigate({ to: '/dosya/piyasa-fiyat-arastirmasi' })
+                      onClick: () => navigate({ to: '/dosya/piyasa-fiyat-arastirmasi' })
                     },
                     {
                       label: '3. Teklif Değerlendirme & Komisyon Kararı',
@@ -604,8 +569,7 @@ export function Header(): React.JSX.Element {
             },
             {
               label: '📈 Yİ-ÜFE Endeksleri (TÜİK & hakedis.org)',
-              onClick: () =>
-                navigate({ to: '/mevzuat', search: { tab: 'yi-ufe' } as any })
+              onClick: () => navigate({ to: '/mevzuat', search: { tab: 'yi-ufe' } as any })
             },
             { divider: true },
             {
@@ -653,13 +617,11 @@ export function Header(): React.JSX.Element {
             },
             {
               label: '🏛️ İhale Eşik Değerleri ve Limit Parametreleri',
-              onClick: () =>
-                navigate({ to: '/mevzuat', search: { tab: 'limitler' } as any })
+              onClick: () => navigate({ to: '/mevzuat', search: { tab: 'limitler' } as any })
             },
             {
               label: '📈 Yİ-ÜFE Fiyat Farkı & Değerleme Endeksleri',
-              onClick: () =>
-                navigate({ to: '/mevzuat', search: { tab: 'yi-ufe' } as any })
+              onClick: () => navigate({ to: '/mevzuat', search: { tab: 'yi-ufe' } as any })
             },
             { divider: true },
             {
@@ -677,13 +639,11 @@ export function Header(): React.JSX.Element {
         },
         {
           label: 'Mevzuat ve Parametreler',
-          onClick: () =>
-            navigate({ to: '/mevzuat', search: { tab: 'kutuphane' } as any })
+          onClick: () => navigate({ to: '/mevzuat', search: { tab: 'kutuphane' } as any })
         },
         {
           label: '📈 TÜİK Yİ-ÜFE Endeksleri & Değerleme',
-          onClick: () =>
-            navigate({ to: '/mevzuat', search: { tab: 'yi-ufe' } as any })
+          onClick: () => navigate({ to: '/mevzuat', search: { tab: 'yi-ufe' } as any })
         },
         {
           label: 'Şablon Yönetimi',
@@ -720,13 +680,11 @@ export function Header(): React.JSX.Element {
         },
         {
           label: 'Geliştirici Araçları (DevTools)',
-          onClick: () =>
-            window.electron?.ipcRenderer.send('window-toggle-devtools')
+          onClick: () => window.electron?.ipcRenderer.send('window-toggle-devtools')
         },
         {
           label: 'Test Verisi Tohumla (Dev Seed)',
-          onClick: () =>
-            navigate({ to: '/ayarlar', search: { tab: 'developer' } as any })
+          onClick: () => navigate({ to: '/ayarlar', search: { tab: 'developer' } as any })
         },
         { divider: true },
         {
@@ -740,9 +698,7 @@ export function Header(): React.JSX.Element {
         {
           label: 'Hakkında...',
           onClick: () =>
-            alert(
-              'TEMİN 360\nKamu Harcama, İhale, Doğrudan Temin ve Hakediş Yönetim Sistemi'
-            )
+            alert('TEMİN 360\nKamu Harcama, İhale, Doğrudan Temin ve Hakediş Yönetim Sistemi')
         }
       ]
     }

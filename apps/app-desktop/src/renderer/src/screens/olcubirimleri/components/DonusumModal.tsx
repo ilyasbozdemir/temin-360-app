@@ -175,7 +175,9 @@ export const DonusumModal: React.FC<DonusumModalProps> = ({
               <input
                 type="text"
                 value={editingDonusum.ters_formul || ''}
-                onChange={(e) => setEditingDonusum({ ...editingDonusum, ters_formul: e.target.value })}
+                onChange={(e) =>
+                  setEditingDonusum({ ...editingDonusum, ters_formul: e.target.value })
+                }
                 className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-mono text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/40 focus:outline-none"
                 placeholder="Örn: (x - 32) * 5/9"
               />

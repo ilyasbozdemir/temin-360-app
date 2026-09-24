@@ -1,11 +1,5 @@
 import React from 'react'
-import {
-  CheckSquare,
-  Coins,
-  DownloadCloud,
-  Moon,
-  Sun
-} from 'lucide-react'
+import { CheckSquare, Coins, DownloadCloud, Moon, Sun } from 'lucide-react'
 import { SyncPopover } from './SyncPopover'
 import { NotificationPopover } from './NotificationPopover'
 
@@ -63,17 +57,12 @@ export function HeaderActions({
         className="p-1 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-all rounded hover:bg-slate-200/50 dark:hover:bg-slate-800/50 cursor-pointer"
         title="Tema Değiştir"
       >
-        {theme === 'dark' ? (
-          <Sun className="w-3.5 h-3.5" />
-        ) : (
-          <Moon className="w-3.5 h-3.5" />
-        )}
+        {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
       </button>
 
       {/* Güncelleme Durumu */}
       {updateStatus &&
-        (updateStatus.status === 'available' ||
-          updateStatus.status === 'downloaded') && (
+        (updateStatus.status === 'available' || updateStatus.status === 'downloaded') && (
           <button
             type="button"
             onClick={() => setShowUpdateModal(true)}
@@ -108,10 +97,7 @@ export function HeaderActions({
       <SyncPopover />
 
       {/* Bildirim Popover */}
-      <NotificationPopover
-        isOpen={showNotifications}
-        onToggle={setShowNotifications}
-      />
+      <NotificationPopover isOpen={showNotifications} onToggle={setShowNotifications} />
     </div>
   )
 }

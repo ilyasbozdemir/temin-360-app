@@ -602,10 +602,12 @@ export default function HizliDosyaEkleScreen(): React.JSX.Element {
 
       {/* İpucu */}
       <p className="text-xs text-slate-400 dark:text-slate-500 -mb-2">
-        <span className="inline-block w-2.5 h-2.5 rounded bg-slate-200 dark:bg-slate-700 mr-1"></span>Mevcut •{' '}
-        <span className="inline-block w-2.5 h-2.5 rounded bg-amber-200 dark:bg-amber-900 mr-1"></span>Değiştirilen Mevcut •{' '}
-        <span className="inline-block w-2.5 h-2.5 rounded bg-green-200 dark:bg-green-900 mr-1"></span>Yeni Kayıt
-        &nbsp;·&nbsp; Excel sütun sırası:{' '}
+        <span className="inline-block w-2.5 h-2.5 rounded bg-slate-200 dark:bg-slate-700 mr-1"></span>
+        Mevcut •{' '}
+        <span className="inline-block w-2.5 h-2.5 rounded bg-amber-200 dark:bg-amber-900 mr-1"></span>
+        Değiştirilen Mevcut •{' '}
+        <span className="inline-block w-2.5 h-2.5 rounded bg-green-200 dark:bg-green-900 mr-1"></span>
+        Yeni Kayıt &nbsp;·&nbsp; Excel sütun sırası:{' '}
         <strong>
           Dosya No | DT No | Dosya Adı | Açıklama | İhale Türü | Şekli | Tarih | Aşama
         </strong>

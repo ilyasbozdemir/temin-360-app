@@ -253,34 +253,36 @@ export function DetsisBadge({
           </div>
 
           {/* Detay Bilgi Kutucuğu (İl / İlçe / Hiyerarşi) */}
-          {showDetails && !compact && (result.birimAdi || result.kurumHiyerarsisi || result.ilAdi) && (
-            <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-700 dark:text-slate-300 space-y-1">
-              {result.birimAdi && (
-                <div className="flex items-center gap-1.5 font-medium text-slate-800 dark:text-slate-200">
-                  <Building2 className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                  <span className="truncate">{result.birimAdi}</span>
+          {showDetails &&
+            !compact &&
+            (result.birimAdi || result.kurumHiyerarsisi || result.ilAdi) && (
+              <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-700 dark:text-slate-300 space-y-1">
+                {result.birimAdi && (
+                  <div className="flex items-center gap-1.5 font-medium text-slate-800 dark:text-slate-200">
+                    <Building2 className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                    <span className="truncate">{result.birimAdi}</span>
+                  </div>
+                )}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-slate-500 dark:text-slate-400">
+                  {(result.ilAdi || result.ilceAdi) && (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3 h-3 text-emerald-500 shrink-0" />
+                      <span>{[result.ilceAdi, result.ilAdi].filter(Boolean).join(' / ')}</span>
+                    </span>
+                  )}
+                  {result.kategoriAdi && (
+                    <span className="px-1.5 py-0.2 rounded bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                      {result.kategoriAdi}
+                    </span>
+                  )}
+                  {result.statuAdi && (
+                    <span className="px-1.5 py-0.2 rounded bg-blue-100/70 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
+                      {result.statuAdi}
+                    </span>
+                  )}
                 </div>
-              )}
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-slate-500 dark:text-slate-400">
-                {(result.ilAdi || result.ilceAdi) && (
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3 text-emerald-500 shrink-0" />
-                    <span>{[result.ilceAdi, result.ilAdi].filter(Boolean).join(' / ')}</span>
-                  </span>
-                )}
-                {result.kategoriAdi && (
-                  <span className="px-1.5 py-0.2 rounded bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                    {result.kategoriAdi}
-                  </span>
-                )}
-                {result.statuAdi && (
-                  <span className="px-1.5 py-0.2 rounded bg-blue-100/70 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
-                    {result.statuAdi}
-                  </span>
-                )}
               </div>
-            </div>
-          )}
+            )}
         </div>
 
         <DetsisSearchModal

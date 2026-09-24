@@ -11,7 +11,8 @@ export const IhtiyacTalepFormuMapping: ProcessMapping = {
     aciklama: 'Dosya konusu'
   },
   evrakSayisi: {
-    aciklama: 'E-DETSİS-SDP-NO standart formatına uygun resmi evrak sayısı (örn: E-10234521-934.01-0001)'
+    aciklama:
+      'E-DETSİS-SDP-NO standart formatına uygun resmi evrak sayısı (örn: E-10234521-934.01-0001)'
   },
   sunulacakMakamAdi: {
     tablo: 'TANIM_Kurum',

@@ -102,15 +102,22 @@ export function ProjectInlineSection({
       </div>
 
       {isCreatingInline ? (
-        <form onSubmit={handleCreate} className="space-y-3 p-3 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 animate-in fade-in duration-200">
+        <form
+          onSubmit={handleCreate}
+          className="space-y-3 p-3 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 animate-in fade-in duration-200"
+        >
           <div className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
             <span>Yeni Proje Tanımla</span>
-            <span className="text-[10px] text-slate-400 font-normal">Formu doldurup kaydettiğinizde otomatik bu dosyaya bağlanır</span>
+            <span className="text-[10px] text-slate-400 font-normal">
+              Formu doldurup kaydettiğinizde otomatik bu dosyaya bağlanır
+            </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
             <div>
-              <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Proje Kodu *</label>
+              <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                Proje Kodu *
+              </label>
               <Input
                 value={newCode}
                 onChange={(e) => setNewCode(e.target.value)}
@@ -120,7 +127,9 @@ export function ProjectInlineSection({
               />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Proje Adı *</label>
+              <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                Proje Adı *
+              </label>
               <Input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
@@ -130,7 +139,9 @@ export function ProjectInlineSection({
               />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Toplam Bütçe (₺)</label>
+              <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                Toplam Bütçe (₺)
+              </label>
               <Input
                 type="number"
                 value={newBudget}
@@ -150,7 +161,9 @@ export function ProjectInlineSection({
                   type="button"
                   onClick={() => setNewColor(c)}
                   className={`w-5 h-5 rounded-full transition-transform ${
-                    newColor === c ? 'ring-2 ring-offset-1 ring-blue-500 scale-110' : 'opacity-80 hover:opacity-100'
+                    newColor === c
+                      ? 'ring-2 ring-offset-1 ring-blue-500 scale-110'
+                      : 'opacity-80 hover:opacity-100'
                   }`}
                   style={{ backgroundColor: c }}
                 />
@@ -158,10 +171,20 @@ export function ProjectInlineSection({
             </div>
 
             <div className="flex items-center gap-2">
-              <Button type="button" variant="outline" size="sm" onClick={() => setIsCreatingInline(false)} className="text-xs h-7 px-2.5">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsCreatingInline(false)}
+                className="text-xs h-7 px-2.5"
+              >
                 Vazgeç
               </Button>
-              <Button type="submit" size="sm" className="text-xs h-7 px-3 bg-emerald-600 text-white hover:bg-emerald-700">
+              <Button
+                type="submit"
+                size="sm"
+                className="text-xs h-7 px-3 bg-emerald-600 text-white hover:bg-emerald-700"
+              >
                 Kaydet ve Bağla
               </Button>
             </div>
@@ -194,7 +217,8 @@ export function ProjectInlineSection({
                 ) : (
                   projeler.map((p) => (
                     <option key={p.id} value={p.id}>
-                      [{p.proje_kodu}] {p.proje_adi} ({Number(p.toplam_butce).toLocaleString('tr-TR')} ₺)
+                      [{p.proje_kodu}] {p.proje_adi} (
+                      {Number(p.toplam_butce).toLocaleString('tr-TR')} ₺)
                     </option>
                   ))
                 )}
@@ -218,7 +242,8 @@ export function ProjectInlineSection({
                       </span>
                     </div>
                     <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-                      Bütçe: {Number(selectedProject.toplam_butce).toLocaleString('tr-TR')} ₺ • Dosya: {selectedProject.dosya_sayisi || 0}
+                      Bütçe: {Number(selectedProject.toplam_butce).toLocaleString('tr-TR')} ₺ •
+                      Dosya: {selectedProject.dosya_sayisi || 0}
                     </div>
                   </div>
                 </div>
@@ -234,7 +259,9 @@ export function ProjectInlineSection({
               </div>
             ) : (
               <div className="p-2.5 rounded-xl bg-slate-100/70 dark:bg-slate-950/40 border border-dashed border-slate-300 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-center">
-                <span>Herhangi bir projeye bağlı değil. Seçeceğiniz proje alım bütçesini takibe alır.</span>
+                <span>
+                  Herhangi bir projeye bağlı değil. Seçeceğiniz proje alım bütçesini takibe alır.
+                </span>
               </div>
             )}
           </div>

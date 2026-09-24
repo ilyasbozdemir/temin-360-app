@@ -455,23 +455,23 @@ TOPLAM                1.150.000 TL    34.500 TL   1.184.500 TL
 
 ## 📊 HAKEDIŞLE İLGİLİ RAPORLAR TABLOSU
 
-| #  | Rapor Adı             | İçerik                               | Excel/Word | Hazırlanış Süresi |
-| -- | --------------------- | ------------------------------------ | ---------- | ----------------- |
-| 1  | Metraj Cetveli        | Sözleşme pozlarının miktar bilgileri | ✓          | 2-3 gün           |
-| 2  | Profil Metrajı        | Kesit/profil bilgileri               | ✓          | 2 gün             |
-| 3  | Demir Metrajı         | Donatı çeliği bilgileri              | ✓          | 2 gün             |
-| 4  | Ataşman Raporu        | Çizimli detaylar                     | ✓          | 3 gün             |
-| 5  | Tesisat Metrajı       | Tesisat bilgileri                    | ✓          | 2 gün             |
-| 6  | Yeşil Defter          | Kümülatif miktar takibi              | ✓          | 1 gün             |
-| 7  | Yapılan İşler Listesi | Tutarların gösterimi                 | ✓          | 1 gün             |
-| 8  | Revize Birim Fiyat    | Fiyat güncellemeleri                 | ✓          | 2 gün             |
-| 9  | Fiyat Farkı Hesabı    | Pazar değişim tutarları              | ✓          | 1-2 gün           |
-| 10 | İcmal Raporu          | İş grupları toplamları               | ✓          | 1 gün             |
-| 11 | Ön Kapak              | Sözleşme bilgileri                   | ✓          | 1 gün             |
-| 12 | Dizi Pusulası         | Evrakların listesi                   | ✓          | 1 gün             |
-| 13 | İcmali Özet           | Kesintilerle toplam                  | ✓          | 1 gün             |
-| 14 | Arka Kapak            | Ödeme bilgileri                      | ✓          | 1 gün             |
-| 15 | Hakediş Özeti         | Tüm hakedişler toplu                 | ✓          | 1 gün             |
+| #   | Rapor Adı             | İçerik                               | Excel/Word | Hazırlanış Süresi |
+| --- | --------------------- | ------------------------------------ | ---------- | ----------------- |
+| 1   | Metraj Cetveli        | Sözleşme pozlarının miktar bilgileri | ✓          | 2-3 gün           |
+| 2   | Profil Metrajı        | Kesit/profil bilgileri               | ✓          | 2 gün             |
+| 3   | Demir Metrajı         | Donatı çeliği bilgileri              | ✓          | 2 gün             |
+| 4   | Ataşman Raporu        | Çizimli detaylar                     | ✓          | 3 gün             |
+| 5   | Tesisat Metrajı       | Tesisat bilgileri                    | ✓          | 2 gün             |
+| 6   | Yeşil Defter          | Kümülatif miktar takibi              | ✓          | 1 gün             |
+| 7   | Yapılan İşler Listesi | Tutarların gösterimi                 | ✓          | 1 gün             |
+| 8   | Revize Birim Fiyat    | Fiyat güncellemeleri                 | ✓          | 2 gün             |
+| 9   | Fiyat Farkı Hesabı    | Pazar değişim tutarları              | ✓          | 1-2 gün           |
+| 10  | İcmal Raporu          | İş grupları toplamları               | ✓          | 1 gün             |
+| 11  | Ön Kapak              | Sözleşme bilgileri                   | ✓          | 1 gün             |
+| 12  | Dizi Pusulası         | Evrakların listesi                   | ✓          | 1 gün             |
+| 13  | İcmali Özet           | Kesintilerle toplam                  | ✓          | 1 gün             |
+| 14  | Arka Kapak            | Ödeme bilgileri                      | ✓          | 1 gün             |
+| 15  | Hakediş Özeti         | Tüm hakedişler toplu                 | ✓          | 1 gün             |
 
 ---
 
@@ -483,27 +483,27 @@ TOPLAM                1.150.000 TL    34.500 TL   1.184.500 TL
 ❌ 1. Yeşil Defter Tutarsızlığı
     Kümülatif takip yapılmayması
     ✓ ÇÖZÜM: Her hakediş öncekiyle ilişkilendir
-    
+
 ❌ 2. Birim Fiyat Yanlışlığı
     Sözleşme birim fiyatı yanlış kullanılması
     ✓ ÇÖZÜM: Sözleşmeyi tekrar kontrol et
-    
+
 ❌ 3. Revize Yapılmaması
     Gerekli revize edilmesi gereken pozlar ihmal edilmesi
     ✓ ÇÖZÜM: KİK 4734'ü ve revize şartlarını takip et
-    
+
 ❌ 4. Fiyat Farkı Hesap Hatası
     Yanlış dilim veya endeks kullanılması
     ✓ ÇÖZÜM: Fiyat Farkı Kararnamesini dikkatle oku
-    
+
 ❌ 5. Kesinti Hataları
     Gelir vergisi, FON payları yanlış hesaplanması
     ✓ ÇÖZÜM: Güncel vergi tarifelerini kullan
-    
+
 ❌ 6. Metraj Bilgileri Eksik
     Profil, demir, tesisat metrajları girilmemesi
     ✓ ÇÖZÜM: Tüm metraj kategorilerini tamamla
-    
+
 ❌ 7. Arka Kapak Verileri Tutarsız
     Önceki hakedişler ile uyuşmazlık
     ✓ ÇÖZÜM: Her kapak kapatılmadan önceki kontrol et

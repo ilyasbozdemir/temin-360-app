@@ -138,7 +138,10 @@ export function CiktiMerkeziScreen(): React.JSX.Element {
         initialSelectedIds={Array.from(selectedIds)}
         renderHtml={renderHtml}
         onExecutePrint={async (selected, action) => {
-          await handleAction(action, selected.map((s) => s.id))
+          await handleAction(
+            action,
+            selected.map((s) => s.id)
+          )
         }}
         getMissingRequirement={getMissingRequirement}
         normalizeForMatch={normalizeForMatch}

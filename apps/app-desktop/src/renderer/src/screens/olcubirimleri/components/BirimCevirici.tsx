@@ -159,15 +159,21 @@ export const BirimCevirici: React.FC<BirimCeviriciProps> = ({
               <span className="font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
                 <Scale className="w-3.5 h-3.5 text-amber-600" /> Ağırlık Dönüşümleri
               </span>
-              <span className="font-mono text-slate-600 dark:text-slate-400">1 Ton = 1.000 kg = 1.000.000 g</span>
-              <span className="font-mono text-slate-600 dark:text-slate-400">1 kg = 1.000 g = 0.001 Ton</span>
+              <span className="font-mono text-slate-600 dark:text-slate-400">
+                1 Ton = 1.000 kg = 1.000.000 g
+              </span>
+              <span className="font-mono text-slate-600 dark:text-slate-400">
+                1 kg = 1.000 g = 0.001 Ton
+              </span>
             </div>
 
             <div className="p-3.5 rounded-xl bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-800/30 flex flex-col gap-1.5">
               <span className="font-bold text-blue-900 dark:text-blue-300 flex items-center gap-1.5">
                 <Ruler className="w-3.5 h-3.5 text-blue-600" /> Uzunluk & Yapım
               </span>
-              <span className="font-mono text-slate-600 dark:text-slate-400">1 km = 1.000 m = 100.000 cm</span>
+              <span className="font-mono text-slate-600 dark:text-slate-400">
+                1 km = 1.000 m = 100.000 cm
+              </span>
               <span className="font-mono text-slate-600 dark:text-slate-400">
                 1 m = 100 cm = 1.000 mm = 1 Metretül (mt)
               </span>
@@ -177,8 +183,12 @@ export const BirimCevirici: React.FC<BirimCeviriciProps> = ({
               <span className="font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
                 <Maximize2 className="w-3.5 h-3.5 text-emerald-600" /> Alan & Hacim
               </span>
-              <span className="font-mono text-slate-600 dark:text-slate-400">1 Hektar (ha) = 10.000 m² = 10 Dönüm</span>
-              <span className="font-mono text-slate-600 dark:text-slate-400">1 m³ = 1.000 Litre | 1 L = 1.000 ml</span>
+              <span className="font-mono text-slate-600 dark:text-slate-400">
+                1 Hektar (ha) = 10.000 m² = 10 Dönüm
+              </span>
+              <span className="font-mono text-slate-600 dark:text-slate-400">
+                1 m³ = 1.000 Litre | 1 L = 1.000 ml
+              </span>
             </div>
 
             <div className="p-3.5 rounded-xl bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200/50 dark:border-rose-800/30 flex flex-col gap-1.5">

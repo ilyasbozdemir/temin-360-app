@@ -352,7 +352,8 @@ export const BirimModal: React.FC<BirimModalProps> = ({
             <div className="col-span-full space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 text-xs font-semibold text-slate-655 dark:text-slate-400">
-                  DETSİS Kodu <span className="text-[10px] font-normal text-slate-400">(Eski adıyla DTVT)</span>
+                  DETSİS Kodu{' '}
+                  <span className="text-[10px] font-normal text-slate-400">(Eski adıyla DTVT)</span>
                 </label>
                 <DetsisBadge
                   detsisNo={form.dtvt_kodu || form.detsis_kodu}

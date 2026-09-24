@@ -100,7 +100,9 @@ export function EskiDosyaKopyalaModal({
       futureDate.setDate(futureDate.getDate() + 7)
       const defaultSonTeklif = futureDate.toISOString().split('T')[0]
 
-      const dosyaCounts = dosya.id ? await getDosyaCounts(dosya.id) : { itemCount: 0, firmCount: 0, commissionCount: 0 }
+      const dosyaCounts = dosya.id
+        ? await getDosyaCounts(dosya.id)
+        : { itemCount: 0, firmCount: 0, commissionCount: 0 }
       setCounts(dosyaCounts)
 
       setFormData({
@@ -187,7 +189,10 @@ export function EskiDosyaKopyalaModal({
             {/* SEARCH BAR */}
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                <Search
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={16}
+                />
                 <input
                   type="text"
                   placeholder="Dosya numarası, konu veya birim adı ile arayın..."
@@ -332,7 +337,10 @@ export function EskiDosyaKopyalaModal({
                       required
                       value={formData.butce_yili || new Date().getFullYear()}
                       onChange={(e) =>
-                        setFormData({ ...formData, butce_yili: parseInt(e.target.value, 10) || new Date().getFullYear() })
+                        setFormData({
+                          ...formData,
+                          butce_yili: parseInt(e.target.value, 10) || new Date().getFullYear()
+                        })
                       }
                       className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                     />
@@ -360,7 +368,9 @@ export function EskiDosyaKopyalaModal({
                       type="date"
                       required
                       value={formData.dosya_acilis_tarihi || ''}
-                      onChange={(e) => setFormData({ ...formData, dosya_acilis_tarihi: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, dosya_acilis_tarihi: e.target.value })
+                      }
                       className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                     />
                   </div>
@@ -497,8 +507,8 @@ export function EskiDosyaKopyalaModal({
                   <Info size={15} className="text-blue-500 shrink-0 mt-0.5" />
                   <span>
                     <strong>Temiz Başlangıç Güvencesi:</strong> Eski dosyaya ait geçmiş teklif
-                    fiyatları, faturalar ve kabul tutanakları aktarılmaz. Yeni dosyanız temiz ve teklif
-                    toplamaya hazır olarak açılır.
+                    fiyatları, faturalar ve kabul tutanakları aktarılmaz. Yeni dosyanız temiz ve
+                    teklif toplamaya hazır olarak açılır.
                   </span>
                 </div>
               </div>

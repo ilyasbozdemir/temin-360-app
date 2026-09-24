@@ -52,52 +52,55 @@ export function useKurumHooks() {
   const [allKurumlar, setAllKurumlar] = useState<KurumVerisi[]>([])
   const [isLoadingKurum, setIsLoadingKurum] = useState(true)
 
-  const fetchKurum = useCallback(async (targetId?: number) => {
-    setIsLoadingKurum(true)
-    try {
-      const currentId = targetId || activeKurumId || 1
-      const res = await window.electron.ipcRenderer.invoke(
-        'db:query',
-        'SELECT * FROM TANIM_Kurum WHERE id = ?',
-        [currentId]
-      )
-      if (res.success && res.data && res.data.length > 0) {
-        setKurumData(res.data[0])
-      } else {
-        // Fallback to first available or default
-        const allRes = await window.electron.ipcRenderer.invoke(
+  const fetchKurum = useCallback(
+    async (targetId?: number) => {
+      setIsLoadingKurum(true)
+      try {
+        const currentId = targetId || activeKurumId || 1
+        const res = await window.electron.ipcRenderer.invoke(
           'db:query',
-          'SELECT * FROM TANIM_Kurum ORDER BY id ASC LIMIT 1'
+          'SELECT * FROM TANIM_Kurum WHERE id = ?',
+          [currentId]
         )
-        if (allRes.success && allRes.data && allRes.data.length > 0) {
-          setKurumData(allRes.data[0])
+        if (res.success && res.data && res.data.length > 0) {
+          setKurumData(res.data[0])
         } else {
-          setKurumData({
-            id: 1,
-            kurum_adi: '',
-            kurum_anteti: '[""]',
-            limit_tipi: 'diger',
-            finansman_kodu: '5',
-            alt_kurum_tipi: 'belediye'
-          })
+          // Fallback to first available or default
+          const allRes = await window.electron.ipcRenderer.invoke(
+            'db:query',
+            'SELECT * FROM TANIM_Kurum ORDER BY id ASC LIMIT 1'
+          )
+          if (allRes.success && allRes.data && allRes.data.length > 0) {
+            setKurumData(allRes.data[0])
+          } else {
+            setKurumData({
+              id: 1,
+              kurum_adi: '',
+              kurum_anteti: '[""]',
+              limit_tipi: 'diger',
+              finansman_kodu: '5',
+              alt_kurum_tipi: 'belediye'
+            })
+          }
         }
-      }
 
-      // Also fetch all kurumlar list
-      const listRes = await window.electron.ipcRenderer.invoke(
-        'db:query',
-        'SELECT * FROM TANIM_Kurum WHERE is_deleted = 0 OR is_deleted IS NULL ORDER BY id ASC'
-      )
-      if (listRes.success && listRes.data) {
-        setAllKurumlar(listRes.data)
+        // Also fetch all kurumlar list
+        const listRes = await window.electron.ipcRenderer.invoke(
+          'db:query',
+          'SELECT * FROM TANIM_Kurum WHERE is_deleted = 0 OR is_deleted IS NULL ORDER BY id ASC'
+        )
+        if (listRes.success && listRes.data) {
+          setAllKurumlar(listRes.data)
+        }
+      } catch (err) {
+        console.error('fetchKurum Error:', err)
+        setKurumData(null)
+      } finally {
+        setIsLoadingKurum(false)
       }
-    } catch (err) {
-      console.error('fetchKurum Error:', err)
-      setKurumData(null)
-    } finally {
-      setIsLoadingKurum(false)
-    }
-  }, [activeKurumId])
+    },
+    [activeKurumId]
+  )
 
   const saveKurum = useCallback(
     async (data: KurumVerisi, targetId?: number) => {
@@ -257,7 +260,9 @@ export function useKurumHooks() {
     async (id: number) => {
       try {
         if (id === activeKurumId) {
-          throw new Error('Aktif olan kurum profili silinemez. Lütfen önce başka bir profile geçiş yapın.')
+          throw new Error(
+            'Aktif olan kurum profili silinemez. Lütfen önce başka bir profile geçiş yapın.'
+          )
         }
 
         const countRes = await window.electron.ipcRenderer.invoke(
@@ -299,4 +304,3 @@ export function useKurumHooks() {
     deleteKurumProfile
   }
 }
-

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import React, { useEffect, useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import {
   AlertTriangle,
   ArrowLeft,
@@ -16,21 +16,18 @@ import {
   ShieldCheck,
   Sparkles,
   TrendingDown,
-  Trophy,
-} from "lucide-react";
-import { cn } from "../../../../utils/cn";
-import { SubScreen } from "../../SubScreens.screen";
-import {
-  normalizeForMatch,
-  useDosyaAsamasiSablons,
-} from "./useDosyaAsamasiSablons";
-import { PrintDropdownButton } from "../../components/PrintDropdownButton";
-import { useSettingsStore } from "../../../../store/settingsStore";
-import { useWorkspaceStore } from "../../../../store/workspaceStore";
-import { useGlobalDocumentPreviewStore } from "../../../../store/globalDocumentPreviewStore";
-import { APP_ROUTES } from "../../../../constants/routeConstants";
-import { WinnerDocumentsMenu } from "./components/WinnerDocumentsMenu";
-import { documentPreloadService } from "../../../../services/documentPreloadService";
+  Trophy
+} from 'lucide-react'
+import { cn } from '../../../../utils/cn'
+import { SubScreen } from '../../SubScreens.screen'
+import { normalizeForMatch, useDosyaAsamasiSablons } from './useDosyaAsamasiSablons'
+import { PrintDropdownButton } from '../../components/PrintDropdownButton'
+import { useSettingsStore } from '../../../../store/settingsStore'
+import { useWorkspaceStore } from '../../../../store/workspaceStore'
+import { useGlobalDocumentPreviewStore } from '../../../../store/globalDocumentPreviewStore'
+import { APP_ROUTES } from '../../../../constants/routeConstants'
+import { WinnerDocumentsMenu } from './components/WinnerDocumentsMenu'
+import { documentPreloadService } from '../../../../services/documentPreloadService'
 
 export function SiparisVeSozlesme(): React.JSX.Element {
   const {
@@ -44,34 +41,30 @@ export function SiparisVeSozlesme(): React.JSX.Element {
     quickPrint,
     quickExport,
     quickOpenExternal,
-    isSablonDisabled,
-  } = useDosyaAsamasiSablons();
+    isSablonDisabled
+  } = useDosyaAsamasiSablons()
 
-  const { disableDocumentGuidance } = useSettingsStore();
-  const { activeDosyaId } = useWorkspaceStore();
+  const { disableDocumentGuidance } = useSettingsStore()
+  const { activeDosyaId } = useWorkspaceStore()
 
   const stageSablons = sablons.filter(
-    (s) =>
-      s.kategori === "3-siparis-ve-sozlesme" ||
-      s.kategori === "3. Sipariş & Sözleşme",
-  );
+    (s) => s.kategori === '3-siparis-ve-sozlesme' || s.kategori === '3. Sipariş & Sözleşme'
+  )
 
   // Kazanan firma guard state
-  const [kazananFirmaId, setKazananFirmaId] = useState<
-    number | null | undefined
-  >(undefined); // undefined = yükleniyor
-  const [kazananFirmaUnvan, setKazananFirmaUnvan] = useState<string>("");
+  const [kazananFirmaId, setKazananFirmaId] = useState<number | null | undefined>(undefined) // undefined = yükleniyor
+  const [kazananFirmaUnvan, setKazananFirmaUnvan] = useState<string>('')
 
   // İstatistik verileri
   const [firmaStats, setFirmaStats] = useState<{
-    teklifToplami: number | null;
-    yaklasikMaliyet: number | null;
-    teslimTarihi: string | null;
-    yasaklilikDurumu: string | null;
-    vergiNo: string | null;
-    teklifSozlesmeTuru: string | null;
-    sozlesmeYapilacakMi: number;
-    istekliFirmaSayisi: number;
+    teklifToplami: number | null
+    yaklasikMaliyet: number | null
+    teslimTarihi: string | null
+    yasaklilikDurumu: string | null
+    vergiNo: string | null
+    teklifSozlesmeTuru: string | null
+    sozlesmeYapilacakMi: number
+    istekliFirmaSayisi: number
   }>({
     teklifToplami: null,
     yaklasikMaliyet: null,
@@ -80,85 +73,80 @@ export function SiparisVeSozlesme(): React.JSX.Element {
     vergiNo: null,
     teklifSozlesmeTuru: null,
     sozlesmeYapilacakMi: 0,
-    istekliFirmaSayisi: 0,
-  });
+    istekliFirmaSayisi: 0
+  })
 
   const [islemlerData, setIslemlerData] = useState({
     sozlesmeYapilacakMi: false,
     siparisFormuGerekli: true,
     teslimGunu: 10,
-    teslimTarihi: "",
-    teklifSozlesmeTuru: "Mal Alımı",
-  });
+    teslimTarihi: '',
+    teklifSozlesmeTuru: 'Mal Alımı'
+  })
 
-  const [savedFeedback, setSavedFeedback] = useState(false);
-  const [showDeliveryTooltip, setShowDeliveryTooltip] = useState(false);
+  const [savedFeedback, setSavedFeedback] = useState(false)
+  const [showDeliveryTooltip, setShowDeliveryTooltip] = useState(false)
 
   useEffect(() => {
-    if (!activeDosyaId) return;
+    if (!activeDosyaId) return
 
     const checkKazananFirma = async (): Promise<void> => {
       try {
         // Ana dosya + firma bilgisi
         const res = await window.electron.ipcRenderer.invoke(
-          "db:query",
+          'db:query',
           `SELECT d.firma_id, f.unvan, f.vergi_no,
                   d.yaklasik_maliyet, d.teslim_tarihi, d.teslim_gun,
                   d.teklif_sozlesme_turu, d.sozlesme_yapilacak_mi
            FROM DATA_TeminDosyasi d
            LEFT JOIN TANIM_Firma f ON d.firma_id = f.id
            WHERE d.id = ?`,
-          [activeDosyaId],
-        );
+          [activeDosyaId]
+        )
 
         if (res.success && res.data && res.data.length > 0) {
-          const row = res.data[0];
-          setKazananFirmaId(row.firma_id || null);
-          setKazananFirmaUnvan(row.unvan || "");
+          const row = res.data[0]
+          setKazananFirmaId(row.firma_id || null)
+          setKazananFirmaUnvan(row.unvan || '')
 
           // Kazanan firmanın teklif toplamı ve yasaklılık durumu
-          let teklifToplami: number | null = null;
-          let yasaklilikDurumu: string | null = null;
+          let teklifToplami: number | null = null
+          let yasaklilikDurumu: string | null = null
           if (row.firma_id) {
             const teklifRes = await window.electron.ipcRenderer.invoke(
-              "db:query",
+              'db:query',
               `SELECT tf.teklif_toplami, tf.yasaklilik_durumu
                FROM DATA_TeminFirma tf
                WHERE tf.temin_dosya_id = ? AND tf.firma_id = ?`,
-              [activeDosyaId, row.firma_id],
-            );
+              [activeDosyaId, row.firma_id]
+            )
             if (teklifRes.success && teklifRes.data?.length > 0) {
-              teklifToplami = teklifRes.data[0].teklif_toplami;
-              yasaklilikDurumu = teklifRes.data[0].yasaklilik_durumu;
+              teklifToplami = teklifRes.data[0].teklif_toplami
+              yasaklilikDurumu = teklifRes.data[0].yasaklilik_durumu
             }
           }
 
           // İstekli firma sayısı
           const firmCountRes = await window.electron.ipcRenderer.invoke(
-            "db:query",
+            'db:query',
             `SELECT COUNT(*) as cnt FROM DATA_TeminFirma WHERE temin_dosya_id = ?`,
-            [activeDosyaId],
-          );
+            [activeDosyaId]
+          )
           const istekliFirmaSayisi =
-            firmCountRes.success && firmCountRes.data?.length > 0
-              ? firmCountRes.data[0].cnt
-              : 0;
+            firmCountRes.success && firmCountRes.data?.length > 0 ? firmCountRes.data[0].cnt : 0
 
           // Gün sayısı hesaplama (eğer teslim günü veya tarihi varsa)
           let calculatedDays =
             row.teslim_gun !== undefined && row.teslim_gun !== null && Number(row.teslim_gun) > 0
               ? Number(row.teslim_gun)
-              : 10;
-          if (
-            (row.teslim_gun === undefined || row.teslim_gun === null) &&
-            row.teslim_tarihi
-          ) {
-            const tDate = new Date(row.teslim_tarihi);
-            const today = new Date();
-            const diffTime = tDate.getTime() - today.getTime();
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              : 10
+          if ((row.teslim_gun === undefined || row.teslim_gun === null) && row.teslim_tarihi) {
+            const tDate = new Date(row.teslim_tarihi)
+            const today = new Date()
+            const diffTime = tDate.getTime() - today.getTime()
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
             if (diffDays > 0 && diffDays < 365) {
-              calculatedDays = diffDays;
+              calculatedDays = diffDays
             }
           }
 
@@ -168,169 +156,165 @@ export function SiparisVeSozlesme(): React.JSX.Element {
             teslimTarihi: row.teslim_tarihi || null,
             yasaklilikDurumu,
             vergiNo: row.vergi_no || null,
-            teklifSozlesmeTuru: row.teklif_sozlesme_turu || "Mal Alımı",
+            teklifSozlesmeTuru: row.teklif_sozlesme_turu || 'Mal Alımı',
             sozlesmeYapilacakMi: row.sozlesme_yapilacak_mi || 0,
-            istekliFirmaSayisi,
-          });
+            istekliFirmaSayisi
+          })
 
           setIslemlerData({
             sozlesmeYapilacakMi: row.sozlesme_yapilacak_mi === 1,
             siparisFormuGerekli: true,
             teslimGunu: calculatedDays,
-            teslimTarihi: row.teslim_tarihi || "",
-            teklifSozlesmeTuru: row.teklif_sozlesme_turu || "Mal Alımı",
-          });
+            teslimTarihi: row.teslim_tarihi || '',
+            teklifSozlesmeTuru: row.teklif_sozlesme_turu || 'Mal Alımı'
+          })
         } else {
-          setKazananFirmaId(null);
+          setKazananFirmaId(null)
         }
       } catch {
-        setKazananFirmaId(null);
+        setKazananFirmaId(null)
       }
-    };
+    }
 
-    checkKazananFirma();
-  }, [activeDosyaId]);
+    checkKazananFirma()
+  }, [activeDosyaId])
 
   // Hesaplamalar
-  const tasarrufOrani = firmaStats.yaklasikMaliyet && firmaStats.teklifToplami
-    ? ((firmaStats.yaklasikMaliyet - firmaStats.teklifToplami) /
-      firmaStats.yaklasikMaliyet) * 100
-    : null;
+  const tasarrufOrani =
+    firmaStats.yaklasikMaliyet && firmaStats.teklifToplami
+      ? ((firmaStats.yaklasikMaliyet - firmaStats.teklifToplami) / firmaStats.yaklasikMaliyet) * 100
+      : null
 
   const formatCurrency = (val: number | null): string => {
-    if (val === null || val === undefined) return "—";
-    return new Intl.NumberFormat("tr-TR", {
-      style: "currency",
-      currency: "TRY",
-      minimumFractionDigits: 2,
-    }).format(val);
-  };
+    if (val === null || val === undefined) return '—'
+    return new Intl.NumberFormat('tr-TR', {
+      style: 'currency',
+      currency: 'TRY',
+      minimumFractionDigits: 2
+    }).format(val)
+  }
 
   const formatDate = (dateStr: string | null): string => {
-    if (!dateStr) return "—";
+    if (!dateStr) return '—'
     try {
-      const d = new Date(dateStr);
-      return new Intl.DateTimeFormat("tr-TR", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      }).format(d);
+      const d = new Date(dateStr)
+      return new Intl.DateTimeFormat('tr-TR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      }).format(d)
     } catch {
-      return dateStr;
+      return dateStr
     }
-  };
+  }
 
   // Teslim gününü ve tarihini otomatik güncelleme
   const handleUpdateTeslimGunu = async (gun: number): Promise<void> => {
-    if (!activeDosyaId) return;
-    const d = new Date();
-    d.setDate(d.getDate() + gun);
-    const dateStr = d.toISOString().split("T")[0];
+    if (!activeDosyaId) return
+    const d = new Date()
+    d.setDate(d.getDate() + gun)
+    const dateStr = d.toISOString().split('T')[0]
 
     setIslemlerData((prev) => ({
       ...prev,
       teslimGunu: gun,
-      teslimTarihi: dateStr,
-    }));
-    setFirmaStats((prev) => ({ ...prev, teslimTarihi: dateStr }));
+      teslimTarihi: dateStr
+    }))
+    setFirmaStats((prev) => ({ ...prev, teslimTarihi: dateStr }))
 
     try {
       await window.electron.ipcRenderer.invoke(
-        "db:query",
+        'db:query',
         `UPDATE DATA_TeminDosyasi SET teslim_tarihi = ?, teslim_gun = ? WHERE id = ?`,
-        [dateStr, gun, activeDosyaId],
-      );
-      documentPreloadService.invalidateCache(activeDosyaId);
+        [dateStr, gun, activeDosyaId]
+      )
+      documentPreloadService.invalidateCache(activeDosyaId)
       window.dispatchEvent(
-        new CustomEvent("dossier:updated", { detail: { dosyaId: activeDosyaId } }),
-      );
-      setSavedFeedback(true);
-      setTimeout(() => setSavedFeedback(false), 2000);
+        new CustomEvent('dossier:updated', { detail: { dosyaId: activeDosyaId } })
+      )
+      setSavedFeedback(true)
+      setTimeout(() => setSavedFeedback(false), 2000)
     } catch (err) {
-      console.error("Teslim süresi güncellenirken hata:", err);
+      console.error('Teslim süresi güncellenirken hata:', err)
     }
-  };
+  }
 
   // Özel teslim tarihi seçildiğinde
   const handleUpdateTeslimTarihi = async (dateStr: string): Promise<void> => {
-    if (!activeDosyaId) return;
-    let gun = islemlerData.teslimGunu;
+    if (!activeDosyaId) return
+    let gun = islemlerData.teslimGunu
     if (dateStr) {
-      const tDate = new Date(dateStr);
-      const today = new Date();
-      const diffTime = tDate.getTime() - today.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      if (diffDays > 0) gun = diffDays;
+      const tDate = new Date(dateStr)
+      const today = new Date()
+      const diffTime = tDate.getTime() - today.getTime()
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      if (diffDays > 0) gun = diffDays
     }
 
     setIslemlerData((prev) => ({
       ...prev,
       teslimGunu: gun,
-      teslimTarihi: dateStr,
-    }));
-    setFirmaStats((prev) => ({ ...prev, teslimTarihi: dateStr }));
+      teslimTarihi: dateStr
+    }))
+    setFirmaStats((prev) => ({ ...prev, teslimTarihi: dateStr }))
 
     try {
       await window.electron.ipcRenderer.invoke(
-        "db:query",
+        'db:query',
         `UPDATE DATA_TeminDosyasi SET teslim_tarihi = ?, teslim_gun = ? WHERE id = ?`,
-        [dateStr, gun, activeDosyaId],
-      );
-      documentPreloadService.invalidateCache(activeDosyaId);
+        [dateStr, gun, activeDosyaId]
+      )
+      documentPreloadService.invalidateCache(activeDosyaId)
       window.dispatchEvent(
-        new CustomEvent("dossier:updated", { detail: { dosyaId: activeDosyaId } }),
-      );
-      setSavedFeedback(true);
-      setTimeout(() => setSavedFeedback(false), 2000);
+        new CustomEvent('dossier:updated', { detail: { dosyaId: activeDosyaId } })
+      )
+      setSavedFeedback(true)
+      setTimeout(() => setSavedFeedback(false), 2000)
     } catch (err) {
-      console.error("Teslim tarihi kaydedilirken hata:", err);
+      console.error('Teslim tarihi kaydedilirken hata:', err)
     }
-  };
+  }
 
   // Sözleşme yapılma tercihini değiştirme
   const handleToggleSozlesme = async (): Promise<void> => {
-    if (!activeDosyaId) return;
-    const newStatus = firmaStats.sozlesmeYapilacakMi ? 0 : 1;
-    setFirmaStats((prev) => ({ ...prev, sozlesmeYapilacakMi: newStatus }));
+    if (!activeDosyaId) return
+    const newStatus = firmaStats.sozlesmeYapilacakMi ? 0 : 1
+    setFirmaStats((prev) => ({ ...prev, sozlesmeYapilacakMi: newStatus }))
     setIslemlerData((prev) => ({
       ...prev,
-      sozlesmeYapilacakMi: newStatus === 1,
-    }));
+      sozlesmeYapilacakMi: newStatus === 1
+    }))
 
     try {
       await window.electron.ipcRenderer.invoke(
-        "db:query",
+        'db:query',
         `UPDATE DATA_TeminDosyasi SET sozlesme_yapilacak_mi = ? WHERE id = ?`,
-        [newStatus, activeDosyaId],
-      );
-      documentPreloadService.invalidateCache(activeDosyaId);
+        [newStatus, activeDosyaId]
+      )
+      documentPreloadService.invalidateCache(activeDosyaId)
       window.dispatchEvent(
-        new CustomEvent("dossier:updated", { detail: { dosyaId: activeDosyaId } }),
-      );
-      setSavedFeedback(true);
-      setTimeout(() => setSavedFeedback(false), 2000);
+        new CustomEvent('dossier:updated', { detail: { dosyaId: activeDosyaId } })
+      )
+      setSavedFeedback(true)
+      setTimeout(() => setSavedFeedback(false), 2000)
     } catch (err) {
-      console.error("Sözleşme durumu güncellenirken hata:", err);
+      console.error('Sözleşme durumu güncellenirken hata:', err)
     }
-  };
+  }
 
   return (
     <SubScreen
       title="Sipariş & Sözleşme"
       icon={FileCheck}
       description="Doğrudan temin onay belgesi, ihale komisyon kararı ve sözleşmeye davet gibi dökümanları hazırlayabilir, doğrudan temin sözleşme süreçlerinizi bu panelden yönetebilirsiniz."
-      previewDocumentId={previewModalOpen && previewData?.dosyaAdi
-        ? previewData.dosyaAdi
-        : null}
+      previewDocumentId={previewModalOpen && previewData?.dosyaAdi ? previewData.dosyaAdi : null}
       onClosePreview={() => setPreviewModalOpen(false)}
     >
       {/* Yükleniyor durumu */}
       {kazananFirmaId === undefined && (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex items-center justify-center">
           <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <span className="ml-3 text-sm text-slate-500">
-            Kontrol ediliyor...
-          </span>
+          <span className="ml-3 text-sm text-slate-500">Kontrol ediliyor...</span>
         </div>
       )}
 
@@ -348,14 +332,10 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                   Kazanan Firma Belirlenmedi
                 </h3>
                 <p className="text-xs text-amber-700 dark:text-amber-400/90 leading-relaxed max-w-xl">
-                  Sipariş &amp; Sözleşme belgelerini oluşturabilmek için önce
-                  {" "}
-                  <strong>Piyasa Fiyat Araştırması</strong>{" "}
-                  adımında kazanan firmayı belirlemeniz gerekir. Tutanağı
-                  kaydederken{" "}
-                  <em>&ldquo;En Düşük Teklifi Kazanan Yap&rdquo;</em>{" "}
-                  seçeneğini işaretleyin ya da açılan firma listesinden kazananı
-                  elle seçin.
+                  Sipariş &amp; Sözleşme belgelerini oluşturabilmek için önce{' '}
+                  <strong>Piyasa Fiyat Araştırması</strong> adımında kazanan firmayı belirlemeniz
+                  gerekir. Tutanağı kaydederken <em>&ldquo;En Düşük Teklifi Kazanan Yap&rdquo;</em>{' '}
+                  seçeneğini işaretleyin ya da açılan firma listesinden kazananı elle seçin.
                 </p>
               </div>
             </div>
@@ -386,38 +366,38 @@ export function SiparisVeSozlesme(): React.JSX.Element {
             </h4>
             <ol className="flex flex-col gap-2">
               {[
-                { step: "1", label: "Hazırlık & İhtiyaç", done: true },
+                { step: '1', label: 'Hazırlık & İhtiyaç', done: true },
                 {
-                  step: "2",
-                  label: "Piyasa Fiyat Araştırması — Kazanan firma belirle",
+                  step: '2',
+                  label: 'Piyasa Fiyat Araştırması — Kazanan firma belirle',
                   done: false,
-                  current: true,
+                  current: true
                 },
-                { step: "3", label: "Sipariş & Sözleşme", done: false },
+                { step: '3', label: 'Sipariş & Sözleşme', done: false },
                 {
-                  step: "4",
-                  label: "Muayene & Kabul & Ödeme İşlemleri",
-                  done: false,
+                  step: '4',
+                  label: 'Muayene & Kabul & Ödeme İşlemleri',
+                  done: false
                 },
-                { step: "5", label: "Klasör & Kapaklar", done: false },
+                { step: '5', label: 'Klasör & Kapaklar', done: false }
               ].map((item) => (
                 <li
                   key={item.step}
                   className={`flex items-center gap-3 text-xs font-bold px-3 py-2 rounded-xl transition-colors ${
                     item.current
-                      ? "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60"
+                      ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60'
                       : item.done
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-slate-400 dark:text-slate-600"
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : 'text-slate-400 dark:text-slate-600'
                   }`}
                 >
                   <span
                     className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 ${
                       item.current
-                        ? "bg-amber-500 text-white"
+                        ? 'bg-amber-500 text-white'
                         : item.done
-                        ? "bg-emerald-500 text-white"
-                        : "bg-slate-200 dark:bg-slate-800 text-slate-500"
+                          ? 'bg-emerald-500 text-white'
+                          : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
                     }`}
                   >
                     {item.step}
@@ -451,7 +431,7 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                     Kazanan / Yüklenici Firma
                   </span>
                   <span className="text-sm font-extrabold text-emerald-800 dark:text-emerald-300">
-                    {kazananFirmaUnvan || "Seçili Firma"}
+                    {kazananFirmaUnvan || 'Seçili Firma'}
                   </span>
                 </div>
               </div>
@@ -460,13 +440,13 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                 {firmaStats.yasaklilikDurumu && (
                   <span
                     className={cn(
-                      "px-2 py-1 rounded-lg text-[9px] font-extrabold uppercase tracking-wider flex items-center gap-1",
-                      firmaStats.yasaklilikDurumu === "Temiz" &&
-                        "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50",
-                      firmaStats.yasaklilikDurumu === "Yasaklı" &&
-                        "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50",
-                      firmaStats.yasaklilikDurumu === "Sorgulanmadı" &&
-                        "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700",
+                      'px-2 py-1 rounded-lg text-[9px] font-extrabold uppercase tracking-wider flex items-center gap-1',
+                      firmaStats.yasaklilikDurumu === 'Temiz' &&
+                        'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50',
+                      firmaStats.yasaklilikDurumu === 'Yasaklı' &&
+                        'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50',
+                      firmaStats.yasaklilikDurumu === 'Sorgulanmadı' &&
+                        'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
                     )}
                   >
                     <ShieldCheck className="w-3 h-3" />
@@ -519,16 +499,14 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                 </div>
                 <span
                   className={cn(
-                    "text-sm font-extrabold",
+                    'text-sm font-extrabold',
                     tasarrufOrani !== null && tasarrufOrani >= 0
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-red-600 dark:text-red-400",
-                    tasarrufOrani === null && "text-slate-400",
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-red-600 dark:text-red-400',
+                    tasarrufOrani === null && 'text-slate-400'
                   )}
                 >
-                  {tasarrufOrani !== null
-                    ? `%${tasarrufOrani.toFixed(1)}`
-                    : "—"}
+                  {tasarrufOrani !== null ? `%${tasarrufOrani.toFixed(1)}` : '—'}
                 </span>
               </div>
 
@@ -544,8 +522,7 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                   <div className="relative">
                     <button
                       type="button"
-                      onClick={() =>
-                        setShowDeliveryTooltip(!showDeliveryTooltip)}
+                      onClick={() => setShowDeliveryTooltip(!showDeliveryTooltip)}
                       onMouseEnter={() => setShowDeliveryTooltip(true)}
                       onMouseLeave={() => setShowDeliveryTooltip(false)}
                       className="text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors p-0.5 rounded cursor-pointer"
@@ -556,15 +533,13 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                     {showDeliveryTooltip && (
                       <div className="absolute right-0 bottom-full mb-2 w-64 p-2.5 bg-slate-900 text-white text-[11px] rounded-xl shadow-xl z-30 border border-slate-700 leading-snug animate-in fade-in zoom-in-95 duration-150">
                         <div className="font-bold text-amber-300 mb-1 flex items-center gap-1">
-                          <Info className="w-3.5 h-3.5 text-amber-400" />{" "}
-                          Belge Hükmü:
+                          <Info className="w-3.5 h-3.5 text-amber-400" /> Belge Hükmü:
                         </div>
-                        Kabul Edilen Teklif ve Sipariş mektubu belgelerinde{" "}
+                        Kabul Edilen Teklif ve Sipariş mektubu belgelerinde{' '}
                         <strong className="text-amber-200">
-                          &ldquo;Siparişin tebliğinden itibaren{" "}
-                          {islemlerData.teslimGunu}{" "}
-                          gün içinde teslim edilecektir&rdquo;
-                        </strong>{" "}
+                          &ldquo;Siparişin tebliğinden itibaren {islemlerData.teslimGunu} gün içinde
+                          teslim edilecektir&rdquo;
+                        </strong>{' '}
                         hükmü geçerlidir.
                       </div>
                     )}
@@ -572,9 +547,7 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                 </div>
                 <div className="flex items-baseline justify-between gap-1">
                   <span className="text-sm font-extrabold text-amber-600 dark:text-amber-400">
-                    {islemlerData.teslimGunu
-                      ? `${islemlerData.teslimGunu} Gün`
-                      : "Belirlenmedi"}
+                    {islemlerData.teslimGunu ? `${islemlerData.teslimGunu} Gün` : 'Belirlenmedi'}
                   </span>
                   {firmaStats.teslimTarihi && (
                     <span className="text-[10px] text-slate-400 font-medium">
@@ -597,8 +570,7 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                 </span>
               )}
               <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
-                📝 Sözleşme:{" "}
-                {firmaStats.sozlesmeYapilacakMi ? "Yapılacak" : "Yapılmayacak"}
+                📝 Sözleşme: {firmaStats.sozlesmeYapilacakMi ? 'Yapılacak' : 'Yapılmayacak'}
               </span>
             </div>
           </div>
@@ -616,8 +588,8 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                     İşlem Parametreleri & Teslimat Süresi
                   </h3>
                   <p className="text-[11px] text-slate-400 dark:text-slate-500">
-                    Kabul edilen teklif mektubu, sipariş yazısı ve sözleşme
-                    şartlarını buradan belirleyin.
+                    Kabul edilen teklif mektubu, sipariş yazısı ve sözleşme şartlarını buradan
+                    belirleyin.
                   </p>
                 </div>
               </div>
@@ -657,64 +629,58 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                   <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center justify-between">
                     <span>Mevzuata Uygun Hazır Süreler</span>
                     <span className="text-amber-600 dark:text-amber-400 font-semibold">
-                      {islemlerData.teslimTarihi
-                        ? formatDate(islemlerData.teslimTarihi)
-                        : ""}
+                      {islemlerData.teslimTarihi ? formatDate(islemlerData.teslimTarihi) : ''}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
                     {[
-                      { gun: 3, label: "3 Gün", sub: "Acil Alım" },
+                      { gun: 3, label: '3 Gün', sub: 'Acil Alım' },
                       {
                         gun: 7,
-                        label: "7 Gün",
-                        sub: "Standart DT",
-                        highlight: true,
+                        label: '7 Gün',
+                        sub: 'Standart DT',
+                        highlight: true
                       },
                       {
                         gun: 10,
-                        label: "10 Gün",
-                        sub: "Yasal Davet",
-                        highlight: true,
+                        label: '10 Gün',
+                        sub: 'Yasal Davet',
+                        highlight: true
                       },
-                      { gun: 15, label: "15 Gün", sub: "Mal/Hizmet" },
-                      { gun: 20, label: "20 Gün", sub: "Teslimat" },
-                      { gun: 30, label: "30 Gün", sub: "1 Ay" },
-                      { gun: 45, label: "45 Gün", sub: "1.5 Ay" },
-                      { gun: 60, label: "60 Gün", sub: "2 Ay (Yapım)" },
-                      { gun: 90, label: "90 Gün", sub: "3 Ay" },
+                      { gun: 15, label: '15 Gün', sub: 'Mal/Hizmet' },
+                      { gun: 20, label: '20 Gün', sub: 'Teslimat' },
+                      { gun: 30, label: '30 Gün', sub: '1 Ay' },
+                      { gun: 45, label: '45 Gün', sub: '1.5 Ay' },
+                      { gun: 60, label: '60 Gün', sub: '2 Ay (Yapım)' },
+                      { gun: 90, label: '90 Gün', sub: '3 Ay' }
                     ].map(({ gun, label, sub, highlight }) => {
-                      const isSelected = islemlerData.teslimGunu === gun;
+                      const isSelected = islemlerData.teslimGunu === gun
                       return (
                         <button
                           key={gun}
                           type="button"
                           onClick={() => handleUpdateTeslimGunu(gun)}
                           className={cn(
-                            "flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border text-center transition-all cursor-pointer active:scale-95",
+                            'flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border text-center transition-all cursor-pointer active:scale-95',
                             isSelected
-                              ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/20 font-bold scale-[1.02]"
+                              ? 'bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/20 font-bold scale-[1.02]'
                               : highlight
-                              ? "bg-amber-50/70 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200 border-amber-200/80 dark:border-amber-800/50 hover:bg-amber-100"
-                              : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-750",
+                                ? 'bg-amber-50/70 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200 border-amber-200/80 dark:border-amber-800/50 hover:bg-amber-100'
+                                : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-750'
                           )}
                         >
-                          <span className="text-xs font-extrabold leading-tight">
-                            {label}
-                          </span>
+                          <span className="text-xs font-extrabold leading-tight">{label}</span>
                           <span
                             className={cn(
-                              "text-[9px] leading-tight mt-0.5",
-                              isSelected
-                                ? "text-amber-100"
-                                : "text-slate-400 dark:text-slate-500",
+                              'text-[9px] leading-tight mt-0.5',
+                              isSelected ? 'text-amber-100' : 'text-slate-400 dark:text-slate-500'
                             )}
                           >
                             {sub}
                           </span>
                         </button>
-                      );
+                      )
                     })}
                   </div>
                 </div>
@@ -729,9 +695,8 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                       <button
                         type="button"
                         onClick={() =>
-                          handleUpdateTeslimGunu(
-                            Math.max(1, (islemlerData.teslimGunu || 1) - 1),
-                          )}
+                          handleUpdateTeslimGunu(Math.max(1, (islemlerData.teslimGunu || 1) - 1))
+                        }
                         className="px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-l-lg text-slate-700 dark:text-slate-200 font-bold text-xs"
                       >
                         -
@@ -742,19 +707,16 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                         max="365"
                         value={islemlerData.teslimGunu}
                         onChange={(e) => {
-                          const val = parseInt(e.target.value, 10);
+                          const val = parseInt(e.target.value, 10)
                           if (!isNaN(val) && val > 0) {
-                            handleUpdateTeslimGunu(val);
+                            handleUpdateTeslimGunu(val)
                           }
                         }}
                         className="w-full px-2 py-1.5 text-center text-xs bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 font-extrabold focus:outline-hidden"
                       />
                       <button
                         type="button"
-                        onClick={() =>
-                          handleUpdateTeslimGunu(
-                            (islemlerData.teslimGunu || 0) + 1,
-                          )}
+                        onClick={() => handleUpdateTeslimGunu((islemlerData.teslimGunu || 0) + 1)}
                         className="px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-r-lg text-slate-700 dark:text-slate-200 font-bold text-xs"
                       >
                         +
@@ -768,7 +730,7 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                     </label>
                     <input
                       type="date"
-                      value={islemlerData.teslimTarihi || ""}
+                      value={islemlerData.teslimTarihi || ''}
                       onChange={(e) => handleUpdateTeslimTarihi(e.target.value)}
                       className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-100 font-semibold focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                     />
@@ -813,15 +775,15 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                     </div>
                     <span
                       className={cn(
-                        "text-xs font-extrabold flex items-center gap-1.5",
+                        'text-xs font-extrabold flex items-center gap-1.5',
                         firmaStats.sozlesmeYapilacakMi
-                          ? "text-blue-600 dark:text-blue-400"
-                          : "text-slate-700 dark:text-slate-300",
+                          ? 'text-blue-600 dark:text-blue-400'
+                          : 'text-slate-700 dark:text-slate-300'
                       )}
                     >
                       {firmaStats.sozlesmeYapilacakMi
-                        ? "✓ Sözleşme Yapılacak"
-                        : "✕ Sözleşme Yapılmayacak"}
+                        ? '✓ Sözleşme Yapılacak'
+                        : '✕ Sözleşme Yapılmayacak'}
                     </span>
                   </div>
 
@@ -831,15 +793,15 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                     </span>
                     <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                       <Building2 className="w-3.5 h-3.5 shrink-0" />
-                      {firmaStats.teklifSozlesmeTuru || "Mal Alımı"}
+                      {firmaStats.teklifSozlesmeTuru || 'Mal Alımı'}
                     </span>
                   </div>
                 </div>
 
                 <div className="p-2.5 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed mt-auto">
                   {firmaStats.sozlesmeYapilacakMi
-                    ? "✓ Sözleşme yapılması seçilmiştir. Aşağıdaki menüden veya butonlardan Sözleşmeye Davet ve Sözleşme şablonlarını hazırlayabilirsiniz."
-                    : "ℹ Doğrudan temin alımlarında sözleşme yapılması zorunlu değildir. Kabul edilen teklif mektubu ve sipariş formu yeterlidir."}
+                    ? '✓ Sözleşme yapılması seçilmiştir. Aşağıdaki menüden veya butonlardan Sözleşmeye Davet ve Sözleşme şablonlarını hazırlayabilirsiniz.'
+                    : 'ℹ Doğrudan temin alımlarında sözleşme yapılması zorunlu değildir. Kabul edilen teklif mektubu ve sipariş formu yeterlidir.'}
                 </div>
               </div>
             </div>
@@ -848,17 +810,14 @@ export function SiparisVeSozlesme(): React.JSX.Element {
             <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-amber-50/90 dark:bg-amber-950/25 border border-amber-200/90 dark:border-amber-800/60 text-amber-950 dark:text-amber-200 text-xs shadow-xs">
               <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <div className="leading-relaxed">
-                <strong className="font-extrabold">
-                  📌 Şablon Hükmü Canlı Önizleme:
-                </strong>{" "}
-                Kabul edilen teklif mektubunda otomatik basılacak metin:{" "}
+                <strong className="font-extrabold">📌 Şablon Hükmü Canlı Önizleme:</strong> Kabul
+                edilen teklif mektubunda otomatik basılacak metin:{' '}
                 <span className="italic font-medium text-slate-800 dark:text-slate-200 bg-white/70 dark:bg-slate-900/60 px-2 py-0.5 rounded-md border border-amber-200/50 dark:border-amber-800/40 ml-1 inline-block">
-                  &ldquo;Malı/Hizmeti/İşi{" "}
+                  &ldquo;Malı/Hizmeti/İşi{' '}
                   <strong className="text-amber-700 dark:text-amber-400 font-extrabold">
                     {islemlerData.teslimGunu} gün
-                  </strong>{" "}
-                  içinde mesai saatleri dahilinde teslim etmenizi rica
-                  ederiz.&rdquo;
+                  </strong>{' '}
+                  içinde mesai saatleri dahilinde teslim etmenizi rica ederiz.&rdquo;
                 </span>
               </div>
             </div>
@@ -880,153 +839,129 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                 <WinnerDocumentsMenu
                   sozlesmeYapilacakMi={Boolean(firmaStats.sozlesmeYapilacakMi)}
                   onPrintResultApproval={() => {
-                    const s = stageSablons.find((sb) =>
-                      normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                        "sonuconay",
-                      ) ||
-                      normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                        "onaybelgesi",
-                      )
-                    );
+                    const s = stageSablons.find(
+                      (sb) =>
+                        normalizeForMatch(sb.dosya_adi + sb.ad).includes('sonuconay') ||
+                        normalizeForMatch(sb.dosya_adi + sb.ad).includes('onaybelgesi')
+                    )
                     if (s) {
-                      handleOpenPreviewForSablon(s, s.ad);
+                      handleOpenPreviewForSablon(s, s.ad)
                     } else {
                       useGlobalDocumentPreviewStore.getState().openDocument({
-                        documentId: "dogrudan-temin-sonuc-onay-belgesi",
+                        documentId: 'dogrudan-temin-sonuc-onay-belgesi',
                         dosyaId: activeDosyaId || undefined,
-                        documentTitle: "Doğrudan Temin Sonuç Onay Belgesi",
-                      });
+                        documentTitle: 'Doğrudan Temin Sonuç Onay Belgesi'
+                      })
                     }
                   }}
                   onPrintAcceptanceLetter={() => {
-                    const s = stageSablons.find((sb) =>
-                      normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                        "kabulyazisi",
-                      ) ||
-                      normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                        "kabuledilenteklif",
-                      ) ||
-                      normalizeForMatch(sb.dosya_adi + sb.ad).includes("kabul")
-                    );
+                    const s = stageSablons.find(
+                      (sb) =>
+                        normalizeForMatch(sb.dosya_adi + sb.ad).includes('kabulyazisi') ||
+                        normalizeForMatch(sb.dosya_adi + sb.ad).includes('kabuledilenteklif') ||
+                        normalizeForMatch(sb.dosya_adi + sb.ad).includes('kabul')
+                    )
                     if (s) {
-                      handleOpenPreviewForSablon(s, s.ad);
+                      handleOpenPreviewForSablon(s, s.ad)
                     } else {
                       useGlobalDocumentPreviewStore.getState().openDocument({
-                        documentId: "kabul-edilen-teklif",
+                        documentId: 'kabul-edilen-teklif',
                         dosyaId: activeDosyaId || undefined,
-                        documentTitle: "Kabul Edilen Teklif Mektubu",
-                      });
+                        documentTitle: 'Kabul Edilen Teklif Mektubu'
+                      })
                     }
                   }}
                   onPrintOrderForm={() => {
-                    const s = stageSablons.find((sb) =>
-                      normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                        "siparisformu",
-                      ) ||
-                      normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                        "siparis",
-                      )
-                    );
+                    const s = stageSablons.find(
+                      (sb) =>
+                        normalizeForMatch(sb.dosya_adi + sb.ad).includes('siparisformu') ||
+                        normalizeForMatch(sb.dosya_adi + sb.ad).includes('siparis')
+                    )
                     if (s) {
-                      handleOpenPreviewForSablon(s, s.ad);
+                      handleOpenPreviewForSablon(s, s.ad)
                     } else {
                       useGlobalDocumentPreviewStore.getState().openDocument({
-                        documentId: "kabul-edilen-teklif",
+                        documentId: 'kabul-edilen-teklif',
                         dosyaId: activeDosyaId || undefined,
-                        documentTitle: "Sipariş Formu",
-                      });
+                        documentTitle: 'Sipariş Formu'
+                      })
                     }
                   }}
                   onPrintContractInvitation={() => {
-                    const s = stageSablons.find((sb) =>
-                      normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                        "davet",
-                      ) ||
-                      normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                        "sozlesmedavet",
-                      )
-                    );
+                    const s = stageSablons.find(
+                      (sb) =>
+                        normalizeForMatch(sb.dosya_adi + sb.ad).includes('davet') ||
+                        normalizeForMatch(sb.dosya_adi + sb.ad).includes('sozlesmedavet')
+                    )
                     if (s) {
-                      handleOpenPreviewForSablon(s, s.ad);
+                      handleOpenPreviewForSablon(s, s.ad)
                     } else {
                       useGlobalDocumentPreviewStore.getState().openDocument({
-                        documentId: "sozlesmeye-davet",
+                        documentId: 'sozlesmeye-davet',
                         dosyaId: activeDosyaId || undefined,
-                        documentTitle: "Sözleşmeye Davet Mektubu",
-                      });
+                        documentTitle: 'Sözleşmeye Davet Mektubu'
+                      })
                     }
                   }}
                   onPrintContract={() => {
-                    const s = stageSablons.find((sb) =>
-                      normalizeForMatch(sb.dosya_adi + sb.ad) ===
-                        "dogrudanteminsozlesmesi" ||
-                      normalizeForMatch(sb.dosya_adi + sb.ad) === "sozlesme" ||
-                      (normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                        "sozlesme",
-                      ) &&
-                        !normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                          "alternatif",
-                        ) &&
-                        !normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                          "uzun",
-                        ) &&
-                        !normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                          "davet",
-                        ))
-                    );
+                    const s = stageSablons.find(
+                      (sb) =>
+                        normalizeForMatch(sb.dosya_adi + sb.ad) === 'dogrudanteminsozlesmesi' ||
+                        normalizeForMatch(sb.dosya_adi + sb.ad) === 'sozlesme' ||
+                        (normalizeForMatch(sb.dosya_adi + sb.ad).includes('sozlesme') &&
+                          !normalizeForMatch(sb.dosya_adi + sb.ad).includes('alternatif') &&
+                          !normalizeForMatch(sb.dosya_adi + sb.ad).includes('uzun') &&
+                          !normalizeForMatch(sb.dosya_adi + sb.ad).includes('davet'))
+                    )
                     if (s) {
-                      handleOpenPreviewForSablon(s, s.ad);
+                      handleOpenPreviewForSablon(s, s.ad)
                     } else {
                       useGlobalDocumentPreviewStore.getState().openDocument({
-                        documentId: "dogrudan-temin-sozlesmesi",
+                        documentId: 'dogrudan-temin-sozlesmesi',
                         dosyaId: activeDosyaId || undefined,
-                        documentTitle: "Doğrudan Temin Sözleşmesi",
-                      });
+                        documentTitle: 'Doğrudan Temin Sözleşmesi'
+                      })
                     }
                   }}
                   onPrintContractAlternative={() => {
                     const s = stageSablons.find((sb) =>
-                      normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                        "alternatif",
-                      )
-                    );
+                      normalizeForMatch(sb.dosya_adi + sb.ad).includes('alternatif')
+                    )
                     if (s) {
-                      handleOpenPreviewForSablon(s, s.ad);
+                      handleOpenPreviewForSablon(s, s.ad)
                     } else {
                       useGlobalDocumentPreviewStore.getState().openDocument({
-                        documentId: "dogrudan-temin-sozlesmesi-alternatif",
+                        documentId: 'dogrudan-temin-sozlesmesi-alternatif',
                         dosyaId: activeDosyaId || undefined,
-                        documentTitle:
-                          "Doğrudan Temin Sözleşmesi (Alternatif)",
-                      });
+                        documentTitle: 'Doğrudan Temin Sözleşmesi (Alternatif)'
+                      })
                     }
                   }}
                   onPrintContractLong={() => {
                     const s = stageSablons.find((sb) =>
-                      normalizeForMatch(sb.dosya_adi + sb.ad).includes("uzun")
-                    );
+                      normalizeForMatch(sb.dosya_adi + sb.ad).includes('uzun')
+                    )
                     if (s) {
-                      handleOpenPreviewForSablon(s, s.ad);
+                      handleOpenPreviewForSablon(s, s.ad)
                     } else {
                       useGlobalDocumentPreviewStore.getState().openDocument({
-                        documentId: "dogrudan-temin-sozlesmesi-uzun",
+                        documentId: 'dogrudan-temin-sozlesmesi-uzun',
                         dosyaId: activeDosyaId || undefined,
-                        documentTitle: "Doğrudan Temin Sözleşmesi (Uzun Form)",
-                      });
+                        documentTitle: 'Doğrudan Temin Sözleşmesi (Uzun Form)'
+                      })
                     }
                   }}
                   onEkapBlacklistQuery={() => {
-                    window.electron?.ipcRenderer.send("window:open-external", {
-                      url:
-                        "https://ekapv2.kik.gov.tr/sorgulamalar/yasak-sorgulama",
-                      title: "EKAP Kamu İhale Yasaklı Sorgulama",
-                    });
+                    window.electron?.ipcRenderer.send('window:open-external', {
+                      url: 'https://ekapv2.kik.gov.tr/sorgulamalar/yasak-sorgulama',
+                      title: 'EKAP Kamu İhale Yasaklı Sorgulama'
+                    })
                   }}
                   onEdevletBlacklistQuery={() => {
-                    window.electron?.ipcRenderer.send("window:open-external", {
-                      url: "https://www.turkiye.gov.tr/kik-yasakli-sorgula",
-                      title: "e-Devlet KİK Yasaklılık Sorgulama",
-                    });
+                    window.electron?.ipcRenderer.send('window:open-external', {
+                      url: 'https://www.turkiye.gov.tr/kik-yasakli-sorgula',
+                      title: 'e-Devlet KİK Yasaklılık Sorgulama'
+                    })
                   }}
                 />
 
@@ -1044,9 +979,7 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                       quickOpenExternal={quickOpenExternal}
                       isSablonDisabled={isSablonDisabled}
                       buttonHeightClass="h-10"
-                      label={disableDocumentGuidance
-                        ? "İşlemler"
-                        : "Belgeleri Yazdır"}
+                      label={disableDocumentGuidance ? 'İşlemler' : 'Belgeleri Yazdır'}
                     />
                   </div>
                 )}
@@ -1058,232 +991,206 @@ export function SiparisVeSozlesme(): React.JSX.Element {
               {[
                 {
                   icon: FileCheck,
-                  label: "Sonuç Onay Belgesi",
-                  desc:
-                    "Piyasa fiyat araştırması sonuç onay belgesini hazırlayın",
-                  color: "emerald" as const,
+                  label: 'Sonuç Onay Belgesi',
+                  desc: 'Piyasa fiyat araştırması sonuç onay belgesini hazırlayın',
+                  color: 'emerald' as const,
                   actions: [
                     {
-                      text: "Belgeyi Aç / Düzenle",
+                      text: 'Belgeyi Aç / Düzenle',
                       onClick: () => {
-                        const s = stageSablons.find((sb) =>
-                          normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                            "sonuconay",
-                          ) ||
-                          normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                            "onaybelgesi",
-                          )
-                        );
-                        if (s) handleOpenPreviewForSablon(s, s.ad);
+                        const s = stageSablons.find(
+                          (sb) =>
+                            normalizeForMatch(sb.dosya_adi + sb.ad).includes('sonuconay') ||
+                            normalizeForMatch(sb.dosya_adi + sb.ad).includes('onaybelgesi')
+                        )
+                        if (s) handleOpenPreviewForSablon(s, s.ad)
                         else {
                           useGlobalDocumentPreviewStore.getState().openDocument({
-                            documentId: "dogrudan-temin-sonuc-onay-belgesi",
+                            documentId: 'dogrudan-temin-sonuc-onay-belgesi',
                             dosyaId: activeDosyaId || undefined,
-                            documentTitle: "Doğrudan Temin Sonuç Onay Belgesi",
-                          });
+                            documentTitle: 'Doğrudan Temin Sonuç Onay Belgesi'
+                          })
                         }
-                      },
-                    },
-                  ],
+                      }
+                    }
+                  ]
                 },
                 {
                   icon: ShieldCheck,
-                  label: "Yasaklılık Sorgulaması",
-                  desc:
-                    "Kazanan firmanın EKAP ve e-Devlet yasaklılık kontrolünü yapın",
-                  color: "orange" as const,
+                  label: 'Yasaklılık Sorgulaması',
+                  desc: 'Kazanan firmanın EKAP ve e-Devlet yasaklılık kontrolünü yapın',
+                  color: 'orange' as const,
                   actions: [
                     {
                       text: "EKAP'ta Sorgula",
                       onClick: () => {
-                        window.electron?.ipcRenderer.send(
-                          "window:open-external",
-                          {
-                            url:
-                              "https://ekapv2.kik.gov.tr/sorgulamalar/yasak-sorgulama",
-                            title: "EKAP Kamu İhale Yasaklı Sorgulama",
-                          },
-                        );
-                      },
+                        window.electron?.ipcRenderer.send('window:open-external', {
+                          url: 'https://ekapv2.kik.gov.tr/sorgulamalar/yasak-sorgulama',
+                          title: 'EKAP Kamu İhale Yasaklı Sorgulama'
+                        })
+                      }
                     },
                     {
-                      text: "e-Devlet KİK Sorgula",
+                      text: 'e-Devlet KİK Sorgula',
                       onClick: () => {
-                        window.electron?.ipcRenderer.send(
-                          "window:open-external",
-                          {
-                            url:
-                              "https://www.turkiye.gov.tr/kik-yasakli-sorgula",
-                            title: "e-Devlet KİK Yasaklılık Sorgulama",
-                          },
-                        );
-                      },
-                    },
-                  ],
+                        window.electron?.ipcRenderer.send('window:open-external', {
+                          url: 'https://www.turkiye.gov.tr/kik-yasakli-sorgula',
+                          title: 'e-Devlet KİK Yasaklılık Sorgulama'
+                        })
+                      }
+                    }
+                  ]
                 },
                 {
                   icon: Building2,
-                  label: "Kabul Yazısı / Sipariş Formu",
-                  desc:
-                    "Kazanan firmaya sonucun tebliğ edilmesi ve sipariş yazısının iletilmesi",
-                  color: "blue" as const,
+                  label: 'Kabul Yazısı / Sipariş Formu',
+                  desc: 'Kazanan firmaya sonucun tebliğ edilmesi ve sipariş yazısının iletilmesi',
+                  color: 'blue' as const,
                   actions: [
                     {
-                      text: "Kabul Edilen Teklif Mektubu",
+                      text: 'Kabul Edilen Teklif Mektubu',
                       onClick: () => {
-                        const s = stageSablons.find((sb) =>
-                          normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                            "kabuledilenteklif",
-                          ) ||
-                          normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                            "kabulyazisi",
-                          )
-                        );
-                        if (s) handleOpenPreviewForSablon(s, s.ad);
+                        const s = stageSablons.find(
+                          (sb) =>
+                            normalizeForMatch(sb.dosya_adi + sb.ad).includes('kabuledilenteklif') ||
+                            normalizeForMatch(sb.dosya_adi + sb.ad).includes('kabulyazisi')
+                        )
+                        if (s) handleOpenPreviewForSablon(s, s.ad)
                         else {
                           useGlobalDocumentPreviewStore.getState().openDocument({
-                            documentId: "kabul-edilen-teklif",
+                            documentId: 'kabul-edilen-teklif',
                             dosyaId: activeDosyaId || undefined,
-                            documentTitle: "Kabul Edilen Teklif Mektubu",
-                          });
+                            documentTitle: 'Kabul Edilen Teklif Mektubu'
+                          })
                         }
-                      },
-                    },
-                  ],
+                      }
+                    }
+                  ]
                 },
                 {
                   icon: Clock,
-                  label: "Sözleşmeye Davet Mektubu",
+                  label: 'Sözleşmeye Davet Mektubu',
                   desc: firmaStats.sozlesmeYapilacakMi
-                    ? "Firmayı sözleşme imzalamaya davet edin (Yasal 10 gün süre tanınır)"
-                    : "Sözleşme yapılmayacaksa bu adım zorunlu değildir, doğrudan sipariş ile teslimat başlatılabilir",
-                  color: "violet" as const,
+                    ? 'Firmayı sözleşme imzalamaya davet edin (Yasal 10 gün süre tanınır)'
+                    : 'Sözleşme yapılmayacaksa bu adım zorunlu değildir, doğrudan sipariş ile teslimat başlatılabilir',
+                  color: 'violet' as const,
                   highlight: Boolean(firmaStats.sozlesmeYapilacakMi),
                   actions: [
                     {
-                      text: "Sözleşmeye Davet Mektubu Aç",
+                      text: 'Sözleşmeye Davet Mektubu Aç',
                       onClick: () => {
                         const s = stageSablons.find((sb) =>
-                          normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                            "davet",
-                          )
-                        );
-                        if (s) handleOpenPreviewForSablon(s, s.ad);
+                          normalizeForMatch(sb.dosya_adi + sb.ad).includes('davet')
+                        )
+                        if (s) handleOpenPreviewForSablon(s, s.ad)
                         else {
                           useGlobalDocumentPreviewStore.getState().openDocument({
-                            documentId: "sozlesmeye-davet",
+                            documentId: 'sozlesmeye-davet',
                             dosyaId: activeDosyaId || undefined,
-                            documentTitle: "Sözleşmeye Davet Mektubu",
-                          });
+                            documentTitle: 'Sözleşmeye Davet Mektubu'
+                          })
                         }
-                      },
-                    },
-                  ],
+                      }
+                    }
+                  ]
                 },
                 {
                   icon: CheckCircle2,
-                  label: "Doğrudan Temin Sözleşmesi",
+                  label: 'Doğrudan Temin Sözleşmesi',
                   desc: firmaStats.sozlesmeYapilacakMi
-                    ? "Doğrudan temin sözleşmesini (Standart, Alternatif veya Uzun Form) hazırlayın ve imzalayın"
-                    : "Sözleşme yapılmayacak olarak ayarlanmıştır (İstenirse hazırlanabilir)",
-                  color: "cyan" as const,
+                    ? 'Doğrudan temin sözleşmesini (Standart, Alternatif veya Uzun Form) hazırlayın ve imzalayın'
+                    : 'Sözleşme yapılmayacak olarak ayarlanmıştır (İstenirse hazırlanabilir)',
+                  color: 'cyan' as const,
                   highlight: Boolean(firmaStats.sozlesmeYapilacakMi),
                   actions: [
                     {
-                      text: "Standart Sözleşme",
+                      text: 'Standart Sözleşme',
                       onClick: () => {
-                        const s = stageSablons.find((sb) =>
-                          normalizeForMatch(sb.dosya_adi + sb.ad) ===
-                            "dogrudanteminsozlesmesi" ||
-                          normalizeForMatch(sb.dosya_adi + sb.ad) ===
-                            "sozlesme"
-                        );
-                        if (s) handleOpenPreviewForSablon(s, s.ad);
+                        const s = stageSablons.find(
+                          (sb) =>
+                            normalizeForMatch(sb.dosya_adi + sb.ad) === 'dogrudanteminsozlesmesi' ||
+                            normalizeForMatch(sb.dosya_adi + sb.ad) === 'sozlesme'
+                        )
+                        if (s) handleOpenPreviewForSablon(s, s.ad)
                         else {
                           useGlobalDocumentPreviewStore.getState().openDocument({
-                            documentId: "dogrudan-temin-sozlesmesi",
+                            documentId: 'dogrudan-temin-sozlesmesi',
                             dosyaId: activeDosyaId || undefined,
-                            documentTitle: "Doğrudan Temin Sözleşmesi",
-                          });
+                            documentTitle: 'Doğrudan Temin Sözleşmesi'
+                          })
                         }
-                      },
+                      }
                     },
                     {
-                      text: "Alternatif Sözleşme",
+                      text: 'Alternatif Sözleşme',
                       onClick: () => {
                         const s = stageSablons.find((sb) =>
-                          normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                            "alternatif",
-                          )
-                        );
-                        if (s) handleOpenPreviewForSablon(s, s.ad);
+                          normalizeForMatch(sb.dosya_adi + sb.ad).includes('alternatif')
+                        )
+                        if (s) handleOpenPreviewForSablon(s, s.ad)
                         else {
                           useGlobalDocumentPreviewStore.getState().openDocument({
-                            documentId: "dogrudan-temin-sozlesmesi-alternatif",
+                            documentId: 'dogrudan-temin-sozlesmesi-alternatif',
                             dosyaId: activeDosyaId || undefined,
-                            documentTitle:
-                              "Doğrudan Temin Sözleşmesi (Alternatif)",
-                          });
+                            documentTitle: 'Doğrudan Temin Sözleşmesi (Alternatif)'
+                          })
                         }
-                      },
+                      }
                     },
                     {
-                      text: "Uzun Form",
+                      text: 'Uzun Form',
                       onClick: () => {
                         const s = stageSablons.find((sb) =>
-                          normalizeForMatch(sb.dosya_adi + sb.ad).includes(
-                            "uzun",
-                          )
-                        );
-                        if (s) handleOpenPreviewForSablon(s, s.ad);
+                          normalizeForMatch(sb.dosya_adi + sb.ad).includes('uzun')
+                        )
+                        if (s) handleOpenPreviewForSablon(s, s.ad)
                         else {
                           useGlobalDocumentPreviewStore.getState().openDocument({
-                            documentId: "dogrudan-temin-sozlesmesi-uzun",
+                            documentId: 'dogrudan-temin-sozlesmesi-uzun',
                             dosyaId: activeDosyaId || undefined,
-                            documentTitle:
-                              "Doğrudan Temin Sözleşmesi (Uzun Form)",
-                          });
+                            documentTitle: 'Doğrudan Temin Sözleşmesi (Uzun Form)'
+                          })
                         }
-                      },
-                    },
-                  ],
-                },
+                      }
+                    }
+                  ]
+                }
               ].map((step, index, arr) => {
                 const colorClasses = {
                   emerald: {
-                    bg: "bg-emerald-100 dark:bg-emerald-900/30",
-                    border: "border-emerald-300 dark:border-emerald-700",
-                    text: "text-emerald-600 dark:text-emerald-400",
-                    line: "bg-emerald-200 dark:bg-emerald-800",
+                    bg: 'bg-emerald-100 dark:bg-emerald-900/30',
+                    border: 'border-emerald-300 dark:border-emerald-700',
+                    text: 'text-emerald-600 dark:text-emerald-400',
+                    line: 'bg-emerald-200 dark:bg-emerald-800'
                   },
                   orange: {
-                    bg: "bg-orange-100 dark:bg-orange-900/30",
-                    border: "border-orange-300 dark:border-orange-700",
-                    text: "text-orange-600 dark:text-orange-400",
-                    line: "bg-orange-200 dark:bg-orange-800",
+                    bg: 'bg-orange-100 dark:bg-orange-900/30',
+                    border: 'border-orange-300 dark:border-orange-700',
+                    text: 'text-orange-600 dark:text-orange-400',
+                    line: 'bg-orange-200 dark:bg-orange-800'
                   },
                   blue: {
-                    bg: "bg-blue-100 dark:bg-blue-900/30",
-                    border: "border-blue-300 dark:border-blue-700",
-                    text: "text-blue-600 dark:text-blue-400",
-                    line: "bg-blue-200 dark:bg-blue-800",
+                    bg: 'bg-blue-100 dark:bg-blue-900/30',
+                    border: 'border-blue-300 dark:border-blue-700',
+                    text: 'text-blue-600 dark:text-blue-400',
+                    line: 'bg-blue-200 dark:bg-blue-800'
                   },
                   violet: {
-                    bg: "bg-violet-100 dark:bg-violet-900/30",
-                    border: "border-violet-300 dark:border-violet-700",
-                    text: "text-violet-600 dark:text-violet-400",
-                    line: "bg-violet-200 dark:bg-violet-800",
+                    bg: 'bg-violet-100 dark:bg-violet-900/30',
+                    border: 'border-violet-300 dark:border-violet-700',
+                    text: 'text-violet-600 dark:text-violet-400',
+                    line: 'bg-violet-200 dark:bg-violet-800'
                   },
                   cyan: {
-                    bg: "bg-cyan-100 dark:bg-cyan-900/30",
-                    border: "border-cyan-300 dark:border-cyan-700",
-                    text: "text-cyan-600 dark:text-cyan-400",
-                    line: "bg-cyan-200 dark:bg-cyan-800",
-                  },
-                };
-                const c = colorClasses[step.color];
-                const StepIcon = step.icon;
-                const isLast = index === arr.length - 1;
+                    bg: 'bg-cyan-100 dark:bg-cyan-900/30',
+                    border: 'border-cyan-300 dark:border-cyan-700',
+                    text: 'text-cyan-600 dark:text-cyan-400',
+                    line: 'bg-cyan-200 dark:bg-cyan-800'
+                  }
+                }
+                const c = colorClasses[step.color]
+                const StepIcon = step.icon
+                const isLast = index === arr.length - 1
 
                 return (
                   <div key={step.label} className="flex gap-3">
@@ -1291,24 +1198,19 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                     <div className="flex flex-col items-center">
                       <div
                         className={cn(
-                          "w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border",
+                          'w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border',
                           c.bg,
-                          c.border,
+                          c.border
                         )}
                       >
-                        <StepIcon className={cn("w-4 h-4", c.text)} />
+                        <StepIcon className={cn('w-4 h-4', c.text)} />
                       </div>
                       {!isLast && (
-                        <div
-                          className={cn(
-                            "w-0.5 flex-1 min-h-6 my-1 rounded-full",
-                            c.line,
-                          )}
-                        />
+                        <div className={cn('w-0.5 flex-1 min-h-6 my-1 rounded-full', c.line)} />
                       )}
                     </div>
                     {/* İçerik */}
-                    <div className={cn("pb-5 flex-1", isLast && "pb-0")}>
+                    <div className={cn('pb-5 flex-1', isLast && 'pb-0')}>
                       <div className="flex items-center justify-between gap-2 flex-wrap">
                         <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
                           {step.label}
@@ -1340,12 +1242,12 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                       )}
                     </div>
                   </div>
-                );
+                )
               })}
             </div>
           </div>
         </div>
       )}
     </SubScreen>
-  );
+  )
 }

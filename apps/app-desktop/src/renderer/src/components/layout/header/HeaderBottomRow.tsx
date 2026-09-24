@@ -37,16 +37,12 @@ export function HeaderBottomRow({
             } animate-pulse shrink-0`}
           />
           <span className="hidden 2xl:inline">
-            {isDt
-              ? 'Doğrudan Temin (Md. 22)'
-              : 'İhale İşlemleri (Md. 19 / 21)'}
+            {isDt ? 'Doğrudan Temin (Md. 22)' : 'İhale İşlemleri (Md. 19 / 21)'}
           </span>
           <span className="hidden xl:inline 2xl:hidden font-semibold">
             {isDt ? 'DT (Md. 22)' : 'İhale (19/21)'}
           </span>
-          <span className="hidden sm:inline xl:hidden font-semibold">
-            {isDt ? 'DT' : 'İhale'}
-          </span>
+          <span className="hidden sm:inline xl:hidden font-semibold">{isDt ? 'DT' : 'İhale'}</span>
         </button>
       </div>
 

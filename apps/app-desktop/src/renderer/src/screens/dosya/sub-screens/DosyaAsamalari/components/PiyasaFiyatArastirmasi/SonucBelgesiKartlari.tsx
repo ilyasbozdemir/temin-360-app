@@ -1,14 +1,14 @@
-import React from "react";
-import { FileSpreadsheet, FileText } from "lucide-react";
+import React from 'react'
+import { FileSpreadsheet, FileText } from 'lucide-react'
 
 interface SonucBelgesiKartlariProps {
-  handleOpenSablonByDosyaAdi: (targetKey: string) => void;
-  handleNewDocument: (mode: "maliyet" | "tutanak") => void;
+  handleOpenSablonByDosyaAdi: (targetKey: string) => void
+  handleNewDocument: (mode: 'maliyet' | 'tutanak') => void
 }
 
 export function SonucBelgesiKartlari({
   handleOpenSablonByDosyaAdi,
-  handleNewDocument,
+  handleNewDocument
 }: SonucBelgesiKartlariProps): React.JSX.Element {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -23,16 +23,15 @@ export function SonucBelgesiKartlari({
               Piyasa Fiyat Araştırması Tutanağı
             </h4>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-              İsteklilerden toplanan tüm teklifleri ve komisyon/görevli kararını
-              içeren resmi piyasa fiyat araştırması tutanağı.
+              İsteklilerden toplanan tüm teklifleri ve komisyon/görevli kararını içeren resmi piyasa
+              fiyat araştırması tutanağı.
             </p>
           </div>
         </div>
         <div className="mt-4 flex items-center gap-2">
           <button
             type="button"
-            onClick={() =>
-              handleOpenSablonByDosyaAdi("piyasa-fiyat-arastirma-tutanagi")}
+            onClick={() => handleOpenSablonByDosyaAdi('piyasa-fiyat-arastirma-tutanagi')}
             className="w-full py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer border-0"
           >
             <FileText className="w-4 h-4" />
@@ -40,7 +39,7 @@ export function SonucBelgesiKartlari({
           </button>
           <button
             type="button"
-            onClick={() => handleNewDocument("tutanak")}
+            onClick={() => handleNewDocument('tutanak')}
             className="py-2 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold transition-colors cursor-pointer border border-indigo-200 dark:border-indigo-800 shrink-0"
             title="Yeni Tutanak Kaydet"
           >
@@ -60,16 +59,15 @@ export function SonucBelgesiKartlari({
               Yaklaşık Maliyet Hesap Cetveli
             </h4>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-              Alıma ait kalemlerin piyasa teklifleri ortalamasına göre
-              hesaplanan resmi yaklaşık maliyet cetveli.
+              Alıma ait kalemlerin piyasa teklifleri ortalamasına göre hesaplanan resmi yaklaşık
+              maliyet cetveli.
             </p>
           </div>
         </div>
         <div className="mt-4 flex items-center gap-2">
           <button
             type="button"
-            onClick={() =>
-              handleOpenSablonByDosyaAdi("yaklasik-maliyet-hesap-cetveli")}
+            onClick={() => handleOpenSablonByDosyaAdi('yaklasik-maliyet-hesap-cetveli')}
             className="w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer border-0"
           >
             <FileSpreadsheet className="w-4 h-4" />
@@ -77,7 +75,7 @@ export function SonucBelgesiKartlari({
           </button>
           <button
             type="button"
-            onClick={() => handleNewDocument("maliyet")}
+            onClick={() => handleNewDocument('maliyet')}
             className="py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold transition-colors cursor-pointer border border-emerald-200 dark:border-emerald-800 shrink-0"
             title="Yeni Maliyet Cetveli Kaydet"
           >
@@ -86,5 +84,5 @@ export function SonucBelgesiKartlari({
         </div>
       </div>
     </div>
-  );
+  )
 }

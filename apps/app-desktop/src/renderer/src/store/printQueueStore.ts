@@ -46,7 +46,12 @@ export interface PrintQueueState {
   ) => boolean
   updateStatus: (dosyaId: number, docKey: string, status: PrintStatus, notes?: string) => void
   invalidateReadyStatus: (dosyaId: number, docKey: string, reason?: string) => void
-  markAsPrinted: (dosyaId: number, docKey: string, version?: string, settings?: PrintSettings) => void
+  markAsPrinted: (
+    dosyaId: number,
+    docKey: string,
+    version?: string,
+    settings?: PrintSettings
+  ) => void
   lockDocument: (dosyaId: number, docKey: string, version?: string) => void
   unlockDocument: (dosyaId: number, docKey: string) => void
   clearQueueForDosya: (dosyaId: number) => void
@@ -118,7 +123,11 @@ export const usePrintQueueStore = create<PrintQueueState>()(
           isNowInQueue = true
         }
 
-        emitAppEvent('print_queue:updated' as any, { dosyaId, docKey, status: isNowInQueue ? 'ready_to_print' : 'removed' })
+        emitAppEvent('print_queue:updated' as any, {
+          dosyaId,
+          docKey,
+          status: isNowInQueue ? 'ready_to_print' : 'removed'
+        })
         return isNowInQueue
       },
 
@@ -248,7 +257,8 @@ export const usePrintQueueStore = create<PrintQueueState>()(
 
       getReadyCountForDosya: (dosyaId) => {
         if (!dosyaId) return 0
-        return get().items.filter((i) => i.dosyaId === dosyaId && i.status === 'ready_to_print').length
+        return get().items.filter((i) => i.dosyaId === dosyaId && i.status === 'ready_to_print')
+          .length
       },
 
       getPrintedCountForDosya: (dosyaId) => {
@@ -294,4 +304,3 @@ export const usePrintQueueStore = create<PrintQueueState>()(
     }
   )
 )
-

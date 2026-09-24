@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import {
-  Check,
-  Edit2,
-  FileText,
-  Package,
-  Plus,
-  Search,
-  Sparkles,
-  Trash2,
-  X
-} from 'lucide-react'
+import { Check, Edit2, FileText, Package, Plus, Search, Sparkles, Trash2, X } from 'lucide-react'
 import { YeniDosyaTabProps } from '../types'
 import { useWorkspaceStore } from '../../../store/workspaceStore'
 import { useDosyalarHooks } from '../dosyalar.hooks'
@@ -231,8 +221,7 @@ export function IhtiyacListesiTab(props: YeniDosyaTabProps): React.JSX.Element {
                 onClick={handleOpenLibraryAdd}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
-                <Package size={14} />
-                + OKAS & Kütüphaneden Aktar
+                <Package size={14} />+ OKAS & Kütüphaneden Aktar
               </button>
               <button
                 type="button"
@@ -407,7 +396,9 @@ export function IhtiyacListesiTab(props: YeniDosyaTabProps): React.JSX.Element {
                               <button
                                 type="button"
                                 onClick={() => {
-                                  if (confirm(`"${item.kalem_adi}" kalemini silmek istiyor musunuz?`)) {
+                                  if (
+                                    confirm(`"${item.kalem_adi}" kalemini silmek istiyor musunuz?`)
+                                  ) {
                                     state.handleDeleteItem(item.id)
                                   }
                                 }}
@@ -437,8 +428,8 @@ export function IhtiyacListesiTab(props: YeniDosyaTabProps): React.JSX.Element {
                 Bu Dosyaya Henüz Kalem Eklenmedi
               </h4>
               <p className="text-xs text-slate-500 max-w-sm">
-                Doğrudan temin kapsamında alınacak mal, hizmet veya yapım işi kalemlerini kütüphaneden
-                veya manuel olarak ekleyin.
+                Doğrudan temin kapsamında alınacak mal, hizmet veya yapım işi kalemlerini
+                kütüphaneden veya manuel olarak ekleyin.
               </p>
             </div>
             <div className="flex items-center gap-2 pt-2 flex-wrap justify-center">

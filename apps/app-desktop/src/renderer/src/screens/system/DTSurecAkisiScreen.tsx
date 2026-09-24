@@ -1,17 +1,17 @@
-import React from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { useSurecAkisi } from "./surec-akisi/hooks/useSurecAkisi";
-import { SurecAkisiHeader } from "./surec-akisi/components/SurecAkisiHeader";
-import { BelgeOnizlemeModal } from "./surec-akisi/components/BelgeOnizlemeModal";
-import { OzetTab } from "./surec-akisi/components/tabs/OzetTab";
-import { MalzemeTab } from "./surec-akisi/components/tabs/MalzemeTab";
-import { FirmalarTab } from "./surec-akisi/components/tabs/FirmalarTab";
-import { KomisyonTab } from "./surec-akisi/components/tabs/KomisyonTab";
-import { BelgelerTab } from "./surec-akisi/components/tabs/BelgelerTab";
-import { SurecTab } from "./surec-akisi/components/tabs/SurecTab";
+import React from 'react'
+import { useNavigate } from '@tanstack/react-router'
+import { useSurecAkisi } from './surec-akisi/hooks/useSurecAkisi'
+import { SurecAkisiHeader } from './surec-akisi/components/SurecAkisiHeader'
+import { BelgeOnizlemeModal } from './surec-akisi/components/BelgeOnizlemeModal'
+import { OzetTab } from './surec-akisi/components/tabs/OzetTab'
+import { MalzemeTab } from './surec-akisi/components/tabs/MalzemeTab'
+import { FirmalarTab } from './surec-akisi/components/tabs/FirmalarTab'
+import { KomisyonTab } from './surec-akisi/components/tabs/KomisyonTab'
+import { BelgelerTab } from './surec-akisi/components/tabs/BelgelerTab'
+import { SurecTab } from './surec-akisi/components/tabs/SurecTab'
 
 export default function SurecAkisiScreen(): React.JSX.Element {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   const {
     activeDosya,
     dosyaContext,
@@ -44,23 +44,21 @@ export default function SurecAkisiScreen(): React.JSX.Element {
     overallProgress,
     belgeTamamlanan,
     pdfYuklenenSayisi,
-    filteredBelgeler,
-  } = useSurecAkisi();
+    filteredBelgeler
+  } = useSurecAkisi()
 
   const tabs = [
-    { id: "ozet", label: "Özet" },
-    { id: "malzeme", label: "Malzeme Listesi" },
-    { id: "firmalar", label: "İstekli Firmalar" },
-    { id: "komisyon", label: "Komisyon" },
-    { id: "belgeler", label: "Belgeler" },
-    { id: "surec", label: "Süreç" },
-  ];
+    { id: 'ozet', label: 'Özet' },
+    { id: 'malzeme', label: 'Malzeme Listesi' },
+    { id: 'firmalar', label: 'İstekli Firmalar' },
+    { id: 'komisyon', label: 'Komisyon' },
+    { id: 'belgeler', label: 'Belgeler' },
+    { id: 'surec', label: 'Süreç' }
+  ]
 
-  const handleNavigateCiktiMerkezi = () =>
-    navigate({ to: "/cikti-merkezi" as any });
-  const handleNavigateFirmalar = () => navigate({ to: "/firmalar" as any });
-  const handleNavigateKomisyonlar = () =>
-    navigate({ to: "/komisyonlar" as any });
+  const handleNavigateCiktiMerkezi = () => navigate({ to: '/cikti-merkezi' as any })
+  const handleNavigateFirmalar = () => navigate({ to: '/firmalar' as any })
+  const handleNavigateKomisyonlar = () => navigate({ to: '/komisyonlar' as any })
 
   return (
     <div className="w-full min-h-screen bg-slate-50 dark:bg-slate-900/60 p-6 animate-in fade-in duration-500 overflow-y-auto">
@@ -83,8 +81,8 @@ export default function SurecAkisiScreen(): React.JSX.Element {
                 onClick={() => setSelectedTab(tab.id)}
                 className={`px-5 py-3 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
                   selectedTab === tab.id
-                    ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-955 rounded-t-xl"
-                    : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                    ? 'border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-955 rounded-t-xl'
+                    : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                 }`}
               >
                 {tab.label}
@@ -94,7 +92,7 @@ export default function SurecAkisiScreen(): React.JSX.Element {
         </div>
 
         {/* Tab Views */}
-        {selectedTab === "ozet" && (
+        {selectedTab === 'ozet' && (
           <OzetTab
             overallProgress={overallProgress}
             pdfYuklenenSayisi={pdfYuklenenSayisi}
@@ -108,7 +106,7 @@ export default function SurecAkisiScreen(): React.JSX.Element {
           />
         )}
 
-        {selectedTab === "malzeme" && (
+        {selectedTab === 'malzeme' && (
           <MalzemeTab
             kalemler={kalemler}
             toplamBedel={toplamBedel}
@@ -120,7 +118,7 @@ export default function SurecAkisiScreen(): React.JSX.Element {
           />
         )}
 
-        {selectedTab === "firmalar" && (
+        {selectedTab === 'firmalar' && (
           <FirmalarTab
             firmalar={firmalar}
             belgeler={belgeler}
@@ -132,7 +130,7 @@ export default function SurecAkisiScreen(): React.JSX.Element {
           />
         )}
 
-        {selectedTab === "komisyon" && (
+        {selectedTab === 'komisyon' && (
           <KomisyonTab
             komisyonlar={komisyonlar}
             expandedKomisyon={expandedKomisyon}
@@ -146,7 +144,7 @@ export default function SurecAkisiScreen(): React.JSX.Element {
           />
         )}
 
-        {selectedTab === "belgeler" && (
+        {selectedTab === 'belgeler' && (
           <BelgelerTab
             belgeler={belgeler}
             selectedBelge={selectedBelge}
@@ -164,7 +162,7 @@ export default function SurecAkisiScreen(): React.JSX.Element {
           />
         )}
 
-        {selectedTab === "surec" && (
+        {selectedTab === 'surec' && (
           <SurecTab
             stagesWithStatus={stagesWithStatus}
             filteredBelgeler={filteredBelgeler}
@@ -193,5 +191,5 @@ export default function SurecAkisiScreen(): React.JSX.Element {
         onDosyalariEkle={dosyalariEkle}
       />
     </div>
-  );
+  )
 }

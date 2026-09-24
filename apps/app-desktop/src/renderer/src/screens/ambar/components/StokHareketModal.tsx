@@ -3,14 +3,14 @@ import { Modal } from '../../../components/ui/Modal'
 import { Button } from '../../../components/ui/Button'
 import { Input } from '../../../components/ui/Input'
 import { useAmbarHooks, AmbarStok, CreateHareketInput } from '../ambar.hooks'
-import { 
-  ArrowDownLeft, 
-  ArrowUpRight, 
-  ShieldCheck, 
-  RotateCcw, 
-  AlertTriangle, 
-  CheckCircle2, 
-  AlertCircle 
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  ShieldCheck,
+  RotateCcw,
+  AlertTriangle,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react'
 
 interface StokHareketModalProps {
@@ -28,7 +28,9 @@ export const StokHareketModal: React.FC<StokHareketModalProps> = ({
 }) => {
   const { ambarlar, addHareket } = useAmbarHooks()
   const [ambarId, setAmbarId] = useState<number | ''>('')
-  const [hareketTuru, setHareketTuru] = useState<'giris' | 'cikis' | 'zimmet' | 'iade' | 'hasar'>(defaultHareketTuru)
+  const [hareketTuru, setHareketTuru] = useState<'giris' | 'cikis' | 'zimmet' | 'iade' | 'hasar'>(
+    defaultHareketTuru
+  )
   const [kalemAdi, setKalemAdi] = useState('')
   const [tasinirKodu, setTasinirKodu] = useState('')
   const [miktar, setMiktar] = useState<number>(1)
@@ -301,7 +303,9 @@ export const StokHareketModal: React.FC<StokHareketModalProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              {hareketTuru === 'zimmet' ? 'Zimmet Edilen Personel / Birim' : 'Teslim Alan / Teslim Eden'}
+              {hareketTuru === 'zimmet'
+                ? 'Zimmet Edilen Personel / Birim'
+                : 'Teslim Alan / Teslim Eden'}
             </label>
             <Input
               value={kisiVeyaBirim}
@@ -368,7 +372,11 @@ export const StokHareketModal: React.FC<StokHareketModalProps> = ({
           <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
             İptal
           </Button>
-          <Button type="submit" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700 text-white shadow-md">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-blue-600 hover:bg-blue-700 text-white shadow-md"
+          >
             {isSubmitting ? 'Kaydediliyor...' : 'Hareketi Kaydet'}
           </Button>
         </div>

@@ -1,12 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { AlertCircle, Coins } from "lucide-react";
-import {
-  TeklifMatrisiProps,
-  FirmBasedEntryView,
-  TableView,
-} from "./TeklifMatrisi/index";
+import React, { useState, useEffect } from 'react'
+import { AlertCircle, Coins } from 'lucide-react'
+import { TeklifMatrisiProps, FirmBasedEntryView, TableView } from './TeklifMatrisi/index'
 
-export type { TeklifMatrisiProps };
+export type { TeklifMatrisiProps }
 
 export const TeklifMatrisi: React.FC<TeklifMatrisiProps> = ({
   invitedFirms,
@@ -15,10 +11,10 @@ export const TeklifMatrisi: React.FC<TeklifMatrisiProps> = ({
   getEstimatedCostTotal,
   getLowestBidInfo,
   getAverageBid,
-  handlePriceChange,
+  handlePriceChange
 }) => {
-  const [activeView, setActiveView] = useState<"firm" | "matrix">("firm");
-  const [selectedFirmId, setSelectedFirmId] = useState<number | null>(null);
+  const [activeView, setActiveView] = useState<'firm' | 'matrix'>('firm')
+  const [selectedFirmId, setSelectedFirmId] = useState<number | null>(null)
 
   // Initialize and synchronize selectedFirmId
   useEffect(() => {
@@ -26,9 +22,9 @@ export const TeklifMatrisi: React.FC<TeklifMatrisiProps> = ({
       invitedFirms.length > 0 &&
       (selectedFirmId === null || !invitedFirms.some((f) => f.id === selectedFirmId))
     ) {
-      setSelectedFirmId(invitedFirms[0].id);
+      setSelectedFirmId(invitedFirms[0].id)
     }
-  }, [invitedFirms, selectedFirmId]);
+  }, [invitedFirms, selectedFirmId])
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col gap-5 overflow-hidden">
@@ -48,21 +44,21 @@ export const TeklifMatrisi: React.FC<TeklifMatrisiProps> = ({
           {/* View Toggle */}
           <div className="flex items-center gap-1.5 bg-slate-100/80 dark:bg-slate-955 p-1 rounded-xl h-10 border border-slate-200/40 dark:border-slate-800/40 select-none">
             <button
-              onClick={() => setActiveView("firm")}
+              onClick={() => setActiveView('firm')}
               className={`px-3.5 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer border-0 ${
-                activeView === "firm"
-                  ? "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-xs"
-                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-350"
+                activeView === 'firm'
+                  ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-350'
               }`}
             >
               Firma Bazlı
             </button>
             <button
-              onClick={() => setActiveView("matrix")}
+              onClick={() => setActiveView('matrix')}
               className={`px-3.5 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer border-0 ${
-                activeView === "matrix"
-                  ? "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-xs"
-                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-355"
+                activeView === 'matrix'
+                  ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
               }`}
             >
               Tüm Teklifler (Tablo)
@@ -86,14 +82,19 @@ export const TeklifMatrisi: React.FC<TeklifMatrisiProps> = ({
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
             <span>
-              <strong>Fiyat Girişi Devam Ediyor:</strong> Davet edilen bazı firmaların (Örn:{" "}
-              {invitedFirms.filter((f) => !f.teklif_toplami).map((f) => f.unvan).join(", ")}) henüz teklif fiyatları girilmedi. Tüm fiyatlar girildikten sonra kazanan firma netleşecektir.
+              <strong>Fiyat Girişi Devam Ediyor:</strong> Davet edilen bazı firmaların (Örn:{' '}
+              {invitedFirms
+                .filter((f) => !f.teklif_toplami)
+                .map((f) => f.unvan)
+                .join(', ')}
+              ) henüz teklif fiyatları girilmedi. Tüm fiyatlar girildikten sonra kazanan firma
+              netleşecektir.
             </span>
           </div>
         </div>
       )}
 
-      {activeView === "firm" && invitedFirms.length > 0 && selectedFirmId !== null ? (
+      {activeView === 'firm' && invitedFirms.length > 0 && selectedFirmId !== null ? (
         <FirmBasedEntryView
           invitedFirms={invitedFirms}
           items={items}
@@ -115,5 +116,5 @@ export const TeklifMatrisi: React.FC<TeklifMatrisiProps> = ({
         />
       )}
     </div>
-  );
-};
+  )
+}

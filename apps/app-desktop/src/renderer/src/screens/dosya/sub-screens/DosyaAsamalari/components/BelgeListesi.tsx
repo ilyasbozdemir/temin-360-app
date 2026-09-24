@@ -14,22 +14,22 @@ import {
   Settings,
   Table2,
   Trash2,
-  XCircle,
-} from "lucide-react";
+  XCircle
+} from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-} from "@renderer/components/ui/DropdownMenu";
-import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+  DropdownMenuItem
+} from '@renderer/components/ui/DropdownMenu'
+import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
 
 /* =========================================================
  * TYPES
  * ========================================================= */
 
-export type ViewMode = "table" | "list" | "grid";
+export type ViewMode = 'table' | 'list' | 'grid'
 
-export type BelgeDurumu = "Taslak" | "Hazır" | "Tamamlandı" | "İptal";
+export type BelgeDurumu = 'Taslak' | 'Hazır' | 'Tamamlandı' | 'İptal'
 
 /**
  * Bir belge tipi:
@@ -40,9 +40,9 @@ export type BelgeDurumu = "Taslak" | "Hazır" | "Tamamlandı" | "İptal";
  * - muayene-kabul
  */
 export interface BelgeTipi {
-  id: string;
-  ad: string;
-  aciklama?: string;
+  id: string
+  ad: string
+  aciklama?: string
 }
 
 /**
@@ -61,27 +61,27 @@ export interface BelgeTipi {
  * şeklinde birden fazla kayıt olabilir.
  */
 export interface BelgeItem<T = Record<string, unknown>> {
-  id: number;
+  id: number
 
   /**
    * Belgenin hangi belge tipine ait olduğu.
    */
-  belgeTipiId: string;
+  belgeTipiId: string
 
   /**
    * Ekranda görünen belge adı.
    */
-  belgeAdi: string;
+  belgeAdi: string
 
   /**
    * Belgenin kendi oluşturulma/düzenlenme tarihi.
    */
-  belgeTarihi: string;
+  belgeTarihi: string
 
   /**
    * Belge durumu.
    */
-  durum: BelgeDurumu;
+  durum: BelgeDurumu
 
   /**
    * Aynı belge tipindeki kayıt sırası.
@@ -90,7 +90,7 @@ export interface BelgeItem<T = Record<string, unknown>> {
    * Piyasa Fiyat Araştırması #1
    * Piyasa Fiyat Araştırması #2
    */
-  siraNo?: number;
+  siraNo?: number
 
   /**
    * Belgenin asıl JSON verisi.
@@ -99,7 +99,7 @@ export interface BelgeItem<T = Record<string, unknown>> {
    * YaklasikMaliyetData
    * vb. olabilir.
    */
-  data?: T;
+  data?: T
 }
 
 /* =========================================================
@@ -110,7 +110,7 @@ interface BelgeListesiProps {
   /**
    * MEVCUT PROP AYNI
    */
-  title?: string;
+  title?: string
 
   /**
    * MEVCUT PROP AYNI
@@ -118,62 +118,62 @@ interface BelgeListesiProps {
    * Artık bu dizi aynı belge tipinden birden
    * fazla kayıt içerebilir.
    */
-  belgeler: BelgeItem[];
+  belgeler: BelgeItem[]
 
   /**
    * MEVCUT PROP AYNI
    */
-  viewMode?: ViewMode;
+  viewMode?: ViewMode
 
   /**
    * MEVCUT PROP AYNI
    */
-  onViewModeChange?: (mode: ViewMode) => void;
+  onViewModeChange?: (mode: ViewMode) => void
 
   /**
    * MEVCUT PROP AYNI
    */
-  onView?: (belge: BelgeItem) => void;
-  onOpenExternal?: (belge: BelgeItem) => void;
-  onPrint?: (belge: BelgeItem) => void;
-  onEdit?: (belge: BelgeItem) => void;
-  onDelete?: (belge: BelgeItem) => void;
+  onView?: (belge: BelgeItem) => void
+  onOpenExternal?: (belge: BelgeItem) => void
+  onPrint?: (belge: BelgeItem) => void
+  onEdit?: (belge: BelgeItem) => void
+  onDelete?: (belge: BelgeItem) => void
 
   /**
    * MEVCUT PROP AYNI
    */
-  onCreate?: () => void;
-  onCreateBelge?: (type: string) => void;
-  onFiyatGir?: () => void;
+  onCreate?: () => void
+  onCreateBelge?: (type: string) => void
+  onFiyatGir?: () => void
 
   /**
    * Yönet / Ayar butonu tetikleyicisi
    */
-  onManage?: () => void;
+  onManage?: () => void
 
   /**
    * Buton etiketleri ve şablon tipi tanımları
    */
-  createButtonLabel?: string;
-  manageButtonLabel?: string;
-  belgeTipleri?: BelgeTipi[];
+  createButtonLabel?: string
+  manageButtonLabel?: string
+  belgeTipleri?: BelgeTipi[]
 }
 
 const DEFAULT_BELGE_TIPLERI: BelgeTipi[] = [
   {
-    id: "piyasa-fiyat-arastirmasi",
-    ad: "Piyasa Fiyat Araştırma Tutanağı",
+    id: 'piyasa-fiyat-arastirmasi',
+    ad: 'Piyasa Fiyat Araştırma Tutanağı'
   },
   {
-    id: "yaklasik-maliyet",
-    ad: "Yaklaşık Maliyet Hesap Cetveli",
-  },
-];
+    id: 'yaklasik-maliyet',
+    ad: 'Yaklaşık Maliyet Hesap Cetveli'
+  }
+]
 
 export function BelgeListesi({
-  title = "Belgeler",
+  title = 'Belgeler',
   belgeler,
-  viewMode = "table",
+  viewMode = 'table',
   onViewModeChange,
   onView,
   onOpenExternal,
@@ -184,9 +184,9 @@ export function BelgeListesi({
   onCreateBelge,
   onFiyatGir,
   onManage,
-  createButtonLabel = "Yeni Tutanak",
-  manageButtonLabel = "Yönet",
-  belgeTipleri = DEFAULT_BELGE_TIPLERI,
+  createButtonLabel = 'Yeni Tutanak',
+  manageButtonLabel = 'Yönet',
+  belgeTipleri = DEFAULT_BELGE_TIPLERI
 }: BelgeListesiProps): React.JSX.Element {
   /* ---------------------------------------------------------
    * DURUM
@@ -194,29 +194,29 @@ export function BelgeListesi({
 
   const getDurum = (durum: BelgeDurumu) => {
     switch (durum) {
-      case "Tamamlandı":
+      case 'Tamamlandı':
         return (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
             <CheckCircle2 className="h-3 w-3" />
             Tamamlandı
           </span>
-        );
+        )
 
-      case "Hazır":
+      case 'Hazır':
         return (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-2.5 py-1 text-[10px] font-bold text-blue-600 dark:text-blue-400">
             <CheckCircle2 className="h-3 w-3" />
             Hazır
           </span>
-        );
+        )
 
-      case "İptal":
+      case 'İptal':
         return (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/10 px-2.5 py-1 text-[10px] font-bold text-rose-600 dark:text-rose-400">
             <XCircle className="h-3 w-3" />
             İptal
           </span>
-        );
+        )
 
       default:
         return (
@@ -224,9 +224,9 @@ export function BelgeListesi({
             <FileText className="h-3 w-3" />
             Taslak
           </span>
-        );
+        )
     }
-  };
+  }
 
   /* ---------------------------------------------------------
    * İŞLEMLER (3 Nokta Dikey Menü)
@@ -234,7 +234,7 @@ export function BelgeListesi({
 
   const Actions = ({ belge }: { belge: BelgeItem }) => {
     if (!onView && !onOpenExternal && !onPrint && !onEdit && !onDelete) {
-      return null;
+      return null
     }
 
     return (
@@ -288,8 +288,8 @@ export function BelgeListesi({
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-    );
-  };
+    )
+  }
 
   /* ---------------------------------------------------------
    * BELGE ADI
@@ -304,25 +304,21 @@ export function BelgeListesi({
 
   const getBelgeAdi = (belge: BelgeItem) => {
     if (!belge.siraNo) {
-      return belge.belgeAdi;
+      return belge.belgeAdi
     }
 
-    return `${belge.belgeAdi} #${belge.siraNo}`;
-  };
+    return `${belge.belgeAdi} #${belge.siraNo}`
+  }
 
   return (
     <div className="space-y-4">
-      {
-        /* =====================================================
+      {/* =====================================================
        * BAŞLIK
-       * ===================================================== */
-      }
+       * ===================================================== */}
 
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
-            {title}
-          </h3>
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">{title}</h3>
 
           <p className="mt-0.5 text-[11px] text-slate-400">
             {belgeler.length} kayıt bulunmaktadır.
@@ -334,20 +330,20 @@ export function BelgeListesi({
           <div className="flex items-center rounded-lg border border-slate-200 bg-white p-1 dark:border-slate-800 dark:bg-slate-900">
             {[
               {
-                mode: "table" as const,
+                mode: 'table' as const,
                 icon: Table2,
-                label: "Tablo",
+                label: 'Tablo'
               },
               {
-                mode: "list" as const,
+                mode: 'list' as const,
                 icon: List,
-                label: "Liste",
+                label: 'Liste'
               },
               {
-                mode: "grid" as const,
+                mode: 'grid' as const,
                 icon: Grid2X2,
-                label: "Kart",
-              },
+                label: 'Kart'
+              }
             ].map(({ mode, icon: Icon, label }) => (
               <button
                 key={mode}
@@ -356,8 +352,8 @@ export function BelgeListesi({
                 onClick={() => onViewModeChange?.(mode)}
                 className={`rounded-md p-1.5 transition-colors ${
                   viewMode === mode
-                    ? "bg-blue-600 text-white"
-                    : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    ? 'bg-blue-600 text-white'
+                    : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -391,48 +387,41 @@ export function BelgeListesi({
           )}
 
           {/* Yeni Belge / Tutanak Ekleme Butonu */}
-          {onCreateBelge
-            ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-[10px] font-bold text-white transition-colors hover:bg-blue-700"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    {createButtonLabel}
-                  </button>
-                </DropdownMenuTrigger>
+          {onCreateBelge ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-[10px] font-bold text-white transition-colors hover:bg-blue-700"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  {createButtonLabel}
+                </button>
+              </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="end" className="w-64">
-                  {belgeTipleri.map((tip) => (
-                    <DropdownMenuItem
-                      key={tip.id}
-                      onClick={() => onCreateBelge(tip.id)}
-                    >
-                      <FileText className="mr-2 h-4 w-4" />
-                      {tip.ad}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )
-            : onCreate
-            ? (
-              <button
-                type="button"
-                onClick={onCreate}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-[10px] font-bold text-white transition-colors hover:bg-blue-700"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                {createButtonLabel}
-              </button>
-            )
-            : null}
+              <DropdownMenuContent align="end" className="w-64">
+                {belgeTipleri.map((tip) => (
+                  <DropdownMenuItem key={tip.id} onClick={() => onCreateBelge(tip.id)}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    {tip.ad}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : onCreate ? (
+            <button
+              type="button"
+              onClick={onCreate}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-[10px] font-bold text-white transition-colors hover:bg-blue-700"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {createButtonLabel}
+            </button>
+          ) : null}
         </div>
       </div>
 
-      {viewMode === "table" && belgeler.length > 0 && (
+      {viewMode === 'table' && belgeler.length > 0 && (
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
           <table className="w-full text-left text-xs">
             <thead className="border-b border-slate-200 bg-slate-50 text-[10px] font-bold text-slate-500 uppercase tracking-wider dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-400">
@@ -446,17 +435,14 @@ export function BelgeListesi({
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {belgeler.map((belge, idx) => (
                 <tr
-                  key={`belge_tbl_${belge.id || "b"}_${idx}`}
+                  key={`belge_tbl_${belge.id || 'b'}_${idx}`}
                   onClick={(e) => {
-                    const target = e.target as HTMLElement;
-                    if (
-                      target.closest("button") ||
-                      target.closest("[role='menuitem']")
-                    ) return;
+                    const target = e.target as HTMLElement
+                    if (target.closest('button') || target.closest("[role='menuitem']")) return
                     if (onEdit) {
-                      onEdit(belge);
+                      onEdit(belge)
                     } else if (onView) {
-                      onView(belge);
+                      onView(belge)
                     }
                   }}
                   className="transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-900/40 cursor-pointer"
@@ -473,10 +459,7 @@ export function BelgeListesi({
                     {belge.belgeTarihi}
                   </td>
                   <td className="px-4 py-3">{getDurum(belge.durum)}</td>
-                  <td
-                    className="px-4 py-3 text-right"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                     <Actions belge={belge} />
                   </td>
                 </tr>
@@ -486,19 +469,16 @@ export function BelgeListesi({
         </div>
       )}
 
-      {viewMode === "list" && (
+      {viewMode === 'list' && (
         <div className="space-y-2">
           {belgeler.map((belge, idx) => (
             <div
-              key={`belge_lst_${belge.id || "b"}_${idx}`}
+              key={`belge_lst_${belge.id || 'b'}_${idx}`}
               onClick={(e) => {
-                const target = e.target as HTMLElement;
-                if (
-                  target.closest("button") ||
-                  target.closest("[role='menuitem']")
-                ) return;
-                if (onEdit) onEdit(belge);
-                else if (onView) onView(belge);
+                const target = e.target as HTMLElement
+                if (target.closest('button') || target.closest("[role='menuitem']")) return
+                if (onEdit) onEdit(belge)
+                else if (onView) onView(belge)
               }}
               className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-3 transition-colors hover:border-blue-200 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-900 cursor-pointer"
             >
@@ -532,26 +512,21 @@ export function BelgeListesi({
         </div>
       )}
 
-      {
-        /* =====================================================
+      {/* =====================================================
        * GRID
-       * ===================================================== */
-      }
+       * ===================================================== */}
 
-      {viewMode === "grid" && (
+      {viewMode === 'grid' && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {belgeler.map((belge, idx) => (
             <div
-              key={`belge_grd_${belge.id || "b"}_${idx}`}
+              key={`belge_grd_${belge.id || 'b'}_${idx}`}
               onClick={(e) => {
-                const target = e.target as HTMLElement;
-                if (
-                  target.closest("button") ||
-                  target.closest("[role='menuitem']")
-                ) return;
+                const target = e.target as HTMLElement
+                if (target.closest('button') || target.closest("[role='menuitem']")) return
                 if (onEdit) {
-                  onEdit(belge);
-                } else if (onView) onView(belge);
+                  onEdit(belge)
+                } else if (onView) onView(belge)
               }}
               className="group rounded-xl border border-slate-200 bg-white p-4 transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-950 cursor-pointer"
             >
@@ -573,9 +548,7 @@ export function BelgeListesi({
                   {belge.belgeTarihi}
                 </div>
 
-                <div className="mt-1 text-[10px] text-slate-400">
-                  {belge.belgeTipiId}
-                </div>
+                <div className="mt-1 text-[10px] text-slate-400">{belge.belgeTipiId}</div>
               </div>
 
               <div className="mt-4 border-t border-slate-100 pt-3 dark:border-slate-800">
@@ -586,11 +559,9 @@ export function BelgeListesi({
         </div>
       )}
 
-      {
-        /* =====================================================
+      {/* =====================================================
        * BOŞ
-       * ===================================================== */
-      }
+       * ===================================================== */}
 
       {belgeler.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 py-12 text-center dark:border-slate-800">
@@ -600,46 +571,39 @@ export function BelgeListesi({
             Henüz tutanak veya belge bulunmuyor.
           </p>
 
-          {onCreateBelge
-            ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-blue-700"
-                  >
-                    <Plus className="h-4 w-4" />
-                    {createButtonLabel}
-                  </button>
-                </DropdownMenuTrigger>
+          {onCreateBelge ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-blue-700"
+                >
+                  <Plus className="h-4 w-4" />
+                  {createButtonLabel}
+                </button>
+              </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="center" className="w-64">
-                  {belgeTipleri.map((tip) => (
-                    <DropdownMenuItem
-                      key={tip.id}
-                      onClick={() => onCreateBelge(tip.id)}
-                    >
-                      <FileText className="mr-2 h-4 w-4 text-blue-500" />
-                      {tip.ad}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )
-            : onCreate
-            ? (
-              <button
-                type="button"
-                onClick={onCreate}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-blue-700"
-              >
-                <Plus className="h-4 w-4" />
-                {createButtonLabel}
-              </button>
-            )
-            : null}
+              <DropdownMenuContent align="center" className="w-64">
+                {belgeTipleri.map((tip) => (
+                  <DropdownMenuItem key={tip.id} onClick={() => onCreateBelge(tip.id)}>
+                    <FileText className="mr-2 h-4 w-4 text-blue-500" />
+                    {tip.ad}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : onCreate ? (
+            <button
+              type="button"
+              onClick={onCreate}
+              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-blue-700"
+            >
+              <Plus className="h-4 w-4" />
+              {createButtonLabel}
+            </button>
+          ) : null}
         </div>
       )}
     </div>
-  );
+  )
 }

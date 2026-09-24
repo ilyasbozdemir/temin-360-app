@@ -3,10 +3,10 @@ import { resolveTemplateData, ProcessMapping } from '@temin360/document-template
 
 /**
  * useTemplateData Hook
- * 
+ *
  * Verilen ProcessMapping konfigürasyonunu ve dosya ID'sini kullanarak
  * SQLite veritabanından dinamik olarak şablon verisini çözer (resolve eder).
- * 
+ *
  * @param dosyaId Aktif Temin Dosyası ID'si (number | null | undefined)
  * @param mapping İlgili şablonun ProcessMapping kuralları
  * @param dependencies Yeniden yükleme tetikleyici ek bağımlılıklar

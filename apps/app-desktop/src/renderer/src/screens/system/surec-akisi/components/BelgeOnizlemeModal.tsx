@@ -1,21 +1,21 @@
-import React from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { Modal } from "../../../../components/ui/Modal";
-import { FileCheck2, FileText, Printer, Upload } from "lucide-react";
-import { Belge, FirmaItem, Kalem, Komisyon } from "../types";
-import { getBelgeDurumBadge, getBelgeDurumLabel } from "../utils/helpers";
+import React from 'react'
+import { useNavigate } from '@tanstack/react-router'
+import { Modal } from '../../../../components/ui/Modal'
+import { FileCheck2, FileText, Printer, Upload } from 'lucide-react'
+import { Belge, FirmaItem, Kalem, Komisyon } from '../types'
+import { getBelgeDurumBadge, getBelgeDurumLabel } from '../utils/helpers'
 
 interface BelgeOnizlemeModalProps {
-  previewBelge: Belge | null;
-  onClose: () => void;
-  dosya: { dosyaNo: string; tarih: string; kanunMaddesi: string };
-  kalemler: Kalem[];
-  firmalar: FirmaItem[];
-  komisyonlar: Komisyon[];
-  toplamBedel: number;
-  dosyaContext: any;
-  onBelgeOlustur: (id: number) => void;
-  onDosyalariEkle: (files: FileList | null, targetId: number) => void;
+  previewBelge: Belge | null
+  onClose: () => void
+  dosya: { dosyaNo: string; tarih: string; kanunMaddesi: string }
+  kalemler: Kalem[]
+  firmalar: FirmaItem[]
+  komisyonlar: Komisyon[]
+  toplamBedel: number
+  dosyaContext: any
+  onBelgeOlustur: (id: number) => void
+  onDosyalariEkle: (files: FileList | null, targetId: number) => void
 }
 
 export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
@@ -27,19 +27,19 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
   komisyonlar,
   toplamBedel,
   dosyaContext,
-  onDosyalariEkle,
+  onDosyalariEkle
 }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-  if (!previewBelge) return null;
+  if (!previewBelge) return null
 
   const belgeOnizlemeIcerigi = (belge: Belge) => {
-    const piyasaKomisyonu = komisyonlar.find((k) => k.tur.includes("Piyasa"));
+    const piyasaKomisyonu = komisyonlar.find((k) => k.tur.includes('Piyasa'))
     const enUygun = [...firmalar]
       .filter((f) => f.teklifBedeli)
-      .sort((a, b) => (a.teklifBedeli || 0) - (b.teklifBedeli || 0))[0];
+      .sort((a, b) => (a.teklifBedeli || 0) - (b.teklifBedeli || 0))[0]
 
-    if (belge.ad === "Malzeme Talep Formu") {
+    if (belge.ad === 'Malzeme Talep Formu') {
       return (
         <div className="space-y-4 font-sans text-slate-800 dark:text-slate-200">
           <div className="text-center font-bold text-sm mb-2 uppercase border-b pb-2 border-slate-200 dark:border-slate-800">
@@ -99,38 +99,30 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
             <div>
               <div className="font-bold">Talep Eden Personel</div>
               <div className="text-slate-500 mt-1">
-                {dosyaContext?.hazirlayanPersonelAdi || "—"}
+                {dosyaContext?.hazirlayanPersonelAdi || '—'}
               </div>
-              <div className="text-[10px] text-emerald-600 font-bold mt-2">
-                ✓ İmzalandı
-              </div>
+              <div className="text-[10px] text-emerald-600 font-bold mt-2">✓ İmzalandı</div>
             </div>
             <div>
               <div className="font-bold">Birim Amiri / Onaylayan</div>
-              <div className="text-slate-500 mt-1">
-                {dosyaContext?.onaylayanPersonelAdi || "—"}
-              </div>
-              <div className="text-[10px] text-emerald-600 font-bold mt-2">
-                ✓ İmzalandı
-              </div>
+              <div className="text-slate-500 mt-1">{dosyaContext?.onaylayanPersonelAdi || '—'}</div>
+              <div className="text-[10px] text-emerald-600 font-bold mt-2">✓ İmzalandı</div>
             </div>
           </div>
         </div>
-      );
+      )
     }
 
-    if (belge.ad === "Komisyon Görevlendirme Yazısı") {
+    if (belge.ad === 'Komisyon Görevlendirme Yazısı') {
       return (
         <div className="space-y-4 font-sans text-slate-800 dark:text-slate-200">
           <div className="text-center font-bold text-sm mb-2 uppercase border-b pb-2 border-slate-200 dark:border-slate-800">
             KOMİSYON GÖREVLENDİRME MAKAM ONAY YAZISI
           </div>
           <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-            {dosya.dosyaNo}{" "}
-            kayıt numaralı Doğrudan Temin alım dosyası kapsamında Piyasa Fiyat
-            Araştırması yapmak üzere 4734 Sayılı Kamu İhale Kanununun ilgili
-            hükümleri uyarınca aşağıda kimlikleri belirtilen personel komisyon
-            olarak görevlendirilmiştir.
+            {dosya.dosyaNo} kayıt numaralı Doğrudan Temin alım dosyası kapsamında Piyasa Fiyat
+            Araştırması yapmak üzere 4734 Sayılı Kamu İhale Kanununun ilgili hükümleri uyarınca
+            aşağıda kimlikleri belirtilen personel komisyon olarak görevlendirilmiştir.
           </p>
           <div className="space-y-3">
             {komisyonlar.map((k) => (
@@ -150,9 +142,7 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
                       <div className="font-bold text-slate-900 dark:text-slate-100">
                         {u.adSoyad}
                       </div>
-                      <div className="text-[11px] text-slate-500">
-                        {u.unvan}
-                      </div>
+                      <div className="text-[11px] text-slate-500">{u.unvan}</div>
                       <div className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold">
                         {u.gorev}
                       </div>
@@ -163,10 +153,10 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
             ))}
           </div>
         </div>
-      );
+      )
     }
 
-    if (belge.ad === "Yaklaşık Maliyet Cetveli") {
+    if (belge.ad === 'Yaklaşık Maliyet Cetveli') {
       return (
         <div className="space-y-4 font-sans text-slate-800 dark:text-slate-200">
           <div className="text-center font-bold text-sm mb-2 uppercase border-b pb-2 border-slate-200 dark:border-slate-800">
@@ -194,10 +184,7 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
             </thead>
             <tbody>
               {kalemler.map((k, i) => (
-                <tr
-                  key={k.id}
-                  className="hover:bg-slate-50 dark:hover:bg-slate-900/40"
-                >
+                <tr key={k.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/40">
                   <td className="border border-slate-300 dark:border-slate-800 px-2.5 py-2">
                     {i + 1}
                   </td>
@@ -208,10 +195,10 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
                     {k.miktar} {k.birim}
                   </td>
                   <td className="border border-slate-300 dark:border-slate-800 px-2.5 py-2 text-center">
-                    {k.birimFiyat.toLocaleString("tr-TR")} ₺
+                    {k.birimFiyat.toLocaleString('tr-TR')} ₺
                   </td>
                   <td className="border border-slate-300 dark:border-slate-800 px-2.5 py-2 text-right font-bold">
-                    {k.toplamBedel.toLocaleString("tr-TR")} ₺
+                    {k.toplamBedel.toLocaleString('tr-TR')} ₺
                   </td>
                 </tr>
               ))}
@@ -223,7 +210,7 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
                   TOPLAM YAKLAŞIK MALİYET
                 </td>
                 <td className="border border-slate-300 dark:border-slate-800 px-2.5 py-2 text-right text-blue-600 dark:text-blue-400 text-sm">
-                  {toplamBedel.toLocaleString("tr-TR")} ₺
+                  {toplamBedel.toLocaleString('tr-TR')} ₺
                 </td>
               </tr>
             </tbody>
@@ -232,32 +219,27 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
             <div className="grid grid-cols-3 gap-4 text-xs text-center mt-8 pt-4 border-t border-slate-200 dark:border-slate-800">
               {piyasaKomisyonu.uyeler.map((u) => (
                 <div key={u.id} className="space-y-1">
-                  <div className="font-bold text-slate-900 dark:text-slate-100">
-                    {u.adSoyad}
-                  </div>
+                  <div className="font-bold text-slate-900 dark:text-slate-100">{u.adSoyad}</div>
                   <div className="text-[11px] text-slate-500">{u.gorev}</div>
-                  <div className="text-[10px] text-emerald-600 font-semibold mt-1">
-                    ✓ {u.imza}
-                  </div>
+                  <div className="text-[10px] text-emerald-600 font-semibold mt-1">✓ {u.imza}</div>
                 </div>
               ))}
             </div>
           )}
         </div>
-      );
+      )
     }
 
-    if (belge.ad === "Piyasa Araştırması Tutanağı") {
+    if (belge.ad === 'Piyasa Araştırması Tutanağı') {
       return (
         <div className="space-y-4 font-sans text-slate-800 dark:text-slate-200">
           <div className="text-center font-bold text-sm mb-2 uppercase border-b pb-2 border-slate-200 dark:border-slate-800">
             Piyasa Fiyat Araştırması Tutanağı
           </div>
           <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-            {dosya.dosyaNo}{" "}
-            sayılı dosya kapsamında ihtiyaç duyulan malzemelerin temini için
-            aşağıda unvanları yazılı firmalardan fiyat teklifi alınmış olup,
-            sonuçlar aşağıda gösterilmiştir.
+            {dosya.dosyaNo} sayılı dosya kapsamında ihtiyaç duyulan malzemelerin temini için aşağıda
+            unvanları yazılı firmalardan fiyat teklifi alınmış olup, sonuçlar aşağıda
+            gösterilmiştir.
           </p>
           <table className="w-full text-xs border-collapse border border-slate-300 dark:border-slate-800">
             <thead>
@@ -280,27 +262,25 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
               {firmalar.map((f) => (
                 <tr
                   key={f.id}
-                  className={f.durumu === "seçildi"
-                    ? "bg-emerald-50/60 dark:bg-emerald-950/30"
-                    : ""}
+                  className={
+                    f.durumu === 'seçildi' ? 'bg-emerald-50/60 dark:bg-emerald-950/30' : ''
+                  }
                 >
                   <td className="border border-slate-300 dark:border-slate-800 px-2.5 py-2 font-semibold">
                     {f.unvan}
                   </td>
                   <td className="border border-slate-300 dark:border-slate-800 px-2.5 py-2 text-center">
-                    {f.teklifTarihi || "—"}
+                    {f.teklifTarihi || '—'}
                   </td>
                   <td className="border border-slate-300 dark:border-slate-800 px-2.5 py-2 text-right font-bold">
-                    {f.teklifBedeli
-                      ? `${f.teklifBedeli.toLocaleString("tr-TR")} ₺`
-                      : "—"}
+                    {f.teklifBedeli ? `${f.teklifBedeli.toLocaleString('tr-TR')} ₺` : '—'}
                   </td>
                   <td className="border border-slate-300 dark:border-slate-800 px-2.5 py-2 text-center font-bold">
-                    {f.durumu === "seçildi"
-                      ? "✓ Seçildi"
-                      : f.durumu === "teklif"
-                      ? "◉ Bekleniyor"
-                      : "✗ Reddedildi"}
+                    {f.durumu === 'seçildi'
+                      ? '✓ Seçildi'
+                      : f.durumu === 'teklif'
+                        ? '◉ Bekleniyor'
+                        : '✗ Reddedildi'}
                   </td>
                 </tr>
               ))}
@@ -308,14 +288,12 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
           </table>
           {enUygun && (
             <p className="text-xs text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 leading-relaxed">
-              Yapılan değerlendirme sonucunda en uygun teklifin{" "}
-              <strong className="text-blue-600 dark:text-blue-400">
-                {enUygun.unvan}
-              </strong>{" "}
-              firmasından geldiği tespit edilmiş olup{" "}
+              Yapılan değerlendirme sonucunda en uygun teklifin{' '}
+              <strong className="text-blue-600 dark:text-blue-400">{enUygun.unvan}</strong>{' '}
+              firmasından geldiği tespit edilmiş olup{' '}
               <strong className="text-emerald-600 dark:text-emerald-400">
-                {enUygun.teklifBedeli?.toLocaleString("tr-TR")} ₺
-              </strong>{" "}
+                {enUygun.teklifBedeli?.toLocaleString('tr-TR')} ₺
+              </strong>{' '}
               bedelle işlem yapılması komisyonumuzca uygun görülmüştür.
             </p>
           )}
@@ -323,19 +301,17 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
             <div className="grid grid-cols-3 gap-4 text-xs text-center mt-8 pt-4 border-t border-slate-200 dark:border-slate-800">
               {piyasaKomisyonu.uyeler.map((u) => (
                 <div key={u.id} className="space-y-1">
-                  <div className="font-bold text-slate-900 dark:text-slate-100">
-                    {u.adSoyad}
-                  </div>
+                  <div className="font-bold text-slate-900 dark:text-slate-100">{u.adSoyad}</div>
                   <div className="text-[11px] text-slate-500">{u.gorev}</div>
                 </div>
               ))}
             </div>
           )}
         </div>
-      );
+      )
     }
 
-    if (belge.ad === "Doğrudan Temin Onay Belgesi") {
+    if (belge.ad === 'Doğrudan Temin Onay Belgesi') {
       return (
         <div className="space-y-4 font-sans text-slate-800 dark:text-slate-200">
           <div className="text-center font-bold text-sm mb-2 uppercase border-b pb-2 border-slate-200 dark:border-slate-800">
@@ -349,25 +325,22 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
               <strong>İhale Usulü:</strong> Doğrudan Temin (22/d)
             </div>
             <div>
-              <strong>Yaklaşık Maliyet:</strong>{" "}
-              {toplamBedel.toLocaleString("tr-TR")} ₺
+              <strong>Yaklaşık Maliyet:</strong> {toplamBedel.toLocaleString('tr-TR')} ₺
             </div>
             <div>
-              <strong>Kazanan Tedarikçi:</strong>{" "}
-              {enUygun?.unvan || "TEKNOLOJİ A.Ş."}
+              <strong>Kazanan Tedarikçi:</strong> {enUygun?.unvan || 'TEKNOLOJİ A.Ş.'}
             </div>
           </div>
           <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-            Yukarıda belirtilen ihtiyacın temini amacıyla piyasa fiyat
-            araştırması yapılmış ve en uygun teklifi sunan yükleniciden alımın
-            yapılması Harcama Yetkilisince onaylanmıştır.
+            Yukarıda belirtilen ihtiyacın temini amacıyla piyasa fiyat araştırması yapılmış ve en
+            uygun teklifi sunan yükleniciden alımın yapılması Harcama Yetkilisince onaylanmıştır.
           </p>
           <div className="text-center pt-8 border-t border-slate-200 dark:border-slate-800">
             <div className="font-extrabold text-xs">HARCAMA YETKİLİSİ</div>
             <div className="text-slate-500 text-xs mt-1">İmza / Mühür</div>
           </div>
         </div>
-      );
+      )
     }
 
     return (
@@ -390,54 +363,49 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
           </div>
           {belge.pdfDosyaAdi && (
             <div className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1 mt-2">
-              <FileCheck2 size={15} /> İmzalı PDF Yüklendi: {belge.pdfDosyaAdi}
-              {" "}
-              ({belge.pdfYuklenmeTarihi})
+              <FileCheck2 size={15} /> İmzalı PDF Yüklendi: {belge.pdfDosyaAdi} (
+              {belge.pdfYuklenmeTarihi})
             </div>
           )}
         </div>
         <p className="text-xs text-slate-500 dark:text-slate-400 italic text-center">
-          Bu resmi süreç belgesi Çıktı Merkezi üzerinden mevzuata uygun şablonla
-          dinamik oluşturulmaktadır.
+          Bu resmi süreç belgesi Çıktı Merkezi üzerinden mevzuata uygun şablonla dinamik
+          oluşturulmaktadır.
         </p>
       </div>
-    );
-  };
+    )
+  }
 
   const handleOpenOfficialTemplate = () => {
-    onClose();
-    const adLower = (previewBelge.ad || "").toLowerCase();
-    if (
-      adLower.includes("talep") ||
-      adLower.includes("ihtiyaç") ||
-      adLower.includes("onay")
-    ) {
-      navigate({ to: "/dosya/hazirlik-ve-ihtiyac" as any });
+    onClose()
+    const adLower = (previewBelge.ad || '').toLowerCase()
+    if (adLower.includes('talep') || adLower.includes('ihtiyaç') || adLower.includes('onay')) {
+      navigate({ to: '/dosya/hazirlik-ve-ihtiyac' as any })
     } else if (
-      adLower.includes("piyasa") ||
-      adLower.includes("fiyat") ||
-      adLower.includes("teklif")
+      adLower.includes('piyasa') ||
+      adLower.includes('fiyat') ||
+      adLower.includes('teklif')
     ) {
-      navigate({ to: "/dosya/piyasa-fiyat-arastirmasi" as any });
-    } else if (adLower.includes("maliyet")) {
-      navigate({ to: "/dosya/firmalar-maliyet/yaklasik" as any });
+      navigate({ to: '/dosya/piyasa-fiyat-arastirmasi' as any })
+    } else if (adLower.includes('maliyet')) {
+      navigate({ to: '/dosya/firmalar-maliyet/yaklasik' as any })
     } else if (
-      adLower.includes("siparis") ||
-      adLower.includes("sözleşme") ||
-      adLower.includes("sozlesme")
+      adLower.includes('siparis') ||
+      adLower.includes('sözleşme') ||
+      adLower.includes('sozlesme')
     ) {
-      navigate({ to: "/dosya/siparis-ve-sozlesme" as any });
+      navigate({ to: '/dosya/siparis-ve-sozlesme' as any })
     } else if (
-      adLower.includes("muayene") ||
-      adLower.includes("kabul") ||
-      adLower.includes("ödeme") ||
-      adLower.includes("odeme")
+      adLower.includes('muayene') ||
+      adLower.includes('kabul') ||
+      adLower.includes('ödeme') ||
+      adLower.includes('odeme')
     ) {
-      navigate({ to: "/dosya/kabul-ve-odeme" as any });
+      navigate({ to: '/dosya/kabul-ve-odeme' as any })
     } else {
-      navigate({ to: "/cikti-merkezi" as any });
+      navigate({ to: '/cikti-merkezi' as any })
     }
-  };
+  }
 
   return (
     <Modal
@@ -455,12 +423,12 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
           <span
             className={`text-[10px] px-2.5 py-1 rounded-lg border font-bold ${
               previewBelge.pdfDosyaAdi
-                ? "bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border-emerald-300"
+                ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border-emerald-300'
                 : getBelgeDurumBadge(previewBelge.durum)
             }`}
           >
             {previewBelge.pdfDosyaAdi
-              ? "✓ İmzalı PDF Teslim Alındı"
+              ? '✓ İmzalı PDF Teslim Alındı'
               : getBelgeDurumLabel(previewBelge.durum)}
           </span>
         </div>
@@ -497,5 +465,5 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
         </div>
       </div>
     </Modal>
-  );
-};
+  )
+}

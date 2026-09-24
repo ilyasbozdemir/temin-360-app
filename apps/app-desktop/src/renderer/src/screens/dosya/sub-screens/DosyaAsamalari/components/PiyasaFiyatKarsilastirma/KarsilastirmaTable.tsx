@@ -1,6 +1,6 @@
-import React from "react";
-import { BarChart3, Building2, FileSpreadsheet } from "lucide-react";
-import { ComparisonRow, KarsilastirmaTableProps } from "./types";
+import React from 'react'
+import { BarChart3, Building2, FileSpreadsheet } from 'lucide-react'
+import { ComparisonRow, KarsilastirmaTableProps } from './types'
 
 export function KarsilastirmaTable({
   comparisonData,
@@ -9,7 +9,7 @@ export function KarsilastirmaTable({
   netSavings,
   overallSavingsRate,
   formatCurrency,
-  onExportComparison,
+  onExportComparison
 }: KarsilastirmaTableProps): React.JSX.Element {
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
@@ -152,5 +152,5 @@ export function KarsilastirmaTable({
         </table>
       </div>
     </div>
-  );
+  )
 }

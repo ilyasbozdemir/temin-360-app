@@ -544,4 +544,3 @@ export function KabulVeOdeme(): React.JSX.Element {
     </SubScreen>
   )
 }
-

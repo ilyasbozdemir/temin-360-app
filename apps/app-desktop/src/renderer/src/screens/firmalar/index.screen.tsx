@@ -107,10 +107,12 @@ export default function FirmalarScreen(): React.JSX.Element {
     }
   }
 
-  const [procurementFilter, setProcurementFilter] = useState<'all' | 'dogrudan_temin' | 'ihale'>(() => {
-    const saved = localStorage.getItem('temin_procurement_mode')
-    return (saved as 'dogrudan_temin' | 'ihale') || 'dogrudan_temin'
-  })
+  const [procurementFilter, setProcurementFilter] = useState<'all' | 'dogrudan_temin' | 'ihale'>(
+    () => {
+      const saved = localStorage.getItem('temin_procurement_mode')
+      return (saved as 'dogrudan_temin' | 'ihale') || 'dogrudan_temin'
+    }
+  )
 
   React.useEffect(() => {
     const handleMode = (e: any) => {
@@ -181,10 +183,16 @@ export default function FirmalarScreen(): React.JSX.Element {
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3 text-slate-855 dark:text-slate-100">
             <Building2 className="w-8 h-8 text-blue-600" />
-            İstekli & Yüklenici Firma Yönetimi {procurementFilter === 'dogrudan_temin' ? '(Doğrudan Temin)' : procurementFilter === 'ihale' ? '(İhale Müteahhitleri)' : ''}
+            İstekli & Yüklenici Firma Yönetimi{' '}
+            {procurementFilter === 'dogrudan_temin'
+              ? '(Doğrudan Temin)'
+              : procurementFilter === 'ihale'
+                ? '(İhale Müteahhitleri)'
+                : ''}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
-            Tedarikçi firmaların performans skoru, KİK kara liste durumları ve teklif geçmişini yönetin.
+            Tedarikçi firmaların performans skoru, KİK kara liste durumları ve teklif geçmişini
+            yönetin.
           </p>
         </div>
         <div className="flex items-center gap-4 sm:gap-6 shrink-0">
@@ -196,11 +204,7 @@ export default function FirmalarScreen(): React.JSX.Element {
               Listelenen Firma
             </div>
           </div>
-          <ExcelActions
-            tableName="TANIM_Firma"
-            title="Firmalar"
-            uniqueCol="id"
-          />
+          <ExcelActions tableName="TANIM_Firma" title="Firmalar" uniqueCol="id" />
           <Button
             onClick={openAddModal}
             className="gap-2 bg-blue-600 hover:bg-blue-700 shadow-md flex items-center px-4 py-2 text-sm"

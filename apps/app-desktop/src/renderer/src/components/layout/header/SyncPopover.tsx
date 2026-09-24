@@ -110,7 +110,11 @@ export function SyncPopover(): React.JSX.Element {
                   : 'bg-amber-500/10 text-amber-600 border-amber-500/20'
               }`}
             >
-              {isOnline && isOnlineMode ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
+              {isOnline && isOnlineMode ? (
+                <Wifi className="w-3 h-3" />
+              ) : (
+                <WifiOff className="w-3 h-3" />
+              )}
               {isOnline && isOnlineMode ? 'Çevrimiçi' : 'Çevrimdışı'}
             </div>
           </div>
@@ -202,7 +206,9 @@ export function SyncPopover(): React.JSX.Element {
                     Çalışma Modu
                   </span>
                   <span className="text-[9px] text-slate-500 dark:text-slate-400 font-medium">
-                    {isOnlineMode ? 'Ofis (Online - Canlı Senkronizasyon)' : 'Ev (Offline - Yerel Çalışma)'}
+                    {isOnlineMode
+                      ? 'Ofis (Online - Canlı Senkronizasyon)'
+                      : 'Ev (Offline - Yerel Çalışma)'}
                   </span>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
@@ -254,15 +260,14 @@ export function SyncPopover(): React.JSX.Element {
             <div className="space-y-3 pt-1">
               <div className="bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40 p-3 rounded-xl space-y-1 text-xs">
                 <div className="flex items-center justify-between font-bold text-amber-800 dark:text-amber-300">
-                  <span className="flex items-center gap-1.5">
-                    ⚡ PocketBase Self-Hosted API
-                  </span>
+                  <span className="flex items-center gap-1.5">⚡ PocketBase Self-Hosted API</span>
                   <span className="text-[9px] px-2 py-0.5 rounded bg-amber-200/60 dark:bg-amber-900/60 font-mono">
                     Hafif & Hızlı REST/Realtime
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-600 dark:text-slate-400">
-                  Kendi sunucunuzdaki PocketBase servisine çalışma dosyalarınızı tek tıkla gönderip web uygulamanızla senkronize edin.
+                  Kendi sunucunuzdaki PocketBase servisine çalışma dosyalarınızı tek tıkla gönderip
+                  web uygulamanızla senkronize edin.
                 </p>
               </div>
 
@@ -354,7 +359,8 @@ export function SyncPopover(): React.JSX.Element {
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Google hesabınızla oturum açıp çalışma alanınızı buluta yedekleyin veya buluttan `.dtal` dosyalarınızı indirin.
+                  Google hesabınızla oturum açıp çalışma alanınızı buluta yedekleyin veya buluttan
+                  `.dtal` dosyalarınızı indirin.
                 </p>
               </div>
 

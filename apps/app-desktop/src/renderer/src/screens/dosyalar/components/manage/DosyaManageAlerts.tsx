@@ -23,12 +23,8 @@ export const DosyaManageAlerts: React.FC<DosyaManageAlertsProps> = ({
               <HelpCircle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
             </div>
             <div>
-              <h3 className="font-bold text-amber-800 dark:text-amber-300">
-                Form Kontrol Uyarısı
-              </h3>
-              <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
-                {validationError}
-              </p>
+              <h3 className="font-bold text-amber-800 dark:text-amber-300">Form Kontrol Uyarısı</h3>
+              <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">{validationError}</p>
             </div>
           </div>
           <button
@@ -52,12 +48,11 @@ export const DosyaManageAlerts: React.FC<DosyaManageAlertsProps> = ({
                 Kritik Hata: 22/d Limit Dönemi Bulunamadı!
               </h3>
               <p className="text-sm text-red-700 dark:text-red-400 mt-1">
-                Sistemde, seçtiğiniz &quot;Dosya Açılış Tarihi&quot; (
-                {dosyaAcilisTarihi}) ile eşleşen bir Doğrudan Temin Limit
-                Dönemi bulunamadı. Lütfen{' '}
-                <strong>Sistem Ayarları &gt; Mevzuat ve Parametreler</strong> bölümünden
-                ilgili tarihe ait limiti ekleyiniz. Limit olmadan bu dosyaya tahmini bedel
-                kontrolü yapılamaz.
+                Sistemde, seçtiğiniz &quot;Dosya Açılış Tarihi&quot; ({dosyaAcilisTarihi}) ile
+                eşleşen bir Doğrudan Temin Limit Dönemi bulunamadı. Lütfen{' '}
+                <strong>Sistem Ayarları &gt; Mevzuat ve Parametreler</strong> bölümünden ilgili
+                tarihe ait limiti ekleyiniz. Limit olmadan bu dosyaya tahmini bedel kontrolü
+                yapılamaz.
               </p>
             </div>
           </div>

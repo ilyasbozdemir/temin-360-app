@@ -22,15 +22,33 @@ export const DonusumlerTable: React.FC<DonusumlerTableProps> = ({
         <table className="w-full text-left border-collapse min-w-[800px]">
           <thead className="bg-slate-50 dark:bg-slate-800/60 sticky top-0 z-10 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700">
             <tr>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300 w-16">ID</th>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">Kaynak Birim</th>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300 text-center w-10">⇄</th>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">Hedef Birim</th>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">Dönüşüm Faktörü / Formülü</th>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">Ters Formül</th>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">Açıklama</th>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300 text-center w-20">Durum</th>
-              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300 text-right w-24">İşlem</th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300 w-16">
+                ID
+              </th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">
+                Kaynak Birim
+              </th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300 text-center w-10">
+                ⇄
+              </th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">
+                Hedef Birim
+              </th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">
+                Dönüşüm Faktörü / Formülü
+              </th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">
+                Ters Formül
+              </th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300">
+                Açıklama
+              </th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300 text-center w-20">
+                Durum
+              </th>
+              <th className="py-2.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-300 text-right w-24">
+                İşlem
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
@@ -48,14 +66,27 @@ export const DonusumlerTable: React.FC<DonusumlerTableProps> = ({
               </tr>
             ) : (
               filteredDonusumler.map((d) => (
-                <tr key={d.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors group">
+                <tr
+                  key={d.id}
+                  className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors group"
+                >
                   <td className="py-3 px-4 font-mono text-slate-400">#{d.id}</td>
                   <td className="py-3 px-4 font-bold text-slate-900 dark:text-slate-100">
-                    {d.kaynak_ad} {d.kaynak_kisa_ad ? <span className="font-mono text-xs text-slate-400">({d.kaynak_kisa_ad})</span> : ''}
+                    {d.kaynak_ad}{' '}
+                    {d.kaynak_kisa_ad ? (
+                      <span className="font-mono text-xs text-slate-400">({d.kaynak_kisa_ad})</span>
+                    ) : (
+                      ''
+                    )}
                   </td>
                   <td className="py-3 px-4 text-center text-blue-500 font-bold">➔</td>
                   <td className="py-3 px-4 font-bold text-slate-900 dark:text-slate-100">
-                    {d.hedef_ad} {d.hedef_kisa_ad ? <span className="font-mono text-xs text-slate-400">({d.hedef_kisa_ad})</span> : ''}
+                    {d.hedef_ad}{' '}
+                    {d.hedef_kisa_ad ? (
+                      <span className="font-mono text-xs text-slate-400">({d.hedef_kisa_ad})</span>
+                    ) : (
+                      ''
+                    )}
                   </td>
                   <td className="py-3 px-4 font-mono">
                     {d.formul ? (

@@ -94,7 +94,6 @@ function numberToTurkishWords(num: number): string {
   return words
 }
 
-
 export function registerDocumentIpcHandlers(): void {
   // Helper to register both namespaced channel and legacy alias
   const handleDoc = (
@@ -109,33 +108,36 @@ export function registerDocumentIpcHandlers(): void {
   }
 
   // 1. DOCX Export (supports direct params and object payload)
-  handleDoc('belge:export-docx', 'export-docx', async (_, payload: any, legacyFileName?: string) => {
-    try {
-      const htmlContent =
-        typeof payload === 'string'
-          ? payload
-          : payload?.html || payload?.htmlContent || ''
-      const rawFileName =
-        (typeof payload === 'object' && (payload?.defaultFilename || payload?.fileName || payload?.filename)) ||
-        legacyFileName ||
-        'Belge.docx'
-      const fileName = rawFileName.endsWith('.docx') ? rawFileName : `${rawFileName}.docx`
+  handleDoc(
+    'belge:export-docx',
+    'export-docx',
+    async (_, payload: any, legacyFileName?: string) => {
+      try {
+        const htmlContent =
+          typeof payload === 'string' ? payload : payload?.html || payload?.htmlContent || ''
+        const rawFileName =
+          (typeof payload === 'object' &&
+            (payload?.defaultFilename || payload?.fileName || payload?.filename)) ||
+          legacyFileName ||
+          'Belge.docx'
+        const fileName = rawFileName.endsWith('.docx') ? rawFileName : `${rawFileName}.docx`
 
-      const { canceled, filePath } = await dialog.showSaveDialog({
-        title: 'Word (DOCX) Olarak Kaydet',
-        defaultPath: fileName,
-        filters: [{ name: 'Word Dosyası', extensions: ['docx'] }]
-      })
-      if (canceled || !filePath) return { success: false, error: 'İptal edildi' }
+        const { canceled, filePath } = await dialog.showSaveDialog({
+          title: 'Word (DOCX) Olarak Kaydet',
+          defaultPath: fileName,
+          filters: [{ name: 'Word Dosyası', extensions: ['docx'] }]
+        })
+        if (canceled || !filePath) return { success: false, error: 'İptal edildi' }
 
-      const buffer = await renderDocxBuffer(htmlContent)
-      fs.writeFileSync(filePath, buffer)
+        const buffer = await renderDocxBuffer(htmlContent)
+        fs.writeFileSync(filePath, buffer)
 
-      return { success: true, filePath }
-    } catch (err: any) {
-      return { success: false, error: err.message }
+        return { success: true, filePath }
+      } catch (err: any) {
+        return { success: false, error: err.message }
+      }
     }
-  })
+  )
   ipcMain.handle('app:export-docx', async (e, ...args) => {
     const handler = (ipcMain as any)._events?.['belge:export-docx']
     if (typeof handler === 'function') return handler(e, ...args)
@@ -156,11 +158,10 @@ export function registerDocumentIpcHandlers(): void {
   handleDoc('belge:export-udf', 'export-udf', async (_, payload: any, legacyFileName?: string) => {
     try {
       const htmlContent =
-        typeof payload === 'string'
-          ? payload
-          : payload?.html || payload?.htmlContent || ''
+        typeof payload === 'string' ? payload : payload?.html || payload?.htmlContent || ''
       const rawFileName =
-        (typeof payload === 'object' && (payload?.defaultFilename || payload?.fileName || payload?.filename)) ||
+        (typeof payload === 'object' &&
+          (payload?.defaultFilename || payload?.fileName || payload?.filename)) ||
         legacyFileName ||
         'Belge.udf'
       const fileName = rawFileName.endsWith('.udf') ? rawFileName : `${rawFileName}.udf`
@@ -191,9 +192,7 @@ export function registerDocumentIpcHandlers(): void {
   handleDoc('belge:print-html', 'print-html', async (_, payload: any, legacyOptions?: any) => {
     try {
       const htmlContent =
-        typeof payload === 'string'
-          ? payload
-          : payload?.html || payload?.htmlContent || ''
+        typeof payload === 'string' ? payload : payload?.html || payload?.htmlContent || ''
       const printOptions =
         (typeof payload === 'object' && (payload?.options || payload?.printOptions)) ||
         legacyOptions ||
@@ -245,7 +244,8 @@ export function registerDocumentIpcHandlers(): void {
   // 5. Open PDF External
   handleDoc('belge:open-pdf-external', 'open-pdf-external', async (_, payload: any) => {
     try {
-      const html = typeof payload === 'string' ? payload : (payload?.html || payload?.htmlContent || '')
+      const html =
+        typeof payload === 'string' ? payload : payload?.html || payload?.htmlContent || ''
       const pdfBuffer = await renderPdfBuffer(html)
       const tempPath = join(app.getPath('temp'), `hakim-pro_preview_${Date.now()}.pdf`)
       fs.writeFileSync(tempPath, pdfBuffer)
@@ -257,50 +257,66 @@ export function registerDocumentIpcHandlers(): void {
   })
 
   // 5.1 Save PDF As (and export-pdf)
-  handleDoc('belge:export-pdf', 'export-pdf', async (_, payload: any, legacyOptions?: any, legacyFileName?: string) => {
-    try {
-      const html = typeof payload === 'string' ? payload : (payload?.html || payload?.htmlContent || '')
-      const defaultFilename =
-        (typeof payload === 'object' && (payload?.defaultFilename || payload?.fileName || payload?.filename)) ||
-        legacyFileName ||
-        'Belge.pdf'
+  handleDoc(
+    'belge:export-pdf',
+    'export-pdf',
+    async (_, payload: any, legacyOptions?: any, legacyFileName?: string) => {
+      try {
+        const html =
+          typeof payload === 'string' ? payload : payload?.html || payload?.htmlContent || ''
+        const defaultFilename =
+          (typeof payload === 'object' &&
+            (payload?.defaultFilename || payload?.fileName || payload?.filename)) ||
+          legacyFileName ||
+          'Belge.pdf'
 
-      const { canceled, filePath } = await dialog.showSaveDialog({
-        title: 'PDF Olarak Kaydet',
-        defaultPath: defaultFilename.endsWith('.pdf') ? defaultFilename : `${defaultFilename}.pdf`,
-        filters: [{ name: 'PDF Dosyası', extensions: ['pdf'] }]
-      })
-      if (canceled || !filePath) return { success: false, error: 'İptal edildi' }
+        const { canceled, filePath } = await dialog.showSaveDialog({
+          title: 'PDF Olarak Kaydet',
+          defaultPath: defaultFilename.endsWith('.pdf')
+            ? defaultFilename
+            : `${defaultFilename}.pdf`,
+          filters: [{ name: 'PDF Dosyası', extensions: ['pdf'] }]
+        })
+        if (canceled || !filePath) return { success: false, error: 'İptal edildi' }
 
-      const pdfBuffer = await renderPdfBuffer(html)
-      fs.writeFileSync(filePath, pdfBuffer)
-      return { success: true, filePath }
-    } catch (err: any) {
-      return { success: false, error: err.message }
+        const pdfBuffer = await renderPdfBuffer(html)
+        fs.writeFileSync(filePath, pdfBuffer)
+        return { success: true, filePath }
+      } catch (err: any) {
+        return { success: false, error: err.message }
+      }
     }
-  })
-  handleDoc('app:save-pdf-as', 'save-pdf-as', async (_, payload: any, legacyOptions?: any, legacyFileName?: string) => {
-    try {
-      const html = typeof payload === 'string' ? payload : (payload?.html || payload?.htmlContent || '')
-      const defaultFilename =
-        (typeof payload === 'object' && (payload?.defaultFilename || payload?.fileName || payload?.filename)) ||
-        legacyFileName ||
-        'Belge.pdf'
+  )
+  handleDoc(
+    'app:save-pdf-as',
+    'save-pdf-as',
+    async (_, payload: any, legacyOptions?: any, legacyFileName?: string) => {
+      try {
+        const html =
+          typeof payload === 'string' ? payload : payload?.html || payload?.htmlContent || ''
+        const defaultFilename =
+          (typeof payload === 'object' &&
+            (payload?.defaultFilename || payload?.fileName || payload?.filename)) ||
+          legacyFileName ||
+          'Belge.pdf'
 
-      const { canceled, filePath } = await dialog.showSaveDialog({
-        title: 'PDF Olarak Kaydet',
-        defaultPath: defaultFilename.endsWith('.pdf') ? defaultFilename : `${defaultFilename}.pdf`,
-        filters: [{ name: 'PDF Dosyası', extensions: ['pdf'] }]
-      })
-      if (canceled || !filePath) return { success: false, error: 'İptal edildi' }
+        const { canceled, filePath } = await dialog.showSaveDialog({
+          title: 'PDF Olarak Kaydet',
+          defaultPath: defaultFilename.endsWith('.pdf')
+            ? defaultFilename
+            : `${defaultFilename}.pdf`,
+          filters: [{ name: 'PDF Dosyası', extensions: ['pdf'] }]
+        })
+        if (canceled || !filePath) return { success: false, error: 'İptal edildi' }
 
-      const pdfBuffer = await renderPdfBuffer(html)
-      fs.writeFileSync(filePath, pdfBuffer)
-      return { success: true, filePath }
-    } catch (err: any) {
-      return { success: false, error: err.message }
+        const pdfBuffer = await renderPdfBuffer(html)
+        fs.writeFileSync(filePath, pdfBuffer)
+        return { success: true, filePath }
+      } catch (err: any) {
+        return { success: false, error: err.message }
+      }
     }
-  })
+  )
   ipcMain.handle('app:export-pdf', async (e, ...args) => {
     const handler = (ipcMain as any)._events?.['belge:export-pdf']
     if (typeof handler === 'function') return handler(e, ...args)
@@ -310,7 +326,8 @@ export function registerDocumentIpcHandlers(): void {
   // 5.2 Open PDF Preview in New Tab / Window
   handleDoc('app:open-pdf-preview', 'open-pdf-preview', async (_, payload: any) => {
     try {
-      const html = typeof payload === 'string' ? payload : (payload?.html || payload?.htmlContent || '')
+      const html =
+        typeof payload === 'string' ? payload : payload?.html || payload?.htmlContent || ''
       const pdfBuffer = await renderPdfBuffer(html)
       const tempPath = join(app.getPath('temp'), `temin360_preview_${Date.now()}.pdf`)
       fs.writeFileSync(tempPath, pdfBuffer)
@@ -324,7 +341,12 @@ export function registerDocumentIpcHandlers(): void {
   // 5.3 Batch Export as ZIP (Toplu İndirme Desteği)
   handleDoc('belge:export-zip', 'export-zip', async (_, payload: any, legacyZipName?: string) => {
     try {
-      let items: Array<{ name: string; html?: string; content?: string | Buffer; format?: 'pdf' | 'docx' | 'udf' | 'html' }> = []
+      let items: Array<{
+        name: string
+        html?: string
+        content?: string | Buffer
+        format?: 'pdf' | 'docx' | 'udf' | 'html'
+      }> = []
       let defaultZipName = legacyZipName || 'Toplu_Belgeler.zip'
 
       if (Array.isArray(payload)) {
@@ -354,7 +376,9 @@ export function registerDocumentIpcHandlers(): void {
       for (const item of items) {
         const format = (item.format || 'pdf').toLowerCase()
         const rawName = item.name || 'Belge'
-        const cleanName = rawName.replace(/[/\\:*?"<>|]/g, '_').replace(/\.(pdf|docx|udf|html)$/i, '')
+        const cleanName = rawName
+          .replace(/[/\\:*?"<>|]/g, '_')
+          .replace(/\.(pdf|docx|udf|html)$/i, '')
 
         if (Buffer.isBuffer(item.content)) {
           zip.addFile(`${cleanName}.${format}`, item.content)
@@ -393,20 +417,23 @@ export function registerDocumentIpcHandlers(): void {
   })
 
   // 6. Export HTML
-  handleDoc('belge:export-html', 'export-html', async (_, htmlContent: string, options?: { paperSize?: string }, fileName?: string) => {
-    try {
-      const paperSize = options?.paperSize || 'A4'
-      const isA4 = paperSize === 'A4'
-      const width = isA4 ? '210mm' : 'auto'
+  handleDoc(
+    'belge:export-html',
+    'export-html',
+    async (_, htmlContent: string, options?: { paperSize?: string }, fileName?: string) => {
+      try {
+        const paperSize = options?.paperSize || 'A4'
+        const isA4 = paperSize === 'A4'
+        const width = isA4 ? '210mm' : 'auto'
 
-      const { canceled, filePath } = await dialog.showSaveDialog({
-        title: 'HTML Olarak Kaydet',
-        defaultPath: fileName ? `${fileName}.html` : 'Cikti.html',
-        filters: [{ name: 'HTML Dosyası', extensions: ['html'] }]
-      })
-      if (canceled || !filePath) return { success: false, error: 'İptal edildi' }
+        const { canceled, filePath } = await dialog.showSaveDialog({
+          title: 'HTML Olarak Kaydet',
+          defaultPath: fileName ? `${fileName}.html` : 'Cikti.html',
+          filters: [{ name: 'HTML Dosyası', extensions: ['html'] }]
+        })
+        if (canceled || !filePath) return { success: false, error: 'İptal edildi' }
 
-      const fullHtml = `<!DOCTYPE html>
+        const fullHtml = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
@@ -443,12 +470,13 @@ export function registerDocumentIpcHandlers(): void {
 </body>
 </html>`
 
-      fs.writeFileSync(filePath, fullHtml, 'utf8')
-      return { success: true, filePath }
-    } catch (err: any) {
-      return { success: false, error: err.message }
+        fs.writeFileSync(filePath, fullHtml, 'utf8')
+        return { success: true, filePath }
+      } catch (err: any) {
+        return { success: false, error: err.message }
+      }
     }
-  })
+  )
 
   // 7. XLSX Export
   handleDoc('belge:export-xlsx', 'export-xlsx', async (_, bufferData: Uint8Array | ArrayBuffer) => {
@@ -523,36 +551,46 @@ export function registerDocumentIpcHandlers(): void {
   })
 
   // 11. Complete Document & Stage Data Resolver (Direct Fast Electron SQLite Query)
-  handleDoc('belge:get-document-payload', 'get-document-payload', async (_, payload: { dosyaId?: number; documentId?: string }) => {
-    try {
-      const { workspaceManager } = require('../database/workspace')
-      const db = workspaceManager.getDb()
-      const dosyaId = Number(payload?.dosyaId || 0)
-      const documentId = payload?.documentId || ''
-
-      // 1. Fetch active personnel list
-      const personelListesi = db.prepare(
-        'SELECT id, ad_soyad, unvan, telefon, eposta, birim, sicil_no FROM TANIM_Personel WHERE COALESCE(aktif_mi, 1) = 1 OR aktif_mi = "1" OR aktif_mi = "true" OR aktif_mi IS NULL ORDER BY ad_soyad ASC'
-      ).all()
-
-      // 2. Fetch institution and app settings
-      const kurum = db.prepare('SELECT * FROM TANIM_Kurum LIMIT 1').get() || {}
-      let settingsMap: Record<string, string> = {}
+  handleDoc(
+    'belge:get-document-payload',
+    'get-document-payload',
+    async (_, payload: { dosyaId?: number; documentId?: string }) => {
       try {
-        const settingsRows = db.prepare('SELECT key, value FROM settings').all()
-        settingsRows.forEach((r: any) => {
-          if (r.key) settingsMap[r.key] = r.value
-        })
-      } catch {}
+        const { workspaceManager } = require('../database/workspace')
+        const db = workspaceManager.getDb()
+        const dosyaId = Number(payload?.dosyaId || 0)
+        const documentId = payload?.documentId || ''
 
-      const solLogo = (kurum as any)?.logo_sol || (kurum as any)?.logo_url || settingsMap.logoLeft || settingsMap.institutionLogo || null
-      const sagLogo = (kurum as any)?.logo_sag || settingsMap.logoRight || null
+        // 1. Fetch active personnel list
+        const personelListesi = db
+          .prepare(
+            'SELECT id, ad_soyad, unvan, telefon, eposta, birim, sicil_no FROM TANIM_Personel WHERE COALESCE(aktif_mi, 1) = 1 OR aktif_mi = "1" OR aktif_mi = "true" OR aktif_mi IS NULL ORDER BY ad_soyad ASC'
+          )
+          .all()
 
-      // 3. Fetch file details with Purchasing Unit (TANIM_Birim) antet data
-      const dosya = dosyaId
-        ? db
-            .prepare(
-              `SELECT d.*, 
+        // 2. Fetch institution and app settings
+        const kurum = db.prepare('SELECT * FROM TANIM_Kurum LIMIT 1').get() || {}
+        let settingsMap: Record<string, string> = {}
+        try {
+          const settingsRows = db.prepare('SELECT key, value FROM settings').all()
+          settingsRows.forEach((r: any) => {
+            if (r.key) settingsMap[r.key] = r.value
+          })
+        } catch {}
+
+        const solLogo =
+          (kurum as any)?.logo_sol ||
+          (kurum as any)?.logo_url ||
+          settingsMap.logoLeft ||
+          settingsMap.institutionLogo ||
+          null
+        const sagLogo = (kurum as any)?.logo_sag || settingsMap.logoRight || null
+
+        // 3. Fetch file details with Purchasing Unit (TANIM_Birim) antet data
+        const dosya = dosyaId
+          ? db
+              .prepare(
+                `SELECT d.*, 
                       b.antet_ek_satir as birim_antet_ek_satir, 
                       b.birim_adi as birim_tablo_adi,
                       b.harcama_kodu as harcama_birim_kodu,
@@ -561,17 +599,25 @@ export function registerDocumentIpcHandlers(): void {
                FROM DATA_TeminDosyasi d 
                LEFT JOIN TANIM_Birim b ON d.birim_id = b.id 
                WHERE d.id = ?`
-            )
-            .get(dosyaId) || {}
-        : {}
+              )
+              .get(dosyaId) || {}
+          : {}
 
-      // 4. Fetch items
-      const items = dosyaId ? db.prepare('SELECT id, kalem_adi, aciklama, birim, miktar, tasinir_kodu, kdv_orani FROM DATA_TeminKalem WHERE temin_dosya_id = ? ORDER BY id ASC').all(dosyaId) : []
+        // 4. Fetch items
+        const items = dosyaId
+          ? db
+              .prepare(
+                'SELECT id, kalem_adi, aciklama, birim, miktar, tasinir_kodu, kdv_orani FROM DATA_TeminKalem WHERE temin_dosya_id = ? ORDER BY id ASC'
+              )
+              .all(dosyaId)
+          : []
 
-      // 5. Fetch invited firms
-      let fileFirms: any[] = []
-      if (dosyaId) {
-        fileFirms = db.prepare(`
+        // 5. Fetch invited firms
+        let fileFirms: any[] = []
+        if (dosyaId) {
+          fileFirms = db
+            .prepare(
+              `
           SELECT 
             df.id as temin_firma_id,
             COALESCE(f.id, df.firma_id, df.id) as id,
@@ -583,21 +629,32 @@ export function registerDocumentIpcHandlers(): void {
           LEFT JOIN TANIM_Firma f ON df.firma_id = f.id
           WHERE df.temin_dosya_id = ?
           ORDER BY df.id ASC
-        `).all(dosyaId)
-      }
+        `
+            )
+            .all(dosyaId)
+        }
 
-      // 6. Fetch global firms for fallback/selection
-      const globalFirms = db.prepare(
-        "SELECT id, unvan, ilgili_adi as yetkili_ad_soyad, telefon, email as eposta FROM TANIM_Firma WHERE aktif_mi = 1 AND unvan IS NOT NULL AND unvan != '' ORDER BY unvan ASC"
-      ).all()
+        // 6. Fetch global firms for fallback/selection
+        const globalFirms = db
+          .prepare(
+            "SELECT id, unvan, ilgili_adi as yetkili_ad_soyad, telefon, email as eposta FROM TANIM_Firma WHERE aktif_mi = 1 AND unvan IS NOT NULL AND unvan != '' ORDER BY unvan ASC"
+          )
+          .all()
 
-      // 7. Fetch bids
-      const bids = dosyaId ? db.prepare(
-        'SELECT temin_kalem_id, temin_firma_id, birim_fiyat FROM DATA_TeminKalemTeklif WHERE temin_dosya_id = ?'
-      ).all(dosyaId) : []
+        // 7. Fetch bids
+        const bids = dosyaId
+          ? db
+              .prepare(
+                'SELECT temin_kalem_id, temin_firma_id, birim_fiyat FROM DATA_TeminKalemTeklif WHERE temin_dosya_id = ?'
+              )
+              .all(dosyaId)
+          : []
 
-      // 8. Fetch commissions
-      let komisyonlar = dosyaId ? db.prepare(`
+        // 8. Fetch commissions
+        let komisyonlar = dosyaId
+          ? db
+              .prepare(
+                `
         SELECT tk.*, 
                COALESCE(NULLIF(tk.ad_soyad, ''), NULLIF(p.ad_soyad, ''), '') as resolved_ad_soyad,
                COALESCE(NULLIF(tk.unvan, ''), NULLIF(p.unvan, ''), '') as resolved_unvan,
@@ -606,12 +663,17 @@ export function registerDocumentIpcHandlers(): void {
         LEFT JOIN TANIM_Personel p ON tk.personel_id = p.id
         LEFT JOIN TANIM_Komisyon k ON tk.komisyon_id = k.id
         WHERE tk.temin_dosya_id = ?
-      `).all(dosyaId) : []
+      `
+              )
+              .all(dosyaId)
+          : []
 
-      // Otomatik Fallback: Eğer dosyaya özel komisyon onaylanmamışsa, genel Komisyon Ayarlarından (TANIM_Komisyon) aktif üyeleri getir
-      if (!komisyonlar || komisyonlar.length === 0) {
-        try {
-          komisyonlar = db.prepare(`
+        // Otomatik Fallback: Eğer dosyaya özel komisyon onaylanmamışsa, genel Komisyon Ayarlarından (TANIM_Komisyon) aktif üyeleri getir
+        if (!komisyonlar || komisyonlar.length === 0) {
+          try {
+            komisyonlar = db
+              .prepare(
+                `
             SELECT u.*, 
                    COALESCE(NULLIF(p.ad_soyad, ''), '') as resolved_ad_soyad,
                    COALESCE(NULLIF(p.unvan, ''), '') as resolved_unvan,
@@ -622,18 +684,24 @@ export function registerDocumentIpcHandlers(): void {
             LEFT JOIN TANIM_Personel p ON u.personel_id = p.id
             LEFT JOIN TANIM_KomisyonGorevi g ON u.gorev_id = g.id
             WHERE (k.aktif_mi = 1 OR k.aktif_mi IS NULL)
-          `).all()
-        } catch (komErr) {
-          console.error('[Document IPC] TANIM_Komisyon fallback error:', komErr)
+          `
+              )
+              .all()
+          } catch (komErr) {
+            console.error('[Document IPC] TANIM_Komisyon fallback error:', komErr)
+          }
         }
-      }
 
-      // 9. Fetch saved snapshot if exists
-      let savedSnapshot: any = null
-      if (dosyaId && documentId) {
-        const cleanDocId = String(documentId).replace(/\.html$/i, '').trim()
-        try {
-          const snapRow = db.prepare(`
+        // 9. Fetch saved snapshot if exists
+        let savedSnapshot: any = null
+        if (dosyaId && documentId) {
+          const cleanDocId = String(documentId)
+            .replace(/\.html$/i, '')
+            .trim()
+          try {
+            const snapRow = db
+              .prepare(
+                `
             SELECT veri_json FROM DATA_DosyaSablonVeri 
             WHERE temin_dosya_id = ? AND (
               sablon_kodu = ? 
@@ -641,538 +709,669 @@ export function registerDocumentIpcHandlers(): void {
               OR sablon_id = (SELECT id FROM TANIM_Sablon WHERE dosya_adi = ? OR dosya_adi = ? LIMIT 1)
             )
             ORDER BY id DESC LIMIT 1
-          `).get(dosyaId, cleanDocId, `${cleanDocId}.html`, `${cleanDocId}.html`, cleanDocId) as any
-          if (snapRow?.veri_json) {
-            savedSnapshot = JSON.parse(snapRow.veri_json)
+          `
+              )
+              .get(
+                dosyaId,
+                cleanDocId,
+                `${cleanDocId}.html`,
+                `${cleanDocId}.html`,
+                cleanDocId
+              ) as any
+            if (snapRow?.veri_json) {
+              savedSnapshot = JSON.parse(snapRow.veri_json)
+            }
+          } catch (err) {
+            console.error('[Document IPC] savedSnapshot fetch error:', err)
           }
-        } catch (err) {
-          console.error('[Document IPC] savedSnapshot fetch error:', err)
         }
-      }
 
-      // Calculate firm totals & winner
-      fileFirms.forEach((firm: any) => {
-        let total = 0
-        items.forEach((item: any) => {
-          const bid = bids.find(
-            (b: any) =>
-              b.temin_kalem_id === item.id &&
-              (b.temin_firma_id === firm.temin_firma_id || b.temin_firma_id === firm.id)
-          )
-          if (bid && bid.birim_fiyat > 0) {
-            total += bid.birim_fiyat * (item.miktar || 0)
-          }
+        // Calculate firm totals & winner
+        fileFirms.forEach((firm: any) => {
+          let total = 0
+          items.forEach((item: any) => {
+            const bid = bids.find(
+              (b: any) =>
+                b.temin_kalem_id === item.id &&
+                (b.temin_firma_id === firm.temin_firma_id || b.temin_firma_id === firm.id)
+            )
+            if (bid && bid.birim_fiyat > 0) {
+              total += bid.birim_fiyat * (item.miktar || 0)
+            }
+          })
+          firm.total = total
         })
-        firm.total = total
-      })
 
-      const nonZeroTotals = fileFirms.filter((f) => f.total > 0)
-      const lowestTotal = nonZeroTotals.length > 0 ? Math.min(...nonZeroTotals.map((f) => f.total)) : 0
+        const nonZeroTotals = fileFirms.filter((f) => f.total > 0)
+        const lowestTotal =
+          nonZeroTotals.length > 0 ? Math.min(...nonZeroTotals.map((f) => f.total)) : 0
 
-      fileFirms.forEach((f) => {
-        if (f.total > 0 && f.total === lowestTotal) {
-          f.isWinner = true
-          const formattedTotal = f.total.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-          f.label = `🏆 ${f.unvan} (${formattedTotal} TL - En Düşük Teklif)`
-        } else if (f.total > 0) {
-          const formattedTotal = f.total.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-          f.label = `🏢 ${f.unvan} (${formattedTotal} TL)`
-        } else {
-          f.label = `🏢 ${f.unvan}`
-        }
-      })
-
-      const winnerFirmaId = (dosya as any)?.firma_id
-      if (winnerFirmaId) {
         fileFirms.forEach((f) => {
-          if (f.id === winnerFirmaId || f.temin_firma_id === winnerFirmaId || f.firma_id === winnerFirmaId) {
+          if (f.total > 0 && f.total === lowestTotal) {
             f.isWinner = true
-            const formattedTotal = f.total > 0 ? f.total.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''
-            f.label = formattedTotal ? `🏆 ${f.unvan} (${formattedTotal} TL - Kazanan Firma)` : `🏆 ${f.unvan} (Kazanan Firma)`
-          } else {
-            f.isWinner = false
-          }
-        })
-      }
-
-      fileFirms.sort((a, b) => (b.isWinner ? 1 : 0) - (a.isWinner ? 1 : 0))
-
-      const combinedFirms = [...fileFirms]
-      globalFirms.forEach((g: any) => {
-        if (
-          g.unvan &&
-          !combinedFirms.some(
-            (f: any) => f.unvan && String(f.unvan).trim().toLowerCase() === String(g.unvan).trim().toLowerCase()
-          )
-        ) {
-          combinedFirms.push(g)
-        }
-      })
-
-      // Complete Node.js Server-side Document Context Pre-computation
-      const winnerFirm = fileFirms.find((f: any) => f.isWinner) || fileFirms[0] || combinedFirms[0] || {}
-
-      const ihtiyacKalemleri = items.map((kalem: any, idx: number) => {
-        const miktarNum = Number(kalem.miktar || 0)
-        let minPrice = Infinity
-        let bestFirmName = ''
-
-        const teklifler = fileFirms.map((firm: any) => {
-          const bid = bids.find(
-            (b: any) =>
-              b.temin_kalem_id === kalem.id &&
-              (b.temin_firma_id === firm.temin_firma_id || b.temin_firma_id === firm.id)
-          )
-          const priceNum = bid ? Number(bid.birim_fiyat || 0) : 0
-          if (priceNum > 0 && priceNum < minPrice) {
-            minPrice = priceNum
-            bestFirmName = firm.unvan || ''
-          }
-          const formattedPrice =
-            priceNum > 0
-              ? priceNum.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-              : ''
-          const itemTotalNum = priceNum * miktarNum
-          const formattedTutar =
-            itemTotalNum > 0
-              ? itemTotalNum.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-              : ''
-
-          return {
-            firmaId: firm.id,
-            firmaUnvan: firm.unvan,
-            birimFiyat: priceNum,
-            fiyat: formattedPrice,
-            tutar: formattedTutar
-          }
-        })
-
-        const validMinPrice = minPrice !== Infinity ? minPrice : 0
-        const itemCostNum = validMinPrice * miktarNum
-
-        return {
-          ...kalem,
-          siraNo: idx + 1,
-          malzemeAdi: kalem.kalem_adi || '',
-          ozelligi: kalem.aciklama || '',
-          birimi: kalem.birim || '',
-          miktar: miktarNum,
-          enUygunFirmaAdi: bestFirmName,
-          enDusukFiyat:
-            validMinPrice > 0
-              ? validMinPrice.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-              : '-',
-          toplamBedel:
-            itemCostNum > 0
-              ? itemCostNum.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-              : '-',
-          firmaTeklifleri: teklifler,
-          firmaTeklifleriDetay: teklifler
-        }
-      })
-
-      const firmaTotals = fileFirms.map((firm: any) => ({
-        firmaId: firm.id,
-        unvan: firm.unvan,
-        toplam:
-          firm.total > 0
-            ? firm.total.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-            : '0,00'
-      }))
-
-      let grandTotalNum = 0
-      if (winnerFirm && winnerFirm.total > 0) {
-        grandTotalNum = winnerFirm.total
-      } else {
-        grandTotalNum = ihtiyacKalemleri.reduce((sum: number, k: any) => {
-          const raw = String(k.toplamBedel).replace(/\./g, '').replace(/,/g, '.')
-          const n = parseFloat(raw)
-          return sum + (isNaN(n) ? 0 : n)
-        }, 0)
-      }
-
-      const formattedGrandTotal =
-        grandTotalNum > 0
-          ? grandTotalNum.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-          : '0,00'
-
-      let antetSatirlari: string[] = []
-      if ((kurum as any)?.kurum_anteti) {
-        try {
-          const parsed = JSON.parse((kurum as any).kurum_anteti)
-          if (Array.isArray(parsed)) {
-            antetSatirlari = parsed.filter((s: string) => s && s.trim() !== '')
-          }
-        } catch {
-          if (typeof (kurum as any).kurum_anteti === 'string' && (kurum as any).kurum_anteti.trim()) {
-            antetSatirlari = (kurum as any).kurum_anteti.split('\n').map((s: string) => s.trim()).filter(Boolean)
-          }
-        }
-      }
-      if (antetSatirlari.length === 0) {
-        const kurumAdiText = (kurum as any)?.ust_kurum_adi || (kurum as any)?.kurum_adi || (kurum as any)?.ad || settingsMap.institutionName || 'KAMU KURUMU'
-        antetSatirlari = ['T.C.', String(kurumAdiText).toUpperCase()]
-      }
-
-      const birimAntet = (
-        (dosya as any)?.antet_ek_satir ||
-        (dosya as any)?.birim_antet_ek_satir ||
-        (dosya as any)?.birim_tablo_adi ||
-        (dosya as any)?.birim_adi ||
-        (dosya as any)?.harcama_birimi ||
-        settingsMap.spendingUnit ||
-        ''
-      ).trim()
-
-      if (
-        birimAntet &&
-        !antetSatirlari.some((s: string) => s.trim().toUpperCase() === birimAntet.toUpperCase())
-      ) {
-        antetSatirlari.push(birimAntet)
-      }
-
-      const kurumAdi = (kurum as any)?.kurum_adi || (kurum as any)?.ad || settingsMap.institutionName || 'T.C. KAMU KURUMU'
-      const harcamaBirimi =
-        birimAntet || (dosya as any)?.harcama_birimi || settingsMap.spendingUnit || (dosya as any)?.konu || 'HARCAMA BİRİMİ'
-
-      const hazirlayanPersonel = (personelListesi as any[]).find(
-        (p: any) => p.id === (dosya as any)?.hazirlayan_personel_id
-      )
-      const talepEdenPersonel = (personelListesi as any[]).find(
-        (p: any) => p.id === (dosya as any)?.talep_eden_personel_id
-      )
-      const onaylayanPersonel = (personelListesi as any[]).find(
-        (p: any) => p.id === (dosya as any)?.onay_personel_id
-      )
-
-      const getIpcKurumBizimText = (k: any): string => {
-        if (k?.alt_kurum_bizim && String(k.alt_kurum_bizim).trim()) return String(k.alt_kurum_bizim).trim()
-        if (k?.alt_kurum_tipi) {
-          const map: Record<string, string> = {
-            belediye: 'Belediyemiz',
-            mudurluk: 'Müdürlüğümüz',
-            bakanlik: 'Bakanlığımız',
-            valilik: 'Valiliğimiz',
-            kaymakamlik: 'Kaymakamlığımız',
-            universite: 'Üniversitemiz',
-            il_ozel: 'İl Özel İdaremiz',
-            koy: 'Muhtarlığımız',
-            sgk: 'Müdürlüğümüz',
-            kurul: 'Kurulumuz',
-            diger: 'Kurumumuz'
-          }
-          if (map[k.alt_kurum_tipi]) return map[k.alt_kurum_tipi]
-        }
-        if (k?.kurum_tipi === 'belediye') return 'Belediyemiz'
-        if (k?.kurum_tipi === 'ozel_butce') return 'Üniversitemiz'
-        if (k?.kurum_tipi === 'duzenleyici') return 'Kurulumuz'
-        if (k?.kurum_tipi === 'genel_butce') return 'Müdürlüğümüz'
-        return 'Kurumumuz'
-      }
-
-      const getIpcKurumIhtiyacYeri = (k: any): string => {
-        if (k?.alt_kurum_bizim && String(k.alt_kurum_bizim).trim()) {
-          const str = String(k.alt_kurum_bizim).trim()
-          const lower = str.toLowerCase()
-          if (lower.endsWith('n') || lower.endsWith('in') || lower.endsWith('ın') || lower.endsWith('un') || lower.endsWith('ün')) return str
-          if (lower.endsWith('miz') || lower.endsWith('müz')) return `${str}in`
-          if (lower.endsWith('mız') || lower.endsWith('muz')) return `${str}ın`
-          if (lower.endsWith('si') || lower.endsWith('su') || lower.endsWith('sü') || lower.endsWith('sı')) return `${str}nin`
-          if (lower.endsWith('i') || lower.endsWith('ü')) return `${str}nin`
-          if (lower.endsWith('ı') || lower.endsWith('u')) return `${str}nun`
-          return `${str}in`
-        }
-        if (k?.alt_kurum_tipi) {
-          const map: Record<string, string> = {
-            belediye: 'Belediyemizin',
-            mudurluk: 'Müdürlüğümüzün',
-            bakanlik: 'Bakanlığımızın',
-            valilik: 'Valiliğimizin',
-            kaymakamlik: 'Kaymakamlığımızın',
-            universite: 'Üniversitemizin',
-            il_ozel: 'İl Özel İdaremizin',
-            koy: 'Muhtarlığımızın',
-            sgk: 'Müdürlüğümüzün',
-            kurul: 'Kurulumuzun',
-            diger: 'Kurumumuzun'
-          }
-          if (map[k.alt_kurum_tipi]) return map[k.alt_kurum_tipi]
-        }
-        if (k?.kurum_tipi === 'belediye') return 'Belediyemizin'
-        if (k?.kurum_tipi === 'ozel_butce') return 'Üniversitemizin'
-        if (k?.kurum_tipi === 'duzenleyici') return 'Kurulumuzun'
-        if (k?.kurum_tipi === 'genel_butce') return 'Müdürlüğümüzün'
-        return 'Kurumumuzun'
-      }
-
-      const ipcKurumBizim = getIpcKurumBizimText(kurum)
-      const ipcIhtiyacYeri = (dosya as any)?.ihtiyac_yeri || (dosya as any)?.ihtiyac_yeri_eki || getIpcKurumIhtiyacYeri(kurum)
-
-      const resolvedContext = {
-        kurumAdi,
-        harcamaBirimi,
-        kurumumuz: ipcKurumBizim,
-        altKurumBizim: ipcKurumBizim,
-        ihtiyacYeri: ipcIhtiyacYeri,
-        birimAdi: birimAntet,
-        birimAnteti: birimAntet,
-        antetEkSatir: birimAntet,
-        antetSatirlari,
-        hazirlayanPersonelAdi: hazirlayanPersonel?.ad_soyad || '',
-        hazirlayanPersonelUnvan: hazirlayanPersonel?.unvan || '',
-        hazirlayanTelefon: hazirlayanPersonel?.telefon || '',
-        talepEdenPersonelAdi: talepEdenPersonel?.ad_soyad || '',
-        talepEdenPersonelUnvan: talepEdenPersonel?.unvan || '',
-        talepEdenTelefon: talepEdenPersonel?.telefon || '',
-        onaylayanPersonelAdi: onaylayanPersonel?.ad_soyad || '',
-        onaylayanPersonelUnvan: onaylayanPersonel?.unvan || '',
-        antetSatir1: antetSatirlari[0] || '',
-        antetSatir2: antetSatirlari[1] || '',
-        antetSatir3: antetSatirlari[2] || '',
-        antetSatir4: antetSatirlari[3] || '',
-        solLogo,
-        sagLogo,
-        dosyaNo: (dosya as any)?.temin_no || '',
-        konu: (dosya as any)?.konu || '',
-        isinAdi: (dosya as any)?.konu || '',
-        isinTanimi: (dosya as any)?.isin_aciklamasi || (dosya as any)?.konu || '',
-        yaklasikMaliyet: (dosya as any)?.yaklasik_maliyet
-          ? Number((dosya as any).yaklasik_maliyet).toLocaleString('tr-TR', {
+            const formattedTotal = f.total.toLocaleString('tr-TR', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2
             })
-          : formattedGrandTotal,
-        genelToplam: formattedGrandTotal,
-        yukleniciFirma: winnerFirm.unvan || '',
-        yukleniciYetkili: winnerFirm.yetkili_ad_soyad || '',
-        yukleniciAdresi: winnerFirm.adres || '',
-        yukleniciIlce: winnerFirm.ilce || '',
-        yukleniciIl: winnerFirm.il || '',
-        teslimGun: (dosya as any)?.teslim_gun !== undefined && (dosya as any)?.teslim_gun !== null && String((dosya as any).teslim_gun).trim() !== '' ? String((dosya as any).teslim_gun) : '7',
-        teslimGunu: (dosya as any)?.teslim_gun !== undefined && (dosya as any)?.teslim_gun !== null && String((dosya as any).teslim_gun).trim() !== '' ? String((dosya as any).teslim_gun) : '7',
-        teslimTarihi: (dosya as any)?.teslim_tarihi || '',
-        dosyaAcilisTarihi: (() => {
-          const raw = (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at
-          if (!raw) return ''
-          const clean = String(raw).trim()
-          if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
-            const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
-            return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
+            f.label = `🏆 ${f.unvan} (${formattedTotal} TL - En Düşük Teklif)`
+          } else if (f.total > 0) {
+            const formattedTotal = f.total.toLocaleString('tr-TR', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            })
+            f.label = `🏢 ${f.unvan} (${formattedTotal} TL)`
+          } else {
+            f.label = `🏢 ${f.unvan}`
           }
-          return clean.substring(0, 10)
-        })(),
-        acilisTarihi: (() => {
-          const raw = (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at
-          if (!raw) return ''
-          const clean = String(raw).trim()
-          if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
-            const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
-            return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
-          }
-          return clean.substring(0, 10)
-        })(),
-        dosyaTarihi: (() => {
-          const raw = (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at
-          if (!raw) return ''
-          const clean = String(raw).trim()
-          if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
-            const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
-            return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
-          }
-          return clean.substring(0, 10)
-        })(),
-        onayaSunulanTarih: (() => {
-          const raw = (dosya as any)?.temin_tarihi || (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at
-          if (!raw) return ''
-          const clean = String(raw).trim()
-          if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
-            const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
-            return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
-          }
-          return clean.substring(0, 10)
-        })(),
-        onayTarihi: (() => {
-          const raw = (dosya as any)?.onay_tarihi || (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih
-          if (!raw) return ''
-          const clean = String(raw).trim()
-          if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
-            const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
-            return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
-          }
-          return clean.substring(0, 10)
-        })(),
-        tarih: (() => {
-          const raw = (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at
-          if (!raw) return ''
-          const clean = String(raw).trim()
-          if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
-            const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
-            return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
-          }
-          return clean.substring(0, 10)
-        })(),
-        evrakSayisi: (dosya as any)?.evrak_sayisi || (dosya as any)?.temin_no || '',
-        ihtiyacKalemleri,
-        firmaListesi: combinedFirms,
-        firmalar: fileFirms,
-        firmaToplamlari: firmaTotals,
-        firmaToplamlariDetay: firmaTotals,
-        komisyon: (() => {
-          const mapped = komisyonlar.map((k: any) => ({
-            adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
-            unvan: k.resolved_unvan || k.unvan || '',
-            gorevi: k.gorev || k.gorevi || 'Üye',
-            pozisyonu: k.resolved_unvan || k.unvan || ''
-          }))
-          const seen = new Set<string>()
-          return mapped.filter((item: any) => {
-            const name = (item.adSoyad || '').trim().toLowerCase()
-            if (!name || seen.has(name)) return false
-            seen.add(name)
-            return true
-          })
-        })(),
-        fiyatKomisyonu: (() => {
-          const filtered = (komisyonlar.filter((k: any) => {
-            const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
-            return !kt || kt.includes('fiyat') || kt.includes('piyasa') || kt.includes('araştırma') || kt.includes('arastirma')
-          }).length > 0
-            ? komisyonlar.filter((k: any) => {
-                const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
-                return !kt || kt.includes('fiyat') || kt.includes('piyasa') || kt.includes('araştırma') || kt.includes('arastirma')
-              })
-            : komisyonlar
-          ).map((k: any) => ({
-            adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
-            unvan: k.resolved_unvan || k.unvan || '',
-            gorevi: k.gorev || k.gorevi || 'Üye',
-            pozisyonu: k.resolved_unvan || k.unvan || ''
-          }))
-          const seen = new Set<string>()
-          return filtered.filter((item: any) => {
-            const name = (item.adSoyad || '').trim().toLowerCase()
-            if (!name || seen.has(name)) return false
-            seen.add(name)
-            return true
-          })
-        })(),
-        muayeneKomisyonu: (() => {
-          const filtered = (komisyonlar.filter((k: any) => {
-            const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
-            return kt.includes('muayene') || kt.includes('kabul')
-          }).length > 0
-            ? komisyonlar.filter((k: any) => {
-                const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
-                return kt.includes('muayene') || kt.includes('kabul')
-              })
-            : komisyonlar
-          ).map((k: any) => ({
-            adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
-            unvan: k.resolved_unvan || k.unvan || '',
-            gorevi: k.gorev || k.gorevi || 'Üye',
-            pozisyonu: k.resolved_unvan || k.unvan || ''
-          }))
-          const seen = new Set<string>()
-          return filtered.filter((item: any) => {
-            const name = (item.adSoyad || '').trim().toLowerCase()
-            if (!name || seen.has(name)) return false
-            seen.add(name)
-            return true
-          })
-        })()
-      }
+        })
 
-      return {
-        success: true,
-        data: {
-          dosya,
-          kurum,
+        const winnerFirmaId = (dosya as any)?.firma_id
+        if (winnerFirmaId) {
+          fileFirms.forEach((f) => {
+            if (
+              f.id === winnerFirmaId ||
+              f.temin_firma_id === winnerFirmaId ||
+              f.firma_id === winnerFirmaId
+            ) {
+              f.isWinner = true
+              const formattedTotal =
+                f.total > 0
+                  ? f.total.toLocaleString('tr-TR', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    })
+                  : ''
+              f.label = formattedTotal
+                ? `🏆 ${f.unvan} (${formattedTotal} TL - Kazanan Firma)`
+                : `🏆 ${f.unvan} (Kazanan Firma)`
+            } else {
+              f.isWinner = false
+            }
+          })
+        }
+
+        fileFirms.sort((a, b) => (b.isWinner ? 1 : 0) - (a.isWinner ? 1 : 0))
+
+        const combinedFirms = [...fileFirms]
+        globalFirms.forEach((g: any) => {
+          if (
+            g.unvan &&
+            !combinedFirms.some(
+              (f: any) =>
+                f.unvan &&
+                String(f.unvan).trim().toLowerCase() === String(g.unvan).trim().toLowerCase()
+            )
+          ) {
+            combinedFirms.push(g)
+          }
+        })
+
+        // Complete Node.js Server-side Document Context Pre-computation
+        const winnerFirm =
+          fileFirms.find((f: any) => f.isWinner) || fileFirms[0] || combinedFirms[0] || {}
+
+        const ihtiyacKalemleri = items.map((kalem: any, idx: number) => {
+          const miktarNum = Number(kalem.miktar || 0)
+          let minPrice = Infinity
+          let bestFirmName = ''
+
+          const teklifler = fileFirms.map((firm: any) => {
+            const bid = bids.find(
+              (b: any) =>
+                b.temin_kalem_id === kalem.id &&
+                (b.temin_firma_id === firm.temin_firma_id || b.temin_firma_id === firm.id)
+            )
+            const priceNum = bid ? Number(bid.birim_fiyat || 0) : 0
+            if (priceNum > 0 && priceNum < minPrice) {
+              minPrice = priceNum
+              bestFirmName = firm.unvan || ''
+            }
+            const formattedPrice =
+              priceNum > 0
+                ? priceNum.toLocaleString('tr-TR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })
+                : ''
+            const itemTotalNum = priceNum * miktarNum
+            const formattedTutar =
+              itemTotalNum > 0
+                ? itemTotalNum.toLocaleString('tr-TR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })
+                : ''
+
+            return {
+              firmaId: firm.id,
+              firmaUnvan: firm.unvan,
+              birimFiyat: priceNum,
+              fiyat: formattedPrice,
+              tutar: formattedTutar
+            }
+          })
+
+          const validMinPrice = minPrice !== Infinity ? minPrice : 0
+          const itemCostNum = validMinPrice * miktarNum
+
+          return {
+            ...kalem,
+            siraNo: idx + 1,
+            malzemeAdi: kalem.kalem_adi || '',
+            ozelligi: kalem.aciklama || '',
+            birimi: kalem.birim || '',
+            miktar: miktarNum,
+            enUygunFirmaAdi: bestFirmName,
+            enDusukFiyat:
+              validMinPrice > 0
+                ? validMinPrice.toLocaleString('tr-TR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })
+                : '-',
+            toplamBedel:
+              itemCostNum > 0
+                ? itemCostNum.toLocaleString('tr-TR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })
+                : '-',
+            firmaTeklifleri: teklifler,
+            firmaTeklifleriDetay: teklifler
+          }
+        })
+
+        const firmaTotals = fileFirms.map((firm: any) => ({
+          firmaId: firm.id,
+          unvan: firm.unvan,
+          toplam:
+            firm.total > 0
+              ? firm.total.toLocaleString('tr-TR', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })
+              : '0,00'
+        }))
+
+        let grandTotalNum = 0
+        if (winnerFirm && winnerFirm.total > 0) {
+          grandTotalNum = winnerFirm.total
+        } else {
+          grandTotalNum = ihtiyacKalemleri.reduce((sum: number, k: any) => {
+            const raw = String(k.toplamBedel).replace(/\./g, '').replace(/,/g, '.')
+            const n = parseFloat(raw)
+            return sum + (isNaN(n) ? 0 : n)
+          }, 0)
+        }
+
+        const formattedGrandTotal =
+          grandTotalNum > 0
+            ? grandTotalNum.toLocaleString('tr-TR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })
+            : '0,00'
+
+        let antetSatirlari: string[] = []
+        if ((kurum as any)?.kurum_anteti) {
+          try {
+            const parsed = JSON.parse((kurum as any).kurum_anteti)
+            if (Array.isArray(parsed)) {
+              antetSatirlari = parsed.filter((s: string) => s && s.trim() !== '')
+            }
+          } catch {
+            if (
+              typeof (kurum as any).kurum_anteti === 'string' &&
+              (kurum as any).kurum_anteti.trim()
+            ) {
+              antetSatirlari = (kurum as any).kurum_anteti
+                .split('\n')
+                .map((s: string) => s.trim())
+                .filter(Boolean)
+            }
+          }
+        }
+        if (antetSatirlari.length === 0) {
+          const kurumAdiText =
+            (kurum as any)?.ust_kurum_adi ||
+            (kurum as any)?.kurum_adi ||
+            (kurum as any)?.ad ||
+            settingsMap.institutionName ||
+            'KAMU KURUMU'
+          antetSatirlari = ['T.C.', String(kurumAdiText).toUpperCase()]
+        }
+
+        const birimAntet = (
+          (dosya as any)?.antet_ek_satir ||
+          (dosya as any)?.birim_antet_ek_satir ||
+          (dosya as any)?.birim_tablo_adi ||
+          (dosya as any)?.birim_adi ||
+          (dosya as any)?.harcama_birimi ||
+          settingsMap.spendingUnit ||
+          ''
+        ).trim()
+
+        if (
+          birimAntet &&
+          !antetSatirlari.some((s: string) => s.trim().toUpperCase() === birimAntet.toUpperCase())
+        ) {
+          antetSatirlari.push(birimAntet)
+        }
+
+        const kurumAdi =
+          (kurum as any)?.kurum_adi ||
+          (kurum as any)?.ad ||
+          settingsMap.institutionName ||
+          'T.C. KAMU KURUMU'
+        const harcamaBirimi =
+          birimAntet ||
+          (dosya as any)?.harcama_birimi ||
+          settingsMap.spendingUnit ||
+          (dosya as any)?.konu ||
+          'HARCAMA BİRİMİ'
+
+        const hazirlayanPersonel = (personelListesi as any[]).find(
+          (p: any) => p.id === (dosya as any)?.hazirlayan_personel_id
+        )
+        const talepEdenPersonel = (personelListesi as any[]).find(
+          (p: any) => p.id === (dosya as any)?.talep_eden_personel_id
+        )
+        const onaylayanPersonel = (personelListesi as any[]).find(
+          (p: any) => p.id === (dosya as any)?.onay_personel_id
+        )
+
+        const getIpcKurumBizimText = (k: any): string => {
+          if (k?.alt_kurum_bizim && String(k.alt_kurum_bizim).trim())
+            return String(k.alt_kurum_bizim).trim()
+          if (k?.alt_kurum_tipi) {
+            const map: Record<string, string> = {
+              belediye: 'Belediyemiz',
+              mudurluk: 'Müdürlüğümüz',
+              bakanlik: 'Bakanlığımız',
+              valilik: 'Valiliğimiz',
+              kaymakamlik: 'Kaymakamlığımız',
+              universite: 'Üniversitemiz',
+              il_ozel: 'İl Özel İdaremiz',
+              koy: 'Muhtarlığımız',
+              sgk: 'Müdürlüğümüz',
+              kurul: 'Kurulumuz',
+              diger: 'Kurumumuz'
+            }
+            if (map[k.alt_kurum_tipi]) return map[k.alt_kurum_tipi]
+          }
+          if (k?.kurum_tipi === 'belediye') return 'Belediyemiz'
+          if (k?.kurum_tipi === 'ozel_butce') return 'Üniversitemiz'
+          if (k?.kurum_tipi === 'duzenleyici') return 'Kurulumuz'
+          if (k?.kurum_tipi === 'genel_butce') return 'Müdürlüğümüz'
+          return 'Kurumumuz'
+        }
+
+        const getIpcKurumIhtiyacYeri = (k: any): string => {
+          if (k?.alt_kurum_bizim && String(k.alt_kurum_bizim).trim()) {
+            const str = String(k.alt_kurum_bizim).trim()
+            const lower = str.toLowerCase()
+            if (
+              lower.endsWith('n') ||
+              lower.endsWith('in') ||
+              lower.endsWith('ın') ||
+              lower.endsWith('un') ||
+              lower.endsWith('ün')
+            )
+              return str
+            if (lower.endsWith('miz') || lower.endsWith('müz')) return `${str}in`
+            if (lower.endsWith('mız') || lower.endsWith('muz')) return `${str}ın`
+            if (
+              lower.endsWith('si') ||
+              lower.endsWith('su') ||
+              lower.endsWith('sü') ||
+              lower.endsWith('sı')
+            )
+              return `${str}nin`
+            if (lower.endsWith('i') || lower.endsWith('ü')) return `${str}nin`
+            if (lower.endsWith('ı') || lower.endsWith('u')) return `${str}nun`
+            return `${str}in`
+          }
+          if (k?.alt_kurum_tipi) {
+            const map: Record<string, string> = {
+              belediye: 'Belediyemizin',
+              mudurluk: 'Müdürlüğümüzün',
+              bakanlik: 'Bakanlığımızın',
+              valilik: 'Valiliğimizin',
+              kaymakamlik: 'Kaymakamlığımızın',
+              universite: 'Üniversitemizin',
+              il_ozel: 'İl Özel İdaremizin',
+              koy: 'Muhtarlığımızın',
+              sgk: 'Müdürlüğümüzün',
+              kurul: 'Kurulumuzun',
+              diger: 'Kurumumuzun'
+            }
+            if (map[k.alt_kurum_tipi]) return map[k.alt_kurum_tipi]
+          }
+          if (k?.kurum_tipi === 'belediye') return 'Belediyemizin'
+          if (k?.kurum_tipi === 'ozel_butce') return 'Üniversitemizin'
+          if (k?.kurum_tipi === 'duzenleyici') return 'Kurulumuzun'
+          if (k?.kurum_tipi === 'genel_butce') return 'Müdürlüğümüzün'
+          return 'Kurumumuzun'
+        }
+
+        const ipcKurumBizim = getIpcKurumBizimText(kurum)
+        const ipcIhtiyacYeri =
+          (dosya as any)?.ihtiyac_yeri ||
+          (dosya as any)?.ihtiyac_yeri_eki ||
+          getIpcKurumIhtiyacYeri(kurum)
+
+        const resolvedContext = {
+          kurumAdi,
+          harcamaBirimi,
+          kurumumuz: ipcKurumBizim,
+          altKurumBizim: ipcKurumBizim,
+          ihtiyacYeri: ipcIhtiyacYeri,
+          birimAdi: birimAntet,
+          birimAnteti: birimAntet,
+          antetEkSatir: birimAntet,
+          antetSatirlari,
+          hazirlayanPersonelAdi: hazirlayanPersonel?.ad_soyad || '',
+          hazirlayanPersonelUnvan: hazirlayanPersonel?.unvan || '',
+          hazirlayanTelefon: hazirlayanPersonel?.telefon || '',
+          talepEdenPersonelAdi: talepEdenPersonel?.ad_soyad || '',
+          talepEdenPersonelUnvan: talepEdenPersonel?.unvan || '',
+          talepEdenTelefon: talepEdenPersonel?.telefon || '',
+          onaylayanPersonelAdi: onaylayanPersonel?.ad_soyad || '',
+          onaylayanPersonelUnvan: onaylayanPersonel?.unvan || '',
+          antetSatir1: antetSatirlari[0] || '',
+          antetSatir2: antetSatirlari[1] || '',
+          antetSatir3: antetSatirlari[2] || '',
+          antetSatir4: antetSatirlari[3] || '',
           solLogo,
           sagLogo,
-          settings: settingsMap,
-          personelListesi,
+          dosyaNo: (dosya as any)?.temin_no || '',
+          konu: (dosya as any)?.konu || '',
+          isinAdi: (dosya as any)?.konu || '',
+          isinTanimi: (dosya as any)?.isin_aciklamasi || (dosya as any)?.konu || '',
+          yaklasikMaliyet: (dosya as any)?.yaklasik_maliyet
+            ? Number((dosya as any).yaklasik_maliyet).toLocaleString('tr-TR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })
+            : formattedGrandTotal,
+          genelToplam: formattedGrandTotal,
+          yukleniciFirma: winnerFirm.unvan || '',
+          yukleniciYetkili: winnerFirm.yetkili_ad_soyad || '',
+          yukleniciAdresi: winnerFirm.adres || '',
+          yukleniciIlce: winnerFirm.ilce || '',
+          yukleniciIl: winnerFirm.il || '',
+          teslimGun:
+            (dosya as any)?.teslim_gun !== undefined &&
+            (dosya as any)?.teslim_gun !== null &&
+            String((dosya as any).teslim_gun).trim() !== ''
+              ? String((dosya as any).teslim_gun)
+              : '7',
+          teslimGunu:
+            (dosya as any)?.teslim_gun !== undefined &&
+            (dosya as any)?.teslim_gun !== null &&
+            String((dosya as any).teslim_gun).trim() !== ''
+              ? String((dosya as any).teslim_gun)
+              : '7',
+          teslimTarihi: (dosya as any)?.teslim_tarihi || '',
+          dosyaAcilisTarihi: (() => {
+            const raw =
+              (dosya as any)?.dosya_acilis_tarihi ||
+              (dosya as any)?.tarih ||
+              (dosya as any)?.created_at
+            if (!raw) return ''
+            const clean = String(raw).trim()
+            if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
+              const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
+              return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
+            }
+            return clean.substring(0, 10)
+          })(),
+          acilisTarihi: (() => {
+            const raw =
+              (dosya as any)?.dosya_acilis_tarihi ||
+              (dosya as any)?.tarih ||
+              (dosya as any)?.created_at
+            if (!raw) return ''
+            const clean = String(raw).trim()
+            if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
+              const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
+              return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
+            }
+            return clean.substring(0, 10)
+          })(),
+          dosyaTarihi: (() => {
+            const raw =
+              (dosya as any)?.dosya_acilis_tarihi ||
+              (dosya as any)?.tarih ||
+              (dosya as any)?.created_at
+            if (!raw) return ''
+            const clean = String(raw).trim()
+            if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
+              const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
+              return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
+            }
+            return clean.substring(0, 10)
+          })(),
+          onayaSunulanTarih: (() => {
+            const raw =
+              (dosya as any)?.temin_tarihi ||
+              (dosya as any)?.dosya_acilis_tarihi ||
+              (dosya as any)?.tarih ||
+              (dosya as any)?.created_at
+            if (!raw) return ''
+            const clean = String(raw).trim()
+            if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
+              const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
+              return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
+            }
+            return clean.substring(0, 10)
+          })(),
+          onayTarihi: (() => {
+            const raw =
+              (dosya as any)?.onay_tarihi ||
+              (dosya as any)?.dosya_acilis_tarihi ||
+              (dosya as any)?.tarih
+            if (!raw) return ''
+            const clean = String(raw).trim()
+            if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
+              const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
+              return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
+            }
+            return clean.substring(0, 10)
+          })(),
+          tarih: (() => {
+            const raw =
+              (dosya as any)?.dosya_acilis_tarihi ||
+              (dosya as any)?.tarih ||
+              (dosya as any)?.created_at
+            if (!raw) return ''
+            const clean = String(raw).trim()
+            if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
+              const [y, m, d] = clean.split('T')[0].split(' ')[0].split('-')
+              return `${d.padStart(2, '0')}.${m.padStart(2, '0')}.${y}`
+            }
+            return clean.substring(0, 10)
+          })(),
+          evrakSayisi: (dosya as any)?.evrak_sayisi || (dosya as any)?.temin_no || '',
+          ihtiyacKalemleri,
           firmaListesi: combinedFirms,
-          fileFirms,
-          items,
-          bids,
-          komisyonlar,
-          savedSnapshot,
-          resolvedContext
+          firmalar: fileFirms,
+          firmaToplamlari: firmaTotals,
+          firmaToplamlariDetay: firmaTotals,
+          komisyon: (() => {
+            const mapped = komisyonlar.map((k: any) => ({
+              adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
+              unvan: k.resolved_unvan || k.unvan || '',
+              gorevi: k.gorev || k.gorevi || 'Üye',
+              pozisyonu: k.resolved_unvan || k.unvan || ''
+            }))
+            const seen = new Set<string>()
+            return mapped.filter((item: any) => {
+              const name = (item.adSoyad || '').trim().toLowerCase()
+              if (!name || seen.has(name)) return false
+              seen.add(name)
+              return true
+            })
+          })(),
+          fiyatKomisyonu: (() => {
+            const filtered = (
+              komisyonlar.filter((k: any) => {
+                const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
+                return (
+                  !kt ||
+                  kt.includes('fiyat') ||
+                  kt.includes('piyasa') ||
+                  kt.includes('araştırma') ||
+                  kt.includes('arastirma')
+                )
+              }).length > 0
+                ? komisyonlar.filter((k: any) => {
+                    const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
+                    return (
+                      !kt ||
+                      kt.includes('fiyat') ||
+                      kt.includes('piyasa') ||
+                      kt.includes('araştırma') ||
+                      kt.includes('arastirma')
+                    )
+                  })
+                : komisyonlar
+            ).map((k: any) => ({
+              adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
+              unvan: k.resolved_unvan || k.unvan || '',
+              gorevi: k.gorev || k.gorevi || 'Üye',
+              pozisyonu: k.resolved_unvan || k.unvan || ''
+            }))
+            const seen = new Set<string>()
+            return filtered.filter((item: any) => {
+              const name = (item.adSoyad || '').trim().toLowerCase()
+              if (!name || seen.has(name)) return false
+              seen.add(name)
+              return true
+            })
+          })(),
+          muayeneKomisyonu: (() => {
+            const filtered = (
+              komisyonlar.filter((k: any) => {
+                const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
+                return kt.includes('muayene') || kt.includes('kabul')
+              }).length > 0
+                ? komisyonlar.filter((k: any) => {
+                    const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
+                    return kt.includes('muayene') || kt.includes('kabul')
+                  })
+                : komisyonlar
+            ).map((k: any) => ({
+              adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
+              unvan: k.resolved_unvan || k.unvan || '',
+              gorevi: k.gorev || k.gorevi || 'Üye',
+              pozisyonu: k.resolved_unvan || k.unvan || ''
+            }))
+            const seen = new Set<string>()
+            return filtered.filter((item: any) => {
+              const name = (item.adSoyad || '').trim().toLowerCase()
+              if (!name || seen.has(name)) return false
+              seen.add(name)
+              return true
+            })
+          })()
         }
+
+        return {
+          success: true,
+          data: {
+            dosya,
+            kurum,
+            solLogo,
+            sagLogo,
+            settings: settingsMap,
+            personelListesi,
+            firmaListesi: combinedFirms,
+            fileFirms,
+            items,
+            bids,
+            komisyonlar,
+            savedSnapshot,
+            resolvedContext
+          }
+        }
+      } catch (err: any) {
+        return { success: false, error: err.message }
       }
-    } catch (err: any) {
-      return { success: false, error: err.message }
     }
-  })
+  )
 
   // 12. Full Dossier Document Center & Templates Engine (Ultra Fast Server-Side Resolution)
-  handleDoc('belge:get-all-cikti-data', 'get-all-cikti-data', async (_, payload: { dosyaId?: number }) => {
-    try {
-      const { workspaceManager } = require('../database/workspace')
-      const db = workspaceManager.getDb()
-      const dosyaId = Number(payload?.dosyaId || 0)
+  handleDoc(
+    'belge:get-all-cikti-data',
+    'get-all-cikti-data',
+    async (_, payload: { dosyaId?: number }) => {
+      try {
+        const { workspaceManager } = require('../database/workspace')
+        const db = workspaceManager.getDb()
+        const dosyaId = Number(payload?.dosyaId || 0)
 
-      // 1. Master HTML & Master JSON
-      const masterHtml =
-        readSystemTemplate('master.html') ||
-        '<!DOCTYPE html><html><head><meta charset="utf-8"/></head><body>{{{content}}}</body></html>'
-      let masterJson: any = {}
-      const rawMasterJson = readSystemTemplate('master.html.json')
-      if (rawMasterJson) {
+        // 1. Master HTML & Master JSON
+        const masterHtml =
+          readSystemTemplate('master.html') ||
+          '<!DOCTYPE html><html><head><meta charset="utf-8"/></head><body>{{{content}}}</body></html>'
+        let masterJson: any = {}
+        const rawMasterJson = readSystemTemplate('master.html.json')
+        if (rawMasterJson) {
+          try {
+            masterJson = JSON.parse(rawMasterJson)
+          } catch {}
+        }
+
+        // 2. Templates (Latest active templates)
+        const sablons = db
+          .prepare(
+            'SELECT * FROM TANIM_Sablon WHERE id IN (SELECT MAX(id) FROM TANIM_Sablon WHERE aktif_mi = 1 GROUP BY COALESCE(parent_id, id)) ORDER BY kategori ASC, ad ASC'
+          )
+          .all()
+
+        // 3. Placeholders
+        let placeholders: any[] = []
         try {
-          masterJson = JSON.parse(rawMasterJson)
+          placeholders = db.prepare('SELECT * FROM TANIM_Placeholder').all()
         } catch {}
-      }
 
-      // 2. Templates (Latest active templates)
-      const sablons = db
-        .prepare(
-          'SELECT * FROM TANIM_Sablon WHERE id IN (SELECT MAX(id) FROM TANIM_Sablon WHERE aktif_mi = 1 GROUP BY COALESCE(parent_id, id)) ORDER BY kategori ASC, ad ASC'
-        )
-        .all()
+        // 4. Personnel
+        const personelListesi = db
+          .prepare(
+            'SELECT id, ad_soyad, unvan, telefon, eposta, birim, sicil_no FROM TANIM_Personel WHERE COALESCE(aktif_mi, 1) = 1 OR aktif_mi = "1" OR aktif_mi = "true" OR aktif_mi IS NULL ORDER BY ad_soyad ASC'
+          )
+          .all()
 
-      // 3. Placeholders
-      let placeholders: any[] = []
-      try {
-        placeholders = db.prepare('SELECT * FROM TANIM_Placeholder').all()
-      } catch {}
+        // 5. Institution & Settings
+        const kurum = db.prepare('SELECT * FROM TANIM_Kurum LIMIT 1').get() || {}
+        const settingsMap: Record<string, string> = {}
+        try {
+          const settingsRows = db.prepare('SELECT key, value FROM settings').all()
+          settingsRows.forEach((r: any) => {
+            if (r.key) settingsMap[r.key] = r.value
+          })
+        } catch {}
 
-      // 4. Personnel
-      const personelListesi = db
-        .prepare(
-          'SELECT id, ad_soyad, unvan, telefon, eposta, birim, sicil_no FROM TANIM_Personel WHERE COALESCE(aktif_mi, 1) = 1 OR aktif_mi = "1" OR aktif_mi = "true" OR aktif_mi IS NULL ORDER BY ad_soyad ASC'
-        )
-        .all()
+        const solLogo =
+          (kurum as any)?.logo_sol ||
+          (kurum as any)?.logo_url ||
+          settingsMap.logoLeft ||
+          settingsMap.institutionLogo ||
+          null
+        const sagLogo = (kurum as any)?.logo_sag || settingsMap.logoRight || null
 
-      // 5. Institution & Settings
-      const kurum = db.prepare('SELECT * FROM TANIM_Kurum LIMIT 1').get() || {}
-      const settingsMap: Record<string, string> = {}
-      try {
-        const settingsRows = db.prepare('SELECT key, value FROM settings').all()
-        settingsRows.forEach((r: any) => {
-          if (r.key) settingsMap[r.key] = r.value
-        })
-      } catch {}
+        let activeDosya: any = null
+        let items: any[] = []
+        let fileFirms: any[] = []
+        let bids: any[] = []
+        let komisyonlar: any[] = []
 
-      const solLogo =
-        (kurum as any)?.logo_sol ||
-        (kurum as any)?.logo_url ||
-        settingsMap.logoLeft ||
-        settingsMap.institutionLogo ||
-        null
-      const sagLogo = (kurum as any)?.logo_sag || settingsMap.logoRight || null
-
-      let activeDosya: any = null
-      let items: any[] = []
-      let fileFirms: any[] = []
-      let bids: any[] = []
-      let komisyonlar: any[] = []
-
-      if (dosyaId) {
-        activeDosya =
-          db
-            .prepare(
-              `
+        if (dosyaId) {
+          activeDosya =
+            db
+              .prepare(
+                `
           SELECT d.*, 
                  b.antet_ek_satir as birim_antet_ek_satir,
                  b.birim_adi as birim_tablo_adi,
@@ -1203,18 +1402,16 @@ export function registerDocumentIpcHandlers(): void {
           LEFT JOIN TANIM_Firma f ON d.firma_id = f.id
           WHERE d.id = ?
         `
-            )
-            .get(dosyaId) || null
+              )
+              .get(dosyaId) || null
 
-        items = db
-          .prepare(
-            'SELECT * FROM DATA_TeminKalem WHERE temin_dosya_id = ? ORDER BY id ASC'
-          )
-          .all(dosyaId)
+          items = db
+            .prepare('SELECT * FROM DATA_TeminKalem WHERE temin_dosya_id = ? ORDER BY id ASC')
+            .all(dosyaId)
 
-        fileFirms = db
-          .prepare(
-            `
+          fileFirms = db
+            .prepare(
+              `
           SELECT 
             df.id as temin_firma_id,
             COALESCE(f.id, df.firma_id, df.id) as id,
@@ -1230,18 +1427,18 @@ export function registerDocumentIpcHandlers(): void {
           WHERE df.temin_dosya_id = ?
           ORDER BY df.id ASC
         `
-          )
-          .all(dosyaId)
+            )
+            .all(dosyaId)
 
-        bids = db
-          .prepare(
-            'SELECT temin_kalem_id, temin_firma_id, birim_fiyat FROM DATA_TeminKalemTeklif WHERE temin_dosya_id = ?'
-          )
-          .all(dosyaId)
+          bids = db
+            .prepare(
+              'SELECT temin_kalem_id, temin_firma_id, birim_fiyat FROM DATA_TeminKalemTeklif WHERE temin_dosya_id = ?'
+            )
+            .all(dosyaId)
 
-        komisyonlar = db
-          .prepare(
-            `
+          komisyonlar = db
+            .prepare(
+              `
           SELECT tk.*, 
                  COALESCE(NULLIF(tk.ad_soyad, ''), NULLIF(p.ad_soyad, ''), '') as resolved_ad_soyad,
                  COALESCE(NULLIF(tk.unvan, ''), NULLIF(p.unvan, ''), '') as resolved_unvan,
@@ -1251,15 +1448,15 @@ export function registerDocumentIpcHandlers(): void {
           LEFT JOIN TANIM_Komisyon k ON tk.komisyon_id = k.id
           WHERE tk.temin_dosya_id = ?
         `
-          )
-          .all(dosyaId)
-      }
+            )
+            .all(dosyaId)
+        }
 
-      if (!komisyonlar || komisyonlar.length === 0) {
-        try {
-          komisyonlar = db
-            .prepare(
-              `
+        if (!komisyonlar || komisyonlar.length === 0) {
+          try {
+            komisyonlar = db
+              .prepare(
+                `
             SELECT u.*, 
                    p.ad_soyad as resolved_ad_soyad, 
                    p.unvan as resolved_unvan, 
@@ -1271,307 +1468,326 @@ export function registerDocumentIpcHandlers(): void {
             LEFT JOIN TANIM_KomisyonGorevi g ON u.gorev_id = g.id
             WHERE (k.aktif_mi = 1 OR k.aktif_mi IS NULL)
           `
-            )
-            .all()
-        } catch {}
-      }
+              )
+              .all()
+          } catch {}
+        }
 
-      // Build Bids Map
-      const bidsMap: Record<string, number> = {}
-      bids.forEach((b: any) => {
-        bidsMap[`${b.temin_kalem_id}_${b.temin_firma_id}`] = b.birim_fiyat || 0
-      })
-
-      // Calculate Bid Totals per Firm
-      const firmaTotals: Record<number, { unvan: string; total: number; formatted: string }> = {}
-      fileFirms.forEach((f: any) => {
-        let fTotal = 0
-        items.forEach((item: any) => {
-          const unitP = bidsMap[`${item.id}_${f.temin_firma_id}`] || 0
-          const qty = Number(item.miktar || 0)
-          fTotal += unitP * qty
+        // Build Bids Map
+        const bidsMap: Record<string, number> = {}
+        bids.forEach((b: any) => {
+          bidsMap[`${b.temin_kalem_id}_${b.temin_firma_id}`] = b.birim_fiyat || 0
         })
-        firmaTotals[f.temin_firma_id] = {
-          unvan: f.unvan,
-          total: fTotal,
-          formatted: fTotal.toLocaleString('tr-TR', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          })
-        }
-      })
 
-      // Find Best / Winning Firm
-      let minFirmaTotal = Infinity
-      let winnerFirm: any = {
-        unvan: activeDosya?.yuklenici_firma_adi || '',
-        yetkili_ad_soyad: ''
-      }
-      fileFirms.forEach((f: any) => {
-        const t = firmaTotals[f.temin_firma_id]?.total || 0
-        if (t > 0 && t < minFirmaTotal) {
-          minFirmaTotal = t
-          winnerFirm = f
-        }
-      })
-      if (!winnerFirm.unvan && activeDosya?.yuklenici_firma_adi) {
-        winnerFirm.unvan = activeDosya.yuklenici_firma_adi
-      }
-
-      // Build items with bidder columns
-      const ihtiyacKalemleri = items.map((item: any, idx: number) => {
-        const miktarNum = Number(item.miktar || 0)
-        const itemBids: {
-          firmaId: number
-          firmaAdi: string
-          birimFiyat: number
-          toplamFiyat: number
-        }[] = []
-        let minPrice = Infinity
-        let bestFirm = ''
-
+        // Calculate Bid Totals per Firm
+        const firmaTotals: Record<number, { unvan: string; total: number; formatted: string }> = {}
         fileFirms.forEach((f: any) => {
-          const unitPrice = bidsMap[`${item.id}_${f.temin_firma_id}`] || 0
-          const lineTotal = unitPrice * miktarNum
-          if (unitPrice > 0 && unitPrice < minPrice) {
-            minPrice = unitPrice
-            bestFirm = f.unvan
-          }
-          itemBids.push({
-            firmaId: f.temin_firma_id,
-            firmaAdi: f.unvan,
-            birimFiyat: unitPrice,
-            toplamFiyat: lineTotal
+          let fTotal = 0
+          items.forEach((item: any) => {
+            const unitP = bidsMap[`${item.id}_${f.temin_firma_id}`] || 0
+            const qty = Number(item.miktar || 0)
+            fTotal += unitP * qty
           })
-        })
-
-        const resItem: any = {
-          siraNo: idx + 1,
-          id: item.id,
-          kalemAdi: item.kalem_adi || item.malzeme_adi || '',
-          malzemeAdi: item.kalem_adi || item.malzeme_adi || '',
-          aciklama: item.aciklama || '',
-          birim: item.birim || 'Adet',
-          miktar: miktarNum,
-          miktarFormatted: miktarNum.toLocaleString('tr-TR'),
-          tasinirKodu: item.tasinir_kodu || '',
-          kdvOrani: item.kdv_orani ?? 20,
-          teklifler: itemBids,
-          enUygunFiyat:
-            minPrice !== Infinity
-              ? minPrice.toLocaleString('tr-TR', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })
-              : '',
-          enUygunFirma: bestFirm,
-          birimFiyat:
-            minPrice !== Infinity
-              ? minPrice.toLocaleString('tr-TR', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })
-              : '0,00',
-          toplamBedel:
-            minPrice !== Infinity
-              ? (minPrice * miktarNum).toLocaleString('tr-TR', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })
-              : '0,00'
-        }
-
-        // Dynamic columns firma1Fiyat, firma2Fiyat, etc.
-        fileFirms.forEach((f: any, fIdx: number) => {
-          const unitP = bidsMap[`${item.id}_${f.temin_firma_id}`] || 0
-          const totalP = unitP * miktarNum
-          resItem[`firma${fIdx + 1}Fiyat`] =
-            unitP > 0
-              ? unitP.toLocaleString('tr-TR', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })
-              : '-'
-          resItem[`firma${fIdx + 1}Toplam`] =
-            totalP > 0
-              ? totalP.toLocaleString('tr-TR', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })
-              : '-'
-        })
-
-        return resItem
-      })
-
-      // Grand Total
-      let grandTotalNum = activeDosya?.yaklasik_maliyet ? Number(activeDosya.yaklasik_maliyet) : 0
-      if (!grandTotalNum && minFirmaTotal !== Infinity && minFirmaTotal > 0) {
-        grandTotalNum = minFirmaTotal
-      }
-      if (!grandTotalNum) {
-        grandTotalNum = ihtiyacKalemleri.reduce((sum: number, k: any) => {
-          const raw = String(k.toplamBedel).replace(/\./g, '').replace(/,/g, '.')
-          const n = parseFloat(raw)
-          return sum + (isNaN(n) ? 0 : n)
-        }, 0)
-      }
-
-      const formattedGrandTotal =
-        grandTotalNum > 0
-          ? grandTotalNum.toLocaleString('tr-TR', {
+          firmaTotals[f.temin_firma_id] = {
+            unvan: f.unvan,
+            total: fTotal,
+            formatted: fTotal.toLocaleString('tr-TR', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2
             })
-          : '0,00'
+          }
+        })
 
-      let antetSatirlari: string[] = []
-      if ((kurum as any)?.kurum_anteti) {
-        try {
-          const parsed = JSON.parse((kurum as any).kurum_anteti)
-          if (Array.isArray(parsed)) {
-            antetSatirlari = parsed.filter((s: string) => s && s.trim() !== '')
-          }
-        } catch {
-          if (typeof (kurum as any).kurum_anteti === 'string' && (kurum as any).kurum_anteti.trim()) {
-            antetSatirlari = (kurum as any).kurum_anteti.split('\n').map((s: string) => s.trim()).filter(Boolean)
-          }
+        // Find Best / Winning Firm
+        let minFirmaTotal = Infinity
+        let winnerFirm: any = {
+          unvan: activeDosya?.yuklenici_firma_adi || '',
+          yetkili_ad_soyad: ''
         }
-      }
-      if (antetSatirlari.length === 0) {
-        const kurumAdiText = (kurum as any)?.ust_kurum_adi || (kurum as any)?.kurum_adi || (kurum as any)?.ad || settingsMap.institutionName || 'KAMU KURUMU'
-        antetSatirlari = ['T.C.', String(kurumAdiText).toUpperCase()]
-      }
+        fileFirms.forEach((f: any) => {
+          const t = firmaTotals[f.temin_firma_id]?.total || 0
+          if (t > 0 && t < minFirmaTotal) {
+            minFirmaTotal = t
+            winnerFirm = f
+          }
+        })
+        if (!winnerFirm.unvan && activeDosya?.yuklenici_firma_adi) {
+          winnerFirm.unvan = activeDosya.yuklenici_firma_adi
+        }
 
-      const birimAntet = (
-        activeDosya?.antet_ek_satir ||
-        activeDosya?.birim_antet_ek_satir ||
-        activeDosya?.birim_tablo_adi ||
-        activeDosya?.birim_adi ||
-        activeDosya?.harcama_birimi ||
-        settingsMap.spendingUnit ||
-        ''
-      ).trim()
+        // Build items with bidder columns
+        const ihtiyacKalemleri = items.map((item: any, idx: number) => {
+          const miktarNum = Number(item.miktar || 0)
+          const itemBids: {
+            firmaId: number
+            firmaAdi: string
+            birimFiyat: number
+            toplamFiyat: number
+          }[] = []
+          let minPrice = Infinity
+          let bestFirm = ''
 
-      if (
-        birimAntet &&
-        !antetSatirlari.some((s: string) => s.trim().toUpperCase() === birimAntet.toUpperCase())
-      ) {
-        antetSatirlari.push(birimAntet)
-      }
-
-      const kurumAdi = (kurum as any)?.kurum_adi || (kurum as any)?.ad || settingsMap.institutionName || 'T.C. KAMU KURUMU'
-      const harcamaBirimi =
-        birimAntet || activeDosya?.harcama_birimi || settingsMap.spendingUnit || activeDosya?.konu || 'HARCAMA BİRİMİ'
-
-      const dosyaContext: any = {
-        ...masterJson,
-        kurumAdi,
-        harcamaBirimi,
-        birimAdi: birimAntet,
-        birimAnteti: birimAntet,
-        antetEkSatir: birimAntet,
-        antetSatirlari,
-        antetSatir1: antetSatirlari[0] || '',
-        antetSatir2: antetSatirlari[1] || '',
-        antetSatir3: antetSatirlari[2] || '',
-        antetSatir4: antetSatirlari[3] || '',
-        solLogo,
-        sagLogo,
-        id: activeDosya?.id || 0,
-        dosyaNo: activeDosya?.temin_no || '',
-        teminNo: activeDosya?.temin_no || '',
-        dosya_no: activeDosya?.temin_no || '',
-        konu: activeDosya?.konu || '',
-        is_adi: activeDosya?.konu || '',
-        isinAdi: activeDosya?.konu || '',
-        isinTanimi: activeDosya?.isin_aciklamasi || activeDosya?.konu || '',
-        isin_tanimi: activeDosya?.isin_aciklamasi || activeDosya?.konu || '',
-        butceYili: activeDosya?.butce_yili || new Date().getFullYear().toString(),
-        butce_yili: activeDosya?.butce_yili || new Date().getFullYear().toString(),
-        tarih: activeDosya?.tarih || new Date().toLocaleDateString('tr-TR'),
-        dosyaTarihi: activeDosya?.tarih || new Date().toLocaleDateString('tr-TR'),
-        kararNo: activeDosya?.karar_no || '',
-        karar_no: activeDosya?.karar_no || '',
-        faturaNo: activeDosya?.fatura_no || '',
-        fatura_no: activeDosya?.fatura_no || '',
-        faturaTarihi: activeDosya?.fatura_tarihi || '',
-        fatura_tarihi: activeDosya?.fatura_tarihi || '',
-        yaklasikMaliyet: activeDosya?.yaklasik_maliyet
-          ? Number(activeDosya.yaklasik_maliyet).toLocaleString('tr-TR', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2
+          fileFirms.forEach((f: any) => {
+            const unitPrice = bidsMap[`${item.id}_${f.temin_firma_id}`] || 0
+            const lineTotal = unitPrice * miktarNum
+            if (unitPrice > 0 && unitPrice < minPrice) {
+              minPrice = unitPrice
+              bestFirm = f.unvan
+            }
+            itemBids.push({
+              firmaId: f.temin_firma_id,
+              firmaAdi: f.unvan,
+              birimFiyat: unitPrice,
+              toplamFiyat: lineTotal
             })
-          : formattedGrandTotal,
-        yaklasik_maliyet: formattedGrandTotal,
-        yaklasik_maliyet_yaziyla: numberToTurkishWords(grandTotalNum),
-        kdv_haric_toplam_yaziyla: numberToTurkishWords(grandTotalNum),
-        genelToplam: formattedGrandTotal,
-        genel_toplam_yaziyla: numberToTurkishWords(grandTotalNum),
-        yukleniciFirma: winnerFirm.unvan || '',
-        yukleniciYetkili: winnerFirm.yetkili_ad_soyad || '',
-        yukleniciAdresi: winnerFirm.adres || activeDosya?.yuklenici_firma_adresi || '',
-        yukleniciVergiNo: winnerFirm.vergi_no || activeDosya?.yuklenici_firma_vergi_no || '',
-        yukleniciVergiDairesi:
-          winnerFirm.vergi_dairesi || activeDosya?.yuklenici_firma_vergi_dairesi || '',
-        ihtiyacKalemleri,
-        kalemler: ihtiyacKalemleri,
-        firmalar: fileFirms,
-        firmaListesi: fileFirms,
-        firmaToplamlari: Object.values(firmaTotals),
-        firmaToplamlariDetay: firmaTotals,
-        harcamaYetkilisi: {
-          adSoyad: activeDosya?.onaylayan_ad_soyad || '',
-          unvan: activeDosya?.onaylayan_unvan || 'Harcama Yetkilisi',
-          telefon: activeDosya?.onaylayan_telefon || ''
-        },
-        gerceklestirmeGorevlisi: {
-          adSoyad: activeDosya?.hazirlayan_ad_soyad || '',
-          unvan: activeDosya?.hazirlayan_unvan || 'Gerçekleştirme Görevlisi',
-          telefon: activeDosya?.hazirlayan_telefon || ''
-        },
-        komisyon: komisyonlar.map((k: any) => ({
-          adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
-          unvan: k.resolved_unvan || k.unvan || '',
-          gorevi: k.gorevi || 'Üye',
-          komisyonTuru: k.komisyon_turu_adi || ''
-        }))
-      }
+          })
 
-      // Pre-render HTML map using Mustache on server side for every active template
-      const renderedHtmlMap: Record<number, string> = {}
-      sablons.forEach((sab: any) => {
-        try {
-          let body = sab.html_icerik || ''
-          if (!body && sab.dosya_adi) {
-            body = readSystemTemplate(sab.dosya_adi) || ''
+          const resItem: any = {
+            siraNo: idx + 1,
+            id: item.id,
+            kalemAdi: item.kalem_adi || item.malzeme_adi || '',
+            malzemeAdi: item.kalem_adi || item.malzeme_adi || '',
+            aciklama: item.aciklama || '',
+            birim: item.birim || 'Adet',
+            miktar: miktarNum,
+            miktarFormatted: miktarNum.toLocaleString('tr-TR'),
+            tasinirKodu: item.tasinir_kodu || '',
+            kdvOrani: item.kdv_orani ?? 20,
+            teklifler: itemBids,
+            enUygunFiyat:
+              minPrice !== Infinity
+                ? minPrice.toLocaleString('tr-TR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })
+                : '',
+            enUygunFirma: bestFirm,
+            birimFiyat:
+              minPrice !== Infinity
+                ? minPrice.toLocaleString('tr-TR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })
+                : '0,00',
+            toplamBedel:
+              minPrice !== Infinity
+                ? (minPrice * miktarNum).toLocaleString('tr-TR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })
+                : '0,00'
           }
-          if (body) {
-            const innerHtml = Mustache.render(body, dosyaContext)
-            const fullHtml = masterHtml
-              ? masterHtml.replace('{{{content}}}', innerHtml)
-              : innerHtml
-            renderedHtmlMap[sab.id] = fullHtml
-          }
-        } catch {}
-      })
 
-      return {
-        success: true,
-        data: {
-          sablons,
-          masterHtml,
-          dosyaContext,
-          renderedHtmlMap,
-          placeholders,
-          personelListesi,
-          settings: settingsMap,
-          activeDosya
+          // Dynamic columns firma1Fiyat, firma2Fiyat, etc.
+          fileFirms.forEach((f: any, fIdx: number) => {
+            const unitP = bidsMap[`${item.id}_${f.temin_firma_id}`] || 0
+            const totalP = unitP * miktarNum
+            resItem[`firma${fIdx + 1}Fiyat`] =
+              unitP > 0
+                ? unitP.toLocaleString('tr-TR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })
+                : '-'
+            resItem[`firma${fIdx + 1}Toplam`] =
+              totalP > 0
+                ? totalP.toLocaleString('tr-TR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })
+                : '-'
+          })
+
+          return resItem
+        })
+
+        // Grand Total
+        let grandTotalNum = activeDosya?.yaklasik_maliyet ? Number(activeDosya.yaklasik_maliyet) : 0
+        if (!grandTotalNum && minFirmaTotal !== Infinity && minFirmaTotal > 0) {
+          grandTotalNum = minFirmaTotal
         }
+        if (!grandTotalNum) {
+          grandTotalNum = ihtiyacKalemleri.reduce((sum: number, k: any) => {
+            const raw = String(k.toplamBedel).replace(/\./g, '').replace(/,/g, '.')
+            const n = parseFloat(raw)
+            return sum + (isNaN(n) ? 0 : n)
+          }, 0)
+        }
+
+        const formattedGrandTotal =
+          grandTotalNum > 0
+            ? grandTotalNum.toLocaleString('tr-TR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })
+            : '0,00'
+
+        let antetSatirlari: string[] = []
+        if ((kurum as any)?.kurum_anteti) {
+          try {
+            const parsed = JSON.parse((kurum as any).kurum_anteti)
+            if (Array.isArray(parsed)) {
+              antetSatirlari = parsed.filter((s: string) => s && s.trim() !== '')
+            }
+          } catch {
+            if (
+              typeof (kurum as any).kurum_anteti === 'string' &&
+              (kurum as any).kurum_anteti.trim()
+            ) {
+              antetSatirlari = (kurum as any).kurum_anteti
+                .split('\n')
+                .map((s: string) => s.trim())
+                .filter(Boolean)
+            }
+          }
+        }
+        if (antetSatirlari.length === 0) {
+          const kurumAdiText =
+            (kurum as any)?.ust_kurum_adi ||
+            (kurum as any)?.kurum_adi ||
+            (kurum as any)?.ad ||
+            settingsMap.institutionName ||
+            'KAMU KURUMU'
+          antetSatirlari = ['T.C.', String(kurumAdiText).toUpperCase()]
+        }
+
+        const birimAntet = (
+          activeDosya?.antet_ek_satir ||
+          activeDosya?.birim_antet_ek_satir ||
+          activeDosya?.birim_tablo_adi ||
+          activeDosya?.birim_adi ||
+          activeDosya?.harcama_birimi ||
+          settingsMap.spendingUnit ||
+          ''
+        ).trim()
+
+        if (
+          birimAntet &&
+          !antetSatirlari.some((s: string) => s.trim().toUpperCase() === birimAntet.toUpperCase())
+        ) {
+          antetSatirlari.push(birimAntet)
+        }
+
+        const kurumAdi =
+          (kurum as any)?.kurum_adi ||
+          (kurum as any)?.ad ||
+          settingsMap.institutionName ||
+          'T.C. KAMU KURUMU'
+        const harcamaBirimi =
+          birimAntet ||
+          activeDosya?.harcama_birimi ||
+          settingsMap.spendingUnit ||
+          activeDosya?.konu ||
+          'HARCAMA BİRİMİ'
+
+        const dosyaContext: any = {
+          ...masterJson,
+          kurumAdi,
+          harcamaBirimi,
+          birimAdi: birimAntet,
+          birimAnteti: birimAntet,
+          antetEkSatir: birimAntet,
+          antetSatirlari,
+          antetSatir1: antetSatirlari[0] || '',
+          antetSatir2: antetSatirlari[1] || '',
+          antetSatir3: antetSatirlari[2] || '',
+          antetSatir4: antetSatirlari[3] || '',
+          solLogo,
+          sagLogo,
+          id: activeDosya?.id || 0,
+          dosyaNo: activeDosya?.temin_no || '',
+          teminNo: activeDosya?.temin_no || '',
+          dosya_no: activeDosya?.temin_no || '',
+          konu: activeDosya?.konu || '',
+          is_adi: activeDosya?.konu || '',
+          isinAdi: activeDosya?.konu || '',
+          isinTanimi: activeDosya?.isin_aciklamasi || activeDosya?.konu || '',
+          isin_tanimi: activeDosya?.isin_aciklamasi || activeDosya?.konu || '',
+          butceYili: activeDosya?.butce_yili || new Date().getFullYear().toString(),
+          butce_yili: activeDosya?.butce_yili || new Date().getFullYear().toString(),
+          tarih: activeDosya?.tarih || new Date().toLocaleDateString('tr-TR'),
+          dosyaTarihi: activeDosya?.tarih || new Date().toLocaleDateString('tr-TR'),
+          kararNo: activeDosya?.karar_no || '',
+          karar_no: activeDosya?.karar_no || '',
+          faturaNo: activeDosya?.fatura_no || '',
+          fatura_no: activeDosya?.fatura_no || '',
+          faturaTarihi: activeDosya?.fatura_tarihi || '',
+          fatura_tarihi: activeDosya?.fatura_tarihi || '',
+          yaklasikMaliyet: activeDosya?.yaklasik_maliyet
+            ? Number(activeDosya.yaklasik_maliyet).toLocaleString('tr-TR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })
+            : formattedGrandTotal,
+          yaklasik_maliyet: formattedGrandTotal,
+          yaklasik_maliyet_yaziyla: numberToTurkishWords(grandTotalNum),
+          kdv_haric_toplam_yaziyla: numberToTurkishWords(grandTotalNum),
+          genelToplam: formattedGrandTotal,
+          genel_toplam_yaziyla: numberToTurkishWords(grandTotalNum),
+          yukleniciFirma: winnerFirm.unvan || '',
+          yukleniciYetkili: winnerFirm.yetkili_ad_soyad || '',
+          yukleniciAdresi: winnerFirm.adres || activeDosya?.yuklenici_firma_adresi || '',
+          yukleniciVergiNo: winnerFirm.vergi_no || activeDosya?.yuklenici_firma_vergi_no || '',
+          yukleniciVergiDairesi:
+            winnerFirm.vergi_dairesi || activeDosya?.yuklenici_firma_vergi_dairesi || '',
+          ihtiyacKalemleri,
+          kalemler: ihtiyacKalemleri,
+          firmalar: fileFirms,
+          firmaListesi: fileFirms,
+          firmaToplamlari: Object.values(firmaTotals),
+          firmaToplamlariDetay: firmaTotals,
+          harcamaYetkilisi: {
+            adSoyad: activeDosya?.onaylayan_ad_soyad || '',
+            unvan: activeDosya?.onaylayan_unvan || 'Harcama Yetkilisi',
+            telefon: activeDosya?.onaylayan_telefon || ''
+          },
+          gerceklestirmeGorevlisi: {
+            adSoyad: activeDosya?.hazirlayan_ad_soyad || '',
+            unvan: activeDosya?.hazirlayan_unvan || 'Gerçekleştirme Görevlisi',
+            telefon: activeDosya?.hazirlayan_telefon || ''
+          },
+          komisyon: komisyonlar.map((k: any) => ({
+            adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
+            unvan: k.resolved_unvan || k.unvan || '',
+            gorevi: k.gorevi || 'Üye',
+            komisyonTuru: k.komisyon_turu_adi || ''
+          }))
+        }
+
+        // Pre-render HTML map using Mustache on server side for every active template
+        const renderedHtmlMap: Record<number, string> = {}
+        sablons.forEach((sab: any) => {
+          try {
+            let body = sab.html_icerik || ''
+            if (!body && sab.dosya_adi) {
+              body = readSystemTemplate(sab.dosya_adi) || ''
+            }
+            if (body) {
+              const innerHtml = Mustache.render(body, dosyaContext)
+              const fullHtml = masterHtml
+                ? masterHtml.replace('{{{content}}}', innerHtml)
+                : innerHtml
+              renderedHtmlMap[sab.id] = fullHtml
+            }
+          } catch {}
+        })
+
+        return {
+          success: true,
+          data: {
+            sablons,
+            masterHtml,
+            dosyaContext,
+            renderedHtmlMap,
+            placeholders,
+            personelListesi,
+            settings: settingsMap,
+            activeDosya
+          }
+        }
+      } catch (err: any) {
+        return { success: false, error: err.message }
       }
-    } catch (err: any) {
-      return { success: false, error: err.message }
     }
-  })
+  )
 }
-

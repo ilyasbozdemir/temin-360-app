@@ -1,13 +1,5 @@
 import React, { useState } from 'react'
-import {
-  CheckSquare,
-  Plus,
-  ArrowRight,
-  CheckCircle2,
-  Circle,
-  Calendar,
-  Edit3
-} from 'lucide-react'
+import { CheckSquare, Plus, ArrowRight, CheckCircle2, Circle, Calendar, Edit3 } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
 import { useNotlarHooks } from '../notlar.hooks'
 import { NotModal } from './NotModal'
@@ -142,7 +134,9 @@ export function DosyaNotlariWidget({
                   </button>
                   <span
                     className={`truncate font-medium ${
-                      isCompleted ? 'line-through text-slate-400' : 'text-slate-700 dark:text-slate-200'
+                      isCompleted
+                        ? 'line-through text-slate-400'
+                        : 'text-slate-700 dark:text-slate-200'
                     }`}
                   >
                     {item.baslik}

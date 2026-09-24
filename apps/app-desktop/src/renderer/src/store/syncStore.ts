@@ -86,7 +86,8 @@ export const useSyncStore = create<SyncState>((set, get) => ({
       if (settings) {
         const isOffline = settings.is_offline_mode === 'true'
         set({
-          syncUrl: settings.sync_server_url !== undefined ? settings.sync_server_url : get().syncUrl,
+          syncUrl:
+            settings.sync_server_url !== undefined ? settings.sync_server_url : get().syncUrl,
           syncPort: settings.sync_server_port || '',
           syncToken: settings.sync_server_token || '',
           isOnlineMode: !isOffline,
@@ -280,7 +281,11 @@ export const useSyncStore = create<SyncState>((set, get) => ({
   pushPocketBase: async () => {
     const { pocketbaseUrl, pocketbaseToken, isPushing } = get()
     if (isPushing) return { success: false, message: 'İşlem devam ediyor...' }
-    set({ isPushing: true, syncStatus: 'loading', syncMessage: 'Dosya PocketBase\'e aktarılıyor...' })
+    set({
+      isPushing: true,
+      syncStatus: 'loading',
+      syncMessage: "Dosya PocketBase'e aktarılıyor..."
+    })
 
     try {
       if (window.electron?.ipcRenderer) {

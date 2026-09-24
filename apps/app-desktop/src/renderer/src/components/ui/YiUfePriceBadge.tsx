@@ -72,9 +72,7 @@ export function YiUfePriceBadge({
         title={`${year} yılı fiyatının güncel (${latest.ay_adi} ${latest.yil}) Yİ-ÜFE karşılığı: ${formatMoney(calculation.adjustedPrice)} (+%${formatNumber(calculation.percentChange)})`}
       >
         <TrendingUp className="w-3 h-3 text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform" />
-        <span>
-          Güncel Yİ-ÜFE: {formatMoney(calculation.adjustedPrice)}
-        </span>
+        <span>Güncel Yİ-ÜFE: {formatMoney(calculation.adjustedPrice)}</span>
         <span className="text-[10px] font-mono px-1 py-0.2 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200 font-extrabold">
           +%{formatNumber(calculation.percentChange, 1)}
         </span>
@@ -153,7 +151,8 @@ export function YiUfePriceBadge({
                   {formatMoney(calculation.adjustedPrice)}
                 </div>
                 <div className="text-[10px] text-blue-600 dark:text-blue-300 font-medium">
-                  Kümülatif Fiyat Artışı: +%{formatNumber(calculation.percentChange)} (+{formatMoney(calculation.fark)})
+                  Kümülatif Fiyat Artışı: +%{formatNumber(calculation.percentChange)} (+
+                  {formatMoney(calculation.fark)})
                 </div>
               </div>
             </div>

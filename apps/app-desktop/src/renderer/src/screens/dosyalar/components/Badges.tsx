@@ -35,7 +35,15 @@ export function TurBadge({ tur }: { tur: string }): React.ReactElement {
     }
   }
 
-  const found = map[key] || (key.includes('yapım') ? map.yapim_isi : key.includes('hizmet') ? map.hizmet : key.includes('danışman') ? map.danismanlik : undefined)
+  const found =
+    map[key] ||
+    (key.includes('yapım')
+      ? map.yapim_isi
+      : key.includes('hizmet')
+        ? map.hizmet
+        : key.includes('danışman')
+          ? map.danismanlik
+          : undefined)
 
   const { label, cls } = found ?? {
     label: tur || 'Mal Alımı',
@@ -44,7 +52,10 @@ export function TurBadge({ tur }: { tur: string }): React.ReactElement {
 
   return (
     <span
-      className={cn('px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wide inline-flex items-center', cls)}
+      className={cn(
+        'px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wide inline-flex items-center',
+        cls
+      )}
     >
       {label}
     </span>
@@ -174,7 +185,9 @@ export function ProjectBadge({
         className="w-1.5 h-1.5 rounded-full shrink-0"
         style={{ backgroundColor: renk || '#3b82f6' }}
       />
-      {projeKodu && <span className="font-mono text-[9px] text-blue-600 dark:text-blue-400">{projeKodu}</span>}
+      {projeKodu && (
+        <span className="font-mono text-[9px] text-blue-600 dark:text-blue-400">{projeKodu}</span>
+      )}
       {projeKodu && projeAdi && <span className="text-slate-300 dark:text-slate-600">•</span>}
       {projeAdi && <span className="truncate max-w-[140px]">{projeAdi}</span>}
     </span>

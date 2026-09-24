@@ -48,4 +48,3 @@ export interface BidPriceInputProps {
   isLowest: boolean
   isExcelStyle?: boolean
 }
-

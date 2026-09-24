@@ -1,8 +1,8 @@
-import React from "react";
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
-import { BelgeItem, BelgeListesi } from "../BelgeListesi";
-import { SonucBelgesiKartlari } from "./SonucBelgesiKartlari";
-import { Step3TutanakVeMaliyetProps } from "./types";
+import React from 'react'
+import { ArrowLeft, CheckCircle2 } from 'lucide-react'
+import { BelgeItem, BelgeListesi } from '../BelgeListesi'
+import { SonucBelgesiKartlari } from './SonucBelgesiKartlari'
+import { Step3TutanakVeMaliyetProps } from './types'
 
 export function Step3TutanakVeMaliyet({
   mappedBelgeler,
@@ -16,7 +16,7 @@ export function Step3TutanakVeMaliyet({
   handleDeleteDocument,
   setCurrentStep,
   setIsFormOpen,
-  setActiveFormTab,
+  setActiveFormTab
 }: Step3TutanakVeMaliyetProps): React.JSX.Element {
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-200">
@@ -36,24 +36,25 @@ export function Step3TutanakVeMaliyet({
         onOpenExternal={handleOpenExternalForBelge}
         onPrint={handleQuickPrintForBelge}
         onEdit={(belge) => {
-          const isMaliyet = belge.belgeTipiId === "yaklasik-maliyet" ||
-            belge.belgeAdi?.toLowerCase().includes("maliyet");
-          handleNewDocument(isMaliyet ? "maliyet" : "tutanak");
+          const isMaliyet =
+            belge.belgeTipiId === 'yaklasik-maliyet' ||
+            belge.belgeAdi?.toLowerCase().includes('maliyet')
+          handleNewDocument(isMaliyet ? 'maliyet' : 'tutanak')
         }}
         onDelete={(belge) => {
           if (handleDeleteDocument) {
-            handleDeleteDocument(belge.id);
+            handleDeleteDocument(belge.id)
           }
         }}
         createButtonLabel="Yeni Tutanak / Cetvel Kaydet"
         onCreateBelge={(type) => {
-          const mode = type === "yaklasik-maliyet" ? "maliyet" : "tutanak";
-          handleNewDocument(mode);
+          const mode = type === 'yaklasik-maliyet' ? 'maliyet' : 'tutanak'
+          handleNewDocument(mode)
         }}
         onFiyatGir={() => {
-          setCurrentStep(2);
-          setIsFormOpen(true);
-          setActiveFormTab("matrix");
+          setCurrentStep(2)
+          setIsFormOpen(true)
+          setActiveFormTab('matrix')
         }}
       />
 
@@ -73,5 +74,5 @@ export function Step3TutanakVeMaliyet({
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -170,12 +170,9 @@ export function usePiyasaFiyatData(activeDosyaId: number | null, activeTabPath: 
     loadData()
   }, [activeDosyaId, activeTabPath, loadData])
 
-  useAppEventListener(
-    ['items:changed', 'dossier:updated', 'workspace:refreshed'],
-    () => {
-      loadData()
-    }
-  )
+  useAppEventListener(['items:changed', 'dossier:updated', 'workspace:refreshed'], () => {
+    loadData()
+  })
 
   const handleBulkAddFirms = async (): Promise<void> => {
     const targetDosyaId = activeDosyaId || Number(sessionStorage.getItem('workspace_dosya_id') || 0)
@@ -251,8 +248,7 @@ export function usePiyasaFiyatData(activeDosyaId: number | null, activeTabPath: 
           'db:query',
           'SELECT COUNT(*) as cnt FROM TANIM_Firma'
         )
-        const nextNum =
-          (countRes.success && countRes.data?.[0]?.cnt ? countRes.data[0].cnt : 0) + 1
+        const nextNum = (countRes.success && countRes.data?.[0]?.cnt ? countRes.data[0].cnt : 0) + 1
         const firmaKodu = nextNum.toString().padStart(4, '0')
 
         const insertRes = await window.electron.ipcRenderer.invoke(
@@ -427,7 +423,9 @@ export function usePiyasaFiyatData(activeDosyaId: number | null, activeTabPath: 
          ORDER BY df.id ASC`,
         [activeDosyaId]
       )
-      const currentInvitedFirms: BiddingFirm[] = resInvited.success ? resInvited.data || [] : invitedFirms
+      const currentInvitedFirms: BiddingFirm[] = resInvited.success
+        ? resInvited.data || []
+        : invitedFirms
       if (resInvited.success) setInvitedFirms(currentInvitedFirms)
 
       const isLowestBasis =

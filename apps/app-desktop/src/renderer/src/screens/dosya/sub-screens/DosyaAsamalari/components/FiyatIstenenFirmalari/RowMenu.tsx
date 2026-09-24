@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
   Calculator,
   FileSpreadsheet,
@@ -8,9 +8,9 @@ import {
   ShieldCheck,
   Tag,
   Trash2,
-  Trophy,
-} from "lucide-react";
-import { Firma, RowMenuProps } from "./types";
+  Trophy
+} from 'lucide-react'
+import { Firma, RowMenuProps } from './types'
 
 export function RowMenu({
   firma,
@@ -21,61 +21,59 @@ export function RowMenu({
   onBosTeklifCetveli,
   onEkapSorgula,
   onSetWinnerFirma,
-  isWinner,
+  isWinner
 }: RowMenuProps): React.JSX.Element {
-  const [open, setOpen] = useState(false);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const [coords, setCoords] = useState<{ top: number; left: number } | null>(
-    null,
-  );
+  const [open, setOpen] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null)
 
   const updateCoords = useCallback(() => {
     if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      const menuWidth = 240;
-      let left = rect.right - menuWidth;
-      if (left < 10) left = 10;
-      let top = rect.bottom + 4;
+      const rect = buttonRef.current.getBoundingClientRect()
+      const menuWidth = 240
+      let left = rect.right - menuWidth
+      if (left < 10) left = 10
+      let top = rect.bottom + 4
       if (top + 280 > window.innerHeight) {
-        top = Math.max(10, rect.top - 280 - 4);
+        top = Math.max(10, rect.top - 280 - 4)
       }
-      setCoords({ top, left });
+      setCoords({ top, left })
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    if (!open) return undefined;
-    updateCoords();
-    window.addEventListener("resize", updateCoords);
-    window.addEventListener("scroll", updateCoords, true);
+    if (!open) return undefined
+    updateCoords()
+    window.addEventListener('resize', updateCoords)
+    window.addEventListener('scroll', updateCoords, true)
     return () => {
-      window.removeEventListener("resize", updateCoords);
-      window.removeEventListener("scroll", updateCoords, true);
-    };
-  }, [open, updateCoords]);
+      window.removeEventListener('resize', updateCoords)
+      window.removeEventListener('scroll', updateCoords, true)
+    }
+  }, [open, updateCoords])
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) return
     const handler = (e: MouseEvent) => {
-      const target = e.target as Node;
+      const target = e.target as Node
       if (
         buttonRef.current &&
         !buttonRef.current.contains(target) &&
         menuRef.current &&
         !menuRef.current.contains(target)
       ) {
-        setOpen(false);
+        setOpen(false)
       }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [open]);
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
 
   const handleItem = (fn: () => void) => {
-    fn();
-    setOpen(false);
-  };
+    fn()
+    setOpen(false)
+  }
 
   return (
     <div className="relative inline-block">
@@ -104,9 +102,7 @@ export function RowMenu({
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors cursor-pointer"
               >
                 <Trophy className="w-4 h-4 text-amber-500 shrink-0" />
-                {isWinner
-                  ? "Kazanan Seçimini Kaldır"
-                  : "Kazanan Firma Olarak Seç"}
+                {isWinner ? 'Kazanan Seçimini Kaldır' : 'Kazanan Firma Olarak Seç'}
               </button>
             )}
 
@@ -124,8 +120,8 @@ export function RowMenu({
               </>
             )}
           </div>,
-          document.body,
+          document.body
         )}
     </div>
-  );
+  )
 }

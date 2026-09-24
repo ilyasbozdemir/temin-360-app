@@ -1,14 +1,14 @@
-import React from "react";
-import { CheckCircle2, DollarSign, Percent, TrendingDown, TrendingUp } from "lucide-react";
+import React from 'react'
+import { CheckCircle2, DollarSign, Percent, TrendingDown, TrendingUp } from 'lucide-react'
 
-import { KarsilastirmaStatCardsProps } from "./types";
+import { KarsilastirmaStatCardsProps } from './types'
 
 export function KarsilastirmaStatCards({
   totalBefore,
   totalAfter,
   netSavings,
   overallSavingsRate,
-  formatCurrency,
+  formatCurrency
 }: KarsilastirmaStatCardsProps): React.JSX.Element {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -41,7 +41,9 @@ export function KarsilastirmaStatCards({
         <div className="text-xl font-black text-slate-800 dark:text-slate-100">
           {formatCurrency(totalAfter)}
         </div>
-        <p className="text-[11px] text-slate-400 mt-1">Nihai teklifler sonucu oluşan toplam bedel</p>
+        <p className="text-[11px] text-slate-400 mt-1">
+          Nihai teklifler sonucu oluşan toplam bedel
+        </p>
       </div>
 
       {/* NET TASARRUF / FARK */}
@@ -92,5 +94,5 @@ export function KarsilastirmaStatCards({
         <p className="text-[11px] text-slate-400 mt-1">Öncesi ve sonrası yüzdesel değişim</p>
       </div>
     </div>
-  );
+  )
 }

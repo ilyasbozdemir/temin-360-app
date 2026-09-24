@@ -352,7 +352,9 @@ export function FiyatFarkiTab(): React.JSX.Element {
                               className="w-1/2 p-1 text-[11px] bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded"
                             >
                               {Array.from({ length: 33 }, (_, i) => 2026 - i).map((y) => (
-                                <option key={y} value={y}>{y}</option>
+                                <option key={y} value={y}>
+                                  {y}
+                                </option>
                               ))}
                             </select>
                             <select
@@ -366,14 +368,17 @@ export function FiyatFarkiTab(): React.JSX.Element {
                               className="w-1/2 p-1 text-[11px] bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded"
                             >
                               {AY_ISIMLERI.map((m, idx) => (
-                                <option key={idx + 1} value={idx + 1}>{m}</option>
+                                <option key={idx + 1} value={idx + 1}>
+                                  {m}
+                                </option>
                               ))}
                             </select>
                           </div>
                           <div className="text-[10px] text-slate-500 flex justify-between pt-0.5">
                             <span>Seçilen Endeks:</span>
                             <span className="font-mono font-bold text-blue-600 dark:text-blue-400">
-                              {yiUfeService.getIndex(temelYil, temelAy)?.toFixed(2) || 'Açıklanmadı'}
+                              {yiUfeService.getIndex(temelYil, temelAy)?.toFixed(2) ||
+                                'Açıklanmadı'}
                             </span>
                           </div>
                         </div>
@@ -395,7 +400,9 @@ export function FiyatFarkiTab(): React.JSX.Element {
                               className="w-1/2 p-1 text-[11px] bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded"
                             >
                               {Array.from({ length: 33 }, (_, i) => 2026 - i).map((y) => (
-                                <option key={y} value={y}>{y}</option>
+                                <option key={y} value={y}>
+                                  {y}
+                                </option>
                               ))}
                             </select>
                             <select
@@ -409,14 +416,17 @@ export function FiyatFarkiTab(): React.JSX.Element {
                               className="w-1/2 p-1 text-[11px] bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded"
                             >
                               {AY_ISIMLERI.map((m, idx) => (
-                                <option key={idx + 1} value={idx + 1}>{m}</option>
+                                <option key={idx + 1} value={idx + 1}>
+                                  {m}
+                                </option>
                               ))}
                             </select>
                           </div>
                           <div className="text-[10px] text-slate-500 flex justify-between pt-0.5">
                             <span>Seçilen Endeks:</span>
                             <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                              {yiUfeService.getIndex(guncelYil, guncelAy)?.toFixed(2) || 'Açıklanmadı'}
+                              {yiUfeService.getIndex(guncelYil, guncelAy)?.toFixed(2) ||
+                                'Açıklanmadı'}
                             </span>
                           </div>
                         </div>

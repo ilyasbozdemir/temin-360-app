@@ -31,17 +31,12 @@ export const SABLON_ALIAS_MAP: Record<string, string[]> = {
     'yasaklilik-sorgulama',
     'ekap-yasaklilik'
   ],
-  'piyasa-fiyat-arastirma-gorevlendirmesi': [
-    'piyasa-fiyat-arastirma-gorevlendirmesi'
-  ],
+  'piyasa-fiyat-arastirma-gorevlendirmesi': ['piyasa-fiyat-arastirma-gorevlendirmesi'],
   'piyasa-fiyat-arastirma-tutanagi': [
     'piyasa-fiyat-arastirma-tutanagi',
     'fiyat-arastirmasi-tutanagi'
   ],
-  'yaklasik-maliyet-cetveli': [
-    'yaklasik-maliyet-cetveli',
-    'yaklasik-maliyet-hesap-cetveli'
-  ],
+  'yaklasik-maliyet-cetveli': ['yaklasik-maliyet-cetveli', 'yaklasik-maliyet-hesap-cetveli'],
   'dogrudan-temin-onay-belgesi': [
     'dogrudan-temin-onay-belgesi',
     'idare-onay-belgesi',
@@ -86,13 +81,19 @@ export const normalizeForMatch = (str: string): string =>
 export function findSablonByAlias(sablons: any[] | undefined | null, targetKey: string): any {
   if (!sablons || sablons.length === 0 || !targetKey) return null
 
-  const cleanTarget = targetKey.replace(/\.html$/, '').toLowerCase().trim()
+  const cleanTarget = targetKey
+    .replace(/\.html$/, '')
+    .toLowerCase()
+    .trim()
   const candidateKeys = SABLON_ALIAS_MAP[cleanTarget] || [cleanTarget]
 
   // 1. Exact match on dosya_adi (with or without .html)
   for (const key of candidateKeys) {
     const found = sablons.find((s: any) => {
-      const fileBase = (s.dosya_adi || '').replace(/\.html$/, '').toLowerCase().trim()
+      const fileBase = (s.dosya_adi || '')
+        .replace(/\.html$/, '')
+        .toLowerCase()
+        .trim()
       return fileBase === key
     })
     if (found) return found
@@ -101,7 +102,9 @@ export function findSablonByAlias(sablons: any[] | undefined | null, targetKey: 
   // 2. Exact match on route_path or id
   for (const key of candidateKeys) {
     const found = sablons.find((s: any) => {
-      const route = String(s.route_path || s.id || '').toLowerCase().trim()
+      const route = String(s.route_path || s.id || '')
+        .toLowerCase()
+        .trim()
       return route === key
     })
     if (found) return found

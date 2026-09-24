@@ -80,7 +80,9 @@ export default function AmbarScreen({
 } = {}): React.JSX.Element {
   void isSubComponent
 
-  const [activeTab, setActiveTab] = useState<'ambarlar' | 'stoklar' | 'hareketler' | 'tifler'>('ambarlar')
+  const [activeTab, setActiveTab] = useState<'ambarlar' | 'stoklar' | 'hareketler' | 'tifler'>(
+    'ambarlar'
+  )
   const [selectedAmbarFilter, setSelectedAmbarFilter] = useState<number | ''>('')
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -97,9 +99,7 @@ export default function AmbarScreen({
     updateAmbar,
     deleteAmbar,
     deleteTif
-  } = useAmbarHooks(
-    selectedAmbarFilter ? Number(selectedAmbarFilter) : undefined
-  )
+  } = useAmbarHooks(selectedAmbarFilter ? Number(selectedAmbarFilter) : undefined)
 
   const [form, setForm] = useState<AmbarInput>({ ...emptyAmbar })
   const [showExtraFields, setShowExtraFields] = useState(false)
@@ -109,10 +109,12 @@ export default function AmbarScreen({
   // Stok Hareket Modal
   const [isHareketModalOpen, setIsHareketModalOpen] = useState(false)
   const [selectedStokForHareket, setSelectedStokForHareket] = useState<AmbarStok | null>(null)
-  const [defaultHareketType, setDefaultHareketType] = useState<'giris' | 'cikis' | 'zimmet' | 'iade' | 'hasar'>('zimmet')
+  const [defaultHareketType, setDefaultHareketType] = useState<
+    'giris' | 'cikis' | 'zimmet' | 'iade' | 'hasar'
+  >('zimmet')
 
   const handleChange = (key: keyof AmbarInput, value: string): void => {
-    setForm((prev) => ({ ...prev, [key]: value }));
+    setForm((prev) => ({ ...prev, [key]: value }))
   }
 
   const handleSaveAmbar = async (e: React.FormEvent): Promise<void> => {
@@ -179,7 +181,7 @@ export default function AmbarScreen({
 
   // Filtered lists
   const filteredStoklar = stoklar.filter((s) => {
-    const matchesSearch = 
+    const matchesSearch =
       s.kalem_adi?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       s.tasinir_kodu?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       s.ambar_adi?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -187,7 +189,7 @@ export default function AmbarScreen({
   })
 
   const filteredHareketler = hareketler.filter((h) => {
-    const matchesSearch = 
+    const matchesSearch =
       h.kalem_adi?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       h.kisi_veya_birim?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       h.belge_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -263,7 +265,8 @@ export default function AmbarScreen({
             Ambar &amp; Stok Yönetimi (TİF)
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Depolar, anlık stok durumu, taşınır işlem fişleri (TİF) ve zimmet kayıtlarını tek merkezden yönetin.
+            Depolar, anlık stok durumu, taşınır işlem fişleri (TİF) ve zimmet kayıtlarını tek
+            merkezden yönetin.
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
@@ -332,7 +335,11 @@ export default function AmbarScreen({
               Toplam Stok Değeri
             </div>
             <div className="text-xl font-bold text-slate-800 dark:text-slate-100 mt-0.5 font-mono">
-              {totalStockValue.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+              {totalStockValue.toLocaleString('tr-TR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}{' '}
+              ₺
             </div>
           </div>
         </div>
@@ -554,7 +561,10 @@ export default function AmbarScreen({
                   </tr>
                 ) : (
                   filteredStoklar.map((stok, idx) => (
-                    <tr key={stok.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-950/40 transition-colors">
+                    <tr
+                      key={stok.id}
+                      className="hover:bg-slate-50/70 dark:hover:bg-slate-950/40 transition-colors"
+                    >
                       <td className="p-3 text-center text-slate-400 font-mono">{idx + 1}</td>
                       <td className="p-3 font-semibold text-slate-900 dark:text-slate-100">
                         {stok.kalem_adi}
@@ -566,20 +576,30 @@ export default function AmbarScreen({
                         {stok.ambar_adi || 'Genel Depo'}
                       </td>
                       <td className="p-3 text-right font-bold text-slate-800 dark:text-slate-100">
-                        <span className={`px-2 py-0.5 rounded-full ${
-                          stok.toplam_miktar <= 0 
-                            ? 'bg-red-100 text-red-700 dark:bg-red-950/50' 
-                            : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40'
-                        }`}>
+                        <span
+                          className={`px-2 py-0.5 rounded-full ${
+                            stok.toplam_miktar <= 0
+                              ? 'bg-red-100 text-red-700 dark:bg-red-950/50'
+                              : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40'
+                          }`}
+                        >
                           {stok.toplam_miktar}
                         </span>
                       </td>
                       <td className="p-3 text-slate-500">{stok.olcu_birimi || 'Adet'}</td>
                       <td className="p-3 text-right font-mono text-slate-600 dark:text-slate-400">
-                        {(stok.birim_fiyat || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+                        {(stok.birim_fiyat || 0).toLocaleString('tr-TR', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}{' '}
+                        ₺
                       </td>
                       <td className="p-3 text-right font-mono font-bold text-slate-900 dark:text-slate-100">
-                        {(stok.toplam_tutar || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+                        {(stok.toplam_tutar || 0).toLocaleString('tr-TR', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}{' '}
+                        ₺
                       </td>
                       <td className="p-3 text-center">
                         <div className="flex items-center justify-center gap-1.5">
@@ -651,7 +671,10 @@ export default function AmbarScreen({
                   </tr>
                 ) : (
                   filteredHareketler.map((h) => (
-                    <tr key={h.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-950/40 transition-colors">
+                    <tr
+                      key={h.id}
+                      className="hover:bg-slate-50/70 dark:hover:bg-slate-950/40 transition-colors"
+                    >
                       <td className="p-3 font-mono text-slate-500 whitespace-nowrap">
                         {h.islem_tarihi ? h.islem_tarihi.substring(0, 10) : '-'}
                       </td>
@@ -684,7 +707,11 @@ export default function AmbarScreen({
                         )}
                       </td>
                       <td className="p-3 text-right font-mono font-semibold text-slate-800 dark:text-slate-200">
-                        {(h.toplam_tutar || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+                        {(h.toplam_tutar || 0).toLocaleString('tr-TR', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}{' '}
+                        ₺
                       </td>
                     </tr>
                   ))
@@ -727,7 +754,10 @@ export default function AmbarScreen({
                   </tr>
                 ) : (
                   filteredTifler.map((tif) => (
-                    <tr key={tif.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-950/40 transition-colors">
+                    <tr
+                      key={tif.id}
+                      className="hover:bg-slate-50/70 dark:hover:bg-slate-950/40 transition-colors"
+                    >
                       <td className="p-3 font-mono font-bold text-blue-600 dark:text-blue-400">
                         {tif.fis_no}
                       </td>
@@ -757,7 +787,11 @@ export default function AmbarScreen({
                         {tif.kalem_sayisi || 0} Kalem
                       </td>
                       <td className="p-3 text-right font-mono font-bold text-slate-900 dark:text-slate-100">
-                        {(tif.toplam_tutar || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+                        {(tif.toplam_tutar || 0).toLocaleString('tr-TR', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}{' '}
+                        ₺
                       </td>
                       <td className="p-3 text-center">
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
@@ -819,7 +853,11 @@ export default function AmbarScreen({
             onClick={() => setShowExtraFields(!showExtraFields)}
             className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 font-semibold mt-2 cursor-pointer w-full justify-center bg-blue-50 dark:bg-blue-900/20 py-2 rounded-lg transition-colors"
           >
-            {showExtraFields ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            {showExtraFields ? (
+              <ChevronUp className="w-3.5 h-3.5" />
+            ) : (
+              <ChevronDown className="w-3.5 h-3.5" />
+            )}
             {showExtraFields ? 'Ek Bilgileri Gizle' : 'Adres, İletişim & Taşınır Bilgileri Göster'}
           </button>
 
@@ -828,7 +866,12 @@ export default function AmbarScreen({
               <Field label="Adres" field="adres" form={form} handleChange={handleChange} />
               <div className="grid grid-cols-3 gap-3">
                 <Field label="Semt" field="semt" form={form} handleChange={handleChange} />
-                <Field label="Posta Kodu" field="posta_kodu" form={form} handleChange={handleChange} />
+                <Field
+                  label="Posta Kodu"
+                  field="posta_kodu"
+                  form={form}
+                  handleChange={handleChange}
+                />
                 <Field label="Şehir" field="sehir" form={form} handleChange={handleChange} />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -836,12 +879,27 @@ export default function AmbarScreen({
                 <Field label="Faks" field="faks" form={form} handleChange={handleChange} />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Web Adresi" field="web_adresi" form={form} handleChange={handleChange} />
+                <Field
+                  label="Web Adresi"
+                  field="web_adresi"
+                  form={form}
+                  handleChange={handleChange}
+                />
                 <Field label="Email" field="email" form={form} handleChange={handleChange} />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Taşınır Kodu" field="tasinir_kodu" form={form} handleChange={handleChange} />
-                <Field label="Taşınır Adı" field="tasinir_adi" form={form} handleChange={handleChange} />
+                <Field
+                  label="Taşınır Kodu"
+                  field="tasinir_kodu"
+                  form={form}
+                  handleChange={handleChange}
+                />
+                <Field
+                  label="Taşınır Adı"
+                  field="tasinir_adi"
+                  form={form}
+                  handleChange={handleChange}
+                />
               </div>
             </div>
           )}

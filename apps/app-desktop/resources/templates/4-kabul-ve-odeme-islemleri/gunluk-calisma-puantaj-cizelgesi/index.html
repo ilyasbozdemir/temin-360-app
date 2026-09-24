@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{#belgeBasligi}}{{belgeBasligi}}{{/belgeBasligi}}{{^belgeBasligi}}İş Makinesi / Hizmet İşleri Günlük Çalışma Puantaj Çizelgesi{{/belgeBasligi}}</title>
+    <title>
+      {{#belgeBasligi}}{{belgeBasligi}}{{/belgeBasligi}}{{^belgeBasligi}}İş Makinesi / Hizmet İşleri
+      Günlük Çalışma Puantaj Çizelgesi{{/belgeBasligi}}
+    </title>
     <style>
       @page {
         size: A4 landscape;
@@ -157,11 +160,10 @@
             </td>
             <td width="70%" class="antet-text">
               {{#antetSatirlari}}
-                <div>{{.}}</div>
-              {{/antetSatirlari}}
-              {{^antetSatirlari}}
-                <div>T.C.</div>
-                <div>{{kurumAdi}}</div>
+              <div>{{.}}</div>
+              {{/antetSatirlari}} {{^antetSatirlari}}
+              <div>T.C.</div>
+              <div>{{kurumAdi}}</div>
               {{/antetSatirlari}}
             </td>
             <td width="15%" align="right">
@@ -173,7 +175,8 @@
 
       <!-- BELGE BAŞLIĞI -->
       <div class="document-title">
-        {{#belgeBasligi}}{{belgeBasligi}}{{/belgeBasligi}}{{^belgeBasligi}}İŞ MAKİNESİ / HİZMET İŞLERİ GÜNLÜK ÇALIŞMA PUANTAJ ÇİZELGESİ{{/belgeBasligi}}
+        {{#belgeBasligi}}{{belgeBasligi}}{{/belgeBasligi}}{{^belgeBasligi}}İŞ MAKİNESİ / HİZMET
+        İŞLERİ GÜNLÜK ÇALIŞMA PUANTAJ ÇİZELGESİ{{/belgeBasligi}}
       </div>
 
       <!-- İŞ VE SÖZLEŞME DETAY TABLOSU -->
@@ -192,7 +195,9 @@
         </tr>
         <tr>
           <td class="details-label">Sözleşme / Temin No</td>
-          <td>{{#teminNo}}Temin No: {{teminNo}}{{/teminNo}}{{^teminNo}}{{sozlesmeTarihi}}{{/teminNo}}</td>
+          <td>
+            {{#teminNo}}Temin No: {{teminNo}}{{/teminNo}}{{^teminNo}}{{sozlesmeTarihi}}{{/teminNo}}
+          </td>
           <td class="details-label">Kontrol Teşkilatı</td>
           <td>{{kontrolGorevlisi}}</td>
         </tr>
@@ -203,8 +208,14 @@
         <thead>
           <tr>
             <th width="3%">S.N</th>
-            <th width="16%">{{#kalemBasligi}}{{kalemBasligi}}{{/kalemBasligi}}{{^kalemBasligi}}HİZMET / İFA / ARAÇ - MAKİNE KALEMİ{{/kalemBasligi}}</th>
-            <th width="10%">{{#ozellikBasligi}}{{ozellikBasligi}}{{/ozellikBasligi}}{{^ozellikBasligi}}ÖZELLİĞİ / PLAKA / NİTELİĞİ{{/ozellikBasligi}}</th>
+            <th width="16%">
+              {{#kalemBasligi}}{{kalemBasligi}}{{/kalemBasligi}}{{^kalemBasligi}}HİZMET / İFA / ARAÇ
+              - MAKİNE KALEMİ{{/kalemBasligi}}
+            </th>
+            <th width="10%">
+              {{#ozellikBasligi}}{{ozellikBasligi}}{{/ozellikBasligi}}{{^ozellikBasligi}}ÖZELLİĞİ /
+              PLAKA / NİTELİĞİ{{/ozellikBasligi}}
+            </th>
             <th width="1.7%">1</th>
             <th width="1.7%">2</th>
             <th width="1.7%">3</th>
@@ -280,9 +291,7 @@
             <td><b>{{toplamMiktar}}{{#birim}} {{birim}}{{/birim}}</b></td>
             <td class="text-left">{{aciklama}}</td>
           </tr>
-          {{/hizmetKalemleri}}
-          {{^hizmetKalemleri}}
-          {{#personeller}}
+          {{/hizmetKalemleri}} {{^hizmetKalemleri}} {{#personeller}}
           <tr>
             <td>{{siraNo}}</td>
             <td class="text-left"><b>{{adSoyad}}</b></td>
@@ -321,28 +330,27 @@
             <td><b>{{toplamGun}}</b></td>
             <td class="text-left">{{aciklama}}</td>
           </tr>
-          {{/personeller}}
-          {{/hizmetKalemleri}}
+          {{/personeller}} {{/hizmetKalemleri}}
         </tbody>
       </table>
 
       <!-- LEJANT BİLGİSİ -->
       <div class="lejant-box">
-        {{#lejantMetni}}{{{lejantMetni}}}{{/lejantMetni}}
-        {{^lejantMetni}}
-          <b>İfa Sembolleri Lejandı:</b> 
-          <b>Sayısal Değer (m², Saat, Adet vb.):</b> Günlük Fiilen İfa Edilen İmalat / Çalışma Miktarı | 
-          <b>X:</b> Tam Gün Hizmet İfa Edildi | 
-          <b>-:</b> Çalışılmadı / Hava Muhalefeti / Tatil
+        {{#lejantMetni}}{{{lejantMetni}}}{{/lejantMetni}} {{^lejantMetni}}
+        <b>İfa Sembolleri Lejandı:</b>
+        <b>Sayısal Değer (m², Saat, Adet vb.):</b> Günlük Fiilen İfa Edilen İmalat / Çalışma Miktarı
+        | <b>X:</b> Tam Gün Hizmet İfa Edildi | <b>-:</b> Çalışılmadı / Hava Muhalefeti / Tatil
         {{/lejantMetni}}
       </div>
 
       <!-- KABUL TESPİT BEYANI -->
       <div class="kabul-beyani">
-        {{#kabulBeyani}}{{{kabulBeyani}}}{{/kabulBeyani}}
-        {{^kabulBeyani}}
-          <b>Tespit ve Kabul Beyanı:</b> Yukarıda ayrıntıları ve günlük dökümü yer alan hizmet ve imalatlar, yüklenici <b>{{yukleniciFirma}}</b> tarafından <b>{{ayYil}}</b> ayı çalışma dönemi içerisinde idaremiz denetim ve gözetiminde teknik şartname ile sözleşme/temin esaslarına uygun olarak yürütülmüş, fiili ölçüm ve hizmet ifa kayıtları denetlenerek hakedişe esas kabulü yapılmıştır.
-        {{/kabulBeyani}}
+        {{#kabulBeyani}}{{{kabulBeyani}}}{{/kabulBeyani}} {{^kabulBeyani}}
+        <b>Tespit ve Kabul Beyanı:</b> Yukarıda ayrıntıları ve günlük dökümü yer alan hizmet ve
+        imalatlar, yüklenici <b>{{yukleniciFirma}}</b> tarafından <b>{{ayYil}}</b> ayı çalışma
+        dönemi içerisinde idaremiz denetim ve gözetiminde teknik şartname ile sözleşme/temin
+        esaslarına uygun olarak yürütülmüş, fiili ölçüm ve hizmet ifa kayıtları denetlenerek
+        hakedişe esas kabulü yapılmıştır. {{/kabulBeyani}}
       </div>
 
       <!-- İMZA ALANI -->
@@ -350,17 +358,26 @@
         <tbody>
           <tr>
             <td width="33%">
-              <div class="imza-unvan">{{#yukleniciUnvan}}{{yukleniciUnvan}}{{/yukleniciUnvan}}{{^yukleniciUnvan}}HİZMET SUNUCU / YÜKLENİCİ{{/yukleniciUnvan}}</div>
+              <div class="imza-unvan">
+                {{#yukleniciUnvan}}{{yukleniciUnvan}}{{/yukleniciUnvan}}{{^yukleniciUnvan}}HİZMET
+                SUNUCU / YÜKLENİCİ{{/yukleniciUnvan}}
+              </div>
               <div><b>{{yukleniciFirma}}</b></div>
               <div>Yetkili İmza / Kaşe</div>
             </td>
             <td width="33%">
-              <div class="imza-unvan">{{#kontrolUnvan}}{{kontrolUnvan}}{{/kontrolUnvan}}{{^kontrolUnvan}}KONTROL VE DENETİM TEŞKİLATI{{/kontrolUnvan}}</div>
+              <div class="imza-unvan">
+                {{#kontrolUnvan}}{{kontrolUnvan}}{{/kontrolUnvan}}{{^kontrolUnvan}}KONTROL VE
+                DENETİM TEŞKİLATI{{/kontrolUnvan}}
+              </div>
               <div><b>{{kontrolGorevlisi}}</b></div>
               <div>İmza</div>
             </td>
             <td width="34%">
-              <div class="imza-unvan">{{#komisyonUnvan}}{{komisyonUnvan}}{{/komisyonUnvan}}{{^komisyonUnvan}}MUAYENE VE KABUL KOMİSYONU{{/komisyonUnvan}}</div>
+              <div class="imza-unvan">
+                {{#komisyonUnvan}}{{komisyonUnvan}}{{/komisyonUnvan}}{{^komisyonUnvan}}MUAYENE VE
+                KABUL KOMİSYONU{{/komisyonUnvan}}
+              </div>
               <div><b>{{baskanAdi}}</b></div>
               <div>İmza</div>
             </td>

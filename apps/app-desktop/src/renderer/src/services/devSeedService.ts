@@ -120,7 +120,8 @@ export const devSeedService = {
 
       return {
         success: true,
-        message: 'Tüm sistem (Kurum, Birimler, Personeller, Firmalar, Kalemler, Komisyonlar, Ambarlar ve Dosyalar) tertemiz sıfırlanıp eksiksiz tohumlandı!',
+        message:
+          'Tüm sistem (Kurum, Birimler, Personeller, Firmalar, Kalemler, Komisyonlar, Ambarlar ve Dosyalar) tertemiz sıfırlanıp eksiksiz tohumlandı!',
         details
       }
     } catch (error: unknown) {
@@ -388,7 +389,15 @@ export const devSeedService = {
           diger_limit = excluded.diger_limit,
           guncelleme_orani = excluded.guncelleme_orani,
           kaynak = excluded.kaynak`,
-        [p.donem_kodu, p.baslangic_tarihi, p.bitis_tarihi, p.buyuksehir_limit, p.diger_limit, p.guncelleme_orani, p.kaynak]
+        [
+          p.donem_kodu,
+          p.baslangic_tarihi,
+          p.bitis_tarihi,
+          p.buyuksehir_limit,
+          p.diger_limit,
+          p.guncelleme_orani,
+          p.kaynak
+        ]
       )
     }
   },
@@ -942,7 +951,22 @@ export const devSeedService = {
             telefon = ?, email = ?, adres = ?, il = ?, ilce = ?, hesap_no = ?, banka_adi = ?, 
             sube_kodu_adi = ?, aktif_mi = 1, kalite_skoru = 5, deneyim_skoru = 5 
           WHERE id = ?`,
-          [f.unvan, f.kod, f.ilgili, f.vno, f.vd, f.tel, f.ep, f.adr, 'Ankara', 'Çankaya', f.hesap_no, f.banka, f.sube, existing.data[0].id]
+          [
+            f.unvan,
+            f.kod,
+            f.ilgili,
+            f.vno,
+            f.vd,
+            f.tel,
+            f.ep,
+            f.adr,
+            'Ankara',
+            'Çankaya',
+            f.hesap_no,
+            f.banka,
+            f.sube,
+            existing.data[0].id
+          ]
         )
         ids.push(existing.data[0].id)
       } else {
@@ -951,7 +975,21 @@ export const devSeedService = {
           `INSERT INTO TANIM_Firma (
             unvan, firma_kodu, ilgili_adi, vergi_no, vergi_dairesi, telefon, email, adres, il, ilce, hesap_no, banka_adi, sube_kodu_adi, aktif_mi, kalite_skoru, deneyim_skoru
           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 5, 5)`,
-          [f.unvan, f.kod, f.ilgili, f.vno, f.vd, f.tel, f.ep, f.adr, 'Ankara', 'Çankaya', f.hesap_no, f.banka, f.sube]
+          [
+            f.unvan,
+            f.kod,
+            f.ilgili,
+            f.vno,
+            f.vd,
+            f.tel,
+            f.ep,
+            f.adr,
+            'Ankara',
+            'Çankaya',
+            f.hesap_no,
+            f.banka,
+            f.sube
+          ]
         )
         if (res.success && res.lastInsertRowid) {
           ids.push(Number(res.lastInsertRowid))
@@ -994,7 +1032,8 @@ export const devSeedService = {
         kdv: 20,
         tkod: '255.02.01.01',
         okas: '30213000-5',
-        ozelligi: 'Kurumsal kullanım için yüksek performanslı masaüstü bilgisayar kasası ve aksesuarları'
+        ozelligi:
+          'Kurumsal kullanım için yüksek performanslı masaüstü bilgisayar kasası ve aksesuarları'
       },
       {
         barkod: '8690001004',
@@ -1044,7 +1083,8 @@ export const devSeedService = {
         kdv: 20,
         tkod: '252.01.01.01',
         okas: '45442110-1',
-        ozelligi: 'Duvar ve tavan yüzey tamiratları, astar ve çift kat silikonlu iç cephe boyası uygulaması'
+        ozelligi:
+          'Duvar ve tavan yüzey tamiratları, astar ve çift kat silikonlu iç cephe boyası uygulaması'
       },
       {
         barkod: '8690001009',
@@ -1165,8 +1205,16 @@ export const devSeedService = {
 
     // 2. Komisyonlar
     const komisyonlar = [
-      { id: 1, ad: 'Piyasa Fiyat Araştırması Komisyonu', aciklama: 'Piyasa Fiyat Araştırma ve Teklif Değerlendirme Komisyonu' },
-      { id: 2, ad: 'Muayene ve Kabul Komisyonu', aciklama: 'Taşınır Mal Muayene, Kabul ve Muayene Raporu Komisyonu' },
+      {
+        id: 1,
+        ad: 'Piyasa Fiyat Araştırması Komisyonu',
+        aciklama: 'Piyasa Fiyat Araştırma ve Teklif Değerlendirme Komisyonu'
+      },
+      {
+        id: 2,
+        ad: 'Muayene ve Kabul Komisyonu',
+        aciklama: 'Taşınır Mal Muayene, Kabul ve Muayene Raporu Komisyonu'
+      }
     ]
 
     for (const k of komisyonlar) {
@@ -1196,7 +1244,10 @@ export const devSeedService = {
 
     // Gerekli tanımlar eksikse otomatik getir veya tohumla
     if (!firmaIds || firmaIds.length === 0) {
-      const fRes = await window.electron.ipcRenderer.invoke('db:query', 'SELECT id FROM TANIM_Firma ORDER BY id')
+      const fRes = await window.electron.ipcRenderer.invoke(
+        'db:query',
+        'SELECT id FROM TANIM_Firma ORDER BY id'
+      )
       if (fRes.success && fRes.data && fRes.data.length > 0) {
         firmaIds = fRes.data.map((r: { id: number }) => r.id)
       } else {
@@ -1205,7 +1256,10 @@ export const devSeedService = {
     }
 
     if (!personelIds || personelIds.length === 0) {
-      const pRes = await window.electron.ipcRenderer.invoke('db:query', 'SELECT id FROM TANIM_Personel ORDER BY id')
+      const pRes = await window.electron.ipcRenderer.invoke(
+        'db:query',
+        'SELECT id FROM TANIM_Personel ORDER BY id'
+      )
       if (pRes.success && pRes.data && pRes.data.length > 0) {
         personelIds = pRes.data.map((r: { id: number }) => r.id)
       } else {
@@ -1214,7 +1268,10 @@ export const devSeedService = {
     }
 
     if (!birimIds || birimIds.length === 0) {
-      const bRes = await window.electron.ipcRenderer.invoke('db:query', 'SELECT id FROM TANIM_Birim ORDER BY id')
+      const bRes = await window.electron.ipcRenderer.invoke(
+        'db:query',
+        'SELECT id FROM TANIM_Birim ORDER BY id'
+      )
       if (bRes.success && bRes.data && bRes.data.length > 0) {
         birimIds = bRes.data.map((r: { id: number }) => r.id)
       } else {
@@ -1243,7 +1300,8 @@ export const devSeedService = {
       {
         temin_no: `DT-${dy}/01`,
         konu: `${dy} Yılı 1. Çeyrek Kırtasiye, Kağıt ve Büro Tüketim Malzemeleri Alımı`,
-        isin_aciklamasi: 'Birimlerimizin acil kırtasiye ihtiyacının 4734 sayılı KİK 22/d doğrudan temin usulü ile karşılanması işi.',
+        isin_aciklamasi:
+          'Birimlerimizin acil kırtasiye ihtiyacının 4734 sayılı KİK 22/d doğrudan temin usulü ile karşılanması işi.',
         tur: 'mal',
         birim_id: birimIds[0] || 1,
         ihtiyac_yeri: 'Destek Hizmetleri Başkanlığı / Merkez Bina Ana Ambarı',
@@ -1256,7 +1314,8 @@ export const devSeedService = {
       {
         temin_no: `DT-${dy}/02`,
         konu: 'Hizmet Binası İklimlendirme ve Klimalar Periyodik Bakım Hizmet Alımı',
-        isin_aciklamasi: 'Hizmet binasındaki tüm iklimlendirme sistemlerinin mevsimlik periyodik bakımı hizmet alımı.',
+        isin_aciklamasi:
+          'Hizmet binasındaki tüm iklimlendirme sistemlerinin mevsimlik periyodik bakımı hizmet alımı.',
         tur: 'hizmet',
         birim_id: birimIds[1] || birimIds[0] || 1,
         ihtiyac_yeri: 'İdari ve Mali İşler Şube Müdürlüğü / Hizmet Binası Katları',
@@ -1269,7 +1328,8 @@ export const devSeedService = {
       {
         temin_no: `DT-${dy}/03`,
         konu: 'Hizmet Binası Zemin Kat Islak Hacim Tadilatı Yapım İşi',
-        isin_aciklamasi: 'Zemin kat ortak kullanım alanları ve ıslak hacimlerin komple seramik kaplama ve tadilat yapım işi.',
+        isin_aciklamasi:
+          'Zemin kat ortak kullanım alanları ve ıslak hacimlerin komple seramik kaplama ve tadilat yapım işi.',
         tur: 'yapim_isi',
         birim_id: birimIds[2] || birimIds[0] || 1,
         ihtiyac_yeri: 'İnşaat ve Teknik Hizmetler Birimi / Hizmet Binası Zemin Kat',
@@ -1283,17 +1343,94 @@ export const devSeedService = {
 
     const samplePackages = [
       [
-        { ad: 'A4 80 gr/m² Fotokopi Kağıdı', ozelligi: '1. hamur beyazlık', tip: 'Mal', birim: 'Paket', miktar: 100, kdv: 20, tkod: '150.01.01.01', f1: 185, f2: 195, f3: 175 },
-        { ad: 'Siyah Lazer Toner', ozelligi: 'Yüksek kapasiteli', tip: 'Mal', birim: 'Adet', miktar: 12, kdv: 20, tkod: '150.01.02.04', f1: 1250, f2: 1320, f3: 1190 }
+        {
+          ad: 'A4 80 gr/m² Fotokopi Kağıdı',
+          ozelligi: '1. hamur beyazlık',
+          tip: 'Mal',
+          birim: 'Paket',
+          miktar: 100,
+          kdv: 20,
+          tkod: '150.01.01.01',
+          f1: 185,
+          f2: 195,
+          f3: 175
+        },
+        {
+          ad: 'Siyah Lazer Toner',
+          ozelligi: 'Yüksek kapasiteli',
+          tip: 'Mal',
+          birim: 'Adet',
+          miktar: 12,
+          kdv: 20,
+          tkod: '150.01.02.04',
+          f1: 1250,
+          f2: 1320,
+          f3: 1190
+        }
       ],
       [
-        { ad: 'Klimalar Periyodik Bakım', ozelligi: 'Antibakteriyel', tip: 'Hizmet', birim: 'Adet', miktar: 24, kdv: 20, tkod: '150.08.01.01', f1: 850, f2: 920, f3: 800 },
-        { ad: 'R410A / R32 Soğutucu Gaz Dolumu', ozelligi: 'Orijinal gaz', tip: 'Hizmet', birim: 'Kg', miktar: 15, kdv: 20, tkod: '150.08.01.03', f1: 650, f2: 700, f3: 600 }
+        {
+          ad: 'Klimalar Periyodik Bakım',
+          ozelligi: 'Antibakteriyel',
+          tip: 'Hizmet',
+          birim: 'Adet',
+          miktar: 24,
+          kdv: 20,
+          tkod: '150.08.01.01',
+          f1: 850,
+          f2: 920,
+          f3: 800
+        },
+        {
+          ad: 'R410A / R32 Soğutucu Gaz Dolumu',
+          ozelligi: 'Orijinal gaz',
+          tip: 'Hizmet',
+          birim: 'Kg',
+          miktar: 15,
+          kdv: 20,
+          tkod: '150.08.01.03',
+          f1: 650,
+          f2: 700,
+          f3: 600
+        }
       ],
       [
-        { ad: '60x60 Taşyünü Asma Tavan', ozelligi: 'Akustik', tip: 'Yapım İşi', birim: 'm²', miktar: 180, kdv: 20, tkod: '150.07.01.01', f1: 420, f2: 450, f3: 390 },
-        { ad: 'İç Cephe Silikonlu Boya', ozelligi: 'Çift kat astar', tip: 'Yapım İşi', birim: 'm²', miktar: 350, kdv: 20, tkod: '150.07.02.01', f1: 180, f2: 200, f3: 165 },
-        { ad: 'Kaymaz Zemin Seramiği', ozelligi: 'Porselen', tip: 'Yapım İşi', birim: 'm²', miktar: 75, kdv: 20, tkod: '150.07.03.01', f1: 650, f2: 720, f3: 610 }
+        {
+          ad: '60x60 Taşyünü Asma Tavan',
+          ozelligi: 'Akustik',
+          tip: 'Yapım İşi',
+          birim: 'm²',
+          miktar: 180,
+          kdv: 20,
+          tkod: '150.07.01.01',
+          f1: 420,
+          f2: 450,
+          f3: 390
+        },
+        {
+          ad: 'İç Cephe Silikonlu Boya',
+          ozelligi: 'Çift kat astar',
+          tip: 'Yapım İşi',
+          birim: 'm²',
+          miktar: 350,
+          kdv: 20,
+          tkod: '150.07.02.01',
+          f1: 180,
+          f2: 200,
+          f3: 165
+        },
+        {
+          ad: 'Kaymaz Zemin Seramiği',
+          ozelligi: 'Porselen',
+          tip: 'Yapım İşi',
+          birim: 'm²',
+          miktar: 75,
+          kdv: 20,
+          tkod: '150.07.03.01',
+          f1: 650,
+          f2: 720,
+          f3: 610
+        }
       ]
     ]
 
@@ -1335,7 +1472,16 @@ export const devSeedService = {
           `INSERT INTO DATA_TeminKalem (
             temin_dosya_id, kalem_adi, tipi, birim, miktar, kdv_orani, tasinir_kodu, aciklama
           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-          [dosyaId, item.ad, item.tip, item.birim, item.miktar, item.kdv, item.tkod, item.ozelligi || item.ad]
+          [
+            dosyaId,
+            item.ad,
+            item.tip,
+            item.birim,
+            item.miktar,
+            item.kdv,
+            item.tkod,
+            item.ozelligi || item.ad
+          ]
         )
         if (kRes.success && kRes.lastInsertRowid) {
           dosyaKalemIds.push(Number(kRes.lastInsertRowid))
@@ -1422,11 +1568,39 @@ export const devSeedService = {
       const p3 = personelIds[4] || 3
 
       const komisyonMembers = [
-        { kom_id: 1, p_id: p1, ad: 'Ayşe Kaya Demir', unvan: 'Şube Müdürü', gorev: 'Komisyon Başkanı', rol: 'Asil' },
+        {
+          kom_id: 1,
+          p_id: p1,
+          ad: 'Ayşe Kaya Demir',
+          unvan: 'Şube Müdürü',
+          gorev: 'Komisyon Başkanı',
+          rol: 'Asil'
+        },
         { kom_id: 1, p_id: p2, ad: 'Mustafa Çelik', unvan: 'Mühendis', gorev: 'Üye', rol: 'Asil' },
-        { kom_id: 1, p_id: p3, ad: 'Fatma Şahin Korkmaz', unvan: 'Uzman', gorev: 'Üye', rol: 'Asil' },
-        { kom_id: 2, p_id: personelIds[5] || 4, ad: 'Emre Karaca', unvan: 'Biyomedikal Mühendisi', gorev: 'Muayene Kabul Başkanı', rol: 'Asil' },
-        { kom_id: 2, p_id: personelIds[6] || 5, ad: 'Zeynep Aktaş', unvan: 'Taşınır Kayıt Yetkilisi', gorev: 'Üye', rol: 'Asil' }
+        {
+          kom_id: 1,
+          p_id: p3,
+          ad: 'Fatma Şahin Korkmaz',
+          unvan: 'Uzman',
+          gorev: 'Üye',
+          rol: 'Asil'
+        },
+        {
+          kom_id: 2,
+          p_id: personelIds[5] || 4,
+          ad: 'Emre Karaca',
+          unvan: 'Biyomedikal Mühendisi',
+          gorev: 'Muayene Kabul Başkanı',
+          rol: 'Asil'
+        },
+        {
+          kom_id: 2,
+          p_id: personelIds[6] || 5,
+          ad: 'Zeynep Aktaş',
+          unvan: 'Taşınır Kayıt Yetkilisi',
+          gorev: 'Üye',
+          rol: 'Asil'
+        }
       ]
 
       for (const km of komisyonMembers) {
@@ -1440,7 +1614,7 @@ export const devSeedService = {
       }
 
       // Dosya Maliyet, Yüklenici ve Personel Bilgilerini Güncelle
-      const winningFirmaId = teminFirmaIds.length > 2 ? teminFirmaIds[2].firma_id : (firmaIds[0] || 1)
+      const winningFirmaId = teminFirmaIds.length > 2 ? teminFirmaIds[2].firma_id : firmaIds[0] || 1
       const harcamaYetkilisiId = personelIds[1] || personelIds[0] || 1
       const gerceklestirmeId = personelIds[2] || 2
       const irtibatId = personelIds[9] || personelIds[3] || 1

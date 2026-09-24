@@ -114,7 +114,13 @@ export function useDosyalarHooks() {
   const queryClient = useQueryClient()
 
   useAppEventListener(
-    ['dossier:created', 'dossier:updated', 'dossier:deleted', 'status:changed', 'workspace:refreshed'],
+    [
+      'dossier:created',
+      'dossier:updated',
+      'dossier:deleted',
+      'status:changed',
+      'workspace:refreshed'
+    ],
     () => {
       queryClient.invalidateQueries({ queryKey: ['temin_dosyalari'] })
     }
@@ -131,7 +137,7 @@ export function useDosyalarHooks() {
         throw new Error(
           'Bu özellik sadece masaüstü uygulamasında çalışır (Tarayıcı desteklenmiyor).'
         )
-      
+
       let validColumns: string[] = []
       try {
         const pragmaRes = await window.electron.ipcRenderer.invoke(
@@ -172,7 +178,7 @@ export function useDosyalarHooks() {
   const updateDosyaMutation = useMutation({
     mutationFn: async (dosya: Partial<TeminDosyasi> & { id: number }) => {
       if (!window.electron) throw new Error('Bu özellik sadece masaüstü uygulamasında çalışır.')
-      
+
       let validColumns: string[] = []
       try {
         const pragmaRes = await window.electron.ipcRenderer.invoke(

@@ -225,7 +225,8 @@ export function TekTikYazdirModal({
                 )}
               </div>
               <p className="text-xs text-slate-400 mt-0.5">
-                Resmi evraklarınızı canlı sayfa düzeninde önizleyin, yazdırma ayarlarını yapılandırın ve tek seferde yazdırın.
+                Resmi evraklarınızı canlı sayfa düzeninde önizleyin, yazdırma ayarlarını
+                yapılandırın ve tek seferde yazdırın.
               </p>
             </div>
           </div>
@@ -321,8 +322,8 @@ export function TekTikYazdirModal({
                       missingReq
                         ? 'opacity-50 bg-slate-900/40 border-slate-800 cursor-not-allowed'
                         : isSelected
-                        ? 'bg-indigo-950/30 border-indigo-500/50 shadow-sm'
-                        : 'bg-slate-850/40 border-slate-800 hover:bg-slate-800/60 hover:border-slate-700'
+                          ? 'bg-indigo-950/30 border-indigo-500/50 shadow-sm'
+                          : 'bg-slate-850/40 border-slate-800 hover:bg-slate-800/60 hover:border-slate-700'
                     } ${isCurrentPreview ? 'ring-1 ring-indigo-400/80' : ''}`}
                   >
                     {/* Checkbox */}
@@ -480,7 +481,9 @@ export function TekTikYazdirModal({
               ) : (
                 <div className="flex flex-col items-center justify-center text-center p-12 text-slate-500 my-auto">
                   <Printer size={48} className="stroke-[1.5] mb-3 text-slate-600" />
-                  <p className="text-base font-semibold text-slate-300">Önizleme İçin Belge Seçin</p>
+                  <p className="text-base font-semibold text-slate-300">
+                    Önizleme İçin Belge Seçin
+                  </p>
                   <p className="text-xs text-slate-500 mt-1 max-w-sm">
                     Sol listeden yazdırmak veya önizlemek istediğiniz resmi evrakları işaretleyin.
                   </p>
@@ -501,7 +504,9 @@ export function TekTikYazdirModal({
                 <div className="space-y-4 text-xs">
                   {/* Page Size */}
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1.5">Kağıt Boyutu</label>
+                    <label className="block text-slate-300 font-semibold mb-1.5">
+                      Kağıt Boyutu
+                    </label>
                     <div className="grid grid-cols-2 gap-2">
                       {(['A4', 'A3'] as const).map((size) => (
                         <button
@@ -549,7 +554,9 @@ export function TekTikYazdirModal({
 
                   {/* Copies */}
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1.5">Kopya Sayısı</label>
+                    <label className="block text-slate-300 font-semibold mb-1.5">
+                      Kopya Sayısı
+                    </label>
                     <input
                       type="number"
                       min={1}
@@ -578,7 +585,9 @@ export function TekTikYazdirModal({
                       }
                       className="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-0"
                     />
-                    <span className="text-slate-300 font-medium">Arka plan ve renkleri dahil et</span>
+                    <span className="text-slate-300 font-medium">
+                      Arka plan ve renkleri dahil et
+                    </span>
                   </label>
                 </div>
               </div>
@@ -590,7 +599,9 @@ export function TekTikYazdirModal({
                   Sürüm Kilitleme
                 </div>
                 <p className="text-slate-300 leading-relaxed text-[11px]">
-                  Yazdırılan resmi belgeler otomatik olarak <strong className="text-indigo-300">{CURRENT_APP_VERSION}</strong> sürüm damgası ile kilitlenir.
+                  Yazdırılan resmi belgeler otomatik olarak{' '}
+                  <strong className="text-indigo-300">{CURRENT_APP_VERSION}</strong> sürüm damgası
+                  ile kilitlenir.
                 </p>
                 <label className="flex items-center gap-2 cursor-pointer pt-1">
                   <input
@@ -617,7 +628,8 @@ export function TekTikYazdirModal({
             <span className="hidden sm:inline">
               Kağıt:{' '}
               <strong className="text-slate-200">
-                {printSettings.pageSize} ({printSettings.orientation === 'portrait' ? 'Dikey' : 'Yatay'})
+                {printSettings.pageSize} (
+                {printSettings.orientation === 'portrait' ? 'Dikey' : 'Yatay'})
               </strong>
             </span>
           </div>

@@ -95,7 +95,10 @@ export function registerArchiveHandlers() {
         if (!db || !currentFilePath) throw new Error('Açık bir çalışma alanı yok.')
 
         const year = typeof params === 'number' ? params : params.year
-        const deleteFromMain = typeof params === 'object' && params.deleteFromMain !== undefined ? params.deleteFromMain : true
+        const deleteFromMain =
+          typeof params === 'object' && params.deleteFromMain !== undefined
+            ? params.deleteFromMain
+            : true
         const onlyCompleted = typeof params === 'object' && params.onlyCompleted ? true : false
 
         let query =
@@ -107,7 +110,10 @@ export function registerArchiveHandlers() {
         const rows = db.prepare(query).all(year, year) as { id: number; temin_no: string }[]
 
         if (rows.length === 0) {
-          return { success: false, message: 'Belirtilen kriterlere uygun arşivlenecek dosya bulunamadı.' }
+          return {
+            success: false,
+            message: 'Belirtilen kriterlere uygun arşivlenecek dosya bulunamadı.'
+          }
         }
 
         const dosyaIds = rows.map((r) => r.id)
@@ -232,4 +238,3 @@ export function registerArchiveHandlers() {
     }
   )
 }
-

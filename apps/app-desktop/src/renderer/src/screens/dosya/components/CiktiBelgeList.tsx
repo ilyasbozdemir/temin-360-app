@@ -122,12 +122,8 @@ export function CiktiBelgeList({
                   const docStatus = activeDosyaId
                     ? getDocumentStatus(activeDosyaId, docKey)
                     : 'draft'
-                  const isLocked = activeDosyaId
-                    ? isDocumentLocked(activeDosyaId, docKey)
-                    : false
-                  const lockInfo = activeDosyaId
-                    ? getDocumentLockInfo(activeDosyaId, docKey)
-                    : null
+                  const isLocked = activeDosyaId ? isDocumentLocked(activeDosyaId, docKey) : false
+                  const lockInfo = activeDosyaId ? getDocumentLockInfo(activeDosyaId, docKey) : null
 
                   return (
                     <CiktiBelgeCard

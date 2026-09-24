@@ -1,21 +1,21 @@
-import React from "react";
-import { formatMoney } from "../types";
+import React from 'react'
+import { formatMoney } from '../types'
 
 interface InspectorKalemlerTabProps {
-  kalemler: any[];
-  toplamYaklasikMaliyet: number;
+  kalemler: any[]
+  toplamYaklasikMaliyet: number
 }
 
 export const InspectorKalemlerTab: React.FC<InspectorKalemlerTabProps> = ({
   kalemler,
-  toplamYaklasikMaliyet,
+  toplamYaklasikMaliyet
 }) => {
   if (kalemler.length === 0) {
     return (
       <div className="p-8 text-center text-slate-400 text-xs italic">
         Bu dosyaya henüz malzeme veya ihtiyaç kalemi eklenmemiş.
       </div>
-    );
+    )
   }
 
   return (
@@ -35,10 +35,7 @@ export const InspectorKalemlerTab: React.FC<InspectorKalemlerTabProps> = ({
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {kalemler.map((item, idx) => (
-              <tr
-                key={item.id || idx}
-                className="hover:bg-blue-50/30 dark:hover:bg-blue-950/20"
-              >
+              <tr key={item.id || idx} className="hover:bg-blue-50/30 dark:hover:bg-blue-950/20">
                 <td className="py-2 px-3 text-center text-slate-400 font-bold">
                   {item.sira_no || idx + 1}
                 </td>
@@ -47,20 +44,16 @@ export const InspectorKalemlerTab: React.FC<InspectorKalemlerTabProps> = ({
                     {item.kalem_adi}
                   </span>
                   {item.aciklama && (
-                    <span className="text-[10px] text-slate-400 block">
-                      {item.aciklama}
-                    </span>
+                    <span className="text-[10px] text-slate-400 block">{item.aciklama}</span>
                   )}
                 </td>
                 <td className="py-2 px-3 text-right font-mono font-bold text-slate-800 dark:text-slate-200">
                   {item.miktar}
                 </td>
                 <td className="py-2 px-3 text-center text-slate-500">
-                  {item.olcu_birimi || item.birim || "Adet"}
+                  {item.olcu_birimi || item.birim || 'Adet'}
                 </td>
-                <td className="py-2 px-3 text-center text-slate-500">
-                  %{item.kdv_orani || 20}
-                </td>
+                <td className="py-2 px-3 text-center text-slate-500">%{item.kdv_orani || 20}</td>
                 <td className="py-2 px-3 text-right font-mono">
                   {formatMoney(item.yaklasik_maliyet_birim)} ₺
                 </td>
@@ -86,5 +79,5 @@ export const InspectorKalemlerTab: React.FC<InspectorKalemlerTabProps> = ({
         </table>
       </div>
     </div>
-  );
-};
+  )
+}

@@ -144,7 +144,9 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
                     </div>
                   ))
                 ) : (
-                  <span className="text-slate-400 italic font-sans text-xs">Antet tanımlanmamış</span>
+                  <span className="text-slate-400 italic font-sans text-xs">
+                    Antet tanımlanmamış
+                  </span>
                 )}
               </div>
             </div>
@@ -194,7 +196,9 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
             </div>
 
             <div className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850">
-              <span className="text-slate-500 font-medium">Doğrudan Temin Limit Sınırı (22/d):</span>
+              <span className="text-slate-500 font-medium">
+                Doğrudan Temin Limit Sınırı (22/d):
+              </span>
               <span className="font-bold text-emerald-600 dark:text-emerald-400">
                 {data.limit_tipi === 'buyuksehir'
                   ? 'Büyükşehir Belediyesi Sınırları'
@@ -275,7 +279,9 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
               title="Kopyalamak için tıklayın"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-slate-400 font-bold uppercase">DETSİS / DTVT Kodu</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">
+                  DETSİS / DTVT Kodu
+                </span>
                 {copiedField === 'detsis' ? (
                   <Check className="w-3 h-3 text-emerald-500" />
                 ) : (
@@ -311,7 +317,9 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
               title="Kopyalamak için tıklayın"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-slate-400 font-bold uppercase">Say2000i Kodu</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">
+                  Say2000i Kodu
+                </span>
                 {copiedField === 'say2000i' ? (
                   <Check className="w-3 h-3 text-emerald-500" />
                 ) : (
@@ -329,7 +337,9 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
               title="Kopyalamak için tıklayın"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-slate-400 font-bold uppercase">Harcama Birim Kodu</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">
+                  Harcama Birim Kodu
+                </span>
                 {copiedField === 'harcama' ? (
                   <Check className="w-3 h-3 text-emerald-500" />
                 ) : (

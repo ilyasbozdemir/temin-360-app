@@ -80,11 +80,10 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({
         <div className="p-4 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl space-y-2 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
           {isDownloaded ? (
             <>
-              <p>
-                Uygulamanız için yeni sürüm paketi arka planda tamamen indirildi.
-              </p>
+              <p>Uygulamanız için yeni sürüm paketi arka planda tamamen indirildi.</p>
               <p className="font-semibold text-slate-800 dark:text-slate-200">
-                Yeni özelliklerin ve performans iyileştirmelerinin aktifleşmesi için uygulamanın yeniden başlatılarak kurulması önerilir.
+                Yeni özelliklerin ve performans iyileştirmelerinin aktifleşmesi için uygulamanın
+                yeniden başlatılarak kurulması önerilir.
               </p>
             </>
           ) : status === 'error' ? (
@@ -93,7 +92,8 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({
             </p>
           ) : (
             <p>
-              Yeni sürüm dosyaları arka planda güvenle indiriliyor. İndirme tamamlandığında kurulum ekranı otomatik olarak açılacaktır.
+              Yeni sürüm dosyaları arka planda güvenle indiriliyor. İndirme tamamlandığında kurulum
+              ekranı otomatik olarak açılacaktır.
             </p>
           )}
         </div>
@@ -116,7 +116,9 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all cursor-pointer disabled:opacity-50"
             >
               <RotateCw className={`w-3.5 h-3.5 ${isInstalling ? 'animate-spin' : ''}`} />
-              <span>{isInstalling ? 'Kuruluyor & Başlatılıyor...' : 'Şimdi Kur ve Yeniden Başlat'}</span>
+              <span>
+                {isInstalling ? 'Kuruluyor & Başlatılıyor...' : 'Şimdi Kur ve Yeniden Başlat'}
+              </span>
             </button>
           )}
         </div>

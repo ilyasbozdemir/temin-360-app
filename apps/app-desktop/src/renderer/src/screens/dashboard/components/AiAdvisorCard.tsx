@@ -63,7 +63,9 @@ export const AiAdvisorCard: React.FC<AiAdvisorCardProps> = ({
         <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2.5 text-xs text-amber-200">
           <KeyRound className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <p className="font-bold text-amber-300 text-[11px]">Yapay Zeka Servisi Yapılandırılmadı</p>
+            <p className="font-bold text-amber-300 text-[11px]">
+              Yapay Zeka Servisi Yapılandırılmadı
+            </p>
             <p className="text-[11px] text-amber-200/80 leading-relaxed">
               Mevzuat analizi ve karar desteğini aktifleştirmek için API anahtarınızı tanımlayın.
             </p>

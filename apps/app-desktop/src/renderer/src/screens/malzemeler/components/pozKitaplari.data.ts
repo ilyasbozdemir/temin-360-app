@@ -34,8 +34,14 @@ export const POZ_KURUMLARI = [
 export const getDinamikFiyatDonemleri = (yil?: number) => {
   const currentYear = yil || new Date().getFullYear()
   return [
-    { kod: `${currentYear}/1`, etiket: `${currentYear} Yılı 1. Dönem Fiyat Araştırması (Ocak-Haziran)` },
-    { kod: `${currentYear}/2`, etiket: `${currentYear} Yılı 2. Dönem Fiyat Araştırması (Temmuz-Aralık)` },
+    {
+      kod: `${currentYear}/1`,
+      etiket: `${currentYear} Yılı 1. Dönem Fiyat Araştırması (Ocak-Haziran)`
+    },
+    {
+      kod: `${currentYear}/2`,
+      etiket: `${currentYear} Yılı 2. Dönem Fiyat Araştırması (Temmuz-Aralık)`
+    },
     { kod: `${currentYear}/3`, etiket: `${currentYear} Yılı 3. Dönem / Ek Bülten` },
     { kod: `${currentYear - 1}/2`, etiket: `${currentYear - 1} Yılı 2. Dönem Fiyat Araştırması` },
     { kod: `${currentYear - 1}/1`, etiket: `${currentYear - 1} Yılı 1. Dönem Fiyat Araştırması` },

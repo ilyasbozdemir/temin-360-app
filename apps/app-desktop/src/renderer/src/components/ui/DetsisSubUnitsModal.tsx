@@ -49,7 +49,10 @@ export function DetsisSubUnitsModal({
   const [importing, setImporting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const cleanInstNo = (institutionDetsisNo || '').toString().trim().replace(/[^0-9]/g, '')
+  const cleanInstNo = (institutionDetsisNo || '')
+    .toString()
+    .trim()
+    .replace(/[^0-9]/g, '')
 
   const fetchSubUnits = async (id: string): Promise<void> => {
     if (!id) return

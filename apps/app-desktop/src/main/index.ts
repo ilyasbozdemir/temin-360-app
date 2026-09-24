@@ -1,4 +1,15 @@
-import { app, shell, BrowserWindow, ipcMain, dialog, Tray, Menu, session, protocol, nativeImage } from 'electron'
+import {
+  app,
+  shell,
+  BrowserWindow,
+  ipcMain,
+  dialog,
+  Tray,
+  Menu,
+  session,
+  protocol,
+  nativeImage
+} from 'electron'
 import { join, basename, dirname } from 'path'
 import { execFile } from 'child_process'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
@@ -264,7 +275,11 @@ function createWindow(): void {
   mainWindow.on('close', (event) => {
     if (isForceQuitting) return
     const currentFile = workspaceManager.getCurrentFilePath()
-    if (currentFile && !mainWindow.webContents.isCrashed() && !mainWindow.webContents.isDestroyed()) {
+    if (
+      currentFile &&
+      !mainWindow.webContents.isCrashed() &&
+      !mainWindow.webContents.isDestroyed()
+    ) {
       event.preventDefault()
       mainWindow.webContents.send('app:quit-request')
 
@@ -407,18 +422,21 @@ function createWindow(): void {
     console.error('Renderer process gone:', details)
   })
 
-  mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
-    writeLog('WARN', 'Main window did-fail-load, recovering index.html', {
-      errorCode,
-      errorDescription,
-      validatedURL
-    })
-    if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-      mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
-    } else {
-      mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+  mainWindow.webContents.on(
+    'did-fail-load',
+    (_event, errorCode, errorDescription, validatedURL) => {
+      writeLog('WARN', 'Main window did-fail-load, recovering index.html', {
+        errorCode,
+        errorDescription,
+        validatedURL
+      })
+      if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+        mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+      } else {
+        mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+      }
     }
-  })
+  )
 
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
@@ -527,23 +545,122 @@ if (!gotTheLock && !isMultiInstance) {
       else if (fs.existsSync(pRoot)) iconPath = pRoot
 
       // 1. ProgID ve Uygulama Kayıtları
-      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document', '/ve', '/d', 'TEMİN 360 Proje Dosyası', '/f'])
-      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document\\DefaultIcon', '/ve', '/d', iconPath, '/f'])
-      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document\\shell', '/ve', '/d', 'open', '/f'])
-      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document\\shell\\open', '/ve', '/d', 'TEMİN 360 ile Aç', '/f'])
-      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Temin360.Document\\shell\\open\\command', '/ve', '/d', `"${exePath}" "%1"`, '/f'])
+      execFile('reg.exe', [
+        'add',
+        'HKCU\\Software\\Classes\\Temin360.Document',
+        '/ve',
+        '/d',
+        'TEMİN 360 Proje Dosyası',
+        '/f'
+      ])
+      execFile('reg.exe', [
+        'add',
+        'HKCU\\Software\\Classes\\Temin360.Document\\DefaultIcon',
+        '/ve',
+        '/d',
+        iconPath,
+        '/f'
+      ])
+      execFile('reg.exe', [
+        'add',
+        'HKCU\\Software\\Classes\\Temin360.Document\\shell',
+        '/ve',
+        '/d',
+        'open',
+        '/f'
+      ])
+      execFile('reg.exe', [
+        'add',
+        'HKCU\\Software\\Classes\\Temin360.Document\\shell\\open',
+        '/ve',
+        '/d',
+        'TEMİN 360 ile Aç',
+        '/f'
+      ])
+      execFile('reg.exe', [
+        'add',
+        'HKCU\\Software\\Classes\\Temin360.Document\\shell\\open\\command',
+        '/ve',
+        '/d',
+        `"${exePath}" "%1"`,
+        '/f'
+      ])
 
-      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Applications\\TEMIN360.exe', '/v', 'FriendlyAppName', '/d', 'TEMİN 360', '/f'])
-      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Applications\\TEMIN360.exe\\DefaultIcon', '/ve', '/d', iconPath, '/f'])
-      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Applications\\TEMIN360.exe\\shell\\open\\command', '/ve', '/d', `"${exePath}" "%1"`, '/f'])
+      execFile('reg.exe', [
+        'add',
+        'HKCU\\Software\\Classes\\Applications\\TEMIN360.exe',
+        '/v',
+        'FriendlyAppName',
+        '/d',
+        'TEMİN 360',
+        '/f'
+      ])
+      execFile('reg.exe', [
+        'add',
+        'HKCU\\Software\\Classes\\Applications\\TEMIN360.exe\\DefaultIcon',
+        '/ve',
+        '/d',
+        iconPath,
+        '/f'
+      ])
+      execFile('reg.exe', [
+        'add',
+        'HKCU\\Software\\Classes\\Applications\\TEMIN360.exe\\shell\\open\\command',
+        '/ve',
+        '/d',
+        `"${exePath}" "%1"`,
+        '/f'
+      ])
 
       // 2. Sadece .temin uzantısını kaydet
       const ext = 'temin'
-      execFile('reg.exe', ['add', `HKCU\\Software\\Classes\\.${ext}`, '/ve', '/d', 'Temin360.Document', '/f'])
-      execFile('reg.exe', ['add', `HKCU\\Software\\Classes\\.${ext}\\OpenWithProgids`, '/v', 'Temin360.Document', '/t', 'REG_SZ', '/d', '', '/f'])
-      execFile('reg.exe', ['add', `HKCU\\Software\\Classes\\.${ext}\\DefaultIcon`, '/ve', '/d', iconPath, '/f'])
-      execFile('reg.exe', ['add', 'HKCU\\Software\\Classes\\Applications\\TEMIN360.exe\\SupportedTypes', '/v', `.${ext}`, '/d', '', '/f'])
-      execFile('reg.exe', ['add', `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\.${ext}\\OpenWithProgids`, '/v', 'Temin360.Document', '/t', 'REG_NONE', '/d', '', '/f'])
+      execFile('reg.exe', [
+        'add',
+        `HKCU\\Software\\Classes\\.${ext}`,
+        '/ve',
+        '/d',
+        'Temin360.Document',
+        '/f'
+      ])
+      execFile('reg.exe', [
+        'add',
+        `HKCU\\Software\\Classes\\.${ext}\\OpenWithProgids`,
+        '/v',
+        'Temin360.Document',
+        '/t',
+        'REG_SZ',
+        '/d',
+        '',
+        '/f'
+      ])
+      execFile('reg.exe', [
+        'add',
+        `HKCU\\Software\\Classes\\.${ext}\\DefaultIcon`,
+        '/ve',
+        '/d',
+        iconPath,
+        '/f'
+      ])
+      execFile('reg.exe', [
+        'add',
+        'HKCU\\Software\\Classes\\Applications\\TEMIN360.exe\\SupportedTypes',
+        '/v',
+        `.${ext}`,
+        '/d',
+        '',
+        '/f'
+      ])
+      execFile('reg.exe', [
+        'add',
+        `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\.${ext}\\OpenWithProgids`,
+        '/v',
+        'Temin360.Document',
+        '/t',
+        'REG_NONE',
+        '/d',
+        '',
+        '/f'
+      ])
 
       // Eski uzantıları kayıt defterinden temizle
       for (const oldExt of ['dtal', 'hkmp', 'dtm', 'dte', 'dta', 'tmn360']) {
@@ -556,7 +673,11 @@ if (!gotTheLock && !isMultiInstance) {
         Add-Type -MemberDefinition $code -Namespace Win32 -Name Shell
         [Win32.Shell]::SHChangeNotify(0x08000000, 0, [IntPtr]::Zero, [IntPtr]::Zero)
       `
-      execFile('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', psCmd], () => {})
+      execFile(
+        'powershell.exe',
+        ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', psCmd],
+        () => {}
+      )
     } catch (regErr) {
       console.warn('Dosya ilişkilendirme kaydı hatası:', regErr)
     }
@@ -928,12 +1049,10 @@ if (!gotTheLock && !isMultiInstance) {
         const wpParam = data.workspacePath ? '&wp=' + encodeURIComponent(data.workspacePath) : ''
         const tabQueryParam = tabQuery ? '&' + tabQuery : ''
         const searchString = '?mode=window' + wpParam + tabQueryParam
-        
+
         if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
           // Dev: pure path into hash, all params into search string
-          newWindow.loadURL(
-            process.env['ELECTRON_RENDERER_URL'] + searchString + '#' + purePath
-          )
+          newWindow.loadURL(process.env['ELECTRON_RENDERER_URL'] + searchString + '#' + purePath)
         } else {
           // Production: pure path into hash, all params into search
           const indexHtml = join(__dirname, '../renderer/index.html')
@@ -964,7 +1083,6 @@ if (!gotTheLock && !isMultiInstance) {
         senderWindow.close()
       }
     })
-
   })
 }
 

@@ -1,18 +1,16 @@
-import React from "react";
+import React from 'react'
 
 interface InspectorKomisyonTabProps {
-  komisyon: any[];
+  komisyon: any[]
 }
 
-export const InspectorKomisyonTab: React.FC<InspectorKomisyonTabProps> = ({
-  komisyon,
-}) => {
+export const InspectorKomisyonTab: React.FC<InspectorKomisyonTabProps> = ({ komisyon }) => {
   if (komisyon.length === 0) {
     return (
       <div className="p-8 text-center text-slate-400 text-xs italic">
         Komisyon üyesi veya piyasa araştırma görevlisi atanmamış.
       </div>
-    );
+    )
   }
 
   return (
@@ -30,25 +28,20 @@ export const InspectorKomisyonTab: React.FC<InspectorKomisyonTabProps> = ({
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {komisyon.map((k, idx) => (
-              <tr
-                key={k.id || idx}
-                className="hover:bg-slate-50 dark:hover:bg-slate-800/40"
-              >
+              <tr key={k.id || idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
                 <td className="py-2 px-3 text-center text-slate-400 font-bold">
                   {k.sira || idx + 1}
                 </td>
                 <td className="py-2 px-3 font-bold text-slate-800 dark:text-slate-200">
                   {k.ad_soyad}
                 </td>
-                <td className="py-2 px-3 text-slate-500">
-                  {k.personel_unvan || "-"}
-                </td>
+                <td className="py-2 px-3 text-slate-500">{k.personel_unvan || '-'}</td>
                 <td className="py-2 px-3 font-bold text-blue-600 dark:text-blue-400">
-                  {k.gorev_adi || k.gorev_kod || "-"}
+                  {k.gorev_adi || k.gorev_kod || '-'}
                 </td>
                 <td className="py-2 px-3 text-center">
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                    {k.asl_yedek || "ASIL"}
+                    {k.asl_yedek || 'ASIL'}
                   </span>
                 </td>
               </tr>
@@ -57,5 +50,5 @@ export const InspectorKomisyonTab: React.FC<InspectorKomisyonTabProps> = ({
         </table>
       </div>
     </div>
-  );
-};
+  )
+}

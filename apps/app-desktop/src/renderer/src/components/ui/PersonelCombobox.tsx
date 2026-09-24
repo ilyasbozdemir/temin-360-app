@@ -107,7 +107,11 @@ export function PersonelCombobox({
           {selectedPerson ? (
             <>
               <div className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 flex items-center justify-center text-[10px] font-bold shrink-0">
-                {selectedPerson.ad_soyad ? selectedPerson.ad_soyad.substring(0, 2).toLocaleUpperCase('tr-TR') : <User className="w-3 h-3" />}
+                {selectedPerson.ad_soyad ? (
+                  selectedPerson.ad_soyad.substring(0, 2).toLocaleUpperCase('tr-TR')
+                ) : (
+                  <User className="w-3 h-3" />
+                )}
               </div>
               <div className="truncate flex items-center gap-1.5">
                 <span className="font-semibold text-slate-900 dark:text-slate-100 truncate">
@@ -211,7 +215,11 @@ export function PersonelCombobox({
                             : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                         }`}
                       >
-                        {p.ad_soyad ? p.ad_soyad.substring(0, 2).toLocaleUpperCase('tr-TR') : <User className="w-3 h-3" />}
+                        {p.ad_soyad ? (
+                          p.ad_soyad.substring(0, 2).toLocaleUpperCase('tr-TR')
+                        ) : (
+                          <User className="w-3 h-3" />
+                        )}
                       </div>
                       <div className="truncate">
                         <div className="font-semibold text-slate-900 dark:text-slate-100 truncate">

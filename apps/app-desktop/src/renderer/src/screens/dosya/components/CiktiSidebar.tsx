@@ -1,5 +1,13 @@
 import React from 'react'
-import { Printer, Download, FileText, CheckCircle2, Archive, FileSpreadsheet, Zap } from 'lucide-react'
+import {
+  Printer,
+  Download,
+  FileText,
+  CheckCircle2,
+  Archive,
+  FileSpreadsheet,
+  Zap
+} from 'lucide-react'
 import { usePrintQueueStore } from '../../../store/printQueueStore'
 import { useWorkspaceStore } from '../../../store/workspaceStore'
 
@@ -31,7 +39,8 @@ export function CiktiSidebar({
       <div className="mb-2">
         <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-1">Toplu İşlemler</h3>
         <p className="text-[11px] text-slate-500">
-          Seçtiğiniz {selectedCount} belge {readyCount > 0 ? `ve kuyrukta bekleyen ${readyCount} belge ` : ''}için işlem yapın.
+          Seçtiğiniz {selectedCount} belge{' '}
+          {readyCount > 0 ? `ve kuyrukta bekleyen ${readyCount} belge ` : ''}için işlem yapın.
         </p>
       </div>
 
@@ -51,7 +60,9 @@ export function CiktiSidebar({
                 {readyCount}
               </span>
             </div>
-            <div className="text-[9px] text-emerald-100/90 mt-0.5">Kuyruktaki hazır belgeleri tek tıkla yazdır</div>
+            <div className="text-[9px] text-emerald-100/90 mt-0.5">
+              Kuyruktaki hazır belgeleri tek tıkla yazdır
+            </div>
           </div>
         </button>
       )}
@@ -87,7 +98,9 @@ export function CiktiSidebar({
         </div>
         <div className="text-left flex-1">
           <div className="text-xs font-bold text-white">Toplu İndir (ZIP Arşivi)</div>
-          <div className="text-[9px] text-white/80">Seçili / kuyruktaki belgeleri tek ZIP&apos;te topla</div>
+          <div className="text-[9px] text-white/80">
+            Seçili / kuyruktaki belgeleri tek ZIP&apos;te topla
+          </div>
         </div>
       </button>
 
@@ -156,4 +169,3 @@ export function CiktiSidebar({
     </div>
   )
 }
-

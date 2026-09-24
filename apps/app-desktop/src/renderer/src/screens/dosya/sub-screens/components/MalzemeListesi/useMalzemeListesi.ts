@@ -484,7 +484,9 @@ export function useMalzemeListesi(
         if (!matchedLib && dosyaKalem.poz_no) {
           matchedLib =
             libData.find((l) => l.poz_no && l.poz_no.trim() === dosyaKalem.poz_no.trim()) ||
-            pozData.find((p) => (p.poz_no || p.kod) && (p.poz_no || p.kod).trim() === dosyaKalem.poz_no.trim())
+            pozData.find(
+              (p) => (p.poz_no || p.kod) && (p.poz_no || p.kod).trim() === dosyaKalem.poz_no.trim()
+            )
         }
 
         // 3. tasinir_kodu + kalem_adi üzerinden
@@ -513,15 +515,26 @@ export function useMalzemeListesi(
 
         // Eğer eşleşen bir kütüphane kaydı bulunduysa alanları karşılaştır
         if (matchedLib) {
-          const newName = matchedLib.kalem_adi || matchedLib.ad || matchedLib.tanim || dosyaKalem.kalem_adi
+          const newName =
+            matchedLib.kalem_adi || matchedLib.ad || matchedLib.tanim || dosyaKalem.kalem_adi
           const newBirim = matchedLib.birim || matchedLib.olcu_birimi || dosyaKalem.birim
           const newTasinir = matchedLib.tasinir_kodu || dosyaKalem.tasinir_kodu || ''
           const newOkas = matchedLib.okas_kodu || dosyaKalem.okas_kodu || ''
-          const newKdv = matchedLib.kdv_orani !== undefined && matchedLib.kdv_orani !== null ? Number(matchedLib.kdv_orani) : dosyaKalem.kdv_orani
+          const newKdv =
+            matchedLib.kdv_orani !== undefined && matchedLib.kdv_orani !== null
+              ? Number(matchedLib.kdv_orani)
+              : dosyaKalem.kdv_orani
           const newTipi = matchedLib.tipi || dosyaKalem.tipi || 'Mal'
-          const newAciklama = matchedLib.ozelligi || matchedLib.aciklama || matchedLib.notlar || matchedLib.poz_tanimi || dosyaKalem.aciklama || ''
+          const newAciklama =
+            matchedLib.ozelligi ||
+            matchedLib.aciklama ||
+            matchedLib.notlar ||
+            matchedLib.poz_tanimi ||
+            dosyaKalem.aciklama ||
+            ''
           const newPozNo = matchedLib.poz_no || matchedLib.kod || dosyaKalem.poz_no || ''
-          const newPozTanimi = matchedLib.poz_tanimi || matchedLib.tanim || dosyaKalem.poz_tanimi || ''
+          const newPozTanimi =
+            matchedLib.poz_tanimi || matchedLib.tanim || dosyaKalem.poz_tanimi || ''
 
           const fields = [
             {
@@ -536,7 +549,9 @@ export function useMalzemeListesi(
               fieldLabel: 'Ölçü Birimi',
               oldValue: dosyaKalem.birim || '',
               newValue: newBirim || '',
-              isChanged: (dosyaKalem.birim || '').trim().toLowerCase() !== (newBirim || '').trim().toLowerCase()
+              isChanged:
+                (dosyaKalem.birim || '').trim().toLowerCase() !==
+                (newBirim || '').trim().toLowerCase()
             },
             {
               fieldName: 'tasinir_kodu',
@@ -564,21 +579,26 @@ export function useMalzemeListesi(
               fieldLabel: 'Alım Türü',
               oldValue: dosyaKalem.tipi || '',
               newValue: newTipi || '',
-              isChanged: (dosyaKalem.tipi || '').trim().toLowerCase() !== (newTipi || '').trim().toLowerCase()
+              isChanged:
+                (dosyaKalem.tipi || '').trim().toLowerCase() !==
+                (newTipi || '').trim().toLowerCase()
             },
             {
               fieldName: 'aciklama',
               fieldLabel: 'Teknik Açıklama / Özellik',
               oldValue: dosyaKalem.aciklama || '',
               newValue: newAciklama || '',
-              isChanged: Boolean(newAciklama) && (dosyaKalem.aciklama || '').trim() !== (newAciklama || '').trim()
+              isChanged:
+                Boolean(newAciklama) &&
+                (dosyaKalem.aciklama || '').trim() !== (newAciklama || '').trim()
             },
             {
               fieldName: 'poz_no',
               fieldLabel: 'Poz No',
               oldValue: dosyaKalem.poz_no || '',
               newValue: newPozNo || '',
-              isChanged: Boolean(newPozNo) && (dosyaKalem.poz_no || '').trim() !== (newPozNo || '').trim()
+              isChanged:
+                Boolean(newPozNo) && (dosyaKalem.poz_no || '').trim() !== (newPozNo || '').trim()
             }
           ]
 
@@ -656,7 +676,9 @@ export function useMalzemeListesi(
       await loadData()
       emitAppEvent('items:changed', { dosyaId: activeDosyaId })
       emitAppEvent('dossier:updated', { dosyaId: activeDosyaId })
-      alert(`Seçilen ${selectedDiffs.length} adet kalem kütüphanedeki güncel verilerle başarıyla eşitlendi.`)
+      alert(
+        `Seçilen ${selectedDiffs.length} adet kalem kütüphanedeki güncel verilerle başarıyla eşitlendi.`
+      )
     } catch (err: any) {
       console.error('Katalog güncelleme hatası:', err)
       throw err
@@ -727,4 +749,3 @@ export function useMalzemeListesi(
     loadData
   }
 }
-

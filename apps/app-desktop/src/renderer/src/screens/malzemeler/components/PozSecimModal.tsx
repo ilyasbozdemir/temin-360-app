@@ -10,11 +10,7 @@ import {
   Sparkles,
   X
 } from 'lucide-react'
-import {
-  getDinamikFiyatDonemleri,
-  POZ_KURUMLARI,
-  PozItem
-} from './pozKitaplari.data'
+import { getDinamikFiyatDonemleri, POZ_KURUMLARI, PozItem } from './pozKitaplari.data'
 import { useTabStore } from '../../../store/tabStore'
 import { APP_ROUTES } from '../../../constants/routeConstants'
 
@@ -49,9 +45,7 @@ export const PozSecimModal: React.FC<PozSecimModalProps> = ({
 
   // Özel Poz Form State
   const [ozelPozNo, setOzelPozNo] = useState<string>(
-    currentPozNo?.startsWith('ÖZEL') || currentPozNo?.startsWith('ÖZ')
-      ? currentPozNo
-      : 'ÖZEL.01'
+    currentPozNo?.startsWith('ÖZEL') || currentPozNo?.startsWith('ÖZ') ? currentPozNo : 'ÖZEL.01'
   )
   const [ozelPozAdi, setOzelPozAdi] = useState<string>('')
   const [ozelPozBirim, setOzelPozBirim] = useState<string>('m²')
@@ -63,15 +57,9 @@ export const PozSecimModal: React.FC<PozSecimModalProps> = ({
   const [ozelAnalizTarifi, setOzelAnalizTarifi] = useState<string>('')
 
   // Dinamik Fiyat Araştırma Dönemleri Listesi
-  const katalogDinamikDonemler = useMemo(
-    () => getDinamikFiyatDonemleri(selectedYil),
-    [selectedYil]
-  )
+  const katalogDinamikDonemler = useMemo(() => getDinamikFiyatDonemleri(selectedYil), [selectedYil])
 
-  const ozelPozDinamikDonemler = useMemo(
-    () => getDinamikFiyatDonemleri(ozelPozYili),
-    [ozelPozYili]
-  )
+  const ozelPozDinamikDonemler = useMemo(() => getDinamikFiyatDonemleri(ozelPozYili), [ozelPozYili])
 
   // Pozları veritabanından dinamik çek
   useEffect(() => {
@@ -124,7 +112,9 @@ export const PozSecimModal: React.FC<PozSecimModalProps> = ({
         const targetKurum = selectedKurum.toLowerCase()
         if (
           !itemKurum.includes(targetKurum) &&
-          !POZ_KURUMLARI.find((k) => k.id === selectedKurum)?.name.toLowerCase().includes(itemKurum)
+          !POZ_KURUMLARI.find((k) => k.id === selectedKurum)
+            ?.name.toLowerCase()
+            .includes(itemKurum)
         ) {
           return false
         }
@@ -242,7 +232,9 @@ export const PozSecimModal: React.FC<PozSecimModalProps> = ({
           <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200">
             <Sparkles size={15} className="text-amber-600 dark:text-amber-400 shrink-0" />
             <span>
-              <strong>Hızlı Poz Aktarımı:</strong> Bakanlık/idare pozlarını veya özel pozlarınızı <em>Birim Fiyat Pozları</em> ekranından (Excel veya tek tek) ekleyip bu havuzdan anında tek tıkla kaleminize aktarabilirsiniz.
+              <strong>Hızlı Poz Aktarımı:</strong> Bakanlık/idare pozlarını veya özel pozlarınızı{' '}
+              <em>Birim Fiyat Pozları</em> ekranından (Excel veya tek tek) ekleyip bu havuzdan
+              anında tek tıkla kaleminize aktarabilirsiniz.
             </span>
           </div>
         </div>
@@ -311,7 +303,9 @@ export const PozSecimModal: React.FC<PozSecimModalProps> = ({
                   <input
                     type="number"
                     value={selectedYil}
-                    onChange={(e) => setSelectedYil(Number(e.target.value) || new Date().getFullYear())}
+                    onChange={(e) =>
+                      setSelectedYil(Number(e.target.value) || new Date().getFullYear())
+                    }
                     placeholder="Yıl (Örn: 2026)"
                     className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-amber-500"
                   />
@@ -372,7 +366,9 @@ export const PozSecimModal: React.FC<PozSecimModalProps> = ({
                       Kayıtlı poz bulunamadı.
                     </p>
                     <p className="text-slate-400 text-xs leading-relaxed">
-                      Resmî birim fiyat kitaplarından pozları eklemek için <strong>Birim Fiyat Pozları</strong> ekranını kullanabilir veya kitap dışı analizli özel poz tanımlayabilirsiniz.
+                      Resmî birim fiyat kitaplarından pozları eklemek için{' '}
+                      <strong>Birim Fiyat Pozları</strong> ekranını kullanabilir veya kitap dışı
+                      analizli özel poz tanımlayabilirsiniz.
                     </p>
                   </div>
                   <div className="flex items-center gap-2 mt-2">
@@ -454,7 +450,9 @@ export const PozSecimModal: React.FC<PozSecimModalProps> = ({
             <div className="p-3.5 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl flex items-start gap-3">
               <Sparkles className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" size={18} />
               <div className="text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
-                <strong>Özel & Resmî Poz Tanımlama:</strong> Bakanlık kitaplarında yer almayan veya idarenizce özel analiz gerektiren yapım işleri için poz numarası, fiyat araştırma dönemi (yıl/dönem/ay) ve teknik tarif belirleyebilirsiniz.
+                <strong>Özel & Resmî Poz Tanımlama:</strong> Bakanlık kitaplarında yer almayan veya
+                idarenizce özel analiz gerektiren yapım işleri için poz numarası, fiyat araştırma
+                dönemi (yıl/dönem/ay) ve teknik tarif belirleyebilirsiniz.
               </div>
             </div>
 
@@ -490,16 +488,18 @@ export const PozSecimModal: React.FC<PozSecimModalProps> = ({
                 />
                 <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                   <span className="text-[10px] text-slate-400 font-semibold">Hızlı Şablon:</span>
-                  {['ÖZEL.01', 'ÖZEL.YPM.01', 'İDARE.01', '15.150.1002', 'DSİ.01', 'KGM.01'].map((tag) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => setOzelPozNo(tag)}
-                      className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-amber-100 hover:text-amber-800 dark:hover:bg-amber-900/40 dark:hover:text-amber-300 transition-colors"
-                    >
-                      {tag}
-                    </button>
-                  ))}
+                  {['ÖZEL.01', 'ÖZEL.YPM.01', 'İDARE.01', '15.150.1002', 'DSİ.01', 'KGM.01'].map(
+                    (tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => setOzelPozNo(tag)}
+                        className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-amber-100 hover:text-amber-800 dark:hover:bg-amber-900/40 dark:hover:text-amber-300 transition-colors"
+                      >
+                        {tag}
+                      </button>
+                    )
+                  )}
                 </div>
               </div>
             </div>
@@ -527,7 +527,9 @@ export const PozSecimModal: React.FC<PozSecimModalProps> = ({
                 <input
                   type="number"
                   value={ozelPozYili}
-                  onChange={(e) => setOzelPozYili(Number(e.target.value) || new Date().getFullYear())}
+                  onChange={(e) =>
+                    setOzelPozYili(Number(e.target.value) || new Date().getFullYear())
+                  }
                   className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-mono font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500"
                 />
               </div>
@@ -625,9 +627,13 @@ export const PozSecimModal: React.FC<PozSecimModalProps> = ({
         <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 flex items-center justify-between gap-3">
           <div className="text-[11px] text-slate-500">
             {activeTab === 'katalog' ? (
-              <span>💡 Veritabanında kayıtlı pozlardan seçebilir veya yeni poz ekleyebilirsiniz.</span>
+              <span>
+                💡 Veritabanında kayıtlı pozlardan seçebilir veya yeni poz ekleyebilirsiniz.
+              </span>
             ) : (
-              <span>✨ Poz bilgileri form alanlarına ve yaklaşık maliyet cetvellerine aktarılır.</span>
+              <span>
+                ✨ Poz bilgileri form alanlarına ve yaklaşık maliyet cetvellerine aktarılır.
+              </span>
             )}
           </div>
 

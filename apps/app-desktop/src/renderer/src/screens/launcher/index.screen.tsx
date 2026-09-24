@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react'
 import {
   Building,
   ChevronRight,
@@ -16,135 +16,120 @@ import {
   Sun,
   User,
   Wifi,
-  X,
-} from "lucide-react";
-import { useWorkspaceStore } from "../../store/workspaceStore";
-import { useQueryClient } from "@tanstack/react-query";
-import { useTheme } from "../../components/providers/ThemeProvider";
-import { NetworkSyncModal } from "../../components/network/NetworkSyncModal";
-import { FormatUpgradeModal } from "../../components/modals/FormatUpgradeModal";
+  X
+} from 'lucide-react'
+import { useWorkspaceStore } from '../../store/workspaceStore'
+import { useQueryClient } from '@tanstack/react-query'
+import { useTheme } from '../../components/providers/ThemeProvider'
+import { NetworkSyncModal } from '../../components/network/NetworkSyncModal'
+import { FormatUpgradeModal } from '../../components/modals/FormatUpgradeModal'
 
 export default function LauncherScreen(): React.ReactNode {
-  const { openWorkspace, createWorkspace, convertAndOpenWorkspace } = useWorkspaceStore();
-  const queryClient = useQueryClient();
-  const { theme, setTheme } = useTheme();
+  const { openWorkspace, createWorkspace, convertAndOpenWorkspace } = useWorkspaceStore()
+  const queryClient = useQueryClient()
+  const { theme, setTheme } = useTheme()
 
   // Modal states for creating a new institution
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showNetworkModal, setShowNetworkModal] = useState(false);
-  const [pendingFilePath, setPendingFilePath] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showNetworkModal, setShowNetworkModal] = useState(false)
+  const [pendingFilePath, setPendingFilePath] = useState<string | null>(null)
 
   // Format upgrade modal states
-  const [showFormatUpgradeModal, setShowFormatUpgradeModal] = useState(false);
-  const [upgradeFilePath, setUpgradeFilePath] = useState<string | null>(null);
+  const [showFormatUpgradeModal, setShowFormatUpgradeModal] = useState(false)
+  const [upgradeFilePath, setUpgradeFilePath] = useState<string | null>(null)
 
   // Migration states
-  const [showMigrationModal, setShowMigrationModal] = useState(false);
-  const [migrationData, setMigrationData] = useState<
-    {
-      filePath: string;
-      pendingUpdates: any[];
-    } | null
-  >(null);
+  const [showMigrationModal, setShowMigrationModal] = useState(false)
+  const [migrationData, setMigrationData] = useState<{
+    filePath: string
+    pendingUpdates: any[]
+  } | null>(null)
 
-  const [institutionName, setInstitutionName] = useState("");
-  const [username, setUsername] = useState("admin");
-  const [password, setPassword] = useState("");
-  const [creating, setCreating] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [institutionName, setInstitutionName] = useState('')
+  const [username, setUsername] = useState('admin')
+  const [password, setPassword] = useState('')
+  const [creating, setCreating] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   // Recent files state
   const [recentFiles, setRecentFiles] = useState<
     { name: string; path: string; lastOpened: number }[]
-  >([]);
+  >([])
 
   React.useEffect(() => {
     // Fetch recent files on mount
     window.electron?.ipcRenderer
-      .invoke("app:get-recent-files")
+      .invoke('app:get-recent-files')
       .then((files) => {
-        if (files) setRecentFiles(files);
+        if (files) setRecentFiles(files)
       })
-      .catch(console.error);
-  }, []);
+      .catch(console.error)
+  }, [])
 
   const handleCreateNewFile = async (): Promise<void> => {
     try {
-      const res = await window.electron?.ipcRenderer.invoke(
-        "dialog:showSaveDialog",
-      );
+      const res = await window.electron?.ipcRenderer.invoke('dialog:showSaveDialog')
       if (!res.canceled && res.filePath) {
         // Dosya yolundan dosya adını (uzantısız) çıkar
-        const fileName = res.filePath.split(/[/\\]/).pop() || "Yeni Kurum";
-        const projectName = fileName.replace(
-          /\.(temin|hkmp|dtal|dtm|dte|dta|tmn360)$/i,
-          "",
-        );
+        const fileName = res.filePath.split(/[/\\]/).pop() || 'Yeni Kurum'
+        const projectName = fileName.replace(/\.(temin|hkmp|dtal|dtm|dte|dta|tmn360)$/i, '')
 
-        setPendingFilePath(res.filePath);
-        setInstitutionName(projectName);
-        setShowCreateModal(true);
+        setPendingFilePath(res.filePath)
+        setInstitutionName(projectName)
+        setShowCreateModal(true)
       }
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
-  };
+  }
 
   const handleChangeSaveLocation = async (): Promise<void> => {
     try {
-      const res = await window.electron?.ipcRenderer.invoke(
-        "dialog:showSaveDialog",
-      );
+      const res = await window.electron?.ipcRenderer.invoke('dialog:showSaveDialog')
       if (!res.canceled && res.filePath) {
-        const fileName = res.filePath.split(/[/\\]/).pop() || "Yeni Kurum";
-        const projectName = fileName.replace(
-          /\.(temin|hkmp|dtal|dtm|dte|dta|tmn360)$/i,
-          "",
-        );
-        setPendingFilePath(res.filePath);
+        const fileName = res.filePath.split(/[/\\]/).pop() || 'Yeni Kurum'
+        const projectName = fileName.replace(/\.(temin|hkmp|dtal|dtm|dte|dta|tmn360)$/i, '')
+        setPendingFilePath(res.filePath)
         if (
-          !institutionName || institutionName === "Yeni Kurum" ||
-          institutionName === "Yeni Dosya"
+          !institutionName ||
+          institutionName === 'Yeni Kurum' ||
+          institutionName === 'Yeni Dosya'
         ) {
-          setInstitutionName(projectName);
+          setInstitutionName(projectName)
         }
       }
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
-  };
+  }
 
   const handleModalSubmit = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault();
-    if (!pendingFilePath) return;
+    e.preventDefault()
+    if (!pendingFilePath) return
 
-    setCreating(true);
+    setCreating(true)
     try {
       const result = await createWorkspace(
         pendingFilePath,
         institutionName,
         undefined,
         username,
-        password,
-      );
+        password
+      )
       if (result.success) {
-        queryClient.clear();
-        setShowCreateModal(false);
-        setPendingFilePath(null);
+        queryClient.clear()
+        setShowCreateModal(false)
+        setPendingFilePath(null)
       } else {
-        alert(
-          `Kurum dosyası oluşturulamadı!\nHata: ${
-            result.error || "Bilinmeyen hata"
-          }`,
-        );
+        alert(`Kurum dosyası oluşturulamadı!\nHata: ${result.error || 'Bilinmeyen hata'}`)
       }
     } catch (err: any) {
-      console.error(err);
-      alert(`Hata oluştu!\nHata: ${err.message || "Bilinmeyen hata"}`);
+      console.error(err)
+      alert(`Hata oluştu!\nHata: ${err.message || 'Bilinmeyen hata'}`)
     } finally {
-      setCreating(false);
+      setCreating(false)
     }
-  };
+  }
 
   const handleUpgradeAndOpen = async (filePath: string): Promise<void> => {
     const result = await convertAndOpenWorkspace(filePath)
@@ -157,9 +142,7 @@ export default function LauncherScreen(): React.ReactNode {
 
   const handleOpenFile = async (): Promise<void> => {
     try {
-      const res = await window.electron?.ipcRenderer.invoke(
-        'dialog:showOpenDialog'
-      )
+      const res = await window.electron?.ipcRenderer.invoke('dialog:showOpenDialog')
       if (!res.canceled && res.filePath) {
         // Eski format kontrolü: .temin değilse yükseltme modalı aç
         if (!res.filePath.toLowerCase().endsWith('.temin')) {
@@ -241,69 +224,59 @@ export default function LauncherScreen(): React.ReactNode {
     }
   }
 
-  const handleRemoveRecent = async (
-    filePath: string,
-    e: React.MouseEvent,
-  ): Promise<void> => {
-    e.stopPropagation();
+  const handleRemoveRecent = async (filePath: string, e: React.MouseEvent): Promise<void> => {
+    e.stopPropagation()
     const confirmDelete = window.confirm(
-      "Bu dosyayı son açılanlar listesinden kaldırmak istediğinize emin misiniz?",
-    );
-    if (!confirmDelete) return;
+      'Bu dosyayı son açılanlar listesinden kaldırmak istediğinize emin misiniz?'
+    )
+    if (!confirmDelete) return
 
     try {
-      const res = await window.electron?.ipcRenderer.invoke(
-        "app:remove-recent-file",
-        filePath,
-      );
+      const res = await window.electron?.ipcRenderer.invoke('app:remove-recent-file', filePath)
       if (Array.isArray(res)) {
-        setRecentFiles(res);
+        setRecentFiles(res)
       } else {
-        setRecentFiles((prev) => prev.filter((file) => file.path !== filePath));
+        setRecentFiles((prev) => prev.filter((file) => file.path !== filePath))
       }
     } catch (err) {
-      console.error("Son açılan dosya kaldırılırken hata oluştu:", err);
-      setRecentFiles((prev) => prev.filter((file) => file.path !== filePath));
+      console.error('Son açılan dosya kaldırılırken hata oluştu:', err)
+      setRecentFiles((prev) => prev.filter((file) => file.path !== filePath))
     }
-  };
+  }
 
   const handleConfirmMigration = async (): Promise<void> => {
-    if (!migrationData) return;
-    setCreating(true);
+    if (!migrationData) return
+    setCreating(true)
     try {
-      const result = await openWorkspace(migrationData.filePath, true);
+      const result = await openWorkspace(migrationData.filePath, true)
       if (result.success) {
-        queryClient.clear();
-        setShowMigrationModal(false);
-        setMigrationData(null);
+        queryClient.clear()
+        setShowMigrationModal(false)
+        setMigrationData(null)
       } else {
-        alert(
-          `Veritabanı güncellenemedi veya dosya açılamadı!\nHata: ${result.error}`,
-        );
+        alert(`Veritabanı güncellenemedi veya dosya açılamadı!\nHata: ${result.error}`)
       }
     } catch (err: any) {
-      alert(`Hata oluştu!\nHata: ${err.message}`);
+      alert(`Hata oluştu!\nHata: ${err.message}`)
     } finally {
-      setCreating(false);
+      setCreating(false)
     }
-  };
+  }
 
-  const handleMinimize = (): void =>
-    window.electron?.ipcRenderer.send("window-minimize");
-  const handleMaximize = (): void =>
-    window.electron?.ipcRenderer.send("window-maximize");
+  const handleMinimize = (): void => window.electron?.ipcRenderer.send('window-minimize')
+  const handleMaximize = (): void => window.electron?.ipcRenderer.send('window-maximize')
   const handleClose = (): void => {
-    window.electron?.ipcRenderer.invoke("app:force-quit").catch(() => {
-      window.electron?.ipcRenderer.send("window-close");
-    });
-  };
+    window.electron?.ipcRenderer.invoke('app:force-quit').catch(() => {
+      window.electron?.ipcRenderer.send('window-close')
+    })
+  }
 
   return (
     <div className="flex items-center justify-center h-screen w-full bg-slate-50 dark:bg-slate-950 p-6 relative transition-colors duration-300">
       {/* Draggable Header with Window Controls & Theme Switcher */}
       <div
         className="absolute top-0 left-0 w-full h-12 flex justify-between items-center px-4 bg-transparent z-50 select-none"
-        style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
+        style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
       >
         <div className="flex items-center gap-2 text-slate-400 dark:text-slate-600 text-xs font-semibold">
           <FolderOpen className="w-3.5 h-3.5" />
@@ -312,7 +285,7 @@ export default function LauncherScreen(): React.ReactNode {
 
         <div
           className="flex items-center space-x-1"
-          style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
           <button
             onClick={() => setShowNetworkModal(true)}
@@ -322,13 +295,11 @@ export default function LauncherScreen(): React.ReactNode {
             <Wifi className="w-4 h-4" />
           </button>
           <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className="p-1.5 text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-300 transition-all rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-800/50 mr-2"
             title="Tema Değiştir"
           >
-            {theme === "dark"
-              ? <Sun className="w-4 h-4" />
-              : <Moon className="w-4 h-4" />}
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
           <button
             onClick={handleMinimize}
@@ -356,7 +327,7 @@ export default function LauncherScreen(): React.ReactNode {
 
       <div
         className="max-w-4xl w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-row"
-        style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
       >
         <div className="flex-1 flex flex-col">
           <div className="p-8 text-center border-b border-slate-100 dark:border-slate-800">
@@ -367,8 +338,8 @@ export default function LauncherScreen(): React.ReactNode {
               TEMİN 360&apos;a Hoş Geldiniz
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md mx-auto">
-              Çalışmaya başlamak için yeni bir kurum/çalışma alanı dosyası
-              (.dtal) oluşturun veya mevcut bir kurumu açın.
+              Çalışmaya başlamak için yeni bir kurum/çalışma alanı dosyası (.dtal) oluşturun veya
+              mevcut bir kurumu açın.
             </p>
           </div>
 
@@ -382,9 +353,7 @@ export default function LauncherScreen(): React.ReactNode {
               </div>
               <div className="text-left">
                 <h3 className="font-bold text-base">Yeni Kurum Oluştur</h3>
-                <p className="text-xs opacity-80 mt-0.5">
-                  Yeni yıl veya kurum için sıfırdan başla
-                </p>
+                <p className="text-xs opacity-80 mt-0.5">Yeni yıl veya kurum için sıfırdan başla</p>
               </div>
             </button>
 
@@ -425,10 +394,7 @@ export default function LauncherScreen(): React.ReactNode {
                     <h4 className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">
                       {file.name}
                     </h4>
-                    <p
-                      className="text-xs text-slate-400 dark:text-slate-500 truncate"
-                      dir="rtl"
-                    >
+                    <p className="text-xs text-slate-400 dark:text-slate-500 truncate" dir="rtl">
                       {file.path}
                     </p>
                   </div>
@@ -461,7 +427,7 @@ export default function LauncherScreen(): React.ReactNode {
       {showCreateModal && (
         <div
           className="absolute inset-0 bg-slate-950/40 dark:bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-300"
-          style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-w-md w-full rounded-3xl p-6 shadow-2xl flex flex-col text-slate-800 dark:text-slate-100">
             <div className="flex items-center gap-3 mb-6">
@@ -489,9 +455,9 @@ export default function LauncherScreen(): React.ReactNode {
                     <input
                       type="text"
                       readOnly
-                      value={pendingFilePath || ""}
+                      value={pendingFilePath || ''}
                       placeholder="Kayıt konumu seçilmedi..."
-                      title={pendingFilePath || ""}
+                      title={pendingFilePath || ''}
                       className="w-full pl-9 pr-3 py-2 bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono text-slate-700 dark:text-slate-300 focus:outline-none truncate cursor-default"
                     />
                   </div>
@@ -541,7 +507,7 @@ export default function LauncherScreen(): React.ReactNode {
                 <div className="relative">
                   <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-550" />
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     required
                     placeholder="Parolayı Belirleyin"
                     value={password}
@@ -552,11 +518,9 @@ export default function LauncherScreen(): React.ReactNode {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-350 focus:outline-none"
-                    title={showPassword ? "Şifreyi Gizle" : "Şifreyi Göster"}
+                    title={showPassword ? 'Şifreyi Gizle' : 'Şifreyi Göster'}
                   >
-                    {showPassword
-                      ? <EyeOff className="w-4 h-4" />
-                      : <Eye className="w-4 h-4" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -564,9 +528,8 @@ export default function LauncherScreen(): React.ReactNode {
               <div className="flex gap-2 p-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl text-amber-700 dark:text-amber-500 text-[10px] leading-relaxed">
                 <ShieldAlert className="w-5 h-5 shrink-0" />
                 <span>
-                  Bu şifre veritabanına kaydedilir. İnternet olmasa dahi bu
-                  kurum dosyasına girmek için bu şifreyi kullanacaksınız. Lütfen
-                  unutmayın.
+                  Bu şifre veritabanına kaydedilir. İnternet olmasa dahi bu kurum dosyasına girmek
+                  için bu şifreyi kullanacaksınız. Lütfen unutmayın.
                 </span>
               </div>
 
@@ -574,8 +537,8 @@ export default function LauncherScreen(): React.ReactNode {
                 <button
                   type="button"
                   onClick={() => {
-                    setShowCreateModal(false);
-                    setPendingFilePath(null);
+                    setShowCreateModal(false)
+                    setPendingFilePath(null)
                   }}
                   className="flex-1 py-2 border border-slate-205 hover:bg-slate-100 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-xl text-sm font-semibold transition-colors"
                 >
@@ -586,7 +549,7 @@ export default function LauncherScreen(): React.ReactNode {
                   disabled={creating}
                   className="flex-1 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white rounded-xl text-sm font-semibold transition-colors"
                 >
-                  {creating ? "Oluşturuluyor..." : "Veri Dosyasını Aç"}
+                  {creating ? 'Oluşturuluyor...' : 'Veri Dosyasını Aç'}
                 </button>
               </div>
             </form>
@@ -597,7 +560,7 @@ export default function LauncherScreen(): React.ReactNode {
       {showMigrationModal && migrationData && (
         <div
           className="absolute inset-0 bg-slate-950/40 dark:bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-300"
-          style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-w-md w-full rounded-3xl p-6 shadow-2xl flex flex-col text-slate-800 dark:text-slate-100">
             <div className="flex items-center gap-3 mb-4">
@@ -612,21 +575,16 @@ export default function LauncherScreen(): React.ReactNode {
             </div>
 
             <div className="mb-4 text-sm text-slate-600 dark:text-slate-400">
-              Bu dosya eski bir sürümde oluşturulmuş. Açılabilmesi için{" "}
-              <strong>{migrationData.pendingUpdates.length}</strong>{" "}
-              güncelleme uygulanacak:
+              Bu dosya eski bir sürümde oluşturulmuş. Açılabilmesi için{' '}
+              <strong>{migrationData.pendingUpdates.length}</strong> güncelleme uygulanacak:
             </div>
 
             <div className="max-h-48 overflow-y-auto mb-6 space-y-2 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-100 dark:border-slate-800 text-xs">
               {migrationData.pendingUpdates.map((update, idx) => (
-                <div
-                  key={idx}
-                  className="flex gap-2 text-slate-600 dark:text-slate-400"
-                >
+                <div key={idx} className="flex gap-2 text-slate-600 dark:text-slate-400">
                   <span className="text-blue-500">•</span>
                   <span>
-                    <strong>Schema {update.schema}:</strong>{" "}
-                    {update.description}
+                    <strong>Schema {update.schema}:</strong> {update.description}
                   </span>
                 </div>
               ))}
@@ -636,8 +594,8 @@ export default function LauncherScreen(): React.ReactNode {
               <button
                 type="button"
                 onClick={() => {
-                  setShowMigrationModal(false);
-                  setMigrationData(null);
+                  setShowMigrationModal(false)
+                  setMigrationData(null)
                 }}
                 className="flex-1 py-2 border border-slate-205 hover:bg-slate-100 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-xl text-sm font-semibold transition-colors"
               >
@@ -649,16 +607,14 @@ export default function LauncherScreen(): React.ReactNode {
                 disabled={creating}
                 className="flex-1 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white rounded-xl text-sm font-semibold transition-colors"
               >
-                {creating ? "Güncelleniyor..." : "Devam Edilsin mi?"}
+                {creating ? 'Güncelleniyor...' : 'Devam Edilsin mi?'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {showNetworkModal && (
-        <NetworkSyncModal onClose={() => setShowNetworkModal(false)} />
-      )}
+      {showNetworkModal && <NetworkSyncModal onClose={() => setShowNetworkModal(false)} />}
 
       {/* Eski Dosya Formatını .temin Yapma Zorunluluğu Modalı */}
       <FormatUpgradeModal
@@ -671,5 +627,5 @@ export default function LauncherScreen(): React.ReactNode {
         onUpgradeAndOpen={handleUpgradeAndOpen}
       />
     </div>
-  );
+  )
 }

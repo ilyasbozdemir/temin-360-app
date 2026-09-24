@@ -365,7 +365,12 @@ export function useAmbarHooks(selectedAmbarId?: number, selectedDosyaId?: number
         await window.electron.ipcRenderer.invoke(
           'db:run',
           'UPDATE DATA_AmbarStok SET toplam_miktar = ?, birim_fiyat = ?, tasinir_kodu = COALESCE(NULLIF(?, ""), tasinir_kodu), son_guncelleme = CURRENT_TIMESTAMP WHERE id = ?',
-          [newMiktar, Number(input.birim_fiyat) || existing.birim_fiyat || 0, input.tasinir_kodu || '', existing.id]
+          [
+            newMiktar,
+            Number(input.birim_fiyat) || existing.birim_fiyat || 0,
+            input.tasinir_kodu || '',
+            existing.id
+          ]
         )
       } else {
         const initialMiktar = isIncrease ? Number(input.miktar) : 0
@@ -475,7 +480,12 @@ export function useAmbarHooks(selectedAmbarId?: number, selectedDosyaId?: number
           await window.electron.ipcRenderer.invoke(
             'db:run',
             'UPDATE DATA_AmbarStok SET toplam_miktar = ?, birim_fiyat = ?, tasinir_kodu = COALESCE(NULLIF(?, ""), tasinir_kodu), son_guncelleme = CURRENT_TIMESTAMP WHERE id = ?',
-            [newMiktar, birimFiyat || existing.birim_fiyat || 0, item.tasinir_kodu || '', existing.id]
+            [
+              newMiktar,
+              birimFiyat || existing.birim_fiyat || 0,
+              item.tasinir_kodu || '',
+              existing.id
+            ]
           )
         } else {
           await window.electron.ipcRenderer.invoke(
@@ -501,8 +511,16 @@ export function useAmbarHooks(selectedAmbarId?: number, selectedDosyaId?: number
   // TIF Silme
   const deleteTifMutation = useMutation({
     mutationFn: async (tifId: number) => {
-      await window.electron.ipcRenderer.invoke('db:run', 'DELETE FROM DATA_TIF_Kalem WHERE tif_id = ?', [tifId])
-      const res = await window.electron.ipcRenderer.invoke('db:run', 'DELETE FROM DATA_TIF WHERE id = ?', [tifId])
+      await window.electron.ipcRenderer.invoke(
+        'db:run',
+        'DELETE FROM DATA_TIF_Kalem WHERE tif_id = ?',
+        [tifId]
+      )
+      const res = await window.electron.ipcRenderer.invoke(
+        'db:run',
+        'DELETE FROM DATA_TIF WHERE id = ?',
+        [tifId]
+      )
       if (!res.success) throw new Error(res.error)
       return res
     },

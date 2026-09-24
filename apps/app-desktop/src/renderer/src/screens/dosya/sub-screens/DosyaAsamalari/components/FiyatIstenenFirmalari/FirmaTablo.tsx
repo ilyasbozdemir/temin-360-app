@@ -1,8 +1,8 @@
-import React from "react";
-import { Calculator, ShieldAlert, Trophy } from "lucide-react";
-import { Firma, FirmaColumn, FirmaTabloProps } from "./types";
-import { FirmaMektupMenu } from "./FirmaMektupMenu";
-import { RowMenu } from "./RowMenu";
+import React from 'react'
+import { Calculator, ShieldAlert, Trophy } from 'lucide-react'
+import { Firma, FirmaColumn, FirmaTabloProps } from './types'
+import { FirmaMektupMenu } from './FirmaMektupMenu'
+import { RowMenu } from './RowMenu'
 
 export function FirmaTablo({
   columns,
@@ -17,7 +17,7 @@ export function FirmaTablo({
   onBirimFiyatArastirmasi,
   onBosTeklifCetveli,
   onEkapSorgula,
-  onSetWinnerFirma,
+  onSetWinnerFirma
 }: FirmaTabloProps): React.JSX.Element {
   return (
     <div className="overflow-x-auto">
@@ -28,7 +28,7 @@ export function FirmaTablo({
               <th
                 key={column.key}
                 className={`px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap ${
-                  column.className ?? ""
+                  column.className ?? ''
                 }`}
               >
                 {column.label}
@@ -47,15 +47,15 @@ export function FirmaTablo({
                 colSpan={columns.length + 1}
                 className="px-4 py-10 text-center text-xs text-slate-400"
               >
-                Henüz istekli firma eklenmedi.{" "}
+                Henüz istekli firma eklenmedi.{' '}
                 <button
                   type="button"
                   onClick={onOpenModal}
                   className="text-blue-500 hover:underline font-bold cursor-pointer bg-transparent border-0 p-0 ml-1"
                 >
                   Havuzdan Firma Seçin
-                </button>
-                {" "}veya{" "}
+                </button>{' '}
+                veya{' '}
                 <button
                   type="button"
                   onClick={onOpenNewFirmModal}
@@ -68,9 +68,8 @@ export function FirmaTablo({
           ) : (
             addedFirms.map((firma, idx) => {
               const isWinner = winnerFirmaId
-                ? winnerFirmaId === firma.id ||
-                  winnerFirmaId === (firma as any).firma_id
-                : false;
+                ? winnerFirmaId === firma.id || winnerFirmaId === (firma as any).firma_id
+                : false
 
               return (
                 <tr
@@ -81,29 +80,29 @@ export function FirmaTablo({
                   }
                   className={`group transition-colors ${
                     isWinner
-                      ? "bg-amber-50/40 dark:bg-amber-950/20 hover:bg-amber-50/70 dark:hover:bg-amber-950/30 font-medium"
-                      : "hover:bg-slate-50/70 dark:hover:bg-slate-900/50"
+                      ? 'bg-amber-50/40 dark:bg-amber-950/20 hover:bg-amber-50/70 dark:hover:bg-amber-950/30 font-medium'
+                      : 'hover:bg-slate-50/70 dark:hover:bg-slate-900/50'
                   }`}
                 >
                   {columns.map((column) => (
                     <td
                       key={column.key}
                       className={`px-4 py-3 text-xs text-slate-700 dark:text-slate-300 ${
-                        column.className ?? ""
+                        column.className ?? ''
                       }`}
                     >
                       {column.render ? (
                         column.render(firma)
-                      ) : column.key === "unvan" && isWinner ? (
+                      ) : column.key === 'unvan' && isWinner ? (
                         <div className="flex items-center gap-2">
-                          <span>{String(firma[column.key] ?? "-")}</span>
+                          <span>{String(firma[column.key] ?? '-')}</span>
                           <span className="inline-flex items-center gap-1 text-[9px] font-black bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/25 shrink-0">
                             <Trophy className="w-2.5 h-2.5 text-amber-600" />
                             Kazanan
                           </span>
                         </div>
                       ) : (
-                        String(firma[column.key] ?? "-")
+                        String(firma[column.key] ?? '-')
                       )}
                     </td>
                   ))}
@@ -161,11 +160,11 @@ export function FirmaTablo({
                     </div>
                   </td>
                 </tr>
-              );
+              )
             })
           )}
         </tbody>
       </table>
     </div>
-  );
+  )
 }

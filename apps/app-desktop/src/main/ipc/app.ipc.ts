@@ -147,7 +147,10 @@ export function registerAppIpcHandlers(
       }
     ]
 
-    const mergedMap = new Map<string, { version: string; date?: string; notes: string; schema_max: number }>()
+    const mergedMap = new Map<
+      string,
+      { version: string; date?: string; notes: string; schema_max: number }
+    >()
     allChanges.forEach((item) => mergedMap.set(item.version, item))
     appUpdates.forEach((item) => {
       if (!mergedMap.has(item.version)) {

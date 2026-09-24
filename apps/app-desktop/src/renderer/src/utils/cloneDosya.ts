@@ -145,8 +145,7 @@ export async function cloneDosyaWithItems(
       options?.temin_no?.trim() || (await calculateNextTeminNo(targetYear, dosyalarList))
 
     const finalKonu = options?.konu?.trim() || `${eskiDosya.konu || 'Doğrudan Temin'} (Kopya)`
-    const finalAcilisTarihi =
-      options?.dosya_acilis_tarihi || new Date().toISOString().split('T')[0]
+    const finalAcilisTarihi = options?.dosya_acilis_tarihi || new Date().toISOString().split('T')[0]
     const finalSonTeklifTarihi = options?.son_teklif_verme_tarihi || ''
     const finalTeslimTarihi = options?.teslim_tarihi || ''
 

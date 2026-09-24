@@ -30,12 +30,8 @@ export function PrintManagerModal({
   getMissingRequirement
 }: PrintManagerModalProps): React.JSX.Element | null {
   const { activeDosyaId } = useWorkspaceStore()
-  const {
-    getQueueForDosya,
-    removeFromQueue,
-    markAsPrinted,
-    clearQueueForDosya
-  } = usePrintQueueStore()
+  const { getQueueForDosya, removeFromQueue, markAsPrinted, clearQueueForDosya } =
+    usePrintQueueStore()
 
   const queuedDocs = getQueueForDosya(activeDosyaId)
 
@@ -108,7 +104,10 @@ export function PrintManagerModal({
     await onPrint(validIds)
   }
 
-  const handleRemove = (item: { sablon: Sablon; source: 'queue' | 'selected' | 'starred' }): void => {
+  const handleRemove = (item: {
+    sablon: Sablon
+    source: 'queue' | 'selected' | 'starred'
+  }): void => {
     if (item.source === 'queue' && activeDosyaId) {
       const docKey = (item.sablon.dosya_adi || '').replace(/\.html$/, '')
       removeFromQueue(activeDosyaId, docKey)
@@ -129,7 +128,10 @@ export function PrintManagerModal({
               Çıktı & Yazdırma Yöneticisi
             </h2>
             <p className="text-xs text-slate-500 mt-1 flex items-center gap-2">
-              <span>Kuyruktaki toplam belge sayısı: <strong className="text-slate-700 dark:text-slate-300">{queueItems.length}</strong></span>
+              <span>
+                Kuyruktaki toplam belge sayısı:{' '}
+                <strong className="text-slate-700 dark:text-slate-300">{queueItems.length}</strong>
+              </span>
               {queuedDocs.filter((q) => q.status === 'ready_to_print').length > 0 && (
                 <span className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 px-2 py-0.5 rounded-full font-extrabold text-[10px] border border-emerald-300 dark:border-emerald-700">
                   {queuedDocs.filter((q) => q.status === 'ready_to_print').length} Yazdırmaya Hazır
@@ -153,7 +155,8 @@ export function PrintManagerModal({
                 Yazdırma Sırasında Bekleyen Belge Yok
               </h3>
               <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                Belge önizleme ekranından <strong>&quot;Yazdırma Sırasına Gönder&quot;</strong> butonuna tıklayarak veya sol menüden belgeleri seçerek kuyruğa ekleyebilirsiniz.
+                Belge önizleme ekranından <strong>&quot;Yazdırma Sırasına Gönder&quot;</strong>{' '}
+                butonuna tıklayarak veya sol menüden belgeleri seçerek kuyruğa ekleyebilirsiniz.
               </p>
             </div>
           ) : (
@@ -168,8 +171,8 @@ export function PrintManagerModal({
                       missingMsg
                         ? 'bg-rose-50/50 border-rose-200 dark:bg-rose-950/20 dark:border-rose-900/30'
                         : isReadyFlag
-                        ? 'bg-emerald-50/40 border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-900/30'
-                        : 'bg-white border-slate-200 dark:bg-slate-900/50 dark:border-slate-800'
+                          ? 'bg-emerald-50/40 border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-900/30'
+                          : 'bg-white border-slate-200 dark:bg-slate-900/50 dark:border-slate-800'
                     }`}
                   >
                     <div className="shrink-0">
@@ -203,7 +206,9 @@ export function PrintManagerModal({
                         <p className="text-[10px] text-rose-500 mt-0.5">Eksik Veri: {missingMsg}</p>
                       ) : (
                         <p className="text-[10px] text-slate-400 mt-0.5">
-                          {isReadyFlag ? 'Önizlemeden kuyruğa gönderildi' : 'Seçilen listeden eklendi'}
+                          {isReadyFlag
+                            ? 'Önizlemeden kuyruğa gönderildi'
+                            : 'Seçilen listeden eklendi'}
                         </p>
                       )}
                     </div>
@@ -230,7 +235,9 @@ export function PrintManagerModal({
                 {validItems.length}
               </strong>
               {invalidItems.length > 0 && (
-                <span className="text-rose-500 ml-2 text-xs font-semibold">(Eksik Verili: {invalidItems.length})</span>
+                <span className="text-rose-500 ml-2 text-xs font-semibold">
+                  (Eksik Verili: {invalidItems.length})
+                </span>
               )}
             </div>
             {activeDosyaId && queuedDocs.length > 0 && (
@@ -275,4 +282,3 @@ export function PrintManagerModal({
     </div>
   )
 }
-

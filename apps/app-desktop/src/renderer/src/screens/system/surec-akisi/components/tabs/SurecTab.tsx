@@ -55,11 +55,12 @@ export const SurecTab: React.FC<SurecTabProps> = ({
       <div className="bg-white dark:bg-slate-955 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
           <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
-            <Clock className="text-blue-600 dark:text-blue-400" size={18} />
-            5 Adımda Doğrudan Temin Süreci Takibi
+            <Clock className="text-blue-600 dark:text-blue-400" size={18} />5 Adımda Doğrudan Temin
+            Süreci Takibi
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Görev kutularına tıklayarak süreci tamamlayın. İlgili aşamanın belgelerini hemen altındaki matristen yönetin.
+            Görev kutularına tıklayarak süreci tamamlayın. İlgili aşamanın belgelerini hemen
+            altındaki matristen yönetin.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -148,7 +149,10 @@ export const SurecTab: React.FC<SurecTabProps> = ({
             {index < stagesWithStatus.length - 1 && (
               <>
                 <div className="hidden md:flex items-center justify-center px-1">
-                  <ChevronDown className="text-slate-300 dark:text-slate-700 -rotate-90" size={20} />
+                  <ChevronDown
+                    className="text-slate-300 dark:text-slate-700 -rotate-90"
+                    size={20}
+                  />
                 </div>
                 <div className="flex md:hidden items-center justify-center py-1">
                   <ChevronDown className="text-slate-300 dark:text-slate-700" size={20} />
@@ -168,14 +172,22 @@ export const SurecTab: React.FC<SurecTabProps> = ({
               Aşamalara Göre Resmi Belgeler & İmzalı PDF Takibi
             </h4>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Seçili aşamaya ait belgeleri önizleyin, imzalı PDF yükleyerek teslim durumunu onaylayın.
+              Seçili aşamaya ait belgeleri önizleyin, imzalı PDF yükleyerek teslim durumunu
+              onaylayın.
             </p>
           </div>
 
           {/* Aşama Filtresi */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
             <Filter size={14} className="text-slate-400 shrink-0 mr-1" />
-            {['Tümü', 'İhtiyaç Tespiti', 'Piyasa Araştırması', 'Onay Süreci', 'Teslim ve Kabul', 'Ödeme İşlemleri'].map((asama) => (
+            {[
+              'Tümü',
+              'İhtiyaç Tespiti',
+              'Piyasa Araştırması',
+              'Onay Süreci',
+              'Teslim ve Kabul',
+              'Ödeme İşlemleri'
+            ].map((asama) => (
               <button
                 key={asama}
                 onClick={() => setSelectedAsamaFilter(asama)}
@@ -199,7 +211,10 @@ export const SurecTab: React.FC<SurecTabProps> = ({
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-2.5 min-w-0">
-                  <FileText size={18} className="text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                  <FileText
+                    size={18}
+                    className="text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
+                  />
                   <div className="min-w-0">
                     <h5 className="font-bold text-slate-900 dark:text-slate-100 text-xs truncate">
                       {b.ad}

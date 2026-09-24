@@ -28,7 +28,8 @@ export const HizliKadroFooter: React.FC<HizliKadroFooterProps> = ({
           className="w-4 h-4 text-blue-600 focus:ring-blue-500 rounded-sm cursor-pointer"
         />
         <span>
-          Açık dosyaya ({activeDosyaId ? `Dosya #${activeDosyaId}` : 'Aktif Dosya'}) anında senkronize et
+          Açık dosyaya ({activeDosyaId ? `Dosya #${activeDosyaId}` : 'Aktif Dosya'}) anında
+          senkronize et
         </span>
       </label>
 

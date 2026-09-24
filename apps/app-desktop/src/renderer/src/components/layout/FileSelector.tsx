@@ -22,7 +22,14 @@ export function FileSelector(): React.JSX.Element {
   } | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const { createWorkspace, openWorkspace, fileName, activeFilePath, upgradeToTemin, convertAndOpenWorkspace } = useWorkspaceStore()
+  const {
+    createWorkspace,
+    openWorkspace,
+    fileName,
+    activeFilePath,
+    upgradeToTemin,
+    convertAndOpenWorkspace
+  } = useWorkspaceStore()
   const queryClient = useQueryClient()
 
   // Close dropdown when clicking outside
@@ -75,9 +82,7 @@ export function FileSelector(): React.JSX.Element {
         if (result.success) {
           queryClient.clear()
         } else {
-          alert(
-            `Çalışma dosyası oluşturulamadı!\nHata: ${result.error || 'Bilinmeyen hata'}`
-          )
+          alert(`Çalışma dosyası oluşturulamadı!\nHata: ${result.error || 'Bilinmeyen hata'}`)
         }
       }
     } catch (e) {

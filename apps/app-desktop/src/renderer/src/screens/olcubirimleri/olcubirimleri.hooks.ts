@@ -299,7 +299,11 @@ export function convertUnits(
   }
 
   if (fromUnit.id === toUnit.id) {
-    return { result: amount, formulaText: `${amount} ${fromUnit.kisa_ad || fromUnit.ad}`, success: true }
+    return {
+      result: amount,
+      formulaText: `${amount} ${fromUnit.kisa_ad || fromUnit.ad}`,
+      success: true
+    }
   }
 
   // 1. Check direct conversion rule

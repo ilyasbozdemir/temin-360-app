@@ -1,8 +1,4 @@
-export function buildFormattedEvrakSayisi(
-  kurum: any,
-  dosyaResData: any,
-  rawTur: string
-): string {
+export function buildFormattedEvrakSayisi(kurum: any, dosyaResData: any, rawTur: string): string {
   const detsisNo = kurum?.detsis_kodu || ''
   const dosyaSayisi = dosyaResData?.temin_no || ''
 

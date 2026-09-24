@@ -63,7 +63,8 @@ export const DeveloperTab: React.FC<DeveloperTabProps> = ({
 
       setSeedResult({
         success: true,
-        message: 'Kurum, Ayarlar, Birimler, Personeller, Firmalar, Kalemler ve Komisyonlar başarıyla oluşturuldu!',
+        message:
+          'Kurum, Ayarlar, Birimler, Personeller, Firmalar, Kalemler ve Komisyonlar başarıyla oluşturuldu!',
         details: {
           kurumUpdated: true,
           birimlerCount: birimIds.length,
@@ -130,7 +131,8 @@ export const DeveloperTab: React.FC<DeveloperTabProps> = ({
                 </span>
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Önceki test verilerini temizleyip sıfırdan tüm Kurum, Birim, Personel, Firma, Kalem ve 5 adet komple Dosya sürecini yükler.
+                Önceki test verilerini temizleyip sıfırdan tüm Kurum, Birim, Personel, Firma, Kalem
+                ve 5 adet komple Dosya sürecini yükler.
               </p>
             </div>
           </div>

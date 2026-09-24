@@ -174,12 +174,12 @@ export function registerDbIpcHandlers(): void {
   ipcMain.handle('db:check-auth-setup', async () => {
     try {
       const db = workspaceManager.getDb()
-      const userRow = db
-        .prepare("SELECT value FROM settings WHERE key = 'adminUsername'")
-        .get() as { value: string } | undefined
-      const passRow = db
-        .prepare("SELECT value FROM settings WHERE key = 'adminPassword'")
-        .get() as { value: string } | undefined
+      const userRow = db.prepare("SELECT value FROM settings WHERE key = 'adminUsername'").get() as
+        | { value: string }
+        | undefined
+      const passRow = db.prepare("SELECT value FROM settings WHERE key = 'adminPassword'").get() as
+        | { value: string }
+        | undefined
 
       const hasUser = !!userRow?.value
       const hasPass = !!passRow?.value
@@ -212,12 +212,12 @@ export function registerDbIpcHandlers(): void {
   ipcMain.handle('db:login', async (_, _code: string, user: string, pass: string) => {
     try {
       const db = workspaceManager.getDb()
-      const userRow = db
-        .prepare("SELECT value FROM settings WHERE key = 'adminUsername'")
-        .get() as { value: string } | undefined
-      const passRow = db
-        .prepare("SELECT value FROM settings WHERE key = 'adminPassword'")
-        .get() as { value: string } | undefined
+      const userRow = db.prepare("SELECT value FROM settings WHERE key = 'adminUsername'").get() as
+        | { value: string }
+        | undefined
+      const passRow = db.prepare("SELECT value FROM settings WHERE key = 'adminPassword'").get() as
+        | { value: string }
+        | undefined
 
       const expectedUser = userRow?.value || 'admin'
       const expectedPass = passRow?.value || ''
@@ -261,7 +261,9 @@ export function registerDbIpcHandlers(): void {
       const db = workspaceManager.getDb()
       const getSetting = (key: string): string => {
         try {
-          const row = db.prepare('SELECT value FROM settings WHERE key = ?').get(key) as { value?: string } | undefined
+          const row = db.prepare('SELECT value FROM settings WHERE key = ?').get(key) as
+            | { value?: string }
+            | undefined
           return row?.value || ''
         } catch {
           return ''
@@ -304,7 +306,11 @@ export function registerDbIpcHandlers(): void {
       if (smtpHost && smtpUser && smtpPass) {
         try {
           const actualSecure =
-            smtpPort === 465 ? true : smtpPort === 587 || smtpPort === 25 || smtpPort === 2525 ? false : smtpSecure
+            smtpPort === 465
+              ? true
+              : smtpPort === 587 || smtpPort === 25 || smtpPort === 2525
+                ? false
+                : smtpSecure
 
           const nodemailer = await import('nodemailer')
           const transporter = nodemailer.createTransport({
@@ -373,11 +379,17 @@ export function registerDbIpcHandlers(): void {
   ipcMain.handle('db:verify-recovery-code', async (_, inputCode: string) => {
     try {
       if (!activeRecovery) {
-        return { success: false, error: 'Aktif bir kurtarma kodu bulunamadı. Lütfen tekrar kod isteyin.' }
+        return {
+          success: false,
+          error: 'Aktif bir kurtarma kodu bulunamadı. Lütfen tekrar kod isteyin.'
+        }
       }
       if (Date.now() > activeRecovery.expiresAt) {
         activeRecovery = null
-        return { success: false, error: 'Doğrulama kodunun geçerlilik süresi dolmuş (15 dk). Lütfen yeni kod isteyin.' }
+        return {
+          success: false,
+          error: 'Doğrulama kodunun geçerlilik süresi dolmuş (15 dk). Lütfen yeni kod isteyin.'
+        }
       }
       const cleanInput = (inputCode || '').toString().trim()
       if (cleanInput !== activeRecovery.code) {
@@ -470,8 +482,12 @@ export function registerDbIpcHandlers(): void {
 
       const host = String(data.smtpHost || data.smtp_host || data.host || '').trim()
       const port = String(data.smtpPort || data.smtp_port || data.port || '587').trim()
-      const user = String(data.smtpUser || data.smtp_user || data.user || data.username || '').trim()
-      const pass = String(data.smtpPass || data.smtp_pass || data.pass || data.password || '').trim()
+      const user = String(
+        data.smtpUser || data.smtp_user || data.user || data.username || ''
+      ).trim()
+      const pass = String(
+        data.smtpPass || data.smtp_pass || data.pass || data.password || ''
+      ).trim()
       const receiver = String(data.smtpReceiver || data.smtp_receiver || data.receiver || '').trim()
 
       let secureVal = 'false'
@@ -555,13 +571,13 @@ export function registerDbIpcHandlers(): void {
         'Taşınır Kodu': r.tasinir_kodu || '',
         'OKAS Kodu': r.okas_kodu || '',
         'Kalem / Malzeme Adı': r.kalem_adi || '',
-        'Tipi': r.tipi || 'Mal',
-        'Birimi': r.birim || 'Adet',
-        'Kategori': r.kategori || '',
+        Tipi: r.tipi || 'Mal',
+        Birimi: r.birim || 'Adet',
+        Kategori: r.kategori || '',
         'Açıklama / Özellik': r.ozelligi || '',
         'KDV Oranı (%)': r.kdv_orani ?? 20,
-        'Menşei': r.mensei || '',
-        'Notlar': r.notlar || ''
+        Menşei: r.mensei || '',
+        Notlar: r.notlar || ''
       }))
 
       const ws = XLSX.utils.json_to_sheet(exportData)
@@ -615,9 +631,7 @@ export function registerDbIpcHandlers(): void {
           const keys = Object.keys(row)
           const findVal = (...names: string[]) => {
             for (const n of names) {
-              const matchedKey = keys.find(
-                (k) => k.trim().toLowerCase() === n.trim().toLowerCase()
-              )
+              const matchedKey = keys.find((k) => k.trim().toLowerCase() === n.trim().toLowerCase())
               if (matchedKey && row[matchedKey] !== undefined && row[matchedKey] !== null) {
                 return String(row[matchedKey]).trim()
               }
@@ -731,7 +745,7 @@ export function registerDbIpcHandlers(): void {
           'III. Düzey': '01',
           'IV. Düzey': '',
           'V. Düzey': '',
-          'Açıklama': 'Yazı Araçları',
+          Açıklama: 'Yazı Araçları',
           'Tam Kod': '150.01.01.01'
         },
         {
@@ -741,7 +755,7 @@ export function registerDbIpcHandlers(): void {
           'III. Düzey': '02',
           'IV. Düzey': '',
           'V. Düzey': '',
-          'Açıklama': 'Yazım, Çizim ve Ölçüm Materyalleri',
+          Açıklama: 'Yazım, Çizim ve Ölçüm Materyalleri',
           'Tam Kod': '150.01.01.02'
         }
       ]
@@ -790,9 +804,7 @@ export function registerDbIpcHandlers(): void {
           const keys = Object.keys(row)
           const findVal = (...names: string[]) => {
             for (const n of names) {
-              const matchedKey = keys.find(
-                (k) => k.trim().toLowerCase() === n.trim().toLowerCase()
-              )
+              const matchedKey = keys.find((k) => k.trim().toLowerCase() === n.trim().toLowerCase())
               if (matchedKey && row[matchedKey] !== undefined && row[matchedKey] !== null) {
                 return String(row[matchedKey]).trim()
               }
@@ -853,17 +865,17 @@ export function registerDbIpcHandlers(): void {
       const sampleData = [
         {
           'OKAS Kodu': '30192700',
-          'Bölüm': '30',
-          'Grup': '301',
-          'Sınıf': '3019',
-          'Açıklama': 'Yazıcılar ve faks cihazları'
+          Bölüm: '30',
+          Grup: '301',
+          Sınıf: '3019',
+          Açıklama: 'Yazıcılar ve faks cihazları'
         },
         {
           'OKAS Kodu': '30200000',
-          'Bölüm': '30',
-          'Grup': '302',
-          'Sınıf': '3020',
-          'Açıklama': 'Bilgisayar donanımları ve malzemeleri'
+          Bölüm: '30',
+          Grup: '302',
+          Sınıf: '3020',
+          Açıklama: 'Bilgisayar donanımları ve malzemeleri'
         }
       ]
 
@@ -911,9 +923,7 @@ export function registerDbIpcHandlers(): void {
           const keys = Object.keys(row)
           const findVal = (...names: string[]) => {
             for (const n of names) {
-              const matchedKey = keys.find(
-                (k) => k.trim().toLowerCase() === n.trim().toLowerCase()
-              )
+              const matchedKey = keys.find((k) => k.trim().toLowerCase() === n.trim().toLowerCase())
               if (matchedKey && row[matchedKey] !== undefined && row[matchedKey] !== null) {
                 return String(row[matchedKey]).trim()
               }
@@ -929,8 +939,7 @@ export function registerDbIpcHandlers(): void {
 
           const bolum =
             findVal('Bölüm', 'bolum') || (cleanKod.length >= 2 ? cleanKod.slice(0, 2) : '')
-          const grup =
-            findVal('Grup', 'grup') || (cleanKod.length >= 3 ? cleanKod.slice(0, 3) : '')
+          const grup = findVal('Grup', 'grup') || (cleanKod.length >= 3 ? cleanKod.slice(0, 3) : '')
           const sinif =
             findVal('Sınıf', 'sinif') || (cleanKod.length >= 4 ? cleanKod.slice(0, 4) : '')
 
@@ -976,487 +985,515 @@ export function registerDbIpcHandlers(): void {
   })
 
   // 17. Generic Table Excel Template Download
-  ipcMain.handle('db:export-table-template', async (_, tableName: string, customFileName?: string) => {
-    try {
-      const db = workspaceManager.getDb()
-      const tableInfo = db.prepare(`PRAGMA table_info(${tableName})`).all() as { name: string; type: string; pk: number; notnull: number; dflt_value: any }[]
-      
-      const excludedCols = ['created_at', 'updated_at', 'eski_id', 'gorseller']
-      const columns = tableInfo.filter(c => !excludedCols.includes(c.name))
-      
-      const sampleRow = db.prepare(`SELECT * FROM ${tableName} LIMIT 1`).get() as any
-      const templateData: any[] = []
-      
-      if (sampleRow) {
-        const rowData: Record<string, any> = {}
-        for (const col of columns) {
-          // Leave ID empty in template so user knows it's optional
-          if (col.pk === 1 || col.name === 'id') {
-            rowData[col.name] = ''
-          } else {
-            rowData[col.name] = sampleRow[col.name] ?? ''
+  ipcMain.handle(
+    'db:export-table-template',
+    async (_, tableName: string, customFileName?: string) => {
+      try {
+        const db = workspaceManager.getDb()
+        const tableInfo = db.prepare(`PRAGMA table_info(${tableName})`).all() as {
+          name: string
+          type: string
+          pk: number
+          notnull: number
+          dflt_value: any
+        }[]
+
+        const excludedCols = ['created_at', 'updated_at', 'eski_id', 'gorseller']
+        const columns = tableInfo.filter((c) => !excludedCols.includes(c.name))
+
+        const sampleRow = db.prepare(`SELECT * FROM ${tableName} LIMIT 1`).get() as any
+        const templateData: any[] = []
+
+        if (sampleRow) {
+          const rowData: Record<string, any> = {}
+          for (const col of columns) {
+            // Leave ID empty in template so user knows it's optional
+            if (col.pk === 1 || col.name === 'id') {
+              rowData[col.name] = ''
+            } else {
+              rowData[col.name] = sampleRow[col.name] ?? ''
+            }
           }
-        }
-        templateData.push(rowData)
-      } else {
-        const rowData: Record<string, any> = {}
-        for (const col of columns) {
-          if (col.pk === 1 || col.name === 'id') {
-            rowData[col.name] = '' // ID empty (optional)
-          } else if (col.name.endsWith('_mi')) {
-            rowData[col.name] = 'Evet'
-          } else if (col.name === 'kdv_orani') {
-            rowData[col.name] = 20
-          } else if (col.name === 'birim_fiyat') {
-            rowData[col.name] = 100.00
-          } else if (col.name === 'tipi') {
-            rowData[col.name] = 'Mal'
-          } else if (col.name === 'olcu_birimi' || col.name === 'birim') {
-            rowData[col.name] = 'Adet'
-          } else if (col.type === 'INTEGER' || col.type === 'REAL') {
-            rowData[col.name] = 1
-          } else {
-            rowData[col.name] = `Örnek ${col.name.replace(/_/g, ' ')}`
+          templateData.push(rowData)
+        } else {
+          const rowData: Record<string, any> = {}
+          for (const col of columns) {
+            if (col.pk === 1 || col.name === 'id') {
+              rowData[col.name] = '' // ID empty (optional)
+            } else if (col.name.endsWith('_mi')) {
+              rowData[col.name] = 'Evet'
+            } else if (col.name === 'kdv_orani') {
+              rowData[col.name] = 20
+            } else if (col.name === 'birim_fiyat') {
+              rowData[col.name] = 100.0
+            } else if (col.name === 'tipi') {
+              rowData[col.name] = 'Mal'
+            } else if (col.name === 'olcu_birimi' || col.name === 'birim') {
+              rowData[col.name] = 'Adet'
+            } else if (col.type === 'INTEGER' || col.type === 'REAL') {
+              rowData[col.name] = 1
+            } else {
+              rowData[col.name] = `Örnek ${col.name.replace(/_/g, ' ')}`
+            }
           }
+          templateData.push(rowData)
         }
-        templateData.push(rowData)
+
+        const defaultName = customFileName || `${tableName.replace('TANIM_', '')}_Sablonu.xlsx`
+        const { canceled, filePath } = await dialog.showSaveDialog({
+          title: `${tableName} Şablon İndir (Excel)`,
+          defaultPath: defaultName,
+          filters: [{ name: 'Excel Dosyası', extensions: ['xlsx'] }]
+        })
+        if (canceled || !filePath) return { success: false, error: 'İptal edildi' }
+
+        const ws = XLSX.utils.json_to_sheet(templateData)
+        const wb = XLSX.utils.book_new()
+        XLSX.utils.book_append_sheet(wb, ws, 'Sablon')
+        const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
+        fs.writeFileSync(filePath, buffer)
+
+        return { success: true, filePath }
+      } catch (err: any) {
+        return { success: false, error: err.message }
       }
-
-      const defaultName = customFileName || `${tableName.replace('TANIM_', '')}_Sablonu.xlsx`
-      const { canceled, filePath } = await dialog.showSaveDialog({
-        title: `${tableName} Şablon İndir (Excel)`,
-        defaultPath: defaultName,
-        filters: [{ name: 'Excel Dosyası', extensions: ['xlsx'] }]
-      })
-      if (canceled || !filePath) return { success: false, error: 'İptal edildi' }
-
-      const ws = XLSX.utils.json_to_sheet(templateData)
-      const wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, ws, 'Sablon')
-      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
-      fs.writeFileSync(filePath, buffer)
-
-      return { success: true, filePath }
-    } catch (err: any) {
-      return { success: false, error: err.message }
     }
-  })
+  )
 
   // 18. Generic Table Excel Import with Override / Upsert support & Optional ID
-  ipcMain.handle('db:import-table-excel', async (_, tableName: string, options: { uniqueCol?: string } = {}) => {
-    try {
-      const { canceled, filePaths } = await dialog.showOpenDialog({
-        title: `${tableName} Excel Dosyası Seç`,
-        filters: [{ name: 'Excel Dosyası', extensions: ['xlsx', 'xls', 'csv'] }],
-        properties: ['openFile']
-      })
-      if (canceled || !filePaths || filePaths.length === 0) {
-        return { success: false, error: 'İptal edildi' }
-      }
+  ipcMain.handle(
+    'db:import-table-excel',
+    async (_, tableName: string, options: { uniqueCol?: string } = {}) => {
+      try {
+        const { canceled, filePaths } = await dialog.showOpenDialog({
+          title: `${tableName} Excel Dosyası Seç`,
+          filters: [{ name: 'Excel Dosyası', extensions: ['xlsx', 'xls', 'csv'] }],
+          properties: ['openFile']
+        })
+        if (canceled || !filePaths || filePaths.length === 0) {
+          return { success: false, error: 'İptal edildi' }
+        }
 
-      const workbook = XLSX.readFile(filePaths[0])
-      const sheetName = workbook.SheetNames[0]
-      const rawRows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: '' }) as any[]
+        const workbook = XLSX.readFile(filePaths[0])
+        const sheetName = workbook.SheetNames[0]
+        const rawRows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
+          defval: ''
+        }) as any[]
 
-      if (!rawRows || rawRows.length === 0) {
-        return { success: false, error: 'Excel dosyasında veri bulunamadı.' }
-      }
+        if (!rawRows || rawRows.length === 0) {
+          return { success: false, error: 'Excel dosyasında veri bulunamadı.' }
+        }
 
-      const db = workspaceManager.getDb()
-      const tableInfo = db.prepare(`PRAGMA table_info(${tableName})`).all() as {
-        name: string
-        type: string
-        pk: number
-        notnull: number
-        dflt_value: any
-      }[]
-      const validColNames = tableInfo.map((c) => c.name)
-      const pkCol = tableInfo.find((c) => c.pk === 1)?.name || 'id'
-      const uniqueCol = options.uniqueCol || pkCol
+        const db = workspaceManager.getDb()
+        const tableInfo = db.prepare(`PRAGMA table_info(${tableName})`).all() as {
+          name: string
+          type: string
+          pk: number
+          notnull: number
+          dflt_value: any
+        }[]
+        const validColNames = tableInfo.map((c) => c.name)
+        const pkCol = tableInfo.find((c) => c.pk === 1)?.name || 'id'
+        const uniqueCol = options.uniqueCol || pkCol
 
-      // Normalization and synonym mapping
-      const normalizeKey = (str: string): string => {
-        return str
-          .toLowerCase()
-          .replace(/ğ/g, 'g')
-          .replace(/ü/g, 'u')
-          .replace(/ş/g, 's')
-          .replace(/ı/g, 'i')
-          .replace(/i̇/g, 'i')
-          .replace(/ö/g, 'o')
-          .replace(/ç/g, 'c')
-          .replace(/[^a-z0-9]/g, '')
-      }
+        // Normalization and synonym mapping
+        const normalizeKey = (str: string): string => {
+          return str
+            .toLowerCase()
+            .replace(/ğ/g, 'g')
+            .replace(/ü/g, 'u')
+            .replace(/ş/g, 's')
+            .replace(/ı/g, 'i')
+            .replace(/i̇/g, 'i')
+            .replace(/ö/g, 'o')
+            .replace(/ç/g, 'c')
+            .replace(/[^a-z0-9]/g, '')
+        }
 
-      const SYNONYMS: Record<string, string[]> = {
-        id: ['id', 'sirano', 'no', 'kayitno', 'sira'],
-        birim_adi: ['birimadi', 'birim', 'tamadi', 'tanim', 'ad'],
-        kisa_ad: ['kisaad', 'kisaltma', 'sembol', 'kod', 'simge'],
-        kategori: ['kategori', 'kategorisi', 'grup', 'kategoriadi', 'tur'],
-        sembol: ['sembol', 'simge', 'symbol'],
-        donusum_faktoru: ['donusumfaktoru', 'faktor', 'carpan', 'katsayi', 'donusum'],
-        temel_birim_mi: ['temelbirim', 'temelbirimmi', 'referansbirim', 'anabirim', 'basetype'],
-        donusum_tipi: ['donusumtipi', 'tip', 'tur'],
-        ondalik_basamak: ['ondalikbasamak', 'basamaksayisi', 'ondalik', 'precision'],
-        iliskili_birimler: ['iliskilibirimler', 'baglibirimler'],
-        aciklama: ['aciklama', 'not', 'notlar', 'aciklamalar', 'detay', 'tanim', 'bilgi'],
-        aktif_mi: ['durum', 'durumu', 'aktif', 'aktifmi', 'status', 'isactive'],
-        ad_soyad: ['adsoyad', 'adivesoyadi', 'isim', 'personeladi', 'tamisim', 'personel'],
-        unvan: ['unvan', 'unvani', 'meslek', 'title'],
-        gorev: ['gorev', 'gorevi', 'pozisyon'],
-        tc_kimlik: ['tckimlik', 'tckimlikno', 'tc', 'tckn', 'kimlikno'],
-        telefon: ['telefon', 'tel', 'gsm', 'cep', 'telefonno', 'iletisim'],
-        eposta: ['eposta', 'email', 'mail', 'epostasi'],
-        yetkili: ['yetkili', 'yetkiliad', 'yetkiliadsoyad', 'ilgili'],
-        vergi_no: ['vergino', 'verginumarasi', 'vkn', 'taxno'],
-        vergi_dairesi: ['vergidairesi', 'vergidairesiadi', 'vd'],
-        adres: ['adres', 'acikadres', 'firmaadresi'],
-        iban: ['iban', 'ibanno', 'bankahesapno', 'hesapno'],
-        banka_adi: ['bankaadi', 'banka', 'bankasi'],
-        ambar_adi: ['ambaradi', 'ambar', 'depoadi', 'depo'],
-        semt: ['semt', 'ilce'],
-        posta_kodu: ['postakodu', 'pk'],
-        sehir: ['sehir', 'il'],
-        faks: ['faks', 'fax'],
-        web_adresi: ['webadresi', 'web', 'website', 'internet'],
-        tasinir_kodu: ['tasinirkodu', 'tasinirkod', 'tasinir'],
-        tasinir_adi: ['tasiniradi', 'tasinirtanim'],
-        tam_kod: ['tamkod', 'kod', 'tasinirkodu', 'hesapkodu'],
-        hesap_kodu: ['hesapkodu', 'anahesap', 'hesap'],
-        duzey_1: ['duzey1', 'd1'],
-        duzey_2: ['duzey2', 'd2'],
-        duzey_3: ['duzey3', 'd3'],
-        duzey_4: ['duzey4', 'd4'],
-        duzey_5: ['duzey5', 'd5'],
-        kod: ['kod', 'okaskodu', 'okaskod', 'cpv'],
-        bolum: ['bolum'],
-        grup: ['grup'],
-        sinif: ['sinif'],
-        barkod_id: ['barkodid', 'barkod', 'barkodu', 'barcode', 'stokkodu'],
-        kalem_adi: ['kalemadi', 'malzemeadi', 'urunadi', 'hizmetadi', 'isadi', 'malzeme', 'urun'],
-        tipi: ['tipi', 'tur', 'turu', 'kalemturu'],
-        birim_fiyat: ['birimfiyat', 'fiyat', 'fiyati', 'tutar', 'tahminifiyat'],
-        kdv_orani: ['kdvorani', 'kdv', 'kdvlifiyat'],
-        varsayilan_miktar: ['varsayilanmiktar', 'miktar', 'adet'],
-        olcu_birimi: ['olcubirimi', 'birim', 'birimi'],
-        kaynak_birim_id: ['kaynakbirimid', 'kaynakbirim', 'kaynak'],
-        hedef_birim_id: ['hedefbirimid', 'hedefbirim', 'hedef'],
-        formul: ['formul', 'formula'],
-        ters_formul: ['tersformul', 'inverseformula'],
-        ad: ['ad', 'gorevadi', 'gorev', 'unvan']
-      }
+        const SYNONYMS: Record<string, string[]> = {
+          id: ['id', 'sirano', 'no', 'kayitno', 'sira'],
+          birim_adi: ['birimadi', 'birim', 'tamadi', 'tanim', 'ad'],
+          kisa_ad: ['kisaad', 'kisaltma', 'sembol', 'kod', 'simge'],
+          kategori: ['kategori', 'kategorisi', 'grup', 'kategoriadi', 'tur'],
+          sembol: ['sembol', 'simge', 'symbol'],
+          donusum_faktoru: ['donusumfaktoru', 'faktor', 'carpan', 'katsayi', 'donusum'],
+          temel_birim_mi: ['temelbirim', 'temelbirimmi', 'referansbirim', 'anabirim', 'basetype'],
+          donusum_tipi: ['donusumtipi', 'tip', 'tur'],
+          ondalik_basamak: ['ondalikbasamak', 'basamaksayisi', 'ondalik', 'precision'],
+          iliskili_birimler: ['iliskilibirimler', 'baglibirimler'],
+          aciklama: ['aciklama', 'not', 'notlar', 'aciklamalar', 'detay', 'tanim', 'bilgi'],
+          aktif_mi: ['durum', 'durumu', 'aktif', 'aktifmi', 'status', 'isactive'],
+          ad_soyad: ['adsoyad', 'adivesoyadi', 'isim', 'personeladi', 'tamisim', 'personel'],
+          unvan: ['unvan', 'unvani', 'meslek', 'title'],
+          gorev: ['gorev', 'gorevi', 'pozisyon'],
+          tc_kimlik: ['tckimlik', 'tckimlikno', 'tc', 'tckn', 'kimlikno'],
+          telefon: ['telefon', 'tel', 'gsm', 'cep', 'telefonno', 'iletisim'],
+          eposta: ['eposta', 'email', 'mail', 'epostasi'],
+          yetkili: ['yetkili', 'yetkiliad', 'yetkiliadsoyad', 'ilgili'],
+          vergi_no: ['vergino', 'verginumarasi', 'vkn', 'taxno'],
+          vergi_dairesi: ['vergidairesi', 'vergidairesiadi', 'vd'],
+          adres: ['adres', 'acikadres', 'firmaadresi'],
+          iban: ['iban', 'ibanno', 'bankahesapno', 'hesapno'],
+          banka_adi: ['bankaadi', 'banka', 'bankasi'],
+          ambar_adi: ['ambaradi', 'ambar', 'depoadi', 'depo'],
+          semt: ['semt', 'ilce'],
+          posta_kodu: ['postakodu', 'pk'],
+          sehir: ['sehir', 'il'],
+          faks: ['faks', 'fax'],
+          web_adresi: ['webadresi', 'web', 'website', 'internet'],
+          tasinir_kodu: ['tasinirkodu', 'tasinirkod', 'tasinir'],
+          tasinir_adi: ['tasiniradi', 'tasinirtanim'],
+          tam_kod: ['tamkod', 'kod', 'tasinirkodu', 'hesapkodu'],
+          hesap_kodu: ['hesapkodu', 'anahesap', 'hesap'],
+          duzey_1: ['duzey1', 'd1'],
+          duzey_2: ['duzey2', 'd2'],
+          duzey_3: ['duzey3', 'd3'],
+          duzey_4: ['duzey4', 'd4'],
+          duzey_5: ['duzey5', 'd5'],
+          kod: ['kod', 'okaskodu', 'okaskod', 'cpv'],
+          bolum: ['bolum'],
+          grup: ['grup'],
+          sinif: ['sinif'],
+          barkod_id: ['barkodid', 'barkod', 'barkodu', 'barcode', 'stokkodu'],
+          kalem_adi: ['kalemadi', 'malzemeadi', 'urunadi', 'hizmetadi', 'isadi', 'malzeme', 'urun'],
+          tipi: ['tipi', 'tur', 'turu', 'kalemturu'],
+          birim_fiyat: ['birimfiyat', 'fiyat', 'fiyati', 'tutar', 'tahminifiyat'],
+          kdv_orani: ['kdvorani', 'kdv', 'kdvlifiyat'],
+          varsayilan_miktar: ['varsayilanmiktar', 'miktar', 'adet'],
+          olcu_birimi: ['olcubirimi', 'birim', 'birimi'],
+          kaynak_birim_id: ['kaynakbirimid', 'kaynakbirim', 'kaynak'],
+          hedef_birim_id: ['hedefbirimid', 'hedefbirim', 'hedef'],
+          formul: ['formul', 'formula'],
+          ters_formul: ['tersformul', 'inverseformula'],
+          ad: ['ad', 'gorevadi', 'gorev', 'unvan']
+        }
 
-      const findMatchingDbCol = (excelHeader: string): string | null => {
-        const normKey = normalizeKey(excelHeader)
-        if (!normKey) return null
+        const findMatchingDbCol = (excelHeader: string): string | null => {
+          const normKey = normalizeKey(excelHeader)
+          if (!normKey) return null
 
-        for (const col of validColNames) {
-          if (normalizeKey(col) === normKey) {
-            return col
+          for (const col of validColNames) {
+            if (normalizeKey(col) === normKey) {
+              return col
+            }
           }
-        }
 
-        for (const col of validColNames) {
-          const synList = SYNONYMS[col]
-          if (synList && synList.includes(normKey)) {
-            return col
+          for (const col of validColNames) {
+            const synList = SYNONYMS[col]
+            if (synList && synList.includes(normKey)) {
+              return col
+            }
           }
+
+          return null
         }
 
-        return null
-      }
-
-      const parseBooleanValue = (val: any, defaultVal: number = 1): number => {
-        if (val === undefined || val === null || String(val).trim() === '') return defaultVal
-        if (typeof val === 'boolean') return val ? 1 : 0
-        if (typeof val === 'number') return val > 0 ? 1 : 0
-        const s = String(val).trim().toUpperCase()
-        if (['1', 'EVET', 'E', 'TRUE', 'T', 'AKTIF', 'AKTİF', 'VAR', 'YES', 'Y'].includes(s)) return 1
-        if (['0', 'HAYIR', 'H', 'FALSE', 'F', 'PASIF', 'PASİF', 'YOK', 'NO', 'N'].includes(s)) return 0
-        return defaultVal
-      }
-
-      const parseNumberValue = (val: any, isInteger: boolean = false): number | null => {
-        if (val === undefined || val === null || String(val).trim() === '') return null
-        if (typeof val === 'number') return isInteger ? Math.round(val) : val
-        let s = String(val).trim()
-        if (s.includes(',') && s.includes('.')) {
-          s = s.replace(/\./g, '').replace(',', '.')
-        } else if (s.includes(',')) {
-          s = s.replace(',', '.')
+        const parseBooleanValue = (val: any, defaultVal: number = 1): number => {
+          if (val === undefined || val === null || String(val).trim() === '') return defaultVal
+          if (typeof val === 'boolean') return val ? 1 : 0
+          if (typeof val === 'number') return val > 0 ? 1 : 0
+          const s = String(val).trim().toUpperCase()
+          if (['1', 'EVET', 'E', 'TRUE', 'T', 'AKTIF', 'AKTİF', 'VAR', 'YES', 'Y'].includes(s))
+            return 1
+          if (['0', 'HAYIR', 'H', 'FALSE', 'F', 'PASIF', 'PASİF', 'YOK', 'NO', 'N'].includes(s))
+            return 0
+          return defaultVal
         }
-        const n = isInteger ? parseInt(s, 10) : parseFloat(s)
-        return isNaN(n) ? null : n
-      }
 
-      let insertedCount = 0
-      let updatedCount = 0
+        const parseNumberValue = (val: any, isInteger: boolean = false): number | null => {
+          if (val === undefined || val === null || String(val).trim() === '') return null
+          if (typeof val === 'number') return isInteger ? Math.round(val) : val
+          let s = String(val).trim()
+          if (s.includes(',') && s.includes('.')) {
+            s = s.replace(/\./g, '').replace(',', '.')
+          } else if (s.includes(',')) {
+            s = s.replace(',', '.')
+          }
+          const n = isInteger ? parseInt(s, 10) : parseFloat(s)
+          return isNaN(n) ? null : n
+        }
 
-      const transaction = db.transaction((rows: any[]) => {
-        for (let i = 0; i < rows.length; i++) {
-          const row = rows[i]
-          const rowKeys = Object.keys(row)
-          const matchedData: Record<string, any> = {}
+        let insertedCount = 0
+        let updatedCount = 0
 
-          for (const rawKey of rowKeys) {
-            const rawVal = row[rawKey]
-            const targetDbCol = findMatchingDbCol(rawKey)
-            if (!targetDbCol) continue
-            if (targetDbCol === 'created_at' || targetDbCol === 'updated_at') continue
+        const transaction = db.transaction((rows: any[]) => {
+          for (let i = 0; i < rows.length; i++) {
+            const row = rows[i]
+            const rowKeys = Object.keys(row)
+            const matchedData: Record<string, any> = {}
 
-            const colMeta = tableInfo.find((c) => c.name === targetDbCol)
-            if (!colMeta) continue
+            for (const rawKey of rowKeys) {
+              const rawVal = row[rawKey]
+              const targetDbCol = findMatchingDbCol(rawKey)
+              if (!targetDbCol) continue
+              if (targetDbCol === 'created_at' || targetDbCol === 'updated_at') continue
 
-            // Type conversion
-            if (targetDbCol.endsWith('_mi') || colMeta.type === 'BOOLEAN') {
-              matchedData[targetDbCol] = parseBooleanValue(
-                rawVal,
-                colMeta.dflt_value !== null ? Number(colMeta.dflt_value) : 1
-              )
-            } else if (colMeta.type === 'INTEGER') {
-              const num = parseNumberValue(rawVal, true)
-              if (num !== null) {
-                matchedData[targetDbCol] = num
-              } else if (targetDbCol !== pkCol && colMeta.notnull === 1 && colMeta.dflt_value !== null) {
-                matchedData[targetDbCol] = Number(colMeta.dflt_value)
-              } else if (targetDbCol !== pkCol) {
-                matchedData[targetDbCol] = null
-              }
-            } else if (colMeta.type === 'REAL' || colMeta.type === 'NUMERIC' || colMeta.type === 'DECIMAL') {
-              const num = parseNumberValue(rawVal, false)
-              if (num !== null) {
-                matchedData[targetDbCol] = num
-              } else if (colMeta.notnull === 1 && colMeta.dflt_value !== null) {
-                matchedData[targetDbCol] = Number(colMeta.dflt_value)
+              const colMeta = tableInfo.find((c) => c.name === targetDbCol)
+              if (!colMeta) continue
+
+              // Type conversion
+              if (targetDbCol.endsWith('_mi') || colMeta.type === 'BOOLEAN') {
+                matchedData[targetDbCol] = parseBooleanValue(
+                  rawVal,
+                  colMeta.dflt_value !== null ? Number(colMeta.dflt_value) : 1
+                )
+              } else if (colMeta.type === 'INTEGER') {
+                const num = parseNumberValue(rawVal, true)
+                if (num !== null) {
+                  matchedData[targetDbCol] = num
+                } else if (
+                  targetDbCol !== pkCol &&
+                  colMeta.notnull === 1 &&
+                  colMeta.dflt_value !== null
+                ) {
+                  matchedData[targetDbCol] = Number(colMeta.dflt_value)
+                } else if (targetDbCol !== pkCol) {
+                  matchedData[targetDbCol] = null
+                }
+              } else if (
+                colMeta.type === 'REAL' ||
+                colMeta.type === 'NUMERIC' ||
+                colMeta.type === 'DECIMAL'
+              ) {
+                const num = parseNumberValue(rawVal, false)
+                if (num !== null) {
+                  matchedData[targetDbCol] = num
+                } else if (colMeta.notnull === 1 && colMeta.dflt_value !== null) {
+                  matchedData[targetDbCol] = Number(colMeta.dflt_value)
+                } else {
+                  matchedData[targetDbCol] = null
+                }
               } else {
-                matchedData[targetDbCol] = null
+                matchedData[targetDbCol] =
+                  rawVal !== undefined && rawVal !== null ? String(rawVal).trim() : ''
+              }
+            }
+
+            // Check if explicit positive ID is provided
+            let explicitId: number | null = null
+            if (
+              matchedData[pkCol] !== undefined &&
+              matchedData[pkCol] !== null &&
+              String(matchedData[pkCol]).trim() !== ''
+            ) {
+              const parsedId = parseInt(String(matchedData[pkCol]).replace(/\D/g, ''), 10)
+              if (!isNaN(parsedId) && parsedId > 0) {
+                explicitId = parsedId
+              }
+            }
+
+            // If ID is blank, empty string, or <= 0, remove it so SQLite auto-increments
+            if (!explicitId) {
+              delete matchedData[pkCol]
+            } else {
+              matchedData[pkCol] = explicitId
+            }
+
+            // Smart Table-Specific Augmentations
+            if (tableName === 'TANIM_Kalem') {
+              if (!matchedData.kalem_adi && !matchedData.barkod_id) continue
+              if (!matchedData.barkod_id || String(matchedData.barkod_id).trim() === '') {
+                matchedData.barkod_id = `KLM-${Date.now()}-${Math.floor(Math.random() * 90000 + 10000)}`
+              }
+              if (!matchedData.tipi) matchedData.tipi = 'Mal'
+              if (matchedData.kdv_orani === undefined || matchedData.kdv_orani === null)
+                matchedData.kdv_orani = 20
+              if (matchedData.aktif_mi === undefined || matchedData.aktif_mi === null)
+                matchedData.aktif_mi = 1
+            } else if (tableName === 'TANIM_TasinirKod') {
+              if (!matchedData.tam_kod && !matchedData.aciklama) continue
+              if (matchedData.tam_kod) {
+                const parts = String(matchedData.tam_kod).trim().split('.')
+                if (!matchedData.hesap_kodu) matchedData.hesap_kodu = parts[0] || '150'
+                if (!matchedData.duzey_1 && parts[1]) matchedData.duzey_1 = parts[1]
+                if (!matchedData.duzey_2 && parts[2]) matchedData.duzey_2 = parts[2]
+                if (!matchedData.duzey_3 && parts[3]) matchedData.duzey_3 = parts[3]
+                if (!matchedData.duzey_4 && parts[4]) matchedData.duzey_4 = parts[4]
+                if (!matchedData.duzey_5 && parts[5]) matchedData.duzey_5 = parts[5]
+              }
+            } else if (tableName === 'TANIM_OkasKod') {
+              if (!matchedData.kod && !matchedData.aciklama) continue
+              if (matchedData.kod) {
+                const clean = String(matchedData.kod).replace(/\D/g, '').slice(0, 8)
+                matchedData.kod = clean
+                if (!matchedData.bolum && clean.length >= 2) matchedData.bolum = clean.slice(0, 2)
+                if (!matchedData.grup && clean.length >= 3) matchedData.grup = clean.slice(0, 3)
+                if (!matchedData.sinif && clean.length >= 4) matchedData.sinif = clean.slice(0, 4)
+              }
+            } else if (tableName === 'TANIM_BirimDonusum') {
+              if (matchedData.kaynak_birim_id && isNaN(Number(matchedData.kaynak_birim_id))) {
+                const u = db
+                  .prepare(
+                    `SELECT id FROM TANIM_OlcuBirimi WHERE kisa_ad = ? OR birim_adi = ? COLLATE NOCASE`
+                  )
+                  .get(matchedData.kaynak_birim_id, matchedData.kaynak_birim_id) as any
+                if (u) matchedData.kaynak_birim_id = u.id
+              }
+              if (matchedData.hedef_birim_id && isNaN(Number(matchedData.hedef_birim_id))) {
+                const u = db
+                  .prepare(
+                    `SELECT id FROM TANIM_OlcuBirimi WHERE kisa_ad = ? OR birim_adi = ? COLLATE NOCASE`
+                  )
+                  .get(matchedData.hedef_birim_id, matchedData.hedef_birim_id) as any
+                if (u) matchedData.hedef_birim_id = u.id
+              }
+            }
+
+            if (Object.keys(matchedData).length === 0) continue
+
+            // Find existing record for override/update
+            let existing: any = null
+
+            // 1. By explicit ID
+            if (explicitId) {
+              existing = db
+                .prepare(`SELECT * FROM ${tableName} WHERE "${pkCol}" = ?`)
+                .get(explicitId)
+            }
+
+            // 2. By uniqueCol if given
+            if (
+              !existing &&
+              uniqueCol &&
+              uniqueCol !== pkCol &&
+              matchedData[uniqueCol] !== undefined &&
+              matchedData[uniqueCol] !== null &&
+              String(matchedData[uniqueCol]).trim() !== ''
+            ) {
+              existing = db
+                .prepare(`SELECT * FROM ${tableName} WHERE "${uniqueCol}" = ?`)
+                .get(matchedData[uniqueCol])
+            }
+
+            // 3. Fallback table-specific unique lookups
+            if (!existing) {
+              if (tableName === 'TANIM_Kalem' && matchedData.barkod_id) {
+                existing = db
+                  .prepare(`SELECT * FROM TANIM_Kalem WHERE barkod_id = ?`)
+                  .get(matchedData.barkod_id)
+              } else if (tableName === 'TANIM_TasinirKod' && matchedData.tam_kod) {
+                existing = db
+                  .prepare(`SELECT * FROM TANIM_TasinirKod WHERE tam_kod = ?`)
+                  .get(matchedData.tam_kod)
+              } else if (tableName === 'TANIM_OkasKod' && matchedData.kod) {
+                existing = db
+                  .prepare(`SELECT * FROM TANIM_OkasKod WHERE kod = ?`)
+                  .get(matchedData.kod)
+              } else if (
+                tableName === 'TANIM_OlcuBirimi' &&
+                (matchedData.kisa_ad || matchedData.birim_adi)
+              ) {
+                if (matchedData.kisa_ad) {
+                  existing = db
+                    .prepare(`SELECT * FROM TANIM_OlcuBirimi WHERE kisa_ad = ? COLLATE NOCASE`)
+                    .get(matchedData.kisa_ad)
+                }
+                if (!existing && matchedData.birim_adi) {
+                  existing = db
+                    .prepare(`SELECT * FROM TANIM_OlcuBirimi WHERE birim_adi = ? COLLATE NOCASE`)
+                    .get(matchedData.birim_adi)
+                }
+              } else if (
+                tableName === 'TANIM_BirimDonusum' &&
+                matchedData.kaynak_birim_id &&
+                matchedData.hedef_birim_id
+              ) {
+                existing = db
+                  .prepare(
+                    `SELECT * FROM TANIM_BirimDonusum WHERE kaynak_birim_id = ? AND hedef_birim_id = ?`
+                  )
+                  .get(matchedData.kaynak_birim_id, matchedData.hedef_birim_id)
+              } else if (tableName === 'TANIM_Birim' && matchedData.birim_adi) {
+                existing = db
+                  .prepare(`SELECT * FROM TANIM_Birim WHERE birim_adi = ? COLLATE NOCASE`)
+                  .get(matchedData.birim_adi)
+              } else if (
+                tableName === 'TANIM_Personel' &&
+                (matchedData.tc_kimlik || matchedData.ad_soyad)
+              ) {
+                if (matchedData.tc_kimlik && String(matchedData.tc_kimlik).trim() !== '') {
+                  existing = db
+                    .prepare(`SELECT * FROM TANIM_Personel WHERE tc_kimlik = ?`)
+                    .get(matchedData.tc_kimlik)
+                }
+                if (!existing && matchedData.ad_soyad) {
+                  existing = db
+                    .prepare(`SELECT * FROM TANIM_Personel WHERE ad_soyad = ? COLLATE NOCASE`)
+                    .get(matchedData.ad_soyad)
+                }
+              } else if (
+                tableName === 'TANIM_Firma' &&
+                (matchedData.vergi_no || matchedData.unvan)
+              ) {
+                if (matchedData.vergi_no && String(matchedData.vergi_no).trim() !== '') {
+                  existing = db
+                    .prepare(`SELECT * FROM TANIM_Firma WHERE vergi_no = ?`)
+                    .get(matchedData.vergi_no)
+                }
+                if (!existing && matchedData.unvan) {
+                  existing = db
+                    .prepare(`SELECT * FROM TANIM_Firma WHERE unvan = ? COLLATE NOCASE`)
+                    .get(matchedData.unvan)
+                }
+              } else if (tableName === 'TANIM_Ambar' && matchedData.ambar_adi) {
+                existing = db
+                  .prepare(`SELECT * FROM TANIM_Ambar WHERE ambar_adi = ? COLLATE NOCASE`)
+                  .get(matchedData.ambar_adi)
+              } else if (tableName === 'TANIM_KomisyonGorevi' && matchedData.ad) {
+                existing = db
+                  .prepare(`SELECT * FROM TANIM_KomisyonGorevi WHERE ad = ? COLLATE NOCASE`)
+                  .get(matchedData.ad)
+              }
+            }
+
+            if (existing) {
+              // Update / Override
+              const existingPkValue = (existing as any)[pkCol]
+              const updateCols = Object.keys(matchedData).filter((c) => c !== pkCol)
+              if (updateCols.length > 0) {
+                const setClause = updateCols.map((c) => `"${c}" = ?`).join(', ')
+                const params = updateCols.map((c) => matchedData[c])
+                params.push(existingPkValue)
+                db.prepare(`UPDATE ${tableName} SET ${setClause} WHERE "${pkCol}" = ?`).run(
+                  ...params
+                )
+                updatedCount++
               }
             } else {
-              matchedData[targetDbCol] = rawVal !== undefined && rawVal !== null ? String(rawVal).trim() : ''
-            }
-          }
-
-          // Check if explicit positive ID is provided
-          let explicitId: number | null = null
-          if (
-            matchedData[pkCol] !== undefined &&
-            matchedData[pkCol] !== null &&
-            String(matchedData[pkCol]).trim() !== ''
-          ) {
-            const parsedId = parseInt(String(matchedData[pkCol]).replace(/\D/g, ''), 10)
-            if (!isNaN(parsedId) && parsedId > 0) {
-              explicitId = parsedId
-            }
-          }
-
-          // If ID is blank, empty string, or <= 0, remove it so SQLite auto-increments
-          if (!explicitId) {
-            delete matchedData[pkCol]
-          } else {
-            matchedData[pkCol] = explicitId
-          }
-
-          // Smart Table-Specific Augmentations
-          if (tableName === 'TANIM_Kalem') {
-            if (!matchedData.kalem_adi && !matchedData.barkod_id) continue
-            if (!matchedData.barkod_id || String(matchedData.barkod_id).trim() === '') {
-              matchedData.barkod_id = `KLM-${Date.now()}-${Math.floor(Math.random() * 90000 + 10000)}`
-            }
-            if (!matchedData.tipi) matchedData.tipi = 'Mal'
-            if (matchedData.kdv_orani === undefined || matchedData.kdv_orani === null) matchedData.kdv_orani = 20
-            if (matchedData.aktif_mi === undefined || matchedData.aktif_mi === null) matchedData.aktif_mi = 1
-          } else if (tableName === 'TANIM_TasinirKod') {
-            if (!matchedData.tam_kod && !matchedData.aciklama) continue
-            if (matchedData.tam_kod) {
-              const parts = String(matchedData.tam_kod).trim().split('.')
-              if (!matchedData.hesap_kodu) matchedData.hesap_kodu = parts[0] || '150'
-              if (!matchedData.duzey_1 && parts[1]) matchedData.duzey_1 = parts[1]
-              if (!matchedData.duzey_2 && parts[2]) matchedData.duzey_2 = parts[2]
-              if (!matchedData.duzey_3 && parts[3]) matchedData.duzey_3 = parts[3]
-              if (!matchedData.duzey_4 && parts[4]) matchedData.duzey_4 = parts[4]
-              if (!matchedData.duzey_5 && parts[5]) matchedData.duzey_5 = parts[5]
-            }
-          } else if (tableName === 'TANIM_OkasKod') {
-            if (!matchedData.kod && !matchedData.aciklama) continue
-            if (matchedData.kod) {
-              const clean = String(matchedData.kod).replace(/\D/g, '').slice(0, 8)
-              matchedData.kod = clean
-              if (!matchedData.bolum && clean.length >= 2) matchedData.bolum = clean.slice(0, 2)
-              if (!matchedData.grup && clean.length >= 3) matchedData.grup = clean.slice(0, 3)
-              if (!matchedData.sinif && clean.length >= 4) matchedData.sinif = clean.slice(0, 4)
-            }
-          } else if (tableName === 'TANIM_BirimDonusum') {
-            if (matchedData.kaynak_birim_id && isNaN(Number(matchedData.kaynak_birim_id))) {
-              const u = db
-                .prepare(
-                  `SELECT id FROM TANIM_OlcuBirimi WHERE kisa_ad = ? OR birim_adi = ? COLLATE NOCASE`
-                )
-                .get(matchedData.kaynak_birim_id, matchedData.kaynak_birim_id) as any
-              if (u) matchedData.kaynak_birim_id = u.id
-            }
-            if (matchedData.hedef_birim_id && isNaN(Number(matchedData.hedef_birim_id))) {
-              const u = db
-                .prepare(
-                  `SELECT id FROM TANIM_OlcuBirimi WHERE kisa_ad = ? OR birim_adi = ? COLLATE NOCASE`
-                )
-                .get(matchedData.hedef_birim_id, matchedData.hedef_birim_id) as any
-              if (u) matchedData.hedef_birim_id = u.id
-            }
-          }
-
-          if (Object.keys(matchedData).length === 0) continue
-
-          // Find existing record for override/update
-          let existing: any = null
-
-          // 1. By explicit ID
-          if (explicitId) {
-            existing = db.prepare(`SELECT * FROM ${tableName} WHERE "${pkCol}" = ?`).get(explicitId)
-          }
-
-          // 2. By uniqueCol if given
-          if (
-            !existing &&
-            uniqueCol &&
-            uniqueCol !== pkCol &&
-            matchedData[uniqueCol] !== undefined &&
-            matchedData[uniqueCol] !== null &&
-            String(matchedData[uniqueCol]).trim() !== ''
-          ) {
-            existing = db
-              .prepare(`SELECT * FROM ${tableName} WHERE "${uniqueCol}" = ?`)
-              .get(matchedData[uniqueCol])
-          }
-
-          // 3. Fallback table-specific unique lookups
-          if (!existing) {
-            if (tableName === 'TANIM_Kalem' && matchedData.barkod_id) {
-              existing = db
-                .prepare(`SELECT * FROM TANIM_Kalem WHERE barkod_id = ?`)
-                .get(matchedData.barkod_id)
-            } else if (tableName === 'TANIM_TasinirKod' && matchedData.tam_kod) {
-              existing = db
-                .prepare(`SELECT * FROM TANIM_TasinirKod WHERE tam_kod = ?`)
-                .get(matchedData.tam_kod)
-            } else if (tableName === 'TANIM_OkasKod' && matchedData.kod) {
-              existing = db
-                .prepare(`SELECT * FROM TANIM_OkasKod WHERE kod = ?`)
-                .get(matchedData.kod)
-            } else if (
-              tableName === 'TANIM_OlcuBirimi' &&
-              (matchedData.kisa_ad || matchedData.birim_adi)
-            ) {
-              if (matchedData.kisa_ad) {
-                existing = db
-                  .prepare(`SELECT * FROM TANIM_OlcuBirimi WHERE kisa_ad = ? COLLATE NOCASE`)
-                  .get(matchedData.kisa_ad)
+              // Insert (if id was not provided, it's omitted so SQLite autoincrements it)
+              const insertCols = Object.keys(matchedData)
+              if (insertCols.length > 0) {
+                const placeholders = insertCols.map(() => '?').join(', ')
+                const params = insertCols.map((c) => matchedData[c])
+                db.prepare(
+                  `INSERT INTO ${tableName} (${insertCols.map((c) => `"${c}"`).join(', ')}) VALUES (${placeholders})`
+                ).run(...params)
+                insertedCount++
               }
-              if (!existing && matchedData.birim_adi) {
-                existing = db
-                  .prepare(`SELECT * FROM TANIM_OlcuBirimi WHERE birim_adi = ? COLLATE NOCASE`)
-                  .get(matchedData.birim_adi)
-              }
-            } else if (
-              tableName === 'TANIM_BirimDonusum' &&
-              matchedData.kaynak_birim_id &&
-              matchedData.hedef_birim_id
-            ) {
-              existing = db
-                .prepare(
-                  `SELECT * FROM TANIM_BirimDonusum WHERE kaynak_birim_id = ? AND hedef_birim_id = ?`
-                )
-                .get(matchedData.kaynak_birim_id, matchedData.hedef_birim_id)
-            } else if (tableName === 'TANIM_Birim' && matchedData.birim_adi) {
-              existing = db
-                .prepare(`SELECT * FROM TANIM_Birim WHERE birim_adi = ? COLLATE NOCASE`)
-                .get(matchedData.birim_adi)
-            } else if (
-              tableName === 'TANIM_Personel' &&
-              (matchedData.tc_kimlik || matchedData.ad_soyad)
-            ) {
-              if (matchedData.tc_kimlik && String(matchedData.tc_kimlik).trim() !== '') {
-                existing = db
-                  .prepare(`SELECT * FROM TANIM_Personel WHERE tc_kimlik = ?`)
-                  .get(matchedData.tc_kimlik)
-              }
-              if (!existing && matchedData.ad_soyad) {
-                existing = db
-                  .prepare(`SELECT * FROM TANIM_Personel WHERE ad_soyad = ? COLLATE NOCASE`)
-                  .get(matchedData.ad_soyad)
-              }
-            } else if (
-              tableName === 'TANIM_Firma' &&
-              (matchedData.vergi_no || matchedData.unvan)
-            ) {
-              if (matchedData.vergi_no && String(matchedData.vergi_no).trim() !== '') {
-                existing = db
-                  .prepare(`SELECT * FROM TANIM_Firma WHERE vergi_no = ?`)
-                  .get(matchedData.vergi_no)
-              }
-              if (!existing && matchedData.unvan) {
-                existing = db
-                  .prepare(`SELECT * FROM TANIM_Firma WHERE unvan = ? COLLATE NOCASE`)
-                  .get(matchedData.unvan)
-              }
-            } else if (tableName === 'TANIM_Ambar' && matchedData.ambar_adi) {
-              existing = db
-                .prepare(`SELECT * FROM TANIM_Ambar WHERE ambar_adi = ? COLLATE NOCASE`)
-                .get(matchedData.ambar_adi)
-            } else if (tableName === 'TANIM_KomisyonGorevi' && matchedData.ad) {
-              existing = db
-                .prepare(`SELECT * FROM TANIM_KomisyonGorevi WHERE ad = ? COLLATE NOCASE`)
-                .get(matchedData.ad)
             }
           }
+        })
 
-          if (existing) {
-            // Update / Override
-            const existingPkValue = (existing as any)[pkCol]
-            const updateCols = Object.keys(matchedData).filter((c) => c !== pkCol)
-            if (updateCols.length > 0) {
-              const setClause = updateCols.map((c) => `"${c}" = ?`).join(', ')
-              const params = updateCols.map((c) => matchedData[c])
-              params.push(existingPkValue)
-              db.prepare(`UPDATE ${tableName} SET ${setClause} WHERE "${pkCol}" = ?`).run(...params)
-              updatedCount++
-            }
-          } else {
-            // Insert (if id was not provided, it's omitted so SQLite autoincrements it)
-            const insertCols = Object.keys(matchedData)
-            if (insertCols.length > 0) {
-              const placeholders = insertCols.map(() => '?').join(', ')
-              const params = insertCols.map((c) => matchedData[c])
-              db.prepare(
-                `INSERT INTO ${tableName} (${insertCols.map((c) => `"${c}"`).join(', ')}) VALUES (${placeholders})`
-              ).run(...params)
-              insertedCount++
-            }
-          }
+        transaction(rawRows)
+        workspaceManager.recordMutation()
+        workspaceManager.save()
+
+        return {
+          success: true,
+          count: insertedCount + updatedCount,
+          inserted: insertedCount,
+          updated: updatedCount
         }
-      })
-
-      transaction(rawRows)
-      workspaceManager.recordMutation()
-      workspaceManager.save()
-
-      return {
-        success: true,
-        count: insertedCount + updatedCount,
-        inserted: insertedCount,
-        updated: updatedCount
+      } catch (err: any) {
+        return { success: false, error: err.message }
       }
-    } catch (err: any) {
-      return { success: false, error: err.message }
     }
-  })
+  )
 
   // 16. JSON Toplu Veri İçe Aktarma (ImportScreen)
   ipcMain.handle(
     'db:bulk-import',
-    async (
-      _,
-      payload: { target: string; mappings: Record<string, string>; data: any[] }
-    ) => {
+    async (_, payload: { target: string; mappings: Record<string, string>; data: any[] }) => {
       try {
         const { target, mappings, data } = payload
         if (!target || !mappings || !Array.isArray(data) || data.length === 0) {
@@ -1608,4 +1645,3 @@ export function registerDbIpcHandlers(): void {
     }
   })
 }
-

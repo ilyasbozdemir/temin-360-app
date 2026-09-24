@@ -38,15 +38,18 @@ const COLOR_PRESETS = [
 const DURUM_CONFIG = {
   planlama: {
     label: 'Planlama Aşamasında',
-    color: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800'
+    color:
+      'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800'
   },
   devam: {
     label: 'Devam Ediyor',
-    color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+    color:
+      'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
   },
   tamamlandi: {
     label: 'Tamamlandı',
-    color: 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-800'
+    color:
+      'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-800'
   }
 }
 
@@ -55,9 +58,9 @@ const generateDefaultProjectCode = (): string => {
 }
 
 export default function ProjelerScreen({
-  isSubComponent = false,
+  isSubComponent = false
 }: {
-  isSubComponent?: boolean;
+  isSubComponent?: boolean
 } = {}): React.JSX.Element {
   const navigate = useNavigate()
   const { setActiveDosyaId } = useWorkspaceStore()
@@ -83,7 +86,9 @@ export default function ProjelerScreen({
   const [formColor, setFormColor] = useState(COLOR_PRESETS[0])
 
   // Sub-query for files of selected detail project
-  const { data: projeDosyalari = [], isLoading: isLoadingDosyalar } = useProjeDosyalari(detailProje?.id)
+  const { data: projeDosyalari = [], isLoading: isLoadingDosyalar } = useProjeDosyalari(
+    detailProje?.id
+  )
 
   // Computed summary metrics
   const summary = useMemo(() => {
@@ -91,10 +96,18 @@ export default function ProjelerScreen({
     const totalBudget = projeler.reduce((acc, p) => acc + (p.toplam_butce || 0), 0)
     const totalSpent = projeler.reduce((acc, p) => acc + (p.harcanan_tutar || 0), 0)
     const totalRemaining = Math.max(0, totalBudget - totalSpent)
-    const overallPercentage = totalBudget > 0 ? Math.min(100, Math.round((totalSpent / totalBudget) * 100)) : 0
+    const overallPercentage =
+      totalBudget > 0 ? Math.min(100, Math.round((totalSpent / totalBudget) * 100)) : 0
     const activeCount = projeler.filter((p) => p.durum === 'devam').length
 
-    return { totalProjects, totalBudget, totalSpent, totalRemaining, overallPercentage, activeCount }
+    return {
+      totalProjects,
+      totalBudget,
+      totalSpent,
+      totalRemaining,
+      overallPercentage,
+      activeCount
+    }
   }, [projeler])
 
   // Filtered projects
@@ -161,7 +174,7 @@ export default function ProjelerScreen({
     if (editingProje) {
       await updateProje({ id: editingProje.id, data: payload })
       if (detailProje?.id === editingProje.id) {
-        setDetailProje((prev) => (prev ? { ...prev, ...payload } as Proje : null))
+        setDetailProje((prev) => (prev ? ({ ...prev, ...payload } as Proje) : null))
       }
     } else {
       await addProje(payload)
@@ -187,7 +200,9 @@ export default function ProjelerScreen({
   }
 
   return (
-    <div className={`space-y-6 animate-fadeIn pb-16 ${isSubComponent ? 'w-full' : 'p-6 max-w-[1600px] mx-auto'}`}>
+    <div
+      className={`space-y-6 animate-fadeIn pb-16 ${isSubComponent ? 'w-full' : 'p-6 max-w-[1600px] mx-auto'}`}
+    >
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-xs">
         <div className="flex items-center gap-3">
@@ -202,7 +217,8 @@ export default function ProjelerScreen({
               </span>
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Üst alım ve yatırım projelerini tanımlayın, bütçe harcamalarını ve bağlı doğrudan temin süreçlerini tek merkezden yönetin.
+              Üst alım ve yatırım projelerini tanımlayın, bütçe harcamalarını ve bağlı doğrudan
+              temin süreçlerini tek merkezden yönetin.
             </p>
           </div>
         </div>
@@ -222,7 +238,9 @@ export default function ProjelerScreen({
         {/* Toplam Bütçe */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Toplam Proje Bütçesi</span>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              Toplam Proje Bütçesi
+            </span>
             <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
               <Wallet size={18} />
             </div>
@@ -240,7 +258,9 @@ export default function ProjelerScreen({
         {/* Gerçekleşen Harcama */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Gerçekleşen Harcama</span>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              Gerçekleşen Harcama
+            </span>
             <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
               <TrendingUp size={18} />
             </div>
@@ -261,7 +281,9 @@ export default function ProjelerScreen({
         {/* Kalan Fon */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Kalan Kullanılabilir Bütçe</span>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              Kalan Kullanılabilir Bütçe
+            </span>
             <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
               <PieChart size={18} />
             </div>
@@ -279,14 +301,17 @@ export default function ProjelerScreen({
         {/* Aktif Süreçler */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Aktif & Yürüyen Projeler</span>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              Aktif & Yürüyen Projeler
+            </span>
             <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
               <Clock size={18} />
             </div>
           </div>
           <div className="mt-3">
             <div className="text-2xl font-black text-amber-600 dark:text-amber-400 tracking-tight">
-              {summary.activeCount} <span className="text-sm font-normal text-slate-400">/ {summary.totalProjects}</span>
+              {summary.activeCount}{' '}
+              <span className="text-sm font-normal text-slate-400">/ {summary.totalProjects}</span>
             </div>
             <p className="text-[11px] text-slate-400 mt-1">
               Hali hazırda devam eden alım süreçleri
@@ -341,11 +366,16 @@ export default function ProjelerScreen({
           <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-500 flex items-center justify-center mx-auto">
             <FolderKanban size={24} />
           </div>
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Kayıtlı Proje Bulunamadı</h3>
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+            Kayıtlı Proje Bulunamadı
+          </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
             Arama kriterlerinize uygun proje bulunamadı veya henüz bir proje tanımlanmadı.
           </p>
-          <Button onClick={handleOpenCreate} className="text-xs bg-blue-600 text-white hover:bg-blue-700">
+          <Button
+            onClick={handleOpenCreate}
+            className="text-xs bg-blue-600 text-white hover:bg-blue-700"
+          >
             <Plus size={14} className="mr-1" /> İlk Projeyi Tanımla
           </Button>
         </div>
@@ -372,7 +402,9 @@ export default function ProjelerScreen({
                     <span className="font-mono text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/80 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800/80">
                       {p.proje_kodu}
                     </span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${durumBadge.color}`}>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${durumBadge.color}`}
+                    >
                       {durumBadge.label}
                     </span>
                   </div>
@@ -422,8 +454,18 @@ export default function ProjelerScreen({
                     </div>
 
                     <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
-                      <span>Harcanan: <strong className="text-slate-800 dark:text-slate-200">{Number(p.harcanan_tutar).toLocaleString('tr-TR')} ₺</strong></span>
-                      <span>Toplam: <strong className="text-slate-800 dark:text-slate-200">{Number(p.toplam_butce).toLocaleString('tr-TR')} ₺</strong></span>
+                      <span>
+                        Harcanan:{' '}
+                        <strong className="text-slate-800 dark:text-slate-200">
+                          {Number(p.harcanan_tutar).toLocaleString('tr-TR')} ₺
+                        </strong>
+                      </span>
+                      <span>
+                        Toplam:{' '}
+                        <strong className="text-slate-800 dark:text-slate-200">
+                          {Number(p.toplam_butce).toLocaleString('tr-TR')} ₺
+                        </strong>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -436,7 +478,10 @@ export default function ProjelerScreen({
                   >
                     <FileText size={14} />
                     <span>{p.dosya_sayisi || 0} Dosya & Detaylar</span>
-                    <ChevronRight size={14} className="group-hover/btn:translate-x-0.5 transition-transform" />
+                    <ChevronRight
+                      size={14}
+                      className="group-hover/btn:translate-x-0.5 transition-transform"
+                    />
                   </button>
 
                   <div className="flex items-center gap-1">
@@ -481,15 +526,15 @@ export default function ProjelerScreen({
                     {detailProje.proje_adi}
                   </span>
                 </div>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${DURUM_CONFIG[detailProje.durum]?.color}`}>
+                <span
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${DURUM_CONFIG[detailProje.durum]?.color}`}
+                >
                   {DURUM_CONFIG[detailProje.durum]?.label}
                 </span>
               </div>
 
               {detailProje.aciklama && (
-                <p className="text-xs text-slate-600 dark:text-slate-400">
-                  {detailProje.aciklama}
-                </p>
+                <p className="text-xs text-slate-600 dark:text-slate-400">{detailProje.aciklama}</p>
               )}
 
               <div className="grid grid-cols-3 gap-3 pt-2 text-xs">
@@ -500,7 +545,9 @@ export default function ProjelerScreen({
                   </span>
                 </div>
                 <div className="bg-white dark:bg-slate-800/80 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700/60">
-                  <span className="text-[10px] text-slate-400 block font-medium">Harcanan Tutar</span>
+                  <span className="text-[10px] text-slate-400 block font-medium">
+                    Harcanan Tutar
+                  </span>
                   <span className="font-bold text-purple-600 dark:text-purple-400">
                     {Number(detailProje.harcanan_tutar).toLocaleString('tr-TR')} ₺
                   </span>
@@ -534,12 +581,15 @@ export default function ProjelerScreen({
               </div>
 
               {isLoadingDosyalar ? (
-                <div className="py-8 text-center text-xs text-slate-400">Dosyalar yükleniyor...</div>
+                <div className="py-8 text-center text-xs text-slate-400">
+                  Dosyalar yükleniyor...
+                </div>
               ) : projeDosyalari.length === 0 ? (
                 <div className="py-8 text-center bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-xs text-slate-500 space-y-2">
                   <p>Bu projeye henüz bağlı bir doğrudan temin veya ihale dosyası bulunmuyor.</p>
                   <p className="text-[11px] text-slate-400">
-                    Yeni bir dosya oluştururken veya mevcut dosya detayında &quot;Genel Bilgiler&quot; sekmesinden bu projeyi seçebilirsiniz.
+                    Yeni bir dosya oluştururken veya mevcut dosya detayında &quot;Genel
+                    Bilgiler&quot; sekmesinden bu projeyi seçebilirsiniz.
                   </p>
                 </div>
               ) : (
@@ -559,7 +609,12 @@ export default function ProjelerScreen({
                           </span>
                         </div>
                         <div className="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400">
-                          <span>Yaklaşık Maliyet: <strong>{Number(dosya.yaklasik_maliyet || 0).toLocaleString('tr-TR')} ₺</strong></span>
+                          <span>
+                            Yaklaşık Maliyet:{' '}
+                            <strong>
+                              {Number(dosya.yaklasik_maliyet || 0).toLocaleString('tr-TR')} ₺
+                            </strong>
+                          </span>
                           <span>•</span>
                           <span>Durum: {dosya.surec_durumu || 'Hazırlık'}</span>
                         </div>
@@ -581,11 +636,7 @@ export default function ProjelerScreen({
             </div>
 
             <div className="flex justify-end pt-3 border-t border-slate-200 dark:border-slate-800">
-              <Button
-                variant="outline"
-                onClick={() => setDetailProje(null)}
-                className="text-xs"
-              >
+              <Button variant="outline" onClick={() => setDetailProje(null)} className="text-xs">
                 Kapat
               </Button>
             </div>
@@ -719,7 +770,9 @@ export default function ProjelerScreen({
                     type="button"
                     onClick={() => setFormColor(c)}
                     className={`w-7 h-7 rounded-full transition-all flex items-center justify-center ${
-                      formColor === c ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'hover:scale-105'
+                      formColor === c
+                        ? 'ring-2 ring-offset-2 ring-blue-500 scale-110'
+                        : 'hover:scale-105'
                     }`}
                     style={{ backgroundColor: c }}
                   >
@@ -757,19 +810,17 @@ export default function ProjelerScreen({
             <div className="flex items-start gap-3 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl">
               <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
               <div className="text-xs text-red-800 dark:text-red-300">
-                <strong>{deletingProje.proje_adi}</strong> ({deletingProje.proje_kodu}) projesini silmek istediğinize emin misiniz?
+                <strong>{deletingProje.proje_adi}</strong> ({deletingProje.proje_kodu}) projesini
+                silmek istediğinize emin misiniz?
                 <p className="mt-1 text-slate-500 dark:text-slate-400">
-                  Bu projeye bağlı doğrudan temin dosyaları silinmez ancak proje ilişkisi arşivlenir.
+                  Bu projeye bağlı doğrudan temin dosyaları silinmez ancak proje ilişkisi
+                  arşivlenir.
                 </p>
               </div>
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <Button
-                variant="outline"
-                onClick={() => setDeletingProje(null)}
-                className="text-xs"
-              >
+              <Button variant="outline" onClick={() => setDeletingProje(null)} className="text-xs">
                 Vazgeç
               </Button>
               <Button

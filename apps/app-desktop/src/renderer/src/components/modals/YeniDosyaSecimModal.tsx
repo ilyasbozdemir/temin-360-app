@@ -24,7 +24,10 @@ export interface YeniDosyaSecimModalProps {
   onClose: () => void
 }
 
-export function YeniDosyaSecimModal({ isOpen, onClose }: YeniDosyaSecimModalProps): React.JSX.Element | null {
+export function YeniDosyaSecimModal({
+  isOpen,
+  onClose
+}: YeniDosyaSecimModalProps): React.JSX.Element | null {
   const navigate = useNavigate()
   const { dosyalar, addDosya } = useDosyalarHooks()
   const [showKopyalaModal, setShowKopyalaModal] = useState(false)
@@ -82,7 +85,8 @@ export function YeniDosyaSecimModal({ isOpen, onClose }: YeniDosyaSecimModalProp
       id: 'mal',
       title: 'Mal Alımı',
       badge: '4734 / 22-d & 22-a',
-      badgeColor: 'bg-blue-100 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+      badgeColor:
+        'bg-blue-100 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300 border-blue-200 dark:border-blue-800',
       desc: 'Tüketim malzemesi, kırtasiye, donanım, makine, tıbbi cihaz ve sarf alımları.',
       icon: Package,
       iconColor: 'text-blue-600 dark:text-blue-400 bg-blue-500/10 dark:bg-blue-500/20',
@@ -92,7 +96,8 @@ export function YeniDosyaSecimModal({ isOpen, onClose }: YeniDosyaSecimModalProp
       id: 'hizmet',
       title: 'Hizmet Alımı',
       badge: '4734 / 22-d',
-      badgeColor: 'bg-violet-100 text-violet-700 dark:bg-violet-950/80 dark:text-violet-300 border-violet-200 dark:border-violet-800',
+      badgeColor:
+        'bg-violet-100 text-violet-700 dark:bg-violet-950/80 dark:text-violet-300 border-violet-200 dark:border-violet-800',
       desc: 'Bakım-onarım, araç kiralama, temizlik, yemek, organizasyon ve servis hizmetleri.',
       icon: Wrench,
       iconColor: 'text-violet-600 dark:text-violet-400 bg-violet-500/10 dark:bg-violet-500/20',
@@ -102,7 +107,8 @@ export function YeniDosyaSecimModal({ isOpen, onClose }: YeniDosyaSecimModalProp
       id: 'yapim_isi',
       title: 'Yapım İşi / Onarım',
       badge: '4734 / 22-d',
-      badgeColor: 'bg-amber-100 text-amber-700 dark:bg-amber-950/80 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+      badgeColor:
+        'bg-amber-100 text-amber-700 dark:bg-amber-950/80 dark:text-amber-300 border-amber-200 dark:border-amber-800',
       desc: 'Bina tadilatı, tesisat/elektrik yenileme, küçük inşaat ve bakım-onarım işleri.',
       icon: Hammer,
       iconColor: 'text-amber-600 dark:text-amber-400 bg-amber-500/10 dark:bg-amber-500/20',
@@ -112,7 +118,8 @@ export function YeniDosyaSecimModal({ isOpen, onClose }: YeniDosyaSecimModalProp
       id: 'danismanlik',
       title: 'Danışmanlık Hizmeti',
       badge: 'Teknik & Müşavirlik',
-      badgeColor: 'bg-pink-100 text-pink-700 dark:bg-pink-950/80 dark:text-pink-300 border-pink-200 dark:border-pink-800',
+      badgeColor:
+        'bg-pink-100 text-pink-700 dark:bg-pink-950/80 dark:text-pink-300 border-pink-200 dark:border-pink-800',
       desc: 'Proje hazırlama, mimari etüt, harita, kontrollük ve müşavirlik hizmet alımları.',
       icon: GraduationCap,
       iconColor: 'text-pink-600 dark:text-pink-400 bg-pink-500/10 dark:bg-pink-500/20',
@@ -180,7 +187,12 @@ export function YeniDosyaSecimModal({ isOpen, onClose }: YeniDosyaSecimModalProp
                       item.borderHover
                     )}
                   >
-                    <div className={cn('p-2.5 rounded-xl shrink-0 transition-transform group-hover:scale-105', item.iconColor)}>
+                    <div
+                      className={cn(
+                        'p-2.5 rounded-xl shrink-0 transition-transform group-hover:scale-105',
+                        item.iconColor
+                      )}
+                    >
                       <Icon className="w-5 h-5" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -188,7 +200,12 @@ export function YeniDosyaSecimModal({ isOpen, onClose }: YeniDosyaSecimModalProp
                         <span className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                           {item.title}
                         </span>
-                        <span className={cn('text-[10px] font-bold px-1.5 py-0.5 rounded border', item.badgeColor)}>
+                        <span
+                          className={cn(
+                            'text-[10px] font-bold px-1.5 py-0.5 rounded border',
+                            item.badgeColor
+                          )}
+                        >
                           {item.badge}
                         </span>
                       </div>
@@ -230,7 +247,8 @@ export function YeniDosyaSecimModal({ isOpen, onClose }: YeniDosyaSecimModalProp
                     </span>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    İhale veya sözleşmeye bağlı işlerde ara/kesin hakediş raporu, metraj ve kesinti takibi.
+                    İhale veya sözleşmeye bağlı işlerde ara/kesin hakediş raporu, metraj ve kesinti
+                    takibi.
                   </p>
                 </div>
               </div>

@@ -27,4 +27,3 @@ export function registerAllIpcHandlers(options: IpcRegistrationOptions): void {
   registerUpdaterIpcHandlers()
   registerTestIpcHandlers()
 }
-

@@ -31,14 +31,19 @@ export class PocketBaseSyncService {
   /**
    * PocketBase Sunucusuna Bağlantı Testi ve (Opsiyonel) Auth Token Alma
    */
-  async testConnection(config: PocketBaseConfig): Promise<{ success: boolean; token?: string; message: string }> {
+  async testConnection(
+    config: PocketBaseConfig
+  ): Promise<{ success: boolean; token?: string; message: string }> {
     try {
       const baseUrl = this.cleanUrl(config.url)
-      
+
       // 1. Health check
       const healthRes = await fetch(`${baseUrl}/api/health`)
       if (!healthRes.ok) {
-        return { success: false, message: `PocketBase sunucusuna ulaşılamadı (${healthRes.status})` }
+        return {
+          success: false,
+          message: `PocketBase sunucusuna ulaşılamadı (${healthRes.status})`
+        }
       }
 
       // 2. Eğer Email ve Parola girildiyse Admin/User login dene
@@ -60,7 +65,7 @@ export class PocketBaseSyncService {
         }
 
         if (authRes.ok) {
-          const data = await authRes.json() as { token?: string }
+          const data = (await authRes.json()) as { token?: string }
           return {
             success: true,
             token: data.token,
@@ -115,7 +120,9 @@ export class PocketBaseSyncService {
 
       const headers: Record<string, string> = {}
       if (config.token) {
-        headers['Authorization'] = config.token.startsWith('Bearer ') ? config.token : `Bearer ${config.token}`
+        headers['Authorization'] = config.token.startsWith('Bearer ')
+          ? config.token
+          : `Bearer ${config.token}`
       }
 
       // PocketBase 'workspaces' koleksiyonuna kaydet
@@ -135,7 +142,7 @@ export class PocketBaseSyncService {
       }
 
       if (response.ok) {
-        const record = await response.json() as PocketBaseWorkspaceRecord
+        const record = (await response.json()) as PocketBaseWorkspaceRecord
         return {
           success: true,
           recordId: record.id,
@@ -159,21 +166,27 @@ export class PocketBaseSyncService {
   /**
    * PocketBase üzerindeki çalışma dosyalarını listeler
    */
-  async listWorkspaces(config: PocketBaseConfig): Promise<{ success: boolean; items?: PocketBaseWorkspaceRecord[]; message?: string }> {
+  async listWorkspaces(
+    config: PocketBaseConfig
+  ): Promise<{ success: boolean; items?: PocketBaseWorkspaceRecord[]; message?: string }> {
     try {
       const baseUrl = this.cleanUrl(config.url)
       const headers: Record<string, string> = {}
       if (config.token) {
-        headers['Authorization'] = config.token.startsWith('Bearer ') ? config.token : `Bearer ${config.token}`
+        headers['Authorization'] = config.token.startsWith('Bearer ')
+          ? config.token
+          : `Bearer ${config.token}`
       }
 
-      let res = await fetch(`${baseUrl}/api/collections/workspaces/records?sort=-updated`, { headers })
+      let res = await fetch(`${baseUrl}/api/collections/workspaces/records?sort=-updated`, {
+        headers
+      })
       if (!res.ok && res.status === 404) {
         res = await fetch(`${baseUrl}/api/collections/dosyalar/records?sort=-updated`, { headers })
       }
 
       if (res.ok) {
-        const data = await res.json() as { items?: PocketBaseWorkspaceRecord[] }
+        const data = (await res.json()) as { items?: PocketBaseWorkspaceRecord[] }
         return { success: true, items: data.items || [] }
       } else {
         return { success: false, message: `PocketBase listeleme hatası: ${res.statusText}` }

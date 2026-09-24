@@ -93,7 +93,9 @@ export const DashboardHeroV2: React.FC<DashboardHeroV2Props> = ({
           <div>
             <div
               className={`text-xs font-bold tracking-wider uppercase mb-1 ${
-                isIhale ? 'text-indigo-600 dark:text-indigo-400' : 'text-blue-600 dark:text-blue-400'
+                isIhale
+                  ? 'text-indigo-600 dark:text-indigo-400'
+                  : 'text-blue-600 dark:text-blue-400'
               }`}
             >
               {greeting},
@@ -206,7 +208,9 @@ export const DashboardHeroV2: React.FC<DashboardHeroV2Props> = ({
             >
               <FileSpreadsheet
                 className={`w-4 h-4 ${
-                  isIhale ? 'text-indigo-600 dark:text-indigo-400' : 'text-blue-600 dark:text-blue-400'
+                  isIhale
+                    ? 'text-indigo-600 dark:text-indigo-400'
+                    : 'text-blue-600 dark:text-blue-400'
                 }`}
               />
               <span className="font-bold">
@@ -232,10 +236,7 @@ export const DashboardHeroV2: React.FC<DashboardHeroV2Props> = ({
               <span className="text-slate-700 dark:text-slate-200">{smartAlerts[0].message}</span>
             </span>
           </div>
-          <Link
-            to={smartAlerts[0].actionLink as any}
-            search={smartAlerts[0].actionSearch as any}
-          >
+          <Link to={smartAlerts[0].actionLink as any} search={smartAlerts[0].actionSearch as any}>
             <button className="text-xs font-bold text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 underline flex items-center gap-1 cursor-pointer shrink-0">
               {smartAlerts[0].actionText} <ChevronRight className="w-3 h-3" />
             </button>

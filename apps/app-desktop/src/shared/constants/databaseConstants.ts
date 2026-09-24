@@ -41,7 +41,8 @@ export const TABLE_DESCRIPTIONS: Record<string, string> = {
   DATA_TeminDosyasi: 'Dosya başlığı, ihale usulü, limit ve temel konfigürasyon ayarları.',
   DATA_TeminKalem: 'Satın alma dosyasındaki malzeme, hizmet ve iş kalemleri listesi.',
   DATA_TeminFirma: 'Teklif vermesi için davet edilen veya teklif sunan istekli firmalar.',
-  DATA_TeminKalemTeklif: 'Firmaların kalem bazlı verdiği fiyat teklifleri ve yaklaşık maliyet matrisi.',
+  DATA_TeminKalemTeklif:
+    'Firmaların kalem bazlı verdiği fiyat teklifleri ve yaklaşık maliyet matrisi.',
   DATA_TeminKomisyon: 'Piyasa araştırma, ihale ve muayene kabul komisyon görevlileri.',
   DATA_TeminBelge: 'Otomatik oluşturulan resmi belgeler, onay tutanakları ve çıktılar.',
   DATA_DosyaSablonVeri: 'Belge şablonlarında özelleştirilen metin, madde ve değişken verileri.',

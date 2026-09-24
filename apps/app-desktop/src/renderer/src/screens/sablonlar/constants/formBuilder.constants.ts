@@ -56,7 +56,12 @@ export const INITIAL_FIELDS: FormFieldV2[] = [
     variableName: 'alim_turu',
     type: 'select',
     required: true,
-    options: ['Mal Alımı (4734 22/d)', 'Hizmet Alımı (4734 22/d)', 'Yapım İşi (4734 22/d)', 'Danışmanlık Alımı'],
+    options: [
+      'Mal Alımı (4734 22/d)',
+      'Hizmet Alımı (4734 22/d)',
+      'Yapım İşi (4734 22/d)',
+      'Danışmanlık Alımı'
+    ],
     category: 'document'
   },
   {
@@ -180,7 +185,8 @@ export const PRESET_CONTROLLERS: PresetController[] = [
     id: 'ctrl-imza',
     name: 'İmza & Komisyon Bloğu',
     category: 'commission',
-    description: 'Harcama Yetkilisi, Gerçekleştirme Görevlisi ve Piyasa Araştırma Üyeleri İmza Bloğu',
+    description:
+      'Harcama Yetkilisi, Gerçekleştirme Görevlisi ve Piyasa Araştırma Üyeleri İmza Bloğu',
     defaultField: {
       label: 'Onay Yetkilileri ve İmza Bloğu',
       variableName: 'komisyon_listesi',

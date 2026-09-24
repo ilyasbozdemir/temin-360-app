@@ -37,9 +37,11 @@ export class ModalErrorBoundary extends Component<Props, State> {
       document.body.style.overflow = 'unset'
 
       // Radix kilit stillerini temizle
-      document.querySelectorAll('style[data-radix-scroll-lock], style[data-radix-body-lock]').forEach((el) => {
-        el.remove()
-      })
+      document
+        .querySelectorAll('style[data-radix-scroll-lock], style[data-radix-body-lock]')
+        .forEach((el) => {
+          el.remove()
+        })
     } catch {
       // ignore
     }
@@ -70,7 +72,8 @@ export class ModalErrorBoundary extends Component<Props, State> {
                 )}
               </h3>
               <p className="text-xs text-rose-700 dark:text-rose-300 leading-relaxed">
-                İşlem sırasında beklenmeyen bir görüntüleme hatası meydana geldi. Ekran kilidi otomatik kaldırıldı, diğer işlemlerinize güvenle devam edebilirsiniz.
+                İşlem sırasında beklenmeyen bir görüntüleme hatası meydana geldi. Ekran kilidi
+                otomatik kaldırıldı, diğer işlemlerinize güvenle devam edebilirsiniz.
               </p>
             </div>
           </div>

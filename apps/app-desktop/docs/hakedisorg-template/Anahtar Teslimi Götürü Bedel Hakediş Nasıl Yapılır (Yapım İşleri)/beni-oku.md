@@ -44,7 +44,7 @@ Anahtar teslimi götürü bedel yapım işleri, **Kamu İhale Kanunu No: 4735** 
 ### Tanım ve Koşullar
 
 ```
-Kamu İhale Kanunu Madde 5 uyarınca, belirli limitler altında 
+Kamu İhale Kanunu Madde 5 uyarınca, belirli limitler altında
 ihale yapılmaksızın doğrudan satın alma yapılabilir.
 ```
 
@@ -99,7 +99,7 @@ Bu Hakediş Tutarı = Sözleşme Bedeli × (Toplam Pursantaj / 100)
 ### Tanım ve Koşullar
 
 ```
-Kamu İhale Kanunu Madde 5 uyarınca, sınırlı sayıda en az 
+Kamu İhale Kanunu Madde 5 uyarınca, sınırlı sayıda en az
 3 kuruluş ile pazarlık yapılarak satın alma gerçekleştirilir.
 ```
 
@@ -156,8 +156,8 @@ Toplam İmalat Tutarı = Sözleşme Bedeli × (Toplam Pursantaj / 100)
 ### Tanım ve Koşullar
 
 ```
-Kamu İhale Kanunu Madde 6 uyarınca, kamunun resmi gazete ve 
-internet sitesinde ilan edilerek açıktan çalışacak müteahhitlere 
+Kamu İhale Kanunu Madde 6 uyarınca, kamunun resmi gazete ve
+internet sitesinde ilan edilerek açıktan çalışacak müteahhitlere
 verilen ihale yöntemidir. BÜTÜN YAPIM İŞLERİ BURADA BAŞLAR.
 ```
 
@@ -210,7 +210,7 @@ Kesintiler:
 └─ Diğer Mahsuplar: (İcra kararı vb.)
 
 YÖDENECEĞİ TUTAR:
-= Brüt İmalat + Fiyat Farkı + KDV 
+= Brüt İmalat + Fiyat Farkı + KDV
   - Kesintiler - Mahsuplar
   - Önceki Dönemlerde Fazla Ödenen
   + Cezai Faizdeki Ödüne Giden Kesintiler
@@ -250,7 +250,7 @@ YÖDENECEĞİ TUTAR:
 ### Tanım ve Koşullar
 
 ```
-Kamu İhale Kanunu Madde 7 uyarınca, belirli teknik nedenlerle 
+Kamu İhale Kanunu Madde 7 uyarınca, belirli teknik nedenlerle
 sınırlı sayıda kuruluşa davet gönderilerek yapılan ihaleler.
 Başlıca Sebepler:
 ✓ Patentli teknoloji

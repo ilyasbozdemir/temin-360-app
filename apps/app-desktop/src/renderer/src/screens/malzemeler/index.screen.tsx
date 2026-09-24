@@ -140,8 +140,6 @@ export default function MalzemelerScreen(): React.JSX.Element {
     }
   }
 
-
-
   const filteredList = kalemList.filter((m) => {
     const matchesSearch =
       m.kalem_adi.toLowerCase().includes(search.toLowerCase()) ||
@@ -230,21 +228,31 @@ export default function MalzemelerScreen(): React.JSX.Element {
             Mal, Hizmet & Yapım Kataloğu
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm max-w-4xl">
-            Doğrudan temin süreçlerinde, yaklaşık maliyet hesaplarında ve piyasa fiyat araştırmalarında kullanılan malzeme, hizmet ve yapım kalemlerini yönetin.
+            Doğrudan temin süreçlerinde, yaklaşık maliyet hesaplarında ve piyasa fiyat
+            araştırmalarında kullanılan malzeme, hizmet ve yapım kalemlerini yönetin.
           </p>
           <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 rounded-lg text-xs text-blue-700 dark:text-blue-300 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             <div className="flex-1">
               <p className="mb-1">
                 💡 <strong>İpucu:</strong> Mal alımlarında{' '}
-                <Link to="/tasinirkod" className="underline font-semibold hover:text-blue-800 dark:hover:text-blue-200">
+                <Link
+                  to="/tasinirkod"
+                  className="underline font-semibold hover:text-blue-800 dark:hover:text-blue-200"
+                >
                   Taşınır Kodları
                 </Link>
                 , Hizmet alımlarında{' '}
-                <Link to="/okaskod" className="underline font-semibold hover:text-blue-800 dark:hover:text-blue-200">
+                <Link
+                  to="/okaskod"
+                  className="underline font-semibold hover:text-blue-800 dark:hover:text-blue-200"
+                >
                   OKAS Kodları
                 </Link>
                 , Yapım işlerinde ise{' '}
-                <Link to={APP_ROUTES.POZLAR} className="underline font-semibold hover:text-blue-800 dark:hover:text-blue-200">
+                <Link
+                  to={APP_ROUTES.POZLAR}
+                  className="underline font-semibold hover:text-blue-800 dark:hover:text-blue-200"
+                >
                   Birim Fiyat Poz Kitapları
                 </Link>{' '}
                 üzerinden hızlıca seçim yapıp kalemlerinizi oluşturabilirsiniz.
@@ -297,7 +305,11 @@ export default function MalzemelerScreen(): React.JSX.Element {
               uniqueCol="barkod_id"
               onImportSuccess={() => window.location.reload()}
             />
-            <Link to="/tasinirkod" className="shrink-0" title="Taşınır Kodları Rehberi (Mal Alımları)">
+            <Link
+              to="/tasinirkod"
+              className="shrink-0"
+              title="Taşınır Kodları Rehberi (Mal Alımları)"
+            >
               <Button
                 variant="outline"
                 className="w-full gap-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 hover:border-emerald-300 dark:hover:border-emerald-800 flex items-center px-3.5 py-2 text-sm justify-center transition-colors"
@@ -315,7 +327,11 @@ export default function MalzemelerScreen(): React.JSX.Element {
                 <span className="whitespace-nowrap font-medium">OKAS Kodları</span>
               </Button>
             </Link>
-            <Link to={APP_ROUTES.POZLAR} className="shrink-0" title="Birim Fiyat Pozları Kitapları (Yapım İşleri)">
+            <Link
+              to={APP_ROUTES.POZLAR}
+              className="shrink-0"
+              title="Birim Fiyat Pozları Kitapları (Yapım İşleri)"
+            >
               <Button
                 variant="outline"
                 className="w-full gap-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:border-amber-300 dark:hover:border-amber-800 flex items-center px-3.5 py-2 text-sm justify-center transition-colors"
@@ -341,7 +357,9 @@ export default function MalzemelerScreen(): React.JSX.Element {
           onClick={() => setActiveTab('Mal')}
           className={cn(
             'p-5 rounded-2xl bg-white dark:bg-slate-900 border text-left shadow-sm flex items-center gap-4 transition-all hover:shadow-md hover:border-blue-400 cursor-pointer',
-            activeTab === 'Mal' ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/20' : 'border-slate-200 dark:border-slate-800'
+            activeTab === 'Mal'
+              ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/20'
+              : 'border-slate-200 dark:border-slate-800'
           )}
         >
           <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-450 flex items-center justify-center shrink-0">
@@ -363,7 +381,9 @@ export default function MalzemelerScreen(): React.JSX.Element {
           onClick={() => setActiveTab('Hizmet')}
           className={cn(
             'p-5 rounded-2xl bg-white dark:bg-slate-900 border text-left shadow-sm flex items-center gap-4 transition-all hover:shadow-md hover:border-emerald-400 cursor-pointer',
-            activeTab === 'Hizmet' ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/20' : 'border-slate-200 dark:border-slate-800'
+            activeTab === 'Hizmet'
+              ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/20'
+              : 'border-slate-200 dark:border-slate-800'
           )}
         >
           <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-450 flex items-center justify-center shrink-0">
@@ -385,7 +405,9 @@ export default function MalzemelerScreen(): React.JSX.Element {
           onClick={() => setActiveTab('Yapım')}
           className={cn(
             'p-5 rounded-2xl bg-white dark:bg-slate-900 border text-left shadow-sm flex items-center gap-4 transition-all hover:shadow-md hover:border-amber-400 cursor-pointer',
-            activeTab === 'Yapım' ? 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-50/20' : 'border-slate-200 dark:border-slate-800'
+            activeTab === 'Yapım'
+              ? 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-50/20'
+              : 'border-slate-200 dark:border-slate-800'
           )}
         >
           <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-450 flex items-center justify-center shrink-0">

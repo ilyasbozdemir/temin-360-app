@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react";
-import { ChevronDown, ClipboardList } from "lucide-react";
+import React, { useMemo, useState } from 'react'
+import { ChevronDown, ClipboardList } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,65 +9,53 @@ import {
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "../../../../../../components/ui/DropdownMenu";
+  DropdownMenuTrigger
+} from '../../../../../../components/ui/DropdownMenu'
 
 import {
   buildDocumentCategories,
   buildTableActionItems,
   PopoverCategoryConfig,
-  PopoverItemConfig,
-} from "../constants/documentCategories";
-import type { MalzemeTabloPopoverProps } from "../types";
+  PopoverItemConfig
+} from '../constants/documentCategories'
+import type { MalzemeTabloPopoverProps } from '../types'
 
-export type {
-  MalzemeTabloPopoverProps,
-  PopoverCategoryConfig,
-  PopoverItemConfig,
-};
+export type { MalzemeTabloPopoverProps, PopoverCategoryConfig, PopoverItemConfig }
 
-export function MalzemeTabloPopover(
-  props: MalzemeTabloPopoverProps,
-): React.JSX.Element | null {
-  const [activeSubId, setActiveSubId] = useState<string | null>(null);
+export function MalzemeTabloPopover(props: MalzemeTabloPopoverProps): React.JSX.Element | null {
+  const [activeSubId, setActiveSubId] = useState<string | null>(null)
 
   const buttonLabelText = useMemo(() => {
-    if (props.buttonLabel) return props.buttonLabel;
+    if (props.buttonLabel) return props.buttonLabel
     switch (props.step) {
       case 2:
-        return "Şablon & Belge İşlemleri";
+        return 'Şablon & Belge İşlemleri'
       case 3:
-        return "Sözleşme & Belge İşlemleri";
+        return 'Sözleşme & Belge İşlemleri'
       case 4:
-        return "Kabul & Ödeme Belgeleri";
+        return 'Kabul & Ödeme Belgeleri'
       case 1:
       default:
-        return "Tablo İşlemleri";
+        return 'Tablo İşlemleri'
     }
-  }, [props.buttonLabel, props.step]);
+  }, [props.buttonLabel, props.step])
 
-  const tableActionItems = useMemo(
-    () => buildTableActionItems(props),
-    [props],
-  );
+  const tableActionItems = useMemo(() => buildTableActionItems(props), [props])
 
-  const documentCategories = useMemo(
-    () => buildDocumentCategories(props),
-    [props],
-  );
+  const documentCategories = useMemo(() => buildDocumentCategories(props), [props])
 
-  const hasTableActions = tableActionItems.length > 0;
-  const hasDocumentCategories = documentCategories.length > 0;
+  const hasTableActions = tableActionItems.length > 0
+  const hasDocumentCategories = documentCategories.length > 0
 
   if (!hasTableActions && !hasDocumentCategories) {
-    return null;
+    return null
   }
 
   return (
     <DropdownMenu
       onOpenChange={(open) => {
         if (!open) {
-          setActiveSubId(null);
+          setActiveSubId(null)
         }
       }}
     >
@@ -89,31 +77,27 @@ export function MalzemeTabloPopover(
         {hasTableActions && (
           <>
             <DropdownMenuLabel className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-2.5 py-1">
-              {props.step === 2 ? "Hızlı İşlemler" : "Tablo İşlemleri"}
+              {props.step === 2 ? 'Hızlı İşlemler' : 'Tablo İşlemleri'}
             </DropdownMenuLabel>
             {tableActionItems.map((item) => {
-              const ItemIcon = item.icon;
+              const ItemIcon = item.icon
               return (
                 <DropdownMenuItem
                   key={item.id}
                   onClick={item.onClick}
                   onMouseEnter={() => setActiveSubId(null)}
                   onSelect={() => {
-                    setActiveSubId(null);
-                    if (item.onClick) item.onClick();
+                    setActiveSubId(null)
+                    if (item.onClick) item.onClick()
                   }}
                   className={`rounded-lg text-xs font-medium cursor-pointer ${
-                    item.itemClassName || ""
+                    item.itemClassName || ''
                   }`}
                 >
-                  <ItemIcon
-                    className={`w-3.5 h-3.5 mr-2 shrink-0 ${
-                      item.iconColorClass || ""
-                    }`}
-                  />
+                  <ItemIcon className={`w-3.5 h-3.5 mr-2 shrink-0 ${item.iconColorClass || ''}`} />
                   <span className="truncate">{item.label}</span>
                 </DropdownMenuItem>
-              );
+              )
             })}
           </>
         )}
@@ -127,8 +111,8 @@ export function MalzemeTabloPopover(
             </DropdownMenuLabel>
 
             {documentCategories.map((cat) => {
-              const CatIcon = cat.icon;
-              const isOpen = activeSubId === cat.id;
+              const CatIcon = cat.icon
+              const isOpen = activeSubId === cat.id
 
               return (
                 <DropdownMenuSub
@@ -136,9 +120,9 @@ export function MalzemeTabloPopover(
                   open={isOpen}
                   onOpenChange={(openState) => {
                     if (openState) {
-                      setActiveSubId(cat.id);
+                      setActiveSubId(cat.id)
                     } else if (activeSubId === cat.id) {
-                      setActiveSubId(null);
+                      setActiveSubId(null)
                     }
                   }}
                 >
@@ -147,11 +131,7 @@ export function MalzemeTabloPopover(
                     className="rounded-lg text-xs font-medium px-2.5 py-2 cursor-pointer flex items-center justify-between text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
                     <div className="flex items-center gap-2 min-w-0 pr-2">
-                      <CatIcon
-                        className={`w-3.5 h-3.5 shrink-0 ${
-                          cat.iconColorClass || ""
-                        }`}
-                      />
+                      <CatIcon className={`w-3.5 h-3.5 shrink-0 ${cat.iconColorClass || ''}`} />
                       <span className="truncate">{cat.title}</span>
                     </div>
                     <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal shrink-0 mr-1">
@@ -169,33 +149,31 @@ export function MalzemeTabloPopover(
                     </DropdownMenuLabel>
 
                     {cat.items.map((item) => {
-                      const ItemIcon = item.icon;
+                      const ItemIcon = item.icon
                       return (
                         <DropdownMenuItem
                           key={item.id}
                           onClick={item.onClick}
                           onSelect={() => {
-                            setActiveSubId(null);
-                            if (item.onClick) item.onClick();
+                            setActiveSubId(null)
+                            if (item.onClick) item.onClick()
                           }}
                           className="rounded-lg text-xs font-medium cursor-pointer py-1.5 px-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                         >
                           <ItemIcon
-                            className={`w-3.5 h-3.5 mr-2 shrink-0 ${
-                              item.iconColorClass || ""
-                            }`}
+                            className={`w-3.5 h-3.5 mr-2 shrink-0 ${item.iconColorClass || ''}`}
                           />
                           <span className="truncate">{item.label}</span>
                         </DropdownMenuItem>
-                      );
+                      )
                     })}
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
-              );
+              )
             })}
           </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

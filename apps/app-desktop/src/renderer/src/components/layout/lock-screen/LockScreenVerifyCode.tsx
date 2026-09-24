@@ -27,8 +27,8 @@ export function LockScreenVerifyCode({
   return (
     <div className="space-y-4">
       <p className="text-slate-650 dark:text-slate-300 text-xs leading-relaxed">
-        Kurtarma kodu <strong>{recoveryEmail}</strong> adresine başarıyla gönderildi. Lütfen gelen
-        6 haneli kodu girin.
+        Kurtarma kodu <strong>{recoveryEmail}</strong> adresine başarıyla gönderildi. Lütfen gelen 6
+        haneli kodu girin.
       </p>
 
       {testCode && (

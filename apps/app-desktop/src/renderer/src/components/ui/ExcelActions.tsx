@@ -147,17 +147,26 @@ export function ExcelActions({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 p-1.5">
-        <DropdownMenuItem onClick={handleExport} className="gap-2 text-xs font-medium cursor-pointer">
+        <DropdownMenuItem
+          onClick={handleExport}
+          className="gap-2 text-xs font-medium cursor-pointer"
+        >
           <Download size={14} className="text-emerald-600" />
           <span>Excel&apos;e Aktar (.xlsx)</span>
         </DropdownMenuItem>
 
-        <DropdownMenuItem onClick={handleImport} className="gap-2 text-xs font-medium cursor-pointer">
+        <DropdownMenuItem
+          onClick={handleImport}
+          className="gap-2 text-xs font-medium cursor-pointer"
+        >
           <Upload size={14} className="text-blue-600" />
           <span>Excel&apos;den İçe Aktar (Override)</span>
         </DropdownMenuItem>
 
-        <DropdownMenuItem onClick={handleDownloadTemplate} className="gap-2 text-xs font-medium cursor-pointer">
+        <DropdownMenuItem
+          onClick={handleDownloadTemplate}
+          className="gap-2 text-xs font-medium cursor-pointer"
+        >
           <FileDown size={14} className="text-amber-600" />
           <span>Excel Şablonu İndir</span>
         </DropdownMenuItem>

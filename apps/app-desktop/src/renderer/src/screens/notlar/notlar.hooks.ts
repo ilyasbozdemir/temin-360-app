@@ -59,7 +59,11 @@ export function useNotlarHooks() {
 
   const createNotMutation = useMutation({
     mutationFn: async (input: Partial<NotInput>) => {
-      const uuid = input.uuid || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `not_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`)
+      const uuid =
+        input.uuid ||
+        (typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `not_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`)
       const sql = `
         INSERT INTO DATA_NotVeGorev (
           uuid, temin_dosya_id, baslik, icerik, tip, kategori, oncelik,
@@ -122,10 +126,7 @@ export function useNotlarHooks() {
         SET sabitlendi = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `
-      const res = await window.electron.ipcRenderer.invoke('db:run', sql, [
-        sabitlendi ? 1 : 0,
-        id
-      ])
+      const res = await window.electron.ipcRenderer.invoke('db:run', sql, [sabitlendi ? 1 : 0, id])
       if (!res.success) throw new Error(res.error)
       return res
     },

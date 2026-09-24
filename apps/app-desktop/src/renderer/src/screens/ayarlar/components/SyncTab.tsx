@@ -1,5 +1,16 @@
 import React, { useEffect } from 'react'
-import { Upload, Download, RefreshCw, Code, Save, Cloud, Shield, Wifi, WifiOff, Check } from 'lucide-react'
+import {
+  Upload,
+  Download,
+  RefreshCw,
+  Code,
+  Save,
+  Cloud,
+  Shield,
+  Wifi,
+  WifiOff,
+  Check
+} from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
 import { Input } from '../../../components/ui/Input'
 import { useSyncStore } from '../../../store/syncStore'
@@ -44,32 +55,39 @@ export const SyncTab: React.FC = () => {
   useEffect(() => {
     loadSettings()
     if (window.electron?.ipcRenderer) {
-      window.electron.ipcRenderer.invoke('db:get-settings').then((s) => {
-        if (s) {
-          setSettingsData(s)
-          if (s.closeActionRemember === 'true' && s.closeActionPreference && s.closeActionPreference !== 'ask') {
-            setClosePreferenceMode('auto')
-            try {
-              const parsed = JSON.parse(s.closeActionPreference)
-              if (Array.isArray(parsed)) {
-                setClosePreferenceActions(parsed)
-              } else if (typeof parsed === 'string') {
-                setClosePreferenceActions([parsed])
+      window.electron.ipcRenderer
+        .invoke('db:get-settings')
+        .then((s) => {
+          if (s) {
+            setSettingsData(s)
+            if (
+              s.closeActionRemember === 'true' &&
+              s.closeActionPreference &&
+              s.closeActionPreference !== 'ask'
+            ) {
+              setClosePreferenceMode('auto')
+              try {
+                const parsed = JSON.parse(s.closeActionPreference)
+                if (Array.isArray(parsed)) {
+                  setClosePreferenceActions(parsed)
+                } else if (typeof parsed === 'string') {
+                  setClosePreferenceActions([parsed])
+                }
+              } catch {
+                if (typeof s.closeActionPreference === 'string') {
+                  setClosePreferenceActions(
+                    s.closeActionPreference.includes(',')
+                      ? s.closeActionPreference.split(',').map((x: string) => x.trim())
+                      : [s.closeActionPreference]
+                  )
+                }
               }
-            } catch {
-              if (typeof s.closeActionPreference === 'string') {
-                setClosePreferenceActions(
-                  s.closeActionPreference.includes(',')
-                    ? s.closeActionPreference.split(',').map((x: string) => x.trim())
-                    : [s.closeActionPreference]
-                )
-              }
+            } else {
+              setClosePreferenceMode('ask')
             }
-          } else {
-            setClosePreferenceMode('ask')
           }
-        }
-      }).catch(console.error)
+        })
+        .catch(console.error)
     }
   }, [])
 
@@ -110,7 +128,8 @@ export const SyncTab: React.FC = () => {
             Bulut Entegrasyonu ve Senkronizasyon
           </h2>
           <p className="text-xs text-slate-500">
-            Yerel verilerinizi ve çalışma dosyalarınızı (.dtal) bulut sunucusu veya Google Drive ile eşitleyin.
+            Yerel verilerinizi ve çalışma dosyalarınızı (.dtal) bulut sunucusu veya Google Drive ile
+            eşitleyin.
           </p>
         </div>
 
@@ -165,13 +184,7 @@ export const SyncTab: React.FC = () => {
                     : 'bg-amber-500/20 text-amber-600 dark:text-amber-400'
                 }`}
               >
-                {syncUrl
-                  ? syncStatus === 'ok'
-                    ? '✓'
-                    : syncStatus === 'error'
-                      ? '✗'
-                      : '⏳'
-                  : '!'}
+                {syncUrl ? (syncStatus === 'ok' ? '✓' : syncStatus === 'error' ? '✗' : '⏳') : '!'}
               </div>
               <div>
                 <div className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
@@ -366,8 +379,8 @@ export const SyncTab: React.FC = () => {
                 </div>
               </div>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed">
-                Yerel veritabanındaki güncel verileri (dosyalar, belgeler, ayarlar) uzak web sunucusuna
-                göndererek yayınlar.
+                Yerel veritabanındaki güncel verileri (dosyalar, belgeler, ayarlar) uzak web
+                sunucusuna göndererek yayınlar.
               </p>
               <Button
                 onClick={() => triggerPush()}
@@ -443,8 +456,8 @@ export const SyncTab: React.FC = () => {
               </h3>
             </div>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Masaüstündeki yerel verileri merkezi bir bulut veri tabanında toplamak ve eşitlemek için,
-              projenin root dizinindeki{' '}
+              Masaüstündeki yerel verileri merkezi bir bulut veri tabanında toplamak ve eşitlemek
+              için, projenin root dizinindeki{' '}
               <code className="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-mono text-[10px] rounded">
                 docker-compose.yml
               </code>{' '}
@@ -455,9 +468,7 @@ export const SyncTab: React.FC = () => {
               <div className="text-slate-400">
                 {'# 1. PostgreSQL & TEMİN 360 Web Sunucusunu Docker ile başlatın:'}
               </div>
-              <div className="text-blue-600 dark:text-blue-400 font-bold">
-                docker compose up -d
-              </div>
+              <div className="text-blue-600 dark:text-blue-400 font-bold">docker compose up -d</div>
               <div className="text-slate-400 dark:text-slate-500 mt-2">
                 # Veya sadece Web Gateway imajını derleyin:
               </div>
@@ -499,7 +510,9 @@ export const SyncTab: React.FC = () => {
                   Google Drive Bulut Depolama & Eşitleme Yöneticisi
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl">
-                  Çalışma (.dtal) dosyalarınızı doğrudan kişisel Google Drive hesabınıza yedekleyin, mevcut yedeklerinizi listeleyin ve istediğiniz dosyayı seçip bilgisayarınıza indirin.
+                  Çalışma (.dtal) dosyalarınızı doğrudan kişisel Google Drive hesabınıza yedekleyin,
+                  mevcut yedeklerinizi listeleyin ve istediğiniz dosyayı seçip bilgisayarınıza
+                  indirin.
                 </p>
               </div>
               <Button
@@ -529,7 +542,8 @@ export const SyncTab: React.FC = () => {
                 </div>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Çalışma alanınızdaki tüm verileri ve belgeleri paketleyerek Google Drive hesabınıza yeni bir yedek olarak kaydeder.
+                Çalışma alanınızdaki tüm verileri ve belgeleri paketleyerek Google Drive hesabınıza
+                yeni bir yedek olarak kaydeder.
               </p>
               <Button
                 onClick={() => {
@@ -555,7 +569,8 @@ export const SyncTab: React.FC = () => {
                 </div>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Google Drive hesabınızdaki geçmiş çalışma dosyalarını çekerek seçtiğiniz yedeği indirir ve aktif çalışma alanı yapar.
+                Google Drive hesabınızdaki geçmiş çalışma dosyalarını çekerek seçtiğiniz yedeği
+                indirir ve aktif çalışma alanı yapar.
               </p>
               <Button
                 onClick={() => {
@@ -584,7 +599,8 @@ export const SyncTab: React.FC = () => {
               )}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Çalışma dosyanızı (.temin) her kapattığınızda veya uygulamadan çıktığınızda uygulanacak varsayılan davranışı belirleyin.
+              Çalışma dosyanızı (.temin) her kapattığınızda veya uygulamadan çıktığınızda
+              uygulanacak varsayılan davranışı belirleyin.
             </p>
           </div>
         </div>
@@ -612,7 +628,8 @@ export const SyncTab: React.FC = () => {
               </span>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-              Dosyayı kapatırken Drive, Sunucu veya Yerel yedek seçeneklerinden istediklerinizi seçmeniz için pencere açar.
+              Dosyayı kapatırken Drive, Sunucu veya Yerel yedek seçeneklerinden istediklerinizi
+              seçmeniz için pencere açar.
             </p>
           </button>
 
@@ -637,7 +654,8 @@ export const SyncTab: React.FC = () => {
               </span>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-              Onay sormadan, aşağıda seçtiğiniz yedekleme yöntemlerini arka planda sırayla çalıştırır ve kapatır.
+              Onay sormadan, aşağıda seçtiğiniz yedekleme yöntemlerini arka planda sırayla
+              çalıştırır ve kapatır.
             </p>
           </button>
         </div>

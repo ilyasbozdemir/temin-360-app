@@ -246,7 +246,10 @@ export function ActiveFileSidebar(): React.JSX.Element | null {
           const isRouteActive = currentPath === stageRoute
 
           return (
-            <div key={`sidebar_asama_${asama.id || asama.asama_sira}_${idx}`} className="relative group">
+            <div
+              key={`sidebar_asama_${asama.id || asama.asama_sira}_${idx}`}
+              className="relative group"
+            >
               <button
                 onClick={() => {
                   if (stageSablons.length === 0 || isCollapsed) {

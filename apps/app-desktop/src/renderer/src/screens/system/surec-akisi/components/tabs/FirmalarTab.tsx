@@ -72,7 +72,8 @@ export const FirmalarTab: React.FC<FirmalarTabProps> = ({
             Henüz İstekli Firma Eklenmemiş
           </h4>
           <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md">
-            Piyasa fiyat araştırması sürecinde firmalara fiyat sormak ve toplanan teklifleri girmek için Firma Yönetimi modülünü kullanabilirsiniz.
+            Piyasa fiyat araştırması sürecinde firmalara fiyat sormak ve toplanan teklifleri girmek
+            için Firma Yönetimi modülünü kullanabilirsiniz.
           </p>
           <button
             onClick={onNavigateFirmalar}
@@ -94,7 +95,10 @@ export const FirmalarTab: React.FC<FirmalarTabProps> = ({
                     <Building2 size={22} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm truncate" title={firma.unvan}>
+                    <h3
+                      className="font-bold text-slate-900 dark:text-slate-100 text-sm truncate"
+                      title={firma.unvan}
+                    >
                       {firma.unvan}
                     </h3>
                     <span

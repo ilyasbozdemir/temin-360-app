@@ -371,275 +371,302 @@ export function registerNetworkIpcHandlers(): void {
   })
 
   // ---------------- DETSİS DOĞRULAMA & CACHE MOTORU ----------------
-  ipcMain.handle('network:verify-detsis', async (_, { detsisNo, force }: { detsisNo: string; force?: boolean }) => {
-    if (!detsisNo || typeof detsisNo !== 'string') {
-      return { success: false, verified: false, error: 'DETSİS numarası geçersiz.' }
-    }
-    const cleanNo = detsisNo.trim().replace(/[^0-9]/g, '')
-    if (!cleanNo) {
-      return { success: false, verified: false, error: 'DETSİS numarası yalnızca sayılardan oluşmalıdır.' }
-    }
+  ipcMain.handle(
+    'network:verify-detsis',
+    async (_, { detsisNo, force }: { detsisNo: string; force?: boolean }) => {
+      if (!detsisNo || typeof detsisNo !== 'string') {
+        return { success: false, verified: false, error: 'DETSİS numarası geçersiz.' }
+      }
+      const cleanNo = detsisNo.trim().replace(/[^0-9]/g, '')
+      if (!cleanNo) {
+        return {
+          success: false,
+          verified: false,
+          error: 'DETSİS numarası yalnızca sayılardan oluşmalıdır.'
+        }
+      }
 
-    const db = workspaceManager.getDb()
+      const db = workspaceManager.getDb()
 
-    // 1. Önce DB Cache kontrol et (force değilse)
-    if (!force && db) {
-      try {
-        const cached = db.prepare('SELECT * FROM TANIM_DetsisCache WHERE detsis_no = ?').get(cleanNo) as {
-          detsis_no: string
-          is_verified: number
-          birim_adi?: string
-          kurum_adi?: string
-          kurum_hiyerarsisi?: string
-          ulke_adi?: string
-          il_adi?: string
-          ilce_adi?: string
-          kategori_adi?: string
-          statu_adi?: string
-          logo_base64?: string
-          ingilizce_adi?: string
-          url?: string
-          status_code?: number
-          verified_at?: string
-        } | undefined
+      // 1. Önce DB Cache kontrol et (force değilse)
+      if (!force && db) {
+        try {
+          const cached = db
+            .prepare('SELECT * FROM TANIM_DetsisCache WHERE detsis_no = ?')
+            .get(cleanNo) as
+            | {
+                detsis_no: string
+                is_verified: number
+                birim_adi?: string
+                kurum_adi?: string
+                kurum_hiyerarsisi?: string
+                ulke_adi?: string
+                il_adi?: string
+                ilce_adi?: string
+                kategori_adi?: string
+                statu_adi?: string
+                logo_base64?: string
+                ingilizce_adi?: string
+                url?: string
+                status_code?: number
+                verified_at?: string
+              }
+            | undefined
 
-        if (cached) {
-          return {
-            success: true,
-            cached: true,
-            verified: cached.is_verified === 1,
-            detsisNo: cleanNo,
-            birimAdi: cached.birim_adi || '',
-            kurumAdi: cached.kurum_adi || '',
-            kurumHiyerarsisi: cached.kurum_hiyerarsisi || '',
-            ulkeAdi: cached.ulke_adi || '',
-            ilAdi: cached.il_adi || '',
-            ilceAdi: cached.ilce_adi || '',
-            kategoriAdi: cached.kategori_adi || '',
-            statuAdi: cached.statu_adi || '',
-            logoByteArray: cached.logo_base64 || '',
-            ingilizceAdi: cached.ingilizce_adi || '',
-            url: cached.url || `https://detsis.gov.tr/ara/${cleanNo}`,
-            statusCode: cached.status_code || 200,
-            verifiedAt: cached.verified_at
+          if (cached) {
+            return {
+              success: true,
+              cached: true,
+              verified: cached.is_verified === 1,
+              detsisNo: cleanNo,
+              birimAdi: cached.birim_adi || '',
+              kurumAdi: cached.kurum_adi || '',
+              kurumHiyerarsisi: cached.kurum_hiyerarsisi || '',
+              ulkeAdi: cached.ulke_adi || '',
+              ilAdi: cached.il_adi || '',
+              ilceAdi: cached.ilce_adi || '',
+              kategoriAdi: cached.kategori_adi || '',
+              statuAdi: cached.statu_adi || '',
+              logoByteArray: cached.logo_base64 || '',
+              ingilizceAdi: cached.ingilizce_adi || '',
+              url: cached.url || `https://detsis.gov.tr/ara/${cleanNo}`,
+              statusCode: cached.status_code || 200,
+              verifiedAt: cached.verified_at
+            }
           }
-        }
-      } catch (e) {
-        console.warn('[DETSİS Cache Check] Warning:', e)
-      }
-    }
-
-    // 2. DETSİS Resmi API & Web Siteleri üzerinden sorgulama
-    const apiEndpoint = `https://yetkiliapi.detsis.gov.tr/api/backoffice/unauthorizedaccessdata/birimler?birimId=${cleanNo}&pageSize=10&page=1`
-    const targetUrl = `https://detsis.gov.tr/ara/${cleanNo}`
-    const kaysisUrl = `https://www.kaysis.gov.tr/Kutuphane/Kurum/Detay/${cleanNo}`
-
-    let isVerified = false
-    let statusCode = 0
-    let birimAdi = ''
-    let kurumAdi = ''
-    let kurumHiyerarsisi = ''
-    let ulkeAdi = ''
-    let ilAdi = ''
-    let ilceAdi = ''
-    let kategoriAdi = ''
-    let statuAdi = ''
-    let logoByteArray = ''
-    let ingilizceAdi = ''
-    let finalUrl = targetUrl
-    let rawResponse = ''
-
-    // 2.1 Öncelikle Yetkili DETSİS REST API'sini çağır (En kesin ve zengin veri kaynağı)
-    try {
-      const apiController = new AbortController()
-      const apiTimeout = setTimeout(() => apiController.abort(), 6000)
-
-      const apiRes = await fetch(apiEndpoint, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json, text/plain, */*',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        },
-        signal: apiController.signal
-      }).catch(() => null)
-      clearTimeout(apiTimeout)
-
-      if (apiRes && apiRes.ok) {
-        statusCode = apiRes.status
-        const json = await apiRes.json().catch(() => null)
-        if (json && Array.isArray(json.data) && json.data.length > 0) {
-          const item = json.data[0]
-          isVerified = true
-          birimAdi = item.birimAdi ? item.birimAdi.trim() : ''
-          kurumAdi = item.kurumHiyerarsisi ? item.kurumHiyerarsisi.trim() : item.birimAdi?.trim() || ''
-          kurumHiyerarsisi = item.kurumHiyerarsisi ? item.kurumHiyerarsisi.trim() : ''
-          ulkeAdi = item.ulkeAdi ? item.ulkeAdi.trim() : ''
-          ilAdi = item.ilAdi ? item.ilAdi.trim() : ''
-          ilceAdi = item.ilceAdi ? item.ilceAdi.trim() : ''
-          kategoriAdi = item.kategoriAdi ? item.kategoriAdi.trim() : ''
-          statuAdi = item.statuAdi ? item.statuAdi.trim() : ''
-          logoByteArray = item.logoByteArray || ''
-          ingilizceAdi = item.ingilizceAdi ? item.ingilizceAdi.trim() : ''
-          rawResponse = JSON.stringify(item).slice(0, 1000)
+        } catch (e) {
+          console.warn('[DETSİS Cache Check] Warning:', e)
         }
       }
-    } catch (apiErr: any) {
-      console.warn('[DETSİS API Error]:', apiErr.message)
-    }
 
-    // 2.2 Eğer API doğrudan yanıt vermediyse HTML Fetch + Kaysis fallback'i dene
-    if (!isVerified) {
+      // 2. DETSİS Resmi API & Web Siteleri üzerinden sorgulama
+      const apiEndpoint = `https://yetkiliapi.detsis.gov.tr/api/backoffice/unauthorizedaccessdata/birimler?birimId=${cleanNo}&pageSize=10&page=1`
+      const targetUrl = `https://detsis.gov.tr/ara/${cleanNo}`
+      const kaysisUrl = `https://www.kaysis.gov.tr/Kutuphane/Kurum/Detay/${cleanNo}`
+
+      let isVerified = false
+      let statusCode = 0
+      let birimAdi = ''
+      let kurumAdi = ''
+      let kurumHiyerarsisi = ''
+      let ulkeAdi = ''
+      let ilAdi = ''
+      let ilceAdi = ''
+      let kategoriAdi = ''
+      let statuAdi = ''
+      let logoByteArray = ''
+      let ingilizceAdi = ''
+      let finalUrl = targetUrl
+      let rawResponse = ''
+
+      // 2.1 Öncelikle Yetkili DETSİS REST API'sini çağır (En kesin ve zengin veri kaynağı)
       try {
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 5000)
+        const apiController = new AbortController()
+        const apiTimeout = setTimeout(() => apiController.abort(), 6000)
 
-        let res = await fetch(targetUrl, {
+        const apiRes = await fetch(apiEndpoint, {
           method: 'GET',
           headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+            Accept: 'application/json, text/plain, */*',
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
           },
-          signal: controller.signal,
-          redirect: 'follow'
+          signal: apiController.signal
         }).catch(() => null)
+        clearTimeout(apiTimeout)
 
-        clearTimeout(timeoutId)
+        if (apiRes && apiRes.ok) {
+          statusCode = apiRes.status
+          const json = await apiRes.json().catch(() => null)
+          if (json && Array.isArray(json.data) && json.data.length > 0) {
+            const item = json.data[0]
+            isVerified = true
+            birimAdi = item.birimAdi ? item.birimAdi.trim() : ''
+            kurumAdi = item.kurumHiyerarsisi
+              ? item.kurumHiyerarsisi.trim()
+              : item.birimAdi?.trim() || ''
+            kurumHiyerarsisi = item.kurumHiyerarsisi ? item.kurumHiyerarsisi.trim() : ''
+            ulkeAdi = item.ulkeAdi ? item.ulkeAdi.trim() : ''
+            ilAdi = item.ilAdi ? item.ilAdi.trim() : ''
+            ilceAdi = item.ilceAdi ? item.ilceAdi.trim() : ''
+            kategoriAdi = item.kategoriAdi ? item.kategoriAdi.trim() : ''
+            statuAdi = item.statuAdi ? item.statuAdi.trim() : ''
+            logoByteArray = item.logoByteArray || ''
+            ingilizceAdi = item.ingilizceAdi ? item.ingilizceAdi.trim() : ''
+            rawResponse = JSON.stringify(item).slice(0, 1000)
+          }
+        }
+      } catch (apiErr: any) {
+        console.warn('[DETSİS API Error]:', apiErr.message)
+      }
 
-        if (!res || !res.ok) {
-          const kaysisController = new AbortController()
-          const kaysisTimeoutId = setTimeout(() => kaysisController.abort(), 5000)
-          const kaysisRes = await fetch(kaysisUrl, {
+      // 2.2 Eğer API doğrudan yanıt vermediyse HTML Fetch + Kaysis fallback'i dene
+      if (!isVerified) {
+        try {
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+          let res = await fetch(targetUrl, {
             method: 'GET',
             headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+              'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
             },
-            signal: kaysisController.signal,
+            signal: controller.signal,
             redirect: 'follow'
           }).catch(() => null)
-          clearTimeout(kaysisTimeoutId)
 
-          if (kaysisRes && kaysisRes.ok) {
-            res = kaysisRes
-            finalUrl = kaysisUrl
-          }
-        }
+          clearTimeout(timeoutId)
 
-        if (res) {
-          statusCode = res.status
-          if (res.ok && res.status >= 200 && res.status < 400) {
-            isVerified = true
-            try {
-              const html = await res.text()
-              rawResponse = html.slice(0, 1000)
-              const titleMatch = html.match(/<title>([^<]+)<\/title>/i)
-              if (titleMatch && titleMatch[1]) {
-                const titleText = titleMatch[1].replace(/- DETSİS|- KAYSİS|KAYSİS/gi, '').trim()
-                if (titleText && !titleText.toLowerCase().includes('hata') && !titleText.toLowerCase().includes('bulunamadı')) {
-                  birimAdi = titleText
-                }
-              }
-            } catch {}
-          }
-        }
+          if (!res || !res.ok) {
+            const kaysisController = new AbortController()
+            const kaysisTimeoutId = setTimeout(() => kaysisController.abort(), 5000)
+            const kaysisRes = await fetch(kaysisUrl, {
+              method: 'GET',
+              headers: {
+                'User-Agent':
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+              },
+              signal: kaysisController.signal,
+              redirect: 'follow'
+            }).catch(() => null)
+            clearTimeout(kaysisTimeoutId)
 
-        // 2.3 Headless Chromium Scraper fallback
-        if (!isVerified) {
-          try {
-            const scraped = await scrapeDetsisWithHeadlessBrowser(cleanNo)
-            if (scraped && scraped.verified) {
-              isVerified = true
-              statusCode = 200
-              if (scraped.birimAdi) birimAdi = scraped.birimAdi
-              if (scraped.kurumAdi) kurumAdi = scraped.kurumAdi
-              if (scraped.url) finalUrl = scraped.url
+            if (kaysisRes && kaysisRes.ok) {
+              res = kaysisRes
+              finalUrl = kaysisUrl
             }
-          } catch (scrapErr: any) {
-            console.warn('[Headless Scraper Warning]:', scrapErr.message)
           }
+
+          if (res) {
+            statusCode = res.status
+            if (res.ok && res.status >= 200 && res.status < 400) {
+              isVerified = true
+              try {
+                const html = await res.text()
+                rawResponse = html.slice(0, 1000)
+                const titleMatch = html.match(/<title>([^<]+)<\/title>/i)
+                if (titleMatch && titleMatch[1]) {
+                  const titleText = titleMatch[1].replace(/- DETSİS|- KAYSİS|KAYSİS/gi, '').trim()
+                  if (
+                    titleText &&
+                    !titleText.toLowerCase().includes('hata') &&
+                    !titleText.toLowerCase().includes('bulunamadı')
+                  ) {
+                    birimAdi = titleText
+                  }
+                }
+              } catch {}
+            }
+          }
+
+          // 2.3 Headless Chromium Scraper fallback
+          if (!isVerified) {
+            try {
+              const scraped = await scrapeDetsisWithHeadlessBrowser(cleanNo)
+              if (scraped && scraped.verified) {
+                isVerified = true
+                statusCode = 200
+                if (scraped.birimAdi) birimAdi = scraped.birimAdi
+                if (scraped.kurumAdi) kurumAdi = scraped.kurumAdi
+                if (scraped.url) finalUrl = scraped.url
+              }
+            } catch (scrapErr: any) {
+              console.warn('[Headless Scraper Warning]:', scrapErr.message)
+            }
+          }
+        } catch (err: any) {
+          console.warn('[DETSİS Fetch Error]:', err.message)
         }
-      } catch (err: any) {
-        console.warn('[DETSİS Fetch Error]:', err.message)
       }
-    }
 
-    const verifiedAt = new Date().toISOString()
+      const verifiedAt = new Date().toISOString()
 
-    // 3. Veritabanına kaydet (Cache)
-    if (db) {
-      try {
-        db.prepare(`
+      // 3. Veritabanına kaydet (Cache)
+      if (db) {
+        try {
+          db.prepare(
+            `
           INSERT OR REPLACE INTO TANIM_DetsisCache (
             detsis_no, is_verified, birim_adi, kurum_adi, kurum_hiyerarsisi, ulke_adi, il_adi, ilce_adi,
             kategori_adi, statu_adi, logo_base64, ingilizce_adi, url, status_code, response_data, verified_at, updated_at
           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', 'localtime'))
-        `).run(
-          cleanNo,
-          isVerified ? 1 : 0,
-          birimAdi || null,
-          kurumAdi || null,
-          kurumHiyerarsisi || null,
-          ulkeAdi || null,
-          ilAdi || null,
-          ilceAdi || null,
-          kategoriAdi || null,
-          statuAdi || null,
-          logoByteArray || null,
-          ingilizceAdi || null,
-          finalUrl,
-          statusCode,
-          rawResponse ? rawResponse.slice(0, 500) : null,
-          verifiedAt
-        )
-      } catch (dbErr) {
-        console.warn('[DETSİS DB Save Warning]:', dbErr)
+        `
+          ).run(
+            cleanNo,
+            isVerified ? 1 : 0,
+            birimAdi || null,
+            kurumAdi || null,
+            kurumHiyerarsisi || null,
+            ulkeAdi || null,
+            ilAdi || null,
+            ilceAdi || null,
+            kategoriAdi || null,
+            statuAdi || null,
+            logoByteArray || null,
+            ingilizceAdi || null,
+            finalUrl,
+            statusCode,
+            rawResponse ? rawResponse.slice(0, 500) : null,
+            verifiedAt
+          )
+        } catch (dbErr) {
+          console.warn('[DETSİS DB Save Warning]:', dbErr)
+        }
+      }
+
+      return {
+        success: true,
+        cached: false,
+        verified: isVerified,
+        detsisNo: cleanNo,
+        birimAdi,
+        kurumAdi,
+        kurumHiyerarsisi,
+        ulkeAdi,
+        ilAdi,
+        ilceAdi,
+        kategoriAdi,
+        statuAdi,
+        logoByteArray,
+        ingilizceAdi,
+        url: finalUrl,
+        statusCode,
+        verifiedAt
       }
     }
-
-    return {
-      success: true,
-      cached: false,
-      verified: isVerified,
-      detsisNo: cleanNo,
-      birimAdi,
-      kurumAdi,
-      kurumHiyerarsisi,
-      ulkeAdi,
-      ilAdi,
-      ilceAdi,
-      kategoriAdi,
-      statuAdi,
-      logoByteArray,
-      ingilizceAdi,
-      url: finalUrl,
-      statusCode,
-      verifiedAt
-    }
-  })
+  )
 
   ipcMain.handle('network:get-detsis-cache', async (_, detsisNo: string) => {
     if (!detsisNo) return null
-    const cleanNo = detsisNo.toString().trim().replace(/[^0-9]/g, '')
+    const cleanNo = detsisNo
+      .toString()
+      .trim()
+      .replace(/[^0-9]/g, '')
     if (!cleanNo) return null
     const db = workspaceManager.getDb()
     if (!db) return null
     try {
-      const row = db.prepare('SELECT * FROM TANIM_DetsisCache WHERE detsis_no = ?').get(cleanNo) as {
-        detsis_no: string
-        is_verified: number
-        birim_adi?: string
-        kurum_adi?: string
-        kurum_hiyerarsisi?: string
-        ulke_adi?: string
-        il_adi?: string
-        ilce_adi?: string
-        kategori_adi?: string
-        statu_adi?: string
-        logo_base64?: string
-        ingilizce_adi?: string
-        url?: string
-        status_code?: number
-        verified_at?: string
-      } | undefined
+      const row = db.prepare('SELECT * FROM TANIM_DetsisCache WHERE detsis_no = ?').get(cleanNo) as
+        | {
+            detsis_no: string
+            is_verified: number
+            birim_adi?: string
+            kurum_adi?: string
+            kurum_hiyerarsisi?: string
+            ulke_adi?: string
+            il_adi?: string
+            ilce_adi?: string
+            kategori_adi?: string
+            statu_adi?: string
+            logo_base64?: string
+            ingilizce_adi?: string
+            url?: string
+            status_code?: number
+            verified_at?: string
+          }
+        | undefined
 
       if (!row) return null
       return {
@@ -737,7 +764,9 @@ export function registerNetworkIpcHandlers(): void {
   // DETSİS Sub-units Handler (Kurumun alt birimlerini çekme)
   ipcMain.handle('network:get-detsis-subunits', async (_, ustBirimId: string | number) => {
     try {
-      const cleanNo = String(ustBirimId || '').trim().replace(/[^0-9]/g, '')
+      const cleanNo = String(ustBirimId || '')
+        .trim()
+        .replace(/[^0-9]/g, '')
       if (!cleanNo) {
         return { success: false, error: 'Geçersiz DETSİS numarası', data: [] }
       }
@@ -771,7 +800,9 @@ export function registerNetworkIpcHandlers(): void {
           console.error(`[DETSİS Sub-units] HTTP ${response.status}:`, errorDetail)
           return {
             success: false,
-            error: errorDetail ? `DETSİS Hatası (${response.status}): ${errorDetail}` : `DETSİS Sunucu Hatası: HTTP ${response.status}`,
+            error: errorDetail
+              ? `DETSİS Hatası (${response.status}): ${errorDetail}`
+              : `DETSİS Sunucu Hatası: HTTP ${response.status}`,
             data: []
           }
         }
@@ -799,7 +830,9 @@ export function registerNetworkIpcHandlers(): void {
         logoByteArray: item.logoByteArray || ''
       }))
 
-      console.log(`[DETSİS Sub-units] Successfully retrieved ${list.length} units (total: ${totalCount})`)
+      console.log(
+        `[DETSİS Sub-units] Successfully retrieved ${list.length} units (total: ${totalCount})`
+      )
 
       return {
         success: true,
@@ -869,9 +902,9 @@ export async function performAutoCloudSync(): Promise<void> {
   try {
     const db = workspaceManager.getDb()
     if (!db) return
-    const urlRow = db
-      .prepare("SELECT value FROM settings WHERE key = 'sync_server_url'")
-      .get() as { value: string } | undefined
+    const urlRow = db.prepare("SELECT value FROM settings WHERE key = 'sync_server_url'").get() as
+      | { value: string }
+      | undefined
     const tokenRow = db
       .prepare("SELECT value FROM settings WHERE key = 'sync_server_token'")
       .get() as { value: string } | undefined
@@ -909,7 +942,9 @@ export async function performAutoCloudSync(): Promise<void> {
     // 2. Otomatik E-Posta Yedeklemesi (Dosyada güncelleme varsa SMTP üzerinden yollar)
     try {
       if (!workspaceManager.hasChanges('email')) {
-        console.log('[AutoCloudSync] Dosyada değişiklik bulunmadığı için otomatik e-posta gönderimi atlandı.')
+        console.log(
+          '[AutoCloudSync] Dosyada değişiklik bulunmadığı için otomatik e-posta gönderimi atlandı.'
+        )
       } else {
         const getSmtpSetting = (k1: string, k2: string): string => {
           try {
@@ -931,8 +966,7 @@ export async function performAutoCloudSync(): Promise<void> {
 
         if (host && user && pass) {
           const port = parseInt(portStr || '587') || 587
-          const actualSecure =
-            port === 465 ? true : port === 587 ? false : secureStr === 'true'
+          const actualSecure = port === 465 ? true : port === 587 ? false : secureStr === 'true'
 
           const transporter = nodemailer.createTransport({
             host: host,
@@ -968,7 +1002,9 @@ export async function performAutoCloudSync(): Promise<void> {
     // 3. Otomatik Google Drive Bulut Yedeklemesi (Dosyada güncelleme varsa son 7 sürümü saklar ve eskileri temizler)
     try {
       if (!workspaceManager.hasChanges('gdrive')) {
-        console.log('[AutoCloudSync] Dosyada değişiklik bulunmadığı için Google Drive yüklemesi atlandı.')
+        console.log(
+          '[AutoCloudSync] Dosyada değişiklik bulunmadığı için Google Drive yüklemesi atlandı.'
+        )
       } else {
         const gdriveRow = db
           .prepare("SELECT value FROM settings WHERE key = 'gdriveAccessToken'")
@@ -1023,7 +1059,9 @@ export async function performAutoCloudSync(): Promise<void> {
             const now = new Date()
             const dateStr = now.toISOString().slice(0, 10)
             const timeStr = `${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}`
-            const rawBase = fileName.replace(/\.dtal$/i, '').replace(/_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}$/, '')
+            const rawBase = fileName
+              .replace(/\.dtal$/i, '')
+              .replace(/_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}$/, '')
             const backupFileName = `${rawBase}_${dateStr}_${timeStr}.dtal`
 
             const boundary = '--------------------------' + Date.now().toString(16)
@@ -1049,17 +1087,14 @@ export async function performAutoCloudSync(): Promise<void> {
               closingBuffer
             ])
 
-            await fetch(
-              'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
-              {
-                method: 'POST',
-                headers: {
-                  Authorization: `Bearer ${cleanToken}`,
-                  'Content-Type': `multipart/related; boundary=${boundary}`
-                },
-                body: multipartBody
-              }
-            )
+            await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${cleanToken}`,
+                'Content-Type': `multipart/related; boundary=${boundary}`
+              },
+              body: multipartBody
+            })
 
             workspaceManager.markSynced('gdrive')
 
@@ -1142,7 +1177,9 @@ async function scrapeDetsisWithHeadlessBrowser(cleanNo: string): Promise<{
       win.webContents.on('did-finish-load', async () => {
         if (resolved || !win || win.isDestroyed()) return
         try {
-          const result = await win.webContents.executeJavaScript(`
+          const result = await win.webContents
+            .executeJavaScript(
+              `
             (() => {
               const bodyText = document.body ? document.body.innerText : '';
               const title = document.title || '';
@@ -1156,7 +1193,9 @@ async function scrapeDetsisWithHeadlessBrowser(cleanNo: string): Promise<{
                 isNotFound
               };
             })()
-          `).catch(() => null)
+          `
+            )
+            .catch(() => null)
 
           if (result && !result.isNotFound && result.bodyTextLength > 50) {
             resolved = true
@@ -1164,7 +1203,8 @@ async function scrapeDetsisWithHeadlessBrowser(cleanNo: string): Promise<{
             cleanup()
             resolve({
               verified: true,
-              birimAdi: result.heading || result.title.replace(/- DETSİS|- KAYSİS|KAYSİS/gi, '').trim(),
+              birimAdi:
+                result.heading || result.title.replace(/- DETSİS|- KAYSİS|KAYSİS/gi, '').trim(),
               url: targetUrl
             })
             return
@@ -1204,5 +1244,3 @@ async function scrapeDetsisWithHeadlessBrowser(cleanNo: string): Promise<{
     }
   })
 }
-
-

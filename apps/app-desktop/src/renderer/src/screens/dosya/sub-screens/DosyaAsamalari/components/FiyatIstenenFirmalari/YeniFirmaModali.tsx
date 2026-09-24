@@ -1,40 +1,40 @@
-import React, { useState } from "react";
-import { AlertTriangle, UserPlus, X } from "lucide-react";
+import React, { useState } from 'react'
+import { AlertTriangle, UserPlus, X } from 'lucide-react'
 
-import { YeniFirmaModaliProps } from "./types";
+import { YeniFirmaModaliProps } from './types'
 
 export function YeniFirmaModali({ onClose, onSave }: YeniFirmaModaliProps): React.JSX.Element {
-  const [unvan, setUnvan] = useState("");
-  const [vergiNo, setVergiNo] = useState("");
-  const [telefon, setTelefon] = useState("");
-  const [email, setEmail] = useState("");
-  const [sehir, setSehir] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [unvan, setUnvan] = useState('')
+  const [vergiNo, setVergiNo] = useState('')
+  const [telefon, setTelefon] = useState('')
+  const [email, setEmail] = useState('')
+  const [sehir, setSehir] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (!unvan.trim()) {
-      setError("Firma unvanı zorunludur.");
-      return;
+      setError('Firma unvanı zorunludur.')
+      return
     }
-    setIsSubmitting(true);
-    setError(null);
+    setIsSubmitting(true)
+    setError(null)
     try {
       await onSave({
         unvan: unvan.trim(),
         vergi_no: vergiNo.trim(),
         telefon: telefon.trim(),
         email: email.trim(),
-        sehir: sehir.trim(),
-      });
-      onClose();
+        sehir: sehir.trim()
+      })
+      onClose()
     } catch (err: any) {
-      setError(err.message || "Firma kaydedilirken bir hata oluştu.");
+      setError(err.message || 'Firma kaydedilirken bir hata oluştu.')
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className="fixed inset-0 z-[210] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150">
@@ -152,11 +152,11 @@ export function YeniFirmaModali({ onClose, onSave }: YeniFirmaModaliProps): Reac
               disabled={isSubmitting || !unvan.trim()}
               className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
             >
-              {isSubmitting ? "Kaydediliyor..." : "Kaydet ve Dosyaya Ekle"}
+              {isSubmitting ? 'Kaydediliyor...' : 'Kaydet ve Dosyaya Ekle'}
             </button>
           </div>
         </form>
       </div>
     </div>
-  );
+  )
 }

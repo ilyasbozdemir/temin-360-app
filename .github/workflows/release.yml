@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install Node.js
         uses: actions/setup-node@v4
@@ -62,24 +64,15 @@ jobs:
           ELECTRON_MIRROR: "https://cdn.npmmirror.com/binaries/electron/"
           ELECTRON_BUILDER_BINARIES_MIRROR: "https://cdn.npmmirror.com/binaries/electron-builder-binaries/"
 
-
       - name: Prepare Release Notes
         shell: bash
         run: |
           if [[ "${{ github.ref_name }}" == *"beta"* || "${{ github.ref_name }}" == *"alpha"* ]]; then
             echo "RELEASE_NAME=TEMİN 360 ${{ github.ref_name }} (Erken Erişim)" >> $GITHUB_ENV
-            echo "RELEASE_BODY<<EOF" >> $GITHUB_ENV
-            echo "TEMİN 360 - Kamu Harcama, İhale, Doğrudan Temin ve Hakediş Yönetim Sistemi sürümü. 🚀" >> $GITHUB_ENV
-            echo "" >> $GITHUB_ENV
-            echo "**Erken Erişim Sürümü (Early Access)**" >> $GITHUB_ENV
-            echo "Bu sürüm erken erişim aşamasında olup tüm temel fonksiyonları içermektedir." >> $GITHUB_ENV
-            echo "EOF" >> $GITHUB_ENV
           else
             echo "RELEASE_NAME=TEMİN 360 ${{ github.ref_name }}" >> $GITHUB_ENV
-            echo "RELEASE_BODY<<EOF" >> $GITHUB_ENV
-            echo "TEMİN 360 - Kamu Harcama, İhale, Doğrudan Temin ve Hakediş Yönetim Sistemi sürümü. ⚖️" >> $GITHUB_ENV
-            echo "EOF" >> $GITHUB_ENV
           fi
+          node apps/app-desktop/scripts/generate-release-notes.js "${{ github.ref_name }}" release_notes.md
 
       - name: Release Files
         uses: softprops/action-gh-release@v2
@@ -92,6 +85,6 @@ jobs:
           draft: false
           prerelease: false
           name: ${{ env.RELEASE_NAME }}
-          body: ${{ env.RELEASE_BODY }}
+          body_path: release_notes.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

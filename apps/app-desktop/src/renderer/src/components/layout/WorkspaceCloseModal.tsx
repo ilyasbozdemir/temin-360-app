@@ -83,7 +83,8 @@ export function WorkspaceCloseModal({
               }
             }
 
-            const hasGDrive = !!s.gdriveAccessToken || (!!s.gdriveClientId && !!s.gdriveClientSecret)
+            const hasGDrive =
+              !!s.gdriveAccessToken || (!!s.gdriveClientId && !!s.gdriveClientSecret)
             let chosen: CloseActionType[] = []
 
             // Sadece dosyada gerçek bir değişiklik varsa yedekleri varsayılan olarak seç
@@ -94,7 +95,12 @@ export function WorkspaceCloseModal({
                 chosen = ['gdrive']
               }
 
-              if (hasGDrive && hasGdriveChanges && !chosen.includes('gdrive') && (!s.closeActionPreference || s.closeActionPreference === 'ask')) {
+              if (
+                hasGDrive &&
+                hasGdriveChanges &&
+                !chosen.includes('gdrive') &&
+                (!s.closeActionPreference || s.closeActionPreference === 'ask')
+              ) {
                 chosen.push('gdrive')
               }
             }
@@ -175,9 +181,7 @@ export function WorkspaceCloseModal({
       onClose()
     } catch (err: unknown) {
       console.error(err)
-      setError(
-        err instanceof Error ? err.message : 'İşlem gerçekleştirilirken bir hata oluştu.'
-      )
+      setError(err instanceof Error ? err.message : 'İşlem gerçekleştirilirken bir hata oluştu.')
     } finally {
       setLoading(false)
     }
@@ -256,14 +260,22 @@ export function WorkspaceCloseModal({
               <AlertTriangle className="w-4 h-4 shrink-0 text-red-600 dark:text-red-500" />
               <span>{error}</span>
             </div>
-            {(error.includes('Google Drive') || error.includes('jeton') || error.includes('OAuth') || error.includes('token') || error.includes('süresi dolmuş')) && (
+            {(error.includes('Google Drive') ||
+              error.includes('jeton') ||
+              error.includes('OAuth') ||
+              error.includes('token') ||
+              error.includes('süresi dolmuş')) && (
               <button
                 type="button"
                 onClick={handleOAuthReconnect}
                 disabled={isReauthenticating}
                 className="self-start px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-[11px] font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
               >
-                {isReauthenticating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CloudUpload className="w-3.5 h-3.5" />}
+                {isReauthenticating ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <CloudUpload className="w-3.5 h-3.5" />
+                )}
                 <span>Google ile Tek Tıkla Yeniden Bağlan ve Gönder</span>
               </button>
             )}
@@ -275,7 +287,10 @@ export function WorkspaceCloseModal({
           <div className="p-3 rounded-2xl bg-blue-50/70 dark:bg-blue-950/20 border border-blue-200/80 dark:border-blue-800/40 text-blue-900 dark:text-blue-300 text-xs flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 font-medium">
               <CheckCircle2 className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
-              <span>Dosyada güncelleme bulunmuyor. Gereksiz Google Drive ve e-posta gönderimleri atlanacaktır.</span>
+              <span>
+                Dosyada güncelleme bulunmuyor. Gereksiz Google Drive ve e-posta gönderimleri
+                atlanacaktır.
+              </span>
             </div>
             <span className="text-[10px] bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-2 py-0.5 rounded-full font-bold shrink-0">
               Güncel
@@ -301,8 +316,8 @@ export function WorkspaceCloseModal({
               <span>Otomatik Dosya Güncelleme</span>
             </div>
             <p className="text-[11px] leading-relaxed opacity-90">
-              Yapılan tüm değişiklikler mevcut açık çalışma dosyanıza (<strong>{fileName}</strong>)
-              {' '}doğrudan kaydedilir. İlave bulut veya e-posta yedeklemesi isterseniz aşağıdaki
+              Yapılan tüm değişiklikler mevcut açık çalışma dosyanıza (<strong>{fileName}</strong>){' '}
+              doğrudan kaydedilir. İlave bulut veya e-posta yedeklemesi isterseniz aşağıdaki
               seçenekleri işaretleyebilirsiniz.
             </p>
           </div>
@@ -314,7 +329,9 @@ export function WorkspaceCloseModal({
           <div className="space-y-0.5">
             <span className="font-bold block">Bulut Senkronizasyonu Kullanım Önerisi</span>
             <p className="text-[11px] leading-relaxed opacity-90">
-              Çoklu bilgisayarda çalışıyorsanız yapılan değişiklikleri en güncel sürüm olarak <strong>Google Drive / Sunucu</strong>&apos;ya yüklemeniz önerilir. Tekli kullanımda ise bulutu periyodik yedek alanı olarak değerlendirebilirsiniz.
+              Çoklu bilgisayarda çalışıyorsanız yapılan değişiklikleri en güncel sürüm olarak{' '}
+              <strong>Google Drive / Sunucu</strong>&apos;ya yüklemeniz önerilir. Tekli kullanımda
+              ise bulutu periyodik yedek alanı olarak değerlendirebilirsiniz.
             </p>
           </div>
         </div>
@@ -358,9 +375,7 @@ export function WorkspaceCloseModal({
                       : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800'
                   )}
                 >
-                  {selectedActions.includes('gdrive') && (
-                    <Check className="w-3.5 h-3.5 stroke-3" />
-                  )}
+                  {selectedActions.includes('gdrive') && <Check className="w-3.5 h-3.5 stroke-3" />}
                 </div>
               </div>
               <div className="p-2 rounded-xl shrink-0 bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300">
@@ -382,9 +397,17 @@ export function WorkspaceCloseModal({
                   )}
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-                  {changesInfo.hasGdriveChanges
-                    ? <>Çalışma dosyanızı Google Drive&apos;daki <strong>TEMIN_360_YEDEKLER</strong> klasörünüze yükler ve son 7 sürümü saklar.</>
-                    : <>Dosyada son yedeklemeden bu yana değişiklik yapılmadığı için gereksiz yükleme yapılmaz.</>}
+                  {changesInfo.hasGdriveChanges ? (
+                    <>
+                      Çalışma dosyanızı Google Drive&apos;daki <strong>TEMIN_360_YEDEKLER</strong>{' '}
+                      klasörünüze yükler ve son 7 sürümü saklar.
+                    </>
+                  ) : (
+                    <>
+                      Dosyada son yedeklemeden bu yana değişiklik yapılmadığı için gereksiz yükleme
+                      yapılmaz.
+                    </>
+                  )}
                 </p>
               </div>
             </div>
@@ -410,9 +433,7 @@ export function WorkspaceCloseModal({
                       : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800'
                   )}
                 >
-                  {selectedActions.includes('server') && (
-                    <Check className="w-3.5 h-3.5 stroke-3" />
-                  )}
+                  {selectedActions.includes('server') && <Check className="w-3.5 h-3.5 stroke-3" />}
                 </div>
               </div>
               <div className="p-2 rounded-xl shrink-0 bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300">
@@ -449,9 +470,7 @@ export function WorkspaceCloseModal({
                       : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800'
                   )}
                 >
-                  {selectedActions.includes('email') && (
-                    <Check className="w-3.5 h-3.5 stroke-3" />
-                  )}
+                  {selectedActions.includes('email') && <Check className="w-3.5 h-3.5 stroke-3" />}
                 </div>
               </div>
               <div className="p-2 rounded-xl shrink-0 bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300">
@@ -496,9 +515,7 @@ export function WorkspaceCloseModal({
                     : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800'
                 )}
               >
-                {selectedActions.includes('backup') && (
-                  <Check className="w-3.5 h-3.5 stroke-3" />
-                )}
+                {selectedActions.includes('backup') && <Check className="w-3.5 h-3.5 stroke-3" />}
               </div>
             </div>
             <div className="p-2 rounded-xl shrink-0 bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300">
@@ -509,7 +526,8 @@ export function WorkspaceCloseModal({
                 Farklı Konuma Yedek Kopyası Al (Farklı Kaydet)
               </h4>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-                Mevcut dosyanızı güncellemenin yanı sıra, güvenli bir kopyasını seçeceğiniz başka bir klasöre yedekler.
+                Mevcut dosyanızı güncellemenin yanı sıra, güvenli bir kopyasını seçeceğiniz başka
+                bir klasöre yedekler.
               </p>
             </div>
           </div>
@@ -522,7 +540,9 @@ export function WorkspaceCloseModal({
             <div className="space-y-0.5">
               <span className="font-bold block">Hiçbir yedekleme yöntemi seçilmedi!</span>
               <p className="text-[11px] opacity-90 leading-relaxed">
-                Google Drive veya e-posta yedeklemesi seçilmediği için dosyanız buluta gönderilmeyecektir. Yalnızca yerel çalışma dosyanız (<strong>{fileName}</strong>) güncellenecektir.
+                Google Drive veya e-posta yedeklemesi seçilmediği için dosyanız buluta
+                gönderilmeyecektir. Yalnızca yerel çalışma dosyanız (<strong>{fileName}</strong>)
+                güncellenecektir.
               </p>
             </div>
           </div>

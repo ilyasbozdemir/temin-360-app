@@ -1,25 +1,25 @@
-import React from "react";
-import { ArrowUpRight, Sparkles } from "lucide-react";
-import { Komisyon } from "../types";
+import React from 'react'
+import { ArrowUpRight, Sparkles } from 'lucide-react'
+import { Komisyon } from '../types'
 
 interface SurecAkisiHeaderProps {
   dosya: {
-    dosyaNo: string;
-    teminTuru: string;
-    kanunMaddesi: string;
-    tarih: string;
-    sonTeklifTarihi: string;
-    durum: string;
-  };
-  konu?: string;
-  komisyonlarCount: number;
+    dosyaNo: string
+    teminTuru: string
+    kanunMaddesi: string
+    tarih: string
+    sonTeklifTarihi: string
+    durum: string
+  }
+  konu?: string
+  komisyonlarCount: number
   stagesWithStatus: Array<{
-    id: number;
-    title: string;
-    status: "completed" | "in-progress" | "pending";
-    progress: number;
-  }>;
-  onSelectTab: (tab: string) => void;
+    id: number
+    title: string
+    status: 'completed' | 'in-progress' | 'pending'
+    progress: number
+  }>
+  onSelectTab: (tab: string) => void
 }
 
 export const SurecAkisiHeader: React.FC<SurecAkisiHeaderProps> = ({
@@ -27,7 +27,7 @@ export const SurecAkisiHeader: React.FC<SurecAkisiHeaderProps> = ({
   konu,
   komisyonlarCount,
   stagesWithStatus,
-  onSelectTab,
+  onSelectTab
 }) => {
   return (
     <div className="bg-white dark:bg-slate-955 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
@@ -44,8 +44,7 @@ export const SurecAkisiHeader: React.FC<SurecAkisiHeaderProps> = ({
               </span>
             </h1>
             <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm font-medium">
-              {dosya.kanunMaddesi} —{" "}
-              {konu || "Aktif temin dosyası takip ve yönetim merkezi"}
+              {dosya.kanunMaddesi} — {konu || 'Aktif temin dosyası takip ve yönetim merkezi'}
             </p>
           </div>
         </div>
@@ -107,7 +106,7 @@ export const SurecAkisiHeader: React.FC<SurecAkisiHeaderProps> = ({
 
       {/* Mini Süreç Şeridi */}
       <button
-        onClick={() => onSelectTab("surec")}
+        onClick={() => onSelectTab('surec')}
         className="w-full mt-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl px-5 py-3 flex items-center hover:border-blue-400 transition-colors group cursor-pointer"
       >
         {stagesWithStatus.map((stage, index) => (
@@ -115,20 +114,20 @@ export const SurecAkisiHeader: React.FC<SurecAkisiHeaderProps> = ({
             <div className="flex items-center gap-2 shrink-0">
               <div
                 className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${
-                  stage.status === "completed"
-                    ? "bg-emerald-500 text-white"
-                    : stage.status === "in-progress"
-                    ? "bg-blue-600 text-white ring-4 ring-blue-500/20"
-                    : "bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+                  stage.status === 'completed'
+                    ? 'bg-emerald-500 text-white'
+                    : stage.status === 'in-progress'
+                      ? 'bg-blue-600 text-white ring-4 ring-blue-500/20'
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                 }`}
               >
-                {stage.status === "completed" ? "✓" : stage.id}
+                {stage.status === 'completed' ? '✓' : stage.id}
               </div>
               <span
                 className={`hidden sm:inline text-xs whitespace-nowrap ${
-                  stage.status === "in-progress"
-                    ? "font-bold text-slate-900 dark:text-slate-100"
-                    : "text-slate-500 dark:text-slate-400"
+                  stage.status === 'in-progress'
+                    ? 'font-bold text-slate-900 dark:text-slate-100'
+                    : 'text-slate-500 dark:text-slate-400'
                 }`}
               >
                 {stage.title}
@@ -137,12 +136,9 @@ export const SurecAkisiHeader: React.FC<SurecAkisiHeaderProps> = ({
             {index < stagesWithStatus.length - 1 && (
               <div
                 className={`flex-1 h-0.5 mx-2 rounded-full ${
-                  stage.status === "completed"
-                    ? "bg-emerald-400"
-                    : "bg-slate-200 dark:bg-slate-800"
+                  stage.status === 'completed' ? 'bg-emerald-400' : 'bg-slate-200 dark:bg-slate-800'
                 }`}
-              >
-              </div>
+              ></div>
             )}
           </React.Fragment>
         ))}
@@ -152,5 +148,5 @@ export const SurecAkisiHeader: React.FC<SurecAkisiHeaderProps> = ({
         />
       </button>
     </div>
-  );
-};
+  )
+}

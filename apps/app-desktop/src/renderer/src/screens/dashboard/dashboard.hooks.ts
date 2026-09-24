@@ -75,7 +75,7 @@ export function useDashboardStats(filterMode: 'dogrudan_temin' | 'ihale' | 'all'
     pazarlikSayisi: 0,
     pazarlikMaliyet: 0,
     hakediseSayisi: 0,
-    hakediseMaliyet: 0,
+    hakediseMaliyet: 0
   })
   const [isLoading, setIsLoading] = useState(true)
 
@@ -86,8 +86,8 @@ export function useDashboardStats(filterMode: 'dogrudan_temin' | 'ihale' | 'all'
         filterMode === 'dogrudan_temin'
           ? " AND (ihale_tipi LIKE '%doğrudan%' OR ihale_tipi LIKE '%dogrudan%' OR ihale_tipi IS NULL OR ihale_tipi = '')"
           : filterMode === 'ihale'
-          ? " AND (ihale_tipi LIKE '%açık%' OR ihale_tipi LIKE '%acik%' OR ihale_tipi LIKE '%ihale%' OR ihale_tipi LIKE '%pazarlık%' OR ihale_tipi LIKE '%pazarlik%' OR ihale_tipi LIKE '%hakediş%' OR ihale_tipi LIKE '%hakedis%')"
-          : ''
+            ? " AND (ihale_tipi LIKE '%açık%' OR ihale_tipi LIKE '%acik%' OR ihale_tipi LIKE '%ihale%' OR ihale_tipi LIKE '%pazarlık%' OR ihale_tipi LIKE '%pazarlik%' OR ihale_tipi LIKE '%hakediş%' OR ihale_tipi LIKE '%hakedis%')"
+            : ''
 
       // 1. Dosya sayısı
       const dosyaRes = await window.electron.ipcRenderer.invoke(
@@ -272,10 +272,14 @@ export function useDashboardStats(filterMode: 'dogrudan_temin' | 'ihale' | 'all'
          WHERE (is_deleted = 0 OR is_deleted IS NULL)
          GROUP BY ihale_tipi`
       )
-      let dogrudanTeminSayisi = 0, dogrudanTeminMaliyet = 0
-      let acikIhaleSayisi = 0, acikIhaleMaliyet = 0
-      let pazarlikSayisi = 0, pazarlikMaliyet = 0
-      let hakediseSayisi = 0, hakediseMaliyet = 0
+      let dogrudanTeminSayisi = 0,
+        dogrudanTeminMaliyet = 0
+      let acikIhaleSayisi = 0,
+        acikIhaleMaliyet = 0
+      let pazarlikSayisi = 0,
+        pazarlikMaliyet = 0
+      let hakediseSayisi = 0,
+        hakediseMaliyet = 0
       if (ihaleTipiRes.success && ihaleTipiRes.data) {
         ihaleTipiRes.data.forEach((row: any) => {
           const tip = (row.ihale_tipi || '').toLowerCase()
@@ -333,7 +337,7 @@ export function useDashboardStats(filterMode: 'dogrudan_temin' | 'ihale' | 'all'
         pazarlikSayisi,
         pazarlikMaliyet,
         hakediseSayisi,
-        hakediseMaliyet,
+        hakediseMaliyet
       })
     } catch (error) {
       console.error('Failed to load dashboard stats:', error)
@@ -484,10 +488,12 @@ export function useAnnouncements() {
   const loadAnnouncements = useCallback(async () => {
     setIsLoading(true)
     try {
-      const remoteData: Announcement[] = (fallbackAnnouncements as Announcement[]).map((item, idx) => ({
-        ...item,
-        id: `fallback_${item.id || idx}`
-      }))
+      const remoteData: Announcement[] = (fallbackAnnouncements as Announcement[]).map(
+        (item, idx) => ({
+          ...item,
+          id: `fallback_${item.id || idx}`
+        })
+      )
 
       // Fetch from local LOG_SystemLog
       let localLogs: Announcement[] = []
@@ -643,7 +649,6 @@ export function useAnnouncements() {
 
   return { announcements, isLoading, refetch: loadAnnouncements }
 }
-
 
 export interface SmartAlert {
   id: string

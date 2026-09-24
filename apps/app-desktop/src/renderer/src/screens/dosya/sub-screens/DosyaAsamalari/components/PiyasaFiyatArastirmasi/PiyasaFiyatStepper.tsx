@@ -1,15 +1,15 @@
-import React from "react";
-import { CheckCircle2 } from "lucide-react";
+import React from 'react'
+import { CheckCircle2 } from 'lucide-react'
 
 interface PiyasaFiyatStepperProps {
-  currentStep: 1 | 2 | 3;
-  setCurrentStep: (step: 1 | 2 | 3) => void;
-  isStep1Done: boolean;
-  isStep2Done: boolean;
-  isStep3Done: boolean;
-  invitedFirmsCount: number;
-  activeWinnerFirma: any;
-  mappedBelgelerCount: number;
+  currentStep: 1 | 2 | 3
+  setCurrentStep: (step: 1 | 2 | 3) => void
+  isStep1Done: boolean
+  isStep2Done: boolean
+  isStep3Done: boolean
+  invitedFirmsCount: number
+  activeWinnerFirma: any
+  mappedBelgelerCount: number
 }
 
 export function PiyasaFiyatStepper({
@@ -20,7 +20,7 @@ export function PiyasaFiyatStepper({
   isStep3Done,
   invitedFirmsCount,
   activeWinnerFirma,
-  mappedBelgelerCount,
+  mappedBelgelerCount
 }: PiyasaFiyatStepperProps): React.JSX.Element {
   return (
     <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-3 shadow-xs">
@@ -31,22 +31,22 @@ export function PiyasaFiyatStepper({
           onClick={() => setCurrentStep(1)}
           className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all cursor-pointer ${
             currentStep === 1
-              ? "bg-blue-50/80 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600 shadow-xs ring-2 ring-blue-500/20"
+              ? 'bg-blue-50/80 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600 shadow-xs ring-2 ring-blue-500/20'
               : isStep1Done
-              ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-50/80"
-              : "bg-slate-50/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:bg-slate-100/60"
+                ? 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-50/80'
+                : 'bg-slate-50/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:bg-slate-100/60'
           }`}
         >
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs shrink-0 ${
               currentStep === 1
-                ? "bg-blue-600 text-white"
+                ? 'bg-blue-600 text-white'
                 : isStep1Done
-                ? "bg-emerald-600 text-white"
-                : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
             }`}
           >
-            {isStep1Done ? <CheckCircle2 className="w-4 h-4" /> : "1"}
+            {isStep1Done ? <CheckCircle2 className="w-4 h-4" /> : '1'}
           </div>
           <div className="min-w-0">
             <div className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate flex items-center gap-1.5">
@@ -69,22 +69,22 @@ export function PiyasaFiyatStepper({
           onClick={() => setCurrentStep(2)}
           className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all cursor-pointer ${
             currentStep === 2
-              ? "bg-blue-50/80 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600 shadow-xs ring-2 ring-blue-500/20"
+              ? 'bg-blue-50/80 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600 shadow-xs ring-2 ring-blue-500/20'
               : isStep2Done
-              ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-50/80"
-              : "bg-slate-50/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:bg-slate-100/60"
+                ? 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-50/80'
+                : 'bg-slate-50/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:bg-slate-100/60'
           }`}
         >
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs shrink-0 ${
               currentStep === 2
-                ? "bg-blue-600 text-white"
+                ? 'bg-blue-600 text-white'
                 : isStep2Done
-                ? "bg-emerald-600 text-white"
-                : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
             }`}
           >
-            {isStep2Done ? <CheckCircle2 className="w-4 h-4" /> : "2"}
+            {isStep2Done ? <CheckCircle2 className="w-4 h-4" /> : '2'}
           </div>
           <div className="min-w-0">
             <div className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate flex items-center gap-1.5">
@@ -107,22 +107,22 @@ export function PiyasaFiyatStepper({
           onClick={() => setCurrentStep(3)}
           className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all cursor-pointer ${
             currentStep === 3
-              ? "bg-blue-50/80 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600 shadow-xs ring-2 ring-blue-500/20"
+              ? 'bg-blue-50/80 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600 shadow-xs ring-2 ring-blue-500/20'
               : isStep3Done
-              ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-50/80"
-              : "bg-slate-50/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:bg-slate-100/60"
+                ? 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-50/80'
+                : 'bg-slate-50/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:bg-slate-100/60'
           }`}
         >
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs shrink-0 ${
               currentStep === 3
-                ? "bg-blue-600 text-white"
+                ? 'bg-blue-600 text-white'
                 : isStep3Done
-                ? "bg-emerald-600 text-white"
-                : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
             }`}
           >
-            {isStep3Done ? <CheckCircle2 className="w-4 h-4" /> : "3"}
+            {isStep3Done ? <CheckCircle2 className="w-4 h-4" /> : '3'}
           </div>
           <div className="min-w-0">
             <div className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate flex items-center gap-1.5">
@@ -140,5 +140,5 @@ export function PiyasaFiyatStepper({
         </button>
       </div>
     </div>
-  );
+  )
 }

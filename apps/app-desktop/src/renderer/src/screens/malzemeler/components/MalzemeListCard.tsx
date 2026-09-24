@@ -41,7 +41,11 @@ export function MalzemeListCard({
       <div className="flex items-center flex-1 gap-3 pr-16">
         {item.gorsel_url ? (
           <div className="w-10 h-10 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 shrink-0 bg-slate-100 dark:bg-slate-900">
-            <img src={item.gorsel_url} alt={item.kalem_adi} className="w-full h-full object-cover" />
+            <img
+              src={item.gorsel_url}
+              alt={item.kalem_adi}
+              className="w-full h-full object-cover"
+            />
           </div>
         ) : null}
 
@@ -79,9 +83,7 @@ export function MalzemeListCard({
 
         <div className="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 min-w-[160px] justify-end">
           {item.fiyat_donemi && (
-            <span className="font-mono text-[10px] text-slate-400">
-              {item.fiyat_donemi}
-            </span>
+            <span className="font-mono text-[10px] text-slate-400">{item.fiyat_donemi}</span>
           )}
           <span className="font-semibold text-slate-600 dark:text-slate-300">{item.tipi}</span>
           <span className="font-semibold text-slate-600 dark:text-slate-300 bg-slate-200/50 dark:bg-slate-800/50 px-2 py-1 rounded">

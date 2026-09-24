@@ -28,7 +28,8 @@ export const IlgiliBelgeCubugu: React.FC<IlgiliBelgeCubuguProps> = ({
       <div className="flex items-center gap-2 min-w-0">
         <FileText size={16} className="text-slate-400 shrink-0" />
         <span className="text-xs text-slate-600 dark:text-slate-400 truncate">
-          İlgili belge: <span className="font-bold text-slate-900 dark:text-slate-100">{belge.ad}</span>
+          İlgili belge:{' '}
+          <span className="font-bold text-slate-900 dark:text-slate-100">{belge.ad}</span>
         </span>
         <span
           className={`text-[10px] px-2.5 py-0.5 rounded-lg border font-bold shrink-0 ${

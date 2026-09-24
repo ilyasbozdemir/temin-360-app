@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 import {
   CloudUpload,
   Server,
@@ -8,70 +8,57 @@ import {
   AlertTriangle,
   Loader2,
   ShieldCheck,
-  Sparkles,
-} from "lucide-react";
-import { cn } from "../../utils/cn";
-import { ShutdownStep } from "./hooks/useWorkspaceCloseHandler";
+  Sparkles
+} from 'lucide-react'
+import { cn } from '../../utils/cn'
+import { ShutdownStep } from './hooks/useWorkspaceCloseHandler'
 
 interface ShutdownOverlayProps {
-  isOpen: boolean;
-  fileName?: string;
-  statusText: string;
-  steps: ShutdownStep[];
+  isOpen: boolean
+  fileName?: string
+  statusText: string
+  steps: ShutdownStep[]
 }
 
 export function ShutdownOverlay({
   isOpen,
   fileName,
   statusText,
-  steps,
+  steps
 }: ShutdownOverlayProps): React.JSX.Element | null {
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
-  const completedCount = steps.filter((s) => s.status === "completed").length;
-  const totalSteps = steps.length || 1;
-  const progressPercent = Math.min(
-    100,
-    Math.round((completedCount / totalSteps) * 100),
-  );
+  const completedCount = steps.filter((s) => s.status === 'completed').length
+  const totalSteps = steps.length || 1
+  const progressPercent = Math.min(100, Math.round((completedCount / totalSteps) * 100))
 
   const getStepIcon = (iconType: string, status: string) => {
-    const iconClass = "w-4 h-4 shrink-0";
-    if (status === "running") {
+    const iconClass = 'w-4 h-4 shrink-0'
+    if (status === 'running') {
       return (
-        <Loader2
-          className={cn(iconClass, "animate-spin text-emerald-600 dark:text-emerald-400")}
-        />
-      );
+        <Loader2 className={cn(iconClass, 'animate-spin text-emerald-600 dark:text-emerald-400')} />
+      )
     }
-    if (status === "completed") {
-      return (
-        <CheckCircle2
-          className={cn(iconClass, "text-emerald-600 dark:text-emerald-400")}
-        />
-      );
+    if (status === 'completed') {
+      return <CheckCircle2 className={cn(iconClass, 'text-emerald-600 dark:text-emerald-400')} />
     }
-    if (status === "error") {
-      return (
-        <AlertTriangle
-          className={cn(iconClass, "text-red-600 dark:text-red-400")}
-        />
-      );
+    if (status === 'error') {
+      return <AlertTriangle className={cn(iconClass, 'text-red-600 dark:text-red-400')} />
     }
 
     switch (iconType) {
-      case "gdrive":
-        return <CloudUpload className={cn(iconClass, "text-slate-400 dark:text-slate-500")} />;
-      case "server":
-        return <Server className={cn(iconClass, "text-slate-400 dark:text-slate-500")} />;
-      case "email":
-        return <Mail className={cn(iconClass, "text-slate-400 dark:text-slate-500")} />;
-      case "backup":
-        return <Save className={cn(iconClass, "text-slate-400 dark:text-slate-500")} />;
+      case 'gdrive':
+        return <CloudUpload className={cn(iconClass, 'text-slate-400 dark:text-slate-500')} />
+      case 'server':
+        return <Server className={cn(iconClass, 'text-slate-400 dark:text-slate-500')} />
+      case 'email':
+        return <Mail className={cn(iconClass, 'text-slate-400 dark:text-slate-500')} />
+      case 'backup':
+        return <Save className={cn(iconClass, 'text-slate-400 dark:text-slate-500')} />
       default:
-        return <ShieldCheck className={cn(iconClass, "text-slate-400 dark:text-slate-500")} />;
+        return <ShieldCheck className={cn(iconClass, 'text-slate-400 dark:text-slate-500')} />
     }
-  };
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-300 select-none p-4">
@@ -109,29 +96,29 @@ export function ShutdownOverlay({
         <div className="px-4 py-3 bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl flex items-center gap-3">
           <div className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-ping shrink-0" />
           <p className="text-xs font-semibold text-emerald-800 dark:text-emerald-300/90 truncate">
-            {statusText || "Arka plan işlemleri gerçekleştiriliyor..."}
+            {statusText || 'Arka plan işlemleri gerçekleştiriliyor...'}
           </p>
         </div>
 
         {/* Steps List */}
         <div className="flex flex-col gap-2.5">
           {steps.map((step) => {
-            const isRunning = step.status === "running";
-            const isDone = step.status === "completed";
-            const isError = step.status === "error";
+            const isRunning = step.status === 'running'
+            const isDone = step.status === 'completed'
+            const isError = step.status === 'error'
 
             return (
               <div
                 key={step.id}
                 className={cn(
-                  "flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border text-xs transition-all duration-300",
+                  'flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border text-xs transition-all duration-300',
                   isRunning
-                    ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-500/40 text-emerald-900 dark:text-emerald-200 ring-1 ring-emerald-400/30 dark:ring-emerald-500/20 font-semibold"
+                    ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-500/40 text-emerald-900 dark:text-emerald-200 ring-1 ring-emerald-400/30 dark:ring-emerald-500/20 font-semibold'
                     : isDone
-                    ? "bg-slate-50/80 dark:bg-slate-950/40 border-slate-200/90 dark:border-slate-800/60 text-slate-800 dark:text-slate-300"
-                    : isError
-                    ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800/50 text-red-900 dark:text-red-300 font-semibold"
-                    : "bg-slate-50/40 dark:bg-slate-950/20 border-slate-200/50 dark:border-slate-800/30 text-slate-400 dark:text-slate-500 opacity-70",
+                      ? 'bg-slate-50/80 dark:bg-slate-950/40 border-slate-200/90 dark:border-slate-800/60 text-slate-800 dark:text-slate-300'
+                      : isError
+                        ? 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800/50 text-red-900 dark:text-red-300 font-semibold'
+                        : 'bg-slate-50/40 dark:bg-slate-950/20 border-slate-200/50 dark:border-slate-800/30 text-slate-400 dark:text-slate-500 opacity-70'
                 )}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
@@ -150,15 +137,13 @@ export function ShutdownOverlay({
                       Tamamlandı
                     </span>
                   )}
-                  {isError && (
-                    <span className="text-red-600 dark:text-red-400">Hata Oluştu</span>
-                  )}
-                  {step.status === "pending" && (
+                  {isError && <span className="text-red-600 dark:text-red-400">Hata Oluştu</span>}
+                  {step.status === 'pending' && (
                     <span className="text-slate-400 dark:text-slate-500 font-normal">Bekliyor</span>
                   )}
                 </div>
               </div>
-            );
+            )
           })}
         </div>
 
@@ -184,5 +169,5 @@ export function ShutdownOverlay({
         </div>
       </div>
     </div>
-  );
+  )
 }

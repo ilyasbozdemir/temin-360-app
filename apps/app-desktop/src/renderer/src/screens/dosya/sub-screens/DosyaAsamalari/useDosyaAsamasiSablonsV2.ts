@@ -183,7 +183,7 @@ export function useDosyaAsamasiSablonsV2() {
       templateTestVerisi: '',
       snapshotContext: snapshotCtx,
       dosyaAdi: sablon.dosya_adi,
-      selectedFirma: selectedFirma || null,
+      selectedFirma: selectedFirma || null
     })
     setPreviewModalOpen(true)
 

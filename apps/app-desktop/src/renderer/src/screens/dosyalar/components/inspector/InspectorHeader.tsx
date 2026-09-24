@@ -1,39 +1,39 @@
-import React from "react";
-import { Edit, ExternalLink, FileSpreadsheet, X } from "lucide-react";
-import { exportDogrudanTeminMasterExcel } from "../../../../services/excelExportService";
-import { useTabStore } from "../../../../store/tabStore";
-import { useNavigate } from "@tanstack/react-router";
-import { statusLabelMap, turLabelMap } from "./types";
+import React from 'react'
+import { Edit, ExternalLink, FileSpreadsheet, X } from 'lucide-react'
+import { exportDogrudanTeminMasterExcel } from '../../../../services/excelExportService'
+import { useTabStore } from '../../../../store/tabStore'
+import { useNavigate } from '@tanstack/react-router'
+import { statusLabelMap, turLabelMap } from './types'
 
 interface InspectorHeaderProps {
-  dosya: any;
-  subData: any;
-  mode?: "modal" | "screen";
-  onClose?: () => void;
+  dosya: any
+  subData: any
+  mode?: 'modal' | 'screen'
+  onClose?: () => void
 }
 
 export const InspectorHeader: React.FC<InspectorHeaderProps> = ({
   dosya,
   subData,
-  mode = "modal",
-  onClose,
+  mode = 'modal',
+  onClose
 }) => {
-  const { addTab } = useTabStore();
-  const navigate = useNavigate();
+  const { addTab } = useTabStore()
+  const navigate = useNavigate()
 
   const handleOpenAsTab = () => {
-    if (onClose) onClose();
-    const route = `/dosya/kunye?id=${dosya.id}`;
-    addTab(route);
-    navigate({ to: route });
-  };
+    if (onClose) onClose()
+    const route = `/dosya/kunye?id=${dosya.id}`
+    addTab(route)
+    navigate({ to: route })
+  }
 
   const handleEdit = () => {
-    if (onClose) onClose();
-    const route = `/dosyalar/yeni?id=${dosya.id}`;
-    addTab(route);
-    navigate({ to: route });
-  };
+    if (onClose) onClose()
+    const route = `/dosyalar/yeni?id=${dosya.id}`
+    addTab(route)
+    navigate({ to: route })
+  }
 
   return (
     <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950 shrink-0">
@@ -45,35 +45,35 @@ export const InspectorHeader: React.FC<InspectorHeaderProps> = ({
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200">
               {dosya.temin_no
-                ? `DT-${dosya.butce_yili || "2026"}/${dosya.temin_no}`
+                ? `DT-${dosya.butce_yili || '2026'}/${dosya.temin_no}`
                 : `#${dosya.id}`}
             </span>
             <span className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate max-w-lg">
-              {dosya.konu || "Dosya Künyesi"}
+              {dosya.konu || 'Dosya Künyesi'}
             </span>
             <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-              {statusLabelMap[dosya.status] || "Devam Ediyor"}
+              {statusLabelMap[dosya.status] || 'Devam Ediyor'}
             </span>
           </div>
           <p className="text-xs text-slate-500 truncate mt-0.5">
-            Birim:{" "}
+            Birim:{' '}
             <strong className="text-slate-700 dark:text-slate-300">
-              {dosya.birim_adi || dosya.harcama_birimi || "Belirtilmemiş"}
-            </strong>{" "}
-            • Tür:{" "}
+              {dosya.birim_adi || dosya.harcama_birimi || 'Belirtilmemiş'}
+            </strong>{' '}
+            • Tür:{' '}
             <strong className="text-slate-700 dark:text-slate-300">
-              {turLabelMap[dosya.tur] || "Mal"}
-            </strong>{" "}
-            • Bütçe Yılı:{" "}
+              {turLabelMap[dosya.tur] || 'Mal'}
+            </strong>{' '}
+            • Bütçe Yılı:{' '}
             <strong className="text-slate-700 dark:text-slate-300">
-              {dosya.butce_yili || "2026"}
+              {dosya.butce_yili || '2026'}
             </strong>
           </p>
         </div>
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
-        {mode === "modal" && (
+        {mode === 'modal' && (
           <button
             onClick={handleOpenAsTab}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-600 dark:text-blue-400 transition-all text-xs font-bold cursor-pointer shadow-xs active:scale-95"
@@ -91,8 +91,8 @@ export const InspectorHeader: React.FC<InspectorHeaderProps> = ({
               kalemler: subData.kalemler,
               firmalar: subData.firmalar,
               teklifler: subData.teklifler,
-              komisyon: subData.komisyon,
-            });
+              komisyon: subData.komisyon
+            })
           }}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-all text-xs font-bold cursor-pointer shadow-xs active:scale-95"
           title="Master Excel İndir (.xlsx)"
@@ -121,5 +121,5 @@ export const InspectorHeader: React.FC<InspectorHeaderProps> = ({
         )}
       </div>
     </div>
-  );
-};
+  )
+}

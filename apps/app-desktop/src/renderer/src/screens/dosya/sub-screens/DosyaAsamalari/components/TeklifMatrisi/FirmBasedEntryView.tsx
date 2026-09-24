@@ -1,7 +1,7 @@
-import React from "react";
-import { Award } from "lucide-react";
-import { BiddingFirm, BiddingKalem, FirmBasedEntryViewProps } from "./types";
-import { BidPriceInput } from "./BidPriceInput";
+import React from 'react'
+import { Award } from 'lucide-react'
+import { BiddingFirm, BiddingKalem, FirmBasedEntryViewProps } from './types'
+import { BidPriceInput } from './BidPriceInput'
 
 export function FirmBasedEntryView({
   invitedFirms,
@@ -10,9 +10,9 @@ export function FirmBasedEntryView({
   selectedFirmId,
   setSelectedFirmId,
   getLowestBidInfo,
-  handlePriceChange,
+  handlePriceChange
 }: FirmBasedEntryViewProps): React.JSX.Element {
-  const selectedFirm = invitedFirms.find((f) => f.id === selectedFirmId);
+  const selectedFirm = invitedFirms.find((f) => f.id === selectedFirmId)
 
   return (
     <div className="flex flex-col gap-4 animate-in fade-in duration-300">
@@ -24,14 +24,14 @@ export function FirmBasedEntryView({
             onClick={() => setSelectedFirmId(f.id)}
             className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
               selectedFirmId === f.id
-                ? "bg-blue-600 border-blue-600 text-white shadow-xs"
-                : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-855"
+                ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
+                : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-855'
             }`}
           >
             <div className="flex items-center gap-2">
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  selectedFirmId === f.id ? "bg-white" : "bg-slate-400 dark:bg-slate-500"
+                  selectedFirmId === f.id ? 'bg-white' : 'bg-slate-400 dark:bg-slate-500'
                 }`}
               ></span>
               <span className="truncate max-w-[160px]" title={f.unvan}>
@@ -40,11 +40,11 @@ export function FirmBasedEntryView({
               <span className="text-[10px] font-mono opacity-90">
                 (
                 {f.teklif_toplami
-                  ? f.teklif_toplami.toLocaleString("tr-TR", {
+                  ? f.teklif_toplami.toLocaleString('tr-TR', {
                       minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
+                      maximumFractionDigits: 2
                     })
-                  : "0,00"}{" "}
+                  : '0,00'}{' '}
                 ₺)
               </span>
             </div>
@@ -55,9 +55,9 @@ export function FirmBasedEntryView({
       {/* Simple inputs vertical list */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {items.map((kalem) => {
-          const val = bids[`${kalem.id}_${selectedFirmId}`] || 0;
-          const lowest = getLowestBidInfo(kalem.id);
-          const isLowest = lowest.price > 0 && lowest.firmaId === selectedFirmId;
+          const val = bids[`${kalem.id}_${selectedFirmId}`] || 0
+          const lowest = getLowestBidInfo(kalem.id)
+          const isLowest = lowest.price > 0 && lowest.firmaId === selectedFirmId
 
           return (
             <div
@@ -96,7 +96,7 @@ export function FirmBasedEntryView({
                 </div>
               </div>
             </div>
-          );
+          )
         })}
       </div>
 
@@ -113,15 +113,15 @@ export function FirmBasedEntryView({
           </div>
           <span className="text-lg font-mono font-black text-blue-600 dark:text-blue-450">
             {selectedFirm.teklif_toplami
-              ? selectedFirm.teklif_toplami.toLocaleString("tr-TR", {
+              ? selectedFirm.teklif_toplami.toLocaleString('tr-TR', {
                   minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
+                  maximumFractionDigits: 2
                 })
-              : "0,00"}{" "}
+              : '0,00'}{' '}
             ₺
           </span>
         </div>
       )}
     </div>
-  );
+  )
 }

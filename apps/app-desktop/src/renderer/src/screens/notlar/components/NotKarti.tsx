@@ -256,7 +256,11 @@ export function NotKarti({
                   <Calendar className="w-3 h-3" />
                 )}
                 <span>
-                  {isOverdue ? `Gecikti: ${item.vade_tarihi}` : isToday ? 'Bugün Son!' : item.vade_tarihi}
+                  {isOverdue
+                    ? `Gecikti: ${item.vade_tarihi}`
+                    : isToday
+                      ? 'Bugün Son!'
+                      : item.vade_tarihi}
                 </span>
               </span>
             )}
@@ -327,7 +331,9 @@ export function NotKarti({
               type="button"
               onClick={() => onTogglePin(item.id, isPinned)}
               className={`p-1 rounded transition-colors cursor-pointer ${
-                isPinned ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400 hover:text-slate-600'
+                isPinned
+                  ? 'text-amber-600 dark:text-amber-400'
+                  : 'text-slate-400 hover:text-slate-600'
               }`}
               title={isPinned ? 'Sabitlemeyi Kaldır' : 'Başa Sabitle'}
             >

@@ -429,4 +429,3 @@ export const ProcurementMethodsSummary: React.FC<ProcurementMethodsSummaryProps>
     </div>
   )
 }
-

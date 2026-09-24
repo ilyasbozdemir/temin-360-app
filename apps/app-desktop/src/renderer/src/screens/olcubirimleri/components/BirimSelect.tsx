@@ -139,9 +139,7 @@ export function BirimSelect({
   return (
     <div className={cn('relative w-full flex flex-col gap-1.5', className)} ref={dropdownRef}>
       {label && (
-        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-          {label}
-        </label>
+        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{label}</label>
       )}
 
       {/* Clean, Non-Cluttered Trigger Button */}

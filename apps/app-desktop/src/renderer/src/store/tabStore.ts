@@ -119,7 +119,14 @@ export function getTabLabel(fullPath: string): string {
 }
 
 export const useTabStore = create<TabState>((set, get) => ({
-  tabs: [{ path: APP_ROUTES.DASHBOARD, label: 'Gösterge Paneli', history: [APP_ROUTES.DASHBOARD], currentIndex: 0 }],
+  tabs: [
+    {
+      path: APP_ROUTES.DASHBOARD,
+      label: 'Gösterge Paneli',
+      history: [APP_ROUTES.DASHBOARD],
+      currentIndex: 0
+    }
+  ],
   activeTabPath: APP_ROUTES.DASHBOARD,
 
   addTab: (rawPath) => {
@@ -161,13 +168,13 @@ export const useTabStore = create<TabState>((set, get) => ({
         const updatedTabs = [...tabs]
         const tab = updatedTabs[existingKurumIndex]
         const label = getTabLabel(path)
-        
+
         const newHistory = tab.history.slice(0, tab.currentIndex + 1)
         newHistory.push(path)
-        
-        updatedTabs[existingKurumIndex] = { 
-          ...tab, 
-          path, 
+
+        updatedTabs[existingKurumIndex] = {
+          ...tab,
+          path,
           label,
           history: newHistory,
           currentIndex: newHistory.length - 1
@@ -207,13 +214,13 @@ export const useTabStore = create<TabState>((set, get) => ({
         const updatedTabs = [...tabs]
         const tab = updatedTabs[existingDosyaIndex]
         const label = getTabLabel(path)
-        
+
         const newHistory = tab.history.slice(0, tab.currentIndex + 1)
         newHistory.push(path)
-        
-        updatedTabs[existingDosyaIndex] = { 
-          ...tab, 
-          path, 
+
+        updatedTabs[existingDosyaIndex] = {
+          ...tab,
+          path,
           label,
           history: newHistory,
           currentIndex: newHistory.length - 1
@@ -232,7 +239,7 @@ export const useTabStore = create<TabState>((set, get) => ({
       const newTabs = [...uniqueTabs, { path, label, history: [path], currentIndex: 0 }]
       set({ tabs: newTabs, activeTabPath: path })
     } else {
-      // It exists with the same path, just switch to it. 
+      // It exists with the same path, just switch to it.
       set({ activeTabPath: path })
     }
   },
@@ -252,7 +259,12 @@ export const useTabStore = create<TabState>((set, get) => ({
         nextPath = newTabs[nextIndex].path
       } else {
         nextPath = APP_ROUTES.DASHBOARD
-        newTabs.push({ path: APP_ROUTES.DASHBOARD, label: 'Gösterge Paneli', history: [APP_ROUTES.DASHBOARD], currentIndex: 0 })
+        newTabs.push({
+          path: APP_ROUTES.DASHBOARD,
+          label: 'Gösterge Paneli',
+          history: [APP_ROUTES.DASHBOARD],
+          currentIndex: 0
+        })
       }
     }
 
@@ -272,7 +284,14 @@ export const useTabStore = create<TabState>((set, get) => ({
 
   clearTabs: () => {
     set({
-      tabs: [{ path: APP_ROUTES.DASHBOARD, label: 'Gösterge Paneli', history: [APP_ROUTES.DASHBOARD], currentIndex: 0 }],
+      tabs: [
+        {
+          path: APP_ROUTES.DASHBOARD,
+          label: 'Gösterge Paneli',
+          history: [APP_ROUTES.DASHBOARD],
+          currentIndex: 0
+        }
+      ],
       activeTabPath: APP_ROUTES.DASHBOARD
     })
   },
@@ -283,7 +302,12 @@ export const useTabStore = create<TabState>((set, get) => ({
       (t) => !t.path.startsWith(`${APP_ROUTES.DOSYA_DETAY}/`) && t.path !== APP_ROUTES.DOSYA_DETAY
     )
     if (newTabs.length === 0) {
-      newTabs.push({ path: APP_ROUTES.DASHBOARD, label: 'Gösterge Paneli', history: [APP_ROUTES.DASHBOARD], currentIndex: 0 })
+      newTabs.push({
+        path: APP_ROUTES.DASHBOARD,
+        label: 'Gösterge Paneli',
+        history: [APP_ROUTES.DASHBOARD],
+        currentIndex: 0
+      })
     }
     const isActiveTabCleared = !newTabs.some((t) => t.path === activeTabPath)
     set({

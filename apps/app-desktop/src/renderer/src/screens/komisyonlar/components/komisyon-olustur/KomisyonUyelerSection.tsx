@@ -43,8 +43,8 @@ export const KomisyonUyelerSection: React.FC<KomisyonUyelerSectionProps> = ({
       <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
         {uyeler.length === 0 ? (
           <div className="p-6 text-center text-xs text-slate-400">
-            Henüz üye eklenmemiş. Yukarıdan bir şablon seçebilir veya &quot;Yeni Rol / Üye Ekle&quot;
-            butonunu kullanabilirsiniz.
+            Henüz üye eklenmemiş. Yukarıdan bir şablon seçebilir veya &quot;Yeni Rol / Üye
+            Ekle&quot; butonunu kullanabilirsiniz.
           </div>
         ) : (
           uyeler.map((uye, idx) => (
@@ -52,9 +52,7 @@ export const KomisyonUyelerSection: React.FC<KomisyonUyelerSectionProps> = ({
               key={uye.id}
               className="p-3 flex flex-col sm:flex-row items-start sm:items-center gap-3 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors"
             >
-              <span className="w-5 text-xs text-slate-400 font-mono text-center">
-                {idx + 1}
-              </span>
+              <span className="w-5 text-xs text-slate-400 font-mono text-center">{idx + 1}</span>
 
               {/* Rol / Görev Seçimi */}
               <div className="w-full sm:w-56">

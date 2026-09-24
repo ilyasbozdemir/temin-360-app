@@ -5,7 +5,6 @@ import fs from 'fs'
  * .hkmp ve .dtal SQLite veritabanı dosyalarıdır.
  */
 
-
 export interface FileFormat {
   /** Uzantı (nokta olmadan, örn: 'hkmp') */
   ext: string
@@ -86,7 +85,10 @@ export const perFormatFilters = SUPPORTED_FORMATS.map((f) => ({
 
 export function isSupportedFile(filePath: string): boolean {
   if (!filePath || typeof filePath !== 'string') return false
-  const cleanPath = filePath.replace(/^"+|"+$/g, '').trim()
+  const cleanPath = filePath
+    .trim()
+    .replace(/^"+|"+$/g, '')
+    .trim()
   if (cleanPath.startsWith('-')) return false
   const lower = cleanPath.toLowerCase()
   if (allExtensions.some((ext) => lower.endsWith('.' + ext))) return true
@@ -109,4 +111,3 @@ export function isSupportedFile(filePath: string): boolean {
 
   return false
 }
-

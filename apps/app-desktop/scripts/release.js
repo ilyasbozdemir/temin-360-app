@@ -1,3 +1,4 @@
+/* eslint-disable */
 #!/usr/bin/env node
 
 /**
@@ -236,7 +237,15 @@ function main() {
     }
   }
 
-  // 6. Tag oluştur
+  // 6. Release Notlarını Üret ve Tag oluştur
+  const { generateReleaseNotes } = require('./generate-release-notes')
+  const notes = generateReleaseNotes(tag)
+
+  console.log(c.cyan(`\n📝 Sürüm Değişiklik Notları (Changelog):`))
+  console.log(c.dim('─'.repeat(40)))
+  console.log(notes)
+  console.log(c.dim('─'.repeat(40)))
+
   console.log(c.cyan(`\n🏷️  Tag oluşturuluyor: ${tag}`))
   if (!flags.dryRun) {
     exec(`git tag -a ${tag} -m "Release ${tag}"`)

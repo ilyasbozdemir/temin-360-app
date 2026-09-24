@@ -1,14 +1,6 @@
 import React from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
-import {
-  ArrowRight,
-  FileText,
-  KeyRound,
-  Layers,
-  Plus,
-  Search,
-  Sparkles
-} from 'lucide-react'
+import { ArrowRight, FileText, KeyRound, Layers, Plus, Search, Sparkles } from 'lucide-react'
 import { formatDosyaNo } from '../../../utils/formatDosyaNo'
 import { cn } from '../../../utils/cn'
 
@@ -84,8 +76,8 @@ export const LivePipelineSection: React.FC<LivePipelineSectionProps> = ({
             Henüz Kayıtlı Dosya Bulunmuyor
           </h4>
           <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-1 mb-4">
-            Yeni bir doğrudan temin dosyası başlatarak 4 aşamalı satın alma sürecinizi anında devreye
-            alın.
+            Yeni bir doğrudan temin dosyası başlatarak 4 aşamalı satın alma sürecinizi anında
+            devreye alın.
           </p>
           <Link to="/dosyalar/yeni">
             <button
@@ -130,9 +122,7 @@ export const LivePipelineSection: React.FC<LivePipelineSectionProps> = ({
                     {dosya.konu || 'Konu belirtilmemiş'}
                   </h4>
                   <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-3 font-medium">
-                    <span>
-                      Birim: {dosya.harcama_birimi || harcamaBirimAdi || 'Genel Birim'}
-                    </span>
+                    <span>Birim: {dosya.harcama_birimi || harcamaBirimAdi || 'Genel Birim'}</span>
                     <span>•</span>
                     <span>
                       Tarih:{' '}

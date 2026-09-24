@@ -60,9 +60,7 @@ export const KurumMetadataManager: React.FC<KurumMetadataManagerProps> = ({
   }
 
   const handleUpdate = (id: string, field: 'key' | 'value', val: string) => {
-    onChange(
-      metadata.map((item) => (item.id === id ? { ...item, [field]: val } : item))
-    )
+    onChange(metadata.map((item) => (item.id === id ? { ...item, [field]: val } : item)))
   }
 
   const handleDelete = (id: string) => {
@@ -107,16 +105,15 @@ export const KurumMetadataManager: React.FC<KurumMetadataManagerProps> = ({
             Özel Kurum Meta Verileri & Parametreler (Key - Value)
           </h4>
           <p className="text-[11px] text-slate-500 dark:text-slate-400">
-            Resmi çıktılara veya özel entegrasyonlara aktarılmak üzere ek alanlar ve değerler tanımlayın.
+            Resmi çıktılara veya özel entegrasyonlara aktarılmak üzere ek alanlar ve değerler
+            tanımlayın.
           </p>
         </div>
 
         {/* Preset Badges */}
         <div className="flex flex-wrap gap-1">
           {PRESET_KEYS.map((preset) => {
-            const exists = metadata.some(
-              (m) => m.key.toLowerCase() === preset.toLowerCase()
-            )
+            const exists = metadata.some((m) => m.key.toLowerCase() === preset.toLowerCase())
             return (
               <button
                 key={preset}
@@ -202,7 +199,11 @@ export const KurumMetadataManager: React.FC<KurumMetadataManagerProps> = ({
                       />
                     ) : (
                       <span className="text-xs text-slate-600 dark:text-slate-300 break-all font-mono">
-                        {item.value || <span className="text-slate-400 italic font-sans text-[11px]">Değer Yok</span>}
+                        {item.value || (
+                          <span className="text-slate-400 italic font-sans text-[11px]">
+                            Değer Yok
+                          </span>
+                        )}
                       </span>
                     )}
                   </div>
@@ -215,7 +216,11 @@ export const KurumMetadataManager: React.FC<KurumMetadataManagerProps> = ({
                     className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-lg transition-colors cursor-pointer"
                     title={isEditing ? 'Tamamla' : 'Düzenle'}
                   >
-                    {isEditing ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Edit2 className="w-3.5 h-3.5" />}
+                    {isEditing ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    ) : (
+                      <Edit2 className="w-3.5 h-3.5" />
+                    )}
                   </button>
 
                   <button

@@ -1,76 +1,67 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import {
-  ChevronDown,
-  FileSpreadsheet,
-  FileText,
-  Layers,
-  Mail,
-  Tag,
-} from "lucide-react";
-import { MEKTUP_MENU_ITEMS } from "./constants";
-import { Firma, FirmaMektupMenuProps } from "./types";
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { ChevronDown, FileSpreadsheet, FileText, Layers, Mail, Tag } from 'lucide-react'
+import { MEKTUP_MENU_ITEMS } from './constants'
+import { Firma, FirmaMektupMenuProps } from './types'
 
 export function FirmaMektupMenu({
   firma,
   onFiyatPiyasaFormu,
   onIdareFiyatArastirmaMektubu,
   onBirimFiyatArastirmasi,
-  onBosTeklifCetveli,
+  onBosTeklifCetveli
 }: FirmaMektupMenuProps): React.JSX.Element {
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const [coords, setCoords] = useState<{ top: number; left: number } | null>(
-    null,
-  );
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null)
 
   const updateCoords = useCallback(() => {
     if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const menuWidth = 270;
-      let left = rect.right - menuWidth;
-      if (left < 10) left = 10;
-      let top = rect.bottom + 4;
+      const rect = containerRef.current.getBoundingClientRect()
+      const menuWidth = 270
+      let left = rect.right - menuWidth
+      if (left < 10) left = 10
+      let top = rect.bottom + 4
       if (top + 220 > window.innerHeight) {
-        top = Math.max(10, rect.top - 220 - 4);
+        top = Math.max(10, rect.top - 220 - 4)
       }
-      setCoords({ top, left });
+      setCoords({ top, left })
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    if (!open) return undefined;
-    updateCoords();
-    window.addEventListener("resize", updateCoords);
-    window.addEventListener("scroll", updateCoords, true);
+    if (!open) return undefined
+    updateCoords()
+    window.addEventListener('resize', updateCoords)
+    window.addEventListener('scroll', updateCoords, true)
     return () => {
-      window.removeEventListener("resize", updateCoords);
-      window.removeEventListener("scroll", updateCoords, true);
-    };
-  }, [open, updateCoords]);
+      window.removeEventListener('resize', updateCoords)
+      window.removeEventListener('scroll', updateCoords, true)
+    }
+  }, [open, updateCoords])
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) return
     const handler = (e: MouseEvent) => {
-      const target = e.target as Node;
+      const target = e.target as Node
       if (
         containerRef.current &&
         !containerRef.current.contains(target) &&
         menuRef.current &&
         !menuRef.current.contains(target)
       ) {
-        setOpen(false);
+        setOpen(false)
       }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [open]);
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
 
   const handleAction = (fn?: (firma: Firma) => void) => {
-    if (fn) fn(firma);
-    setOpen(false);
-  };
+    if (fn) fn(firma)
+    setOpen(false)
+  }
 
   return (
     <div
@@ -187,8 +178,8 @@ export function FirmaMektupMenu({
               )}
             </div>
           </div>,
-          document.body,
+          document.body
         )}
     </div>
-  );
+  )
 }

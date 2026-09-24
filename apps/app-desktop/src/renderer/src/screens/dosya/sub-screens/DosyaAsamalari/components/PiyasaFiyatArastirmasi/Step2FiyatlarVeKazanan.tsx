@@ -1,19 +1,19 @@
-import React from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import { PricesSummaryDashboard } from "../PricesSummaryDashboard";
-import { KazananKararPaneli } from "./KazananKararPaneli";
+import React from 'react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { PricesSummaryDashboard } from '../PricesSummaryDashboard'
+import { KazananKararPaneli } from './KazananKararPaneli'
 
 interface Step2FiyatlarVeKazananProps {
-  activeWinnerFirma: any;
-  lowestBidFirm: any;
-  invitedFirms: any[];
-  items: any[];
-  bids: any;
-  manualWinnerFirmaId?: number | null;
-  handleSetWinnerFirma?: (firmaMasterId: number | null) => Promise<void>;
-  setIsFormOpen: (val: boolean) => void;
-  setActiveFormTab: (tab: "firms" | "matrix") => void;
-  setCurrentStep: (step: 1 | 2 | 3) => void;
+  activeWinnerFirma: any
+  lowestBidFirm: any
+  invitedFirms: any[]
+  items: any[]
+  bids: any
+  manualWinnerFirmaId?: number | null
+  handleSetWinnerFirma?: (firmaMasterId: number | null) => Promise<void>
+  setIsFormOpen: (val: boolean) => void
+  setActiveFormTab: (tab: 'firms' | 'matrix') => void
+  setCurrentStep: (step: 1 | 2 | 3) => void
 }
 
 export function Step2FiyatlarVeKazanan({
@@ -26,7 +26,7 @@ export function Step2FiyatlarVeKazanan({
   handleSetWinnerFirma,
   setIsFormOpen,
   setActiveFormTab,
-  setCurrentStep,
+  setCurrentStep
 }: Step2FiyatlarVeKazananProps): React.JSX.Element {
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-200">
@@ -47,8 +47,8 @@ export function Step2FiyatlarVeKazanan({
         manualWinnerFirmaId={manualWinnerFirmaId}
         handleSetWinnerFirma={handleSetWinnerFirma}
         onManageFirmsClick={() => {
-          setIsFormOpen(true);
-          setActiveFormTab("firms");
+          setIsFormOpen(true)
+          setActiveFormTab('firms')
         }}
       />
 
@@ -72,5 +72,5 @@ export function Step2FiyatlarVeKazanan({
         </button>
       </div>
     </div>
-  );
+  )
 }

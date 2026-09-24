@@ -295,9 +295,7 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
           )}
 
           <Link to="/harcama-merkezi">
-            <Button
-              className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-3.5 shadow-md shadow-indigo-500/10 flex items-center gap-1.5 cursor-pointer"
-            >
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-3.5 shadow-md shadow-indigo-500/10 flex items-center gap-1.5 cursor-pointer">
               <Landmark className="w-4 h-4 text-indigo-200" />
               Harcama & Hakediş Merkezi
             </Button>

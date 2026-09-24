@@ -39,7 +39,9 @@ export const OzetTab: React.FC<OzetTabProps> = ({
           <Clock className="text-blue-600 dark:text-blue-400" size={24} />
           <div>
             <div className="text-xs text-blue-600 dark:text-blue-400 font-bold">Genel İlerleme</div>
-            <div className="text-3xl font-black text-blue-900 dark:text-blue-100">{overallProgress}%</div>
+            <div className="text-3xl font-black text-blue-900 dark:text-blue-100">
+              {overallProgress}%
+            </div>
           </div>
         </div>
         <div className="w-full bg-blue-200 dark:bg-blue-900/50 rounded-full h-3">
@@ -54,7 +56,9 @@ export const OzetTab: React.FC<OzetTabProps> = ({
         <div className="flex items-center gap-3 mb-4">
           <FileCheck2 className="text-emerald-600 dark:text-emerald-400" size={24} />
           <div>
-            <div className="text-xs text-emerald-600 dark:text-emerald-400 font-bold">İmzalı Evrak Teslimi</div>
+            <div className="text-xs text-emerald-600 dark:text-emerald-400 font-bold">
+              İmzalı Evrak Teslimi
+            </div>
             <div className="text-3xl font-black text-emerald-900 dark:text-emerald-100">
               {pdfYuklenenSayisi}/{belgelerLength}
             </div>
@@ -84,13 +88,17 @@ export const OzetTab: React.FC<OzetTabProps> = ({
         <div className="flex items-center gap-3 mb-4">
           <FileText className="text-purple-600 dark:text-purple-400" size={24} />
           <div>
-            <div className="text-xs text-purple-600 dark:text-purple-400 font-bold">Resmi Belgeler</div>
+            <div className="text-xs text-purple-600 dark:text-purple-400 font-bold">
+              Resmi Belgeler
+            </div>
             <div className="text-3xl font-black text-purple-900 dark:text-purple-100">
               {belgeTamamlanan}/{belgelerLength}
             </div>
           </div>
         </div>
-        <div className="text-xs text-purple-700 dark:text-purple-300 font-medium">İmzalandı olarak işaretlendi</div>
+        <div className="text-xs text-purple-700 dark:text-purple-300 font-medium">
+          İmzalandı olarak işaretlendi
+        </div>
       </div>
 
       {/* Süreç Akışı Kartı */}
@@ -122,8 +130,8 @@ export const OzetTab: React.FC<OzetTabProps> = ({
                       stage.status === 'completed'
                         ? 'bg-emerald-500 text-white'
                         : stage.status === 'in-progress'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
                     }`}
                   >
                     {stage.status === 'completed' ? '✓' : stage.id}
@@ -162,7 +170,9 @@ export const OzetTab: React.FC<OzetTabProps> = ({
             <div key={k.id}>
               <div className="text-xs font-bold text-slate-500 mb-2 flex items-center gap-2">
                 <span>{k.tur}</span>
-                <span className={`text-[10px] px-2 py-0.5 rounded-md border ${getKomisyonDurumBadge(k.durum)}`}>
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded-md border ${getKomisyonDurumBadge(k.durum)}`}
+                >
                   {getKomisyonDurumLabel(k.durum)}
                 </span>
               </div>
@@ -176,7 +186,8 @@ export const OzetTab: React.FC<OzetTabProps> = ({
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
                     }`}
                   >
-                    {u.imza === 'imzaladı' ? <Check size={14} className="text-emerald-600" /> : '◯'} {u.adSoyad} — {u.gorev}
+                    {u.imza === 'imzaladı' ? <Check size={14} className="text-emerald-600" /> : '◯'}{' '}
+                    {u.adSoyad} — {u.gorev}
                   </span>
                 ))}
               </div>

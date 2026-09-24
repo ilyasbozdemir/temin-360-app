@@ -73,10 +73,15 @@ export const FirmaDetail: React.FC<FirmaDetailProps> = ({ viewingFirma, setViewi
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={cn('w-4 h-4', star <= score ? 'fill-amber-400 text-amber-400' : 'text-slate-300 dark:text-slate-700')}
+            className={cn(
+              'w-4 h-4',
+              star <= score ? 'fill-amber-400 text-amber-400' : 'text-slate-300 dark:text-slate-700'
+            )}
           />
         ))}
-        <span className="ml-1 text-xs font-bold text-slate-700 dark:text-slate-300">({score}/5)</span>
+        <span className="ml-1 text-xs font-bold text-slate-700 dark:text-slate-300">
+          ({score}/5)
+        </span>
       </div>
     )
   }
@@ -357,7 +362,9 @@ export const FirmaDetail: React.FC<FirmaDetailProps> = ({ viewingFirma, setViewi
                 </span>
                 <div>{renderStars(viewingFirma.deneyim_skoru || 0)}</div>
                 <p className="text-[11px] text-slate-500">
-                  {viewingFirma.deneyim_skoru > 3 ? 'Geçmiş alımlarda sorun yaşanmadı.' : 'Performansı takibe değer.'}
+                  {viewingFirma.deneyim_skoru > 3
+                    ? 'Geçmiş alımlarda sorun yaşanmadı.'
+                    : 'Performansı takibe değer.'}
                 </p>
               </div>
 

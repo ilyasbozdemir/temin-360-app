@@ -47,7 +47,12 @@ export default function PlaygroundScreen(): React.JSX.Element {
     if (isNaN(num)) return ''
     return convertNumberToWords(num, {
       currency: currencyOpt,
-      subCurrency: currencyOpt === 'TL' ? 'KURUŞ' : currencyOpt === 'USD' || currencyOpt === 'EUR' ? 'CENT' : 'NONE',
+      subCurrency:
+        currencyOpt === 'TL'
+          ? 'KURUŞ'
+          : currencyOpt === 'USD' || currencyOpt === 'EUR'
+            ? 'CENT'
+            : 'NONE',
       prefix: prefixOpt,
       suffix: suffixOpt,
       caseType: caseOpt
@@ -57,15 +62,21 @@ export default function PlaygroundScreen(): React.JSX.Element {
   // --- 2. Yİ-ÜFE FİYAT FARKI STATE ---
   const [hakedisTutari, setHakedisTutari] = useState<string>('500000')
   const [temelEndeksIndex, setTemelEndeksIndex] = useState<number>(0) // 2024 Ocak
-  const [guncelEndeksIndex, setGuncelEndeksIndex] = useState<number>(SAMPLE_YIUFE_INDEXES.length - 1) // En güncel
+  const [guncelEndeksIndex, setGuncelEndeksIndex] = useState<number>(
+    SAMPLE_YIUFE_INDEXES.length - 1
+  ) // En güncel
   const [customTemel, setCustomTemel] = useState<string>('')
   const [customGuncel, setCustomGuncel] = useState<string>('')
   const [sabitKatsayiB, setSabitKatsayiB] = useState<number>(0.9)
 
   const yiUfeSonuc = useMemo(() => {
     const tutar = parseFloat(hakedisTutari.replace(',', '.')) || 0
-    const temel = customTemel ? parseFloat(customTemel.replace(',', '.')) : SAMPLE_YIUFE_INDEXES[temelEndeksIndex]?.endeks || 0
-    const guncel = customGuncel ? parseFloat(customGuncel.replace(',', '.')) : SAMPLE_YIUFE_INDEXES[guncelEndeksIndex]?.endeks || 0
+    const temel = customTemel
+      ? parseFloat(customTemel.replace(',', '.'))
+      : SAMPLE_YIUFE_INDEXES[temelEndeksIndex]?.endeks || 0
+    const guncel = customGuncel
+      ? parseFloat(customGuncel.replace(',', '.'))
+      : SAMPLE_YIUFE_INDEXES[guncelEndeksIndex]?.endeks || 0
 
     return calculateFiyatFarki({
       hakedisTutari: tutar,
@@ -83,7 +94,8 @@ export default function PlaygroundScreen(): React.JSX.Element {
 
   const kdvTevkifatSonuc = useMemo(() => {
     const tutar = parseFloat(kdvTutarInput.replace(',', '.')) || 0
-    const secilenTevkifat = TEVKIFAT_ORANLARI.find((t) => t.kod === selectedTevkifatKod) || TEVKIFAT_ORANLARI[0]
+    const secilenTevkifat =
+      TEVKIFAT_ORANLARI.find((t) => t.kod === selectedTevkifatKod) || TEVKIFAT_ORANLARI[0]
 
     return calculateKdvTevkifat({
       tutar,
@@ -138,7 +150,8 @@ export default function PlaygroundScreen(): React.JSX.Element {
                   </span>
                 </h1>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Sayıyı metne çevirme, Yİ-ÜFE fiyat farkı eskalasyonu, KDV tevkifatı, damga vergisi ve gecikme cezası hesaplayıcıları.
+                  Sayıyı metne çevirme, Yİ-ÜFE fiyat farkı eskalasyonu, KDV tevkifatı, damga vergisi
+                  ve gecikme cezası hesaplayıcıları.
                 </p>
               </div>
             </div>
@@ -213,7 +226,6 @@ export default function PlaygroundScreen(): React.JSX.Element {
       {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-6xl mx-auto space-y-6">
-
           {/* 1. TOOL: SAYIYI YAZIYA ÇEVİRİCİ */}
           {activeTool === 'sayi_yazi' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -388,7 +400,9 @@ export default function PlaygroundScreen(): React.JSX.Element {
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-4 border-t border-blue-800/40 text-xs text-blue-200/80">
                     <div>
-                      <span className="block text-[10px] uppercase text-blue-400 font-semibold">Rakamla Tutar:</span>
+                      <span className="block text-[10px] uppercase text-blue-400 font-semibold">
+                        Rakamla Tutar:
+                      </span>
                       <span className="font-bold text-white text-sm">
                         {parseFloat(sayiInput.replace(',', '.') || '0').toLocaleString('tr-TR', {
                           minimumFractionDigits: 2,
@@ -398,11 +412,15 @@ export default function PlaygroundScreen(): React.JSX.Element {
                       </span>
                     </div>
                     <div>
-                      <span className="block text-[10px] uppercase text-blue-400 font-semibold">Para Birimi:</span>
+                      <span className="block text-[10px] uppercase text-blue-400 font-semibold">
+                        Para Birimi:
+                      </span>
                       <span className="font-bold text-white">{currencyOpt}</span>
                     </div>
                     <div>
-                      <span className="block text-[10px] uppercase text-blue-400 font-semibold">Kullanım Yeri:</span>
+                      <span className="block text-[10px] uppercase text-blue-400 font-semibold">
+                        Kullanım Yeri:
+                      </span>
                       <span className="font-bold text-white">İhale / Onay Belgeleri</span>
                     </div>
                   </div>
@@ -416,7 +434,10 @@ export default function PlaygroundScreen(): React.JSX.Element {
                       4734 Sayılı Kamu İhale Kanunu ve Muhasebat Standartları:
                     </p>
                     <p className="mt-0.5 text-slate-500 dark:text-slate-400">
-                      Resmi belgelerde, onay belgelerinde, yaklaşık maliyet hesap cetvellerinde ve hakediş kapaklarında tutarların yazı ile belirtilmesi zorunludur. Yanıltmayı önlemek amacıyla metnin başına ve sonuna &quot;#&quot; karakteri veya &quot;Yalnız&quot; ibaresi eklenmesi tavsiye edilir.
+                      Resmi belgelerde, onay belgelerinde, yaklaşık maliyet hesap cetvellerinde ve
+                      hakediş kapaklarında tutarların yazı ile belirtilmesi zorunludur. Yanıltmayı
+                      önlemek amacıyla metnin başına ve sonuna &quot;#&quot; karakteri veya
+                      &quot;Yalnız&quot; ibaresi eklenmesi tavsiye edilir.
                     </p>
                   </div>
                 </div>
@@ -555,7 +576,10 @@ export default function PlaygroundScreen(): React.JSX.Element {
                         Fiyat Farkı Hesaplama Çıktısı
                       </h4>
                       <p className="text-xs text-slate-500">
-                        Formül: <code className="font-mono text-blue-600 dark:text-blue-400">F = Aₙ × B × (Pₙ/P₀ - 1)</code>
+                        Formül:{' '}
+                        <code className="font-mono text-blue-600 dark:text-blue-400">
+                          F = Aₙ × B × (Pₙ/P₀ - 1)
+                        </code>
                       </p>
                     </div>
                     <button
@@ -627,7 +651,8 @@ export default function PlaygroundScreen(): React.JSX.Element {
                             Temel Endeks (Y₀)
                           </td>
                           <td className="p-2.5 font-semibold text-slate-800 dark:text-slate-200">
-                            {customTemel || SAMPLE_YIUFE_INDEXES[temelEndeksIndex]?.endeks.toFixed(2)}
+                            {customTemel ||
+                              SAMPLE_YIUFE_INDEXES[temelEndeksIndex]?.endeks.toFixed(2)}
                           </td>
                         </tr>
                         <tr>
@@ -635,7 +660,8 @@ export default function PlaygroundScreen(): React.JSX.Element {
                             Güncel Endeks (Yₙ)
                           </td>
                           <td className="p-2.5 font-semibold text-slate-800 dark:text-slate-200">
-                            {customGuncel || SAMPLE_YIUFE_INDEXES[guncelEndeksIndex]?.endeks.toFixed(2)}
+                            {customGuncel ||
+                              SAMPLE_YIUFE_INDEXES[guncelEndeksIndex]?.endeks.toFixed(2)}
                           </td>
                         </tr>
                         <tr>
@@ -677,7 +703,9 @@ export default function PlaygroundScreen(): React.JSX.Element {
                       type="button"
                       onClick={() => setTutarTuru('HARIC')}
                       className={`px-2 py-1 rounded font-semibold transition-all cursor-pointer ${
-                        tutarTuru === 'HARIC' ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-xs' : 'text-slate-600 dark:text-slate-400'
+                        tutarTuru === 'HARIC'
+                          ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-xs'
+                          : 'text-slate-600 dark:text-slate-400'
                       }`}
                     >
                       KDV Hariç
@@ -686,7 +714,9 @@ export default function PlaygroundScreen(): React.JSX.Element {
                       type="button"
                       onClick={() => setTutarTuru('DAHIL')}
                       className={`px-2 py-1 rounded font-semibold transition-all cursor-pointer ${
-                        tutarTuru === 'DAHIL' ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-xs' : 'text-slate-600 dark:text-slate-400'
+                        tutarTuru === 'DAHIL'
+                          ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-xs'
+                          : 'text-slate-600 dark:text-slate-400'
                       }`}
                     >
                       KDV Dahil
@@ -799,38 +829,63 @@ export default function PlaygroundScreen(): React.JSX.Element {
                     <table className="w-full text-xs text-left border-collapse">
                       <thead className="bg-slate-50 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-800">
                         <tr>
-                          <th className="p-2.5 font-semibold text-slate-600 dark:text-slate-300">Hesap Kalemi</th>
-                          <th className="p-2.5 font-semibold text-slate-600 dark:text-slate-300 text-right">Tutar (₺)</th>
+                          <th className="p-2.5 font-semibold text-slate-600 dark:text-slate-300">
+                            Hesap Kalemi
+                          </th>
+                          <th className="p-2.5 font-semibold text-slate-600 dark:text-slate-300 text-right">
+                            Tutar (₺)
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         <tr>
-                          <td className="p-2.5 font-medium text-slate-700 dark:text-slate-300">1. Mal/Hizmet Bedeli (Matrah)</td>
-                          <td className="p-2.5 font-semibold text-slate-900 dark:text-white text-right">{formatCurrency(kdvTevkifatSonuc.matrah)}</td>
+                          <td className="p-2.5 font-medium text-slate-700 dark:text-slate-300">
+                            1. Mal/Hizmet Bedeli (Matrah)
+                          </td>
+                          <td className="p-2.5 font-semibold text-slate-900 dark:text-white text-right">
+                            {formatCurrency(kdvTevkifatSonuc.matrah)}
+                          </td>
                         </tr>
                         <tr>
-                          <td className="p-2.5 font-medium text-slate-700 dark:text-slate-300">2. Toplam Hesaplanan KDV (%{kdvOrani})</td>
-                          <td className="p-2.5 font-semibold text-slate-900 dark:text-white text-right">{formatCurrency(kdvTevkifatSonuc.hesaplananKdv)}</td>
+                          <td className="p-2.5 font-medium text-slate-700 dark:text-slate-300">
+                            2. Toplam Hesaplanan KDV (%{kdvOrani})
+                          </td>
+                          <td className="p-2.5 font-semibold text-slate-900 dark:text-white text-right">
+                            {formatCurrency(kdvTevkifatSonuc.hesaplananKdv)}
+                          </td>
                         </tr>
                         <tr className="bg-amber-50/30 dark:bg-amber-950/10">
                           <td className="p-2.5 font-medium text-amber-700 dark:text-amber-300">
-                            3. Tevkif Edilen KDV ({selectedTevkifatKod} - İdarece Vergi Dairesine Ödenir)
+                            3. Tevkif Edilen KDV ({selectedTevkifatKod} - İdarece Vergi Dairesine
+                            Ödenir)
                           </td>
                           <td className="p-2.5 font-bold text-amber-700 dark:text-amber-300 text-right">
                             - {formatCurrency(kdvTevkifatSonuc.tevkifEdilenKdv)}
                           </td>
                         </tr>
                         <tr>
-                          <td className="p-2.5 font-medium text-slate-700 dark:text-slate-300">4. Yükleniciye Ödenecek KDV Payı</td>
-                          <td className="p-2.5 font-semibold text-slate-900 dark:text-white text-right">{formatCurrency(kdvTevkifatSonuc.saticiyaOdenecekKdv)}</td>
+                          <td className="p-2.5 font-medium text-slate-700 dark:text-slate-300">
+                            4. Yükleniciye Ödenecek KDV Payı
+                          </td>
+                          <td className="p-2.5 font-semibold text-slate-900 dark:text-white text-right">
+                            {formatCurrency(kdvTevkifatSonuc.saticiyaOdenecekKdv)}
+                          </td>
                         </tr>
                         <tr className="bg-emerald-50/40 dark:bg-emerald-950/20 font-bold">
-                          <td className="p-3 text-emerald-800 dark:text-emerald-200">5. Yükleniciye Ödenecek Net Tutar (Matrah + Kalan KDV)</td>
-                          <td className="p-3 text-emerald-800 dark:text-emerald-200 text-right">{formatCurrency(kdvTevkifatSonuc.saticiyaOdenecekToplam)}</td>
+                          <td className="p-3 text-emerald-800 dark:text-emerald-200">
+                            5. Yükleniciye Ödenecek Net Tutar (Matrah + Kalan KDV)
+                          </td>
+                          <td className="p-3 text-emerald-800 dark:text-emerald-200 text-right">
+                            {formatCurrency(kdvTevkifatSonuc.saticiyaOdenecekToplam)}
+                          </td>
                         </tr>
                         <tr className="bg-slate-100 dark:bg-slate-800/80 font-semibold">
-                          <td className="p-3 text-slate-900 dark:text-white">Genel İşlem Toplamı (Matrah + Toplam KDV)</td>
-                          <td className="p-3 text-slate-900 dark:text-white text-right">{formatCurrency(kdvTevkifatSonuc.genelToplam)}</td>
+                          <td className="p-3 text-slate-900 dark:text-white">
+                            Genel İşlem Toplamı (Matrah + Toplam KDV)
+                          </td>
+                          <td className="p-3 text-slate-900 dark:text-white text-right">
+                            {formatCurrency(kdvTevkifatSonuc.genelToplam)}
+                          </td>
                         </tr>
                       </tbody>
                     </table>
@@ -884,7 +939,9 @@ export default function PlaygroundScreen(): React.JSX.Element {
                       <span className="font-semibold text-slate-900 dark:text-white block">
                         İhale Karar Pulu (‰ 5,69 — Binde 5.69)
                       </span>
-                      <span className="text-slate-500 text-[11px]">İhale yetkilisinin onayladığı kararlar üzerinden kesilir</span>
+                      <span className="text-slate-500 text-[11px]">
+                        İhale yetkilisinin onayladığı kararlar üzerinden kesilir
+                      </span>
                     </div>
                   </label>
 
@@ -899,7 +956,9 @@ export default function PlaygroundScreen(): React.JSX.Element {
                       <span className="font-semibold text-slate-900 dark:text-white block">
                         Sözleşme Damga Vergisi (‰ 9,48 — Binde 9.48)
                       </span>
-                      <span className="text-slate-500 text-[11px]">Düzenlenen sözleşmeler ve taahhütnameler üzerinden kesilir</span>
+                      <span className="text-slate-500 text-[11px]">
+                        Düzenlenen sözleşmeler ve taahhütnameler üzerinden kesilir
+                      </span>
                     </div>
                   </label>
 
@@ -914,7 +973,9 @@ export default function PlaygroundScreen(): React.JSX.Element {
                       <span className="font-semibold text-slate-900 dark:text-white block">
                         Kamu İhale Kurumu (KİK) Payı (‰ 0,5 — On Binde 5)
                       </span>
-                      <span className="text-slate-500 text-[11px]">Sözleşme bedelinin on binde beşi oranında tahsil edilir</span>
+                      <span className="text-slate-500 text-[11px]">
+                        Sözleşme bedelinin on binde beşi oranında tahsil edilir
+                      </span>
                     </div>
                   </label>
                 </div>
@@ -951,30 +1012,50 @@ export default function PlaygroundScreen(): React.JSX.Element {
                     <table className="w-full text-xs text-left border-collapse">
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         <tr>
-                          <td className="p-3 font-medium text-slate-600 dark:text-slate-300">İhale / Sözleşme Bedeli</td>
-                          <td className="p-3 font-bold text-slate-900 dark:text-white text-right">{formatCurrency(damgaSonuc.matrah)}</td>
+                          <td className="p-3 font-medium text-slate-600 dark:text-slate-300">
+                            İhale / Sözleşme Bedeli
+                          </td>
+                          <td className="p-3 font-bold text-slate-900 dark:text-white text-right">
+                            {formatCurrency(damgaSonuc.matrah)}
+                          </td>
                         </tr>
                         {incKararPulu && (
                           <tr className="bg-slate-50/50 dark:bg-slate-800/30">
-                            <td className="p-3 text-slate-700 dark:text-slate-300">İhale Karar Pulu (‰ 5,69)</td>
-                            <td className="p-3 font-semibold text-red-600 dark:text-red-400 text-right">- {formatCurrency(damgaSonuc.ihaleKararPulu)}</td>
+                            <td className="p-3 text-slate-700 dark:text-slate-300">
+                              İhale Karar Pulu (‰ 5,69)
+                            </td>
+                            <td className="p-3 font-semibold text-red-600 dark:text-red-400 text-right">
+                              - {formatCurrency(damgaSonuc.ihaleKararPulu)}
+                            </td>
                           </tr>
                         )}
                         {incSozlesmeDamga && (
                           <tr className="bg-slate-50/50 dark:bg-slate-800/30">
-                            <td className="p-3 text-slate-700 dark:text-slate-300">Sözleşme Damga Vergisi (‰ 9,48)</td>
-                            <td className="p-3 font-semibold text-red-600 dark:text-red-400 text-right">- {formatCurrency(damgaSonuc.sozlesmeDamgaVergisi)}</td>
+                            <td className="p-3 text-slate-700 dark:text-slate-300">
+                              Sözleşme Damga Vergisi (‰ 9,48)
+                            </td>
+                            <td className="p-3 font-semibold text-red-600 dark:text-red-400 text-right">
+                              - {formatCurrency(damgaSonuc.sozlesmeDamgaVergisi)}
+                            </td>
                           </tr>
                         )}
                         {incKikPayi && (
                           <tr className="bg-slate-50/50 dark:bg-slate-800/30">
-                            <td className="p-3 text-slate-700 dark:text-slate-300">KİK Payı (‰ 0,5)</td>
-                            <td className="p-3 font-semibold text-red-600 dark:text-red-400 text-right">- {formatCurrency(damgaSonuc.kikPayi)}</td>
+                            <td className="p-3 text-slate-700 dark:text-slate-300">
+                              KİK Payı (‰ 0,5)
+                            </td>
+                            <td className="p-3 font-semibold text-red-600 dark:text-red-400 text-right">
+                              - {formatCurrency(damgaSonuc.kikPayi)}
+                            </td>
                           </tr>
                         )}
                         <tr className="bg-slate-100 dark:bg-slate-800 font-bold">
-                          <td className="p-3 text-slate-900 dark:text-white">Kesintiler Sonrası Net Ödenecek</td>
-                          <td className="p-3 text-emerald-600 dark:text-emerald-400 text-right text-sm">{formatCurrency(damgaSonuc.netOdenecekTutar)}</td>
+                          <td className="p-3 text-slate-900 dark:text-white">
+                            Kesintiler Sonrası Net Ödenecek
+                          </td>
+                          <td className="p-3 text-emerald-600 dark:text-emerald-400 text-right text-sm">
+                            {formatCurrency(damgaSonuc.netOdenecekTutar)}
+                          </td>
                         </tr>
                       </tbody>
                     </table>
@@ -1082,20 +1163,36 @@ export default function PlaygroundScreen(): React.JSX.Element {
                     <table className="w-full text-xs text-left border-collapse">
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         <tr>
-                          <td className="p-3 font-medium text-slate-600 dark:text-slate-300">Sözleşme Bedeli</td>
-                          <td className="p-3 font-bold text-slate-900 dark:text-white text-right">{formatCurrency(gecikmeSonuc.sozlesmeBedeli)}</td>
+                          <td className="p-3 font-medium text-slate-600 dark:text-slate-300">
+                            Sözleşme Bedeli
+                          </td>
+                          <td className="p-3 font-bold text-slate-900 dark:text-white text-right">
+                            {formatCurrency(gecikmeSonuc.sozlesmeBedeli)}
+                          </td>
                         </tr>
                         <tr>
-                          <td className="p-3 font-medium text-slate-600 dark:text-slate-300">Gecikme Süresi</td>
-                          <td className="p-3 font-semibold text-slate-900 dark:text-white text-right">{gecikmeSonuc.gecikmeGunSayisi} Gün</td>
+                          <td className="p-3 font-medium text-slate-600 dark:text-slate-300">
+                            Gecikme Süresi
+                          </td>
+                          <td className="p-3 font-semibold text-slate-900 dark:text-white text-right">
+                            {gecikmeSonuc.gecikmeGunSayisi} Gün
+                          </td>
                         </tr>
                         <tr>
-                          <td className="p-3 font-medium text-slate-600 dark:text-slate-300">Günlük Ceza Tutarı</td>
-                          <td className="p-3 font-semibold text-slate-900 dark:text-white text-right">{formatCurrency(gecikmeSonuc.gunlukCezaTutari)}</td>
+                          <td className="p-3 font-medium text-slate-600 dark:text-slate-300">
+                            Günlük Ceza Tutarı
+                          </td>
+                          <td className="p-3 font-semibold text-slate-900 dark:text-white text-right">
+                            {formatCurrency(gecikmeSonuc.gunlukCezaTutari)}
+                          </td>
                         </tr>
                         <tr className="bg-red-50/40 dark:bg-red-950/20 font-bold">
-                          <td className="p-3 text-red-700 dark:text-red-300">Hakedişten Kesilecek Ceza Toplamı</td>
-                          <td className="p-3 text-red-700 dark:text-red-300 text-right">- {formatCurrency(gecikmeSonuc.toplamCezaTutari)}</td>
+                          <td className="p-3 text-red-700 dark:text-red-300">
+                            Hakedişten Kesilecek Ceza Toplamı
+                          </td>
+                          <td className="p-3 text-red-700 dark:text-red-300 text-right">
+                            - {formatCurrency(gecikmeSonuc.toplamCezaTutari)}
+                          </td>
                         </tr>
                       </tbody>
                     </table>
@@ -1104,7 +1201,6 @@ export default function PlaygroundScreen(): React.JSX.Element {
               </div>
             </div>
           )}
-
         </div>
       </div>
     </div>

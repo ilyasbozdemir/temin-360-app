@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { ImageIcon, Info, Upload, X, CheckCircle2, AlertCircle, Loader2, Search } from 'lucide-react'
+import {
+  ImageIcon,
+  Info,
+  Upload,
+  X,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Search
+} from 'lucide-react'
 import { Input } from '../../../components/ui/Input'
 import { DetsisSearchModal } from '../../../components/ui/DetsisSearchModal'
 import { DetsisVerificationState } from '../../../components/ui/DetsisBadge'
@@ -248,7 +257,10 @@ export function LogolarTab(props: LogolarTabProps): React.ReactElement {
       setDetsisLogo(detsisInfo.logoByteArray)
       setInstitutionLogo(detsisInfo.logoByteArray)
       setLogoLeft(detsisInfo.logoByteArray)
-      showToast('success', `${detsisInfo.birimAdi || 'Kurum'} resmi logosu başarıyla çekildi ve uygulandı!`)
+      showToast(
+        'success',
+        `${detsisInfo.birimAdi || 'Kurum'} resmi logosu başarıyla çekildi ve uygulandı!`
+      )
     } else {
       showToast('error', 'Seçilen kurumun DETSİS kaydında resmi logo amblemi bulunamadı.')
     }
@@ -261,7 +273,8 @@ export function LogolarTab(props: LogolarTabProps): React.ReactElement {
           Kurum Logoları
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Uygulama arayüzünde ve belge çıktılarında kullanılacak logoları buradan ayarlayabilirsiniz.
+          Uygulama arayüzünde ve belge çıktılarında kullanılacak logoları buradan
+          ayarlayabilirsiniz.
         </p>
       </div>
 
@@ -306,7 +319,8 @@ export function LogolarTab(props: LogolarTabProps): React.ReactElement {
               )}
             </h4>
             <p className="text-[10px] text-emerald-700/90 dark:text-emerald-400/90">
-              DETSİS sistemindeki resmi kurum armasını arayıp tek tıkla çekip logo alanlarına uygulayabilirsiniz.
+              DETSİS sistemindeki resmi kurum armasını arayıp tek tıkla çekip logo alanlarına
+              uygulayabilirsiniz.
             </p>
           </div>
         </div>

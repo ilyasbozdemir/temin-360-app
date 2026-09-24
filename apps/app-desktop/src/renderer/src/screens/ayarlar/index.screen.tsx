@@ -59,7 +59,6 @@ export default function AyarlarScreen(): React.ReactNode {
     }
   }, [currentTabParam])
 
-
   const [saving, setSaving] = useState(false)
 
   // Tab: SMTP Ayarları
@@ -373,7 +372,6 @@ export default function AyarlarScreen(): React.ReactNode {
                   </Button>
                 </div>
               )}
-
             </>
           )}
         </div>

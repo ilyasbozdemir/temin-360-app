@@ -132,7 +132,10 @@ export function buildDocumentContext(
     dosyaAcilisTarihi: formatDateString(dosyaResData?.dosya_acilis_tarihi) || fileDate,
     acilisTarihi: formatDateString(dosyaResData?.dosya_acilis_tarihi) || fileDate,
     onayTarihi: formatDateString(dosyaResData?.onay_tarihi) || fileDate,
-    onayaSunulanTarih: formatDateString(dosyaResData?.temin_tarihi) || formatDateString(dosyaResData?.dosya_acilis_tarihi) || fileDate,
+    onayaSunulanTarih:
+      formatDateString(dosyaResData?.temin_tarihi) ||
+      formatDateString(dosyaResData?.dosya_acilis_tarihi) ||
+      fileDate,
     kararTarihi: formatDateString(dosyaResData?.karar_tarihi) || fileDate,
     belgeTarihi: fileDate,
     talepTarihi: fileDate,
@@ -293,49 +296,53 @@ export function buildDocumentContext(
     })),
     teslimGun: dosyaResData?.teslim_gun
       ? String(dosyaResData.teslim_gun)
-      : (dosyaResData?.teslim_suresi
+      : dosyaResData?.teslim_suresi
         ? String(dosyaResData.teslim_suresi)
-        : (dosyaResData?.teslim_tarihi
+        : dosyaResData?.teslim_tarihi
           ? (() => {
               const tDate = new Date(dosyaResData.teslim_tarihi)
               const bDate = dosyaResData.tarih ? new Date(dosyaResData.tarih) : new Date()
               const diff = Math.ceil((tDate.getTime() - bDate.getTime()) / (1000 * 60 * 60 * 24))
               return diff > 0 ? String(diff) : '7'
             })()
-          : '7')),
+          : '7',
     teslimGunu: dosyaResData?.teslim_gun
       ? String(dosyaResData.teslim_gun)
-      : (dosyaResData?.teslim_suresi
+      : dosyaResData?.teslim_suresi
         ? String(dosyaResData.teslim_suresi)
-        : (dosyaResData?.teslim_tarihi
+        : dosyaResData?.teslim_tarihi
           ? (() => {
               const tDate = new Date(dosyaResData.teslim_tarihi)
               const bDate = dosyaResData?.dosya_acilis_tarihi
                 ? new Date(dosyaResData.dosya_acilis_tarihi)
-                : (dosyaResData?.tarih ? new Date(dosyaResData.tarih) : new Date())
+                : dosyaResData?.tarih
+                  ? new Date(dosyaResData.tarih)
+                  : new Date()
               const diff = Math.ceil((tDate.getTime() - bDate.getTime()) / (1000 * 60 * 60 * 24))
               return diff > 0 ? String(diff) : '7'
             })()
-          : '7')),
+          : '7',
     gunSayisi: dosyaResData?.gun_sayisi
       ? String(dosyaResData.gun_sayisi)
-      : (dosyaResData?.teslim_gun
+      : dosyaResData?.teslim_gun
         ? String(dosyaResData.teslim_gun)
-        : (dosyaResData?.son_teklif_tarihi
+        : dosyaResData?.son_teklif_tarihi
           ? (() => {
               const sDate = new Date(dosyaResData.son_teklif_tarihi)
               const bDate = dosyaResData?.dosya_acilis_tarihi
                 ? new Date(dosyaResData.dosya_acilis_tarihi)
-                : (dosyaResData?.tarih ? new Date(dosyaResData.tarih) : new Date())
+                : dosyaResData?.tarih
+                  ? new Date(dosyaResData.tarih)
+                  : new Date()
               const diff = Math.ceil((sDate.getTime() - bDate.getTime()) / (1000 * 60 * 60 * 24))
               return diff > 0 ? String(diff) : undefined
             })()
-          : undefined)),
+          : undefined,
     gunSayisiYazi: dosyaResData?.gun_sayisi_yazi
       ? dosyaResData.gun_sayisi_yazi
-      : (dosyaResData?.gun_sayisi || dosyaResData?.teslim_gun
+      : dosyaResData?.gun_sayisi || dosyaResData?.teslim_gun
         ? sayiyiYaziyaCevir(Number(dosyaResData?.gun_sayisi || dosyaResData?.teslim_gun))
-        : undefined)
+        : undefined
   }
 
   // Güvenli birleştirme (Safe Merge)

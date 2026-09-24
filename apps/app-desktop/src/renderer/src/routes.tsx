@@ -2,271 +2,271 @@ import {
   createHashHistory,
   createRootRoute,
   createRoute,
-  createRouter,
-} from "@tanstack/react-router";
-import { PageWrapper } from "./components/layout/PageWrapper";
-import { APP_ROUTES } from "./constants/routeConstants";
-import DashboardScreen from "./screens/dashboard/index2.screen";
-import HarcamaMerkeziScreen from "./screens/dashboard/HarcamaMerkeziScreen";
-import DosyalarScreen from "./screens/dosyalar/index.screen";
-import FirmalarScreen from "./screens/firmalar/index.screen";
+  createRouter
+} from '@tanstack/react-router'
+import { PageWrapper } from './components/layout/PageWrapper'
+import { APP_ROUTES } from './constants/routeConstants'
+import DashboardScreen from './screens/dashboard/index2.screen'
+import HarcamaMerkeziScreen from './screens/dashboard/HarcamaMerkeziScreen'
+import DosyalarScreen from './screens/dosyalar/index.screen'
+import FirmalarScreen from './screens/firmalar/index.screen'
 
-import { MevzuatScreen } from "./screens/system/MevzuatScreen";
-import ChangelogScreen from "./screens/system/ChangelogScreen";
-import ImportScreen from "./screens/system/ImportScreen";
-import HizliDosyaEkleScreen from "./screens/system/HizliDosyaEkle.screen";
-import YardimScreen from "./screens/system/YardimScreen";
-import AyarlarScreen from "./screens/ayarlar/index.screen";
-import TemaScreen from "./screens/ayarlar/TemaScreen";
+import { MevzuatScreen } from './screens/system/MevzuatScreen'
+import ChangelogScreen from './screens/system/ChangelogScreen'
+import ImportScreen from './screens/system/ImportScreen'
+import HizliDosyaEkleScreen from './screens/system/HizliDosyaEkle.screen'
+import YardimScreen from './screens/system/YardimScreen'
+import AyarlarScreen from './screens/ayarlar/index.screen'
+import TemaScreen from './screens/ayarlar/TemaScreen'
 
-import AmbarScreen from "./screens/ambar/index.screen";
-import MalzemelerScreen from "./screens/malzemeler/index.screen";
-import TasinirKodScreen from "./screens/tasinirkod/index.screen";
-import KurumScreen from "./screens/kurum/index.screen";
-import ProfilScreen from "./screens/profil/index.screen";
+import AmbarScreen from './screens/ambar/index.screen'
+import MalzemelerScreen from './screens/malzemeler/index.screen'
+import TasinirKodScreen from './screens/tasinirkod/index.screen'
+import KurumScreen from './screens/kurum/index.screen'
+import ProfilScreen from './screens/profil/index.screen'
 
-import SablonlarScreen from "./screens/sablonlar/index.screen";
-import FormBuilderScreen from "./screens/sablonlar/formBuilder.screen";
-import DegiskenlerScreen from "./screens/sablonlar/degiskenler.screen";
-import RaporlarScreen from "./screens/raporlar/index.screen";
-import OkasKodScreen from "./screens/okaskod/index.screen";
-import PozlarScreen from "./screens/pozlar/index.screen";
-import YeniPozScreen from "./screens/pozlar/yeni.screen";
-import PozDetayScreen from "./screens/pozlar/detay.screen";
-import TopluPozEkleScreen from "./screens/pozlar/toplu.screen";
-import OlcuBirimleriScreen from "./screens/olcubirimleri/index.screen";
-import YeniMalzemeScreen from "./screens/malzemeler/yeni.screen";
-import YeniDosyaScreen, { DosyaManageScreen } from "./screens/dosyalar/manage.screen";
-import KomisyonDetayScreen from "./screens/komisyonlar/detay.screen";
-import DosyaDataInspectorScreen from "./screens/dosyalar/DosyaDataInspectorScreen";
-import NotlarVeGorevlerScreen from "./screens/notlar/index.screen";
-import PlaygroundScreen from "./screens/playground/index.screen";
-import ProjelerScreen from "./screens/projeler/index.screen";
+import SablonlarScreen from './screens/sablonlar/index.screen'
+import FormBuilderScreen from './screens/sablonlar/formBuilder.screen'
+import DegiskenlerScreen from './screens/sablonlar/degiskenler.screen'
+import RaporlarScreen from './screens/raporlar/index.screen'
+import OkasKodScreen from './screens/okaskod/index.screen'
+import PozlarScreen from './screens/pozlar/index.screen'
+import YeniPozScreen from './screens/pozlar/yeni.screen'
+import PozDetayScreen from './screens/pozlar/detay.screen'
+import TopluPozEkleScreen from './screens/pozlar/toplu.screen'
+import OlcuBirimleriScreen from './screens/olcubirimleri/index.screen'
+import YeniMalzemeScreen from './screens/malzemeler/yeni.screen'
+import YeniDosyaScreen, { DosyaManageScreen } from './screens/dosyalar/manage.screen'
+import KomisyonDetayScreen from './screens/komisyonlar/detay.screen'
+import DosyaDataInspectorScreen from './screens/dosyalar/DosyaDataInspectorScreen'
+import NotlarVeGorevlerScreen from './screens/notlar/index.screen'
+import PlaygroundScreen from './screens/playground/index.screen'
+import ProjelerScreen from './screens/projeler/index.screen'
 
 const rootRoute = createRootRoute({
-  component: PageWrapper,
-});
+  component: PageWrapper
+})
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.DASHBOARD,
-  component: DashboardScreen,
-});
+  component: DashboardScreen
+})
 
 const harcamaMerkeziRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.HARCAMA_MERKEZI,
-  component: HarcamaMerkeziScreen,
-});
+  component: HarcamaMerkeziScreen
+})
 
 const projelerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.PROJELER,
-  component: ProjelerScreen,
-});
+  component: ProjelerScreen
+})
 
 const dosyalarRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.DOSYALAR,
-  component: DosyalarScreen,
-});
+  component: DosyalarScreen
+})
 
 const yeniDosyaRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.YENI_DOSYA,
-  component: DosyaManageScreen,
-});
+  component: DosyaManageScreen
+})
 
 const dosyaManageRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.DOSYA_MANAGE,
-  component: DosyaManageScreen,
-});
+  component: DosyaManageScreen
+})
 
 const firmalarRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.FIRMALAR,
-  component: FirmalarScreen,
-});
+  component: FirmalarScreen
+})
 
 const personelRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.PERSONEL,
-  component: KurumScreen,
-});
+  component: KurumScreen
+})
 
 const sablonlarRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.SABLONLAR,
-  component: SablonlarScreen,
-});
+  component: SablonlarScreen
+})
 
 const formBuilderRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.FORM_BUILDER,
-  component: FormBuilderScreen,
-});
+  component: FormBuilderScreen
+})
 
 const degiskenlerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.DEGISKENLER,
-  component: DegiskenlerScreen,
-});
+  component: DegiskenlerScreen
+})
 
 const komisyonlarRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.KOMISYONLAR,
-  component: KurumScreen,
-});
+  component: KurumScreen
+})
 
 const komisyonDetayRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.KOMISYON_DETAY,
-  component: KomisyonDetayScreen,
-});
+  component: KomisyonDetayScreen
+})
 
 const komisyonGorevleriRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.KOMISYON_GOREVLERI,
-  component: KurumScreen,
-});
+  component: KurumScreen
+})
 
-import { TakipScreen } from "./screens/system/TakipScreen";
-import { CiktiMerkeziScreen } from "./screens/dosya/CiktiMerkezi.screen";
-import TaslakYoneticisi from "./screens/system/TaslakYoneticisi";
-import DTSurecAkisiScreen from "./screens/system/DTSurecAkisiScreen";
+import { TakipScreen } from './screens/system/TakipScreen'
+import { CiktiMerkeziScreen } from './screens/dosya/CiktiMerkezi.screen'
+import TaslakYoneticisi from './screens/system/TaslakYoneticisi'
+import DTSurecAkisiScreen from './screens/system/DTSurecAkisiScreen'
 
 // Dynamic routes
 const surecAkisiRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.SUREC_AKISI,
-  component: DTSurecAkisiScreen,
-});
+  component: DTSurecAkisiScreen
+})
 const takipRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.TAKIP,
-  component: TakipScreen,
-});
+  component: TakipScreen
+})
 
 const taslakYonetimiRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.TASLAK_YONETIM,
-  component: TaslakYoneticisi,
-});
+  component: TaslakYoneticisi
+})
 
 const ciktiMerkeziDashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.CIKTI_MERKEZI_DASHBOARD,
-  component: CiktiMerkeziScreen,
-});
+  component: CiktiMerkeziScreen
+})
 
 const raporlarRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.RAPORLAR,
-  component: RaporlarScreen,
-});
+  component: RaporlarScreen
+})
 
 const okasKodRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.OKAS_KOD,
-  component: OkasKodScreen,
-});
+  component: OkasKodScreen
+})
 
 const pozlarRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.POZLAR,
-  component: PozlarScreen,
-});
+  component: PozlarScreen
+})
 
 const yeniPozRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.YENI_POZ,
-  component: YeniPozScreen,
-});
+  component: YeniPozScreen
+})
 
 const pozDetayRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.POZ_DETAY,
-  component: PozDetayScreen,
-});
+  component: PozDetayScreen
+})
 
 const topluPozRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.TOPLU_POZ_EKLE,
-  component: TopluPozEkleScreen,
-});
+  component: TopluPozEkleScreen
+})
 
 const mevzuatRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.MEVZUAT,
-  component: MevzuatScreen,
-});
+  component: MevzuatScreen
+})
 
 const changelogRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.CHANGELOG,
-  component: ChangelogScreen,
-});
+  component: ChangelogScreen
+})
 
 const yardimRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.YARDIM,
-  component: YardimScreen,
-});
+  component: YardimScreen
+})
 
 const importRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.IMPORT,
-  component: ImportScreen,
-});
+  component: ImportScreen
+})
 
 const hizliDosyaEkleRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.HIZLI_DOSYA_EKLE,
-  component: HizliDosyaEkleScreen,
-});
+  component: HizliDosyaEkleScreen
+})
 
 const ayarlarRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.AYARLAR,
-  component: AyarlarScreen,
-});
+  component: AyarlarScreen
+})
 
 const temaRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.TEMA,
-  component: TemaScreen,
-});
+  component: TemaScreen
+})
 
 const birimlerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.BIRIMLER,
-  component: KurumScreen,
-});
+  component: KurumScreen
+})
 
 const ambarRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.AMBAR,
-  component: AmbarScreen,
-});
+  component: AmbarScreen
+})
 
 const malzemelerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.MALZEMELER,
-  component: MalzemelerScreen,
-});
+  component: MalzemelerScreen
+})
 
 const tasinirkodRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.TASINIR_KOD,
-  component: TasinirKodScreen,
-});
+  component: TasinirKodScreen
+})
 
 const kurumRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.KURUM,
-  component: KurumScreen,
-});
+  component: KurumScreen
+})
 
 import {
   FaturaVeIrsaliye,
@@ -276,112 +276,112 @@ import {
   KlasorVeKapaklar,
   PiyasaFiyatArastirmasi,
   SiparisVeSozlesme,
-  YaklasikMaliyetCetveli,
-} from "./screens/dosya/SubScreens.screen";
+  YaklasikMaliyetCetveli
+} from './screens/dosya/SubScreens.screen'
 
 const profilRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.PROFIL,
-  component: ProfilScreen,
-});
+  component: ProfilScreen
+})
 
 const dosyaRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.DOSYA_DETAY,
-  component: TakipScreen,
-});
+  component: TakipScreen
+})
 
 const dosyaKunyeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.DOSYA_KUNYE,
-  component: DosyaDataInspectorScreen,
-});
+  component: DosyaDataInspectorScreen
+})
 
 // Dosya Aşamaları
 const hazirlikVeIhtiyacRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.HAZIRLIK_VE_IHTIYAC,
-  component: HazirlikVeIhtiyac,
-});
+  component: HazirlikVeIhtiyac
+})
 
 const piyasaFiyatArastirmasiRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.PIYASA_FIYAT_ARASTIRMASI,
-  component: PiyasaFiyatArastirmasi,
-});
+  component: PiyasaFiyatArastirmasi
+})
 
 const siparisVeSozlesmeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.SIPARIS_VE_SOZLESME,
-  component: SiparisVeSozlesme,
-});
+  component: SiparisVeSozlesme
+})
 
 const kabulVeOdemeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.KABUL_VE_ODEME,
-  component: KabulVeOdeme,
-});
+  component: KabulVeOdeme
+})
 
 const klasorVeKapaklarRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.KLASOR_VE_KAPAKLAR,
-  component: KlasorVeKapaklar,
-});
+  component: KlasorVeKapaklar
+})
 
 // Diğer Alt Modüller
 const yaklasikMaliyetRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.YAKLASIK_MALIYET,
-  component: YaklasikMaliyetCetveli,
-});
+  component: YaklasikMaliyetCetveli
+})
 
 const ciktiMerkeziRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.DOSYA_CIKTI_MERKEZI,
-  component: CiktiMerkeziScreen,
-});
+  component: CiktiMerkeziScreen
+})
 
 const olcubirimleriRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.OLCU_BIRIMLERI,
-  component: OlcuBirimleriScreen,
-});
+  component: OlcuBirimleriScreen
+})
 
 const yeniMalzemeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.YENI_MALZEME,
-  component: YeniMalzemeScreen,
-});
+  component: YeniMalzemeScreen
+})
 
 const faturaVeIrsaliyeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.FATURA_VE_IRSALIYE,
-  component: FaturaVeIrsaliye,
-});
+  component: FaturaVeIrsaliye
+})
 
 const imzaliBelgelerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.IMZALI_BELGELER,
-  component: ImzaliBelgeler,
-});
+  component: ImzaliBelgeler
+})
 
 const hakedisRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.HAKEDIS,
-  component: HarcamaMerkeziScreen,
-});
+  component: HarcamaMerkeziScreen
+})
 
 const notlarRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.NOTLAR,
-  component: NotlarVeGorevlerScreen,
-});
+  component: NotlarVeGorevlerScreen
+})
 
 const playgroundRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.PLAYGROUND,
-  component: PlaygroundScreen,
-});
+  component: PlaygroundScreen
+})
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -436,18 +436,18 @@ const routeTree = rootRoute.addChildren([
   notlarRoute,
   playgroundRoute,
   surecAkisiRoute,
-  yardimRoute,
-]);
+  yardimRoute
+])
 
-const hashHistory = createHashHistory();
+const hashHistory = createHashHistory()
 
 export const router = createRouter({
   routeTree,
-  history: hashHistory,
-});
+  history: hashHistory
+})
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface Register {
-    router: typeof router;
+    router: typeof router
   }
 }

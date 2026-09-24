@@ -1,14 +1,10 @@
-import React, { useEffect, useState } from "react";
-import QRCode from "qrcode";
-import {
-  Personel,
-  PersonelWithRoles,
-  usePersonelHooks,
-} from "./personel.hooks";
-import { useBirimlerHooks } from "../birimler/birimler.hooks";
-import { useKurumHooks } from "../kurum/kurum.hooks";
-import { Button } from "../../components/ui/Button";
-import { Input } from "../../components/ui/Input";
+import React, { useEffect, useState } from 'react'
+import QRCode from 'qrcode'
+import { Personel, PersonelWithRoles, usePersonelHooks } from './personel.hooks'
+import { useBirimlerHooks } from '../birimler/birimler.hooks'
+import { useKurumHooks } from '../kurum/kurum.hooks'
+import { Button } from '../../components/ui/Button'
+import { Input } from '../../components/ui/Input'
 import {
   ArrowLeft,
   Briefcase,
@@ -26,18 +22,18 @@ import {
   Trash2,
   UserCheck,
   Users,
-  X,
-} from "lucide-react";
+  X
+} from 'lucide-react'
 
-import { DataViewMode, ViewToggle } from "../../components/ui/ViewToggle";
-import { ExcelActions } from "../../components/ui/ExcelActions";
+import { DataViewMode, ViewToggle } from '../../components/ui/ViewToggle'
+import { ExcelActions } from '../../components/ui/ExcelActions'
 
-type ScreenState = "list" | "view" | "form";
+type ScreenState = 'list' | 'view' | 'form'
 
 export default function PersonelScreen({
-  isSubComponent = false,
+  isSubComponent = false
 }: {
-  isSubComponent?: boolean;
+  isSubComponent?: boolean
 }): React.ReactNode {
   const {
     personelList,
@@ -45,167 +41,160 @@ export default function PersonelScreen({
     isLoading: isPersonelLoading,
     addPersonel,
     updatePersonel,
-    deletePersonel,
-  } = usePersonelHooks();
-  const { birimler } = useBirimlerHooks();
-  const { kurumData, fetchKurum } = useKurumHooks();
+    deletePersonel
+  } = usePersonelHooks()
+  const { birimler } = useBirimlerHooks()
+  const { kurumData, fetchKurum } = useKurumHooks()
 
   useEffect(() => {
-    fetchKurum();
-  }, [fetchKurum]);
+    fetchKurum()
+  }, [fetchKurum])
 
-  const [screenState, setScreenState] = useState<ScreenState>("list");
-  const [dataViewMode, setDataViewMode] = useState<DataViewMode>("grid");
-  const [editingPersonel, setEditingPersonel] = useState<Personel | null>(null);
-  const [viewingPersonel, setViewingPersonel] = useState<Personel | null>(null);
-  const [vcardQrUrl, setVcardQrUrl] = useState<string | null>(null);
+  const [screenState, setScreenState] = useState<ScreenState>('list')
+  const [dataViewMode, setDataViewMode] = useState<DataViewMode>('grid')
+  const [editingPersonel, setEditingPersonel] = useState<Personel | null>(null)
+  const [viewingPersonel, setViewingPersonel] = useState<Personel | null>(null)
+  const [vcardQrUrl, setVcardQrUrl] = useState<string | null>(null)
 
   useEffect(() => {
     if (viewingPersonel) {
       const vcard = [
-        "BEGIN:VCARD",
-        "VERSION:3.0",
+        'BEGIN:VCARD',
+        'VERSION:3.0',
         `FN:${viewingPersonel.ad_soyad}`,
-        viewingPersonel.unvan ? `TITLE:${viewingPersonel.unvan}` : "",
-        viewingPersonel.birim ? `ORG:${viewingPersonel.birim}` : "",
-        viewingPersonel.telefon
-          ? `TEL;TYPE=CELL:${viewingPersonel.telefon}`
-          : "",
-        viewingPersonel.eposta
-          ? `EMAIL;TYPE=PREF,INTERNET:${viewingPersonel.eposta}`
-          : "",
-        "END:VCARD",
+        viewingPersonel.unvan ? `TITLE:${viewingPersonel.unvan}` : '',
+        viewingPersonel.birim ? `ORG:${viewingPersonel.birim}` : '',
+        viewingPersonel.telefon ? `TEL;TYPE=CELL:${viewingPersonel.telefon}` : '',
+        viewingPersonel.eposta ? `EMAIL;TYPE=PREF,INTERNET:${viewingPersonel.eposta}` : '',
+        'END:VCARD'
       ]
         .filter(Boolean)
-        .join("\n");
+        .join('\n')
 
       QRCode.toDataURL(vcard, {
         margin: 2,
         width: 250,
         color: {
-          dark: "#1e293b", // slate-800
-          light: "#ffffff",
-        },
+          dark: '#1e293b', // slate-800
+          light: '#ffffff'
+        }
       })
         .then((url) => setVcardQrUrl(url))
-        .catch(console.error);
+        .catch(console.error)
     } else {
       setTimeout(() => {
-        setVcardQrUrl(null);
-      }, 0);
+        setVcardQrUrl(null)
+      }, 0)
     }
-  }, [viewingPersonel]);
+  }, [viewingPersonel])
 
   const [formData, setFormData] = useState<PersonelWithRoles>({
-    ad_soyad: "",
-    unvan: "",
-    gorev: "",
-    sicil_no: "",
-    birim: "",
-    telefon: "",
-    eposta: "",
+    ad_soyad: '',
+    unvan: '',
+    gorev: '',
+    sicil_no: '',
+    birim: '',
+    telefon: '',
+    eposta: '',
     aktif_mi: 1,
     assignedRoles: [],
-    avatar: null,
-  });
+    avatar: null
+  })
 
   const openForm = (e?: React.MouseEvent, personel?: Personel): void => {
-    if (e) e.stopPropagation();
+    if (e) e.stopPropagation()
     if (personel) {
-      setEditingPersonel(personel);
+      setEditingPersonel(personel)
       const rolesForPersonel = rollerList
         .filter((r) => r.varsayilan_personel_id === personel.id)
-        .map((r) => r.rol_kodu);
+        .map((r) => r.rol_kodu)
       setFormData({
         ...personel,
-        gorev: personel.gorev || "",
-        assignedRoles: rolesForPersonel,
-      });
+        gorev: personel.gorev || '',
+        assignedRoles: rolesForPersonel
+      })
     } else {
-      setEditingPersonel(null);
+      setEditingPersonel(null)
       setFormData({
-        ad_soyad: "",
-        unvan: "",
-        gorev: "",
-        sicil_no: "",
-        birim: "",
-        telefon: "",
-        eposta: "",
+        ad_soyad: '',
+        unvan: '',
+        gorev: '',
+        sicil_no: '',
+        birim: '',
+        telefon: '',
+        eposta: '',
         aktif_mi: 1,
         assignedRoles: [],
-        avatar: null,
-      });
+        avatar: null
+      })
     }
-    setScreenState("form");
-  };
+    setScreenState('form')
+  }
 
   const closeForm = (): void => {
-    setScreenState("list");
-    setEditingPersonel(null);
-  };
+    setScreenState('list')
+    setEditingPersonel(null)
+  }
 
   const handleViewClick = (personel: Personel) => {
-    setViewingPersonel(personel);
-    setScreenState("view");
-  };
+    setViewingPersonel(personel)
+    setScreenState('view')
+  }
 
   const closeView = () => {
-    setViewingPersonel(null);
-    setScreenState("list");
-  };
+    setViewingPersonel(null)
+    setScreenState('list')
+  }
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault();
+    e.preventDefault()
     try {
       if (editingPersonel) {
-        await updatePersonel({ ...formData, id: editingPersonel.id });
+        await updatePersonel({ ...formData, id: editingPersonel.id })
       } else {
-        await addPersonel(formData);
+        await addPersonel(formData)
       }
-      closeForm();
+      closeForm()
     } catch (err) {
-      console.error(err);
-      alert("Kayıt sırasında bir hata oluştu!");
+      console.error(err)
+      alert('Kayıt sırasında bir hata oluştu!')
     }
-  };
+  }
 
-  const handleDelete = async (
-    e: React.MouseEvent,
-    id: number,
-  ): Promise<void> => {
-    e.stopPropagation();
-    if (confirm("Bu personeli silmek istediğinize emin misiniz?")) {
+  const handleDelete = async (e: React.MouseEvent, id: number): Promise<void> => {
+    e.stopPropagation()
+    if (confirm('Bu personeli silmek istediğinize emin misiniz?')) {
       try {
-        await deletePersonel(id);
+        await deletePersonel(id)
       } catch (err) {
-        console.error(err);
-        alert("Silme sırasında bir hata oluştu!");
+        console.error(err)
+        alert('Silme sırasında bir hata oluştu!')
       }
     }
-  };
+  }
 
   const toggleRole = (rol_kodu: string, isChecked: boolean) => {
     setFormData((prev) => {
-      let roles = prev.assignedRoles || [];
+      let roles = prev.assignedRoles || []
       if (isChecked) {
-        if (rol_kodu === "harcama_yetkilisi") {
-          roles = [...roles, "harcama_yetkilisi", "ihale_yetkilisi"];
+        if (rol_kodu === 'harcama_yetkilisi') {
+          roles = [...roles, 'harcama_yetkilisi', 'ihale_yetkilisi']
         } else {
-          roles = [...roles, rol_kodu];
+          roles = [...roles, rol_kodu]
         }
         // Deduplicate
-        roles = Array.from(new Set(roles));
+        roles = Array.from(new Set(roles))
       } else {
-        roles = roles.filter((r) => r !== rol_kodu);
+        roles = roles.filter((r) => r !== rol_kodu)
       }
-      return { ...prev, assignedRoles: roles };
-    });
-  };
+      return { ...prev, assignedRoles: roles }
+    })
+  }
 
-  if (screenState === "view" && viewingPersonel) {
+  if (screenState === 'view' && viewingPersonel) {
     const rolesOfViewingPerson = rollerList.filter(
-      (r) => r.varsayilan_personel_id === viewingPersonel.id,
-    );
+      (r) => r.varsayilan_personel_id === viewingPersonel.id
+    )
 
     return (
       <div className="p-8 max-w-[1600px] mx-auto flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto max-h-full">
@@ -236,19 +225,17 @@ export default function PersonelScreen({
             {/* Profil Bilgisi Kartı */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm flex flex-col items-center text-center">
               <div className="w-24 h-24 rounded-full overflow-hidden shrink-0 border-4 border-slate-100 dark:border-slate-800 shadow-md mb-4">
-                {viewingPersonel.avatar
-                  ? (
-                    <img
-                      src={viewingPersonel.avatar}
-                      alt={viewingPersonel.ad_soyad}
-                      className="w-full h-full object-cover"
-                    />
-                  )
-                  : (
-                    <div className="w-full h-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-3xl uppercase">
-                      {viewingPersonel.ad_soyad.slice(0, 2)}
-                    </div>
-                  )}
+                {viewingPersonel.avatar ? (
+                  <img
+                    src={viewingPersonel.avatar}
+                    alt={viewingPersonel.ad_soyad}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-3xl uppercase">
+                    {viewingPersonel.ad_soyad.slice(0, 2)}
+                  </div>
+                )}
               </div>
               <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-1 leading-snug">
                 {viewingPersonel.ad_soyad}
@@ -256,7 +243,7 @@ export default function PersonelScreen({
               <div className="flex flex-col items-center gap-1 mb-3">
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1.5 justify-center">
                   <Briefcase className="w-4 h-4 shrink-0 text-blue-500" />
-                  {viewingPersonel.unvan || "Kadro Unvanı Yok"}
+                  {viewingPersonel.unvan || 'Kadro Unvanı Yok'}
                 </p>
                 {viewingPersonel.gorev && (
                   <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 font-semibold">
@@ -278,26 +265,17 @@ export default function PersonelScreen({
                 <QrCode className="w-4 h-4 text-blue-500" />
                 Kişi Kartı (vCard)
               </h3>
-              {vcardQrUrl
-                ? (
-                  <div className="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 mb-3 animate-in zoom-in-95 duration-300">
-                    <img
-                      src={vcardQrUrl}
-                      alt="vCard QR Code"
-                      className="w-44 h-44 object-contain"
-                    />
-                  </div>
-                )
-                : (
-                  <div className="w-44 h-44 bg-slate-100 dark:bg-slate-950 rounded-2xl flex items-center justify-center animate-pulse mb-3">
-                    <span className="text-[10px] text-slate-400">
-                      Yükleniyor...
-                    </span>
-                  </div>
-                )}
+              {vcardQrUrl ? (
+                <div className="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 mb-3 animate-in zoom-in-95 duration-300">
+                  <img src={vcardQrUrl} alt="vCard QR Code" className="w-44 h-44 object-contain" />
+                </div>
+              ) : (
+                <div className="w-44 h-44 bg-slate-100 dark:bg-slate-950 rounded-2xl flex items-center justify-center animate-pulse mb-3">
+                  <span className="text-[10px] text-slate-400">Yükleniyor...</span>
+                </div>
+              )}
               <p className="text-[10px] text-slate-450 dark:text-slate-400 leading-relaxed font-medium max-w-[220px]">
-                Telefonunuzun kamerasından bu karekodu okutarak personeli
-                rehbere&nbsp;
+                Telefonunuzun kamerasından bu karekodu okutarak personeli rehbere&nbsp;
                 <strong>anında kaydedebilirsiniz.</strong>
               </p>
             </div>
@@ -318,7 +296,7 @@ export default function PersonelScreen({
                     Kadro / Meslek Unvanı
                   </span>
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-300 mt-0.5">
-                    {viewingPersonel.unvan || "Belirtilmedi"}
+                    {viewingPersonel.unvan || 'Belirtilmedi'}
                   </span>
                 </div>
 
@@ -327,7 +305,7 @@ export default function PersonelScreen({
                     Kurum İçi / İhale Görevi
                   </span>
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-300 mt-0.5">
-                    {viewingPersonel.gorev || "Belirtilmedi"}
+                    {viewingPersonel.gorev || 'Belirtilmedi'}
                   </span>
                 </div>
 
@@ -335,42 +313,38 @@ export default function PersonelScreen({
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                     Telefon Numarası
                   </span>
-                  {viewingPersonel.telefon
-                    ? (
-                      <a
-                        href={`tel:${viewingPersonel.telefon}`}
-                        className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5 mt-0.5"
-                      >
-                        <Phone className="w-3.5 h-3.5" />
-                        {viewingPersonel.telefon}
-                      </a>
-                    )
-                    : (
-                      <span className="text-sm text-slate-400 dark:text-slate-600 italic">
-                        Telefon Belirtilmedi
-                      </span>
-                    )}
+                  {viewingPersonel.telefon ? (
+                    <a
+                      href={`tel:${viewingPersonel.telefon}`}
+                      className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5 mt-0.5"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      {viewingPersonel.telefon}
+                    </a>
+                  ) : (
+                    <span className="text-sm text-slate-400 dark:text-slate-600 italic">
+                      Telefon Belirtilmedi
+                    </span>
+                  )}
                 </div>
 
                 <div className="p-4 bg-slate-50/50 dark:bg-slate-950/20 border border-slate-150 dark:border-slate-850 rounded-2xl flex flex-col gap-1">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                     E-Posta Adresi
                   </span>
-                  {viewingPersonel.eposta
-                    ? (
-                      <a
-                        href={`mailto:${viewingPersonel.eposta}`}
-                        className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5 mt-0.5 truncate"
-                      >
-                        <Mail className="w-3.5 h-3.5" />
-                        {viewingPersonel.eposta}
-                      </a>
-                    )
-                    : (
-                      <span className="text-sm text-slate-400 dark:text-slate-600 italic">
-                        E-Posta Belirtilmedi
-                      </span>
-                    )}
+                  {viewingPersonel.eposta ? (
+                    <a
+                      href={`mailto:${viewingPersonel.eposta}`}
+                      className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5 mt-0.5 truncate"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      {viewingPersonel.eposta}
+                    </a>
+                  ) : (
+                    <span className="text-sm text-slate-400 dark:text-slate-600 italic">
+                      E-Posta Belirtilmedi
+                    </span>
+                  )}
                 </div>
 
                 <div className="p-4 bg-slate-50/50 dark:bg-slate-950/20 border border-slate-150 dark:border-slate-850 rounded-2xl flex flex-col gap-1">
@@ -378,7 +352,7 @@ export default function PersonelScreen({
                     Kurum Sicil Numarası
                   </span>
                   <span className="text-sm font-mono font-bold text-slate-700 dark:text-slate-300 mt-0.5">
-                    {viewingPersonel.sicil_no || "-"}
+                    {viewingPersonel.sicil_no || '-'}
                   </span>
                 </div>
 
@@ -387,7 +361,7 @@ export default function PersonelScreen({
                     Birim / Müdürlük
                   </span>
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-300 mt-0.5">
-                    {viewingPersonel.birim || "-"}
+                    {viewingPersonel.birim || '-'}
                   </span>
                 </div>
               </div>
@@ -395,8 +369,7 @@ export default function PersonelScreen({
               {viewingPersonel.notlar && (
                 <div className="p-4 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/10 dark:border-amber-500/20 rounded-2xl space-y-1">
                   <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5" />{" "}
-                    Personel Hakkında Notlar
+                    <Sparkles className="w-3.5 h-3.5" /> Personel Hakkında Notlar
                   </span>
                   <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
                     {viewingPersonel.notlar}
@@ -413,40 +386,37 @@ export default function PersonelScreen({
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {rolesOfViewingPerson.length > 0
-                  ? (
-                    rolesOfViewingPerson.map((role) => (
-                      <div
-                        key={role.rol_kodu}
-                        className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 rounded-2xl hover:border-blue-300 transition-colors"
-                      >
-                        <UserCheck className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-                        <div>
-                          <span className="block text-sm font-bold text-blue-700 dark:text-blue-305">
-                            {role.rol_adi}
-                          </span>
-                          <span className="block text-[11px] text-blue-600/70 dark:text-blue-450/70 leading-relaxed mt-0.5">
-                            {role.aciklama}
-                          </span>
-                        </div>
+                {rolesOfViewingPerson.length > 0 ? (
+                  rolesOfViewingPerson.map((role) => (
+                    <div
+                      key={role.rol_kodu}
+                      className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 rounded-2xl hover:border-blue-300 transition-colors"
+                    >
+                      <UserCheck className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="block text-sm font-bold text-blue-700 dark:text-blue-305">
+                          {role.rol_adi}
+                        </span>
+                        <span className="block text-[11px] text-blue-600/70 dark:text-blue-450/70 leading-relaxed mt-0.5">
+                          {role.aciklama}
+                        </span>
                       </div>
-                    ))
-                  )
-                  : (
-                    <div className="col-span-full p-6 text-center text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-950/40 rounded-2xl italic border border-slate-100 dark:border-slate-850">
-                      Bu personelin varsayılan olarak atandığı bir rol
-                      bulunmuyor.
                     </div>
-                  )}
+                  ))
+                ) : (
+                  <div className="col-span-full p-6 text-center text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-950/40 rounded-2xl italic border border-slate-100 dark:border-slate-850">
+                    Bu personelin varsayılan olarak atandığı bir rol bulunmuyor.
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
-    );
+    )
   }
 
-  if (screenState === "form") {
+  if (screenState === 'form') {
     return (
       <form
         onSubmit={handleSubmit}
@@ -464,10 +434,12 @@ export default function PersonelScreen({
               Listeye Geri Dön
             </Button>
             <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              {editingPersonel
-                ? <Edit className="w-6 h-6 text-blue-500" />
-                : <Plus className="w-6 h-6 text-blue-500" />}
-              {editingPersonel ? "Personel Düzenle" : "Yeni Personel Ekle"}
+              {editingPersonel ? (
+                <Edit className="w-6 h-6 text-blue-500" />
+              ) : (
+                <Plus className="w-6 h-6 text-blue-500" />
+              )}
+              {editingPersonel ? 'Personel Düzenle' : 'Yeni Personel Ekle'}
             </h2>
           </div>
           <div className="flex items-center gap-3">
@@ -483,8 +455,8 @@ export default function PersonelScreen({
               type="submit"
               className="bg-blue-600 hover:bg-blue-700 shadow-md px-8 py-2 h-10 text-sm flex items-center"
             >
-              <Save className="w-4 h-4 mr-2" />{" "}
-              {editingPersonel ? "Değişiklikleri Kaydet" : "Personeli Ekle"}
+              <Save className="w-4 h-4 mr-2" />{' '}
+              {editingPersonel ? 'Değişiklikleri Kaydet' : 'Personeli Ekle'}
             </Button>
           </div>
         </div>
@@ -498,39 +470,35 @@ export default function PersonelScreen({
                   Profil Resmi
                 </label>
                 <div className="relative group w-24 h-24 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-850 border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center cursor-pointer shadow-inner hover:border-blue-500 dark:hover:border-blue-400 transition-colors">
-                  {formData.avatar
-                    ? (
-                      <img
-                        src={formData.avatar}
-                        alt="Avatar"
-                        className="w-full h-full object-cover"
-                      />
-                    )
-                    : (
-                      <Users className="w-10 h-10 text-slate-400 dark:text-slate-600" />
-                    )}
+                  {formData.avatar ? (
+                    <img
+                      src={formData.avatar}
+                      alt="Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Users className="w-10 h-10 text-slate-400 dark:text-slate-600" />
+                  )}
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => {
-                      const file = e.target.files?.[0];
+                      const file = e.target.files?.[0]
                       if (file) {
-                        const reader = new FileReader();
+                        const reader = new FileReader()
                         reader.onloadend = () => {
                           setFormData({
                             ...formData,
-                            avatar: reader.result as string,
-                          });
-                        };
-                        reader.readAsDataURL(file);
+                            avatar: reader.result as string
+                          })
+                        }
+                        reader.readAsDataURL(file)
                       }
                     }}
                     className="absolute inset-0 opacity-0 cursor-pointer"
                   />
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    <span className="text-[10px] text-white font-semibold">
-                      Resim Seç
-                    </span>
+                    <span className="text-[10px] text-white font-semibold">Resim Seç</span>
                   </div>
                 </div>
                 {formData.avatar && (
@@ -554,13 +522,11 @@ export default function PersonelScreen({
                   autoFocus
                   placeholder="Örn: Ahmet Yılmaz"
                   value={formData.ad_soyad}
-                  onChange={(e) =>
-                    setFormData({ ...formData, ad_soyad: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, ad_soyad: e.target.value })}
                   className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-sm py-2 h-11"
                 />
                 <p className="text-[11px] text-slate-400 dark:text-slate-500">
-                  Personelin adı ve soyadı resmi belgelerde bu şekilde
-                  görüntülenecektir.
+                  Personelin adı ve soyadı resmi belgelerde bu şekilde görüntülenecektir.
                 </p>
               </div>
             </div>
@@ -573,9 +539,8 @@ export default function PersonelScreen({
                 </label>
                 <Input
                   placeholder="Örn: İnşaat Mühendisi, Mimar, V.H.K.İ., Şube Müdürü"
-                  value={formData.unvan || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, unvan: e.target.value })}
+                  value={formData.unvan || ''}
+                  onChange={(e) => setFormData({ ...formData, unvan: e.target.value })}
                   className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-sm py-2 h-11"
                 />
                 <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
@@ -589,9 +554,8 @@ export default function PersonelScreen({
                 </label>
                 <Input
                   placeholder="Örn: Harcama Yetkilisi, Satın Alma Sorumlusu, Komisyon Üyesi"
-                  value={formData.gorev || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, gorev: e.target.value })}
+                  value={formData.gorev || ''}
+                  onChange={(e) => setFormData({ ...formData, gorev: e.target.value })}
                   className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-sm py-2 h-11"
                 />
                 <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
@@ -605,21 +569,20 @@ export default function PersonelScreen({
               <div className="relative">
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
                   <span>Birim / Müdürlük</span>
-                  <span className="text-[11px] text-slate-400 font-normal">
-                    (İsteğe Bağlı)
-                  </span>
+                  <span className="text-[11px] text-slate-400 font-normal">(İsteğe Bağlı)</span>
                 </label>
                 <Input
                   list="birimler-list"
                   placeholder="-- Birim Seçin veya Arayın --"
-                  value={formData.birim || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, birim: e.target.value })}
+                  value={formData.birim || ''}
+                  onChange={(e) => setFormData({ ...formData, birim: e.target.value })}
                   className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-sm py-2 h-11"
                 />
                 <datalist id="birimler-list">
                   {kurumData?.kurum_adi && <option value={kurumData.kurum_adi} />}
-                  {birimler.map((b) => <option key={b.id} value={b.birim_adi} />)}
+                  {birimler.map((b) => (
+                    <option key={b.id} value={b.birim_adi} />
+                  ))}
                 </datalist>
                 <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
                   Listeden seçebilir veya boş bırakabilirsiniz.
@@ -634,15 +597,12 @@ export default function PersonelScreen({
                       <HelpCircle className="w-4 h-4 text-blue-500 cursor-help" />
                     </span>
                   </span>
-                  <span className="text-[11px] text-slate-400 font-normal">
-                    (İsteğe Bağlı)
-                  </span>
+                  <span className="text-[11px] text-slate-400 font-normal">(İsteğe Bağlı)</span>
                 </label>
                 <Input
                   placeholder="Örn: 12345"
-                  value={formData.sicil_no || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, sicil_no: e.target.value })}
+                  value={formData.sicil_no || ''}
+                  onChange={(e) => setFormData({ ...formData, sicil_no: e.target.value })}
                   className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-sm py-2 h-11"
                 />
               </div>
@@ -655,9 +615,8 @@ export default function PersonelScreen({
                 </label>
                 <Input
                   placeholder="Örn: 0555..."
-                  value={formData.telefon || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, telefon: e.target.value })}
+                  value={formData.telefon || ''}
+                  onChange={(e) => setFormData({ ...formData, telefon: e.target.value })}
                   className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-sm py-2 h-11"
                 />
               </div>
@@ -669,9 +628,8 @@ export default function PersonelScreen({
                 <Input
                   type="email"
                   placeholder="Örn: ornek@kurum.gov.tr"
-                  value={formData.eposta || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, eposta: e.target.value })}
+                  value={formData.eposta || ''}
+                  onChange={(e) => setFormData({ ...formData, eposta: e.target.value })}
                   className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-sm py-2 h-11"
                 />
               </div>
@@ -679,12 +637,12 @@ export default function PersonelScreen({
 
             <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col gap-4 mt-8">
               <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                <Shield className="w-5 h-5 text-blue-500" />{" "}
-                Şablonlarda Varsayılan Görev (Yetkilendirme)
+                <Shield className="w-5 h-5 text-blue-500" /> Şablonlarda Varsayılan Görev
+                (Yetkilendirme)
               </h4>
               <p className="text-xs text-slate-500">
-                Seçtiğiniz roller, yeni oluşturulan resmi belgelerde bu personelin
-                adı ve unvanıyla otomatik doldurulacaktır. Personel birden çok görev üstlenebilir.
+                Seçtiğiniz roller, yeni oluşturulan resmi belgelerde bu personelin adı ve unvanıyla
+                otomatik doldurulacaktır. Personel birden çok görev üstlenebilir.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
@@ -697,8 +655,7 @@ export default function PersonelScreen({
                       type="checkbox"
                       className="w-5 h-5 mt-0.5 text-blue-600 rounded border-slate-300 dark:border-slate-700 bg-transparent cursor-pointer"
                       checked={formData.assignedRoles?.includes(rol.rol_kodu)}
-                      onChange={(e) =>
-                        toggleRole(rol.rol_kodu, e.target.checked)}
+                      onChange={(e) => toggleRole(rol.rol_kodu, e.target.checked)}
                     />
                     <div className="flex flex-col">
                       <span className="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
@@ -715,14 +672,16 @@ export default function PersonelScreen({
           </div>
         </div>
       </form>
-    );
+    )
   }
 
   return (
     <div
-      className={isSubComponent
-        ? "flex flex-col gap-6 w-full animate-in fade-in duration-200"
-        : "p-8 max-w-[1600px] mx-auto flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto max-h-full"}
+      className={
+        isSubComponent
+          ? 'flex flex-col gap-6 w-full animate-in fade-in duration-200'
+          : 'p-8 max-w-[1600px] mx-auto flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto max-h-full'
+      }
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
         <div>
@@ -731,15 +690,12 @@ export default function PersonelScreen({
             Personel Yönetimi
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-            Kurum personelini buradan ekleyebilir, kadro unvanı ve kurum görevlerini belirleyebilirsiniz.
+            Kurum personelini buradan ekleyebilir, kadro unvanı ve kurum görevlerini
+            belirleyebilirsiniz.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <ExcelActions
-            tableName="TANIM_Personel"
-            title="Personeller"
-            uniqueCol="id"
-          />
+          <ExcelActions tableName="TANIM_Personel" title="Personeller" uniqueCol="id" />
           <ViewToggle viewMode={dataViewMode} onChange={setDataViewMode} />
           <Button
             onClick={(e) => openForm(e)}
@@ -752,281 +708,251 @@ export default function PersonelScreen({
 
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col flex-1 overflow-hidden min-h-[400px]">
         <div className="flex-1 overflow-auto p-4">
-          {isPersonelLoading
-            ? (
-              <div className="p-8 text-center text-slate-450 dark:text-slate-500 animate-pulse italic">
-                Yükleniyor...
-              </div>
-            )
-            : personelList.length === 0
-            ? (
-              <div className="p-16 flex flex-col items-center justify-center text-slate-450 bg-slate-50 dark:bg-slate-950 rounded-xl">
-                <Users className="w-12 h-12 mb-3 text-slate-300 dark:text-slate-700" />
-                <h3 className="text-base font-semibold text-slate-700 dark:text-slate-300">
-                  Henüz Personel Eklenmemiş
-                </h3>
-                <p className="text-xs mt-1 text-slate-500">
-                  Süreçlerde görev alacak personeli hemen eklemeye başlayın.
-                </p>
-              </div>
-            )
-            : dataViewMode === "grid"
-            ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {personelList.map((p) => {
-                  const assignedRoles = rollerList.filter((r) =>
-                    r.varsayilan_personel_id === p.id
-                  );
+          {isPersonelLoading ? (
+            <div className="p-8 text-center text-slate-450 dark:text-slate-500 animate-pulse italic">
+              Yükleniyor...
+            </div>
+          ) : personelList.length === 0 ? (
+            <div className="p-16 flex flex-col items-center justify-center text-slate-450 bg-slate-50 dark:bg-slate-950 rounded-xl">
+              <Users className="w-12 h-12 mb-3 text-slate-300 dark:text-slate-700" />
+              <h3 className="text-base font-semibold text-slate-700 dark:text-slate-300">
+                Henüz Personel Eklenmemiş
+              </h3>
+              <p className="text-xs mt-1 text-slate-500">
+                Süreçlerde görev alacak personeli hemen eklemeye başlayın.
+              </p>
+            </div>
+          ) : dataViewMode === 'grid' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {personelList.map((p) => {
+                const assignedRoles = rollerList.filter((r) => r.varsayilan_personel_id === p.id)
 
-                  return (
-                    <div
-                      key={p.id}
-                      onClick={() => handleViewClick(p)}
-                      className="flex flex-col p-4 bg-slate-50/50 dark:bg-slate-950/20 border border-slate-150 dark:border-slate-850 rounded-xl hover:border-blue-300 dark:hover:border-blue-800 transition-colors group relative cursor-pointer"
-                    >
-                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          title="Düzenle"
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => openForm(e, p)}
-                          className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                        >
-                          <Edit className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button
-                          title="Sil"
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => handleDelete(e, p.id)}
-                          className="h-7 w-7 p-0 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/15"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-
-                      <div className="flex items-center gap-3 mb-3 pr-12">
-                        <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm">
-                          {p.avatar
-                            ? (
-                              <img
-                                src={p.avatar}
-                                alt={p.ad_soyad}
-                                className="w-full h-full object-cover"
-                              />
-                            )
-                            : (
-                              <div className="w-full h-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm uppercase">
-                                {p.ad_soyad.slice(0, 2)}
-                              </div>
-                            )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 truncate">
-                            {p.ad_soyad}
-                          </h4>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                            {p.unvan || "Unvan Belirtilmedi"}
-                          </p>
-                          {p.gorev && (
-                            <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium truncate">
-                              Görev: {p.gorev}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400 mb-4 flex-1">
-                        {p.birim && (
-                          <div className="truncate">🏢 {p.birim}</div>
-                        )}
-                        {p.sicil_no && (
-                          <div className="truncate">
-                            📋 Sicil No: {p.sicil_no}
-                          </div>
-                        )}
-                        {p.telefon && <div>📞 {p.telefon}</div>}
-                        {p.eposta && (
-                          <div className="truncate">✉️ {p.eposta}</div>
-                        )}
-                      </div>
-
-                      <div className="flex flex-wrap gap-1 mt-auto border-t border-slate-200/60 dark:border-slate-800/60 pt-3">
-                        {assignedRoles.length > 0
-                          ? (
-                            assignedRoles.map((role) => (
-                              <span
-                                key={role.rol_kodu}
-                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50"
-                              >
-                                <Shield className="w-3 h-3" /> {role.rol_adi}
-                              </span>
-                            ))
-                          )
-                          : (
-                            <span className="text-[10px] text-slate-400 italic">
-                              Özel yetki yok
-                            </span>
-                          )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )
-            : dataViewMode === "list"
-            ? (
-              <div className="flex flex-col gap-3">
-                {personelList.map((p) => {
-                  const assignedRoles = rollerList.filter((r) =>
-                    r.varsayilan_personel_id === p.id
-                  );
-                  return (
-                    <div
-                      key={p.id}
-                      onClick={() => handleViewClick(p)}
-                      className="flex items-center p-3 bg-slate-50/50 dark:bg-slate-950/20 border border-slate-150 dark:border-slate-850 rounded-xl hover:border-blue-300 dark:hover:border-blue-800 transition-colors group relative cursor-pointer"
-                    >
-                      <div className="flex flex-col sm:flex-row flex-1 gap-3 sm:items-center pr-16">
-                        <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm">
-                          {p.avatar
-                            ? (
-                              <img
-                                src={p.avatar}
-                                alt={p.ad_soyad}
-                                className="w-full h-full object-cover"
-                              />
-                            )
-                            : (
-                              <div className="w-full h-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm uppercase">
-                                {p.ad_soyad.slice(0, 2)}
-                              </div>
-                            )}
-                        </div>
-
-                        <div className="flex-1 min-w-[180px]">
-                          <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 truncate">
-                            {p.ad_soyad}
-                          </h4>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                            {p.unvan || "Unvan Belirtilmedi"}
-                          </p>
-                        </div>
-
-                        <div className="flex-1 min-w-[140px]">
-                          <span className="text-[10px] uppercase font-bold text-slate-400 block">Görev</span>
-                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate block">
-                            {p.gorev || "-"}
-                          </span>
-                        </div>
-
-                        <div className="flex-1 min-w-[150px] text-[11px] text-slate-500 dark:text-slate-400">
-                          {p.birim && (
-                            <div className="truncate">🏢 {p.birim}</div>
-                          )}
-                          {p.telefon && <div>📞 {p.telefon}</div>}
-                        </div>
-
-                        <div className="flex flex-wrap gap-1 min-w-[150px] justify-end">
-                          {assignedRoles.length > 0
-                            ? (
-                              assignedRoles.map((role) => (
-                                <span
-                                  key={role.rol_kodu}
-                                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50"
-                                >
-                                  <Shield className="w-3 h-3" /> {role.rol_adi}
-                                </span>
-                              ))
-                            )
-                            : (
-                              <span className="text-[10px] text-slate-400 italic">
-                                Yetki yok
-                              </span>
-                            )}
-                        </div>
-                      </div>
-
-                      <div className="absolute right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-50/90 dark:bg-slate-950/90 p-1 rounded-lg backdrop-blur-sm">
-                        <Button
-                          title="Düzenle"
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => openForm(e, p)}
-                          className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          title="Sil"
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => handleDelete(e, p.id)}
-                          className="h-7 w-7 p-0 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/15"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )
-            : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-slate-600 dark:text-slate-400">
-                  <thead className="bg-slate-50 dark:bg-slate-900/50 text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
-                    <tr>
-                      <th className="px-4 py-3">Ad Soyad</th>
-                      <th className="px-4 py-3">Kadro Unvanı</th>
-                      <th className="px-4 py-3">Görevi</th>
-                      <th className="px-4 py-3">Birim</th>
-                      <th className="px-4 py-3">Telefon</th>
-                      <th className="px-4 py-3 text-right">İşlemler</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {personelList.map((p) => (
-                      <tr
-                        key={p.id}
-                        onClick={() => handleViewClick(p)}
-                        className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors group cursor-pointer"
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => handleViewClick(p)}
+                    className="flex flex-col p-4 bg-slate-50/50 dark:bg-slate-950/20 border border-slate-150 dark:border-slate-850 rounded-xl hover:border-blue-300 dark:hover:border-blue-800 transition-colors group relative cursor-pointer"
+                  >
+                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        title="Düzenle"
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => openForm(e, p)}
+                        className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                       >
-                        <td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-200">
-                          {p.ad_soyad}
-                        </td>
-                        <td className="px-4 py-3">{p.unvan || "-"}</td>
-                        <td className="px-4 py-3 font-medium text-slate-700 dark:text-slate-300">{p.gorev || "-"}</td>
-                        <td className="px-4 py-3">{p.birim || "-"}</td>
-                        <td className="px-4 py-3">{p.telefon || "-"}</td>
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => openForm(e, p)}
-                              className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600"
-                            >
-                              <Edit className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => handleDelete(e, p.id)}
-                              className="h-7 w-7 p-0 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/15"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
+                        <Edit className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        title="Sil"
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => handleDelete(e, p.id)}
+                        className="h-7 w-7 p-0 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/15"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+
+                    <div className="flex items-center gap-3 mb-3 pr-12">
+                      <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm">
+                        {p.avatar ? (
+                          <img
+                            src={p.avatar}
+                            alt={p.ad_soyad}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm uppercase">
+                            {p.ad_soyad.slice(0, 2)}
                           </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 truncate">
+                          {p.ad_soyad}
+                        </h4>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                          {p.unvan || 'Unvan Belirtilmedi'}
+                        </p>
+                        {p.gorev && (
+                          <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium truncate">
+                            Görev: {p.gorev}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400 mb-4 flex-1">
+                      {p.birim && <div className="truncate">🏢 {p.birim}</div>}
+                      {p.sicil_no && <div className="truncate">📋 Sicil No: {p.sicil_no}</div>}
+                      {p.telefon && <div>📞 {p.telefon}</div>}
+                      {p.eposta && <div className="truncate">✉️ {p.eposta}</div>}
+                    </div>
+
+                    <div className="flex flex-wrap gap-1 mt-auto border-t border-slate-200/60 dark:border-slate-800/60 pt-3">
+                      {assignedRoles.length > 0 ? (
+                        assignedRoles.map((role) => (
+                          <span
+                            key={role.rol_kodu}
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50"
+                          >
+                            <Shield className="w-3 h-3" /> {role.rol_adi}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-[10px] text-slate-400 italic">Özel yetki yok</span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ) : dataViewMode === 'list' ? (
+            <div className="flex flex-col gap-3">
+              {personelList.map((p) => {
+                const assignedRoles = rollerList.filter((r) => r.varsayilan_personel_id === p.id)
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => handleViewClick(p)}
+                    className="flex items-center p-3 bg-slate-50/50 dark:bg-slate-950/20 border border-slate-150 dark:border-slate-850 rounded-xl hover:border-blue-300 dark:hover:border-blue-800 transition-colors group relative cursor-pointer"
+                  >
+                    <div className="flex flex-col sm:flex-row flex-1 gap-3 sm:items-center pr-16">
+                      <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm">
+                        {p.avatar ? (
+                          <img
+                            src={p.avatar}
+                            alt={p.ad_soyad}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm uppercase">
+                            {p.ad_soyad.slice(0, 2)}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-[180px]">
+                        <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 truncate">
+                          {p.ad_soyad}
+                        </h4>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                          {p.unvan || 'Unvan Belirtilmedi'}
+                        </p>
+                      </div>
+
+                      <div className="flex-1 min-w-[140px]">
+                        <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                          Görev
+                        </span>
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate block">
+                          {p.gorev || '-'}
+                        </span>
+                      </div>
+
+                      <div className="flex-1 min-w-[150px] text-[11px] text-slate-500 dark:text-slate-400">
+                        {p.birim && <div className="truncate">🏢 {p.birim}</div>}
+                        {p.telefon && <div>📞 {p.telefon}</div>}
+                      </div>
+
+                      <div className="flex flex-wrap gap-1 min-w-[150px] justify-end">
+                        {assignedRoles.length > 0 ? (
+                          assignedRoles.map((role) => (
+                            <span
+                              key={role.rol_kodu}
+                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50"
+                            >
+                              <Shield className="w-3 h-3" /> {role.rol_adi}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-[10px] text-slate-400 italic">Yetki yok</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="absolute right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-50/90 dark:bg-slate-950/90 p-1 rounded-lg backdrop-blur-sm">
+                      <Button
+                        title="Düzenle"
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => openForm(e, p)}
+                        className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        title="Sil"
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => handleDelete(e, p.id)}
+                        className="h-7 w-7 p-0 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/15"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm text-slate-600 dark:text-slate-400">
+                <thead className="bg-slate-50 dark:bg-slate-900/50 text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                  <tr>
+                    <th className="px-4 py-3">Ad Soyad</th>
+                    <th className="px-4 py-3">Kadro Unvanı</th>
+                    <th className="px-4 py-3">Görevi</th>
+                    <th className="px-4 py-3">Birim</th>
+                    <th className="px-4 py-3">Telefon</th>
+                    <th className="px-4 py-3 text-right">İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {personelList.map((p) => (
+                    <tr
+                      key={p.id}
+                      onClick={() => handleViewClick(p)}
+                      className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors group cursor-pointer"
+                    >
+                      <td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-200">
+                        {p.ad_soyad}
+                      </td>
+                      <td className="px-4 py-3">{p.unvan || '-'}</td>
+                      <td className="px-4 py-3 font-medium text-slate-700 dark:text-slate-300">
+                        {p.gorev || '-'}
+                      </td>
+                      <td className="px-4 py-3">{p.birim || '-'}</td>
+                      <td className="px-4 py-3">{p.telefon || '-'}</td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => openForm(e, p)}
+                            className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600"
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleDelete(e, p.id)}
+                            className="h-7 w-7 p-0 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/15"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>
-  );
+  )
 }

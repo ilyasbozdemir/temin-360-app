@@ -12,11 +12,7 @@ import {
   TrendingUp,
   X
 } from 'lucide-react'
-import {
-  AY_ISIMLERI,
-  YearEndeksGroup,
-  yiUfeService
-} from '../../../services/yiUfeService'
+import { AY_ISIMLERI, YearEndeksGroup, yiUfeService } from '../../../services/yiUfeService'
 import { useWorkspaceStore } from '../../../store/workspaceStore'
 import { useDosyalarHooks } from '../../dosyalar/dosyalar.hooks'
 
@@ -24,7 +20,9 @@ export function YiUfeEndeksTab(): React.JSX.Element {
   const [dataVersion, setDataVersion] = useState(0)
   const [yearGroups, setYearGroups] = useState<YearEndeksGroup[]>([])
   const [searchYear, setSearchYear] = useState('')
-  const [selectedDecade, setSelectedDecade] = useState<'ALL' | '2020s' | '2010s' | '2000s' | '1990s'>('ALL')
+  const [selectedDecade, setSelectedDecade] = useState<
+    'ALL' | '2020s' | '2010s' | '2000s' | '1990s'
+  >('ALL')
 
   // Aktif Dosya ve Varsayılan Yıl Entegrasyonu
   const { activeDosyaId } = useWorkspaceStore()
@@ -171,7 +169,9 @@ export function YiUfeEndeksTab(): React.JSX.Element {
     await yiUfeService.saveOrUpdateEndeks(modalYil, modalAy, num, modalAciklama)
     setYearGroups(yiUfeService.getGroupedByYears())
     setShowAddModal(false)
-    setSaveSuccessMsg(`${modalYil} ${AY_ISIMLERI[modalAy - 1]} Yİ-ÜFE endeksi başarıyla kaydedildi: ${modalEndeks}`)
+    setSaveSuccessMsg(
+      `${modalYil} ${AY_ISIMLERI[modalAy - 1]} Yİ-ÜFE endeksi başarıyla kaydedildi: ${modalEndeks}`
+    )
     setTimeout(() => setSaveSuccessMsg(null), 3500)
   }
 
@@ -273,9 +273,7 @@ export function YiUfeEndeksTab(): React.JSX.Element {
 
           <div className="bg-white/5 rounded-2xl p-3 border border-white/10">
             <div className="text-[11px] text-indigo-200 font-medium">Kapsanan Veri Seti</div>
-            <div className="text-xl sm:text-2xl font-black text-white mt-0.5 font-mono">
-              33 Yıl
-            </div>
+            <div className="text-xl sm:text-2xl font-black text-white mt-0.5 font-mono">33 Yıl</div>
             <div className="text-[10px] text-indigo-300/80 mt-0.5">1994 - 2026 (392 Ay)</div>
           </div>
         </div>
@@ -300,7 +298,8 @@ export function YiUfeEndeksTab(): React.JSX.Element {
                 Yİ-ÜFE Fiyat Güncelleme / Esleme Hesaplayıcı
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Geçmiş tarihli bir alım fiyatının bugünkü Yİ-ÜFE karşılığını ve fiyat farkı katsayısını hesaplar.
+                Geçmiş tarihli bir alım fiyatının bugünkü Yİ-ÜFE karşılığını ve fiyat farkı
+                katsayısını hesaplar.
               </p>
             </div>
           </div>
@@ -357,7 +356,9 @@ export function YiUfeEndeksTab(): React.JSX.Element {
               >
                 <Info
                   className={`w-4 h-4 mt-0.5 shrink-0 ${
-                    activeDosya ? 'text-blue-600 dark:text-blue-400' : 'text-amber-600 dark:text-amber-400'
+                    activeDosya
+                      ? 'text-blue-600 dark:text-blue-400'
+                      : 'text-amber-600 dark:text-amber-400'
                   }`}
                 />
                 <div className="space-y-0.5 leading-snug">
@@ -369,11 +370,19 @@ export function YiUfeEndeksTab(): React.JSX.Element {
                   <p className="text-[11px] opacity-90">
                     {activeDosya ? (
                       <>
-                        Açık olan <strong>{activeDosya.temin_no ? `[${activeDosya.temin_no}]` : ''} {activeDosya.konu || 'çalışma dosyanızın'}</strong> bütçe yılı (<strong>{defaultBaseYear}</strong>) otomatik varsayılan baz dönem olarak seçilmiştir.
+                        Açık olan{' '}
+                        <strong>
+                          {activeDosya.temin_no ? `[${activeDosya.temin_no}]` : ''}{' '}
+                          {activeDosya.konu || 'çalışma dosyanızın'}
+                        </strong>{' '}
+                        bütçe yılı (<strong>{defaultBaseYear}</strong>) otomatik varsayılan baz
+                        dönem olarak seçilmiştir.
                       </>
                     ) : (
                       <>
-                        Şu anda açık bir çalışma dosyası bulunmadığı için cari yıl (<strong>{defaultBaseYear}</strong>) varsayılan baz dönem olarak ayarlanmıştır.
+                        Şu anda açık bir çalışma dosyası bulunmadığı için cari yıl (
+                        <strong>{defaultBaseYear}</strong>) varsayılan baz dönem olarak
+                        ayarlanmıştır.
                       </>
                     )}
                   </p>
@@ -462,13 +471,17 @@ export function YiUfeEndeksTab(): React.JSX.Element {
 
             <div className="pt-3 mt-3 border-t border-blue-200 dark:border-indigo-900/60 grid grid-cols-2 gap-2 text-xs">
               <div>
-                <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Enflasyon Farkı:</span>
+                <span className="text-slate-500 dark:text-slate-400 block text-[11px]">
+                  Enflasyon Farkı:
+                </span>
                 <span className="font-bold text-slate-800 dark:text-slate-200 font-mono">
                   +₺{formatNumber(simResult.fark)}
                 </span>
               </div>
               <div>
-                <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Artış Oranı:</span>
+                <span className="text-slate-500 dark:text-slate-400 block text-[11px]">
+                  Artış Oranı:
+                </span>
                 <span className="font-black text-indigo-600 dark:text-indigo-400 font-mono">
                   +%{formatNumber(simResult.percentChange)}
                 </span>
@@ -508,12 +521,12 @@ export function YiUfeEndeksTab(): React.JSX.Element {
                   {dec === 'ALL'
                     ? 'Tümü'
                     : dec === '2020s'
-                    ? '2020+'
-                    : dec === '2010s'
-                    ? '2010-19'
-                    : dec === '2000s'
-                    ? '2000-09'
-                    : '1990-99'}
+                      ? '2020+'
+                      : dec === '2010s'
+                        ? '2010-19'
+                        : dec === '2000s'
+                          ? '2000-09'
+                          : '1990-99'}
                 </button>
               ))}
             </div>

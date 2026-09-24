@@ -10,7 +10,10 @@ import {
   ChevronRight
 } from 'lucide-react'
 import { DirtySummaryData } from './header.types'
-import { TABLE_DESCRIPTIONS, TABLE_FRIENDLY_NAMES } from '../../../../../shared/constants/databaseConstants'
+import {
+  TABLE_DESCRIPTIONS,
+  TABLE_FRIENDLY_NAMES
+} from '../../../../../shared/constants/databaseConstants'
 
 interface DirtySummaryPopoverProps {
   fileName?: string
@@ -54,9 +57,7 @@ export function DirtySummaryPopover({
         </span>
       </div>
 
-      <span className="text-slate-300 dark:text-slate-700 select-none hidden sm:inline">
-        •
-      </span>
+      <span className="text-slate-300 dark:text-slate-700 select-none hidden sm:inline">•</span>
 
       {saveFeedback ? (
         <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400 animate-pulse flex items-center gap-1">
@@ -176,7 +177,12 @@ export function DirtySummaryPopover({
                               <span className="leading-tight">{description}</span>
                             </div>
                             <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 font-mono pt-1 text-[9px] border-t border-slate-100 dark:border-slate-800">
-                              <span>İşlem: <strong className="text-amber-700 dark:text-amber-300">{item.actionLabel} ({item.count} adet)</strong></span>
+                              <span>
+                                İşlem:{' '}
+                                <strong className="text-amber-700 dark:text-amber-300">
+                                  {item.actionLabel} ({item.count} adet)
+                                </strong>
+                              </span>
                               <span>Son Güncelleme: {item.lastTime}</span>
                             </div>
                           </div>
