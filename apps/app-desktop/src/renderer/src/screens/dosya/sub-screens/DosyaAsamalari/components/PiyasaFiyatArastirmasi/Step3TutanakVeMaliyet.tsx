@@ -57,18 +57,18 @@ export function Step3TutanakVeMaliyet({
         }}
       />
 
-      {/* Adım 3 Alt Geri Dönüş Çubuğu */}
-      <div className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
+      {/* 3. Adım Alt İlerleme & Tamamlanma Çubuğu */}
+      <div className="flex items-center justify-between p-3.5 px-5 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
         <button
           type="button"
           onClick={() => setCurrentStep(2)}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors cursor-pointer border-0"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all shadow-2xs cursor-pointer border border-slate-200/80 dark:border-slate-700 active:scale-95"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>2. Adıma Dön (Fiyatlar & Kazanan)</span>
         </button>
-        <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-          <CheckCircle2 className="w-4 h-4" />
+        <div className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
           <span>Piyasa Fiyat Araştırma Süreci Tamamlandı</span>
         </div>
       </div>
