@@ -130,11 +130,43 @@ export function registerDbIpcHandlers(): void {
         value: string
       }[]
       const settingsObj: Record<string, string> = {}
-      for (const row of rows) {
-        // Do not leak raw password hashes/secrets in default settings query if not authenticated
-        if (row.key !== 'adminPassword') {
-          settingsObj[row.key] = row.value
+      for (const r of rows) {
+        if (r.key && r.value !== undefined && r.value !== null) {
+          settingsObj[r.key] = r.value
         }
+      }
+
+      // Fallback from TANIM_Kurum if not present in settings
+      try {
+        const kurumRow = db
+          .prepare(
+            'SELECT kurum_adi, kurum_anteti, logo_kurum, logo_sol, logo_sag FROM TANIM_Kurum WHERE is_deleted = 0 OR is_deleted IS NULL ORDER BY id ASC LIMIT 1'
+          )
+          .get() as {
+          kurum_adi?: string
+          kurum_anteti?: string
+          logo_kurum?: string
+          logo_sol?: string
+          logo_sag?: string
+        } | undefined
+
+        if (kurumRow) {
+          if (!settingsObj.institutionName || settingsObj.institutionName === 'Bilinmeyen Kurum') {
+            settingsObj.institutionName =
+              kurumRow.kurum_adi || kurumRow.kurum_anteti || 'Bilinmeyen Kurum'
+          }
+          if (!settingsObj.institutionLogo && kurumRow.logo_kurum) {
+            settingsObj.institutionLogo = kurumRow.logo_kurum
+          }
+          if (!settingsObj.logoLeft && kurumRow.logo_sol) {
+            settingsObj.logoLeft = kurumRow.logo_sol
+          }
+          if (!settingsObj.logoRight && kurumRow.logo_sag) {
+            settingsObj.logoRight = kurumRow.logo_sag
+          }
+        }
+      } catch {
+        // TANIM_Kurum table may not exist yet
       }
 
       return {
