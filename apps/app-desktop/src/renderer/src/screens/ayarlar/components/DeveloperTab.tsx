@@ -6,7 +6,8 @@ import {
   FileSpreadsheet,
   Loader2,
   RefreshCw,
-  Sparkles
+  Sparkles,
+  Zap
 } from 'lucide-react'
 import { devSeedService, SeedResult } from '../../../services/devSeedService'
 import { useQueryClient } from '@tanstack/react-query'
@@ -157,7 +158,31 @@ export const DeveloperTab: React.FC<DeveloperTabProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            <button
+              onClick={() => {
+                const current = localStorage.getItem('temin_splash_enabled') !== 'false'
+                localStorage.setItem('temin_splash_enabled', current ? 'false' : 'true')
+                alert(`Açılış Splash Ekranı: ${!current ? 'Açık (Her açılışta gösterilecek)' : 'Kapalı (Doğrudan arayüz açılacak)'}`)
+              }}
+              type="button"
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
+              title="Açılışta Splash ekranının gösterilip gösterilmeyeceğini ayarlar"
+            >
+              <Zap className="w-3.5 h-3.5 text-blue-500" />
+              <span>Açılışta Göster: {localStorage.getItem('temin_splash_enabled') === 'false' ? 'Kapalı' : 'Açık'}</span>
+            </button>
+
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('show-splash-screen'))}
+              type="button"
+              className="flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl shadow-2xs transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
+              title="Açılış Splash / Tanıtım animasyonunu yeniden çalıştırır"
+            >
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              <span>Splash Ekranını Önizle</span>
+            </button>
+
             <button
               onClick={() => handleSeedAll(true)}
               disabled={seeding}
