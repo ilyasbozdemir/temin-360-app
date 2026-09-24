@@ -166,6 +166,8 @@ export function PiyasaFiyatArastirmasi(): React.JSX.Element {
           manualWinnerFirmaId={manualWinnerFirmaId}
           handleSetWinnerFirma={handleSetWinnerFirma}
           lowestTotalFirmaId={lowestTotalFirmaId}
+          hesaplamaEsasi={hesaplamaEsasi}
+          setHesaplamaEsasi={setHesaplamaEsasi}
         />
       ) : (
         <PiyasaFiyatArastirmasiForm

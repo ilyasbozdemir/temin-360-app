@@ -42,6 +42,8 @@ export interface PiyasaFiyatArastirmasiDashboardProps {
   manualWinnerFirmaId?: number | null
   handleSetWinnerFirma?: (firmaMasterId: number | null) => Promise<void>
   lowestTotalFirmaId?: number | null
+  hesaplamaEsasi?: string
+  setHesaplamaEsasi?: (val: string) => Promise<void> | void
 }
 
 export interface DagitimBelgeleriKartlariProps {
@@ -55,6 +57,8 @@ export interface KazananKararPaneliProps {
   handleSetWinnerFirma?: (firmaMasterId: number | null) => Promise<void>
   setIsFormOpen: (val: boolean) => void
   setActiveFormTab: (tab: 'firms' | 'matrix') => void
+  hesaplamaEsasi?: string
+  setHesaplamaEsasi?: (val: string) => Promise<void> | void
 }
 
 export interface PiyasaFiyatStepperProps {

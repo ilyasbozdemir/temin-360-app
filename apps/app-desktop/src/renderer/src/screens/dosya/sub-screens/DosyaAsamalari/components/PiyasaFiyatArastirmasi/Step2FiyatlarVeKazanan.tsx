@@ -1,7 +1,7 @@
-import React from 'react'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
-import { PricesSummaryDashboard } from '../PricesSummaryDashboard'
-import { KazananKararPaneli } from './KazananKararPaneli'
+import React from "react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { PricesSummaryDashboard } from "../PricesSummaryDashboard";
+import { KazananKararPaneli } from "./KazananKararPaneli";
 
 interface Step2FiyatlarVeKazananProps {
   activeWinnerFirma: any
@@ -14,6 +14,8 @@ interface Step2FiyatlarVeKazananProps {
   setIsFormOpen: (val: boolean) => void
   setActiveFormTab: (tab: 'firms' | 'matrix') => void
   setCurrentStep: (step: 1 | 2 | 3) => void
+  hesaplamaEsasi?: string
+  setHesaplamaEsasi?: (val: string) => Promise<void> | void
 }
 
 export function Step2FiyatlarVeKazanan({
@@ -26,7 +28,9 @@ export function Step2FiyatlarVeKazanan({
   handleSetWinnerFirma,
   setIsFormOpen,
   setActiveFormTab,
-  setCurrentStep
+  setCurrentStep,
+  hesaplamaEsasi,
+  setHesaplamaEsasi
 }: Step2FiyatlarVeKazananProps): React.JSX.Element {
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-200">
@@ -37,6 +41,8 @@ export function Step2FiyatlarVeKazanan({
         handleSetWinnerFirma={handleSetWinnerFirma}
         setIsFormOpen={setIsFormOpen}
         setActiveFormTab={setActiveFormTab}
+        hesaplamaEsasi={hesaplamaEsasi}
+        setHesaplamaEsasi={setHesaplamaEsasi}
       />
 
       {/* Fiyat Matrisi Dashboard */}
@@ -46,6 +52,7 @@ export function Step2FiyatlarVeKazanan({
         bids={bids}
         manualWinnerFirmaId={manualWinnerFirmaId}
         handleSetWinnerFirma={handleSetWinnerFirma}
+        hesaplamaEsasi={hesaplamaEsasi}
         onManageFirmsClick={() => {
           setIsFormOpen(true)
           setActiveFormTab('firms')
@@ -72,5 +79,5 @@ export function Step2FiyatlarVeKazanan({
         </button>
       </div>
     </div>
-  )
+  );
 }

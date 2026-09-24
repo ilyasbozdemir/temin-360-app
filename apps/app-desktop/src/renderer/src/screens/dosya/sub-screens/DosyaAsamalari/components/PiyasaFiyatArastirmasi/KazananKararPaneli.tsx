@@ -7,8 +7,15 @@ export function KazananKararPaneli({
   lowestBidFirm,
   handleSetWinnerFirma,
   setIsFormOpen,
-  setActiveFormTab
+  setActiveFormTab,
+  hesaplamaEsasi,
+  setHesaplamaEsasi
 }: KazananKararPaneliProps): React.JSX.Element {
+  const isLowestBasis =
+    !hesaplamaEsasi ||
+    hesaplamaEsasi.toLowerCase().includes('en düşük') ||
+    hesaplamaEsasi.toLowerCase().includes('en dusuk')
+
   return (
     <div className="p-4 rounded-2xl border border-amber-200/80 dark:border-amber-900/50 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
       <div className="flex items-start gap-3">
@@ -16,10 +23,28 @@ export function KazananKararPaneli({
           <Trophy className="w-5 h-5" />
         </div>
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <h4 className="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">
               Seçilen / En Uygun Teklif Sahibi
             </h4>
+
+            {/* Dosyadaki Hesaplama Esası Göstergesi / Değiştirici */}
+            {setHesaplamaEsasi ? (
+              <select
+                value={hesaplamaEsasi || 'En Düşük fiyat esasına göre'}
+                onChange={(e) => setHesaplamaEsasi(e.target.value)}
+                className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100/90 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-300/80 dark:border-amber-800/80 focus:outline-none cursor-pointer"
+                title="Dosya Hesaplama Esasını Değiştir"
+              >
+                <option value="En Düşük fiyat esasına göre">⚙️ En Düşük Fiyat Esası</option>
+                <option value="Ortalama fiyat esasına göre">⚙️ Ortalama Fiyat Esası</option>
+              </select>
+            ) : (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-800">
+                {isLowestBasis ? 'En Düşük Fiyat Esası' : 'Ortalama Fiyat Esası'}
+              </span>
+            )}
+
             {activeWinnerFirma && (
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">
                 Onaylandı
@@ -30,7 +55,7 @@ export function KazananKararPaneli({
             {activeWinnerFirma
               ? activeWinnerFirma.unvan
               : lowestBidFirm
-                ? `${lowestBidFirm.unvan} (En Düşük Teklif)`
+                ? `${lowestBidFirm.unvan} (${isLowestBasis ? 'En Düşük Teklif' : 'En Uygun Teklif'})`
                 : 'Henüz teklif girilmedi veya kazanan seçilmedi'}
           </div>
         </div>
@@ -58,10 +83,10 @@ export function KazananKararPaneli({
               }
             }}
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs transition-all shadow-xs cursor-pointer border-0 active:scale-95"
-            title={`En düşük teklif sahibi (${lowestBidFirm.unvan}) kazanan olarak atanır.`}
+            title={`${isLowestBasis ? 'En düşük' : 'En uygun'} teklif sahibi (${lowestBidFirm.unvan}) kazanan olarak atanır.`}
           >
             <Sparkles className="w-3.5 h-3.5 text-slate-950" />
-            En Düşük Teklifi Kazanan Yap
+            {isLowestBasis ? 'En Düşük Teklifi Kazanan Yap' : 'En Uygun Teklifi Kazanan Yap'}
           </button>
         )}
 

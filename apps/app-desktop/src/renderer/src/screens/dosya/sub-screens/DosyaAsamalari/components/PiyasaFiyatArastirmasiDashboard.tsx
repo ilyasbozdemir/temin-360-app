@@ -93,6 +93,8 @@ export function PiyasaFiyatArastirmasiDashboard(
           setIsFormOpen={setIsFormOpen}
           setActiveFormTab={setActiveFormTab}
           setCurrentStep={setCurrentStep}
+          hesaplamaEsasi={props.hesaplamaEsasi}
+          setHesaplamaEsasi={props.setHesaplamaEsasi}
         />
       )}
 
