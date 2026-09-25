@@ -45,7 +45,9 @@ export function registerDbIpcHandlers(): void {
         const info = stmt.run(...params)
         const { tableName, action } = extractTableAndAction(sql)
         workspaceManager.recordMutation(tableName, action, info.changes || 1)
-        workspaceManager.save()
+        if (workspaceManager.isDirty()) {
+          workspaceManager.save()
+        }
         return { success: true, lastInsertRowid: info.lastInsertRowid, changes: info.changes }
       }
 
@@ -73,7 +75,9 @@ export function registerDbIpcHandlers(): void {
         const info = stmt.run(...actualParams)
         const { tableName, action } = extractTableAndAction(sql)
         workspaceManager.recordMutation(tableName, action, info.changes || 1)
-        workspaceManager.save()
+        if (workspaceManager.isDirty()) {
+          workspaceManager.save()
+        }
         return { success: true, lastInsertRowid: info.lastInsertRowid, changes: info.changes }
       }
 
@@ -113,7 +117,9 @@ export function registerDbIpcHandlers(): void {
       })
 
       transaction(queries)
-      workspaceManager.save()
+      if (workspaceManager.isDirty()) {
+        workspaceManager.save()
+      }
 
       return { success: true, lastInsertRowid, changes: totalChanges }
     } catch (error: any) {

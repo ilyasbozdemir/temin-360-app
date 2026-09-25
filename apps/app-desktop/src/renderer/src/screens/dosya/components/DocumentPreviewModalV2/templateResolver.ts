@@ -210,7 +210,8 @@ export const TEMPLATE_OPTIONS: TemplateOptionItem[] = [
 ]
 
 export const TEMPLATE_ALIASES: Record<string, string> = {
-  // Onay Belgeleri (Aşama 1)
+  // Onay Belgeleri (Aşama 1 - Harcama Talimatı)
+  '1-ihtiyac-tespiti-ve-baslangic-dogrudan-temin-onay-belgesi': 'harcama-talimati',
   'dogrudan-temin-onay-belgesi': 'harcama-talimati',
   'dogrudan-temin-onay': 'harcama-talimati',
   'idare-onay-belgesi': 'harcama-talimati',
@@ -226,7 +227,10 @@ export const TEMPLATE_ALIASES: Record<string, string> = {
   talimat: 'harcama-talimati',
   'harcama-onay-belgesi': 'harcama-talimati',
 
-  // Sonuç Onay Belgeleri (Aşama 3)
+  // Sonuç Onay Belgeleri (Aşama 3 - Sonuç Onay Belgesi)
+  '3-siparis-ve-sozlesme-dogrudan-temin-onay-belgesi': 'dogrudan-temin-sonuc-onay-belgesi',
+  'siparis-ve-sozlesme-dogrudan-temin-onay-belgesi': 'dogrudan-temin-sonuc-onay-belgesi',
+  'siparis-dogrudan-temin-onay-belgesi': 'dogrudan-temin-sonuc-onay-belgesi',
   'dogrudan-temin-sonuc-onay-belgesi': 'dogrudan-temin-sonuc-onay-belgesi',
   'sonuc-onay-belgesi': 'dogrudan-temin-sonuc-onay-belgesi',
   sonuconaybelgesi: 'dogrudan-temin-sonuc-onay-belgesi',

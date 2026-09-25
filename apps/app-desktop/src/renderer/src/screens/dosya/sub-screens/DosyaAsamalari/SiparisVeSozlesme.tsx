@@ -315,19 +315,11 @@ export function SiparisVeSozlesme(): React.JSX.Element {
 
   // Belge Açma Yardımcıları
   const handleOpenSonucOnay = () => {
-    const s = stageSablons.find(
-      (sb) =>
-        normalizeForMatch(sb.dosya_adi + sb.ad).includes("sonuconay") ||
-        normalizeForMatch(sb.dosya_adi + sb.ad).includes("onaybelgesi"),
-    );
-    if (s) handleOpenPreviewForSablon(s, s.ad);
-    else {
-      useGlobalDocumentPreviewStore.getState().openDocument({
-        documentId: "dogrudan-temin-sonuc-onay-belgesi",
-        dosyaId: activeDosyaId || undefined,
-        documentTitle: "Doğrudan Temin Sonuç Onay Belgesi",
-      });
-    }
+    useGlobalDocumentPreviewStore.getState().openDocument({
+      documentId: "dogrudan-temin-sonuc-onay-belgesi",
+      dosyaId: activeDosyaId || undefined,
+      documentTitle: "Doğrudan Temin Sonuç Onay Belgesi",
+    });
   };
 
   const handleOpenKabulMektubu = () => {

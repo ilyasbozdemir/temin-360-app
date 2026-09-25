@@ -11,6 +11,7 @@
   --theme-bg-300: var(--bg-300, #f4f4f5);
   --theme-text-100: var(--text-100, #09090b);
   --theme-text-200: var(--text-200, #71717a);
+  /* Dynamic border & scrollbar mappings */
   --theme-border-100: var(--primary-100, #e4e4e7);
   --theme-border-200: var(--primary-200, #d4d4d8);
 
@@ -24,16 +25,6 @@
   --theme-sidebar-active-text: var(--sidebar-active-text, #ffffff);
   --theme-sidebar-active-border: var(--sidebar-active-border, rgba(255, 255, 255, 0.15));
 
-  /* Override Tailwind v4 color variables in Light Mode */
-  --color-blue-600: var(--theme-primary);
-  --color-blue-650: var(--theme-primary);
-  --color-blue-605: var(--theme-primary-hover);
-  --color-blue-500: var(--theme-primary-hover);
-  --color-blue-700: var(--theme-primary);
-
-  --color-slate-50: var(--theme-bg-200);
-  --color-slate-55: var(--theme-bg-300);
-
   /* Map Sidebar Colors to classes */
   --color-sidebar-bg: var(--theme-sidebar-bg);
   --color-sidebar-text: var(--theme-sidebar-text);
@@ -46,9 +37,9 @@
 }
 
 .dark {
-  /* Dynamic CSS variable mappings for Dark Mode (Zinc Grayscale Default) */
-  --theme-primary: var(--accent-100, #fafafa);
-  --theme-primary-hover: var(--accent-200, #f4f4f5);
+  /* Dynamic CSS variable mappings for Dark Mode */
+  --theme-primary: var(--accent-100, #3b82f6);
+  --theme-primary-hover: var(--accent-200, #2563eb);
   --theme-bg-100: var(--bg-100, #09090b);
   --theme-bg-200: var(--bg-200, #18181b);
   --theme-bg-300: var(--bg-300, #09090b);
@@ -66,13 +57,6 @@
   --theme-sidebar-active-bg: var(--sidebar-active-bg, rgba(255, 255, 255, 0.08));
   --theme-sidebar-active-text: var(--sidebar-active-text, #ffffff);
   --theme-sidebar-active-border: var(--theme-sidebar-active-border, rgba(255, 255, 255, 0.15));
-
-  /* Override Tailwind v4 color variables in Dark Mode */
-  --color-blue-600: var(--theme-primary);
-  --color-blue-650: var(--theme-primary-hover);
-  --color-blue-605: var(--theme-primary);
-  --color-blue-500: var(--theme-primary-hover);
-  --color-blue-700: var(--theme-primary-hover);
 
   --color-slate-900: var(--theme-bg-100);
   --color-slate-950: var(--theme-bg-300);

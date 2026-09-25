@@ -119,10 +119,10 @@ export function VerticalStepper(): React.JSX.Element {
                 className={cn(
                   'w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border-2 transition-all shadow-sm z-10',
                   isActive
-                    ? 'bg-slate-900 dark:bg-slate-100 border-blue-500 text-white dark:text-slate-900 shadow-blue-500/20 scale-105'
+                    ? 'bg-blue-600 border-blue-500 text-white shadow-blue-500/25 scale-105'
                     : isCompleted
-                      ? 'bg-blue-500 border-blue-500 text-white shadow-blue-500/20'
-                      : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 group-hover:border-slate-300 dark:group-hover:border-slate-700'
+                      ? 'bg-emerald-600 border-emerald-500 text-white shadow-emerald-500/20'
+                      : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 group-hover:border-slate-300 dark:group-hover:border-slate-700'
                 )}
               >
                 {isCompleted && !isActive ? (

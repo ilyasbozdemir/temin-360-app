@@ -45,7 +45,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
       if (!filePath) {
         return { success: false, error: 'Aktif bir çalışma dosyası bulunamadı!' }
       }
-      workspaceManager.save()
+      workspaceManager.save(true)
       workspaceManager.resetDirty()
       return { success: true, message: 'Çalışma dosyası başarıyla kaydedildi.' }
     } catch (error: any) {

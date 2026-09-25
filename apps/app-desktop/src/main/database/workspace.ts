@@ -1580,7 +1580,9 @@ export class DtmWorkspace {
         try {
           meta.app_version = app.getVersion()
         } catch {}
-        meta.updated_at = new Date().toISOString()
+        if (!meta.updated_at) {
+          meta.updated_at = new Date().toISOString()
+        }
         meta.integrity_hash = calculateIntegrityHash(meta)
         try {
           fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2))
@@ -1737,9 +1739,14 @@ export class DtmWorkspace {
     }
   }
 
-  public saveWorkspace(): void {
+  public saveWorkspace(force: boolean = false): void {
     if (!this.currentFilePath || !this.db) {
       throw new Error('Hiçbir veri dosyası açık değil.')
+    }
+
+    // Kullanıcı bir değişiklik yapmadıysa ve zorunlu kayıt istenmediyse diske yazma ve updated_at güncelleme
+    if (!force && !this.isDirtyState()) {
+      return
     }
 
     try {
@@ -1979,7 +1986,9 @@ export class DtmWorkspace {
       tableUpper === 'TANIM_SABLON' ||
       tableUpper === 'TANIM_DETSISCACHE' ||
       tableUpper === 'TANIM_TASINIRKOD' ||
-      tableUpper.startsWith('SYS_')
+      tableUpper === 'TANIM_KIKLIMITLERI' ||
+      tableUpper.startsWith('SYS_') ||
+      tableUpper.startsWith('TEMP_')
     ) {
       return // Sistem logları, ayarları, varsayılan şablonlar ve önbellekler kullanıcı mutasyonu değildir!
     }
@@ -2164,8 +2173,8 @@ export const workspaceManager = {
     activeWorkspace = new DtmWorkspace()
     return activeWorkspace.openWorkspace(filePath, allowMigration)
   },
-  save: () => {
-    if (activeWorkspace) activeWorkspace.saveWorkspace()
+  save: (force: boolean = false) => {
+    if (activeWorkspace) activeWorkspace.saveWorkspace(force)
   },
   convertToTemin: () => {
     if (!activeWorkspace) return { success: false, error: 'Açık bir çalışma alanı yok.' }
