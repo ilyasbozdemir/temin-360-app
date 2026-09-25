@@ -82,8 +82,35 @@ export function HarcamaTalimati({
     return String(val);
   };
 
-  const rawMutemet = data.mutemetAdi || data.muhasebeYetkilisiAdi ||
-    data.muhasebeYetkilisi || "";
+  const rawMutemet =
+    data.mutemetAdi ||
+    data.muhasebeYetkilisiAdi ||
+    data.muhasebeYetkilisi ||
+    (Array.isArray((data as any).komisyonUyeleri)
+      ? (data as any).komisyonUyeleri.find((k: any) => {
+          const g = (k.gorev || k.komisyonGorevi || k.rol || k.unvan || "").toLowerCase();
+          return g.includes("muhasebe") || g.includes("mutemet");
+        })?.adSoyad || ""
+      : "") ||
+    (Array.isArray((data as any).komisyonlar)
+      ? (data as any).komisyonlar.find((k: any) => {
+          const g = (k.gorev || k.komisyonGorevi || k.rol || k.unvan || "").toLowerCase();
+          return g.includes("muhasebe") || g.includes("mutemet");
+        })?.adSoyad || ""
+      : "") ||
+    (Array.isArray((data as any).fiyatKomisyonu)
+      ? (data as any).fiyatKomisyonu.find((k: any) => {
+          const g = (k.gorev || k.gorevi || k.komisyonGorevi || k.rol || k.unvan || "").toLowerCase();
+          return g.includes("muhasebe") || g.includes("mutemet");
+        })?.adSoyad || ""
+      : "") ||
+    (Array.isArray((data as any).muayeneKomisyonu)
+      ? (data as any).muayeneKomisyonu.find((k: any) => {
+          const g = (k.gorev || k.gorevi || k.komisyonGorevi || k.rol || k.unvan || "").toLowerCase();
+          return g.includes("muhasebe") || g.includes("mutemet");
+        })?.adSoyad || ""
+      : "") ||
+    "";
   const cleanMutemet = typeof rawMutemet === "string"
     ? rawMutemet.split("(")[0].trim()
     : "";

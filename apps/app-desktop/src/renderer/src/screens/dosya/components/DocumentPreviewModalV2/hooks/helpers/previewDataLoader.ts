@@ -331,7 +331,19 @@ export async function loadDocumentPreviewData({
         // 1. Muhasebe Yetkilisi / Mutemet tespiti
         const muhasebeRow = dbKomisyonlar.find((k: any) => {
           const g = (k.gorev || '').toLowerCase()
-          return g.includes('muhasebe') || g.includes('mutemet')
+          const r = (k.rol || '').toLowerCase()
+          const u = (k.unvan || '').toLowerCase()
+          const kt = (k.komisyon_turu || '').toLowerCase()
+          return (
+            g.includes('muhasebe') ||
+            g.includes('mutemet') ||
+            r.includes('muhasebe') ||
+            r.includes('mutemet') ||
+            u.includes('muhasebe') ||
+            u.includes('mutemet') ||
+            kt.includes('muhasebe') ||
+            kt.includes('mutemet')
+          )
         })
         if (muhasebeRow && (muhasebeRow.ad_soyad || muhasebeRow.personel_id)) {
           let cleanName = (muhasebeRow.ad_soyad || '').split('(')[0].trim()

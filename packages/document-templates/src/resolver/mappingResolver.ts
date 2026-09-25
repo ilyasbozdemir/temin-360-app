@@ -39,34 +39,59 @@ export async function resolveEvrakSayisi(
     let detsisNo = '';
 
     // 1. Fetch detsis_kodu from TANIM_Kurum
-    const kurumRes = await queryExecutor('SELECT detsis_kodu FROM TANIM_Kurum LIMIT 1', []);
-    if (kurumRes?.[0]?.detsis_kodu) {
-      detsisNo = kurumRes[0].detsis_kodu;
-    }
-
-    // 2. Fallback to TANIM_Ayar (detsisKodu / detsis_kodu)
-    if (!detsisNo) {
-      const ayarRes = await queryExecutor(
-        'SELECT deger FROM TANIM_Ayar WHERE anahtar IN ("detsisKodu", "detsis_kodu") LIMIT 1',
-        []
-      );
-      if (ayarRes?.[0]?.deger) {
-        detsisNo = ayarRes[0].deger;
+    try {
+      const kurumRes = await queryExecutor('SELECT * FROM TANIM_Kurum LIMIT 1', []);
+      if (kurumRes?.[0]?.detsis_kodu) {
+        detsisNo = String(kurumRes[0].detsis_kodu).trim();
+      } else if (kurumRes?.[0]?.detsis_no) {
+        detsisNo = String(kurumRes[0].detsis_no).trim();
       }
+    } catch {}
+
+    // 2. Fallback to TANIM_Ayar / settings (detsisKodu / detsis_kodu)
+    if (!detsisNo) {
+      try {
+        const ayarRes = await queryExecutor(
+          'SELECT deger FROM TANIM_Ayar WHERE anahtar IN ("detsisKodu", "detsis_kodu") LIMIT 1',
+          []
+        );
+        if (ayarRes?.[0]?.deger) {
+          detsisNo = String(ayarRes[0].deger).trim();
+        }
+      } catch {}
     }
 
     if (!detsisNo) {
-      detsisNo = '0000000000';
+      try {
+        const setRes = await queryExecutor(
+          'SELECT value FROM settings WHERE key IN ("detsisKodu", "detsis_kodu") LIMIT 1',
+          []
+        );
+        if (setRes?.[0]?.value) {
+          detsisNo = String(setRes[0].value).trim();
+        }
+      } catch {}
     }
 
+    if (!detsisNo) {
+      detsisNo = '00000000';
+    }
+
+    // 3. Fetch dosya details
     const dosyaRes = await queryExecutor(
-      'SELECT temin_no, tur FROM DATA_TeminDosyasi WHERE id = ? LIMIT 1',
+      'SELECT id, temin_no, evrak_sayisi, tur, butce_yili, dosya_acilis_tarihi, created_at FROM DATA_TeminDosyasi WHERE id = ? LIMIT 1',
       [activeDosyaId]
     );
 
-    const dosyaSayisi = dosyaRes?.[0]?.temin_no || '';
-    const rawTur = (dosyaRes?.[0]?.tur || 'mal').toLowerCase();
+    const row = dosyaRes?.[0];
+    if (row?.evrak_sayisi && String(row.evrak_sayisi).trim() !== '') {
+      return String(row.evrak_sayisi).trim();
+    }
 
+    const dosyaSayisi = String(row?.temin_no || '').trim();
+    const rawTur = String(row?.tur || 'mal').toLowerCase();
+
+    // SDP Standart Dosya Planı Kodu: 934.01 (Mal Alımı), 934.02 (Hizmet/Danışmanlık), 934.03 (Yapım İşi)
     let sdpAltKodu = '01';
     if (rawTur.includes('hizmet') || rawTur.includes('danismanlik')) {
       sdpAltKodu = '02';
@@ -77,24 +102,51 @@ export async function resolveEvrakSayisi(
     }
     const sdpKodu = `934.${sdpAltKodu}`;
 
-    let formattedEvrakSayisi = 'E-10234521-934.01-0001';
-    if (dosyaSayisi) {
-      const rawNumberStr = dosyaSayisi.includes('/')
-        ? dosyaSayisi.split('/').pop()
-        : dosyaSayisi.includes('-')
-        ? dosyaSayisi.split('-').pop()
-        : dosyaSayisi;
-      const cleanSayi = String(rawNumberStr || '').replace(/\D/g, '') || '1';
-      const paddedSayi = cleanSayi.padStart(4, '0');
+    // Yıla göre sıra numarası hesaplama (Her yıl 0001'den başlar)
+    const fileYear =
+      row?.butce_yili ||
+      (row?.dosya_acilis_tarihi ? new Date(row.dosya_acilis_tarihi).getFullYear() : null) ||
+      (row?.created_at ? new Date(row.created_at).getFullYear() : null) ||
+      new Date().getFullYear();
 
-      formattedEvrakSayisi = `E-${detsisNo}-${sdpKodu}-${paddedSayi}`;
-    } else {
-      formattedEvrakSayisi = `E-${detsisNo}-${sdpKodu}-0001`;
+    let seqNumber: number | null = null;
+
+    if (dosyaSayisi) {
+      // Örn: "2026/1", "DT-2026/15", "2026/0005", "1", "12"
+      const parts = dosyaSayisi.split(/[/_ -]+/);
+      for (let i = parts.length - 1; i >= 0; i--) {
+        const num = parseInt(parts[i], 10);
+        if (!isNaN(num) && num !== fileYear && num > 0) {
+          seqNumber = num;
+          break;
+        }
+      }
     }
 
-    return formattedEvrakSayisi;
+    // Eğer temin_no içinden yıl sırası çıkarılamadıysa, o yılın dosyaları arasındaki sırasını bul
+    if (!seqNumber || seqNumber <= 0) {
+      try {
+        const countRes = await queryExecutor(
+          `SELECT COUNT(*) as cnt FROM DATA_TeminDosyasi 
+           WHERE (coalesce(butce_yili, strftime('%Y', coalesce(dosya_acilis_tarihi, created_at))) = ? 
+                  OR temin_no LIKE ?) 
+             AND id <= ? AND (is_deleted IS NULL OR is_deleted = 0)`,
+          [fileYear, `%${fileYear}%`, activeDosyaId]
+        );
+        if (countRes?.[0]?.cnt && countRes[0].cnt > 0) {
+          seqNumber = countRes[0].cnt;
+        }
+      } catch {}
+    }
+
+    if (!seqNumber || seqNumber <= 0) {
+      seqNumber = 1;
+    }
+
+    const paddedSayi = String(seqNumber).padStart(4, '0');
+    return `E-${detsisNo}-${sdpKodu}-${paddedSayi}`;
   } catch (err) {
-    return 'E-10234521-934.01-0001';
+    return 'E-00000000-934.01-0001';
   }
 }
 

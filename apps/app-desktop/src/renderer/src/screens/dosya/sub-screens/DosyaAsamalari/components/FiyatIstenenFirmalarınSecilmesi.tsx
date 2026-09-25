@@ -1,20 +1,20 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState } from "react";
 import {
   Firma,
   FirmaColumn,
-  FiyatIstenenFirmalarınSecilmesiProps,
-  MAX_FIRMS,
   FirmaEkleModali,
-  YeniFirmaModali,
+  FirmaFooterBar,
   FirmaHeader,
   FirmaTablo,
-  FirmaFooterBar
-} from './FiyatIstenenFirmalari'
+  FiyatIstenenFirmalarınSecilmesiProps,
+  MAX_FIRMS,
+  YeniFirmaModali,
+} from "./FiyatIstenenFirmalari";
 
-export type { Firma, FirmaColumn, FiyatIstenenFirmalarınSecilmesiProps }
+export type { Firma, FirmaColumn, FiyatIstenenFirmalarınSecilmesiProps };
 
 export function FiyatIstenenFirmalarınSecilmesi({
-  title = 'Fiyat İstenen Firmaların Seçilmesi',
+  title = "Fiyat İstenen Firmaların Seçilmesi",
   firms,
   columns,
   onFirmaEkle,
@@ -29,59 +29,59 @@ export function FiyatIstenenFirmalarınSecilmesi({
   onOpenFirmaSecmeModali,
   extraHeaderAction,
   winnerFirmaId,
-  onSetWinnerFirma
+  onSetWinnerFirma,
 }: FiyatIstenenFirmalarınSecilmesiProps): React.JSX.Element {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isNewFirmModalOpen, setIsNewFirmModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isNewFirmModalOpen, setIsNewFirmModalOpen] = useState(false);
 
   const addedFirms = useMemo(() => {
-    const seen = new Set<number>()
+    const seen = new Set<number>();
     return firms.filter((f) => {
-      if (!f.isAdded) return false
-      const key = f.temin_firma_id ?? f.id
-      if (seen.has(key)) return false
-      seen.add(key)
-      return true
-    })
-  }, [firms])
+      if (!f.isAdded) return false;
+      const key = f.temin_firma_id ?? f.id;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [firms]);
 
   const availableFirms = useMemo(() => {
-    const seen = new Set<number>()
+    const seen = new Set<number>();
     return firms.filter((f) => {
-      if (f.isAdded || seen.has(f.id)) return false
-      seen.add(f.id)
-      return true
-    })
-  }, [firms])
+      if (f.isAdded || seen.has(f.id)) return false;
+      seen.add(f.id);
+      return true;
+    });
+  }, [firms]);
 
-  const canAdd = addedFirms.length < MAX_FIRMS
+  const canAdd = addedFirms.length < MAX_FIRMS;
 
   const handleConfirm = async (selected: Firma[]) => {
     for (const f of selected) {
-      await onFirmaEkle(f)
+      await onFirmaEkle(f);
     }
-    setIsModalOpen(false)
-  }
+    setIsModalOpen(false);
+  };
 
   const handleSaveNewFirm = async (firmaData: {
-    unvan: string
-    vergi_no?: string
-    telefon?: string
-    email?: string
-    sehir?: string
+    unvan: string;
+    vergi_no?: string;
+    telefon?: string;
+    email?: string;
+    sehir?: string;
   }) => {
     if (onCreateNewFirm) {
-      await onCreateNewFirm(firmaData)
+      await onCreateNewFirm(firmaData);
     }
-  }
+  };
 
   const handleOpenModal = () => {
     if (onOpenFirmaSecmeModali) {
-      onOpenFirmaSecmeModali()
+      onOpenFirmaSecmeModali();
     } else {
-      setIsModalOpen(true)
+      setIsModalOpen(true);
     }
-  }
+  };
 
   return (
     <>
@@ -96,7 +96,10 @@ export function FiyatIstenenFirmalarınSecilmesi({
       )}
 
       {isNewFirmModalOpen && (
-        <YeniFirmaModali onClose={() => setIsNewFirmModalOpen(false)} onSave={handleSaveNewFirm} />
+        <YeniFirmaModali
+          onClose={() => setIsNewFirmModalOpen(false)}
+          onSave={handleSaveNewFirm}
+        />
       )}
 
       <div className="space-y-0 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md shadow-xs overflow-hidden">
@@ -125,9 +128,7 @@ export function FiyatIstenenFirmalarınSecilmesi({
           onEkapSorgula={onEkapSorgula}
           onSetWinnerFirma={onSetWinnerFirma}
         />
-
-        <FirmaFooterBar addedCount={addedFirms.length} onFiyatGir={onFiyatGir} />
       </div>
     </>
-  )
+  );
 }
