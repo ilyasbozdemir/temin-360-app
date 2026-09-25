@@ -97,6 +97,37 @@ export function extractTableAndAction(sql: string): {
 }
 
 export function ensureSchemaIntegrity(db: Database.Database): void {
+  // Ensure basic settings & migrations tracking tables exist
+  try {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS settings (
+        key   TEXT PRIMARY KEY,
+        value TEXT
+      );
+      CREATE TABLE IF NOT EXISTS schema_migrations (
+        version INTEGER PRIMARY KEY,
+        applied_at TEXT NOT NULL
+      );
+    `)
+  } catch {}
+
+  // Automatic versioned migration check inside ensureSchemaIntegrity
+  try {
+    const row = db
+      .prepare("SELECT value FROM settings WHERE key = 'dbSchemaVersion'")
+      .get() as { value?: string } | undefined
+    const currentDbVer = row?.value ? parseInt(row.value, 10) || 1 : 1
+    if (currentDbVer < CURRENT_SCHEMA_VERSION) {
+      console.log(`[Schema Self-Healing] Running pending migrations from v${currentDbVer} to v${CURRENT_SCHEMA_VERSION}`)
+      runMigrations(db, currentDbVer, schema)
+      db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('dbSchemaVersion', ?)").run(
+        CURRENT_SCHEMA_VERSION.toString()
+      )
+    }
+  } catch (err: any) {
+    console.warn('[Schema Self-Healing] Could not run versioned migrations check:', err.message)
+  }
+
   // Explicit migration for TANIM_Firma CRM columns to guarantee backwards-compatibility
   const firmaCrmColumns = [
     { name: 'deneyim_skoru', def: 'INTEGER DEFAULT 0' },
@@ -716,45 +747,53 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
         const existingColumns = new Set(tableInfo.map((c) => c.name))
         for (const col of table.columns as any[]) {
           if (!existingColumns.has(col.name)) {
-            // SQLite ALTER TABLE ADD COLUMN does NOT support UNIQUE or NOT NULL constraints.
-            // These are only valid at CREATE TABLE time. We skip them here to avoid errors.
-            let sqlDef = '"' + col.name + '" ' + col.type
-            if (col.default !== undefined) {
-              const d = col.default
-              if (typeof d === 'string') {
-                const upper = d.trim().toUpperCase()
-                if (
-                  upper === 'CURRENT_TIMESTAMP' ||
-                  upper === 'CURRENT_DATE' ||
-                  upper === 'CURRENT_TIME'
-                ) {
-                  // SQLite ALTER TABLE ADD COLUMN does NOT allow non-constant defaults
-                } else if (d.startsWith("'") || d.startsWith('"')) {
-                  sqlDef += ' DEFAULT ' + d
+            try {
+              // SQLite ALTER TABLE ADD COLUMN does NOT support UNIQUE or NOT NULL constraints.
+              // These are only valid at CREATE TABLE time. We skip them here to avoid errors.
+              let sqlDef = '"' + col.name + '" ' + col.type
+              if (col.default !== undefined) {
+                const d = col.default
+                if (typeof d === 'string') {
+                  const upper = d.trim().toUpperCase()
+                  if (
+                    upper === 'CURRENT_TIMESTAMP' ||
+                    upper === 'CURRENT_DATE' ||
+                    upper === 'CURRENT_TIME'
+                  ) {
+                    // SQLite ALTER TABLE ADD COLUMN does NOT allow non-constant defaults
+                  } else if (d.startsWith("'") || d.startsWith('"')) {
+                    sqlDef += ' DEFAULT ' + d
+                  } else {
+                    sqlDef += " DEFAULT '" + d.replace(/'/g, "''") + "'"
+                  }
                 } else {
-                  sqlDef += " DEFAULT '" + d.replace(/'/g, "''") + "'"
+                  sqlDef += ' DEFAULT ' + d
                 }
-              } else {
-                sqlDef += ' DEFAULT ' + d
+              }
+              console.log(`[Schema Self-Healing] Adding missing column ${table.name}.${col.name}`)
+              db.exec(`ALTER TABLE ${table.name} ADD COLUMN ${sqlDef};`)
+            } catch (colErr: any) {
+              if (!colErr.message?.includes('duplicate column name')) {
+                console.warn(`[Schema Self-Healing] Could not add column ${table.name}.${col.name}:`, colErr.message)
               }
             }
-            console.log(`[Schema Self-Healing] Adding missing column ${table.name}.${col.name}`)
-            db.exec(`ALTER TABLE ${table.name} ADD COLUMN ${sqlDef};`)
           }
         }
       }
       // Self-heal missing initial data
       if (table.initialData && table.initialData.length > 0) {
         table.initialData.forEach((row: any) => {
-          const keys = Object.keys(row)
-          const values = Object.values(row).map((v) =>
-            typeof v === 'string' ? "'" + (v as string).replace(/'/g, "''") + "'" : v
-          )
-          db.exec(
-            `INSERT OR IGNORE INTO ${table.name} (${keys.join(', ')}) VALUES (${values.join(
-              ', '
-            )});`
-          )
+          try {
+            const keys = Object.keys(row)
+            const values = Object.values(row).map((v) =>
+              typeof v === 'string' ? "'" + (v as string).replace(/'/g, "''") + "'" : v
+            )
+            db.exec(
+              `INSERT OR IGNORE INTO ${table.name} (${keys.join(', ')}) VALUES (${values.join(
+                ', '
+              )});`
+            )
+          } catch {}
         })
       }
     } catch (err: any) {
@@ -1535,6 +1574,18 @@ export class DtmWorkspace {
     if (this.db) {
       ensureSchemaIntegrity(this.db)
       seedTemplates(this.db)
+
+      if (meta.schema_version < CURRENT_SCHEMA_VERSION) {
+        meta.schema_version = CURRENT_SCHEMA_VERSION
+        try {
+          meta.app_version = app.getVersion()
+        } catch {}
+        meta.updated_at = new Date().toISOString()
+        meta.integrity_hash = calculateIntegrityHash(meta)
+        try {
+          fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2))
+        } catch {}
+      }
     }
 
     // Cross Validation

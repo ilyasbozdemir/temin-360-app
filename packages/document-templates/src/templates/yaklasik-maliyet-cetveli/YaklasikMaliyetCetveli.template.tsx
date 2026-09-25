@@ -171,158 +171,196 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
         </tbody>
       </table>
 
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          marginTop: "10px",
-          marginBottom: "15px",
-          fontSize: "9pt",
-        }}
-      >
-        <thead>
-          <tr>
-            <th
-              colSpan={5}
-              style={{
-                border: "1px solid #000",
-                padding: "6px 4px",
-                textAlign: "center",
-                fontWeight: "normal",
-              }}
-            >
-              Talep Edilen Mal/Hizmet
-            </th>
-            <th
-              colSpan={firmalarColspan}
-              style={{
-                border: "1px solid #000",
-                padding: "6px 4px",
-                textAlign: "center",
-                fontWeight: "normal",
-              }}
-            >
-              Alınan Fiyatlar
-            </th>
-            <th
-              colSpan={2}
-              style={{
-                border: "1px solid #000",
-                padding: "6px 4px",
-                textAlign: "center",
-                fontWeight: "normal",
-              }}
-            >
-              Hesaplanan Maliyet
-            </th>
-          </tr>
-          <tr>
-            <th
-              style={{
-                border: "1px solid #000",
-                padding: "6px 4px",
-                width: "4%",
-                textAlign: "center",
-                fontWeight: "normal",
-              }}
-            >
-              Sıra No
-            </th>
-            <th
-              style={{
-                border: "1px solid #000",
-                padding: "6px 4px",
-                width: "25%",
-                textAlign: "center",
-                fontWeight: "normal",
-              }}
-            >
-              Mal / Hizmet Adı
-            </th>
-            <th
-              style={{
-                border: "1px solid #000",
-                padding: "6px 4px",
-                width: "15%",
-                textAlign: "center",
-                fontWeight: "normal",
-              }}
-            >
-              Özelliği
-            </th>
-            <th
-              style={{
-                border: "1px solid #000",
-                padding: "6px 4px",
-                width: "7%",
-                textAlign: "center",
-                fontWeight: "normal",
-              }}
-            >
-              Birim
-            </th>
-            <th
-              style={{
-                border: "1px solid #000",
-                padding: "6px 4px",
-                width: "7%",
-                textAlign: "center",
-                fontWeight: "normal",
-              }}
-            >
-              Miktarı
-            </th>
-            {displayFirmalar.length > 0 ? (
-              displayFirmalar.map((f: any, idx: number) => (
+      {(() => {
+        const firmCount = Math.max(1, displayFirmalar.length);
+        const baseTotalPct = firmCount === 1 ? 65 : firmCount === 2 ? 56 : firmCount === 3 ? 50 : 44;
+        const firmTotalPct = 100 - baseTotalPct;
+        const perFirmPct = firmTotalPct / firmCount;
+
+        const siraPct = 3.5;
+        const birimPct = 4.5;
+        const miktarPct = 4.5;
+        const enDusukPct = 8.5;
+        const toplamMaliyetPct = 9.5;
+        const remainingBase = baseTotalPct - (siraPct + birimPct + miktarPct + enDusukPct + toplamMaliyetPct);
+        const malzemePct = remainingBase * 0.55;
+        const ozellikPct = remainingBase * 0.45;
+
+        return (
+          <table
+            style={{
+              width: "100%",
+              maxWidth: "100%",
+              tableLayout: "fixed",
+              borderCollapse: "collapse",
+              marginTop: "10px",
+              marginBottom: "15px",
+              fontSize: firmCount >= 4 ? "7.5pt" : firmCount === 3 ? "8pt" : "8.5pt",
+              wordBreak: "break-word",
+              overflowWrap: "anywhere",
+              boxSizing: "border-box",
+            }}
+          >
+            <colgroup>
+              <col style={{ width: `${siraPct}%` }} />
+              <col style={{ width: `${malzemePct}%` }} />
+              <col style={{ width: `${ozellikPct}%` }} />
+              <col style={{ width: `${birimPct}%` }} />
+              <col style={{ width: `${miktarPct}%` }} />
+              {displayFirmalar.length > 0 ? (
+                displayFirmalar.map((_: any, idx: number) => (
+                  <col key={idx} style={{ width: `${perFirmPct}%` }} />
+                ))
+              ) : (
+                <col style={{ width: `${perFirmPct}%` }} />
+              )}
+              <col style={{ width: `${enDusukPct}%` }} />
+              <col style={{ width: `${toplamMaliyetPct}%` }} />
+            </colgroup>
+            <thead>
+              <tr>
                 <th
-                  key={idx}
+                  colSpan={5}
                   style={{
                     border: "1px solid #000",
-                    padding: "6px 4px",
+                    padding: "5px 3px",
                     textAlign: "center",
                     fontWeight: "normal",
                   }}
                 >
-                  {getFirmTitle(f, idx)}
+                  Talep Edilen Mal/Hizmet
                 </th>
-              ))
-            ) : (
-              <th
-                style={{
-                  border: "1px solid #000",
-                  padding: "6px 4px",
-                  textAlign: "center",
-                  fontWeight: "normal",
-                }}
-              >
-                Teklif Fiyatı
-              </th>
-            )}
-            <th
-              style={{
-                border: "1px solid #000",
-                padding: "6px 4px",
-                width: "10%",
-                textAlign: "center",
-                fontWeight: "bold",
-              }}
-            >
-              En Düşük<br />Birim Fiyat
-            </th>
-            <th
-              style={{
-                border: "1px solid #000",
-                padding: "6px 4px",
-                width: "12%",
-                textAlign: "center",
-                fontWeight: "bold",
-              }}
-            >
-              Toplam Maliyet
-            </th>
-          </tr>
-        </thead>
-        <tbody>
+                <th
+                  colSpan={firmalarColspan}
+                  style={{
+                    border: "1px solid #000",
+                    padding: "5px 3px",
+                    textAlign: "center",
+                    fontWeight: "normal",
+                  }}
+                >
+                  Alınan Fiyatlar
+                </th>
+                <th
+                  colSpan={2}
+                  style={{
+                    border: "1px solid #000",
+                    padding: "5px 3px",
+                    textAlign: "center",
+                    fontWeight: "normal",
+                  }}
+                >
+                  Hesaplanan Maliyet
+                </th>
+              </tr>
+              <tr>
+                <th
+                  style={{
+                    border: "1px solid #000",
+                    padding: "4px 2px",
+                    textAlign: "center",
+                    fontWeight: "normal",
+                  }}
+                >
+                  Sıra No
+                </th>
+                <th
+                  style={{
+                    border: "1px solid #000",
+                    padding: "4px 2px",
+                    textAlign: "center",
+                    fontWeight: "normal",
+                  }}
+                >
+                  Mal / Hizmet Adı
+                </th>
+                <th
+                  style={{
+                    border: "1px solid #000",
+                    padding: "4px 2px",
+                    textAlign: "center",
+                    fontWeight: "normal",
+                  }}
+                >
+                  Özelliği
+                </th>
+                <th
+                  style={{
+                    border: "1px solid #000",
+                    padding: "4px 2px",
+                    textAlign: "center",
+                    fontWeight: "normal",
+                  }}
+                >
+                  Birim
+                </th>
+                <th
+                  style={{
+                    border: "1px solid #000",
+                    padding: "4px 2px",
+                    textAlign: "center",
+                    fontWeight: "normal",
+                  }}
+                >
+                  Miktarı
+                </th>
+                {displayFirmalar.length > 0 ? (
+                  displayFirmalar.map((f: any, idx: number) => (
+                    <th
+                      key={idx}
+                      style={{
+                        border: "1px solid #000",
+                        padding: "3px 2px",
+                        textAlign: "center",
+                        fontWeight: "normal",
+                        fontSize: firmCount >= 4 ? "7pt" : firmCount === 3 ? "7.5pt" : "8.5pt",
+                        lineHeight: 1.15,
+                        wordBreak: "break-word",
+                        overflowWrap: "anywhere",
+                      }}
+                    >
+                      <EditableField
+                        name={`firmalar.${idx}.unvan`}
+                        value={getFirmTitle(f, idx)}
+                        placeholder={`Firma ${idx + 1}`}
+                      />
+                    </th>
+                  ))
+                ) : (
+                  <th
+                    style={{
+                      border: "1px solid #000",
+                      padding: "4px 2px",
+                      textAlign: "center",
+                      fontWeight: "normal",
+                    }}
+                  >
+                    Teklif Fiyatı
+                  </th>
+                )}
+                <th
+                  style={{
+                    border: "1px solid #000",
+                    padding: "4px 2px",
+                    textAlign: "center",
+                    fontWeight: "bold",
+                  }}
+                >
+                  En Düşük<br />Birim Fiyat
+                </th>
+                <th
+                  style={{
+                    border: "1px solid #000",
+                    padding: "4px 2px",
+                    textAlign: "center",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Toplam Maliyet
+                </th>
+              </tr>
+            </thead>
+            <tbody>
           {processedKalemler.map((kalem, idx) => {
             const rowNum = kalem.siraNo ?? idx + 1;
             return (
@@ -331,7 +369,7 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                   <td
                     style={{
                       border: "1px solid #000",
-                      padding: "6px 4px",
+                      padding: "4px 2px",
                       textAlign: "center",
                     }}
                   >
@@ -340,8 +378,10 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                   <td
                     style={{
                       border: "1px solid #000",
-                      padding: "6px 4px",
+                      padding: "4px 3px",
                       textAlign: "left",
+                      wordBreak: "break-word",
+                      overflowWrap: "anywhere",
                     }}
                   >
                     <EditableField
@@ -352,8 +392,10 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                   <td
                     style={{
                       border: "1px solid #000",
-                      padding: "6px 4px",
+                      padding: "4px 3px",
                       textAlign: "left",
+                      wordBreak: "break-word",
+                      overflowWrap: "anywhere",
                     }}
                   >
                     <EditableField
@@ -364,7 +406,7 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                   <td
                     style={{
                       border: "1px solid #000",
-                      padding: "6px 4px",
+                      padding: "4px 2px",
                       textAlign: "center",
                     }}
                   >
@@ -376,7 +418,7 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                   <td
                     style={{
                       border: "1px solid #000",
-                      padding: "6px 4px",
+                      padding: "4px 2px",
                       textAlign: "center",
                     }}
                   >
@@ -391,9 +433,10 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                         key={fIdx}
                         style={{
                           border: "1px solid #000",
-                          padding: "6px 4px",
+                          padding: "4px 2px",
                           textAlign: "right",
                           whiteSpace: "nowrap",
+                          fontSize: firmCount >= 4 ? "7pt" : firmCount === 3 ? "7.5pt" : "8.5pt",
                         }}
                       >
                         <EditableField
@@ -407,7 +450,7 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                     <td
                       style={{
                         border: "1px solid #000",
-                        padding: "6px 4px",
+                        padding: "4px 2px",
                         textAlign: "right",
                         whiteSpace: "nowrap",
                       }}
@@ -418,7 +461,7 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                   <td
                     style={{
                       border: "1px solid #000",
-                      padding: "6px 4px",
+                      padding: "4px 2px",
                       textAlign: "right",
                       whiteSpace: "nowrap",
                       fontWeight: "bold",
@@ -433,7 +476,7 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                   <td
                     style={{
                       border: "1px solid #000",
-                      padding: "6px 4px",
+                      padding: "4px 2px",
                       textAlign: "right",
                       whiteSpace: "nowrap",
                       fontWeight: "bold",
@@ -463,7 +506,7 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                 colSpan={5}
                 style={{
                   border: "1px solid #000",
-                  padding: "6px 4px",
+                  padding: "4px 2px",
                   textAlign: "right",
                 }}
               >
@@ -477,9 +520,10 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                       key={idx}
                       style={{
                         border: "1px solid #000",
-                        padding: "6px 4px",
+                        padding: "4px 2px",
                         textAlign: "right",
                         whiteSpace: "nowrap",
+                        fontSize: firmCount >= 4 ? "7pt" : firmCount === 3 ? "7.5pt" : "8.5pt",
                       }}
                     >
                       <EditableField
@@ -494,7 +538,7 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
                 <td
                   style={{
                     border: "1px solid #000",
-                    padding: "6px 4px",
+                    padding: "4px 2px",
                   }}
                 >
                 </td>
@@ -502,14 +546,17 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
               <td
                 style={{
                   border: "1px solid #000",
-                  padding: "6px 4px",
+                  padding: "4px 2px",
+                  textAlign: "right",
+                  whiteSpace: "nowrap",
+                  fontWeight: "bold",
                 }}
               >
               </td>
               <td
                 style={{
                   border: "1px solid #000",
-                  padding: "6px 4px",
+                  padding: "4px 2px",
                   textAlign: "right",
                   whiteSpace: "nowrap",
                   fontWeight: "bold",
@@ -525,6 +572,8 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
           )}
         </tbody>
       </table>
+        );
+      })()}
 
       <div style={{ fontSize: "9pt", marginBottom: "20px" }}>
         Para Birimi <b>TL.</b>
@@ -578,17 +627,27 @@ export const YaklasikMaliyetCetveli: React.FC<Props> = ({ data }) => {
             <div
               key={idx}
               style={{
-                width: "22%",
+                width: `${Math.max(18, Math.min(30, 90 / (displayKomisyon.length || 1)))}%`,
                 minWidth: "120px",
                 padding: "5px",
                 fontSize: "9.5pt",
                 lineHeight: 1.4,
               }}
             >
-              <div style={{ fontWeight: "bold" }}>
-                {uye.adSoyad || uye.ad_soyad || uye.ad || "Görevli Üye"}
+              <div style={{ fontWeight: "bold", textTransform: "uppercase" }}>
+                <EditableField
+                  name={`komisyon.${idx}.adSoyad`}
+                  value={uye.adSoyad || uye.ad_soyad || uye.ad || ""}
+                  placeholder="Adı Soyadı"
+                />
               </div>
-              <div>{uye.unvan || uye.personel_unvan || ""}</div>
+              <div>
+                <EditableField
+                  name={`komisyon.${idx}.unvan`}
+                  value={uye.unvan || uye.personel_unvan || ""}
+                  placeholder="Unvanı"
+                />
+              </div>
               {(uye.gorevi || uye.gorev) && (
                 <div style={{ fontSize: "8.5pt", color: "#555" }}>
                   {uye.gorevi || uye.gorev}

@@ -194,12 +194,18 @@ export function useWorkspaceLifecycle(
         const targetPath = activeFilePath || localStorage.getItem('workspace_path')
 
         if (!dbIsOpen && targetPath && isMounted) {
-          const result = await openWorkspace(targetPath)
+          let result = await openWorkspace(targetPath, false)
+          if (result.requiresMigration) {
+            result = await openWorkspace(targetPath, true)
+          }
           if (result.success) queryClient.clear()
         } else if (!dbIsOpen && isMounted) {
           const recent = await window.electron?.ipcRenderer.invoke('app:get-recent-files')
           if (recent && recent.length > 0 && recent[0]?.path && isMounted) {
-            const result = await openWorkspace(recent[0].path)
+            let result = await openWorkspace(recent[0].path, false)
+            if (result.requiresMigration) {
+              result = await openWorkspace(recent[0].path, true)
+            }
             if (result.success) queryClient.clear()
           }
         }

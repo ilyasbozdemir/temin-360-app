@@ -101,7 +101,10 @@ export function FileSelector(): React.JSX.Element {
           return
         }
 
-        const result = await openWorkspace(res.filePath)
+        let result = await openWorkspace(res.filePath, false)
+        if (result.requiresMigration) {
+          result = await openWorkspace(res.filePath, true)
+        }
         if (result.success) {
           queryClient.clear()
         } else {
@@ -162,7 +165,7 @@ export function FileSelector(): React.JSX.Element {
               filteredFiles.map((file, index) => (
                 <button
                   key={file.path || index}
-                  onClick={() => {
+                  onClick={async () => {
                     setSelectedFile(file as any)
                     setIsOpen(false)
                     setSearchQuery('')
@@ -171,7 +174,13 @@ export function FileSelector(): React.JSX.Element {
                       setShowFormatUpgradeModal(true)
                       return
                     }
-                    openWorkspace(file.path)
+                    let r = await openWorkspace(file.path, false)
+                    if (r.requiresMigration) {
+                      r = await openWorkspace(file.path, true)
+                    }
+                    if (r.success) {
+                      queryClient.clear()
+                    }
                   }}
                   className={cn(
                     'w-full flex items-center justify-between px-2 py-2 text-sm rounded-md transition-colors text-left',

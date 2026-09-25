@@ -162,7 +162,7 @@ export async function loadDocumentPreviewData({
   } else {
     try {
       const kurumRows = await queryExecutor(
-        'SELECT kurum_anteti, kurum_adi, mudurluk FROM TANIM_Kurum LIMIT 1',
+        'SELECT * FROM TANIM_Kurum LIMIT 1',
         []
       )
       if (kurumRows && kurumRows[0]) {
@@ -180,7 +180,9 @@ export async function loadDocumentPreviewData({
           }
         }
         if (!baseData.kurumAdi && kRow.kurum_adi) baseData.kurumAdi = kRow.kurum_adi
-        if (!baseData.mudurluk && kRow.mudurluk) baseData.mudurluk = kRow.mudurluk
+        if (!baseData.mudurluk && (kRow.harcama_birim_adi || kRow.mudurluk)) {
+          baseData.mudurluk = kRow.harcama_birim_adi || kRow.mudurluk
+        }
       }
     } catch (e) {
       console.error('Failed to load kurum_anteti fallback in previewDataLoader:', e)

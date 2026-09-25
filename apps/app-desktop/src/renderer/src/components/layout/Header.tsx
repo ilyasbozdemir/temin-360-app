@@ -318,7 +318,10 @@ export function Header(): React.JSX.Element {
                   setUpgradeFilePath(filePath)
                   setShowFormatUpgradeModal(true)
                 } else {
-                  const result = await useWorkspaceStore.getState().openWorkspace(filePath, false)
+                  let result = await useWorkspaceStore.getState().openWorkspace(filePath, false)
+                  if (result.requiresMigration) {
+                    result = await useWorkspaceStore.getState().openWorkspace(filePath, true)
+                  }
                   if (result.success) {
                     window.location.reload()
                   } else {

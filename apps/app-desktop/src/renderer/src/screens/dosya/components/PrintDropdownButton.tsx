@@ -12,11 +12,11 @@ export interface PrintDropdownButtonProps {
   overrideSablons?: any[] // Optional pre-filtered/combined templates list
   activeStarredDocs: string[]
   ciktiLoading: boolean
-  handleOpenPreviewForSablon: (sablon: any, title: string) => void
-  quickPrint: (sablon: any) => Promise<void>
-  quickExport: (sablon: any, format: 'pdf' | 'docx' | 'udf') => Promise<void>
-  quickOpenExternal: (sablon: any) => Promise<void>
-  isSablonDisabled?: (name: string) => boolean
+  handleOpenPreviewForSablon: (sablon: any, title: string, overrideCtx?: any, selectedFirma?: any) => Promise<void> | void
+  quickPrint: (sablon: any) => Promise<void> | void
+  quickExport: (sablon: any, format: any) => Promise<void> | void
+  quickOpenExternal: (sablon: any) => Promise<void> | void
+  isSablonDisabled?: (sablon: any) => boolean
   className?: string
   buttonHeightClass?: string // Optional button height class, e.g. "h-10"
   label?: string

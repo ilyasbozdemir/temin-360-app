@@ -37,7 +37,12 @@ export function KabulEdilenTeklif({
     { key: "malzemeAdi", label: "Malzeme/İş Adı", width: "26%", align: "left" },
     { key: "ozelligi", label: "Özelliği", width: "18%", align: "left" },
     { key: "birimi", label: "Birimi", width: "8%", align: "center" },
-    { key: "enDusukFiyat", label: "Birim Fiyat (TL)", width: "12%", align: "right" },
+    {
+      key: "enDusukFiyat",
+      label: "Birim Fiyat (TL)",
+      width: "12%",
+      align: "right",
+    },
     { key: "miktar", label: "Miktar", width: "6%", align: "right" },
     { key: "toplamBedel", label: "Tutar (TL)", width: "10%", align: "right" },
   ];
@@ -79,7 +84,8 @@ export function KabulEdilenTeklif({
   const pages = paginateData(items, limits);
   const teslimGunu = data.teslimGun || data.teslimGunu || "7";
   const yuklenici = data.yukleniciFirma || data.firmaUnvan || "YÜKLENİCİ FİRMA";
-  const teminSekli = data.teminSekli || "4734 sayılı Kanun'un 22/d maddesi gereğince Doğrudan Temin";
+  const teminSekli = data.teminSekli ||
+    "4734 sayılı Kanun'un 22/d maddesi gereğince Doğrudan Temin";
   const kurumAdi = data.kurumAdi || "İdaremiz";
 
   return (
@@ -102,21 +108,52 @@ export function KabulEdilenTeklif({
             {isFirstPage && (
               <>
                 {/* INFO: SAYI & TARIH & KONU */}
-                <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
+                <table
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    marginBottom: "20px",
+                  }}
+                >
                   <tbody>
                     <tr>
                       <td style={{ padding: "4px 0", fontSize: "11pt" }}>
                         <strong>Sayı:</strong>{" "}
-                        <EditableField name="evrakSayisi" value={data.evrakSayisi} placeholder="Evrak Sayısı" />
+                        <EditableField
+                          name="evrakSayisi"
+                          value={data.evrakSayisi}
+                          placeholder="Evrak Sayısı"
+                        />
                       </td>
-                      <td style={{ padding: "4px 0", fontSize: "11pt", textAlign: "right" }}>
+                      <td
+                        style={{
+                          padding: "4px 0",
+                          fontSize: "11pt",
+                          textAlign: "right",
+                        }}
+                      >
                         <strong>Tarih:</strong>{" "}
-                        <DateEditableField name="dosyaTarihi" value={data.dosyaTarihi || data.tarih} />
+                        <DateEditableField
+                          name="dosyaTarihi"
+                          value={data.dosyaTarihi || data.tarih}
+                        />
                       </td>
                     </tr>
                     <tr>
-                      <td colSpan={2} style={{ padding: "4px 0", fontSize: "11pt", fontWeight: "bold" }}>
-                        Konu: <EditableField name="dosyaKonusu" value={data.dosyaKonusu || data.isinAdi || "Mal Alımı"} placeholder="İşin Konusu" />
+                      <td
+                        colSpan={2}
+                        style={{
+                          padding: "4px 0",
+                          fontSize: "11pt",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Konu:{" "}
+                        <EditableField
+                          name="dosyaKonusu"
+                          value={"Kabul Edilen Teklif"}
+                          placeholder="İşin Konusu"
+                        />
                       </td>
                     </tr>
                   </tbody>
@@ -131,10 +168,25 @@ export function KabulEdilenTeklif({
                     lineHeight: 1.5,
                   }}
                 >
-                  Sayın, <span style={{ fontWeight: "bold" }}><EditableField name="yukleniciFirma" value={yuklenici} placeholder="Yüklenici Firma Adı" /></span>
+                  Sayın,{" "}
+                  <span style={{ fontWeight: "bold" }}>
+                    <EditableField
+                      name="yukleniciFirma"
+                      value={yuklenici}
+                      placeholder="Yüklenici Firma Adı"
+                    />
+                  </span>
                   {data.yukleniciAdresi && (
-                    <div style={{ fontSize: "11pt", color: "#333", marginTop: "4px" }}>
-                      {data.yukleniciAdresi} {data.yukleniciIlce ? `${data.yukleniciIlce} / ` : ""}{data.yukleniciIl || ""}
+                    <div
+                      style={{
+                        fontSize: "11pt",
+                        color: "#333",
+                        marginTop: "4px",
+                      }}
+                    >
+                      {data.yukleniciAdresi}{" "}
+                      {data.yukleniciIlce ? `${data.yukleniciIlce} / ` : ""}
+                      {data.yukleniciIl || ""}
                     </div>
                   )}
                 </div>
@@ -150,26 +202,60 @@ export function KabulEdilenTeklif({
                   }}
                 >
                   Aşağıdaki listede belirtilen ihtiyacın{" "}
-                  <EditableField name="teminSekli" value={teminSekli} placeholder="Doğrudan Temin" />{" "}
-                  usulü ile firmanızdan satın alınmasına karar verilmiştir. Malı/Hizmeti/İşi{" "}
+                  <EditableField
+                    name="teminSekli"
+                    value={teminSekli}
+                    placeholder="Doğrudan Temin"
+                  />{" "}
+                  usulü ile firmanızdan satın alınmasına karar verilmiştir.
+                  Malı/Hizmeti/İşi{" "}
                   <strong>
-                    <EditableField name="teslimGun" value={teslimGunu} placeholder="7" />
+                    <EditableField
+                      name="teslimGun"
+                      value={teslimGunu}
+                      placeholder="7"
+                    />
                   </strong>{" "}
                   gün içinde mesai saatleri dahilinde{" "}
-                  <EditableField name="kurumAdi" value={kurumAdi} placeholder="Kurum Adı" />{" "}
+                  <EditableField
+                    name="kurumAdi"
+                    value={kurumAdi}
+                    placeholder="Kurum Adı"
+                  />{" "}
                   adresine teslim etmenizi rica ederiz.
                 </div>
 
                 {/* PREPARED BY SIGNATURE */}
-                <div style={{ width: "100%", marginBottom: "25px", display: "flex", justifyContent: "flex-end" }}>
-                  <div style={{ width: "250px", textAlign: "center", lineHeight: 1.4 }}>
+                <div
+                  style={{
+                    width: "100%",
+                    marginBottom: "25px",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "250px",
+                      textAlign: "center",
+                      lineHeight: 1.4,
+                    }}
+                  >
                     <br />
                     <span style={{ fontWeight: "bold" }}>
-                      <EditableField name="hazirlayanPersonelAdi" value={data.hazirlayanPersonelAdi} placeholder="Hazırlayan Adı Soyadı" />
+                      <EditableField
+                        name="hazirlayanPersonelAdi"
+                        value={data.hazirlayanPersonelAdi}
+                        placeholder="Hazırlayan Adı Soyadı"
+                      />
                     </span>
                     <br />
                     <span style={{ fontSize: "10pt" }}>
-                      <EditableField name="hazirlayanPersonelUnvan" value={data.hazirlayanPersonelUnvan} placeholder="Hazırlayan Ünvanı" />
+                      <EditableField
+                        name="hazirlayanPersonelUnvan"
+                        value={data.hazirlayanPersonelUnvan}
+                        placeholder="Hazırlayan Ünvanı"
+                      />
                     </span>
                   </div>
                 </div>
@@ -180,7 +266,10 @@ export function KabulEdilenTeklif({
             <DocumentTable
               columns={columns}
               data={pageItems}
-              startIndex={pages.slice(0, pageIdx).reduce((acc, p) => acc + p.length, 0)}
+              startIndex={pages.slice(0, pageIdx).reduce(
+                (acc, p) => acc + p.length,
+                0,
+              )}
             />
 
             {/* Genel Toplam Gösterimi */}
@@ -198,7 +287,9 @@ export function KabulEdilenTeklif({
                   backgroundColor: "#fafafa",
                 }}
               >
-                <span style={{ marginRight: "12px" }}>Toplam Tutar (KDV Hariç):</span>
+                <span style={{ marginRight: "12px" }}>
+                  Toplam Tutar (KDV Hariç):
+                </span>
                 <span>{data.genelToplam || "0,00"} TL</span>
               </div>
             )}
@@ -213,16 +304,32 @@ export function KabulEdilenTeklif({
                   lineHeight: 1.4,
                 }}
               >
-                <div style={{ fontWeight: "bold", fontSize: "12pt", marginBottom: "5px" }}>OLUR</div>
+                <div
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: "12pt",
+                    marginBottom: "5px",
+                  }}
+                >
+                  OLUR
+                </div>
                 <div style={{ marginBottom: "15px", fontSize: "10pt" }}>
                   {data.dosyaTarihi || data.tarih}
                 </div>
                 <br />
                 <div style={{ fontWeight: "bold" }}>
-                  <EditableField name="baskanAdi" value={data.baskanAdi || data.onaylayanPersonelAdi} placeholder="Yetkili Adı Soyadı" />
+                  <EditableField
+                    name="baskanAdi"
+                    value={data.baskanAdi || data.onaylayanPersonelAdi}
+                    placeholder="Yetkili Adı Soyadı"
+                  />
                 </div>
                 <div style={{ fontSize: "10pt" }}>
-                  <EditableField name="baskanUnvan" value={data.baskanUnvan || data.onaylayanPersonelUnvan} placeholder="Yetkili Ünvanı" />
+                  <EditableField
+                    name="baskanUnvan"
+                    value={data.baskanUnvan || data.onaylayanPersonelUnvan}
+                    placeholder="Yetkili Ünvanı"
+                  />
                 </div>
               </div>
             )}
