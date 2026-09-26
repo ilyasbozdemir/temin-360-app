@@ -2,6 +2,7 @@
 import Database from 'better-sqlite3'
 import { TANIM_Mevzuat } from './tables/TANIM_Mevzuat'
 import { TANIM_Personel } from './tables/TANIM_Personel'
+import { TANIM_PersonelUnvanGecmisi } from './tables/TANIM_PersonelUnvanGecmisi'
 import { TANIM_Roller } from './tables/TANIM_Roller'
 import { TANIM_Birim } from './tables/TANIM_Birim'
 import { TANIM_Kurum } from './tables/TANIM_Kurum'
@@ -48,6 +49,7 @@ const rawTables = [
   TANIM_Mevzuat,
   TANIM_Birim,
   TANIM_Personel,
+  TANIM_PersonelUnvanGecmisi,
   TANIM_Roller,
   TANIM_Asama,
   TANIM_Firma,

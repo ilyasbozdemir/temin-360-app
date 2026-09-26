@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import QRCode from 'qrcode'
 import { Personel, PersonelWithRoles, usePersonelHooks } from './personel.hooks'
+import { PersonelUnvanGecmisiCard } from './components/PersonelUnvanGecmisiCard'
 import { useBirimlerHooks } from '../birimler/birimler.hooks'
 import { useKurumHooks } from '../kurum/kurum.hooks'
 import { Button } from '../../components/ui/Button'
@@ -377,6 +378,9 @@ export default function PersonelScreen({
                 </div>
               )}
             </div>
+
+            {/* Unvan & Görev Tarihçesi Kartı */}
+            <PersonelUnvanGecmisiCard personel={viewingPersonel} canEdit={true} />
 
             {/* Yetkiler Kartı */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm space-y-6">

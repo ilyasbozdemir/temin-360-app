@@ -15,6 +15,7 @@ import { ExcelActions } from '../../components/ui/ExcelActions'
 import { DetsisSubUnitItem, DetsisSubUnitsModal } from '../../components/ui/DetsisSubUnitsModal'
 import { DetsisSearchModal } from '../../components/ui/DetsisSearchModal'
 import { DetsisVerificationState } from '../../components/ui/DetsisBadge'
+import { OpenSourcePrivacyNotice } from '../../components/ui/OpenSourcePrivacyNotice'
 
 const emptyBirim: BirimInput = {
   birim_adi: '',
@@ -297,6 +298,9 @@ export default function BirimlerScreen({
           </Button>
         </div>
       </div>
+
+      {/* Açık Kaynak Lisans & Yerel Veri Güvenliği Bilgilendirmesi */}
+      <OpenSourcePrivacyNotice />
 
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col flex-1 overflow-hidden min-h-[400px]">
         <div className="flex-1 overflow-auto">
