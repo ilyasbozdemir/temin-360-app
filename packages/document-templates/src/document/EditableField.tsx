@@ -42,6 +42,8 @@ export interface EditableFieldProps {
   onChange?: (newValue: string) => void;
   placeholder?: string;
   multiline?: boolean;
+  options?: string[];
+  selectOptions?: string[];
   style?: React.CSSProperties;
   className?: string;
   isEditing?: boolean;
@@ -54,6 +56,8 @@ export function EditableField({
   onChange,
   placeholder = "......",
   multiline = false,
+  options,
+  selectOptions,
   style = {},
   className = "",
   isEditing,
@@ -62,6 +66,8 @@ export function EditableField({
   const context = useTemplateEdit();
   const [isFocused, setIsFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+
+  const availableOptions = options || selectOptions;
 
   const activeEditing = isEditing !== undefined ? isEditing : context.isEditing;
   const activeOnChange = onChange ||
@@ -102,6 +108,39 @@ export function EditableField({
     maxWidth: "100%",
     ...style,
   };
+
+  if (availableOptions && availableOptions.length > 0) {
+    return (
+      <select
+        value={value}
+        onChange={(e) => activeOnChange(e.target.value)}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        title={tooltipText}
+        style={{
+          ...baseStyle,
+          cursor: "pointer",
+          backgroundColor: isHovered ? "#f1f5f9" : "#ffffff",
+          border: isFocused ? "1.5px solid #2563eb" : "1px dashed #94a3b8",
+          borderRadius: "3px",
+          padding: "2px 4px",
+          display: "inline-block",
+        }}
+        className={className}
+      >
+        {value && !availableOptions.includes(value) && (
+          <option value={value}>{value}</option>
+        )}
+        {availableOptions.map((opt, i) => (
+          <option key={i} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
+    );
+  }
 
   if (multiline) {
     return (

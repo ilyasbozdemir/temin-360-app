@@ -322,6 +322,14 @@ export function SiparisVeSozlesme(): React.JSX.Element {
     });
   };
 
+  const handleOpenButceSorgusu = () => {
+    useGlobalDocumentPreviewStore.getState().openDocument({
+      documentId: "butce-sorgusu",
+      dosyaId: activeDosyaId || undefined,
+      documentTitle: "Bütçe Sorgusu / Ödenek Uygunluk Belgesi",
+    });
+  };
+
   const handleOpenKabulMektubu = () => {
     const s = stageSablons.find(
       (sb) =>
@@ -498,6 +506,7 @@ export function SiparisVeSozlesme(): React.JSX.Element {
                 firmaStats={firmaStats}
                 formatCurrency={formatCurrency}
                 onOpenResultApproval={handleOpenSonucOnay}
+                onOpenButceSorgusu={handleOpenButceSorgusu}
               />
             )}
 

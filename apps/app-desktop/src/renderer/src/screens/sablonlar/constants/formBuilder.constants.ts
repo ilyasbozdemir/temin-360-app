@@ -151,11 +151,14 @@ export const TYPE_LABELS: Record<FormFieldType, string> = {
   number: 'Sayısal Değer Alanı',
   money: 'Para Tutarı (₺) Alanı',
   date: 'Resmi Tarih Alanı',
-  select: 'Seçim Listesi',
+  select: 'Açılır Seçim Listesi',
   checkbox: 'Onay Kutusu',
+  radio: 'Tekli Seçim (Radyo Buton)',
   table: 'Dinamik Tablo Bloğu',
   signature: 'İmza & Onay Bloğu',
   divider: 'Sayfa Bölücü Çizgi',
+  page_break: 'Sayfa Sonu (Kesme)',
+  grid: 'Kolon / Grid Düzeni',
   custom: 'Özel Kullanıcı Bileşeni'
 }
 

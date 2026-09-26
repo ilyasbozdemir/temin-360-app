@@ -84,10 +84,18 @@ export const TEMPLATE_OPTIONS: TemplateOptionItem[] = [
   {
     id: 'harcama-talimati',
     name: 'HarcamaTalimati',
-    title: 'Harcama Talimatı / Onay Belgesi',
+    title: 'Harcama Talimatı / İhale Onay Belgesi',
     category: '1-ihtiyac-tespiti-ve-baslangic',
     categoryLabel: 'Hazırlık & İhtiyaç',
-    description: '4734 Sayılı Kanun Doğrudan Temin Onay Belgesi'
+    description: 'Harcama yetkilisinden alınan ihale/harcama onay belgesi'
+  },
+  {
+    id: 'dogrudan-temin-onay-belgesi',
+    name: 'DogrudanTeminOnayBelgesi',
+    title: 'Doğrudan Temin Onay Belgesi',
+    category: '1-ihtiyac-tespiti-ve-baslangic',
+    categoryLabel: 'Hazırlık & İhtiyaç',
+    description: '4734 Sayılı Kanun 22. madde uyarınca Doğrudan Temin Onay Belgesi'
   },
   {
     id: 'komisyon-gorevlendirme-onayi',
@@ -158,20 +166,28 @@ export const TEMPLATE_OPTIONS: TemplateOptionItem[] = [
 
   // 3. Sipariş ve Sözleşme
   {
+    id: 'dogrudan-temin-sonuc-onay-belgesi',
+    name: 'DogrudanTeminSonucOnayBelgesi',
+    title: 'Piyasa Fiyat Araştırması Sonuç Onay Belgesi',
+    category: '3-siparis-ve-sozlesme',
+    categoryLabel: 'Sipariş & Sözleşme',
+    description: 'Piyasa araştırması sonucunda alımın onaylandığı sonuç belgesi'
+  },
+  {
+    id: 'butce-sorgusu',
+    name: 'ButceSorgusu',
+    title: 'Bütçe Sorgusu / Ödenek Uygunluk Belgesi',
+    category: '3-siparis-ve-sozlesme',
+    categoryLabel: 'Sipariş & Sözleşme',
+    description: 'Mali Hizmetler / Muhasebe Bütçe ve Ödenek Kontrol Formu'
+  },
+  {
     id: 'kabul-edilen-teklif',
     name: 'KabulEdilenTeklif',
     title: 'Kabul Edilen Teklif Mektubu / Sipariş Formu',
     category: '3-siparis-ve-sozlesme',
     categoryLabel: 'Sipariş & Sözleşme',
     description: 'Kazanan firmaya sipariş ve kabul tebliğ yazısı'
-  },
-  {
-    id: 'dogrudan-temin-sonuc-onay-belgesi',
-    name: 'DogrudanTeminSonucOnayBelgesi',
-    title: 'Piyasa Fiyat Araştırması Sonuç Onay Belgesi',
-    category: '3-siparis-ve-sozlesme',
-    categoryLabel: 'Sipariş & Sözleşme',
-    description: 'Piyasa araştırması sonucunda alımın onaylandığı belge'
   },
   {
     id: 'dogrudan-temin-sozlesmesi',
@@ -210,25 +226,34 @@ export const TEMPLATE_OPTIONS: TemplateOptionItem[] = [
 ]
 
 export const TEMPLATE_ALIASES: Record<string, string> = {
-  // Onay Belgeleri (Aşama 1 - Harcama Talimatı)
-  '1-ihtiyac-tespiti-ve-baslangic-dogrudan-temin-onay-belgesi': 'harcama-talimati',
-  'dogrudan-temin-onay-belgesi': 'harcama-talimati',
-  'dogrudan-temin-onay': 'harcama-talimati',
+  // Aşama 1 - Doğrudan Temin Onay Belgesi (22. Madde)
+  '1-ihtiyac-tespiti-ve-baslangic-dogrudan-temin-onay-belgesi': 'dogrudan-temin-onay-belgesi',
+  'dogrudan-temin-onay-belgesi': 'dogrudan-temin-onay-belgesi',
+  'dogrudan-temin-onay': 'dogrudan-temin-onay-belgesi',
+  'dt-onay': 'dogrudan-temin-onay-belgesi',
+  'dt-onay-belgesi': 'dogrudan-temin-onay-belgesi',
+
+  // İhale Onay Belgesi / Harcama Talimatı
+  'harcama-talimati': 'harcama-talimati',
   'idare-onay-belgesi': 'harcama-talimati',
   'ihale-onay-belgesi': 'harcama-talimati',
-  'onay-belgesi': 'harcama-talimati',
-  onaybelgesi: 'harcama-talimati',
-  'butce-sorgusu': 'harcama-talimati',
-  'butce-sorgu': 'harcama-talimati',
-  'dt-onay': 'harcama-talimati',
+  'onay-belgesi': 'dogrudan-temin-onay-belgesi',
+  onaybelgesi: 'dogrudan-temin-onay-belgesi',
   'ihale-onay': 'harcama-talimati',
-  onay: 'harcama-talimati',
   harcama: 'harcama-talimati',
   talimat: 'harcama-talimati',
   'harcama-onay-belgesi': 'harcama-talimati',
 
+  // Bütçe Sorgusu (Aşama 3 / Mali Kontrol)
+  'butce-sorgusu': 'butce-sorgusu',
+  'butce-sorgu': 'butce-sorgusu',
+  butcesorgusu: 'butce-sorgusu',
+  'odenek-uygunluk': 'butce-sorgusu',
+  'butce-onay': 'butce-sorgusu',
+
   // Sonuç Onay Belgeleri (Aşama 3 - Sonuç Onay Belgesi)
   '3-siparis-ve-sozlesme-dogrudan-temin-onay-belgesi': 'dogrudan-temin-sonuc-onay-belgesi',
+  '3-siparis-ve-sozlesme-dogrudan-temin-sonuc-onay-belgesi': 'dogrudan-temin-sonuc-onay-belgesi',
   'siparis-ve-sozlesme-dogrudan-temin-onay-belgesi': 'dogrudan-temin-sonuc-onay-belgesi',
   'siparis-dogrudan-temin-onay-belgesi': 'dogrudan-temin-sonuc-onay-belgesi',
   'dogrudan-temin-sonuc-onay-belgesi': 'dogrudan-temin-sonuc-onay-belgesi',
@@ -553,12 +578,16 @@ export function resolveTemplateConfig(documentId: string | null | undefined): {
     resolvedId = 'muayene-kabul-komisyonu'
   } else if (cleanKey.includes('pusula') || cleanKey.includes('odeme')) {
     resolvedId = 'harcama-pusulasi'
+  } else if (cleanKey.includes('butce') || cleanKey.includes('odenek')) {
+    resolvedId = 'butce-sorgusu'
+  } else if (cleanKey.includes('dogrudan-temin-onay') || cleanKey.includes('dt-onay')) {
+    resolvedId = 'dogrudan-temin-onay-belgesi'
   } else if (
     cleanKey.includes('onay') ||
     cleanKey.includes('talimat') ||
     cleanKey.includes('harcama')
   ) {
-    resolvedId = 'harcama-talimati'
+    resolvedId = 'dogrudan-temin-onay-belgesi'
   }
 
   const found = TEMPLATE_REGISTRY.find((t) => t.id === resolvedId)

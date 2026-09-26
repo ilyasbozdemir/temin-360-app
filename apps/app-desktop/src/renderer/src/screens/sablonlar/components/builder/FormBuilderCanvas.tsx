@@ -13,7 +13,10 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
-  AlignJustify
+  AlignJustify,
+  Lock,
+  Printer,
+  Scissors
 } from 'lucide-react'
 import {
   FormFieldV2,
@@ -364,7 +367,7 @@ export const FormBuilderCanvas: React.FC<FormBuilderCanvasProps> = ({
 
                   {/* Kontrol Çubuğu */}
                   <div className="flex items-center justify-between mb-2 font-sans opacity-75 group-hover:opacity-100 transition-opacity">
-                    <div className="flex items-center gap-1.5 overflow-hidden">
+                    <div className="flex items-center gap-1.5 overflow-hidden flex-wrap">
                       <GripVertical className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 cursor-grab active:cursor-grabbing shrink-0" />
                       <span className="text-[11px] font-bold text-slate-800 truncate">
                         {field.label}
@@ -373,12 +376,47 @@ export const FormBuilderCanvas: React.FC<FormBuilderCanvasProps> = ({
                       <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-mono font-semibold shrink-0">
                         {field.tabName || 'Genel Bilgiler'}
                       </span>
+                      {field.visibilityMode === 'print-only' && (
+                        <span
+                          className="text-[9px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold flex items-center gap-0.5 shrink-0"
+                          title="Sadece Yazdırma / PDF Çıktısında Gösterilir"
+                        >
+                          <Printer className="w-2.5 h-2.5" /> Baskı
+                        </span>
+                      )}
+                      {field.visibilityMode === 'edit-only' && (
+                        <span
+                          className="text-[9px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 font-semibold shrink-0"
+                          title="Sadece Form Düzenleme Modunda Gösterilir (Baskıda Gizlenir)"
+                        >
+                          💻 Form
+                        </span>
+                      )}
+                      {field.readOnly && (
+                        <span
+                          className="text-[9px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-semibold flex items-center gap-0.5 shrink-0"
+                          title="Salt Okunur / Kilitli Alan"
+                        >
+                          <Lock className="w-2.5 h-2.5" /> Kilitli
+                        </span>
+                      )}
+                      {field.pageBreak && field.pageBreak !== 'none' && (
+                        <span
+                          className="text-[9px] px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 font-semibold flex items-center gap-0.5 shrink-0"
+                          title={`Sayfa Kesme Davranışı: ${field.pageBreak}`}
+                        >
+                          <Scissors className="w-2.5 h-2.5" /> Sayfa Kesme
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0">
                       {/* Hizalama ikonu */}
                       {field.textAlign && field.textAlign !== 'left' && (
-                        <span className="text-slate-400 p-0.5" title={`Hizalama: ${field.textAlign}`}>
+                        <span
+                          className="text-slate-400 p-0.5"
+                          title={`Hizalama: ${field.textAlign}`}
+                        >
                           {field.textAlign === 'center' && <AlignCenter className="w-3 h-3" />}
                           {field.textAlign === 'right' && <AlignRight className="w-3 h-3" />}
                           {field.textAlign === 'justify' && <AlignJustify className="w-3 h-3" />}
@@ -458,6 +496,118 @@ export const FormBuilderCanvas: React.FC<FormBuilderCanvasProps> = ({
                         } ${getTextAlignClass(field.textAlign)}`}
                       >
                         {field.staticContent || 'Resmi gerekçe veya yasal dayanak metni...'}
+                      </div>
+                    ) : field.type === 'divider' ? (
+                      <div className="py-2">
+                        <hr
+                          className={`w-full ${
+                            field.borderStyle === 'dashed'
+                              ? 'border-dashed'
+                              : field.borderStyle === 'dotted'
+                                ? 'border-dotted'
+                                : 'border-solid'
+                          } border-slate-400`}
+                        />
+                      </div>
+                    ) : field.type === 'page_break' ? (
+                      <div className="py-2 text-center">
+                        <div className="border border-dashed border-amber-400 bg-amber-50/70 text-amber-800 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-2">
+                          <span>✂️ ---------------- SAYFA SONU KESMESİ (Page Break) ---------------- ✂️</span>
+                        </div>
+                      </div>
+                    ) : field.type === 'grid' ? (
+                      <div className="p-2.5 border border-dashed border-blue-300 rounded-lg bg-blue-50/20">
+                        <div className="text-[10px] font-bold text-blue-600 uppercase mb-1.5">
+                          Grid Kolon Taşıyıcı ({field.gridCols || 2} Sütun)
+                        </div>
+                        <div className={`grid grid-cols-${field.gridCols || 2} gap-2`}>
+                          {Array.from({ length: field.gridCols || 2 }).map((_, i) => (
+                            <div
+                              key={i}
+                              className="p-2 border border-slate-200 bg-white rounded text-center text-slate-400 text-[10px] font-mono"
+                            >
+                              Kolon {i + 1}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : field.type === 'select' ? (
+                      <div className="space-y-1">
+                        <label className="block text-[9pt] font-bold text-slate-700">
+                          {field.label}:
+                        </label>
+                        <div className="px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 flex justify-between items-center">
+                          <span className="font-medium">
+                            {formData[field.variableName] ||
+                              field.defaultValue ||
+                              field.placeholder ||
+                              (field.options?.[0] ? `Seçili: ${field.options[0]}` : 'Seçim Yapınız')}
+                          </span>
+                          <span className="text-slate-400 text-[9px]">▼</span>
+                        </div>
+                      </div>
+                    ) : field.type === 'radio' ? (
+                      <div className="space-y-1.5">
+                        <label className="block text-[9pt] font-bold text-slate-700">
+                          {field.label}:
+                        </label>
+                        <div className="flex flex-wrap gap-3">
+                          {field.options && field.options.length > 0 ? (
+                            field.options.map((opt, i) => (
+                              <div key={i} className="flex items-center gap-1.5 text-xs text-slate-800">
+                                <span
+                                  className={`w-3 h-3 rounded-full border flex items-center justify-center ${
+                                    i === 0 ? 'border-blue-600 bg-blue-600' : 'border-slate-300 bg-white'
+                                  }`}
+                                >
+                                  {i === 0 && <span className="w-1 h-1 rounded-full bg-white" />}
+                                </span>
+                                <span>{opt}</span>
+                              </div>
+                            ))
+                          ) : (
+                            <span className="text-slate-400 italic text-xs">
+                              Seçenek tanımlanmadı
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ) : field.type === 'checkbox' ? (
+                      <div className="space-y-1.5">
+                        <label className="block text-[9pt] font-bold text-slate-700">
+                          {field.label}:
+                        </label>
+                        <div className="flex flex-wrap gap-3">
+                          {field.options && field.options.length > 0 ? (
+                            field.options.map((opt, i) => (
+                              <div key={i} className="flex items-center gap-1.5 text-xs text-slate-800">
+                                <span className="w-3.5 h-3.5 rounded border border-blue-600 bg-blue-600 text-white flex items-center justify-center text-[8px] font-bold">
+                                  ✓
+                                </span>
+                                <span>{opt}</span>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="flex items-center gap-1.5 text-xs text-slate-800">
+                              <span className="w-3.5 h-3.5 rounded border border-blue-600 bg-blue-600 text-white flex items-center justify-center text-[8px] font-bold">
+                                ✓
+                              </span>
+                              <span>{field.placeholder || field.label}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : field.type === 'textarea' ? (
+                      <div className="space-y-1">
+                        <label className="block text-[9pt] font-bold text-slate-700">
+                          {field.label}:
+                        </label>
+                        <div className="text-[9.5pt] leading-relaxed text-slate-800 bg-slate-50/70 p-2.5 border border-slate-200 rounded min-h-12 whitespace-pre-wrap">
+                          {formData[field.variableName] ||
+                            field.defaultValue ||
+                            field.placeholder ||
+                            `[${field.label} açıklaması buraya gelecek...]`}
+                        </div>
                       </div>
                     ) : field.type === 'table' ? (
                       <div className="border border-slate-800 text-[8.5pt]">

@@ -78,6 +78,24 @@ export const FormBuilderPreview: React.FC<FormBuilderPreviewProps> = ({
     }
   }
 
+  const previewFields = fields
+    .filter((f) => selectedTab === 'Tümü' || (f.tabName || 'Genel Bilgiler') === selectedTab)
+    .filter((f) => f.visibilityMode !== 'edit-only')
+
+  const getPageBreakClass = (pb?: 'none' | 'before' | 'after' | 'inside-avoid'): string => {
+    switch (pb) {
+      case 'before':
+        return 'break-before-page'
+      case 'after':
+        return 'break-after-page'
+      case 'inside-avoid':
+        return 'break-inside-avoid'
+      case 'none':
+      default:
+        return ''
+    }
+  }
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-slate-200/70 dark:bg-slate-950 transition-colors">
       {/* Üst Bar: Bilgi & Yazdır Butonu */}
@@ -117,12 +135,12 @@ export const FormBuilderPreview: React.FC<FormBuilderPreviewProps> = ({
           className="bg-white text-slate-900 shadow-2xl border border-slate-300 rounded-xs font-serif text-[10pt] leading-normal"
         >
           <div className="flex flex-wrap gap-2.5 items-start">
-            {fields.map((f) => (
+            {previewFields.map((f) => (
               <div
                 key={f.id}
                 className={`${getWidthClass(f.width)} ${getTextAlignClass(f.textAlign)} ${
                   f.fontWeight === 'bold' ? 'font-bold' : ''
-                } ${f.fontStyle === 'italic' ? 'italic' : ''}`}
+                } ${f.fontStyle === 'italic' ? 'italic' : ''} ${getPageBreakClass(f.pageBreak)}`}
               >
                 {f.type === 'header' ? (
                   <div className="flex items-center justify-between border-b-2 border-slate-800 pb-2 text-center w-full">
@@ -152,6 +170,22 @@ export const FormBuilderPreview: React.FC<FormBuilderPreviewProps> = ({
                     }`}
                   >
                     {f.staticContent || 'Resmi gerekçe metni...'}
+                  </div>
+                ) : f.type === 'divider' ? (
+                  <div className="py-2 w-full">
+                    <hr
+                      className={`w-full ${
+                        f.borderStyle === 'dashed'
+                          ? 'border-dashed'
+                          : f.borderStyle === 'dotted'
+                            ? 'border-dotted'
+                            : 'border-solid'
+                      } border-slate-600`}
+                    />
+                  </div>
+                ) : f.type === 'page_break' ? (
+                  <div className="w-full break-before-page my-3 border-t-2 border-dashed border-slate-300 print:hidden text-center text-xs text-slate-400 py-1 font-mono">
+                    --- [ Yeni Sayfa Kesmesi ] ---
                   </div>
                 ) : f.type === 'table' ? (
                   <div className="border border-slate-800 text-[8.5pt] w-full">
@@ -217,6 +251,13 @@ export const FormBuilderPreview: React.FC<FormBuilderPreviewProps> = ({
                         ))}
                       </div>
                     )}
+                  </div>
+                ) : f.type === 'textarea' ? (
+                  <div className="text-[9.5pt] w-full">
+                    <strong>{f.label}:</strong>{' '}
+                    <div className="whitespace-pre-wrap mt-0.5 leading-relaxed">
+                      {formData[f.variableName] || f.defaultValue || f.placeholder || '-'}
+                    </div>
                   </div>
                 ) : (
                   <div className="text-[9.5pt]">

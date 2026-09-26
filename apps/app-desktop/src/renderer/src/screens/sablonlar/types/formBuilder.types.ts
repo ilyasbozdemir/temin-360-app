@@ -6,11 +6,14 @@ export type FormFieldType =
   | 'date'
   | 'select'
   | 'checkbox'
+  | 'radio'
   | 'table'
   | 'signature'
   | 'header'
   | 'paragraph'
   | 'divider'
+  | 'page_break'
+  | 'grid'
   | 'custom'
 
 export interface TableRowItem {
@@ -41,7 +44,13 @@ export interface FormFieldV2 {
   options?: string[]
   helpText?: string
   defaultValue?: string
-  category?: 'header' | 'document' | 'financial' | 'commission' | 'terms' | 'custom'
+  category?: 'header' | 'document' | 'financial' | 'commission' | 'terms' | 'layout' | 'custom'
+  // Davranış & Görünürlük Ayarları
+  visibilityMode?: 'all' | 'print-only' | 'edit-only' | 'screen-only'
+  pageBreak?: 'none' | 'before' | 'after' | 'inside-avoid'
+  readOnly?: boolean
+  gridCols?: 1 | 2 | 3 | 4
+  gap?: 'none' | 'sm' | 'md' | 'lg'
   // Belge Görünüm & Veri Özellikleri
   staticContent?: string // Paragraf / Yasal metin içeriği
   headerInstitution?: string // Kurum Adı (Örn: T.C. İÇİŞLERİ BAKANLIĞI)
@@ -53,7 +62,7 @@ export interface FormFieldV2 {
   fontSize?: 'xs' | 'sm' | 'base' | 'lg' | 'xl'
   fontWeight?: 'normal' | 'medium' | 'semibold' | 'bold'
   fontStyle?: 'normal' | 'italic'
-  borderStyle?: 'none' | 'solid' | 'dashed' | 'double'
+  borderStyle?: 'none' | 'solid' | 'dashed' | 'dotted' | 'double'
   indent?: boolean
   uppercase?: boolean
   tableType?: 'kalemler' | 'teklifler' | 'yaklasik_maliyet' | 'muayene'
