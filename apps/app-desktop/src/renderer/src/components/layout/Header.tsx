@@ -6,6 +6,7 @@ import { useWorkspaceStore } from '../../store/workspaceStore'
 import { useSettingsStore } from '../../store/settingsStore'
 import { FormatUpgradeModal } from '../modals/FormatUpgradeModal'
 import { UpdateModal } from '../ui/UpdateModal'
+import { AboutModal } from '../ui/AboutModal'
 import { WindowControls } from './header/WindowControls'
 import { NativeMenuBar } from './header/NativeMenuBar'
 import { DirtySummaryPopover } from './header/DirtySummaryPopover'
@@ -24,6 +25,7 @@ export function Header(): React.JSX.Element {
   const isOldFormat = Boolean(activeFilePath && activeExt !== 'temin')
 
   const [showFormatUpgradeModal, setShowFormatUpgradeModal] = useState(false)
+  const [showAboutModal, setShowAboutModal] = useState(false)
   const [upgradeFilePath, setUpgradeFilePath] = useState<string | null>(null)
 
   const handleUpgradeAndOpen = async (filePath: string): Promise<void> => {
@@ -700,8 +702,7 @@ export function Header(): React.JSX.Element {
         },
         {
           label: 'Hakkında...',
-          onClick: () =>
-            alert('TEMİN 360\nKamu Harcama, İhale, Doğrudan Temin ve Hakediş Yönetim Sistemi')
+          onClick: () => setShowAboutModal(true)
         }
       ]
     }
@@ -808,6 +809,11 @@ export function Header(): React.JSX.Element {
         onClose={() => setShowUpdateModal(false)}
         version={updateStatus?.version}
         status={updateStatus?.status}
+      />
+
+      <AboutModal
+        isOpen={showAboutModal}
+        onClose={() => setShowAboutModal(false)}
       />
     </header>
   )
