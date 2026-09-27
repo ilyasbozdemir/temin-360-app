@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { FileCheck } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronsUpDown,
+  Clock,
+  FileCheck,
+  FileSignature,
+  ShieldCheck,
+} from "lucide-react";
 import { SubScreen } from "../../SubScreens.screen";
 import {
   normalizeForMatch,
@@ -13,15 +20,12 @@ import {
   IslemlerData,
   SiparisGuardWarning,
   SiparisKazananFirmaCard,
-  SiparisStepperNav,
-  SiparisStepperTabs,
   Step1TeslimatVeSurec,
   Step2SonucOnay,
   Step3Yasaklilik,
-  Step4KabulVeSiparis,
   Step5SozlesmeVeDavet,
-  StepId,
 } from "./components/SiparisVeSozlesme";
+import { cn } from "../../../../../utils/cn";
 
 export function SiparisVeSozlesme(): React.JSX.Element {
   const {
@@ -66,8 +70,29 @@ export function SiparisVeSozlesme(): React.JSX.Element {
     teklifSozlesmeTuru: "Mal Alımı",
   });
 
-  const [activeStep, setActiveStep] = useState<StepId>("teslimat");
   const [savedFeedback, setSavedFeedback] = useState(false);
+
+  // Accordion açık/kapalı state'leri (Varsayılan olarak 1 ve 2 açık)
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    teslimat: true,
+    sonuc_onay: true,
+    yasaklilik: false,
+    sozlesme: true,
+  });
+
+  const toggleSection = (key: string): void => {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const toggleAllSections = (): void => {
+    const allOpen = Object.values(openSections).every(Boolean);
+    setOpenSections({
+      teslimat: !allOpen,
+      sonuc_onay: !allOpen,
+      yasaklilik: !allOpen,
+      sozlesme: !allOpen,
+    });
+  };
 
   useEffect(() => {
     if (!activeDosyaId) return;
@@ -99,19 +124,23 @@ export function SiparisVeSozlesme(): React.JSX.Element {
               `SELECT tf.firma_id, f.unvan, f.vergi_no, tf.teklif_toplami, tf.yasaklilik_durumu
                FROM DATA_TeminFirma tf
                JOIN TANIM_Firma f ON tf.firma_id = f.id
-               WHERE tf.temin_dosya_id = ? AND tf.teklif_toplami > 0
+               WHERE tf.dosya_id = ? AND tf.teklif_toplami > 0
                ORDER BY tf.teklif_toplami ASC LIMIT 1`,
               [activeDosyaId],
             );
-            if (autoLowestRes.success && autoLowestRes.data?.length > 0) {
-              const lowest = autoLowestRes.data[0];
-              effectiveFirmaId = lowest.firma_id;
-              effectiveUnvan = lowest.unvan;
-              effectiveVergiNo = lowest.vergi_no;
+            if (
+              autoLowestRes.success && autoLowestRes.data &&
+              autoLowestRes.data.length > 0
+            ) {
+              effectiveFirmaId = autoLowestRes.data[0].firma_id;
+              effectiveUnvan = autoLowestRes.data[0].unvan || "";
+              effectiveVergiNo = autoLowestRes.data[0].vergi_no || null;
+
+              // Veritabanına da sessizce yaz
               await window.electron.ipcRenderer.invoke(
                 "db:run",
                 "UPDATE DATA_TeminDosyasi SET firma_id = ? WHERE id = ?",
-                [lowest.firma_id, activeDosyaId],
+                [effectiveFirmaId, activeDosyaId],
               );
             }
           }
@@ -119,40 +148,40 @@ export function SiparisVeSozlesme(): React.JSX.Element {
           setKazananFirmaId(effectiveFirmaId);
           setKazananFirmaUnvan(effectiveUnvan);
 
-          // Kazanan firmanın teklif toplamı ve yasaklılık durumu
-          let teklifToplami: number | null = null;
-          let yasaklilikDurumu: string | null = null;
+          // Teklif toplamını ve yasaklılık durumunu kazanan firma kaydından çek
+          let teklifToplami = null;
+          let yasaklilikDurumu = null;
           if (effectiveFirmaId) {
-            const teklifRes = await window.electron.ipcRenderer.invoke(
+            const tfRes = await window.electron.ipcRenderer.invoke(
               "db:query",
-              `SELECT tf.teklif_toplami, tf.yasaklilik_durumu
-               FROM DATA_TeminFirma tf
-               WHERE tf.temin_dosya_id = ? AND tf.firma_id = ?`,
+              `SELECT teklif_toplami, yasaklilik_durumu FROM DATA_TeminFirma WHERE dosya_id = ? AND firma_id = ?`,
               [activeDosyaId, effectiveFirmaId],
             );
-            if (teklifRes.success && teklifRes.data?.length > 0) {
-              teklifToplami = teklifRes.data[0].teklif_toplami;
-              yasaklilikDurumu = teklifRes.data[0].yasaklilik_durumu;
+            if (tfRes.success && tfRes.data && tfRes.data.length > 0) {
+              teklifToplami = tfRes.data[0].teklif_toplami;
+              yasaklilikDurumu = tfRes.data[0].yasaklilik_durumu;
             }
           }
 
-          // İstekli firma sayısı
+          // Toplam istekli firma sayısını öğren
           const firmCountRes = await window.electron.ipcRenderer.invoke(
             "db:query",
-            `SELECT COUNT(*) as cnt FROM DATA_TeminFirma WHERE temin_dosya_id = ?`,
+            `SELECT COUNT(*) as cnt FROM DATA_TeminFirma WHERE dosya_id = ?`,
             [activeDosyaId],
           );
           const istekliFirmaSayisi =
-            firmCountRes.success && firmCountRes.data?.length > 0
+            firmCountRes.success && firmCountRes.data &&
+              firmCountRes.data.length > 0
               ? firmCountRes.data[0].cnt
               : 0;
 
-          // Gün sayısı hesaplama (eğer teslim günü veya tarihi varsa)
-          let calculatedDays =
-            row.teslim_gun !== undefined && row.teslim_gun !== null &&
-              Number(row.teslim_gun) > 0
-              ? Number(row.teslim_gun)
-              : 10;
+          // Teslim tarihi formatlaması
+          let formattedDate = "";
+          let teslimGunu = row.teslim_gun !== undefined &&
+              row.teslim_gun !== null
+            ? row.teslim_gun
+            : 10;
+
           if (
             (row.teslim_gun === undefined || row.teslim_gun === null) &&
             row.teslim_tarihi
@@ -161,33 +190,39 @@ export function SiparisVeSozlesme(): React.JSX.Element {
             const today = new Date();
             const diffTime = tDate.getTime() - today.getTime();
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            if (diffDays > 0 && diffDays < 365) {
-              calculatedDays = diffDays;
+            if (diffDays > 0) teslimGunu = diffDays;
+          }
+
+          if (row.teslim_tarihi) {
+            const d = new Date(row.teslim_tarihi);
+            if (!isNaN(d.getTime())) {
+              formattedDate = d.toISOString().split("T")[0];
             }
           }
 
           setFirmaStats({
             teklifToplami,
             yaklasikMaliyet: row.yaklasik_maliyet || null,
-            teslimTarihi: row.teslim_tarihi || null,
+            teslimTarihi: formattedDate || null,
             yasaklilikDurumu,
-            vergiNo: effectiveVergiNo || row.vergi_no || null,
+            vergiNo: effectiveVergiNo,
             teklifSozlesmeTuru: row.teklif_sozlesme_turu || "Mal Alımı",
-            sozlesmeYapilacakMi: row.sozlesme_yapilacak_mi || 0,
+            sozlesmeYapilacakMi: row.sozlesme_yapilacak_mi ? 1 : 0,
             istekliFirmaSayisi,
           });
 
           setIslemlerData({
-            sozlesmeYapilacakMi: row.sozlesme_yapilacak_mi === 1,
+            sozlesmeYapilacakMi: Boolean(row.sozlesme_yapilacak_mi),
             siparisFormuGerekli: true,
-            teslimGunu: calculatedDays,
-            teslimTarihi: row.teslim_tarihi || "",
+            teslimGunu: teslimGunu,
+            teslimTarihi: formattedDate || "",
             teklifSozlesmeTuru: row.teklif_sozlesme_turu || "Mal Alımı",
           });
         } else {
           setKazananFirmaId(null);
         }
-      } catch {
+      } catch (err) {
+        console.error("Kazanan firma kontrol edilirken hata:", err);
         setKazananFirmaId(null);
       }
     };
@@ -200,16 +235,16 @@ export function SiparisVeSozlesme(): React.JSX.Element {
     return new Intl.NumberFormat("tr-TR", {
       style: "currency",
       currency: "TRY",
-      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(val);
   };
 
-  // Teslim gününü ve tarihini otomatik güncelleme
+  // Teslimat günü hızlıca seçildiğinde
   const handleUpdateTeslimGunu = async (gun: number): Promise<void> => {
     if (!activeDosyaId) return;
-    const d = new Date();
-    d.setDate(d.getDate() + gun);
-    const dateStr = d.toISOString().split("T")[0];
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + gun);
+    const dateStr = targetDate.toISOString().split("T")[0];
 
     setIslemlerData((prev) => ({
       ...prev,
@@ -221,8 +256,8 @@ export function SiparisVeSozlesme(): React.JSX.Element {
     try {
       await window.electron.ipcRenderer.invoke(
         "db:query",
-        `UPDATE DATA_TeminDosyasi SET teslim_tarihi = ?, teslim_gun = ? WHERE id = ?`,
-        [dateStr, gun, activeDosyaId],
+        `UPDATE DATA_TeminDosyasi SET teslim_gun = ?, teslim_tarihi = ? WHERE id = ?`,
+        [gun, dateStr, activeDosyaId],
       );
       documentPreloadService.invalidateCache(activeDosyaId);
       window.dispatchEvent(
@@ -284,9 +319,6 @@ export function SiparisVeSozlesme(): React.JSX.Element {
       ...prev,
       sozlesmeYapilacakMi: newStatus === 1,
     }));
-    if (newStatus === 0 && activeStep === "sozlesme") {
-      setActiveStep("siparis");
-    }
 
     try {
       await window.electron.ipcRenderer.invoke(
@@ -308,23 +340,48 @@ export function SiparisVeSozlesme(): React.JSX.Element {
   };
 
   // Belge Açma Yardımcıları
-  const handleOpenSonucOnay = () => {
-    useGlobalDocumentPreviewStore.getState().openDocument({
-      documentId: "dogrudan-temin-sonuc-onay-belgesi",
-      dosyaId: activeDosyaId || undefined,
-      documentTitle: "Doğrudan Temin Sonuç Onay Belgesi",
-    });
+  const handleOpenSonucOnay = (): void => {
+    const s = stageSablons.find(
+      (sb) =>
+        normalizeForMatch(sb.dosya_adi + sb.ad).includes("sonuconay") ||
+        normalizeForMatch(sb.dosya_adi + sb.ad).includes("sonuc") ||
+        normalizeForMatch(sb.dosya_adi + sb.ad).includes("karar"),
+    );
+    if (s) {
+      handleOpenPreviewForSablon(
+        s,
+        s.ad || "Doğrudan Temin Sonuç Onay Belgesi",
+      );
+    } else {
+      useGlobalDocumentPreviewStore.getState().openDocument({
+        documentId: "dogrudan-temin-sonuc-onay-belgesi",
+        dosyaId: activeDosyaId || undefined,
+        documentTitle: "Doğrudan Temin Sonuç Onay Belgesi",
+      });
+    }
   };
 
-  const handleOpenButceSorgusu = () => {
-    useGlobalDocumentPreviewStore.getState().openDocument({
-      documentId: "butce-sorgusu",
-      dosyaId: activeDosyaId || undefined,
-      documentTitle: "Bütçe Sorgusu / Ödenek Uygunluk Belgesi",
-    });
+  const handleOpenButceSorgusu = (): void => {
+    const s = stageSablons.find(
+      (sb) =>
+        normalizeForMatch(sb.dosya_adi + sb.ad).includes("butce") ||
+        normalizeForMatch(sb.dosya_adi + sb.ad).includes("odenek"),
+    );
+    if (s) {
+      handleOpenPreviewForSablon(
+        s,
+        s.ad || "Bütçe Sorgusu / Ödenek Uygunluk Belgesi",
+      );
+    } else {
+      useGlobalDocumentPreviewStore.getState().openDocument({
+        documentId: "butce-sorgusu",
+        dosyaId: activeDosyaId || undefined,
+        documentTitle: "Bütçe Sorgusu / Ödenek Uygunluk Belgesi",
+      });
+    }
   };
 
-  const handleOpenKabulMektubu = () => {
+  const handleOpenKabulMektubu = (): void => {
     const s = stageSablons.find(
       (sb) =>
         normalizeForMatch(sb.dosya_adi + sb.ad).includes("kabulyazisi") ||
@@ -336,12 +393,12 @@ export function SiparisVeSozlesme(): React.JSX.Element {
       useGlobalDocumentPreviewStore.getState().openDocument({
         documentId: "kabul-edilen-teklif",
         dosyaId: activeDosyaId || undefined,
-        documentTitle: "Kabul Edilen Teklif Mektubu",
+        documentTitle: "Kabul Edilen Teklif Mektubu / Sipariş Formu",
       });
     }
   };
 
-  const handleOpenSiparisFormu = () => {
+  const handleOpenSiparisFormu = (): void => {
     const s = stageSablons.find(
       (sb) =>
         normalizeForMatch(sb.dosya_adi + sb.ad).includes("siparisformu") ||
@@ -352,12 +409,12 @@ export function SiparisVeSozlesme(): React.JSX.Element {
       useGlobalDocumentPreviewStore.getState().openDocument({
         documentId: "kabul-edilen-teklif",
         dosyaId: activeDosyaId || undefined,
-        documentTitle: "Sipariş Formu",
+        documentTitle: "Kabul Edilen Teklif Mektubu / Sipariş Formu",
       });
     }
   };
 
-  const handleOpenDavetMektubu = () => {
+  const handleOpenDavetMektubu = (): void => {
     const s = stageSablons.find((sb) =>
       normalizeForMatch(sb.dosya_adi + sb.ad).includes("davet")
     );
@@ -371,11 +428,12 @@ export function SiparisVeSozlesme(): React.JSX.Element {
     }
   };
 
-  const handleOpenStandartSozlesme = () => {
+  const handleOpenStandartSozlesme = (): void => {
     const s = stageSablons.find(
       (sb) =>
-        normalizeForMatch(sb.dosya_adi + sb.ad) === "dogrudanteminsozlesmesi" ||
-        normalizeForMatch(sb.dosya_adi + sb.ad) === "sozlesme",
+        normalizeForMatch(sb.dosya_adi + sb.ad).includes("sozlesme") &&
+        !normalizeForMatch(sb.dosya_adi + sb.ad).includes("alternatif") &&
+        !normalizeForMatch(sb.dosya_adi + sb.ad).includes("uzun"),
     );
     if (s) handleOpenPreviewForSablon(s, s.ad);
     else {
@@ -387,9 +445,11 @@ export function SiparisVeSozlesme(): React.JSX.Element {
     }
   };
 
-  const handleOpenAlternatifSozlesme = () => {
-    const s = stageSablons.find((sb) =>
-      normalizeForMatch(sb.dosya_adi + sb.ad).includes("alternatif")
+  const handleOpenAlternatifSozlesme = (): void => {
+    const s = stageSablons.find(
+      (sb) =>
+        normalizeForMatch(sb.dosya_adi + sb.ad).includes("sozlesme") &&
+        normalizeForMatch(sb.dosya_adi + sb.ad).includes("alternatif"),
     );
     if (s) handleOpenPreviewForSablon(s, s.ad);
     else {
@@ -401,26 +461,23 @@ export function SiparisVeSozlesme(): React.JSX.Element {
     }
   };
 
-  const handleOpenUzunFormSozlesme = () => {
-    const s = stageSablons.find((sb) =>
-      normalizeForMatch(sb.dosya_adi + sb.ad).includes("uzun")
+  const handleOpenUzunFormSozlesme = (): void => {
+    const s = stageSablons.find(
+      (sb) =>
+        normalizeForMatch(sb.dosya_adi + sb.ad).includes("sozlesme") &&
+        normalizeForMatch(sb.dosya_adi + sb.ad).includes("uzun"),
     );
     if (s) handleOpenPreviewForSablon(s, s.ad);
     else {
       useGlobalDocumentPreviewStore.getState().openDocument({
         documentId: "dogrudan-temin-sozlesmesi-uzun",
         dosyaId: activeDosyaId || undefined,
-        documentTitle: "Doğrudan Temin Sözleşmesi (Uzun Form)",
+        documentTitle: "Doğrudan Temin Sözleşmesi (Kapsamlı)",
       });
     }
   };
 
-  const handleOpenEkap = () => {
-    window.electron?.ipcRenderer.send("window:open-external", {
-      url: "https://ekapv2.kik.gov.tr/sorgulamalar/yasak-sorgulama",
-      title: "EKAP Kamu İhale Yasaklı Sorgulama",
-    });
-  };
+  const hasSozlesme = Boolean(firmaStats.sozlesmeYapilacakMi);
 
   return (
     <SubScreen
@@ -463,78 +520,244 @@ export function SiparisVeSozlesme(): React.JSX.Element {
             onPrintContractLong={handleOpenUzunFormSozlesme}
           />
 
-          {/* ═══ Stepper Sekme Barı ═══ */}
-          <SiparisStepperTabs
-            activeStep={activeStep}
-            setActiveStep={setActiveStep}
-            sozlesmeYapilacakMi={Boolean(firmaStats.sozlesmeYapilacakMi)}
-          />
-
-          {/* ═══ Stepper İçerik Paneli ═══ */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs flex flex-col gap-4 animate-in fade-in duration-200">
-            {/* Genel Başlık / Context */}
-            <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-              <div>
-                <span className="text-[11px] text-slate-400">
-                  Doğrudan Temin Kapsamında Alım Yapılan Firma
-                </span>
-                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                  {kazananFirmaUnvan}
-                </p>
-              </div>
-              <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 shrink-0">
-                Doğrudan Temin
+          {/* ═══ Akordeon / Collapse Başlık Çubuğu ═══ */}
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                İşlem ve Belge Aşamaları
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold">
+                {hasSozlesme ? "4 Adım" : "3 Adım"}
               </span>
             </div>
 
-            {activeStep === "teslimat" && (
-              <Step1TeslimatVeSurec
-                islemlerData={islemlerData}
-                firmaStats={firmaStats}
-                savedFeedback={savedFeedback}
-                handleUpdateTeslimGunu={handleUpdateTeslimGunu}
-                handleUpdateTeslimTarihi={handleUpdateTeslimTarihi}
-                handleToggleSozlesme={handleToggleSozlesme}
-              />
-            )}
+            <button
+              type="button"
+              onClick={toggleAllSections}
+              className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 font-bold flex items-center gap-1 cursor-pointer transition-colors py-1 px-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40"
+            >
+              <ChevronsUpDown className="w-3.5 h-3.5" />
+              {Object.values(openSections).every(Boolean)
+                ? "Tümünü Daralt"
+                : "Tümünü Genişlet"}
+            </button>
+          </div>
 
-            {activeStep === "sonuc_onay" && (
-              <Step2SonucOnay
-                kazananFirmaUnvan={kazananFirmaUnvan}
-                firmaStats={firmaStats}
-                formatCurrency={formatCurrency}
-                onOpenResultApproval={handleOpenSonucOnay}
-                onOpenButceSorgusu={handleOpenButceSorgusu}
-              />
-            )}
+          {/* ═══ AKORDEON (COLLAPSE) LİSTESİ ═══ */}
+          <div className="flex flex-col gap-3">
+            {/* ── 1. Adım: Teslimat & Sipariş Formu ── */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden transition-all">
+              <button
+                type="button"
+                onClick={() => toggleSection("teslimat")}
+                className="w-full p-4 flex items-center justify-between gap-3 text-left hover:bg-slate-50/70 dark:hover:bg-slate-850/50 cursor-pointer transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-950/60 flex items-center justify-center text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 shrink-0">
+                    <Clock className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800 text-[10px]">
+                        Adım 1
+                      </span>
+                      <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                        Teslimat Şartları & Sipariş Formu / Kabul Mektubu
+                      </h3>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Yasal teslim süresi belirleme, sözleşme tercihi ve kabul/sipariş formunu açma
+                    </p>
+                  </div>
+                </div>
 
-            {activeStep === "yasaklilik" && (
-              <Step3Yasaklilik vergiNo={firmaStats.vergiNo} />
-            )}
+                <div className="flex items-center gap-2.5 shrink-0">
+                  <span className="text-[11px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-lg border border-amber-200 dark:border-amber-800">
+                    {islemlerData.teslimGunu} Gün Teslimat
+                  </span>
+                  <div
+                    className={cn(
+                      "w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 transition-transform duration-200",
+                      openSections.teslimat && "rotate-180 text-slate-700 dark:text-slate-200",
+                    )}
+                  >
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                </div>
+              </button>
 
-            {activeStep === "siparis" && (
-              <Step4KabulVeSiparis
-                teslimGunu={islemlerData.teslimGunu}
-                onOpenKabulMektubu={handleOpenKabulMektubu}
-              />
-            )}
+              {openSections.teslimat && (
+                <div className="p-4 pt-0 border-t border-slate-100 dark:border-slate-800/80 animate-in fade-in duration-200">
+                  <Step1TeslimatVeSurec
+                    islemlerData={islemlerData}
+                    firmaStats={firmaStats}
+                    savedFeedback={savedFeedback}
+                    handleUpdateTeslimGunu={handleUpdateTeslimGunu}
+                    handleUpdateTeslimTarihi={handleUpdateTeslimTarihi}
+                    handleToggleSozlesme={handleToggleSozlesme}
+                    onOpenKabulMektubu={handleOpenKabulMektubu}
+                  />
+                </div>
+              )}
+            </div>
 
-            {activeStep === "sozlesme" && (
-              <Step5SozlesmeVeDavet
-                sozlesmeYapilacakMi={firmaStats.sozlesmeYapilacakMi}
-                onOpenDavetMektubu={handleOpenDavetMektubu}
-                onOpenStandartSozlesme={handleOpenStandartSozlesme}
-                onOpenAlternatifSozlesme={handleOpenAlternatifSozlesme}
-                onOpenUzunFormSozlesme={handleOpenUzunFormSozlesme}
-              />
-            )}
+            {/* ── 2. Adım: Karar & Sonuç Onay ve Bütçe Uygunluk ── */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden transition-all">
+              <button
+                type="button"
+                onClick={() => toggleSection("sonuc_onay")}
+                className="w-full p-4 flex items-center justify-between gap-3 text-left hover:bg-slate-50/70 dark:hover:bg-slate-850/50 cursor-pointer transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 shrink-0">
+                    <FileCheck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 text-[10px]">
+                        Adım 2
+                      </span>
+                      <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                        Karar & Sonuç Onay ve Bütçe Uygunluk Süreci
+                      </h3>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Piyasa fiyat araştırması neticesinde sonuç onay belgesi ve bütçe uygunluk formu
+                    </p>
+                  </div>
+                </div>
 
-            {/* Stepper Alt Gezinme Butonları */}
-            <SiparisStepperNav
-              activeStep={activeStep}
-              onStepChange={setActiveStep}
-              sozlesmeYapilacakMi={Boolean(firmaStats.sozlesmeYapilacakMi)}
-            />
+                <div className="flex items-center gap-2.5 shrink-0">
+                  <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                    Onay & Bütçe
+                  </span>
+                  <div
+                    className={cn(
+                      "w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 transition-transform duration-200",
+                      openSections.sonuc_onay && "rotate-180 text-slate-700 dark:text-slate-200",
+                    )}
+                  >
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                </div>
+              </button>
+
+              {openSections.sonuc_onay && (
+                <div className="p-4 pt-0 border-t border-slate-100 dark:border-slate-800/80 animate-in fade-in duration-200">
+                  <Step2SonucOnay
+                    kazananFirmaUnvan={kazananFirmaUnvan}
+                    firmaStats={firmaStats}
+                    formatCurrency={formatCurrency}
+                    onOpenResultApproval={handleOpenSonucOnay}
+                    onOpenButceSorgusu={handleOpenButceSorgusu}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* ── 3. Adım: Yasaklılık Teyit İşlemleri ── */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden transition-all">
+              <button
+                type="button"
+                onClick={() => toggleSection("yasaklilik")}
+                className="w-full p-4 flex items-center justify-between gap-3 text-left hover:bg-slate-50/70 dark:hover:bg-slate-850/50 cursor-pointer transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-950/60 flex items-center justify-center text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-800 shrink-0">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-violet-700 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/50 px-1.5 py-0.5 rounded border border-violet-200 dark:border-violet-800 text-[10px]">
+                        Adım 3
+                      </span>
+                      <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                        Yasaklılık Teyit İşlemleri
+                      </h3>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      KİK İhale Yasaklılık sorgulama ve teyit belgesi kontrolü
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2.5 shrink-0">
+                  <span className="text-[11px] font-bold text-violet-700 dark:text-violet-300 bg-violet-50 dark:bg-violet-950/40 px-2.5 py-1 rounded-lg border border-violet-200 dark:border-violet-800">
+                    KİK Teyit
+                  </span>
+                  <div
+                    className={cn(
+                      "w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 transition-transform duration-200",
+                      openSections.yasaklilik && "rotate-180 text-slate-700 dark:text-slate-200",
+                    )}
+                  >
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                </div>
+              </button>
+
+              {openSections.yasaklilik && (
+                <div className="p-4 pt-0 border-t border-slate-100 dark:border-slate-800/80 animate-in fade-in duration-200">
+                  <Step3Yasaklilik vergiNo={firmaStats.vergiNo} />
+                </div>
+              )}
+            </div>
+
+            {/* ── 4. Adım: Sözleşme & Davet İşlemleri (Yalnızca Sözleşme Yapılacaksa) ── */}
+            {hasSozlesme && (
+              <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden transition-all">
+                <button
+                  type="button"
+                  onClick={() => toggleSection("sozlesme")}
+                  className="w-full p-4 flex items-center justify-between gap-3 text-left hover:bg-slate-50/70 dark:hover:bg-slate-850/50 cursor-pointer transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-950/60 flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 shrink-0">
+                      <FileSignature className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800 text-[10px]">
+                          Adım 4
+                        </span>
+                        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                          Sözleşme & Davet İşlemleri
+                        </h3>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Yüklenici sözleşmeye davet mektubu ve doğrudan temin alım sözleşmesi
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5 shrink-0">
+                    <span className="text-[11px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1 rounded-lg border border-blue-200 dark:border-blue-800">
+                      Sözleşme & Davet
+                    </span>
+                    <div
+                      className={cn(
+                        "w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 transition-transform duration-200",
+                        openSections.sozlesme && "rotate-180 text-slate-700 dark:text-slate-200",
+                      )}
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </div>
+                  </div>
+                </button>
+
+                {openSections.sozlesme && (
+                  <div className="p-4 pt-0 border-t border-slate-100 dark:border-slate-800/80 animate-in fade-in duration-200">
+                    <Step5SozlesmeVeDavet
+                      sozlesmeYapilacakMi={firmaStats.sozlesmeYapilacakMi}
+                      onOpenDavetMektubu={handleOpenDavetMektubu}
+                      onOpenStandartSozlesme={handleOpenStandartSozlesme}
+                      onOpenAlternatifSozlesme={handleOpenAlternatifSozlesme}
+                      onOpenUzunFormSozlesme={handleOpenUzunFormSozlesme}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

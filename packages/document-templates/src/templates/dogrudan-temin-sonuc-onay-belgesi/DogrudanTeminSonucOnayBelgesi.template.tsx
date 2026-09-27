@@ -16,13 +16,12 @@ export function DogrudanTeminSonucOnayBelgesi({
 }: DogrudanTeminSonucOnayBelgesiProps) {
   const teklifler = data.teklifler || [];
   const uygunGorulenler = data.uygunGorulenler || [];
-  const idareAdi =
-    data.idareAdi ||
+  const ekler = data.ekler || [];
+  const idareAdi = data.idareAdi ||
     data.kurumAdi ||
     (data.antetSatirlari && data.antetSatirlari[1]) ||
     "İDARE ADI";
-  const vmakamina =
-    data.vmakamina ||
+  const vmakamina = data.vmakamina ||
     data.makam ||
     "HARCAMA YETKİLİSİ MAKAMINA";
 
@@ -38,7 +37,7 @@ export function DogrudanTeminSonucOnayBelgesi({
       <div
         style={{
           width: "100%",
-          fontSize: "10.5pt",
+          fontSize: "12pt",
           color: "#000",
           fontFamily: "'Times New Roman', Times, serif",
           lineHeight: 1.4,
@@ -49,8 +48,8 @@ export function DogrudanTeminSonucOnayBelgesi({
           style={{
             textAlign: "center",
             fontWeight: "bold",
-            fontSize: "12.5pt",
-            marginBottom: "12px",
+            fontSize: "13pt",
+            marginBottom: "15px",
             textTransform: "uppercase",
             letterSpacing: "0.5px",
           }}
@@ -63,7 +62,7 @@ export function DogrudanTeminSonucOnayBelgesi({
           style={{
             width: "100%",
             borderCollapse: "collapse",
-            marginBottom: "8px",
+            marginBottom: "10px",
           }}
         >
           <tbody>
@@ -71,9 +70,10 @@ export function DogrudanTeminSonucOnayBelgesi({
               <td
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  width: "38%",
+                  padding: "6px 8px",
+                  fontSize: "10pt",
+                  verticalAlign: "middle",
+                  width: "40%",
                   fontWeight: "bold",
                 }}
               >
@@ -82,20 +82,26 @@ export function DogrudanTeminSonucOnayBelgesi({
               <td
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  width: "62%",
+                  padding: "6px 8px",
+                  fontSize: "10pt",
+                  verticalAlign: "middle",
+                  width: "60%",
                 }}
               >
-                <EditableField name="idareAdi" value={idareAdi} placeholder="İdare Adı" />
+                <EditableField
+                  name="idareAdi"
+                  value={idareAdi}
+                  placeholder="İdare Adı"
+                />
               </td>
             </tr>
             <tr>
               <td
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
+                  padding: "6px 8px",
+                  fontSize: "10pt",
+                  verticalAlign: "middle",
                   fontWeight: "bold",
                 }}
               >
@@ -104,8 +110,9 @@ export function DogrudanTeminSonucOnayBelgesi({
               <td
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
+                  padding: "6px 8px",
+                  fontSize: "10pt",
+                  verticalAlign: "middle",
                 }}
               >
                 <EditableField
@@ -124,19 +131,23 @@ export function DogrudanTeminSonucOnayBelgesi({
           </tbody>
         </table>
 
-        {/* CENTERED IDARE / MAKAM BOX */}
+        {/* CENTERED IDARE BOX */}
         <div
           style={{
             border: "1px solid #000",
             textAlign: "center",
             fontWeight: "bold",
-            padding: "5px",
-            margin: "8px 0",
+            padding: "6px",
+            margin: "10px 0",
             textTransform: "uppercase",
-            fontSize: "10pt",
+            fontSize: "10.5pt",
           }}
         >
-          <EditableField name="vmakamina" value={vmakamina} placeholder="Makam Adı" />
+          <EditableField
+            name="vmakamina"
+            value={vmakamina}
+            placeholder="Makam Adı"
+          />
         </div>
 
         {/* SECOND SECTION: BILGILER */}
@@ -144,8 +155,8 @@ export function DogrudanTeminSonucOnayBelgesi({
           style={{
             textAlign: "center",
             fontWeight: "bold",
-            fontSize: "10pt",
-            margin: "12px 0 6px 0",
+            fontSize: "11pt",
+            margin: "18px 0 8px 0",
             textTransform: "uppercase",
           }}
         >
@@ -155,7 +166,7 @@ export function DogrudanTeminSonucOnayBelgesi({
           style={{
             width: "100%",
             borderCollapse: "collapse",
-            marginBottom: "8px",
+            marginBottom: "10px",
           }}
         >
           <tbody>
@@ -163,9 +174,10 @@ export function DogrudanTeminSonucOnayBelgesi({
               <td
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  width: "38%",
+                  padding: "6px 8px",
+                  fontSize: "10pt",
+                  verticalAlign: "middle",
+                  width: "40%",
                   fontWeight: "bold",
                 }}
               >
@@ -174,8 +186,10 @@ export function DogrudanTeminSonucOnayBelgesi({
               <td
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
+                  padding: "6px 8px",
+                  fontSize: "10pt",
+                  verticalAlign: "middle",
+                  width: "60%",
                   fontWeight: "bold",
                 }}
               >
@@ -190,8 +204,9 @@ export function DogrudanTeminSonucOnayBelgesi({
               <td
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
+                  padding: "6px 8px",
+                  fontSize: "10pt",
+                  verticalAlign: "middle",
                   fontWeight: "bold",
                 }}
               >
@@ -200,8 +215,9 @@ export function DogrudanTeminSonucOnayBelgesi({
               <td
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
+                  padding: "6px 8px",
+                  fontSize: "10pt",
+                  verticalAlign: "middle",
                 }}
               >
                 <EditableField
@@ -215,8 +231,9 @@ export function DogrudanTeminSonucOnayBelgesi({
               <td
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
+                  padding: "6px 8px",
+                  fontSize: "10pt",
+                  verticalAlign: "middle",
                   fontWeight: "bold",
                 }}
               >
@@ -225,13 +242,15 @@ export function DogrudanTeminSonucOnayBelgesi({
               <td
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
+                  padding: "6px 8px",
+                  fontSize: "10pt",
+                  verticalAlign: "middle",
                 }}
               >
                 <EditableField
                   name="alimTuru"
-                  value={data.alimTuru || data.teklifSozlesmeTuru || "Mal Alımı"}
+                  value={data.alimTuru || data.teklifSozlesmeTuru ||
+                    "Mal Alımı"}
                   placeholder="Alım Türü"
                 />
               </td>
@@ -240,8 +259,9 @@ export function DogrudanTeminSonucOnayBelgesi({
               <td
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
+                  padding: "6px 8px",
+                  fontSize: "10pt",
+                  verticalAlign: "middle",
                   fontWeight: "bold",
                 }}
               >
@@ -250,14 +270,16 @@ export function DogrudanTeminSonucOnayBelgesi({
               <td
                 style={{
                   border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  fontWeight: "bold",
+                  padding: "6px 8px",
+                  fontSize: "10pt",
+                  verticalAlign: "middle",
                 }}
               >
                 <EditableField
                   name="yaklasikMaliyet"
-                  value={data.yaklasikMaliyet ? `${data.yaklasikMaliyet} ₺` : "-"}
+                  value={data.yaklasikMaliyet
+                    ? `${data.yaklasikMaliyet} ₺`
+                    : "-"}
                   placeholder="0,00 ₺"
                 />
               </td>
@@ -270,8 +292,8 @@ export function DogrudanTeminSonucOnayBelgesi({
           style={{
             textAlign: "center",
             fontWeight: "bold",
-            fontSize: "10pt",
-            margin: "12px 0 6px 0",
+            fontSize: "11pt",
+            margin: "18px 0 8px 0",
             textTransform: "uppercase",
           }}
         >
@@ -280,19 +302,18 @@ export function DogrudanTeminSonucOnayBelgesi({
         <div
           style={{
             border: "1px solid #000",
-            minHeight: "50px",
-            padding: "6px 8px",
-            fontSize: "9.5pt",
+            minHeight: "80px",
+            padding: "8px",
+            fontSize: "10pt",
             textAlign: "justify",
-            marginBottom: "10px",
+            whiteSpace: "pre-wrap",
+            marginBottom: "15px",
           }}
         >
           <EditableField
             name="isinAciklamasi"
-            value={
-              data.isinAciklamasi ||
-              "Yukarıda belirtilen ihtiyacın karşılanması amacıyla 4734 sayılı Kamu İhale Kanununun 22/d maddesi uyarınca piyasa fiyat araştırması yapılmış ve en uygun teklifi veren istekli üzerine alım yapılması kararlaştırılmıştır."
-            }
+            value={data.isinAciklamasi ||
+              "Yukarıda belirtilen ihtiyacın karşılanması amacıyla 4734 sayılı Kamu İhale Kanununun 22/d maddesi uyarınca piyasa fiyat araştırması yapılmış ve en uygun teklifi veren istekli üzerine alım yapılması kararlaştırılmıştır."}
             placeholder="Açıklama giriniz..."
             multiline
           />
@@ -303,60 +324,142 @@ export function DogrudanTeminSonucOnayBelgesi({
           style={{
             textAlign: "center",
             fontWeight: "bold",
-            fontSize: "10pt",
-            margin: "12px 0 6px 0",
+            fontSize: "11pt",
+            margin: "18px 0 8px 0",
             textTransform: "uppercase",
           }}
         >
-          TEKLİF VEREN GERÇEK / TÜZEL KİŞİLER
+          TEKLİF VEREN GERÇEK/TÜZEL KİŞİLER
         </div>
         <table
           style={{
             width: "100%",
             borderCollapse: "collapse",
-            marginBottom: "10px",
-            fontSize: "9pt",
+            marginTop: "5px",
+            marginBottom: "15px",
           }}
         >
           <thead>
-            <tr style={{ backgroundColor: "#f2f2f2" }}>
-              <th style={{ border: "1px solid #000", padding: "5px 6px", textAlign: "left", width: "45%" }}>
+            <tr>
+              <th
+                style={{
+                  border: "1px solid #000",
+                  padding: "6px 8px",
+                  fontSize: "9.5pt",
+                  fontWeight: "bold",
+                  backgroundColor: "#f2f2f2",
+                  textAlign: "center",
+                }}
+              >
                 Gerçek/Tüzel Kişinin Adı/Unvanı
               </th>
-              <th style={{ border: "1px solid #000", padding: "5px 6px", textAlign: "right", width: "20%" }}>
+              <th
+                style={{
+                  border: "1px solid #000",
+                  padding: "6px 8px",
+                  fontSize: "9.5pt",
+                  fontWeight: "bold",
+                  backgroundColor: "#f2f2f2",
+                  textAlign: "center",
+                }}
+              >
                 Teklif Ettiği Fiyat (₺)
               </th>
-              <th style={{ border: "1px solid #000", padding: "5px 6px", textAlign: "center", width: "18%" }}>
+              <th
+                style={{
+                  border: "1px solid #000",
+                  padding: "6px 8px",
+                  fontSize: "9.5pt",
+                  fontWeight: "bold",
+                  backgroundColor: "#f2f2f2",
+                  textAlign: "center",
+                }}
+              >
                 Fiyat Araştırmasında Dikkate Alındı mı
               </th>
-              <th style={{ border: "1px solid #000", padding: "5px 6px", textAlign: "center", width: "17%" }}>
+              <th
+                style={{
+                  border: "1px solid #000",
+                  padding: "6px 8px",
+                  fontSize: "9.5pt",
+                  fontWeight: "bold",
+                  backgroundColor: "#f2f2f2",
+                  textAlign: "center",
+                }}
+              >
                 Açıklama
               </th>
             </tr>
           </thead>
           <tbody>
-            {teklifler.length > 0 ? (
-              teklifler.map((t: any, idx: number) => (
-                <tr key={idx}>
-                  <td style={{ border: "1px solid #000", padding: "4px 6px" }}>{t.unvan || "-"}</td>
-                  <td style={{ border: "1px solid #000", padding: "4px 6px", textAlign: "right", fontWeight: "bold" }}>
-                    {t.fiyat ? `${t.fiyat} ₺` : "-"}
-                  </td>
-                  <td style={{ border: "1px solid #000", padding: "4px 6px", textAlign: "center" }}>
-                    {t.uygunMu || "Evet"}
-                  </td>
-                  <td style={{ border: "1px solid #000", padding: "4px 6px", textAlign: "center" }}>
-                    {t.aciklama || (idx === 0 ? "En Avantajlı Teklif" : "Geçerli Teklif")}
+            {teklifler.length > 0
+              ? (
+                teklifler.map((t: any, idx: number) => (
+                  <tr key={idx}>
+                    <td
+                      style={{
+                        border: "1px solid #000",
+                        padding: "6px 8px",
+                        fontSize: "9.5pt",
+                        textAlign: "left",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      {t.unvan || "-"}
+                    </td>
+                    <td
+                      style={{
+                        border: "1px solid #000",
+                        padding: "6px 8px",
+                        fontSize: "9.5pt",
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      {t.fiyat ? `${t.fiyat} ₺` : "-"}
+                    </td>
+                    <td
+                      style={{
+                        border: "1px solid #000",
+                        padding: "6px 8px",
+                        fontSize: "9.5pt",
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      {t.uygunMu || "Evet"}
+                    </td>
+                    <td
+                      style={{
+                        border: "1px solid #000",
+                        padding: "6px 8px",
+                        fontSize: "9.5pt",
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      {t.aciklama ||
+                        (idx === 0 ? "En Avantajlı Teklif" : "Geçerli Teklif")}
+                    </td>
+                  </tr>
+                ))
+              )
+              : (
+                <tr>
+                  <td
+                    colSpan={4}
+                    style={{
+                      border: "1px solid #000",
+                      padding: "6px 8px",
+                      fontSize: "9.5pt",
+                      textAlign: "center",
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    Teklif bilgisi bulunmamaktadır.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={4} style={{ border: "1px solid #000", padding: "6px", textAlign: "center", color: "#666" }}>
-                  Teklif bilgisi bulunmamaktadır.
-                </td>
-              </tr>
-            )}
+              )}
           </tbody>
         </table>
 
@@ -365,8 +468,8 @@ export function DogrudanTeminSonucOnayBelgesi({
           style={{
             textAlign: "center",
             fontWeight: "bold",
-            fontSize: "10pt",
-            margin: "12px 0 6px 0",
+            fontSize: "11pt",
+            margin: "18px 0 8px 0",
             textTransform: "uppercase",
           }}
         >
@@ -376,57 +479,156 @@ export function DogrudanTeminSonucOnayBelgesi({
           style={{
             width: "100%",
             borderCollapse: "collapse",
-            marginBottom: "12px",
-            fontSize: "9pt",
+            marginTop: "5px",
+            marginBottom: "15px",
           }}
         >
           <thead>
-            <tr style={{ backgroundColor: "#f2f2f2" }}>
-              <th style={{ border: "1px solid #000", padding: "5px 6px", textAlign: "left", width: "45%" }}>
+            <tr>
+              <th
+                colSpan={2}
+                style={{
+                  border: "1px solid #000",
+                  padding: "6px 8px",
+                  fontSize: "9.5pt",
+                  fontWeight: "bold",
+                  backgroundColor: "#f2f2f2",
+                  textAlign: "center",
+                }}
+              >
                 Gerçek/Tüzel Kişinin Adı
               </th>
-              <th style={{ border: "1px solid #000", padding: "5px 6px", textAlign: "left", width: "35%" }}>
+              <th
+                style={{
+                  border: "1px solid #000",
+                  padding: "6px 8px",
+                  fontSize: "9.5pt",
+                  fontWeight: "bold",
+                  backgroundColor: "#f2f2f2",
+                  textAlign: "center",
+                }}
+              >
                 Gerçek/Tüzel Kişinin Adresi
               </th>
-              <th style={{ border: "1px solid #000", padding: "5px 6px", textAlign: "right", width: "20%" }}>
+              <th
+                style={{
+                  border: "1px solid #000",
+                  padding: "6px 8px",
+                  fontSize: "9.5pt",
+                  fontWeight: "bold",
+                  backgroundColor: "#f2f2f2",
+                  textAlign: "center",
+                }}
+              >
                 Teklif Ettiği Fiyat (₺)
               </th>
             </tr>
           </thead>
           <tbody>
-            {uygunGorulenler.length > 0 ? (
-              uygunGorulenler.map((u: any, idx: number) => (
-                <tr key={idx}>
-                  <td style={{ border: "1px solid #000", padding: "4px 6px", fontWeight: "bold" }}>
-                    {u.unvan || data.yukleniciFirma || "-"}
+            {uygunGorulenler.length > 0
+              ? (
+                uygunGorulenler.map((u: any, idx: number) => (
+                  <tr key={idx}>
+                    <td
+                      colSpan={2}
+                      style={{
+                        border: "1px solid #000",
+                        padding: "6px 8px",
+                        fontSize: "9.5pt",
+                        textAlign: "left",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <strong>{u.unvan || data.yukleniciFirma || "-"}</strong>
+                    </td>
+                    <td
+                      style={{
+                        border: "1px solid #000",
+                        padding: "6px 8px",
+                        fontSize: "9.5pt",
+                        textAlign: "left",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      {u.adres || data.yukleniciAdresi || "-"}
+                    </td>
+                    <td
+                      style={{
+                        border: "1px solid #000",
+                        padding: "6px 8px",
+                        fontSize: "9.5pt",
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <strong>
+                        {u.fiyat
+                          ? `${u.fiyat} ₺`
+                          : data.genelToplam
+                          ? `${data.genelToplam} ₺`
+                          : "-"}
+                      </strong>
+                    </td>
+                  </tr>
+                ))
+              )
+              : data.yukleniciFirma
+              ? (
+                <tr>
+                  <td
+                    colSpan={2}
+                    style={{
+                      border: "1px solid #000",
+                      padding: "6px 8px",
+                      fontSize: "9.5pt",
+                      textAlign: "left",
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    <strong>{data.yukleniciFirma}</strong>
                   </td>
-                  <td style={{ border: "1px solid #000", padding: "4px 6px" }}>
-                    {u.adres || data.yukleniciAdresi || "-"}
+                  <td
+                    style={{
+                      border: "1px solid #000",
+                      padding: "6px 8px",
+                      fontSize: "9.5pt",
+                      textAlign: "left",
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    {data.yukleniciAdresi || "-"}
                   </td>
-                  <td style={{ border: "1px solid #000", padding: "4px 6px", textAlign: "right", fontWeight: "bold" }}>
-                    {u.fiyat ? `${u.fiyat} ₺` : data.genelToplam ? `${data.genelToplam} ₺` : "-"}
+                  <td
+                    style={{
+                      border: "1px solid #000",
+                      padding: "6px 8px",
+                      fontSize: "9.5pt",
+                      textAlign: "center",
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    <strong>
+                      {data.genelToplam ? `${data.genelToplam} ₺` : "-"}
+                    </strong>
                   </td>
                 </tr>
-              ))
-            ) : data.yukleniciFirma ? (
-              <tr>
-                <td style={{ border: "1px solid #000", padding: "4px 6px", fontWeight: "bold" }}>
-                  {data.yukleniciFirma}
-                </td>
-                <td style={{ border: "1px solid #000", padding: "4px 6px" }}>
-                  {data.yukleniciAdresi || "-"}
-                </td>
-                <td style={{ border: "1px solid #000", padding: "4px 6px", textAlign: "right", fontWeight: "bold" }}>
-                  {data.genelToplam ? `${data.genelToplam} ₺` : "-"}
-                </td>
-              </tr>
-            ) : (
-              <tr>
-                <td colSpan={3} style={{ border: "1px solid #000", padding: "6px", textAlign: "center", color: "#666" }}>
-                  Alım yapılması uygun görülen kişi bulunmamaktadır.
-                </td>
-              </tr>
-            )}
+              )
+              : (
+                <tr>
+                  <td
+                    colSpan={4}
+                    style={{
+                      border: "1px solid #000",
+                      padding: "6px 8px",
+                      fontSize: "9.5pt",
+                      textAlign: "center",
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    Alım yapılması uygun görülen kişi bulunmamaktadır.
+                  </td>
+                </tr>
+              )}
           </tbody>
         </table>
 
@@ -435,8 +637,8 @@ export function DogrudanTeminSonucOnayBelgesi({
           style={{
             textAlign: "center",
             fontWeight: "bold",
-            fontSize: "10pt",
-            margin: "14px 0 6px 0",
+            fontSize: "11pt",
+            margin: "25px 0 8px 0",
             textTransform: "uppercase",
           }}
         >
@@ -444,10 +646,12 @@ export function DogrudanTeminSonucOnayBelgesi({
         </div>
 
         <table
+          className="approval-section paged-keep-together"
           style={{
             width: "100%",
-            borderCollapse: "collapse",
+            marginTop: "15px",
             border: "1px solid #000",
+            borderCollapse: "collapse",
             pageBreakInside: "avoid",
           }}
         >
@@ -461,33 +665,40 @@ export function DogrudanTeminSonucOnayBelgesi({
                   width: "50%",
                   verticalAlign: "top",
                   textAlign: "center",
-                  fontSize: "9.5pt",
+                  fontSize: "10.5pt",
                 }}
               >
                 <div
                   style={{
                     textAlign: "justify",
                     marginBottom: "20px",
-                    textIndent: "15px",
-                    lineHeight: 1.35,
+                    fontSize: "10pt",
+                    textIndent: "20px",
+                    lineHeight: 1.4,
                   }}
                 >
-                  Belirtilen işin, yukarıda alım yapılması uygun görülen gerçek/tüzel kişilerden
-                  doğrudan temin yoluyla satın alınması hususunda onaylarınızı arz ederim.
+                  Belirtilen işin, yukarıda alım yapılması uygun görülen
+                  gerçek/tüzel kişilerden doğrudan temin yoluyla satın alınması
+                  hususunda onaylarınızı arz ederim.
                 </div>
-                <div style={{ marginTop: "25px", textAlign: "center" }}>
-                  <div>{data.vonayasunustarihi || data.dosyaTarihi || data.tarih || ""}</div>
-                  <div style={{ marginTop: "20px", fontWeight: "bold" }}>
+                <div style={{ marginTop: "40px", textAlign: "center" }}>
+                  <div>
+                    {data.vonayasunustarihi || data.dosyaTarihi || data.tarih ||
+                      ""}
+                  </div>
+                  <div style={{ marginTop: "30px", fontWeight: "bold" }}>
                     <EditableField
                       name="hazirlayanPersonelAdi"
-                      value={data.hazirlayanPersonelAdi || data.piyasaGorevlisi1Adi}
+                      value={data.hazirlayanPersonelAdi ||
+                        data.piyasaGorevlisi1Adi}
                       placeholder="Ad Soyad"
                     />
                   </div>
-                  <div style={{ fontSize: "9pt", color: "#333" }}>
+                  <div>
                     <EditableField
                       name="hazirlayanPersonelUnvan"
-                      value={data.hazirlayanPersonelUnvan || data.piyasaGorevlisi1Unvani || "Görevli"}
+                      value={data.hazirlayanPersonelUnvan ||
+                        data.piyasaGorevlisi1Unvani || "Görevli"}
                       placeholder="Ünvan"
                     />
                   </div>
@@ -502,34 +713,61 @@ export function DogrudanTeminSonucOnayBelgesi({
                   width: "50%",
                   verticalAlign: "top",
                   textAlign: "center",
-                  fontSize: "9.5pt",
+                  fontSize: "10.5pt",
                 }}
               >
-                <div style={{ fontWeight: "bold", marginBottom: "20px" }}>UYGUNDUR</div>
-                <div style={{ marginTop: "25px", textAlign: "center" }}>
-                  <div>{data.vonaytarihi || data.dosyaTarihi || data.tarih || ""}</div>
-                  <div style={{ marginTop: "20px", fontWeight: "bold" }}>
+                <div style={{ fontWeight: "bold", marginBottom: "20px" }}>
+                  UYGUNDUR
+                </div>
+                <div style={{ marginTop: "40px", textAlign: "center" }}>
+                  <div>
+                    {data.vonaytarihi || data.dosyaTarihi || data.tarih || ""}
+                  </div>
+                  <div style={{ marginTop: "30px", fontWeight: "bold" }}>
                     <EditableField
                       name="onaylayanPersonelAdi"
                       value={data.onaylayanPersonelAdi || data.baskanAdi}
                       placeholder="Ad Soyad"
                     />
                   </div>
-                  <div style={{ fontSize: "9pt", color: "#333" }}>
+                  <div>
                     <EditableField
                       name="onaylayanPersonelUnvan"
-                      value={data.onaylayanPersonelUnvan || data.baskanUnvan || "Harcama Yetkilisi"}
+                      value={data.onaylayanPersonelUnvan || data.baskanUnvan ||
+                        "Harcama Yetkilisi"}
                       placeholder="Ünvan"
                     />
                   </div>
-                  <div style={{ fontSize: "8.5pt", color: "#555", marginTop: "2px" }}>
-                    Harcama Yetkilisi
-                  </div>
+                  <div>Harcama Yetkilisi</div>
                 </div>
               </td>
             </tr>
           </tbody>
         </table>
+
+        {ekler.length > 0 && (
+          <div
+            className="paged-keep-together"
+            style={{
+              marginTop: "25px",
+              fontSize: "10pt",
+              textAlign: "left",
+              pageBreakInside: "avoid",
+            }}
+          >
+            <strong>EKLER:</strong>
+            <ol
+              style={{
+                margin: "5px 0 0 20px",
+                padding: 0,
+                listStyleType: "decimal",
+                lineHeight: 1.5,
+              }}
+            >
+              {ekler.map((ek: string, idx: number) => <li key={idx}>{ek}</li>)}
+            </ol>
+          </div>
+        )}
       </div>
     </DocumentLayout>
   );

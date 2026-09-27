@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, Clock } from "lucide-react";
+import { Check, Clock, FileCheck2 } from "lucide-react";
 import { cn } from "../../../../../../utils/cn";
 import { FirmaStats, IslemlerData } from "./types";
 
@@ -10,6 +10,7 @@ interface Props {
   handleUpdateTeslimGunu: (gun: number) => Promise<void>;
   handleUpdateTeslimTarihi: (dateStr: string) => Promise<void>;
   handleToggleSozlesme: () => Promise<void>;
+  onOpenKabulMektubu?: () => void;
 }
 
 export const Step1TeslimatVeSurec: React.FC<Props> = ({
@@ -19,6 +20,7 @@ export const Step1TeslimatVeSurec: React.FC<Props> = ({
   handleUpdateTeslimGunu,
   handleUpdateTeslimTarihi,
   handleToggleSozlesme,
+  onOpenKabulMektubu,
 }) => {
   const readyDays = [
     { gun: 3, label: "3 Gün", sub: "Acil" },
@@ -41,11 +43,10 @@ export const Step1TeslimatVeSurec: React.FC<Props> = ({
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
-              Adım 1: Teslimat Süresi & Sözleşme Tercihi
+              Adım 1: Teslimat Şartları & Sipariş Formu / Kabul Mektubu
             </h3>
             <p className="text-[11px] text-slate-400">
-              Kabul edilen teklif mektubu ve sipariş formunda yer alacak yasal
-              teslim süresi
+              Kabul edilen teklif mektubu ve sipariş formunda yer alacak yasal teslim süresi ve tebliğ belgesi
             </p>
           </div>
         </div>
@@ -157,49 +158,65 @@ export const Step1TeslimatVeSurec: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* Süreç / Sözleşme Ayarları */}
-        <div className="flex flex-col gap-3 p-4 rounded-xl bg-slate-50/70 dark:bg-slate-850/60 border border-slate-200/70 dark:border-slate-800">
-          <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
-            Sözleşme Durumu & Alım Türü
-          </span>
-
-          <div
-            onClick={handleToggleSozlesme}
-            className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-2xs cursor-pointer hover:border-blue-400 transition-all group"
-          >
-            <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-slate-400 uppercase">
-                Sözleşme Düzenlenecek mi?
-              </span>
-              <span
-                className={cn(
-                  "text-xs font-extrabold flex items-center gap-1.5",
-                  firmaStats.sozlesmeYapilacakMi
-                    ? "text-blue-600 dark:text-blue-400"
-                    : "text-slate-700 dark:text-slate-300",
-                )}
-              >
-                {firmaStats.sozlesmeYapilacakMi
-                  ? "✓ Evet, Sözleşme İmzalanacak"
-                  : "✕ Hayır, Yalnızca Sipariş Formu"}
-              </span>
-            </div>
-            <span className="text-[10px] text-blue-500 font-bold bg-blue-50 dark:bg-blue-950/60 px-2 py-1 rounded-lg border border-blue-200 dark:border-blue-800">
-              Değiştir ↺
+        {/* Süreç / Sözleşme Ayarları & Belge Butonu */}
+        <div className="flex flex-col gap-3 p-4 rounded-xl bg-slate-50/70 dark:bg-slate-850/60 border border-slate-200/70 dark:border-slate-800 justify-between">
+          <div className="flex flex-col gap-3">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+              Sözleşme Durumu & Alım Türü
             </span>
-          </div>
 
-          <div className="p-3 rounded-xl bg-amber-50/80 dark:bg-amber-950/25 border border-amber-200/80 dark:border-amber-800/60 text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
-            <strong className="font-extrabold">📌 Canlı Önizleme Hükmü:</strong>
-            <div className="mt-1 italic text-[11px] bg-white/70 dark:bg-slate-900/60 p-2 rounded-lg border border-amber-200/50">
-              &ldquo;Malı/Hizmeti/İşi{" "}
-              <strong className="text-amber-700 dark:text-amber-400 font-extrabold">
-                {islemlerData.teslimGunu} gün
-              </strong>{" "}
-              içinde mesai saatleri dahilinde teslim etmenizi rica
-              ederiz.&rdquo;
+            <div
+              onClick={handleToggleSozlesme}
+              className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-2xs cursor-pointer hover:border-blue-400 transition-all group"
+            >
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">
+                  Sözleşme Düzenlenecek mi?
+                </span>
+                <span
+                  className={cn(
+                    "text-xs font-extrabold flex items-center gap-1.5",
+                    firmaStats.sozlesmeYapilacakMi
+                      ? "text-blue-600 dark:text-blue-400"
+                      : "text-slate-700 dark:text-slate-300",
+                  )}
+                >
+                  {firmaStats.sozlesmeYapilacakMi
+                    ? "✓ Evet, Sözleşme İmzalanacak"
+                    : "✕ Hayır, Yalnızca Sipariş Formu"}
+                </span>
+              </div>
+              <span className="text-[10px] text-blue-500 font-bold bg-blue-50 dark:bg-blue-950/60 px-2 py-1 rounded-lg border border-blue-200 dark:border-blue-800">
+                Değiştir ↺
+              </span>
+            </div>
+
+            <div className="p-2.5 rounded-xl bg-amber-50/80 dark:bg-amber-950/25 border border-amber-200/80 dark:border-amber-800/60 text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
+              <strong className="font-extrabold">📌 Canlı Önizleme Hükmü:</strong>
+              <div className="mt-1 italic text-[11px] bg-white/70 dark:bg-slate-900/60 p-2 rounded-lg border border-amber-200/50">
+                &ldquo;Malı/Hizmeti/İşi{" "}
+                <strong className="text-amber-700 dark:text-amber-400 font-extrabold">
+                  {islemlerData.teslimGunu} gün
+                </strong>{" "}
+                içinde mesai saatleri dahilinde teslim etmenizi rica
+                ederiz.&rdquo;
+              </div>
             </div>
           </div>
+
+          {/* Sipariş Formu Açma Butonu */}
+          {onOpenKabulMektubu && (
+            <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={onOpenKabulMektubu}
+                className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-xs hover:shadow active:scale-95 transition-all"
+              >
+                <FileCheck2 className="w-4 h-4" />
+                Kabul Edilen Teklif / Sipariş Formunu Aç
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
