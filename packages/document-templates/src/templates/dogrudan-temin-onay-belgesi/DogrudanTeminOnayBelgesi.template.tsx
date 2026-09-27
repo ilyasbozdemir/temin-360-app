@@ -3,46 +3,13 @@ import { DocumentLayout } from "../../document/DocumentLayout";
 import { EditableField } from "../../document/EditableField";
 import { DateEditableField } from "../../document/ApprovalSignature";
 import { DogrudanTeminOnayBelgesiType } from "./DogrudanTeminOnayBelgesi.schema";
+import { getDogrudanTeminOnayRows } from "./DogrudanTeminOnayBelgesi.config";
 
 interface DogrudanTeminOnayBelgesiProps {
   data?: Partial<DogrudanTeminOnayBelgesiType> & Record<string, any>;
   pageSize?: "A4" | "A3";
   orientation?: "portrait" | "landscape";
 }
-
-const TEMIN_SEKLI_OPTIONS = [
-  "4734 Sayılı K.İ.K. Madde 22/d (Doğrudan Temin - Parasal Limit)",
-  "4734 Sayılı K.İ.K. Madde 22/a (Tek Kaynak / İhtiyacın Sadece Gerçek/Tüzel Tek Kişiden Temini)",
-  "4734 Sayılı K.İ.K. Madde 22/b (Özel Hak / Fikri-Sınai Mülkiyet)",
-  "4734 Sayılı K.İ.K. Madde 22/c (Mevcut Mal/Ekipman/Hizmet Uyum Zorunluluğu)",
-  "4734 Sayılı K.İ.K. Madde 22/e (Taşınmaz Mal Alımı / Kiralanması)",
-  "4734 Sayılı K.İ.K. Madde 22/f (Sağlık Hizmetleri & İlaç/Tıbbi Cihaz Alımları)",
-];
-
-const ALIM_TURU_OPTIONS = [
-  "Mal Alımı",
-  "Hizmet Alımı",
-  "Yapım İşi",
-  "Danışmanlık Hizmet Alımı",
-];
-
-const AVANS_OPTIONS = [
-  "Avans verilmeyecektir.",
-  "Avans verilecektir.",
-  "Şartname ve sözleşmede belirtilen esaslar dahilinde avans verilecektir.",
-];
-
-const FIYAT_FARKI_OPTIONS = [
-  "Fiyat farkı verilmeyecektir.",
-  "Fiyat farkı verilecektir.",
-  "Yürürlükteki Fiyat Farkı Kararnamesi esaslarına göre fiyat farkı hesaplanacaktır.",
-];
-
-const DOKUMAN_OPTIONS = [
-  "Doküman hazırlanmayacaktır.",
-  "İdari ve teknik şartname hazırlanacaktır.",
-  "Sadece teknik şartname hazırlanacaktır.",
-];
 
 export function DogrudanTeminOnayBelgesi({
   data = {},
@@ -55,16 +22,8 @@ export function DogrudanTeminOnayBelgesi({
     (data.antetSatirlari && data.antetSatirlari[1]) ||
     "İDARE ADI";
 
-  const butceTertibiList =
-    Array.isArray(data.butceTertibi) && data.butceTertibi.length > 0
-      ? data.butceTertibi
-      : data.butceTertibi
-        ? [String(data.butceTertibi)]
-        : data.butceKodu
-          ? [String(data.butceKodu)]
-          : [];
-
   const eklerList = Array.isArray(data.ekler) ? data.ekler : [];
+  const rows = getDogrudanTeminOnayRows(data);
 
   return (
     <DocumentLayout
@@ -200,294 +159,40 @@ export function DogrudanTeminOnayBelgesi({
           }}
         >
           <tbody>
-            <tr>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  width: "38%",
-                  fontWeight: "bold",
-                }}
-              >
-                Doğrudan Temin Numarası
-              </td>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                }}
-              >
-                <EditableField
-                  name="teminNo"
-                  value={data.teminNo || data.dosyaNo || data.evrakSayisi || "-"}
-                  placeholder="Temin Numarası"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  fontWeight: "bold",
-                }}
-              >
-                İşin Adı
-              </td>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  fontWeight: "bold",
-                }}
-              >
-                <EditableField
-                  name="isAdi"
-                  value={data.isAdi || data.dosyaKonusu}
-                  placeholder="İşin Adı"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  fontWeight: "bold",
-                }}
-              >
-                Temin Şekli
-              </td>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                }}
-              >
-                <EditableField
-                  name="teminSekli"
-                  value={data.teminSekli || "4734 Sayılı K.İ.K. Madde 22/d (Doğrudan Temin - Parasal Limit)"}
-                  placeholder="Temin Usulü"
-                  selectOptions={TEMIN_SEKLI_OPTIONS}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  fontWeight: "bold",
-                }}
-              >
-                Alım Türü
-              </td>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                }}
-              >
-                <EditableField
-                  name="alimTuru"
-                  value={data.alimTuru || data.teklifSozlesmeTuru || "Mal Alımı"}
-                  placeholder="Alım Türü"
-                  selectOptions={ALIM_TURU_OPTIONS}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  fontWeight: "bold",
-                }}
-              >
-                Yaklaşık Maliyet
-              </td>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  fontWeight: "bold",
-                }}
-              >
-                <EditableField
-                  name="yaklasikMaliyet"
-                  value={data.yaklasikMaliyet ? `${data.yaklasikMaliyet} ₺` : "-"}
-                  placeholder="0,00 ₺"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  fontWeight: "bold",
-                }}
-              >
-                Kullanılabilir Ödenek Tutarı
-              </td>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                }}
-              >
-                <EditableField
-                  name="odenekTutari"
-                  value={data.odenekTutari || data.kullanilabilirOdenek || data.yaklasikMaliyet ? `${data.odenekTutari || data.kullanilabilirOdenek || data.yaklasikMaliyet} ₺` : "Yeterli Ödenek Mevcuttur"}
-                  placeholder="Ödenek Tutarı"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  fontWeight: "bold",
-                }}
-              >
-                Yatırım Proje Numarası (varsa)
-              </td>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                }}
-              >
-                <EditableField
-                  name="projeNo"
-                  value={data.projeNo || "-"}
-                  placeholder="Proje No veya -"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  fontWeight: "bold",
-                }}
-              >
-                Bütçe Tertibi
-              </td>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  lineHeight: 1.4,
-                }}
-              >
-                {butceTertibiList.length > 0 ? (
-                  butceTertibiList.map((item: string, idx: number) => (
-                    <div key={idx}>
-                      <EditableField name={`butceTertibi_${idx}`} value={item} placeholder="Bütçe Tertibi" />
-                    </div>
-                  ))
-                ) : (
-                  <EditableField name="butceTertibi_0" value="Belirtilmedi" placeholder="Bütçe Tertibi" />
-                )}
-              </td>
-            </tr>
-            <tr>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  fontWeight: "bold",
-                }}
-              >
-                Avans Verilecekse şartları
-              </td>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                }}
-              >
-                <EditableField
-                  name="avansSartlari"
-                  value={data.avansSartlari || "Avans verilmeyecektir."}
-                  placeholder="Avans Şartları"
-                  selectOptions={AVANS_OPTIONS}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  fontWeight: "bold",
-                }}
-              >
-                Fiyat Farkı Verilecekse Şartları
-              </td>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                }}
-              >
-                <EditableField
-                  name="fiyatFarkiSartlari"
-                  value={data.fiyatFarkiSartlari || "Fiyat farkı verilmeyecektir."}
-                  placeholder="Fiyat Farkı Şartları"
-                  selectOptions={FIYAT_FARKI_OPTIONS}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                  fontWeight: "bold",
-                }}
-              >
-                Doküman Hazırlanıp Hazırlanmayacağı
-              </td>
-              <td
-                style={{
-                  border: "1px solid #000",
-                  padding: "5px 8px",
-                  fontSize: "9.5pt",
-                }}
-              >
-                <EditableField
-                  name="dokumanHazirlik"
-                  value={data.dokumanHazirlik || "Doküman hazırlanmayacaktır."}
-                  placeholder="Doküman Durumu"
-                  selectOptions={DOKUMAN_OPTIONS}
-                />
-              </td>
-            </tr>
+            {rows.map((row) => (
+              <tr key={row.id}>
+                <td
+                  style={{
+                    border: "1px solid #000",
+                    padding: "5px 8px",
+                    fontSize: "9.5pt",
+                    width: "38%",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {row.label}
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #000",
+                    padding: "5px 8px",
+                    fontSize: "9.5pt",
+                    fontWeight: row.isBold ? "bold" : "normal",
+                  }}
+                >
+                  {row.renderValue ? (
+                    row.renderValue()
+                  ) : (
+                    <EditableField
+                      name={row.name}
+                      value={row.value}
+                      placeholder={row.placeholder}
+                      selectOptions={row.selectOptions}
+                    />
+                  )}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
 

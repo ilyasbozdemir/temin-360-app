@@ -16,7 +16,13 @@ export function DogrudanTeminSonucOnayBelgesi({
 }: DogrudanTeminSonucOnayBelgesiProps) {
   const teklifler = data.teklifler || [];
   const uygunGorulenler = data.uygunGorulenler || [];
-  const ekler = data.ekler || [];
+  const ekler = Array.isArray(data.ekler) ? data.ekler : [
+    "Piyasa Fiyat Araştırması Tutanağı",
+    "Teklif Mektupları",
+    "İhtiyaç Raporu",
+    "Harcama Talimatı",
+    "Yaklaşık Maliyet Hesap Cetveli",
+  ];
   const idareAdi = data.idareAdi ||
     data.kurumAdi ||
     (data.antetSatirlari && data.antetSatirlari[1]) ||
@@ -28,7 +34,8 @@ export function DogrudanTeminSonucOnayBelgesi({
   return (
     <DocumentLayout
       data={data as any}
-      hideFooter={false}
+      hideHeader={true}
+      hideFooter={true}
       pageSize={pageSize}
       orientation={orientation}
       pageNumber={1}
@@ -54,7 +61,7 @@ export function DogrudanTeminSonucOnayBelgesi({
             letterSpacing: "0.5px",
           }}
         >
-          DOĞRUDAN TEMİN SONUÇ ONAY BELGESİ
+          ONAY BELGESİ
         </div>
 
         {/* FIRST TABLE (İdare Bilgileri) */}
@@ -170,6 +177,36 @@ export function DogrudanTeminSonucOnayBelgesi({
           }}
         >
           <tbody>
+            <tr>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  padding: "6px 8px",
+                  fontSize: "10pt",
+                  verticalAlign: "middle",
+                  width: "40%",
+                  fontWeight: "bold",
+                }}
+              >
+                Doğrudan Temin Numarası
+              </td>
+              <td
+                style={{
+                  border: "1px solid #000",
+                  padding: "6px 8px",
+                  fontSize: "10pt",
+                  verticalAlign: "middle",
+                  width: "60%",
+                  fontWeight: "bold",
+                }}
+              >
+                <EditableField
+                  name="isAdi"
+                  value={data.dtNumarasi}
+                  placeholder="Doğrudan Temin Numarası"
+                />
+              </td>
+            </tr>
             <tr>
               <td
                 style={{

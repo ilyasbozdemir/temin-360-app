@@ -24,6 +24,7 @@ interface WinnerDocumentsMenuProps {
   sozlesmeYapilacakMi?: boolean
   onPrintResultApproval: () => void
   onPrintAcceptanceLetter: () => void
+  onPrintOrderForm?: () => void
   onPrintContractInvitation?: () => void
   onPrintContract?: () => void
   onPrintContractAlternative?: () => void
@@ -38,6 +39,7 @@ export function WinnerDocumentsMenu({
   sozlesmeYapilacakMi,
   onPrintResultApproval,
   onPrintAcceptanceLetter,
+  onPrintOrderForm,
   onPrintContractInvitation,
   onPrintContract,
   onPrintContractAlternative,
@@ -68,7 +70,7 @@ export function WinnerDocumentsMenu({
           <span>Sonuç Onay Belgesi</span>
         </DropdownMenuItem>
 
-        <DropdownMenuItem onClick={onPrintAcceptanceLetter} className="cursor-pointer">
+        <DropdownMenuItem onClick={onPrintOrderForm || onPrintAcceptanceLetter} className="cursor-pointer">
           <FileText className="mr-2 h-4 w-4 text-blue-500" />
           <span>Kabul Edilen Teklif / Sipariş Formu</span>
         </DropdownMenuItem>

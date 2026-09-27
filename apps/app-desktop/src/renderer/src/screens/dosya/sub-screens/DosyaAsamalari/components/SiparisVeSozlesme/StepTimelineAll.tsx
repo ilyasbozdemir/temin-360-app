@@ -18,7 +18,7 @@ export function StepTimelineAll({
   const items = [
     {
       num: "1",
-      title: "Sonuç Onay Belgesi",
+      title: "Doğrudan Temin Sonuç Onay Belgesi",
       desc: "Piyasa fiyat araştırması sonuç kararını onaylayın",
       btn: "Belgeyi Aç",
       action: onOpenSonucOnay,

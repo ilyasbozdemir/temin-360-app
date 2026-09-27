@@ -741,6 +741,21 @@ export async function loadDocumentPreviewData({
     baseData.eposta = fEmail
   }
 
+  // Şablon tercihleri (Örn: Sonuç Onay Belgesi Ekler listesi)
+  if (dosyaObj.sablon_tercihleri) {
+    try {
+      const parsedTercihler =
+        typeof dosyaObj.sablon_tercihleri === 'string'
+          ? JSON.parse(dosyaObj.sablon_tercihleri)
+          : dosyaObj.sablon_tercihleri
+      if (Array.isArray(parsedTercihler.sonucOnayEkler)) {
+        baseData.ekler = parsedTercihler.sonucOnayEkler
+      }
+    } catch {
+      // JSON parse error ignored
+    }
+  }
+
   if (globalStoreState.initialData) {
     Object.assign(baseData, globalStoreState.initialData)
   }
