@@ -75,50 +75,45 @@ export function WinnerDocumentsMenu({
           <span>Kabul Edilen Teklif / Sipariş Formu</span>
         </DropdownMenuItem>
 
-        <DropdownMenuSeparator className="my-1" />
+        {/* ── 📝 Sözleşme Belgeleri (Yalnızca Sözleşme Düzenlenecekse) ── */}
+        {sozlesmeYapilacakMi && (
+          <>
+            <DropdownMenuSeparator className="my-1" />
+            <DropdownMenuLabel className="flex items-center justify-between gap-1.5 text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 px-2 py-1">
+              <span>📝 Sözleşme Belgeleri</span>
+              <span className="text-[9px] font-extrabold text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/60 px-1.5 py-0.5 rounded">
+                Sözleşme Aktif
+              </span>
+            </DropdownMenuLabel>
 
-        {/* ── 📝 Sözleşme Belgeleri ── */}
-        <DropdownMenuLabel className="flex items-center justify-between gap-1.5 text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 px-2 py-1">
-          <span>📝 Sözleşme Belgeleri</span>
-          {sozlesmeYapilacakMi ? (
-            <span className="text-[9px] font-extrabold text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/60 px-1.5 py-0.5 rounded">
-              Sözleşme Aktif
-            </span>
-          ) : (
-            <span className="text-[9px] font-medium text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
-              Opsiyonel
-            </span>
-          )}
-        </DropdownMenuLabel>
+            {onPrintContractInvitation && (
+              <DropdownMenuItem onClick={onPrintContractInvitation} className="cursor-pointer">
+                <Clock className="mr-2 h-4 w-4 text-violet-500" />
+                <span>Sözleşmeye Davet Mektubu</span>
+              </DropdownMenuItem>
+            )}
 
-        {onPrintContractInvitation && (
-          <DropdownMenuItem onClick={onPrintContractInvitation} className="cursor-pointer">
-            <Clock className="mr-2 h-4 w-4 text-violet-500" />
-            <span>Sözleşmeye Davet Mektubu</span>
-          </DropdownMenuItem>
-        )}
+            {onPrintContract && (
+              <DropdownMenuItem onClick={onPrintContract} className="cursor-pointer">
+                <FileSignature className="mr-2 h-4 w-4 text-violet-600" />
+                <span>Doğrudan Temin Sözleşmesi (Standart)</span>
+              </DropdownMenuItem>
+            )}
 
-        <DropdownMenuItem
-          onClick={onPrintContract}
-          disabled={!onPrintContract}
-          className="cursor-pointer"
-        >
-          <FileSignature className="mr-2 h-4 w-4 text-violet-600" />
-          <span>Doğrudan Temin Sözleşmesi (Standart)</span>
-        </DropdownMenuItem>
+            {onPrintContractAlternative && (
+              <DropdownMenuItem onClick={onPrintContractAlternative} className="cursor-pointer">
+                <FileSignature className="mr-2 h-4 w-4 text-purple-400" />
+                <span>Doğrudan Temin Sözleşmesi (Alternatif)</span>
+              </DropdownMenuItem>
+            )}
 
-        {onPrintContractAlternative && (
-          <DropdownMenuItem onClick={onPrintContractAlternative} className="cursor-pointer">
-            <FileSignature className="mr-2 h-4 w-4 text-purple-400" />
-            <span>Doğrudan Temin Sözleşmesi (Alternatif)</span>
-          </DropdownMenuItem>
-        )}
-
-        {onPrintContractLong && (
-          <DropdownMenuItem onClick={onPrintContractLong} className="cursor-pointer">
-            <FileSignature className="mr-2 h-4 w-4 text-fuchsia-500" />
-            <span>Doğrudan Temin Sözleşmesi (Uzun Form)</span>
-          </DropdownMenuItem>
+            {onPrintContractLong && (
+              <DropdownMenuItem onClick={onPrintContractLong} className="cursor-pointer">
+                <FileSignature className="mr-2 h-4 w-4 text-fuchsia-500" />
+                <span>Doğrudan Temin Sözleşmesi (Uzun Form)</span>
+              </DropdownMenuItem>
+            )}
+          </>
         )}
 
         <DropdownMenuSeparator className="my-1" />

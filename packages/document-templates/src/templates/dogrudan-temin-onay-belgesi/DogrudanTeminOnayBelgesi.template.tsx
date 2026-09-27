@@ -3,7 +3,6 @@ import { DocumentLayout } from "../../document/DocumentLayout";
 import { EditableField } from "../../document/EditableField";
 import { DateEditableField } from "../../document/ApprovalSignature";
 import { DogrudanTeminOnayBelgesiType } from "./DogrudanTeminOnayBelgesi.schema";
-import { getDogrudanTeminOnayRows } from "./DogrudanTeminOnayBelgesi.config";
 
 interface DogrudanTeminOnayBelgesiProps {
   data?: Partial<DogrudanTeminOnayBelgesiType> & Record<string, any>;
@@ -11,19 +10,191 @@ interface DogrudanTeminOnayBelgesiProps {
   orientation?: "portrait" | "landscape";
 }
 
+export interface OnayBelgesiRowItem {
+  id: string;
+  label: string;
+  name: string;
+  value: string;
+  placeholder?: string;
+  isBold?: boolean;
+  selectOptions?: string[];
+  renderValue?: () => React.ReactNode;
+}
+
+const TEMIN_SEKLI_OPTIONS = [
+  "4734 Sayılı K.İ.K. Madde 22/d (Doğrudan Temin - Parasal Limit)",
+  "4734 Sayılı K.İ.K. Madde 22/a (Tek Kaynak / İhtiyacın Sadece Gerçek/Tüzel Tek Kişiden Temini)",
+  "4734 Sayılı K.İ.K. Madde 22/b (Özel Hak / Fikri-Sınai Mülkiyet)",
+  "4734 Sayılı K.İ.K. Madde 22/c (Mevcut Mal/Ekipman/Hizmet Uyum Zorunluluğu)",
+  "4734 Sayılı K.İ.K. Madde 22/e (Taşınmaz Mal Alımı / Kiralanması)",
+  "4734 Sayılı K.İ.K. Madde 22/f (Sağlık Hizmetleri & İlaç/Tıbbi Cihaz Alımları)",
+];
+
+const ALIM_TURU_OPTIONS = [
+  "Mal Alımı",
+  "Hizmet Alımı",
+  "Yapım İşi",
+  "Danışmanlık Hizmet Alımı",
+];
+
+const AVANS_OPTIONS = [
+  "Avans verilmeyecektir.",
+  "Avans verilecektir.",
+  "Şartname ve sözleşmede belirtilen esaslar dahilinde avans verilecektir.",
+];
+
+const FIYAT_FARKI_OPTIONS = [
+  "Fiyat farkı verilmeyecektir.",
+  "Fiyat farkı verilecektir.",
+  "Yürürlükteki Fiyat Farkı Kararnamesi esaslarına göre fiyat farkı hesaplanacaktır.",
+];
+
+const DOKUMAN_OPTIONS = [
+  "Doküman hazırlanmayacaktır.",
+  "İdari ve teknik şartname hazırlanacaktır.",
+  "Sadece teknik şartname hazırlanacaktır.",
+];
+
 export function DogrudanTeminOnayBelgesi({
   data = {},
   pageSize = "A4",
   orientation = "portrait",
 }: DogrudanTeminOnayBelgesiProps) {
-  const idareAdi =
-    data.idareAdi ||
+  const idareAdi = data.idareAdi ||
     data.kurumAdi ||
     (data.antetSatirlari && data.antetSatirlari[1]) ||
     "İDARE ADI";
 
+  const butceTertibiList =
+    Array.isArray(data.butceTertibi) && data.butceTertibi.length > 0
+      ? data.butceTertibi
+      : data.butceTertibi
+      ? [String(data.butceTertibi)]
+      : data.butceKodu
+      ? [String(data.butceKodu)]
+      : [];
+
   const eklerList = Array.isArray(data.ekler) ? data.ekler : [];
-  const rows = getDogrudanTeminOnayRows(data);
+
+  // Dinamik satır dizisi
+  const rows: OnayBelgesiRowItem[] =
+    Array.isArray(data.customRows) && data.customRows.length > 0
+      ? data.customRows
+      : [
+        {
+          id: "teminNo",
+          label: "Doğrudan Temin Numarası",
+          name: "teminNo",
+          value: data.teminNo || data.dosyaNo || data.evrakSayisi || "-",
+          placeholder: "Temin Numarası",
+        },
+        {
+          id: "isAdi",
+          label: "İşin Adı",
+          name: "isAdi",
+          value: data.isAdi || data.dosyaKonusu || "",
+          placeholder: "İşin Adı",
+          isBold: true,
+        },
+        {
+          id: "teminSekli",
+          label: "Temin Şekli",
+          name: "teminSekli",
+          value: data.teminSekli ||
+            "4734 Sayılı K.İ.K. Madde 22/d (Doğrudan Temin - Parasal Limit)",
+          placeholder: "Temin Usulü",
+          selectOptions: TEMIN_SEKLI_OPTIONS,
+        },
+        {
+          id: "alimTuru",
+          label: "Alım Türü",
+          name: "alimTuru",
+          value: data.alimTuru || data.teklifSozlesmeTuru || "Mal Alımı",
+          placeholder: "Alım Türü",
+          selectOptions: ALIM_TURU_OPTIONS,
+        },
+        {
+          id: "yaklasikMaliyet",
+          label: "Yaklaşık Maliyet",
+          name: "yaklasikMaliyet",
+          value: data.yaklasikMaliyet ? `${data.yaklasikMaliyet} ₺` : "-",
+          placeholder: "0,00 ₺",
+          isBold: true,
+        },
+        {
+          id: "odenekTutari",
+          label: "Kullanılabilir Ödenek Tutarı",
+          name: "odenekTutari",
+          value:
+            data.odenekTutari || data.kullanilabilirOdenek ||
+              data.yaklasikMaliyet
+              ? `${
+                data.odenekTutari || data.kullanilabilirOdenek ||
+                data.yaklasikMaliyet
+              } ₺`
+              : "Yeterli Ödenek Mevcuttur",
+          placeholder: "Ödenek Tutarı",
+        },
+        {
+          id: "projeNo",
+          label: "Yatırım Proje Numarası (varsa)",
+          name: "projeNo",
+          value: data.projeNo || "-",
+          placeholder: "Proje No veya -",
+        },
+        {
+          id: "butceTertibi",
+          label: "Bütçe Tertibi",
+          name: "butceTertibi",
+          value: "",
+          renderValue: () =>
+            butceTertibiList.length > 0
+              ? (
+                <div>
+                  {butceTertibiList.map((item: string, idx: number) => (
+                    <div key={idx}>
+                      <EditableField
+                        name={`butceTertibi_${idx}`}
+                        value={item}
+                        placeholder="Bütçe Tertibi"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )
+              : (
+                <EditableField
+                  name="butceTertibi_0"
+                  value="Belirtilmedi"
+                  placeholder="Bütçe Tertibi"
+                />
+              ),
+        },
+        {
+          id: "avansSartlari",
+          label: "Avans Verilecekse şartları",
+          name: "avansSartlari",
+          value: data.avansSartlari || "Avans verilmeyecektir.",
+          placeholder: "Avans Şartları",
+          selectOptions: AVANS_OPTIONS,
+        },
+        {
+          id: "fiyatFarkiSartlari",
+          label: "Fiyat Farkı Verilecekse Şartları",
+          name: "fiyatFarkiSartlari",
+          value: data.fiyatFarkiSartlari || "Fiyat farkı verilmeyecektir.",
+          placeholder: "Fiyat Farkı Şartları",
+          selectOptions: FIYAT_FARKI_OPTIONS,
+        },
+        {
+          id: "dokumanHazirlik",
+          label: "Doküman Hazırlanıp Hazırlanmayacağı",
+          name: "dokumanHazirlik",
+          value: data.dokumanHazirlik || "Doküman hazırlanmayacaktır.",
+          placeholder: "Doküman Durumu",
+          selectOptions: DOKUMAN_OPTIONS,
+        },
+      ];
 
   return (
     <DocumentLayout
@@ -86,7 +257,11 @@ export function DogrudanTeminOnayBelgesi({
                   width: "62%",
                 }}
               >
-                <EditableField name="idareAdi" value={idareAdi} placeholder="İdare Adı" />
+                <EditableField
+                  name="idareAdi"
+                  value={idareAdi}
+                  placeholder="İdare Adı"
+                />
               </td>
             </tr>
             <tr>
@@ -135,7 +310,11 @@ export function DogrudanTeminOnayBelgesi({
             fontSize: "10pt",
           }}
         >
-          <EditableField name="idareAdiBox" value={idareAdi} placeholder="İdare / Kurum Adı" />
+          <EditableField
+            name="idareAdiBox"
+            value={idareAdi}
+            placeholder="İdare / Kurum Adı"
+          />
         </div>
 
         {/* SECOND SECTION: BILGILER */}
@@ -180,16 +359,18 @@ export function DogrudanTeminOnayBelgesi({
                     fontWeight: row.isBold ? "bold" : "normal",
                   }}
                 >
-                  {row.renderValue ? (
-                    row.renderValue()
-                  ) : (
-                    <EditableField
-                      name={row.name}
-                      value={row.value}
-                      placeholder={row.placeholder}
-                      selectOptions={row.selectOptions}
-                    />
-                  )}
+                  {row.renderValue
+                    ? (
+                      row.renderValue()
+                    )
+                    : (
+                      <EditableField
+                        name={row.name}
+                        value={row.value}
+                        placeholder={row.placeholder}
+                        selectOptions={row.selectOptions}
+                      />
+                    )}
                 </td>
               </tr>
             ))}
@@ -220,10 +401,8 @@ export function DogrudanTeminOnayBelgesi({
         >
           <EditableField
             name="isinAciklamasi"
-            value={
-              data.isinAciklamasi ||
-              "Yukarıda belirtilen ihtiyacın 4734 sayılı Kamu İhale Kanununun 22/d maddesi uyarınca doğrudan temin usulüyle karşılanması ve piyasa fiyat araştırması yapılarak alımın gerçekleştirilmesi hususunda onaylarınızı arz ederim."
-            }
+            value={data.isinAciklamasi ||
+              "Yukarıda belirtilen ihtiyacın 4734 sayılı Kamu İhale Kanununun 22/d maddesi uyarınca doğrudan temin usulüyle karşılanması ve piyasa fiyat araştırması yapılarak alımın gerçekleştirilmesi hususunda onaylarınızı arz ederim."}
             placeholder="Açıklama giriniz..."
             multiline
           />
@@ -271,8 +450,8 @@ export function DogrudanTeminOnayBelgesi({
                     lineHeight: 1.35,
                   }}
                 >
-                  Yukarıda belirtilen işin doğrudan temin yoluyla satın alınması hususunda onaylarınızı
-                  arz ederim.
+                  Yukarıda belirtilen işin doğrudan temin yoluyla satın alınması
+                  hususunda onaylarınızı arz ederim.
                 </div>
                 <div style={{ marginTop: "25px", textAlign: "center" }}>
                   <div>
@@ -285,17 +464,20 @@ export function DogrudanTeminOnayBelgesi({
                   <div style={{ marginTop: "20px", fontWeight: "bold" }}>
                     <EditableField
                       name="hazirlayanPersonelAdi"
-                      value={data.hazirlayanPersonelAdi || data.piyasaGorevlisi1Adi}
+                      value={data.hazirlayanPersonelAdi ||
+                        data.gerceklestirmeGorevlisiAdi}
                       placeholder="Ad Soyad"
                     />
                   </div>
-                  <div style={{ fontSize: "9pt", color: "#333" }}>
+                  <div>
                     <EditableField
                       name="hazirlayanPersonelUnvan"
-                      value={data.hazirlayanPersonelUnvan || data.piyasaGorevlisi1Unvani || "Gerçekleştirme Görevlisi"}
+                      value={data.hazirlayanPersonelUnvan ||
+                        data.gerceklestirmeGorevlisiUnvan}
                       placeholder="Ünvan"
                     />
                   </div>
+                  <div>Gerçekleştirme Görevlisi</div>
                 </div>
               </td>
 
@@ -310,12 +492,14 @@ export function DogrudanTeminOnayBelgesi({
                   fontSize: "9.5pt",
                 }}
               >
-                <div style={{ fontWeight: "bold", marginBottom: "20px" }}>UYGUNDUR</div>
-                <div style={{ marginTop: "25px", textAlign: "center" }}>
+                <div style={{ fontWeight: "bold", marginBottom: "20px" }}>
+                  UYGUNDUR
+                </div>
+                <div style={{ marginTop: "40px", textAlign: "center" }}>
                   <div>
                     <DateEditableField
                       name="onayTarihi"
-                      value={data.vonaytarihi || data.dosyaTarihi || data.tarih}
+                      value={data.dosyaTarihi || data.tarih}
                       placeholder="GG.AA.YYYY"
                     />
                   </div>
@@ -326,16 +510,15 @@ export function DogrudanTeminOnayBelgesi({
                       placeholder="Ad Soyad"
                     />
                   </div>
-                  <div style={{ fontSize: "9pt", color: "#333" }}>
+                  <div>
                     <EditableField
                       name="onaylayanPersonelUnvan"
-                      value={data.onaylayanPersonelUnvan || data.baskanUnvan || "Harcama Yetkilisi"}
+                      value={data.onaylayanPersonelUnvan || data.baskanUnvan ||
+                        "Harcama Yetkilisi"}
                       placeholder="Ünvan"
                     />
                   </div>
-                  <div style={{ fontSize: "8.5pt", color: "#555", marginTop: "2px" }}>
-                    Harcama Yetkilisi
-                  </div>
+                  <div>Harcama Yetkilisi</div>
                 </div>
               </td>
             </tr>
@@ -344,9 +527,19 @@ export function DogrudanTeminOnayBelgesi({
 
         {/* EKLER */}
         {eklerList.length > 0 && (
-          <div style={{ marginTop: "15px", fontSize: "9.5pt", textAlign: "left", pageBreakInside: "avoid" }}>
+          <div
+            className="paged-keep-together"
+            style={{
+              marginTop: "12px",
+              fontSize: "9.5pt",
+              textAlign: "left",
+              pageBreakInside: "avoid",
+            }}
+          >
             <strong>EKLER:</strong>
-            <ol style={{ margin: "4px 0 0 18px", padding: 0, listStyleType: "decimal", lineHeight: 1.4 }}>
+            <ol
+              style={{ margin: "4px 0 0 16px", padding: 0, lineHeight: 1.35 }}
+            >
               {eklerList.map((ek: string, idx: number) => (
                 <li key={idx}>{ek}</li>
               ))}

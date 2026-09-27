@@ -756,10 +756,6 @@ export async function loadDocumentPreviewData({
     }
   }
 
-  if (globalStoreState.initialData) {
-    Object.assign(baseData, globalStoreState.initialData)
-  }
-
   // Teslim süresi
   if (
     dosyaObj.teslim_gun !== undefined &&
@@ -768,9 +764,11 @@ export async function loadDocumentPreviewData({
   ) {
     baseData.teslimGun = String(dosyaObj.teslim_gun)
     baseData.teslimGunu = String(dosyaObj.teslim_gun)
+    baseData.teslimSuresi = String(dosyaObj.teslim_gun)
   } else if (dosyaObj.teslim_suresi) {
     baseData.teslimGun = String(dosyaObj.teslim_suresi)
     baseData.teslimGunu = String(dosyaObj.teslim_suresi)
+    baseData.teslimSuresi = String(dosyaObj.teslim_suresi)
   } else if (dosyaObj.teslim_tarihi) {
     const tDate = new Date(dosyaObj.teslim_tarihi)
     const baseDate = dosyaObj.tarih
@@ -782,11 +780,26 @@ export async function loadDocumentPreviewData({
     if (diffDays > 0 && diffDays < 365) {
       baseData.teslimGun = String(diffDays)
       baseData.teslimGunu = String(diffDays)
+      baseData.teslimSuresi = String(diffDays)
     }
   }
+
+  if (dosyaObj.teslim_tarihi) {
+    baseData.teslimTarihi = dosyaObj.teslim_tarihi
+  }
+
+  if (dosyaObj.sozlesme_yapilacak_mi !== undefined) {
+    baseData.sozlesmeYapilacakMi = Boolean(dosyaObj.sozlesme_yapilacak_mi)
+  }
+
+  if (globalStoreState.initialData) {
+    Object.assign(baseData, globalStoreState.initialData)
+  }
+
   if (!baseData.teslimGun) {
     baseData.teslimGun = '7'
     baseData.teslimGunu = '7'
+    baseData.teslimSuresi = '7'
   }
 
   const baseKalemler =

@@ -44,6 +44,7 @@ export function SiparisVeSozlesme(): React.JSX.Element {
     stageSablons,
     activeDosyaId,
     sonucOnayEkler,
+    islemlerData,
     handleOpenPreviewForSablon,
   });
 
