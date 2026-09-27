@@ -1,42 +1,45 @@
-import React from "react";
-import { StepId } from "./types";
+import React from 'react'
+import { StepId } from './types'
 
 interface SiparisStepperNavProps {
-  activeStep: StepId;
-  onStepChange: (step: StepId) => void;
+  activeStep: StepId
+  onStepChange: (step: StepId) => void
+  sozlesmeYapilacakMi?: boolean
 }
-
-const ORDER: StepId[] = [
-  "teslimat",
-  "sonuc_onay",
-  "yasaklilik",
-  "siparis",
-  "sozlesme",
-  "timeline",
-];
 
 export function SiparisStepperNav({
   activeStep,
   onStepChange,
+  sozlesmeYapilacakMi = false
 }: SiparisStepperNavProps) {
-  const curIdx = ORDER.indexOf(activeStep);
+  const steps: StepId[] = [
+    'teslimat',
+    'sonuc_onay',
+    'siparis',
+    ...(sozlesmeYapilacakMi ? (['sozlesme'] as StepId[]) : [])
+  ]
+
+  const curIdx = steps.indexOf(activeStep)
 
   const handlePrev = () => {
     if (curIdx > 0) {
-      onStepChange(ORDER[curIdx - 1]);
+      onStepChange(steps[curIdx - 1])
     }
-  };
+  }
 
   const handleNext = () => {
-    if (curIdx < ORDER.length - 1) {
-      onStepChange(ORDER[curIdx + 1]);
+    if (curIdx >= 0 && curIdx < steps.length - 1) {
+      onStepChange(steps[curIdx + 1])
     }
-  };
+  }
+
+  const isFirst = curIdx <= 0
+  const isLast = curIdx === -1 || curIdx >= steps.length - 1
 
   return (
     <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-3 mt-1">
       <div className="flex items-center gap-2">
-        {activeStep !== "teslimat" && (
+        {!isFirst && (
           <button
             type="button"
             onClick={handlePrev}
@@ -48,7 +51,7 @@ export function SiparisStepperNav({
       </div>
 
       <div className="flex items-center gap-2">
-        {activeStep !== "timeline" && (
+        {!isLast && (
           <button
             type="button"
             onClick={handleNext}
@@ -60,5 +63,5 @@ export function SiparisStepperNav({
         )}
       </div>
     </div>
-  );
+  )
 }

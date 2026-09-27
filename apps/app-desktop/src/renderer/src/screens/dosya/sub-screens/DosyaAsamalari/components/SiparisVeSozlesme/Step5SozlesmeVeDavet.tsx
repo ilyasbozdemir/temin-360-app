@@ -25,7 +25,7 @@ export function Step5SozlesmeVeDavet({
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
-              Adım 5: Sözleşmeye Davet & Sözleşme Belgeleri
+              Adım 4: Sözleşmeye Davet & Sözleşme Belgeleri
             </h3>
             <p className="text-[11px] text-slate-400">
               {sozlesmeYapilacakMi

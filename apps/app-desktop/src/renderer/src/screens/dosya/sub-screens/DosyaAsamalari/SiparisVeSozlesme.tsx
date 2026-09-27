@@ -10,19 +10,19 @@ import { useWorkspaceStore } from "../../../../store/workspaceStore";
 import { useGlobalDocumentPreviewStore } from "../../../../store/globalDocumentPreviewStore";
 import { documentPreloadService } from "../../../../services/documentPreloadService";
 import {
-  StepId,
   FirmaStats,
   IslemlerData,
+  SiparisGuardWarning,
   SiparisKazananFirmaCard,
+  SiparisStepperNav,
   SiparisStepperTabs,
   Step1TeslimatVeSurec,
   Step2SonucOnay,
   Step3Yasaklilik,
   Step4KabulVeSiparis,
   Step5SozlesmeVeDavet,
+  StepId,
   StepTimelineAll,
-  SiparisStepperNav,
-  SiparisGuardWarning,
 } from "./components/SiparisVeSozlesme";
 
 export function SiparisVeSozlesme(): React.JSX.Element {
@@ -293,6 +293,9 @@ export function SiparisVeSozlesme(): React.JSX.Element {
       ...prev,
       sozlesmeYapilacakMi: newStatus === 1,
     }));
+    if (newStatus === 0 && activeStep === "sozlesme") {
+      setActiveStep("siparis");
+    }
 
     try {
       await window.electron.ipcRenderer.invoke(
@@ -489,6 +492,21 @@ export function SiparisVeSozlesme(): React.JSX.Element {
 
           {/* ═══ Stepper İçerik Paneli ═══ */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs flex flex-col gap-4 animate-in fade-in duration-200">
+            {/* Genel Başlık / Context */}
+            <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div>
+                <span className="text-[11px] text-slate-400">
+                  Doğrudan Temin Kapsamında Alım Yapılan Firma
+                </span>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                  {kazananFirmaUnvan}
+                </p>
+              </div>
+              <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 shrink-0">
+                Doğrudan Temin
+              </span>
+            </div>
+
             {activeStep === "teslimat" && (
               <Step1TeslimatVeSurec
                 islemlerData={islemlerData}
@@ -532,20 +550,11 @@ export function SiparisVeSozlesme(): React.JSX.Element {
               />
             )}
 
-            {activeStep === "timeline" && (
-              <StepTimelineAll
-                onOpenSonucOnay={handleOpenSonucOnay}
-                onOpenEkap={handleOpenEkap}
-                onOpenKabulMektubu={handleOpenKabulMektubu}
-                onOpenDavetMektubu={handleOpenDavetMektubu}
-                onOpenSozlesme={handleOpenStandartSozlesme}
-              />
-            )}
-
             {/* Stepper Alt Gezinme Butonları */}
             <SiparisStepperNav
               activeStep={activeStep}
               onStepChange={setActiveStep}
+              sozlesmeYapilacakMi={Boolean(firmaStats.sozlesmeYapilacakMi)}
             />
           </div>
         </div>
