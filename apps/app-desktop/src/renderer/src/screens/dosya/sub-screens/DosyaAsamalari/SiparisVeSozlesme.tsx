@@ -5,7 +5,6 @@ import {
   normalizeForMatch,
   useDosyaAsamasiSablons,
 } from "./useDosyaAsamasiSablons";
-import { useSettingsStore } from "../../../../store/settingsStore";
 import { useWorkspaceStore } from "../../../../store/workspaceStore";
 import { useGlobalDocumentPreviewStore } from "../../../../store/globalDocumentPreviewStore";
 import { documentPreloadService } from "../../../../services/documentPreloadService";
@@ -22,25 +21,17 @@ import {
   Step4KabulVeSiparis,
   Step5SozlesmeVeDavet,
   StepId,
-  StepTimelineAll,
 } from "./components/SiparisVeSozlesme";
 
 export function SiparisVeSozlesme(): React.JSX.Element {
   const {
-    activeStarredDocs,
     sablons,
-    ciktiLoading,
     previewModalOpen,
     setPreviewModalOpen,
     previewData,
     handleOpenPreviewForSablon,
-    quickPrint,
-    quickExport,
-    quickOpenExternal,
-    isSablonDisabled,
   } = useDosyaAsamasiSablons();
 
-  const { disableDocumentGuidance } = useSettingsStore();
   const { activeDosyaId } = useWorkspaceStore();
 
   const stageSablons = sablons.filter(
@@ -433,9 +424,9 @@ export function SiparisVeSozlesme(): React.JSX.Element {
 
   return (
     <SubScreen
-      title="Sipariş & Sözleşme"
+      title="Yüklenici & Sipariş İşlemleri"
       icon={FileCheck}
-      description="Doğrudan temin onay belgesi, ihale komisyon kararı ve sözleşmeye davet gibi dökümanları hazırlayabilir, doğrudan temin sözleşme süreçlerinizi bu panelden yönetebilirsiniz."
+      description="Doğrudan temin sonuç onay belgesi, sipariş formu, kabul mektubu ve sözleşme süreçlerinizi bu panelden yönetebilirsiniz."
       previewDocumentId={previewModalOpen && previewData?.dosyaAdi
         ? previewData.dosyaAdi
         : null}
@@ -463,17 +454,6 @@ export function SiparisVeSozlesme(): React.JSX.Element {
             firmaStats={firmaStats}
             islemlerData={islemlerData}
             formatCurrency={formatCurrency}
-            stageSablons={stageSablons}
-            sablons={sablons}
-            activeStarredDocs={activeStarredDocs}
-            ciktiLoading={ciktiLoading}
-            handleOpenPreviewForSablon={handleOpenPreviewForSablon}
-            quickPrint={quickPrint}
-            quickExport={quickExport}
-            quickOpenExternal={quickOpenExternal}
-            isSablonDisabled={isSablonDisabled}
-            disableDocumentGuidance={disableDocumentGuidance}
-            activeDosyaId={activeDosyaId}
             onPrintResultApproval={handleOpenSonucOnay}
             onPrintAcceptanceLetter={handleOpenKabulMektubu}
             onPrintOrderForm={handleOpenSiparisFormu}
@@ -536,7 +516,6 @@ export function SiparisVeSozlesme(): React.JSX.Element {
               <Step4KabulVeSiparis
                 teslimGunu={islemlerData.teslimGunu}
                 onOpenKabulMektubu={handleOpenKabulMektubu}
-                onOpenSiparisFormu={handleOpenSiparisFormu}
               />
             )}
 

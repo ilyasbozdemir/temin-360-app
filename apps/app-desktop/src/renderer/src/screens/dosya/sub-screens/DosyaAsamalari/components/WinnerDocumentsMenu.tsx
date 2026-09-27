@@ -9,8 +9,7 @@ import {
   FileText,
   History,
   Shield,
-  ShieldCheck,
-  ShoppingCart
+  ShieldCheck
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -25,7 +24,6 @@ interface WinnerDocumentsMenuProps {
   sozlesmeYapilacakMi?: boolean
   onPrintResultApproval: () => void
   onPrintAcceptanceLetter: () => void
-  onPrintOrderForm?: () => void
   onPrintContractInvitation?: () => void
   onPrintContract?: () => void
   onPrintContractAlternative?: () => void
@@ -40,7 +38,6 @@ export function WinnerDocumentsMenu({
   sozlesmeYapilacakMi,
   onPrintResultApproval,
   onPrintAcceptanceLetter,
-  onPrintOrderForm,
   onPrintContractInvitation,
   onPrintContract,
   onPrintContractAlternative,
@@ -73,16 +70,7 @@ export function WinnerDocumentsMenu({
 
         <DropdownMenuItem onClick={onPrintAcceptanceLetter} className="cursor-pointer">
           <FileText className="mr-2 h-4 w-4 text-blue-500" />
-          <span>Kabul Edilen Teklif / Kabul Yazısı</span>
-        </DropdownMenuItem>
-
-        <DropdownMenuItem
-          onClick={onPrintOrderForm}
-          disabled={!onPrintOrderForm}
-          className="cursor-pointer"
-        >
-          <ShoppingCart className="mr-2 h-4 w-4 text-amber-500" />
-          <span>Sipariş Formu</span>
+          <span>Kabul Edilen Teklif / Sipariş Formu</span>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator className="my-1" />

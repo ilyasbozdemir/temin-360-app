@@ -26,7 +26,7 @@ const STEPS = [
   },
   {
     id: 3,
-    label: 'Sipariş & Sözleşme',
+    label: 'Yüklenici & Sipariş İşlemleri',
     route: '/dosya/siparis-ve-sozlesme',
     icon: FileSignature
   },

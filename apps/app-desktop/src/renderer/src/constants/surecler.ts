@@ -32,7 +32,7 @@ export const subPagesMapping: ProcessStage[] = [
     stage: 2
   },
   { name: 'Yaklaşık Maliyet', path: APP_ROUTES.YAKLASIK_MALIYET, icon: Compass, stage: 2 },
-  { name: 'Sipariş & Sözleşme', path: APP_ROUTES.SIPARIS_VE_SOZLESME, icon: FileCheck, stage: 3 },
+  { name: 'Yüklenici & Sipariş İşlemleri', path: APP_ROUTES.SIPARIS_VE_SOZLESME, icon: FileCheck, stage: 3 },
   {
     name: 'Muayene & Kabul & Ödeme İşlemleri',
     path: APP_ROUTES.KABUL_VE_ODEME,

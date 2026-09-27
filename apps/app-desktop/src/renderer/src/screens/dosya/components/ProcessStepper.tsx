@@ -50,12 +50,11 @@ const STEPS: StepConfig[] = [
   },
   {
     id: 3,
-    label: 'Sipariş & Sözleşme',
-    shortLabel: 'Sözleşme',
+    label: 'Yüklenici & Sipariş İşlemleri',
+    shortLabel: 'Yüklenici İşlemleri',
     route: '/dosya/siparis-ve-sozlesme',
     icon: FileSignature,
     docTemplates: [
-      'siparis-mektubu',
       'kabul-edilen-teklif',
       'dogrudan-temin-sozlesmesi',
       'harcama-talimati'

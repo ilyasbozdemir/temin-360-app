@@ -11,6 +11,7 @@ import {
   LANDSCAPE_LIMITS,
   paginateData,
 } from "../../document/DynamicPaginatedTable";
+import { GLOBAL_THEME } from "../../theme.config";
 import { DocumentTable } from "../../document/DocumentTable";
 import { KabulEdilenTeklifType } from "./KabulEdilenTeklif.schema";
 
@@ -270,29 +271,36 @@ export function KabulEdilenTeklif({
                 (acc, p) => acc + p.length,
                 0,
               )}
+              footer={
+                isLastPage ? (
+                  <tr style={{ pageBreakInside: "avoid" }}>
+                    <td
+                      colSpan={7}
+                      style={{
+                        border: `1px solid ${GLOBAL_THEME.colors.border}`,
+                        padding: GLOBAL_THEME.table.cellPadding,
+                        textAlign: "right",
+                        fontWeight: "bold",
+                        backgroundColor: "#fafafa",
+                      }}
+                    >
+                      Toplam Tutar (KDV Hariç):
+                    </td>
+                    <td
+                      style={{
+                        border: `1px solid ${GLOBAL_THEME.colors.border}`,
+                        padding: GLOBAL_THEME.table.cellPadding,
+                        textAlign: "right",
+                        fontWeight: "bold",
+                        backgroundColor: "#fafafa",
+                      }}
+                    >
+                      {data.genelToplam || "0,00"} TL
+                    </td>
+                  </tr>
+                ) : undefined
+              }
             />
-
-            {/* Genel Toplam Gösterimi */}
-            {isLastPage && (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  marginTop: "6px",
-                  padding: "6px 8px",
-                  fontWeight: "bold",
-                  fontSize: "10pt",
-                  border: "1px solid #000",
-                  borderTop: "none",
-                  backgroundColor: "#fafafa",
-                }}
-              >
-                <span style={{ marginRight: "12px" }}>
-                  Toplam Tutar (KDV Hariç):
-                </span>
-                <span>{data.genelToplam || "0,00"} TL</span>
-              </div>
-            )}
 
             {/* OLUR İmzası */}
             {isLastPage && data.olurYazisi !== false && (

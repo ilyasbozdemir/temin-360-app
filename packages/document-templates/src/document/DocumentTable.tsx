@@ -18,6 +18,7 @@ interface DocumentTableProps<T> {
   striped?: boolean;
   startIndex?: number;
   currentSplitIndex?: number | null;
+  footer?: React.ReactNode;
 }
 
 export const DocumentTable = React.forwardRef<
@@ -32,6 +33,7 @@ export const DocumentTable = React.forwardRef<
       striped = false,
       startIndex = 0,
       currentSplitIndex,
+      footer,
     },
     ref,
   ) => {
@@ -139,6 +141,7 @@ export const DocumentTable = React.forwardRef<
               })
             )}
         </tbody>
+        {footer && <tfoot>{footer}</tfoot>}
       </table>
     );
   },
