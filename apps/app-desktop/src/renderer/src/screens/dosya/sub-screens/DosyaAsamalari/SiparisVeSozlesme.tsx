@@ -25,7 +25,7 @@ import {
   Step3Yasaklilik,
   Step5SozlesmeVeDavet,
 } from "./components/SiparisVeSozlesme";
-import { cn } from "../../../../../utils/cn";
+import { cn } from "../../../../utils/cn";
 
 export function SiparisVeSozlesme(): React.JSX.Element {
   const {
