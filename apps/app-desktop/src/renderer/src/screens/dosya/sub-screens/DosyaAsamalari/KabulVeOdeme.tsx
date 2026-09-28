@@ -67,7 +67,7 @@ export function KabulVeOdeme(): React.JSX.Element {
           'db:query',
           `SELECT d.firma_id, f.unvan, f.vergi_no,
                   d.yaklasik_maliyet, d.teslim_tarihi,
-                  d.fiyat_farki_dayanagi, d.alim_turu, d.dosya_acilis_tarihi, d.temin_tarihi, d.tarih
+                  d.fiyat_farki_dayanagi, COALESCE(d.tur, 'mal') as alim_turu, d.dosya_acilis_tarihi, d.temin_tarihi, d.tarih
            FROM DATA_TeminDosyasi d
            LEFT JOIN TANIM_Firma f ON d.firma_id = f.id
            WHERE d.id = ?`,

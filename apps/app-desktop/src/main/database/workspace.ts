@@ -170,7 +170,12 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     { name: 'kullanilabilir_odenek', def: 'TEXT' },
     { name: 'butce_yili', def: 'TEXT' },
     { name: 'odenek_kalemi', def: 'TEXT' },
-    { name: 'butce_gerekce', def: 'TEXT' }
+    { name: 'butce_gerekce', def: 'TEXT' },
+    { name: 'fiyat_farki_dayanagi', def: 'TEXT' },
+    { name: 'alim_turu', def: 'TEXT' },
+    { name: 'tur', def: "TEXT DEFAULT 'mal'" },
+    { name: 'dosya_no', def: 'TEXT' },
+    { name: 'dosya_adi', def: 'TEXT' }
   ]
   for (const c of teminDosyasiColumns) {
     try {
@@ -180,6 +185,17 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
       // Ignored if column already exists
     }
   }
+
+  // Keep dosya_no / temin_no and dosya_adi / konu in sync
+  try {
+    db.exec(`
+      UPDATE DATA_TeminDosyasi SET dosya_no = temin_no WHERE (dosya_no IS NULL OR dosya_no = '') AND temin_no IS NOT NULL;
+      UPDATE DATA_TeminDosyasi SET temin_no = dosya_no WHERE (temin_no IS NULL OR temin_no = '') AND dosya_no IS NOT NULL;
+      UPDATE DATA_TeminDosyasi SET dosya_adi = COALESCE(konu, is_tanimi) WHERE (dosya_adi IS NULL OR dosya_adi = '') AND COALESCE(konu, is_tanimi) IS NOT NULL;
+      UPDATE DATA_TeminDosyasi SET alim_turu = tur WHERE (alim_turu IS NULL OR alim_turu = '') AND tur IS NOT NULL;
+      UPDATE DATA_TeminDosyasi SET tur = alim_turu WHERE (tur IS NULL OR tur = '') AND alim_turu IS NOT NULL;
+    `)
+  } catch {}
 
   // Explicit migration for DATA_DosyaSablonVeri columns
   try {
