@@ -394,7 +394,7 @@ export function buildDocumentContext(
           })
           fiyatFarkiPn = calc.pn
           fiyatFarkiTutari = calc.difference
-          const kdvRate = getAyarVergiOrani(settings, 'kdv_orani', '20', 'yuzde')
+          const kdvRate = getAyarVergiOrani(settings, 'kdv_20', '20', 'yuzde')
           fiyatFarkiKdv = hesaplaKesinti(fiyatFarkiTutari, kdvRate.oran, kdvRate.tur)
           fiyatFarkiDahilToplam = grandTotal + fiyatFarkiTutari
         }

@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron'
+import { workspaceManager } from '../database/workspace'
 import {
   exportDocxHandler,
   exportUdfHandler,
@@ -126,7 +127,6 @@ export function registerDocumentIpcHandlers(): void {
     'belge:get-document-payload',
     'get-document-payload',
     async (_, payload: { dosyaId?: number; documentId?: string }) => {
-      const { workspaceManager } = require('../database/workspace')
       const db = workspaceManager.getDb()
       return resolveDocumentPayload(db, payload)
     }
@@ -137,7 +137,6 @@ export function registerDocumentIpcHandlers(): void {
     'belge:get-all-cikti-data',
     'get-all-cikti-data',
     async (_, payload: { dosyaId?: number }) => {
-      const { workspaceManager } = require('../database/workspace')
       const db = workspaceManager.getDb()
       return resolveAllCiktiData(db, payload)
     }
