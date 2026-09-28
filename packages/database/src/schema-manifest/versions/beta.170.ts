@@ -1,0 +1,16 @@
+/* eslint-disable */
+export default {
+  app: "1.0.0-beta.170",
+  schema_min: 1,
+  schema_max: 34,
+  release_date: "2026-09-28",
+  changes: [
+    {
+      schema: 34,
+      type: "feature",
+      description: "Sipariş ve Sözleşme aşamalarında Adım 3 (Kabul / Sipariş Formu) ve Adım 4 (Sözleşme & Davet) süreçlerinin ayrıştırılması, sözleşme durumuna göre koşullu 4. adım gösterimi",
+      tables_added: [],
+      columns_added: []
+    }
+  ]
+};
