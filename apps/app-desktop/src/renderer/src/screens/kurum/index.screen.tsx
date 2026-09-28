@@ -311,16 +311,15 @@ export default function KurumScreen(): React.JSX.Element {
     },
   ];
 
-  if (isLoadingKurum) {
+  if (isLoadingKurum && !kurumData) {
     return (
-      <div className="flex items-center justify-center flex-1 text-slate-500 h-full w-full">
+      <div className="flex items-center justify-center flex-1 text-slate-500 h-full w-full py-16">
         Kurum bilgileri yükleniyor...
       </div>
-    );
+    )
   }
 
-  const isKurumTab = ["onizleme", "idari", "mali", "iletisim", "logolar"]
-    .includes(activeTab);
+  const isKurumTab = ['onizleme', 'idari', 'mali', 'iletisim', 'logolar'].includes(activeTab)
 
   return (
     <div className="max-w-[1600px] mx-auto flex flex-col gap-6 w-full animate-in fade-in duration-200">
@@ -477,8 +476,8 @@ export default function KurumScreen(): React.JSX.Element {
               </div>
             )
             : (
-              <div className="-mt-8 w-full">
-                {activeTab === "birimler" && <BirimlerScreen isSubComponent />}
+              <div className="w-full">
+                {activeTab === 'birimler' && <BirimlerScreen isSubComponent />}
                 {activeTab === "personel" && <PersonelScreen isSubComponent />}
                 {activeTab === "komisyonlar" && (
                   <KomisyonlarScreen isSubComponent />

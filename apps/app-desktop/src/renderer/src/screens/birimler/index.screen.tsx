@@ -46,8 +46,10 @@ export default function BirimlerScreen({
   }
 
   useEffect(() => {
-    fetchKurum()
-  }, [fetchKurum])
+    if (!isSubComponent) {
+      fetchKurum()
+    }
+  }, [fetchKurum, isSubComponent])
 
   const [form, setForm] = useState<BirimInput>({ ...emptyBirim })
   const [showExtraFields, setShowExtraFields] = useState(false)

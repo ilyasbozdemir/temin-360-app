@@ -48,8 +48,10 @@ export default function PersonelScreen({
   const { kurumData, fetchKurum } = useKurumHooks()
 
   useEffect(() => {
-    fetchKurum()
-  }, [fetchKurum])
+    if (!isSubComponent) {
+      fetchKurum()
+    }
+  }, [fetchKurum, isSubComponent])
 
   const [screenState, setScreenState] = useState<ScreenState>('list')
   const [dataViewMode, setDataViewMode] = useState<DataViewMode>('grid')
