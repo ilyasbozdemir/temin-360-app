@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { Coins, Calculator, TrendingUp, Sparkles } from 'lucide-react'
 import { yiUfeService, AY_ISIMLERI } from '../../../services/yiUfeService'
+import {
+  calculatePriceDifference,
+  PRICE_DIFF_CONFIG,
+  getAyarVergiOrani,
+  formatTutar
+} from '../../../utils/hesaplamalar'
+import { useAyarlarHooks } from '../../ayarlar/ayarlar.hooks'
 
 export function FiyatFarkiTab(): React.JSX.Element {
+  const { settings } = useAyarlarHooks()
   const [ffHakedis, setFfHakedis] = useState<string>('150000')
   const [ffPnDirect, setFfPnDirect] = useState<string>('1.085')
   const [ffTemelEndeks, setFfTemelEndeks] = useState<string>('1200')
@@ -14,7 +22,9 @@ export function FiyatFarkiTab(): React.JSX.Element {
   const [temelAy, setTemelAy] = useState<number>(1)
   const [guncelYil, setGuncelYil] = useState<number>(2026)
   const [guncelAy, setGuncelAy] = useState<number>(8)
-  const ffKdvOrani = 0.2
+
+  const kdvRateItem = getAyarVergiOrani(settings, 'kdv_20', '20', 'yuzde')
+  const ffKdvOrani = (parseFloat(kdvRateItem.oran.replace(',', '.')) || 20) / 100
 
   useEffect(() => {
     yiUfeService.loadFromDatabase().catch(() => {})
@@ -458,22 +468,34 @@ export function FiyatFarkiTab(): React.JSX.Element {
           <div className="lg:col-span-5 flex flex-col">
             {(() => {
               const hakedisVal = parseFloat(ffHakedis.replace(/,/g, '.')) || 0
-              let pnVal = 1
+              const configKey = ffAlimTuru === 'mal' ? '2013/5216' : '2013/5215'
+              const config = PRICE_DIFF_CONFIG[configKey]
+
+              let calcResult = { pn: 1, difference: 0, formattedDifference: '0,00' }
               if (ffEndeksModu) {
-                const temel = parseFloat(ffTemelEndeks.replace(/,/g, '.')) || 1
-                const guncel = parseFloat(ffGuncelEndeks.replace(/,/g, '.')) || 1
-                pnVal = temel !== 0 ? guncel / temel : 1
+                const io = parseFloat(ffTemelEndeks.replace(/,/g, '.')) || 1
+                const inVal = parseFloat(ffGuncelEndeks.replace(/,/g, '.')) || 1
+                calcResult = calculatePriceDifference(configKey, {
+                  workAmount: hakedisVal,
+                  baseIndexes: { b1: io },
+                  currentIndexes: { b1: inVal }
+                })
               } else {
-                pnVal = parseFloat(ffPnDirect.replace(/,/g, '.')) || 1
+                const pnDirect = parseFloat(ffPnDirect.replace(/,/g, '.')) || 1
+                const diff = Math.round(hakedisVal * (pnDirect - 1) * 100) / 100
+                calcResult = {
+                  pn: pnDirect,
+                  difference: diff,
+                  formattedDifference: formatTutar(Math.abs(diff))
+                }
               }
-              const ffVal = hakedisVal * (pnVal - 1)
-              const kdvVal = ffVal * ffKdvOrani // seçilen KDV oranı
+
+              const pnVal = calcResult.pn
+              const ffVal = calcResult.difference
+              const kdvVal = ffVal * ffKdvOrani
               const toplamFf = ffVal + kdvVal
 
-              const formattedHakedis = new Intl.NumberFormat('tr-TR', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              }).format(hakedisVal)
+              const formattedHakedis = formatTutar(hakedisVal)
               const formattedPn = new Intl.NumberFormat('tr-TR', {
                 minimumFractionDigits: 4,
                 maximumFractionDigits: 4
@@ -482,18 +504,9 @@ export function FiyatFarkiTab(): React.JSX.Element {
                 minimumFractionDigits: 4,
                 maximumFractionDigits: 4
               }).format(pnVal - 1)
-              const formattedFf = new Intl.NumberFormat('tr-TR', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              }).format(Math.abs(ffVal))
-              const formattedKdv = new Intl.NumberFormat('tr-TR', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              }).format(Math.abs(kdvVal))
-              const formattedToplam = new Intl.NumberFormat('tr-TR', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              }).format(Math.abs(toplamFf))
+              const formattedFf = formatTutar(Math.abs(ffVal))
+              const formattedKdv = formatTutar(Math.abs(kdvVal))
+              const formattedToplam = formatTutar(Math.abs(toplamFf))
 
               const isPositive = ffVal > 0
               const isZero = ffVal === 0
@@ -522,7 +535,7 @@ export function FiyatFarkiTab(): React.JSX.Element {
                               : 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400'
                         }`}
                       >
-                        {ffAlimTuru === 'mal' ? 'Mal Alımı (FF1)' : 'Hizmet Alımı (FF2)'}
+                        {config?.decisionNo ? `${config.decisionNo} Kararnamesi` : ffAlimTuru === 'mal' ? 'Mal Alımı (FF1)' : 'Hizmet Alımı (FF2)'}
                       </span>
                     </div>
 
@@ -574,7 +587,7 @@ export function FiyatFarkiTab(): React.JSX.Element {
 
                     <div className="space-y-1.5 text-[11px]">
                       <div className="flex items-center justify-between font-medium text-slate-550 dark:text-slate-400">
-                        <span>Hesaplanan Net KDV (%20)</span>
+                        <span>Hesaplanan Net KDV (%{Math.round(ffKdvOrani * 100)})</span>
                         <span className="font-mono text-slate-700 dark:text-slate-300">
                           {formattedKdv} ₺
                         </span>
