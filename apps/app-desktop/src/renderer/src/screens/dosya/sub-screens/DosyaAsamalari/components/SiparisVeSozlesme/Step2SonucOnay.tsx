@@ -90,22 +90,6 @@ export const Step2SonucOnay: React.FC<Props> = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-            <FileCheck className="w-4 h-4" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
-              Adım 2: Karar & Sonuç Onay, EKLER ve Bütçe Uygunluk Süreci
-            </h3>
-            <p className="text-[11px] text-slate-400">
-              Piyasa fiyat araştırması neticesinde doğrudan temin sonuç onay belgesi, belge ekleri ve bütçe ödeneği kontrol işlemleri
-            </p>
-          </div>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 flex flex-col gap-3">
           {/* Karar & Onay Özeti */}

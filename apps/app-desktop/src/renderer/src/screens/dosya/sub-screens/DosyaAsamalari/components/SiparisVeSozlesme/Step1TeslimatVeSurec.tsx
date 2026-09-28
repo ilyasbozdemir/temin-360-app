@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, Clock, FileCheck2 } from "lucide-react";
+import { Check } from "lucide-react";
 import { cn } from "../../../../../../utils/cn";
 import { FirmaStats, IslemlerData } from "./types";
 
@@ -10,7 +10,6 @@ interface Props {
   handleUpdateTeslimGunu: (gun: number) => Promise<void>;
   handleUpdateTeslimTarihi: (dateStr: string) => Promise<void>;
   handleToggleSozlesme: () => Promise<void>;
-  onOpenKabulMektubu?: () => void;
 }
 
 export const Step1TeslimatVeSurec: React.FC<Props> = ({
@@ -20,7 +19,6 @@ export const Step1TeslimatVeSurec: React.FC<Props> = ({
   handleUpdateTeslimGunu,
   handleUpdateTeslimTarihi,
   handleToggleSozlesme,
-  onOpenKabulMektubu,
 }) => {
   const readyDays = [
     { gun: 3, label: "3 Gün", sub: "Acil" },
@@ -36,29 +34,6 @@ export const Step1TeslimatVeSurec: React.FC<Props> = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950/60 flex items-center justify-center text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
-            <Clock className="w-4 h-4" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
-              Adım 1: Teslimat Şartları & Sipariş Formu / Kabul Mektubu
-            </h3>
-            <p className="text-[11px] text-slate-400">
-              Kabul edilen teklif mektubu ve sipariş formunda yer alacak yasal teslim süresi ve tebliğ belgesi
-            </p>
-          </div>
-        </div>
-
-        {savedFeedback && (
-          <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-bold rounded-xl animate-in fade-in duration-200">
-            <Check className="w-3.5 h-3.5" />
-            Kaydedildi
-          </div>
-        )}
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Teslimat Gün Seçici */}
         <div className="flex flex-col gap-3 p-4 rounded-xl bg-slate-50/70 dark:bg-slate-850/60 border border-slate-200/70 dark:border-slate-800">
@@ -158,7 +133,7 @@ export const Step1TeslimatVeSurec: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* Süreç / Sözleşme Ayarları & Belge Butonu */}
+        {/* Süreç / Sözleşme Ayarları & Hüküm Bilgisi */}
         <div className="flex flex-col gap-3 p-4 rounded-xl bg-slate-50/70 dark:bg-slate-850/60 border border-slate-200/70 dark:border-slate-800 justify-between">
           <div className="flex flex-col gap-3">
             <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
@@ -192,7 +167,9 @@ export const Step1TeslimatVeSurec: React.FC<Props> = ({
             </div>
 
             <div className="p-2.5 rounded-xl bg-amber-50/80 dark:bg-amber-950/25 border border-amber-200/80 dark:border-amber-800/60 text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
-              <strong className="font-extrabold">📌 Canlı Önizleme Hükmü:</strong>
+              <strong className="font-extrabold">
+                📌 Canlı Önizleme Hükmü:
+              </strong>
               <div className="mt-1 italic text-[11px] bg-white/70 dark:bg-slate-900/60 p-2 rounded-lg border border-amber-200/50">
                 &ldquo;Malı/Hizmeti/İşi{" "}
                 <strong className="text-amber-700 dark:text-amber-400 font-extrabold">
@@ -204,21 +181,21 @@ export const Step1TeslimatVeSurec: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Sipariş Formu Açma Butonu */}
-          {onOpenKabulMektubu && (
-            <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800">
-              <button
-                type="button"
-                onClick={onOpenKabulMektubu}
-                className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-xs hover:shadow active:scale-95 transition-all"
-              >
-                <FileCheck2 className="w-4 h-4" />
-                Kabul Edilen Teklif / Sipariş Formunu Aç
-              </button>
-            </div>
-          )}
+          <div className="p-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-800/60 text-[11px] text-slate-500 dark:text-slate-400">
+            ℹ️ Belirlediğiniz bu teslimat süresi ve sözleşme tercihi,{" "}
+            <strong>Sonuç Onay Belgesi</strong> ve{" "}
+            <strong>Adım 3</strong>&apos;teki tebligat/sipariş belgelerine
+            otomatik yansıtılır.
+          </div>
         </div>
       </div>
+
+      {savedFeedback && (
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-bold rounded-xl animate-in fade-in duration-200 self-start">
+          <Check className="w-3.5 h-3.5" />
+          Değişiklikler Kaydedildi
+        </div>
+      )}
     </div>
   );
 };

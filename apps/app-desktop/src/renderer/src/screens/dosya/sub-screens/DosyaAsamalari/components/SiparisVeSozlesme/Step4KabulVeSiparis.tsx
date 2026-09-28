@@ -1,5 +1,5 @@
 import React from 'react'
-import { FileCheck2 } from 'lucide-react'
+import { FileCheck2, Calendar } from 'lucide-react'
 
 interface Step4KabulVeSiparisProps {
   teslimGunu: number
@@ -9,46 +9,39 @@ interface Step4KabulVeSiparisProps {
 export function Step4KabulVeSiparis({
   teslimGunu,
   onOpenKabulMektubu
-}: Step4KabulVeSiparisProps) {
+}: Step4KabulVeSiparisProps): React.JSX.Element {
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-950/60 flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
-            <FileCheck2 className="w-4 h-4" />
+      <div className="p-5 rounded-2xl bg-slate-50/80 dark:bg-slate-850/60 border border-slate-200/80 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div className="flex flex-col gap-2 max-w-xl">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 uppercase tracking-wider border border-blue-200 dark:border-blue-800">
+              Yasal Tebligat Belgesi
+            </span>
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+              <Calendar className="w-3.5 h-3.5 text-blue-500" />
+              {teslimGunu} Günlük Teslim Süresi
+            </span>
           </div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
-              Adım 3: Kabul Edilen Teklif Mektubu & Sipariş Formu
-            </h3>
-            <p className="text-[11px] text-slate-400">
-              Sonucun kazanan istekliye tebliği ve teslimatın başlatılması için resmi kabul ve sipariş mektubu
-            </p>
-          </div>
-        </div>
-      </div>
 
-      <div className="p-5 rounded-2xl bg-slate-50/80 dark:bg-slate-850/60 border border-slate-200/80 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex flex-col gap-1 max-w-xl">
-          <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">
+          <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100">
             Kabul Edilen Teklif Mektubu / Sipariş Formu
           </h4>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-            Fiyat araştırması sonucunun ve{' '}
-            <strong className="text-blue-600 dark:text-blue-400 font-bold">{teslimGunu} günlük</strong>{' '}
-            yasal teslim süresinin firmaya tebliğ edildiği, alım kalemleri ve toplam bedeli içeren resmi yazıdır.
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Fiyat araştırması sonucunun ve belirlenen yasal teslim süresinin kazanan istekliye tebliğ edildiği, alım kalemleri ile toplam bedeli içeren resmi belgedir.
           </p>
         </div>
 
         <button
           type="button"
           onClick={onOpenKabulMektubu}
-          className="py-2.5 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-xs hover:shadow active:scale-95 transition-all shrink-0"
+          className="py-3 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md hover:shadow-lg active:scale-95 transition-all shrink-0"
         >
           <FileCheck2 className="w-4 h-4" />
-          Kabul Edilen Teklif / Sipariş Formunu Aç
+          Kabul / Sipariş Formunu Aç
         </button>
       </div>
     </div>
   )
 }
+

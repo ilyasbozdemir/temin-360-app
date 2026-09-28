@@ -79,13 +79,13 @@ export function SiparisVeSozlesmeSteps({
     },
     {
       stepNum: 3 as const,
-      label: hasSozlesme ? "Sözleşme & Davet" : "Sipariş Formu / Kabul",
-      sub: hasSozlesme ? "Sözleşmeye Davet ve Metinler" : "Kabul Edilen Teklif Tebliği",
+      label: hasSozlesme ? 'Sözleşme & Davet' : 'Sipariş & Tebligat',
+      sub: hasSozlesme ? 'Sözleşmeye Davet ve Metinler' : 'Kabul Edilen Teklif Formu',
       icon: hasSozlesme ? FileSignature : FileCheck2,
-      badge: "Adım 3",
+      badge: 'Adım 3',
       ready: true
     }
-  ];
+  ]
 
   return (
     <div className="flex flex-col gap-4">
@@ -93,10 +93,9 @@ export function SiparisVeSozlesmeSteps({
       <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 rounded-2xl p-2 shadow-xs">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           {steps.map((step) => {
-            const isActive = activeStep === step.stepNum;
-            const isCompleted = step.stepNum < activeStep;
-            const isUpcoming = step.stepNum > activeStep;
-            const StepIcon = step.icon;
+            const isActive = activeStep === step.stepNum
+            const isCompleted = step.stepNum < activeStep
+            const StepIcon = step.icon
 
             return (
               <button
@@ -104,12 +103,12 @@ export function SiparisVeSozlesmeSteps({
                 type="button"
                 onClick={() => setActiveStep(step.stepNum)}
                 className={cn(
-                  "relative flex items-center justify-between p-3 rounded-xl border text-left transition-all cursor-pointer group select-none",
+                  'relative flex items-center justify-between p-3 rounded-xl border text-left transition-all cursor-pointer group select-none',
                   isActive
-                    ? "bg-blue-50/80 dark:bg-blue-950/40 border-blue-500/80 dark:border-blue-500/80 shadow-xs ring-1 ring-blue-500/20"
+                    ? 'bg-blue-50/80 dark:bg-blue-950/40 border-blue-500/80 dark:border-blue-500/80 shadow-xs ring-1 ring-blue-500/20'
                     : isCompleted
-                    ? "bg-slate-50/60 dark:bg-slate-850/40 border-slate-200/80 dark:border-slate-800 hover:bg-slate-100/70 dark:hover:bg-slate-800/60"
-                    : "bg-slate-50/30 dark:bg-slate-850/20 border-slate-200/50 dark:border-slate-800/50 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 opacity-75 hover:opacity-100"
+                    ? 'bg-slate-50/60 dark:bg-slate-850/40 border-slate-200/80 dark:border-slate-800 hover:bg-slate-100/70 dark:hover:bg-slate-800/60'
+                    : 'bg-slate-50/30 dark:bg-slate-850/20 border-slate-200/50 dark:border-slate-800/50 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 opacity-75 hover:opacity-100'
                 )}
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -211,7 +210,6 @@ export function SiparisVeSozlesmeSteps({
               handleUpdateTeslimGunu={handleUpdateTeslimGunu}
               handleUpdateTeslimTarihi={handleUpdateTeslimTarihi}
               handleToggleSozlesme={handleToggleSozlesme}
-              onOpenKabulMektubu={handleOpenKabulMektubu}
             />
           </div>
         )}

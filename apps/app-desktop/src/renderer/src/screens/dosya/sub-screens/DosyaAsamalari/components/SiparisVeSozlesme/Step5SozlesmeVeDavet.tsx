@@ -1,41 +1,21 @@
-import React from "react";
-import { CheckCircle2 } from "lucide-react";
+import React from 'react'
 
 interface Step5SozlesmeVeDavetProps {
-  sozlesmeYapilacakMi: boolean | number;
-  onOpenDavetMektubu: () => void;
-  onOpenStandartSozlesme: () => void;
-  onOpenAlternatifSozlesme: () => void;
-  onOpenUzunFormSozlesme: () => void;
+  sozlesmeYapilacakMi?: boolean | number
+  onOpenDavetMektubu: () => void
+  onOpenStandartSozlesme: () => void
+  onOpenAlternatifSozlesme: () => void
+  onOpenUzunFormSozlesme: () => void
 }
 
 export function Step5SozlesmeVeDavet({
-  sozlesmeYapilacakMi,
   onOpenDavetMektubu,
   onOpenStandartSozlesme,
   onOpenAlternatifSozlesme,
-  onOpenUzunFormSozlesme,
-}: Step5SozlesmeVeDavetProps) {
+  onOpenUzunFormSozlesme
+}: Step5SozlesmeVeDavetProps): React.JSX.Element {
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-violet-100 dark:bg-violet-950/60 flex items-center justify-center text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-800">
-            <CheckCircle2 className="w-4 h-4" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
-              Adım 4: Sözleşmeye Davet & Sözleşme Belgeleri
-            </h3>
-            <p className="text-[11px] text-slate-400">
-              {sozlesmeYapilacakMi
-                ? "Sözleşme imzalanması seçilmiştir. Yasal davet mektubu ve sözleşme metinlerini hazırlayabilirsiniz."
-                : "Bu dosyada sözleşme yapılmayacak olarak belirlenmiştir. İhtiyaç halinde aşağıdaki butonlardan sözleşme hazırlayabilirsiniz."}
-            </p>
-          </div>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Sözleşmeye Davet Mektubu */}
         <div className="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-850/60 border border-slate-200/70 dark:border-slate-800 flex flex-col justify-between gap-3">
