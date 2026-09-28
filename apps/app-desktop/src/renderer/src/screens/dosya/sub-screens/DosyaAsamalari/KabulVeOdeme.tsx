@@ -80,25 +80,37 @@ export function KabulVeOdeme(): React.JSX.Element {
           let effectiveUnvan = row.unvan || ''
           let effectiveVergiNo = row.vergi_no || null
 
-          if (!effectiveFirmaId) {
+          if (!effectiveFirmaId || !effectiveUnvan) {
             const autoLowestRes = await window.electron.ipcRenderer.invoke(
               'db:query',
-              `SELECT tf.firma_id, f.unvan, f.vergi_no, tf.teklif_toplami, tf.yasaklilik_durumu
+              `SELECT tf.firma_id, tf.id as temin_firma_id,
+                      COALESCE(NULLIF(tf.unvan, ''), NULLIF(f.unvan, ''), 'İstekli Firma') as unvan,
+                      COALESCE(NULLIF(tf.vergi_no, ''), NULLIF(f.vergi_no, '')) as vergi_no,
+                      COALESCE(
+                        NULLIF(tf.teklif_toplami, 0),
+                        (SELECT SUM(kt.birim_fiyat * k.miktar)
+                         FROM DATA_TeminKalemTeklif kt
+                         JOIN DATA_TeminKalem k ON kt.temin_kalem_id = k.id
+                         WHERE kt.temin_firma_id = tf.id AND kt.temin_dosya_id = ?)
+                      ) as effective_teklif,
+                      tf.yasaklilik_durumu
                FROM DATA_TeminFirma tf
-               JOIN TANIM_Firma f ON tf.firma_id = f.id
-               WHERE tf.temin_dosya_id = ? AND tf.teklif_toplami > 0
-               ORDER BY tf.teklif_toplami ASC LIMIT 1`,
-              [activeDosyaId]
+               LEFT JOIN TANIM_Firma f ON tf.firma_id = f.id
+               WHERE tf.temin_dosya_id = ? AND tf.aktif_mi = 1
+               ORDER BY (CASE WHEN tf.kazanan_mi = 1 THEN 0 ELSE 1 END),
+                        CASE WHEN effective_teklif > 0 THEN effective_teklif ELSE 999999999 END ASC
+               LIMIT 1`,
+              [activeDosyaId, activeDosyaId]
             )
             if (autoLowestRes.success && autoLowestRes.data?.length > 0) {
               const lowest = autoLowestRes.data[0]
-              effectiveFirmaId = lowest.firma_id
-              effectiveUnvan = lowest.unvan
-              effectiveVergiNo = lowest.vergi_no
+              effectiveFirmaId = lowest.firma_id || lowest.temin_firma_id
+              effectiveUnvan = lowest.unvan || ''
+              effectiveVergiNo = lowest.vergi_no || null
               await window.electron.ipcRenderer.invoke(
                 'db:run',
                 'UPDATE DATA_TeminDosyasi SET firma_id = ? WHERE id = ?',
-                [lowest.firma_id, activeDosyaId]
+                [effectiveFirmaId, activeDosyaId]
               )
             }
           }
@@ -111,13 +123,17 @@ export function KabulVeOdeme(): React.JSX.Element {
           if (effectiveFirmaId) {
             const teklifRes = await window.electron.ipcRenderer.invoke(
               'db:query',
-              `SELECT tf.teklif_toplami, tf.yasaklilik_durumu
+              `SELECT tf.teklif_toplami, tf.yasaklilik_durumu,
+                      (SELECT SUM(kt.birim_fiyat * k.miktar)
+                       FROM DATA_TeminKalemTeklif kt
+                       JOIN DATA_TeminKalem k ON kt.temin_kalem_id = k.id
+                       WHERE kt.temin_firma_id = tf.id AND kt.temin_dosya_id = ?) as calculated_teklif
                FROM DATA_TeminFirma tf
-               WHERE tf.temin_dosya_id = ? AND tf.firma_id = ?`,
-              [activeDosyaId, effectiveFirmaId]
+               WHERE tf.temin_dosya_id = ? AND (tf.firma_id = ? OR tf.id = ?)`,
+              [activeDosyaId, activeDosyaId, effectiveFirmaId, effectiveFirmaId]
             )
             if (teklifRes.success && teklifRes.data?.length > 0) {
-              teklifToplami = teklifRes.data[0].teklif_toplami
+              teklifToplami = teklifRes.data[0].teklif_toplami || teklifRes.data[0].calculated_teklif || null
               yasaklilikDurumu = teklifRes.data[0].yasaklilik_durumu
             }
           }

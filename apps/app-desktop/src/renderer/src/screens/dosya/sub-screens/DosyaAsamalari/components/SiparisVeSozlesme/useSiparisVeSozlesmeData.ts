@@ -69,24 +69,37 @@ export function useSiparisVeSozlesmeData() {
             } catch (e) {}
           }
 
-          if (!effectiveFirmaId) {
+          if (!effectiveFirmaId || !effectiveUnvan) {
             const autoLowestRes = await window.electron.ipcRenderer.invoke(
               'db:query',
-              `SELECT tf.firma_id, f.unvan, f.vergi_no, tf.teklif_toplami, tf.yasaklilik_durumu
+              `SELECT tf.firma_id, tf.id as temin_firma_id,
+                      COALESCE(NULLIF(tf.unvan, ''), NULLIF(f.unvan, ''), 'İstekli Firma') as unvan,
+                      COALESCE(NULLIF(tf.vergi_no, ''), NULLIF(f.vergi_no, '')) as vergi_no,
+                      COALESCE(
+                        NULLIF(tf.teklif_toplami, 0),
+                        (SELECT SUM(kt.birim_fiyat * k.miktar)
+                         FROM DATA_TeminKalemTeklif kt
+                         JOIN DATA_TeminKalem k ON kt.temin_kalem_id = k.id
+                         WHERE kt.temin_firma_id = tf.id AND kt.temin_dosya_id = ?)
+                      ) as effective_teklif,
+                      tf.yasaklilik_durumu
                FROM DATA_TeminFirma tf
-               JOIN TANIM_Firma f ON tf.firma_id = f.id
-               WHERE tf.dosya_id = ? AND tf.teklif_toplami > 0
-               ORDER BY tf.teklif_toplami ASC LIMIT 1`,
-              [activeDosyaId]
+               LEFT JOIN TANIM_Firma f ON tf.firma_id = f.id
+               WHERE tf.temin_dosya_id = ? AND tf.aktif_mi = 1
+               ORDER BY (CASE WHEN tf.kazanan_mi = 1 THEN 0 ELSE 1 END),
+                        CASE WHEN effective_teklif > 0 THEN effective_teklif ELSE 999999999 END ASC
+               LIMIT 1`,
+              [activeDosyaId, activeDosyaId]
             )
             if (
               autoLowestRes.success &&
               autoLowestRes.data &&
               autoLowestRes.data.length > 0
             ) {
-              effectiveFirmaId = autoLowestRes.data[0].firma_id
-              effectiveUnvan = autoLowestRes.data[0].unvan || ''
-              effectiveVergiNo = autoLowestRes.data[0].vergi_no || null
+              const lowest = autoLowestRes.data[0]
+              effectiveFirmaId = lowest.firma_id || lowest.temin_firma_id
+              effectiveUnvan = lowest.unvan || ''
+              effectiveVergiNo = lowest.vergi_no || null
 
               await window.electron.ipcRenderer.invoke(
                 'db:run',
@@ -104,18 +117,24 @@ export function useSiparisVeSozlesmeData() {
           if (effectiveFirmaId) {
             const tfRes = await window.electron.ipcRenderer.invoke(
               'db:query',
-              `SELECT teklif_toplami, yasaklilik_durumu FROM DATA_TeminFirma WHERE dosya_id = ? AND firma_id = ?`,
-              [activeDosyaId, effectiveFirmaId]
+              `SELECT tf.teklif_toplami, tf.yasaklilik_durumu,
+                      (SELECT SUM(kt.birim_fiyat * k.miktar)
+                       FROM DATA_TeminKalemTeklif kt
+                       JOIN DATA_TeminKalem k ON kt.temin_kalem_id = k.id
+                       WHERE kt.temin_firma_id = tf.id AND kt.temin_dosya_id = ?) as calculated_teklif
+               FROM DATA_TeminFirma tf
+               WHERE tf.temin_dosya_id = ? AND (tf.firma_id = ? OR tf.id = ?)`,
+              [activeDosyaId, activeDosyaId, effectiveFirmaId, effectiveFirmaId]
             )
             if (tfRes.success && tfRes.data && tfRes.data.length > 0) {
-              teklifToplami = tfRes.data[0].teklif_toplami
+              teklifToplami = tfRes.data[0].teklif_toplami || tfRes.data[0].calculated_teklif || null
               yasaklilikDurumu = tfRes.data[0].yasaklilik_durumu
             }
           }
 
           const firmCountRes = await window.electron.ipcRenderer.invoke(
             'db:query',
-            `SELECT COUNT(*) as cnt FROM DATA_TeminFirma WHERE dosya_id = ?`,
+            `SELECT COUNT(*) as cnt FROM DATA_TeminFirma WHERE temin_dosya_id = ? AND aktif_mi = 1`,
             [activeDosyaId]
           )
           const istekliFirmaSayisi =

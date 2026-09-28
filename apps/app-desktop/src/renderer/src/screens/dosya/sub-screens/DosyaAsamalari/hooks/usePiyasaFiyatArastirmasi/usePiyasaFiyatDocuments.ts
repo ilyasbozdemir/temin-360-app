@@ -69,30 +69,44 @@ export function usePiyasaFiyatDocuments(
           [tutanakTarihi || null, activeDosyaId]
         )
 
-        if (setLowestFirmAsWinner) {
-          let lowestBidFirmMasterId: number | null = null
-          let minTotalBid = Infinity
-          invitedFirms.forEach((f) => {
-            if (f.teklif_toplami && f.teklif_toplami > 0 && f.teklif_toplami < minTotalBid) {
-              minTotalBid = f.teklif_toplami
-              lowestBidFirmMasterId = f.firma_id
-            }
+        let lowestBidFirmMasterId: number | null = null
+        let minTotalBid = Infinity
+        invitedFirms.forEach((f) => {
+          let sum = 0
+          items.forEach((k) => {
+            const price =
+              bids[`${k.id}_${f.id}`] ||
+              bids[`${k.id}_${f.firma_id}`] ||
+              (f.temin_firma_id ? bids[`${k.id}_${f.temin_firma_id}`] : 0) ||
+              0
+            sum += price * (k.miktar || 0)
           })
-
-          if (lowestBidFirmMasterId) {
-            await window.electron.ipcRenderer.invoke(
-              'db:run',
-              'UPDATE DATA_TeminDosyasi SET firma_id = ? WHERE id = ?',
-              [lowestBidFirmMasterId, activeDosyaId]
-            )
-            setManualWinnerFirmaId(lowestBidFirmMasterId)
+          const effectiveTotal = sum > 0 ? sum : f.teklif_toplami || 0
+          if (effectiveTotal > 0 && effectiveTotal < minTotalBid) {
+            minTotalBid = effectiveTotal
+            lowestBidFirmMasterId = f.firma_id || f.id
           }
-        } else if (manualWinnerFirmaId) {
+        })
+
+        const winnerToSet =
+          (!setLowestFirmAsWinner && manualWinnerFirmaId)
+            ? manualWinnerFirmaId
+            : lowestBidFirmMasterId || (invitedFirms[0] ? (invitedFirms[0].firma_id || invitedFirms[0].id) : null)
+
+        if (winnerToSet) {
           await window.electron.ipcRenderer.invoke(
             'db:run',
             'UPDATE DATA_TeminDosyasi SET firma_id = ? WHERE id = ?',
-            [manualWinnerFirmaId, activeDosyaId]
+            [winnerToSet, activeDosyaId]
           )
+          await window.electron.ipcRenderer.invoke(
+            'db:run',
+            `UPDATE DATA_TeminFirma 
+             SET kazanan_mi = CASE WHEN firma_id = ? OR id = ? THEN 1 ELSE 0 END 
+             WHERE temin_dosya_id = ?`,
+            [winnerToSet, winnerToSet, activeDosyaId]
+          )
+          setManualWinnerFirmaId(winnerToSet)
         }
       }
 
