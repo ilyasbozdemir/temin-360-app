@@ -25,6 +25,11 @@ interface KurumViewCardProps {
   parentInstitutionLines: string[]
   customMetadata: KeyValuePair[]
   onEditClick: () => void
+  institutionLogo?: string | null
+  logoLeft?: string | null
+  logoRight?: string | null
+  showLogoLeft?: boolean
+  showLogoRight?: boolean
 }
 
 export const KurumViewCard: React.FC<KurumViewCardProps> = ({
@@ -32,9 +37,39 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
   institutionLetterhead,
   parentInstitutionLines,
   customMetadata,
-  onEditClick
+  onEditClick,
+  institutionLogo: propInstitutionLogo,
+  logoLeft: propLogoLeft,
+  logoRight: propLogoRight,
+  showLogoLeft: propShowLogoLeft,
+  showLogoRight: propShowLogoRight
 }) => {
-  const { institutionLogo, logoLeft, logoRight, showLogoLeft, showLogoRight } = useSettingsStore()
+  const storeSettings = useSettingsStore()
+
+  const effectiveInstitutionLogo =
+    propInstitutionLogo !== undefined
+      ? propInstitutionLogo
+      : storeSettings.institutionLogo || data.logo_kurum || null
+
+  const effectiveLogoLeft =
+    propLogoLeft !== undefined
+      ? propLogoLeft
+      : storeSettings.logoLeft || data.logo_sol || null
+
+  const effectiveLogoRight =
+    propLogoRight !== undefined
+      ? propLogoRight
+      : storeSettings.logoRight || data.logo_sag || null
+
+  const effectiveShowLogoLeft =
+    propShowLogoLeft !== undefined
+      ? propShowLogoLeft
+      : storeSettings.showLogoLeft !== false
+
+  const effectiveShowLogoRight =
+    propShowLogoRight !== undefined
+      ? propShowLogoRight
+      : storeSettings.showLogoRight !== false
 
   const [copiedField, setCopiedField] = useState<string | null>(null)
 
@@ -47,9 +82,9 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
 
   // Primary avatar logo for profile header
   const profileAvatar =
-    institutionLogo ||
-    logoLeft ||
-    logoRight ||
+    effectiveInstitutionLogo ||
+    effectiveLogoLeft ||
+    effectiveLogoRight ||
     (data as Record<string, any>)?.kurum_logo ||
     (data as Record<string, any>)?.logo_url ||
     null
@@ -168,15 +203,20 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
             <div className="flex items-center gap-2.5 p-2 rounded-2xl bg-slate-800/80 border border-slate-700/60 backdrop-blur-md self-start md:self-end">
               {/* Sol Logo Mini Preview */}
               <div className="flex flex-col items-center gap-1">
-                <div className="w-11 h-11 rounded-xl bg-slate-900/90 border border-slate-700 flex items-center justify-center p-1 overflow-hidden" title="Resmi Belge Sol Logosu">
-                  {logoLeft ? (
-                    <img src={logoLeft} alt="Sol Logo" className="w-full h-full object-contain" />
+                <div
+                  className="w-11 h-11 rounded-xl bg-slate-900/90 border border-slate-700 flex items-center justify-center p-1 overflow-hidden"
+                  title="Resmi Belge Sol Logosu"
+                >
+                  {effectiveLogoLeft ? (
+                    <img src={effectiveLogoLeft} alt="Sol Logo" className="w-full h-full object-contain" />
                   ) : (
                     <ImageIcon className="w-4 h-4 text-slate-500" />
                   )}
                 </div>
-                <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${showLogoLeft ? 'text-emerald-400 bg-emerald-950/60' : 'text-slate-500 bg-slate-900'}`}>
-                  {showLogoLeft ? 'Sol: Açık' : 'Sol: Kapalı'}
+                <span
+                  className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${effectiveShowLogoLeft ? 'text-emerald-400 bg-emerald-950/60' : 'text-slate-500 bg-slate-900'}`}
+                >
+                  {effectiveShowLogoLeft ? 'Sol: Açık' : 'Sol: Kapalı'}
                 </span>
               </div>
 
@@ -184,15 +224,20 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
 
               {/* Sağ Logo Mini Preview */}
               <div className="flex flex-col items-center gap-1">
-                <div className="w-11 h-11 rounded-xl bg-slate-900/90 border border-slate-700 flex items-center justify-center p-1 overflow-hidden" title="Resmi Belge Sağ Logosu (Bakanlık)">
-                  {logoRight ? (
-                    <img src={logoRight} alt="Sağ Logo" className="w-full h-full object-contain" />
+                <div
+                  className="w-11 h-11 rounded-xl bg-slate-900/90 border border-slate-700 flex items-center justify-center p-1 overflow-hidden"
+                  title="Resmi Belge Sağ Logosu (Bakanlık)"
+                >
+                  {effectiveLogoRight ? (
+                    <img src={effectiveLogoRight} alt="Sağ Logo" className="w-full h-full object-contain" />
                   ) : (
                     <ImageIcon className="w-4 h-4 text-slate-500" />
                   )}
                 </div>
-                <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${showLogoRight ? 'text-emerald-400 bg-emerald-950/60' : 'text-slate-500 bg-slate-900'}`}>
-                  {showLogoRight ? 'Sağ: Açık' : 'Sağ: Kapalı'}
+                <span
+                  className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${effectiveShowLogoRight ? 'text-emerald-400 bg-emerald-950/60' : 'text-slate-500 bg-slate-900'}`}
+                >
+                  {effectiveShowLogoRight ? 'Sağ: Açık' : 'Sağ: Kapalı'}
                 </span>
               </div>
             </div>
@@ -203,7 +248,7 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* 📄 CANLI RESMİ EVRAK BAŞLIĞI & ANTET ÖNİZLEMESİ                */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-5 shadow-xs space-y-3">
+      <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-5 shadow-xs space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
@@ -224,14 +269,14 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
         </div>
 
         {/* Mock A4 Paper Header */}
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 p-6 flex items-center justify-between gap-6 min-h-[110px] shadow-inner">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 p-6 flex items-center justify-between gap-6 min-h-28 shadow-inner">
           {/* Left Logo Slot */}
           <div className="w-20 sm:w-24 h-16 flex items-center justify-center shrink-0">
-            {showLogoLeft && logoLeft ? (
-              <img src={logoLeft} alt="Sol Logo" className="max-h-16 max-w-full object-contain" />
+            {effectiveShowLogoLeft && effectiveLogoLeft ? (
+              <img src={effectiveLogoLeft} alt="Sol Logo" className="max-h-16 max-w-full object-contain" />
             ) : (
               <div className="w-full h-full rounded-lg border border-dashed border-slate-300 dark:border-slate-750 flex flex-col items-center justify-center text-[10px] text-slate-400 p-1 text-center">
-                <span>{showLogoLeft ? 'Sol Logo Yok' : 'Sol Kapalı'}</span>
+                <span>{effectiveShowLogoLeft ? 'Sol Logo Yok' : 'Sol Kapalı'}</span>
               </div>
             )}
           </div>
@@ -240,7 +285,10 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
           <div className="flex-1 text-center font-serif text-xs sm:text-sm leading-relaxed text-slate-900 dark:text-slate-100 space-y-0.5">
             {hasLetterhead ? (
               institutionLetterhead.map((line, idx) => (
-                <div key={idx} className={idx === 0 ? 'font-bold uppercase tracking-wide' : 'font-semibold'}>
+                <div
+                  key={idx}
+                  className={idx === 0 ? 'font-bold uppercase tracking-wide' : 'font-semibold'}
+                >
                   {line}
                 </div>
               ))
@@ -253,13 +301,76 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
 
           {/* Right Logo Slot */}
           <div className="w-20 sm:w-24 h-16 flex items-center justify-center shrink-0">
-            {showLogoRight && logoRight ? (
-              <img src={logoRight} alt="Sağ Logo" className="max-h-16 max-w-full object-contain" />
+            {effectiveShowLogoRight && effectiveLogoRight ? (
+              <img src={effectiveLogoRight} alt="Sağ Logo" className="max-h-16 max-w-full object-contain" />
             ) : (
               <div className="w-full h-full rounded-lg border border-dashed border-slate-300 dark:border-slate-750 flex flex-col items-center justify-center text-[10px] text-slate-400 p-1 text-center">
-                <span>{showLogoRight ? 'Sağ Logo Yok' : 'Sağ Kapalı'}</span>
+                <span>{effectiveShowLogoRight ? 'Sağ Logo Yok' : 'Sağ Kapalı'}</span>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* 3'lü Logo Kartları Özeti */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+          {/* Sol Logo Kartı */}
+          <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 flex items-center gap-3">
+            <div className="w-12 h-12 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-1 shrink-0 overflow-hidden shadow-xs">
+              {effectiveLogoLeft ? (
+                <img src={effectiveLogoLeft} alt="Sol Logo" className="max-h-full max-w-full object-contain" />
+              ) : (
+                <ImageIcon className="w-5 h-5 text-slate-400" />
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[11px] font-bold text-slate-850 dark:text-slate-200 truncate">Sol Logo (Kurum)</div>
+              <div className="text-[10px] text-slate-400">Belge Sol Üst</div>
+              <div className="mt-1">
+                <span className={`inline-block text-[9px] font-bold px-1.5 py-0.5 rounded ${effectiveShowLogoLeft ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}>
+                  {effectiveShowLogoLeft ? 'Belgelerde Aktif' : 'Belgelerde Pasif'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Uygulama Logosu Kartı */}
+          <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 flex items-center gap-3">
+            <div className="w-12 h-12 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-1 shrink-0 overflow-hidden shadow-xs">
+              {effectiveInstitutionLogo ? (
+                <img src={effectiveInstitutionLogo} alt="Uygulama Logosu" className="max-h-full max-w-full object-contain" />
+              ) : (
+                <Building2 className="w-5 h-5 text-blue-500" />
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[11px] font-bold text-slate-850 dark:text-slate-200 truncate">Uygulama Logosu</div>
+              <div className="text-[10px] text-slate-400">Giriş & Menü Arması</div>
+              <div className="mt-1">
+                <span className="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded text-blue-600 bg-blue-50 dark:bg-blue-950/60 dark:text-blue-300">
+                  {effectiveInstitutionLogo ? 'Özel Logo Yüklü' : 'Varsayılan İkon'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Sağ Logo Kartı */}
+          <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 flex items-center gap-3">
+            <div className="w-12 h-12 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-1 shrink-0 overflow-hidden shadow-xs">
+              {effectiveLogoRight ? (
+                <img src={effectiveLogoRight} alt="Sağ Logo" className="max-h-full max-w-full object-contain" />
+              ) : (
+                <ImageIcon className="w-5 h-5 text-slate-400" />
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[11px] font-bold text-slate-850 dark:text-slate-200 truncate">Sağ Logo (Bakanlık)</div>
+              <div className="text-[10px] text-slate-400">Belge Sağ Üst</div>
+              <div className="mt-1">
+                <span className={`inline-block text-[9px] font-bold px-1.5 py-0.5 rounded ${effectiveShowLogoRight ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}>
+                  {effectiveShowLogoRight ? 'Belgelerde Aktif' : 'Belgelerde Pasif'}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 

@@ -121,10 +121,30 @@ export default function KurumScreen(): React.JSX.Element {
     else if (pathname === '/projeler') setActiveTab('projeler')
   }, [pathname])
 
+  // Sync logo state when settingsStore changes
+  useEffect(() => {
+    if (defaultInstitutionLogo) setInstitutionLogo(defaultInstitutionLogo)
+  }, [defaultInstitutionLogo])
+  useEffect(() => {
+    if (defaultLogoLeft) setLogoLeft(defaultLogoLeft)
+  }, [defaultLogoLeft])
+  useEffect(() => {
+    if (defaultLogoRight) setLogoRight(defaultLogoRight)
+  }, [defaultLogoRight])
+  useEffect(() => {
+    setShowLogoLeft(defaultShowLogoLeft)
+  }, [defaultShowLogoLeft])
+  useEffect(() => {
+    setShowLogoRight(defaultShowLogoRight)
+  }, [defaultShowLogoRight])
+
   // Sync form when kurumData changes
   useEffect(() => {
     if (kurumData) {
       setLocalData(kurumData)
+      if (kurumData.logo_kurum) setInstitutionLogo((prev) => prev || kurumData.logo_kurum || null)
+      if (kurumData.logo_sol) setLogoLeft((prev) => prev || kurumData.logo_sol || null)
+      if (kurumData.logo_sag) setLogoRight((prev) => prev || kurumData.logo_sag || null)
 
       let parsedLetterhead = ['']
       if (kurumData.kurum_anteti) {
@@ -394,6 +414,11 @@ export default function KurumScreen(): React.JSX.Element {
                   parentInstitutionLines={parentInstitutionLines}
                   customMetadata={customMetadata}
                   onEditClick={() => handleTabChange('idari')}
+                  institutionLogo={institutionLogo}
+                  logoLeft={logoLeft}
+                  logoRight={logoRight}
+                  showLogoLeft={showLogoLeft}
+                  showLogoRight={showLogoRight}
                 />
               ) : (
                 <div className="space-y-6">
