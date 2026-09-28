@@ -165,6 +165,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   setActiveDosyaId: (id) => {
     if (id !== null) {
       sessionStorage.setItem('workspace_dosya_id', id.toString())
+      localStorage.setItem('active_dosya_id', id.toString())
       window.electron.ipcRenderer
         .invoke('db:query', 'SELECT starred_docs FROM DATA_TeminDosyasi WHERE id = ?', [id])
         .then((res: { success: boolean; data?: Array<{ starred_docs?: string }> }) => {
@@ -184,6 +185,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         })
     } else {
       sessionStorage.removeItem('workspace_dosya_id')
+      localStorage.removeItem('active_dosya_id')
       set({ activeDosyaId: null, activeStarredDocs: [] })
     }
   },

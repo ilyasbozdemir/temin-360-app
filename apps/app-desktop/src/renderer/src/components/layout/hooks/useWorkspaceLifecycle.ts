@@ -70,13 +70,22 @@ export function useWorkspaceLifecycle(
     const wpFromHash = hashParams.get('wp')
     const workspacePath = wpFromSearch || wpFromHash
 
-    const dosyaId = searchParams.get('dosyaId') || hashParams.get('dosyaId')
+    const dosyaId =
+      searchParams.get('dosyaId') ||
+      hashParams.get('dosyaId') ||
+      sessionStorage.getItem('workspace_dosya_id') ||
+      localStorage.getItem('active_dosya_id')
+
     if (dosyaId) {
       sessionStorage.setItem('workspace_dosya_id', dosyaId)
+      localStorage.setItem('active_dosya_id', dosyaId)
     }
 
-    if (workspacePath) {
-      const decodedPath = decodeURIComponent(workspacePath)
+    const decodedPath = workspacePath
+      ? decodeURIComponent(workspacePath)
+      : sessionStorage.getItem('workspace_path') || localStorage.getItem('workspace_path')
+
+    if (decodedPath) {
       sessionStorage.setItem('workspace_path', decodedPath)
       sessionStorage.setItem('workspace_auth', 'true')
 
@@ -90,7 +99,7 @@ export function useWorkspaceLifecycle(
       loadActiveMeta()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [isAnyWindowMode])
 
   useEffect(() => {
     if (isAnyWindowMode) return

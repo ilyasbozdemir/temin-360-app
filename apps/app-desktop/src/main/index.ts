@@ -1020,7 +1020,7 @@ if (!gotTheLock && !isMultiInstance) {
     // Opens a tab's content in a separate detached window
     ipcMain.on(
       'tab:open-in-window',
-      (_, data: { path: string; title: string; workspacePath?: string }) => {
+      (_, data: { path: string; title: string; workspacePath?: string; dosyaId?: number }) => {
         const newWindow = new BrowserWindow({
           width: 1000,
           height: 750,
@@ -1050,8 +1050,9 @@ if (!gotTheLock && !isMultiInstance) {
         // Split into pure path and tab-specific query params
         const [purePath, tabQuery] = data.path.split('?')
         const wpParam = data.workspacePath ? '&wp=' + encodeURIComponent(data.workspacePath) : ''
+        const dosyaParam = data.dosyaId ? '&dosyaId=' + data.dosyaId : ''
         const tabQueryParam = tabQuery ? '&' + tabQuery : ''
-        const searchString = '?mode=window' + wpParam + tabQueryParam
+        const searchString = '?mode=window' + wpParam + dosyaParam + tabQueryParam
 
         if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
           // Dev: pure path into hash, all params into search string

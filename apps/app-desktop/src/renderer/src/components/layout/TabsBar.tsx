@@ -48,7 +48,7 @@ const tabIcons: Record<string, LucideIcon> = {
 
 export function TabsBar(): React.JSX.Element {
   const { tabs, activeTabPath, closeTab, setActiveTab } = useTabStore()
-  const { activeFilePath } = useWorkspaceStore()
+  const { activeFilePath, activeDosyaId } = useWorkspaceStore()
   const navigate = useNavigate()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
@@ -84,7 +84,8 @@ export function TabsBar(): React.JSX.Element {
     window.electron?.ipcRenderer.send('tab:open-in-window', {
       path,
       title: label,
-      workspacePath: activeFilePath || undefined
+      workspacePath: activeFilePath || undefined,
+      dosyaId: activeDosyaId || undefined
     })
   }
 
