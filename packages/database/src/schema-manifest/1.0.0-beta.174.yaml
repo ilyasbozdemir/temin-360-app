@@ -1,0 +1,10 @@
+app: '1.0.0-beta.174'
+schema_min: 1
+schema_max: 35
+release_date: '2026-09-28'
+changes:
+  - schema: 35
+    type: 'fix'
+    description: 'Kurum profili canlı A4 antet ve logo entegrasyonu güçlendirildi; Sol Logo (Kurum), Sağ Logo (Bakanlık/Makam) ve Uygulama logosu önizleme ve aktiflik durumları görsel kartlarla sunuldu; Kurum sekmesi ve profil kartı render senkronizasyonu düzeltildi'
+    tables_added: []
+    columns_added: []
