@@ -20,13 +20,12 @@ export function ButceSorgusu({
     Array.isArray(data.butceTertibi) && data.butceTertibi.length > 0
       ? data.butceTertibi
       : data.butceTertibi
-        ? [String(data.butceTertibi)]
-        : data.butceKodu
-          ? [String(data.butceKodu)]
-          : [];
+      ? [String(data.butceTertibi)]
+      : data.butceKodu
+      ? [String(data.butceKodu)]
+      : [];
 
-  const kurumAdi =
-    data.kurumAdi ||
+  const kurumAdi = data.kurumAdi ||
     data.idareAdi ||
     (data.antetSatirlari && data.antetSatirlari[0]) ||
     "İDARE";
@@ -49,9 +48,6 @@ export function ButceSorgusu({
           lineHeight: 1.5,
         }}
       >
-        {/* ANTET */}
-        <DocumentHeader data={data as any} />
-
         {/* META ROW */}
         <div
           style={{
@@ -65,19 +61,41 @@ export function ButceSorgusu({
             <table style={{ borderCollapse: "collapse" }}>
               <tbody>
                 <tr>
-                  <td style={{ fontWeight: "bold", paddingRight: "8px", verticalAlign: "top" }}>
+                  <td
+                    style={{
+                      fontWeight: "bold",
+                      paddingRight: "8px",
+                      verticalAlign: "top",
+                    }}
+                  >
                     Sayı
                   </td>
                   <td style={{ verticalAlign: "top" }}>
-                    : <EditableField name="evrakSayisi" value={data.evrakSayisi} placeholder="E-00000000-934.01-0001" />
+                    :{" "}
+                    <EditableField
+                      name="evrakSayisi"
+                      value={data.evrakSayisi}
+                      placeholder="E-00000000-934.01-0001"
+                    />
                   </td>
                 </tr>
                 <tr>
-                  <td style={{ fontWeight: "bold", paddingRight: "8px", verticalAlign: "top" }}>
+                  <td
+                    style={{
+                      fontWeight: "bold",
+                      paddingRight: "8px",
+                      verticalAlign: "top",
+                    }}
+                  >
                     Konu
                   </td>
                   <td style={{ verticalAlign: "top" }}>
-                    : <EditableField name="konu" value={data.konu || "Bütçe Sorgusu"} placeholder="Konu" />
+                    :{" "}
+                    <EditableField
+                      name="konu"
+                      value={data.konu || "Bütçe Sorgusu"}
+                      placeholder="Konu"
+                    />
                   </td>
                 </tr>
               </tbody>
@@ -106,7 +124,8 @@ export function ButceSorgusu({
         >
           <EditableField
             name="muhatapBirim"
-            value={data.muhatapBirim || "STRATEJİ GELİŞTİRME DAİRE BAŞKANLIĞINA"}
+            value={data.muhatapBirim ||
+              "STRATEJİ GELİŞTİRME DAİRE BAŞKANLIĞINA"}
             placeholder="Muhatap Birim"
           />
         </div>
@@ -127,11 +146,18 @@ export function ButceSorgusu({
             placeholder="İşin Adı"
             style={{ fontWeight: "bold" }}
           />
-          &quot; işine ait ihtiyacın, 4734 Sayılı Kanun’un 22/d maddesine göre karşılanabilmesi amacıyla
-          bütçesindeki kullanılabilir ödenek miktarı ve bütçe tertibinin bildirilmesi hususunda;
+          &quot; işine ait ihtiyacın, 4734 Sayılı Kanun’un 22/d maddesine göre
+          karşılanabilmesi amacıyla bütçesindeki kullanılabilir ödenek miktarı
+          ve bütçe tertibinin bildirilmesi hususunda;
         </div>
 
-        <div style={{ textIndent: "35px", textAlign: "justify", marginTop: "12px" }}>
+        <div
+          style={{
+            textIndent: "35px",
+            textAlign: "justify",
+            marginTop: "12px",
+          }}
+        >
           Gereğini rica ederim.
         </div>
 
@@ -155,7 +181,8 @@ export function ButceSorgusu({
           <div style={{ fontSize: "10pt", color: "#333" }}>
             <EditableField
               name="hazirlayanPersonelUnvan"
-              value={data.hazirlayanPersonelUnvan || data.piyasaGorevlisi1Unvani || "Şube Müdürü"}
+              value={data.hazirlayanPersonelUnvan ||
+                data.piyasaGorevlisi1Unvani || "Şube Müdürü"}
               placeholder="Ünvan"
             />
           </div>
@@ -164,7 +191,13 @@ export function ButceSorgusu({
         <div style={{ clear: "both" }}></div>
 
         {/* BUDGET INFO SECTION */}
-        <div style={{ marginTop: "40px", borderTop: "1px dashed #ccc", paddingTop: "15px" }}>
+        <div
+          style={{
+            marginTop: "40px",
+            borderTop: "1px dashed #ccc",
+            paddingTop: "15px",
+          }}
+        >
           <table
             style={{
               borderCollapse: "collapse",
@@ -175,14 +208,22 @@ export function ButceSorgusu({
           >
             <tbody>
               <tr>
-                <td style={{ fontWeight: "bold", width: "160px", padding: "3px 5px" }}>
+                <td
+                  style={{
+                    fontWeight: "bold",
+                    width: "160px",
+                    padding: "3px 5px",
+                  }}
+                >
                   Bütçe Yılı
                 </td>
                 <td style={{ padding: "3px 5px" }}>:</td>
                 <td style={{ padding: "3px 5px" }}>
                   <EditableField
                     name="butceYili"
-                    value={data.butceYili ? String(data.butceYili) : String(new Date().getFullYear())}
+                    value={data.butceYili
+                      ? String(data.butceYili)
+                      : String(new Date().getFullYear())}
                     placeholder="2026"
                   />
                 </td>
@@ -199,30 +240,44 @@ export function ButceSorgusu({
                 </td>
                 <td style={{ verticalAlign: "top", padding: "3px 5px" }}>:</td>
                 <td style={{ verticalAlign: "top", padding: "3px 5px" }}>
-                  {butceTertibiList.length > 0 ? (
-                    butceTertibiList.map((item: string, idx: number) => (
-                      <div key={idx}>
-                        <EditableField name={`butceTertibi_${idx}`} value={item} placeholder="Bütçe Tertibi" />
-                      </div>
-                    ))
-                  ) : (
-                    <EditableField
-                      name="butceTertibi_0"
-                      value={data.butceKodu || "-"}
-                      placeholder="Bütçe Tertibi"
-                    />
-                  )}
+                  {butceTertibiList.length > 0
+                    ? (
+                      butceTertibiList.map((item: string, idx: number) => (
+                        <div key={idx}>
+                          <EditableField
+                            name={`butceTertibi_${idx}`}
+                            value={item}
+                            placeholder="Bütçe Tertibi"
+                          />
+                        </div>
+                      ))
+                    )
+                    : (
+                      <EditableField
+                        name="butceTertibi_0"
+                        value={data.butceKodu || "-"}
+                        placeholder="Bütçe Tertibi"
+                      />
+                    )}
                 </td>
               </tr>
               <tr>
-                <td style={{ fontWeight: "bold", width: "160px", padding: "3px 5px" }}>
+                <td
+                  style={{
+                    fontWeight: "bold",
+                    width: "160px",
+                    padding: "3px 5px",
+                  }}
+                >
                   Kullanılabilir Ödenek
                 </td>
                 <td style={{ padding: "3px 5px" }}>:</td>
                 <td style={{ padding: "3px 5px", fontWeight: "bold" }}>
                   <EditableField
                     name="kullanilabilirOdenek"
-                    value={data.kullanilabilirOdenek || data.odenekTutari ? `${data.kullanilabilirOdenek || data.odenekTutari} ₺` : "Yeterli Ödenek Mevcuttur"}
+                    value={data.kullanilabilirOdenek || data.odenekTutari
+                      ? `${data.kullanilabilirOdenek || data.odenekTutari} ₺`
+                      : "Yeterli Ödenek Mevcuttur"}
                     placeholder="0,00 ₺"
                   />
                 </td>
