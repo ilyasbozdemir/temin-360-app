@@ -335,12 +335,12 @@ export default function KurumScreen(): React.JSX.Element {
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                         !isEditMode
                           ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
-                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                       }`}
-                      title="Sekme bazlı form görünümü"
+                      title="Özet profil ve resmi başlık görünümü"
                     >
-                      <Edit3 className="w-3.5 h-3.5" />
-                      <span>Form / Düzenleme</span>
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>Genel Profil & Önizleme</span>
                     </button>
 
                     <button
@@ -349,38 +349,40 @@ export default function KurumScreen(): React.JSX.Element {
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                         isEditMode
                           ? 'bg-blue-600 text-white shadow-xs'
-                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                       }`}
-                      title="Özet profil kartı görünümü"
+                      title="Form ve veri düzenleme modu"
                     >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>Genel Profil Kartı</span>
+                      <Edit3 className="w-3.5 h-3.5" />
+                      <span>Form / Düzenleme</span>
                     </button>
                   </div>
 
-                  <Button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-2 px-5 text-xs font-bold transition-all shadow-md shadow-emerald-500/20 shrink-0 cursor-pointer"
-                  >
-                    <Save className="w-3.5 h-3.5" />
-                    {saving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
-                  </Button>
+                  {isEditMode && (
+                    <Button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-2 px-5 text-xs font-bold transition-all shadow-md shadow-emerald-500/20 shrink-0 cursor-pointer"
+                    >
+                      <Save className="w-3.5 h-3.5" />
+                      {saving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
+                    </Button>
+                  )}
                 </div>
               </div>
 
-              {/* Main Content: Edit Form vs Full Card View */}
-              {isEditMode ? (
+              {/* Main Content: Full Card View vs Edit Form */}
+              {!isEditMode ? (
                 <KurumViewCard
                   data={localData}
                   institutionLetterhead={institutionLetterhead}
                   parentInstitutionLines={parentInstitutionLines}
                   customMetadata={customMetadata}
-                  onEditClick={() => setIsEditMode(false)}
+                  onEditClick={() => setIsEditMode(true)}
                 />
               ) : (
                 <div className="space-y-6">
-                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm min-h-[400px]">
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm min-h-100">
                     {activeTab === 'idari' && (
                       <IdariBilgilerTab
                         data={localData}

@@ -16,13 +16,20 @@ export function ButceSorgusu({
   pageSize = "A4",
   orientation = "portrait",
 }: ButceSorgusuProps) {
-  const butceTertibiList =
-    Array.isArray(data.butceTertibi) && data.butceTertibi.length > 0
+  const butceTertibiVal =
+    data.odenekTertibi !== undefined
+      ? data.odenekTertibi
+      : data.butceTertibi !== undefined
       ? data.butceTertibi
-      : data.butceTertibi
-      ? [String(data.butceTertibi)]
-      : data.butceKodu
-      ? [String(data.butceKodu)]
+      : data.butceKodu !== undefined
+      ? data.butceKodu
+      : "";
+
+  const butceTertibiList =
+    Array.isArray(butceTertibiVal) && butceTertibiVal.length > 0
+      ? butceTertibiVal
+      : butceTertibiVal && String(butceTertibiVal).trim() !== "" && String(butceTertibiVal).trim() !== "-"
+      ? [String(butceTertibiVal)]
       : [];
 
   const kurumAdi = data.kurumAdi ||
@@ -74,7 +81,7 @@ export function ButceSorgusu({
                     :{" "}
                     <EditableField
                       name="evrakSayisi"
-                      value={data.evrakSayisi}
+                      value={data.evrakSayisi || ""}
                       placeholder="E-00000000-934.01-0001"
                     />
                   </td>
@@ -93,7 +100,7 @@ export function ButceSorgusu({
                     :{" "}
                     <EditableField
                       name="konu"
-                      value={data.konu || "Bütçe Sorgusu"}
+                      value={data.konu !== undefined ? String(data.konu) : "Bütçe Sorgusu"}
                       placeholder="Konu"
                     />
                   </td>
@@ -236,7 +243,7 @@ export function ButceSorgusu({
                 <td style={{ padding: "3px 5px" }}>
                   <EditableField
                     name="butceYili"
-                    value={data.butceYili
+                    value={data.butceYili !== undefined
                       ? String(data.butceYili)
                       : String(new Date().getFullYear())}
                     placeholder="2026"
@@ -260,18 +267,18 @@ export function ButceSorgusu({
                       butceTertibiList.map((item: string, idx: number) => (
                         <div key={idx}>
                           <EditableField
-                            name={`butceTertibi_${idx}`}
+                            name={idx === 0 ? "odenekTertibi" : `butceTertibi_${idx}`}
                             value={item}
-                            placeholder="Bütçe Tertibi"
+                            placeholder="Örn: 03.2.1.01"
                           />
                         </div>
                       ))
                     )
                     : (
                       <EditableField
-                        name="butceTertibi_0"
-                        value={data.butceKodu || "-"}
-                        placeholder="Bütçe Tertibi"
+                        name="odenekTertibi"
+                        value={typeof butceTertibiVal === "string" && butceTertibiVal !== "-" ? butceTertibiVal : ""}
+                        placeholder="Örn: 03.2.1.01"
                       />
                     )}
                 </td>
@@ -290,10 +297,12 @@ export function ButceSorgusu({
                 <td style={{ padding: "3px 5px", fontWeight: "bold" }}>
                   <EditableField
                     name="kullanilabilirOdenek"
-                    value={data.kullanilabilirOdenek || data.odenekTutari
-                      ? `${data.kullanilabilirOdenek || data.odenekTutari} ₺`
+                    value={data.kullanilabilirOdenek !== undefined
+                      ? String(data.kullanilabilirOdenek)
+                      : data.odenekTutari !== undefined
+                      ? String(data.odenekTutari)
                       : "Yeterli Ödenek Mevcuttur"}
-                    placeholder="0,00 ₺"
+                    placeholder="Yeterli Ödenek Mevcuttur veya Tutar (TL)"
                   />
                 </td>
               </tr>

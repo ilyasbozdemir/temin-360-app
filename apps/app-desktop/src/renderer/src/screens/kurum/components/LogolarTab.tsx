@@ -411,6 +411,49 @@ export function LogolarTab(props: LogolarTabProps): React.ReactElement {
           onSuccess={(msg) => showToast('success', msg)}
         />
       </div>
+
+      {/* Canlı Belge Başlığı & Logo Önizleme Kartı */}
+      <div className="border border-slate-200 dark:border-slate-800 rounded-2xl p-5 bg-slate-50/50 dark:bg-slate-950/30 flex flex-col gap-3 shadow-xs">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+            Resmi Evrak Başlığı & Logo Yerleşimi (Canlı Önizleme)
+          </label>
+          <span className="text-[10px] font-mono text-slate-500">
+            A4 Çıktı Üst Başlığı
+          </span>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 flex items-center justify-between gap-4 min-h-24 shadow-inner">
+          {/* Sol Logo */}
+          <div className="w-20 h-14 flex items-center justify-center shrink-0">
+            {showLogoLeft && logoLeft ? (
+              <img src={logoLeft} alt="Sol Logo" className="max-h-14 max-w-full object-contain" />
+            ) : (
+              <div className="w-full h-full rounded-lg border border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center text-[9px] text-slate-400 text-center p-1">
+                {showLogoLeft ? 'Sol Logo Yok' : 'Sol Kapalı'}
+              </div>
+            )}
+          </div>
+
+          {/* Orta Antet Temsili */}
+          <div className="flex-1 text-center font-serif text-xs leading-tight text-slate-800 dark:text-slate-200 space-y-0.5">
+            <div className="font-bold uppercase text-[11px]">T.C.</div>
+            <div className="font-semibold text-[10px]">İLGİLİ BAKANLIK / KURUM ADI</div>
+            <div className="text-[9px] text-slate-500">Harcama Yetkilisi / Birim Başkanlığı</div>
+          </div>
+
+          {/* Sağ Logo */}
+          <div className="w-20 h-14 flex items-center justify-center shrink-0">
+            {showLogoRight && logoRight ? (
+              <img src={logoRight} alt="Sağ Logo" className="max-h-14 max-w-full object-contain" />
+            ) : (
+              <div className="w-full h-full rounded-lg border border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center text-[9px] text-slate-400 text-center p-1">
+                {showLogoRight ? 'Sağ Logo Yok' : 'Sağ Kapalı'}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

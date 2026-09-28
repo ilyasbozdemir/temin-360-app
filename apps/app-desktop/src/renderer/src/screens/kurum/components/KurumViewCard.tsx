@@ -7,15 +7,15 @@ import {
   Mail,
   Landmark,
   ShieldCheck,
-  FileText,
   Key,
   Sliders,
   CheckCircle2,
   Copy,
-  Check
+  Check,
+  Printer,
+  Image as ImageIcon
 } from 'lucide-react'
 import { KurumVerisi } from '../kurum.hooks'
-import { DetsisBadge } from '../../../components/ui/DetsisBadge'
 import { KeyValuePair, KurumMetadataManager } from './KurumMetadataManager'
 import { useSettingsStore } from '../../../store/settingsStore'
 
@@ -34,208 +34,323 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
   customMetadata,
   onEditClick
 }) => {
-  const { institutionLogo, logoLeft, logoRight } = useSettingsStore()
+  const { institutionLogo, logoLeft, logoRight, showLogoLeft, showLogoRight } = useSettingsStore()
+
   const [copiedField, setCopiedField] = useState<string | null>(null)
 
-  const handleCopy = (text: string | undefined, fieldKey: string) => {
+  const handleCopy = (text: string | undefined, fieldKey: string): void => {
     if (!text || text === '—') return
     navigator.clipboard.writeText(text)
     setCopiedField(fieldKey)
     setTimeout(() => setCopiedField(null), 1800)
   }
 
-  const displayLogo =
+  // Primary avatar logo for profile header
+  const profileAvatar =
     institutionLogo ||
     logoLeft ||
     logoRight ||
-    (data as any)?.kurum_logo ||
-    (data as any)?.logo_url ||
-    ''
+    (data as Record<string, any>)?.kurum_logo ||
+    (data as Record<string, any>)?.logo_url ||
+    null
+
+  const hasLetterhead =
+    institutionLetterhead.length > 0 &&
+    institutionLetterhead.some((l: string): boolean => Boolean(l && l.trim().length > 0))
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200 relative z-0 pb-4">
-      {/* Top Banner Card */}
-      <div className="relative z-10 overflow-visible rounded-2xl bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900 p-6 text-white shadow-xl">
-        <div className="absolute right-0 top-0 -mr-12 -mt-12 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4 flex-1 min-w-0">
-            {displayLogo ? (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/10 dark:bg-slate-900/60 p-2 border border-white/20 backdrop-blur-md shrink-0 flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
-                <img
-                  src={displayLogo}
-                  alt="Kurum Logosu"
-                  className="w-full h-full object-contain drop-shadow-md"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none'
-                  }}
-                />
-              </div>
-            ) : (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-blue-500/20 border border-blue-400/30 backdrop-blur-md shrink-0 flex items-center justify-center text-blue-300 shadow-md">
-                <Building2 className="w-8 h-8" />
-              </div>
-            )}
+    <div className="space-y-6 animate-in fade-in duration-300 relative z-0 pb-6">
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* 🌟 HERO COVER BANNER & INSTITUTION PROFILE HEADER               */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <div className="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800/80 shadow-xl">
+        {/* Cover Photo / Graphic Mesh Gradient */}
+        <div className="relative h-44 sm:h-52 w-full bg-linear-to-r from-slate-950 via-blue-950 to-indigo-950 overflow-hidden">
+          {/* Decorative Mesh Lights & Geometric Patterns */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(59,130,246,0.25),transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(147,51,234,0.2),transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_90%,rgba(16,185,129,0.15),transparent_60%)]" />
+          
+          {/* Subtle Grid Watermark Overlay */}
+          <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#ffffff15_1px,transparent_1px),linear-gradient(to_bottom,#ffffff15_1px,transparent_1px)] bg-[size:24px_24px]" />
 
-            <div className="space-y-2 flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2 relative z-20">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/25 text-blue-200 border border-blue-400/40 text-xs font-bold backdrop-blur-md shadow-2xs">
-                  <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 fill-blue-500/30" />
-                  <span>Aktif Resmi Kurum Profili</span>
+          {/* Top Bar Badges in Cover */}
+          <div className="absolute top-4 left-4 right-4 flex items-center justify-between gap-3 z-10">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 text-blue-300 border border-blue-400/30 text-[11px] font-bold backdrop-blur-md shadow-xs">
+                <CheckCircle2 className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                <span>Resmi Kurum Profili</span>
+              </span>
+
+              {data.detsis_kodu && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/60 text-emerald-300 border border-emerald-400/30 text-[11px] font-bold backdrop-blur-md">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>DETSİS Doğrulandı</span>
                 </span>
-                {data.detsis_kodu && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 text-xs font-bold backdrop-blur-md">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span>DETSİS Entegre ({data.detsis_kodu})</span>
-                  </span>
-                )}
-                <DetsisBadge detsisNo={data.detsis_kodu} showSearchButton={false} />
-              </div>
-
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug break-words flex items-center gap-2">
-                <span>{data.kurum_adi || 'Kurum Adı Tanımlanmamış'}</span>
-                <span title="Resmi Doğrulanmış Profil">
-                  <CheckCircle2 className="w-6 h-6 text-blue-400 shrink-0 inline-block fill-blue-500/30" />
-                </span>
-              </h2>
-
-              {data.makam_adi && (
-                <p className="text-xs text-blue-200/90 font-medium flex items-center gap-2">
-                  <Landmark className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                  <span>Makam / Muhatap:</span>
-                  <strong className="text-white font-semibold">{data.makam_adi}</strong>
-                </p>
               )}
             </div>
-          </div>
 
-          {/* Quick Edit Action */}
-          <button
-            type="button"
-            onClick={onEditClick}
-            className="self-start md:self-center px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40 text-xs font-bold transition-all flex items-center gap-2 backdrop-blur-md shadow-md cursor-pointer shrink-0 hover:scale-105 active:scale-95"
-          >
-            <Edit3 className="w-4 h-4 text-blue-300" />
-            <span>Bilgileri Düzenle</span>
-          </button>
+            {/* Quick Edit Action Button in Cover */}
+            <button
+              type="button"
+              onClick={onEditClick}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white border border-white/20 hover:border-white/40 text-xs font-bold transition-all backdrop-blur-md shadow-md cursor-pointer shrink-0"
+            >
+              <Edit3 className="w-3.5 h-3.5 text-blue-300" />
+              <span>Bilgileri Düzenle</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Profile Info Bar (Overlapping Logo + Title + Quick Badges) */}
+        <div className="relative px-6 pb-6 pt-0 bg-slate-900/95 dark:bg-slate-900/95 border-t border-white/5">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 -mt-14 sm:-mt-16 relative z-10">
+            {/* Left: Floating Avatar Logo + Title info */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 flex-1 min-w-0">
+              {/* Institution Logo Card */}
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white dark:bg-slate-900 p-2.5 border-4 border-slate-900 dark:border-slate-900 shadow-2xl shrink-0 flex items-center justify-center relative group">
+                {profileAvatar ? (
+                  <img
+                    src={profileAvatar}
+                    alt="Kurum Logosu"
+                    className="w-full h-full object-contain drop-shadow-sm transition-transform group-hover:scale-105"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none'
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-xl bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                    <Building2 className="w-10 h-10" />
+                  </div>
+                )}
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-slate-900 flex items-center justify-center" title="Profil Aktif">
+                  <Check className="w-3 h-3 text-white stroke-[3]" />
+                </div>
+              </div>
+
+              {/* Titles & Meta */}
+              <div className="space-y-1.5 flex-1 min-w-0 pb-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight">
+                    {data.kurum_adi || 'Kurum Adı Tanımlanmamış'}
+                  </h1>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-y-1 gap-x-3 text-xs text-slate-300">
+                  {data.makam_adi && (
+                    <span className="inline-flex items-center gap-1 text-blue-300 font-medium">
+                      <Landmark className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                      <span>{data.makam_adi}</span>
+                    </span>
+                  )}
+
+                  {(data.il || data.ilce) && (
+                    <span className="inline-flex items-center gap-1 text-slate-400">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <span>
+                        {data.ilce ? `${data.ilce} / ` : ''}
+                        {data.il || ''}
+                      </span>
+                    </span>
+                  )}
+
+                  {data.detsis_kodu && (
+                    <span className="inline-flex items-center gap-1 text-slate-400 font-mono text-[11px]">
+                      <span className="text-slate-500">DETSİS:</span>
+                      <strong className="text-amber-300 font-semibold">{data.detsis_kodu}</strong>
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Quick Logos Mini-Gallery */}
+            <div className="flex items-center gap-2.5 p-2 rounded-2xl bg-slate-800/80 border border-slate-700/60 backdrop-blur-md self-start md:self-end">
+              {/* Sol Logo Mini Preview */}
+              <div className="flex flex-col items-center gap-1">
+                <div className="w-11 h-11 rounded-xl bg-slate-900/90 border border-slate-700 flex items-center justify-center p-1 overflow-hidden" title="Resmi Belge Sol Logosu">
+                  {logoLeft ? (
+                    <img src={logoLeft} alt="Sol Logo" className="w-full h-full object-contain" />
+                  ) : (
+                    <ImageIcon className="w-4 h-4 text-slate-500" />
+                  )}
+                </div>
+                <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${showLogoLeft ? 'text-emerald-400 bg-emerald-950/60' : 'text-slate-500 bg-slate-900'}`}>
+                  {showLogoLeft ? 'Sol: Açık' : 'Sol: Kapalı'}
+                </span>
+              </div>
+
+              <div className="w-px h-10 bg-slate-700/60" />
+
+              {/* Sağ Logo Mini Preview */}
+              <div className="flex flex-col items-center gap-1">
+                <div className="w-11 h-11 rounded-xl bg-slate-900/90 border border-slate-700 flex items-center justify-center p-1 overflow-hidden" title="Resmi Belge Sağ Logosu (Bakanlık)">
+                  {logoRight ? (
+                    <img src={logoRight} alt="Sağ Logo" className="w-full h-full object-contain" />
+                  ) : (
+                    <ImageIcon className="w-4 h-4 text-slate-500" />
+                  )}
+                </div>
+                <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${showLogoRight ? 'text-emerald-400 bg-emerald-950/60' : 'text-slate-500 bg-slate-900'}`}>
+                  {showLogoRight ? 'Sağ: Açık' : 'Sağ: Kapalı'}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Grid Details */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-        {/* Antet ve Hiyerarşi */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-4 shadow-2xs relative z-10 hover:z-20 transition-all duration-200">
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-            <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-              <FileText className="w-4 h-4 text-blue-600" />
-              Resmi Evrak Anteti & Bağlı Olduğu Kurum
-            </h3>
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* 📄 CANLI RESMİ EVRAK BAŞLIĞI & ANTET ÖNİZLEMESİ                */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-5 shadow-xs space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
+              <Printer className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                Resmi Evrak Anteti & Canlı Başlık Görünümü
+              </h3>
+              <p className="text-[11px] text-slate-400">
+                Resmi yazışma, onay belgesi ve doğrudan temin çıktılarında görünecek üst antet düzeni.
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-mono">
+            A4 Üst Başlık Şablonu
+          </span>
+        </div>
+
+        {/* Mock A4 Paper Header */}
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 p-6 flex items-center justify-between gap-6 min-h-[110px] shadow-inner">
+          {/* Left Logo Slot */}
+          <div className="w-20 sm:w-24 h-16 flex items-center justify-center shrink-0">
+            {showLogoLeft && logoLeft ? (
+              <img src={logoLeft} alt="Sol Logo" className="max-h-16 max-w-full object-contain" />
+            ) : (
+              <div className="w-full h-full rounded-lg border border-dashed border-slate-300 dark:border-slate-750 flex flex-col items-center justify-center text-[10px] text-slate-400 p-1 text-center">
+                <span>{showLogoLeft ? 'Sol Logo Yok' : 'Sol Kapalı'}</span>
+              </div>
+            )}
           </div>
 
-          <div className="space-y-3">
-            <div>
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                Çıktılarda Görünecek Başlık (Antet)
-              </label>
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200/60 dark:border-slate-850 font-serif text-center text-xs leading-relaxed text-slate-800 dark:text-slate-200 space-y-0.5 max-h-48 overflow-y-auto custom-scrollbar">
-                {institutionLetterhead.length > 0 && institutionLetterhead.some((l) => l.trim()) ? (
-                  institutionLetterhead.map((line, idx) => (
-                    <div key={idx} className={idx === 0 ? 'font-bold' : ''}>
-                      {line}
-                    </div>
-                  ))
-                ) : (
-                  <span className="text-slate-400 italic font-sans text-xs">
-                    Antet tanımlanmamış
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {parentInstitutionLines.length > 0 && parentInstitutionLines.some((l) => l.trim()) && (
-              <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                  Üst İdare Hiyerarşisi
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {parentInstitutionLines.map((line, idx) => (
-                    <span
-                      key={idx}
-                      className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700"
-                    >
-                      {line}
-                    </span>
-                  ))}
+          {/* Center: Multi-line Official Letterhead */}
+          <div className="flex-1 text-center font-serif text-xs sm:text-sm leading-relaxed text-slate-900 dark:text-slate-100 space-y-0.5">
+            {hasLetterhead ? (
+              institutionLetterhead.map((line, idx) => (
+                <div key={idx} className={idx === 0 ? 'font-bold uppercase tracking-wide' : 'font-semibold'}>
+                  {line}
                 </div>
+              ))
+            ) : (
+              <div className="text-slate-400 italic font-sans text-xs">
+                Resmi antet metni tanımlanmamış (Düzenleme Modundan antet satırlarını ekleyin).
+              </div>
+            )}
+          </div>
+
+          {/* Right Logo Slot */}
+          <div className="w-20 sm:w-24 h-16 flex items-center justify-center shrink-0">
+            {showLogoRight && logoRight ? (
+              <img src={logoRight} alt="Sağ Logo" className="max-h-16 max-w-full object-contain" />
+            ) : (
+              <div className="w-full h-full rounded-lg border border-dashed border-slate-300 dark:border-slate-750 flex flex-col items-center justify-center text-[10px] text-slate-400 p-1 text-center">
+                <span>{showLogoRight ? 'Sağ Logo Yok' : 'Sağ Kapalı'}</span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Kurum Tipi & Mevzuat Şablonu */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-4 shadow-2xs relative z-10 hover:z-20 transition-all duration-200">
+        {parentInstitutionLines.length > 0 && parentInstitutionLines.some((l) => l.trim()) && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            <span className="text-[10px] font-bold text-slate-400 uppercase mr-1">Hiyerarşi:</span>
+            {parentInstitutionLines.map((line, idx) => (
+              <span
+                key={idx}
+                className="text-[11px] font-medium px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700"
+              >
+                {line}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* 📊 RESMİ BİLGİ KARTLARI (3'LÜ / 2'Lİ RESPONSIVE GRID)           */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* KART 1: Kurum Tipi & Mevzuat Şablonu */}
+        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 space-y-4 shadow-xs hover:border-blue-300 dark:hover:border-blue-700 transition-colors">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
             <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-              <Sliders className="w-4 h-4 text-amber-600" />
-              Kurum Tipi & Limit Şablonu
+              <Sliders className="w-4 h-4 text-amber-500" />
+              Mevzuat & Bütçeleme
             </h3>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
+              KİK 4734
+            </span>
           </div>
 
-          <div className="space-y-3 text-xs">
+          <div className="space-y-2.5 text-xs">
             <div className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850">
               <span className="text-slate-500 font-medium">Bütçeleme Tipi:</span>
               <span className="font-bold text-slate-800 dark:text-slate-200 uppercase">
-                {data.kurum_tipi || 'Belirtilmedi'}
+                {data.kurum_tipi || 'Genel Bütçe'}
               </span>
             </div>
 
             <div className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850">
               <span className="text-slate-500 font-medium">Finansman Kodu:</span>
-              <span className="font-bold text-blue-600 dark:text-blue-400 font-mono">
+              <span className="font-bold text-blue-600 dark:text-blue-400 font-mono px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/50">
                 {data.finansman_kodu || '5'}
               </span>
             </div>
 
             <div className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850">
-              <span className="text-slate-500 font-medium">
-                Doğrudan Temin Limit Sınırı (22/d):
-              </span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400">
+              <span className="text-slate-500 font-medium">22/d Limit Sınırı:</span>
+              <span className="font-bold text-emerald-600 dark:text-emerald-400 text-right">
                 {data.limit_tipi === 'buyuksehir'
-                  ? 'Büyükşehir Belediyesi Sınırları'
-                  : 'Diğer İdareler (Diğer)'}
+                  ? 'Büyükşehir Sınırları'
+                  : 'Diğer İdareler'}
               </span>
             </div>
           </div>
         </div>
 
-        {/* İletişim ve Konum Özeti */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-4 shadow-2xs relative z-10 hover:z-20 transition-all duration-200">
+        {/* KART 2: İletişim, Konum & Hızlı Kopyalama */}
+        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 space-y-4 shadow-xs hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
             <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-emerald-600" />
-              İletişim & Adres Bilgileri
+              <MapPin className="w-4 h-4 text-emerald-500" />
+              İletişim & Konum
             </h3>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
+              Tebligat
+            </span>
           </div>
 
-          <div className="space-y-2 text-xs">
-            <div className="flex items-start gap-2 text-slate-700 dark:text-slate-300">
+          <div className="space-y-2.5 text-xs">
+            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 text-slate-700 dark:text-slate-300 flex items-start gap-2">
               <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-              <span>
-                {data.adres ? `${data.adres} ` : ''}
+              <span className="leading-snug">
+                {data.adres ? `${data.adres}, ` : ''}
                 {data.ilce ? `${data.ilce} / ` : ''}
-                {data.il || <span className="text-slate-400 italic">Adres bilgisi girilmedi</span>}
+                {data.il || <span className="text-slate-400 italic">Adres girilmedi</span>}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 pt-2">
+            <div className="grid grid-cols-2 gap-2">
               <div
                 onClick={() => handleCopy(data.telefon, 'telefon')}
-                className="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 text-slate-700 dark:text-slate-300 cursor-pointer hover:border-blue-300 transition-colors group"
+                className="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 text-slate-700 dark:text-slate-300 cursor-pointer hover:border-emerald-400 transition-colors group"
                 title="Kopyalamak için tıklayın"
               >
                 <div className="flex items-center gap-1.5 truncate">
                   <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span className="truncate">{data.telefon || '—'}</span>
+                  <span className="truncate font-mono text-[11px]">{data.telefon || '—'}</span>
                 </div>
                 {copiedField === 'telefon' ? (
                   <Check className="w-3 h-3 text-emerald-500 shrink-0" />
@@ -246,12 +361,12 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
 
               <div
                 onClick={() => handleCopy(data.eposta, 'eposta')}
-                className="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 text-slate-700 dark:text-slate-300 cursor-pointer hover:border-blue-300 transition-colors group"
+                className="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 text-slate-700 dark:text-slate-300 cursor-pointer hover:border-emerald-400 transition-colors group"
                 title="Kopyalamak için tıklayın"
               >
                 <div className="flex items-center gap-1.5 truncate">
                   <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span className="truncate">{data.eposta || '—'}</span>
+                  <span className="truncate text-[11px]">{data.eposta || '—'}</span>
                 </div>
                 {copiedField === 'eposta' ? (
                   <Check className="w-3 h-3 text-emerald-500 shrink-0" />
@@ -263,39 +378,40 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
           </div>
         </div>
 
-        {/* Mali Kodlar Özeti */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-4 shadow-2xs relative z-10 hover:z-20 transition-all duration-200">
+        {/* KART 3: Resmi Kodlar & Entegrasyonlar */}
+        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 space-y-4 shadow-xs md:col-span-2 lg:col-span-1 hover:border-violet-300 dark:hover:border-violet-700 transition-colors">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
             <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-violet-600" />
-              Resmi Kodlar & Bütçe Tanımları
+              <ShieldCheck className="w-4 h-4 text-violet-500" />
+              Resmi Entegrasyon Kodları
             </h3>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400">
+              e-Maliye
+            </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-2.5 text-xs">
+          <div className="grid grid-cols-2 gap-2 text-xs">
             <div
               onClick={() => handleCopy(data.detsis_kodu || data.dtvt_kodu, 'detsis')}
-              className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 cursor-pointer hover:border-blue-300 transition-colors group relative"
+              className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 cursor-pointer hover:border-violet-400 transition-colors group"
               title="Kopyalamak için tıklayın"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-slate-400 font-bold uppercase">
-                  DETSİS / DTVT Kodu
-                </span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">DETSİS Kodu</span>
                 {copiedField === 'detsis' ? (
                   <Check className="w-3 h-3 text-emerald-500" />
                 ) : (
-                  <Copy className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <Copy className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100" />
                 )}
               </div>
-              <div className="font-mono font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+              <div className="font-mono font-bold text-slate-800 dark:text-slate-200 mt-0.5 text-xs truncate">
                 {data.detsis_kodu || data.dtvt_kodu || '—'}
               </div>
             </div>
 
             <div
               onClick={() => handleCopy(data.ebutce_kodu, 'ebutce')}
-              className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 cursor-pointer hover:border-blue-300 transition-colors group relative"
+              className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 cursor-pointer hover:border-violet-400 transition-colors group"
               title="Kopyalamak için tıklayın"
             >
               <div className="flex items-center justify-between">
@@ -303,50 +419,46 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
                 {copiedField === 'ebutce' ? (
                   <Check className="w-3 h-3 text-emerald-500" />
                 ) : (
-                  <Copy className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <Copy className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100" />
                 )}
               </div>
-              <div className="font-mono font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+              <div className="font-mono font-bold text-slate-800 dark:text-slate-200 mt-0.5 text-xs truncate">
                 {data.ebutce_kodu || '—'}
               </div>
             </div>
 
             <div
               onClick={() => handleCopy(data.say2000i_kodu, 'say2000i')}
-              className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 cursor-pointer hover:border-blue-300 transition-colors group relative"
+              className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 cursor-pointer hover:border-violet-400 transition-colors group"
               title="Kopyalamak için tıklayın"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-slate-400 font-bold uppercase">
-                  Say2000i Kodu
-                </span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">Say2000i</span>
                 {copiedField === 'say2000i' ? (
                   <Check className="w-3 h-3 text-emerald-500" />
                 ) : (
-                  <Copy className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <Copy className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100" />
                 )}
               </div>
-              <div className="font-mono font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+              <div className="font-mono font-bold text-slate-800 dark:text-slate-200 mt-0.5 text-xs truncate">
                 {data.say2000i_kodu || '—'}
               </div>
             </div>
 
             <div
               onClick={() => handleCopy(data.harcama_birim_kodu, 'harcama')}
-              className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 cursor-pointer hover:border-blue-300 transition-colors group relative"
+              className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 cursor-pointer hover:border-violet-400 transition-colors group"
               title="Kopyalamak için tıklayın"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-slate-400 font-bold uppercase">
-                  Harcama Birim Kodu
-                </span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">Harcama Kodu</span>
                 {copiedField === 'harcama' ? (
                   <Check className="w-3 h-3 text-emerald-500" />
                 ) : (
-                  <Copy className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <Copy className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100" />
                 )}
               </div>
-              <div className="font-mono font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+              <div className="font-mono font-bold text-slate-800 dark:text-slate-200 mt-0.5 text-xs truncate">
                 {data.harcama_birim_kodu || '—'}
               </div>
             </div>
@@ -354,12 +466,14 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
         </div>
       </div>
 
-      {/* Dynamic Key-Value Metadata Summary */}
-      <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-3 shadow-2xs relative z-10">
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* ⚙️ ÖZEL PARAMETRELER & DİNAMİK ALANLAR                         */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 space-y-3 shadow-xs">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
             <Key className="w-4 h-4 text-blue-600" />
-            Özel Parametreler & Key-Value Alanlar ({customMetadata.length})
+            Özel Parametreler & Key-Value Alanları ({customMetadata.length})
           </h3>
         </div>
 
@@ -368,3 +482,4 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
     </div>
   )
 }
+
