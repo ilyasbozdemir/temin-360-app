@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import {
-  Clock,
   FileCheck,
   FileSignature,
   FileCheck2,
@@ -12,7 +11,6 @@ import {
 } from 'lucide-react'
 import { cn } from '@renderer/utils/cn'
 import { FirmaStats, IslemlerData } from './types'
-import { Step1TeslimatVeSurec } from './Step1TeslimatVeSurec'
 import { Step2SonucOnay } from './Step2SonucOnay'
 import { Step5SozlesmeVeDavet } from './Step5SozlesmeVeDavet'
 import { Step4KabulVeSiparis } from './Step4KabulVeSiparis'
@@ -57,42 +55,38 @@ export function SiparisVeSozlesmeSteps({
   handleOpenUzunFormSozlesme
 }: SiparisVeSozlesmeStepsProps): React.JSX.Element {
   const hasSozlesme = Boolean(firmaStats.sozlesmeYapilacakMi)
-  const [activeStep, setActiveStep] = useState<1 | 2 | 3 | 4>(1)
+  const [activeStep, setActiveStep] = useState<1 | 2 | 3>(1)
 
-  const maxStep = hasSozlesme ? 4 : 3
-  const effectiveStep = !hasSozlesme && activeStep > 3 ? 3 : activeStep
+  const maxStep = hasSozlesme ? 3 : 2
+  const effectiveStep = !hasSozlesme && activeStep > 2 ? 2 : activeStep
 
-  // Tanımlı adımlar listesi (Kabul/Sipariş Formu her zaman vardır; Sözleşme opsiyonel 4. adımdır)
+  // Tanımlı adımlar listesi:
+  // Adım 1: Karar & Sonuç Onayı (Yetkili Onayı, Ekler, Bütçe)
+  // Adım 2: Kabul & Sipariş Formu (Teslimat Ayarları, Şartlar ve Tebligat/Sipariş Belgeleri)
+  // Adım 3 (Opsiyonel): Sözleşme & Davet (Sözleşmeye Davet Mektubu & Tip Sözleşmeler)
   const steps = [
     {
       stepNum: 1 as const,
-      label: 'Teslimat & Şartlar',
-      sub: `${islemlerData.teslimGunu || 7} Günlük Teslim Süresi`,
-      icon: Clock,
+      label: 'Karar & Sonuç Onayı',
+      sub: `${sonucOnayEkler.length} Ek Belge Seçili`,
+      icon: FileCheck,
       badge: 'Adım 1'
     },
     {
       stepNum: 2 as const,
-      label: 'Karar & Sonuç Onayı',
-      sub: `${sonucOnayEkler.length} Ek Belge Seçili`,
-      icon: FileCheck,
-      badge: 'Adım 2'
-    },
-    {
-      stepNum: 3 as const,
-      label: 'Kabul / Sipariş Formu',
-      sub: 'Kabul Edilen Teklif Tebliği',
+      label: 'Kabul & Sipariş Formu',
+      sub: `${islemlerData.teslimGunu || 7} Günlük Teslim Süresi`,
       icon: FileCheck2,
-      badge: 'Adım 3'
+      badge: 'Adım 2'
     },
     ...(hasSozlesme
       ? [
           {
-            stepNum: 4 as const,
+            stepNum: 3 as const,
             label: 'Sözleşme & Davet',
             sub: 'Sözleşmeye Davet ve Metinler',
             icon: FileSignature,
-            badge: 'Adım 4'
+            badge: 'Adım 3'
           }
         ]
       : [])
@@ -105,7 +99,7 @@ export function SiparisVeSozlesmeSteps({
         <div
           className={cn(
             'grid gap-2',
-            hasSozlesme ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1 md:grid-cols-3'
+            hasSozlesme ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'
           )}
         >
           {steps.map((step) => {
@@ -117,7 +111,7 @@ export function SiparisVeSozlesmeSteps({
               <button
                 key={step.stepNum}
                 type="button"
-                onClick={() => setActiveStep(step.stepNum as 1 | 2 | 3 | 4)}
+                onClick={() => setActiveStep(step.stepNum as 1 | 2 | 3)}
                 className={cn(
                   'relative flex items-center justify-between p-3 rounded-xl border text-left transition-all cursor-pointer group select-none',
                   isActive
@@ -188,12 +182,36 @@ export function SiparisVeSozlesmeSteps({
         </div>
       </div>
 
-      {/* ═══ Sıralama / Bilgilendirme Uyarısı (İlgili Adım İçin Kibar Rehber) ═══ */}
-      {effectiveStep === 4 && hasSozlesme && (
+      {/* ═══ Sıralama / Bilgilendirme Uyarısı ═══ */}
+      {effectiveStep === 1 && (
+        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-800/60 text-blue-900 dark:text-blue-200 text-xs animate-in fade-in duration-200">
+          <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+          <div className="flex flex-col gap-0.5">
+            <span className="font-bold">1. Aşama: Doğrudan Temin Karar & Onay Belgesi:</span>
+            <p className="text-[11px] text-blue-800 dark:text-blue-300 leading-relaxed">
+              Bu adımda oluşturacağınız Sonuç Onay Belgesi ve seçilen dosya ekleri (EKLER), alımın yasal olarak sonuçlandırılması için Harcama Yetkilisinin onayına sunulur. Onay tamamlandığında istekliye tebligat ve sipariş aşamasına geçebilirsiniz.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {effectiveStep === 2 && (
+        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 text-xs animate-in fade-in duration-200">
+          <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <div className="flex flex-col gap-0.5">
+            <span className="font-bold">2. Aşama: İstekli Tebligat & Sipariş Formu Yönetimi:</span>
+            <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
+              Kazanan istekliye bildirilecek teslimat süresi ve sözleşme durumunu buradan düzenleyebilir, hazırlanan Kabul Edilen Teklif Mektubu / Sipariş Formunu anında açıp yazdırabilirsiniz.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {effectiveStep === 3 && hasSozlesme && (
         <div className="flex items-start gap-2.5 p-3 rounded-xl bg-violet-50/80 dark:bg-violet-950/30 border border-violet-200/80 dark:border-violet-800/60 text-violet-900 dark:text-violet-200 text-xs animate-in fade-in duration-200">
           <AlertCircle className="w-4 h-4 text-violet-600 dark:text-violet-400 shrink-0 mt-0.5" />
           <div className="flex flex-col gap-0.5">
-            <span className="font-bold">Sözleşme & Yasal Davet Süreci:</span>
+            <span className="font-bold">3. Aşama: Sözleşme & Yasal Davet Süreci:</span>
             <p className="text-[11px] text-violet-800 dark:text-violet-300 leading-relaxed">
               Bu dosyada sözleşme imzalanması seçilmiştir. Yükleniciye 10 günlük yasal sözleşmeye davet mektubu tebliğ edebilir ve ilgili sözleşme metinlerini düzenleyebilirsiniz.
             </p>
@@ -201,50 +219,10 @@ export function SiparisVeSozlesmeSteps({
         </div>
       )}
 
-      {effectiveStep === 3 && (
-        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 text-xs animate-in fade-in duration-200">
-          <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-          <div className="flex flex-col gap-0.5">
-            <span className="font-bold">Süreç Sıralaması Hatırlatması:</span>
-            <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
-              Yükleniciye kabul ve sipariş formu göndermeden önce,{' '}
-              <strong>Adım 2</strong>&apos;deki Doğrudan Temin Sonuç Onay Belgesinin
-              Harcama Yetkilisince imzalanarak alımın kesinleştiğinden emin olunuz.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {effectiveStep === 2 && (
-        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-800/60 text-blue-900 dark:text-blue-200 text-xs animate-in fade-in duration-200">
-          <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-          <div className="flex flex-col gap-0.5">
-            <span className="font-bold">Doğrudan Temin Karar & Onay Aşaması:</span>
-            <p className="text-[11px] text-blue-800 dark:text-blue-300 leading-relaxed">
-              Bu adımda oluşturacağınız Sonuç Onay Belgesi ve seçilen dosya ekleri (EKLER), alımın yasal olarak sonuçlandırılması için Harcama Yetkilisinin onayına sunulur. Onay tamamlandığında sonraki adımlara geçebilirsiniz.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* ═══ Adım İçerik Kartı (Aktif Adımın Net Gösterimi) ═══ */}
+      {/* ═══ Adım İçerik Kartı ═══ */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs transition-all">
-        {/* Adım 1: Teslimat ve Şartlar */}
+        {/* Adım 1: Karar & Sonuç Onayı ve Ekler */}
         {effectiveStep === 1 && (
-          <div className="animate-in fade-in duration-200">
-            <Step1TeslimatVeSurec
-              islemlerData={islemlerData}
-              firmaStats={firmaStats}
-              savedFeedback={savedFeedback}
-              handleUpdateTeslimGunu={handleUpdateTeslimGunu}
-              handleUpdateTeslimTarihi={handleUpdateTeslimTarihi}
-              handleToggleSozlesme={handleToggleSozlesme}
-            />
-          </div>
-        )}
-
-        {/* Adım 2: Karar & Sonuç Onayı ve Ekler */}
-        {effectiveStep === 2 && (
           <div className="animate-in fade-in duration-200">
             <Step2SonucOnay
               kazananFirmaUnvan={kazananFirmaUnvan}
@@ -258,18 +236,23 @@ export function SiparisVeSozlesmeSteps({
           </div>
         )}
 
-        {/* Adım 3: Kabul Edilen Teklif Mektubu & Sipariş Formu (Her Zaman Var) */}
-        {effectiveStep === 3 && (
+        {/* Adım 2: Kabul & Sipariş Formu (Teslimat Ayarları + Şartlar + Belge Açma & Yazdırma) */}
+        {effectiveStep === 2 && (
           <div className="animate-in fade-in duration-200">
             <Step4KabulVeSiparis
-              teslimGunu={islemlerData.teslimGunu}
+              islemlerData={islemlerData}
+              firmaStats={firmaStats}
+              savedFeedback={savedFeedback}
+              handleUpdateTeslimGunu={handleUpdateTeslimGunu}
+              handleUpdateTeslimTarihi={handleUpdateTeslimTarihi}
+              handleToggleSozlesme={handleToggleSozlesme}
               onOpenKabulMektubu={handleOpenKabulMektubu}
             />
           </div>
         )}
 
-        {/* Adım 4: Sözleşme & Davet (Sözleşme Yapılacaksa) */}
-        {effectiveStep === 4 && hasSozlesme && (
+        {/* Adım 3: Sözleşme & Davet (Sözleşme Yapılacaksa) */}
+        {effectiveStep === 3 && hasSozlesme && (
           <div className="animate-in fade-in duration-200">
             <Step5SozlesmeVeDavet
               sozlesmeYapilacakMi={firmaStats.sozlesmeYapilacakMi}
@@ -286,7 +269,7 @@ export function SiparisVeSozlesmeSteps({
           {effectiveStep > 1 ? (
             <button
               type="button"
-              onClick={() => setActiveStep((prev) => Math.max(1, prev - 1) as 1 | 2 | 3 | 4)}
+              onClick={() => setActiveStep((prev) => Math.max(1, prev - 1) as 1 | 2 | 3)}
               className="py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all shadow-2xs"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -299,7 +282,7 @@ export function SiparisVeSozlesmeSteps({
           {effectiveStep < maxStep ? (
             <button
               type="button"
-              onClick={() => setActiveStep((prev) => Math.min(maxStep, prev + 1) as 1 | 2 | 3 | 4)}
+              onClick={() => setActiveStep((prev) => Math.min(maxStep, prev + 1) as 1 | 2 | 3)}
               className="py-2 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs hover:shadow active:scale-95 transition-all"
             >
               Sonraki Adıma Geç
@@ -316,3 +299,4 @@ export function SiparisVeSozlesmeSteps({
     </div>
   )
 }
+

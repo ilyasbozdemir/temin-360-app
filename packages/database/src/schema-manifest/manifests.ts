@@ -43,6 +43,7 @@ import beta167 from "./versions/beta.167";
 import beta168 from "./versions/beta.168";
 import beta169 from "./versions/beta.169";
 import beta170 from "./versions/beta.170";
+import beta171 from "./versions/beta.171";
 
 export const manifests: any[] = [
   alpha1,
@@ -81,5 +82,6 @@ export const manifests: any[] = [
   beta167,
   beta168,
   beta169,
-  beta170
+  beta170,
+  beta171
 ];
