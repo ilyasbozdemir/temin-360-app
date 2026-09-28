@@ -21,6 +21,7 @@ interface DocumentPreviewCanvasProps {
   setFormData: React.Dispatch<React.SetStateAction<Partial<IhtiyacListesiType>>>
   personelListesi: Personel[]
   firmaListesi: any[]
+  birimListesi?: any[]
   localShowLogoLeft: boolean
   localShowLogoRight: boolean
   onSelectTemplate?: (id: string) => void
@@ -38,6 +39,7 @@ export function DocumentPreviewCanvas({
   setFormData,
   personelListesi,
   firmaListesi,
+  birimListesi = [],
   localShowLogoLeft,
   localShowLogoRight,
   onSelectTemplate,
@@ -108,6 +110,7 @@ export function DocumentPreviewCanvas({
                 }
                 personelListesi={personelListesi}
                 firmaListesi={firmaListesi}
+                birimListesi={birimListesi}
                 firstPageLimit={formData.firstPageLimit}
               >
                 {React.createElement(ActiveComponent, {
@@ -115,6 +118,7 @@ export function DocumentPreviewCanvas({
                     ...formData,
                     personelListesi: (formData as any).personelListesi || personelListesi,
                     firmaListesi: (formData as any).firmaListesi || firmaListesi,
+                    birimListesi: (formData as any).birimListesi || birimListesi,
                     tarih: formData.tarih || formData.onayaSunulanTarih || '',
                     onayaSunulanTarih: formData.onayaSunulanTarih || formData.tarih || '',
                     onayTarihi:

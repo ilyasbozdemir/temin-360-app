@@ -45,6 +45,7 @@ export function DocumentPreviewModalV2({
     setFormData,
     personelListesi,
     firmaListesi,
+    birimListesi,
     localShowLogoLeft,
     setLocalShowLogoLeft,
     localShowLogoRight,
@@ -177,6 +178,7 @@ export function DocumentPreviewModalV2({
           setFormData={setFormData}
           personelListesi={personelListesi}
           firmaListesi={firmaListesi}
+          birimListesi={birimListesi}
           localShowLogoLeft={localShowLogoLeft}
           localShowLogoRight={localShowLogoRight}
           onSelectTemplate={setSelectedDocId}

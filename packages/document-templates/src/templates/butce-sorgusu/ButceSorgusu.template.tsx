@@ -2,7 +2,7 @@ import React from "react";
 import { DocumentLayout } from "../../document/DocumentLayout";
 import { DocumentHeader } from "../../document/DocumentHeader";
 import { EditableField } from "../../document/EditableField";
-import { DateEditableField } from "../../document/ApprovalSignature";
+import { DateEditableField, BirimInlineSelect, PersonelInlineSelect } from "../../document/ApprovalSignature";
 import { ButceSorgusuType } from "./ButceSorgusu.schema";
 
 interface ButceSorgusuProps {
@@ -122,10 +122,13 @@ export function ButceSorgusu({
             lineHeight: 1.4,
           }}
         >
-          <EditableField
-            name="muhatapBirim"
-            value={data.muhatapBirim ||
-              "STRATEJİ GELİŞTİRME DAİRE BAŞKANLIĞINA"}
+          <BirimInlineSelect
+            nameField="muhatapBirim"
+            value={
+              data.muhatapBirim ||
+              data.sunumMakami ||
+              "STRATEJİ GELİŞTİRME DAİRE BAŞKANLIĞINA"
+            }
             placeholder="Muhatap Birim"
           />
         </div>
@@ -139,7 +142,7 @@ export function ButceSorgusu({
             lineHeight: 1.6,
           }}
         >
-          {kurumAdi}&apos;na ait &quot;
+          &quot;
           <EditableField
             name="isAdi"
             value={data.isAdi || data.dosyaKonusu || "İhtiyaç Alımı"}
@@ -172,17 +175,29 @@ export function ButceSorgusu({
           }}
         >
           <div style={{ fontWeight: "bold" }}>
-            <EditableField
-              name="hazirlayanPersonelAdi"
-              value={data.hazirlayanPersonelAdi || data.piyasaGorevlisi1Adi}
+            <PersonelInlineSelect
+              nameField="hazirlayanPersonelAdi"
+              unvanField="hazirlayanPersonelUnvan"
+              value={
+                data.hazirlayanPersonelAdi ||
+                data.harcamaYetkilisiAdi ||
+                data.onaylayanPersonelAdi ||
+                data.piyasaGorevlisi1Adi
+              }
               placeholder="Ad Soyad"
             />
           </div>
           <div style={{ fontSize: "10pt", color: "#333" }}>
             <EditableField
               name="hazirlayanPersonelUnvan"
-              value={data.hazirlayanPersonelUnvan ||
-                data.piyasaGorevlisi1Unvani || "Şube Müdürü"}
+              value={
+                data.hazirlayanPersonelUnvan ||
+                data.harcamaYetkilisiUnvan ||
+                data.onaylayanPersonelUnvan ||
+                data.kurumGorevAdi ||
+                data.piyasaGorevlisi1Unvani ||
+                "Harcama Yetkilisi"
+              }
               placeholder="Ünvan"
             />
           </div>

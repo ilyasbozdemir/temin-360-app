@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useSettingsStore } from '../../store/settingsStore'
+import { emitAppEvent } from '../../utils/appEvents'
 
 export interface KurumVerisi {
   id?: number
@@ -120,9 +121,12 @@ export function useKurumHooks() {
           throw new Error(res.error || 'Güncelleme hatası')
         }
 
-        // If active kurum was updated, sync with settings table
-        if (idToUpdate === activeKurumId) {
+        // Always sync active institution with settings table
+        const activeNum = Number(activeKurumId || 1)
+        const updatedNum = Number(idToUpdate || 1)
+        if (activeNum === updatedNum || !activeKurumId) {
           await window.electron.ipcRenderer.invoke('db:save-settings', {
+            activeKurumId: String(updatedNum),
             institutionName: data.kurum_adi || '',
             detsisKodu: data.detsis_kodu || '',
             eButceKodu: data.ebutce_kodu || '',
@@ -141,6 +145,8 @@ export function useKurumHooks() {
             logoRight: data.logo_sag || ''
           })
           await loadSettings()
+          emitAppEvent('settings:changed')
+          emitAppEvent('workspace:refreshed')
         }
 
         await fetchKurum(idToUpdate)

@@ -33,6 +33,7 @@ interface SiparisVeSozlesmeStepsProps {
   handleOpenStandartSozlesme: () => void;
   handleOpenAlternatifSozlesme: () => void;
   handleOpenUzunFormSozlesme: () => void;
+  activeDosyaId?: number | null;
 }
 
 export function SiparisVeSozlesmeSteps({
@@ -53,6 +54,7 @@ export function SiparisVeSozlesmeSteps({
   handleOpenStandartSozlesme,
   handleOpenAlternatifSozlesme,
   handleOpenUzunFormSozlesme,
+  activeDosyaId,
 }: SiparisVeSozlesmeStepsProps): React.JSX.Element {
   const hasSozlesme = Boolean(firmaStats.sozlesmeYapilacakMi);
   const [activeStep, setActiveStep] = useState<1 | 2 | 3>(1);
@@ -249,6 +251,7 @@ export function SiparisVeSozlesmeSteps({
               onOpenButceSorgusu={handleOpenButceSorgusu}
               ekler={sonucOnayEkler}
               onUpdateEkler={handleUpdateEkler}
+              activeDosyaId={activeDosyaId}
             />
           </div>
         )}

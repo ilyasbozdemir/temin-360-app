@@ -79,6 +79,9 @@ export function useDocumentPreviewData({
   const [personelListesi, setPersonelListesi] = useState<Personel[]>(() => {
     return initialPreloaded?.payloadData?.personelListesi || []
   })
+  const [birimListesi, setBirimListesi] = useState<any[]>(() => {
+    return initialPreloaded?.payloadData?.birimListesi || []
+  })
   const [firmaListesi, setFirmaListesi] = useState<any[]>(() => {
     if (initialPreloaded?.payloadData?.firmaListesi) {
       return initialPreloaded.payloadData.firmaListesi
@@ -182,6 +185,7 @@ export function useDocumentPreviewData({
         setDosyaRecord(result.dosyaRecord)
         setPersonelListesi(result.personelListesi)
         setFirmaListesi(result.firmaListesi)
+        setBirimListesi(result.birimListesi || [])
         setLocalShowLogoLeft(result.activeLogoLeft)
         setLocalShowLogoRight(result.activeLogoRight)
         setOrientation(result.activeOrientation)
@@ -394,6 +398,8 @@ export function useDocumentPreviewData({
     setFormData,
     personelListesi,
     firmaListesi,
+    birimListesi,
+    setBirimListesi,
     localShowLogoLeft,
     setLocalShowLogoLeft,
     localShowLogoRight,

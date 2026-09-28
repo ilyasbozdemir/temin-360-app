@@ -165,7 +165,12 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     { name: 'starred_docs', def: 'TEXT' },
     { name: 'skipped_docs', def: 'TEXT' },
     { name: 'isin_aciklama_maddeleri', def: 'TEXT' },
-    { name: 'yaklasik_maliyet_kdv_dahil_mi', def: 'INTEGER DEFAULT 0' }
+    { name: 'yaklasik_maliyet_kdv_dahil_mi', def: 'INTEGER DEFAULT 0' },
+    { name: 'odenek_tertibi', def: 'TEXT' },
+    { name: 'kullanilabilir_odenek', def: 'TEXT' },
+    { name: 'butce_yili', def: 'TEXT' },
+    { name: 'odenek_kalemi', def: 'TEXT' },
+    { name: 'butce_gerekce', def: 'TEXT' }
   ]
   for (const c of teminDosyasiColumns) {
     try {

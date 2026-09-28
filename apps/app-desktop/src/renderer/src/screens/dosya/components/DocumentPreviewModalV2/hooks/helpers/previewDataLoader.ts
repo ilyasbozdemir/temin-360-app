@@ -72,6 +72,18 @@ export async function loadDocumentPreviewData({
     }
   }
 
+  let birimList = payloadData.birimListesi || []
+  if (!birimList || birimList.length === 0) {
+    try {
+      birimList = await queryExecutor(
+        'SELECT id, ad, birim_adi, kisa_ad, sunum_makami, antet_ek_satir, harcama_yetkilisi_id, harcama_yetkilisi_unvan FROM TANIM_Birim WHERE COALESCE(aktif_mi, 1) = 1 ORDER BY birim_adi ASC',
+        []
+      )
+    } catch (e) {
+      console.error('Direct birim query error:', e)
+    }
+  }
+
   let fileFirms = payloadData.fileFirms || []
   let combinedFirms = payloadData.firmaListesi || []
   let items = payloadData.items || []
@@ -151,7 +163,8 @@ export async function loadDocumentPreviewData({
     }
   }
 
-  const baseData: any = { ...resolved }
+  const ctx = payloadData.resolvedContext || {}
+  const baseData: any = { ...ctx, ...resolved }
 
   if (
     resolved.antetSatirlari &&
@@ -212,7 +225,6 @@ export async function loadDocumentPreviewData({
   baseData.tarih = baseData.tarih || formattedAcilisTarihi || baseData.onayaSunulanTarih || ''
   baseData.onayTarihi =
     formatDateString(dosyaObj.onay_tarihi) || baseData.onayTarihi || formattedAcilisTarihi
-  const ctx = payloadData.resolvedContext || {}
 
   baseData.kurumumuz = baseData.kurumumuz || ctx.kurumumuz || ctx.altKurumBizim || 'Belediyemiz'
   baseData.altKurumBizim =
@@ -1184,6 +1196,7 @@ export async function loadDocumentPreviewData({
     finalData,
     personelListesi: personelList || [],
     firmaListesi: combinedFirms,
+    birimListesi: birimList || [],
     dosyaRecord,
     activeLogoLeft,
     activeLogoRight,
@@ -1191,3 +1204,4 @@ export async function loadDocumentPreviewData({
     initialSnapshotJson
   }
 }
+

@@ -156,6 +156,69 @@ export const PersonelInlineSelect: React.FC<PersonelInlineSelectProps> = ({
   );
 };
 
+export interface BirimInlineSelectProps {
+  nameField?: string;
+  value?: string | null;
+  placeholder?: string;
+  style?: React.CSSProperties;
+}
+
+export const BirimInlineSelect: React.FC<BirimInlineSelectProps> = ({
+  nameField = "muhatapBirim",
+  value,
+  placeholder = "Muhatap Birim Seçiniz / Yazınız...",
+  style,
+}) => {
+  const { isEditing, onFieldChange, birimListesi } = useTemplateEdit();
+  const birimList = birimListesi || [];
+  const cleanVal = typeof value === "string" ? value.trim() : "";
+  const matched = birimList.find(
+    (b: any) =>
+      (b.sunum_makami && String(b.sunum_makami).trim().toLowerCase() === cleanVal.toLowerCase()) ||
+      (b.birim_adi && String(b.birim_adi).trim().toLowerCase() === cleanVal.toLowerCase()) ||
+      (b.ad && String(b.ad).trim().toLowerCase() === cleanVal.toLowerCase())
+  );
+  const selectedValue = matched ? String(matched.id) : "";
+
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "6px", width: "100%" }}>
+      <EditableField name={nameField} value={cleanVal} placeholder={placeholder} style={style} />
+      {isEditing && birimList.length > 0 && (
+        <select
+          value={selectedValue}
+          onChange={(e) => {
+            const selectedId = Number(e.target.value);
+            const b = birimList.find((item: any) => item.id === selectedId);
+            if (b && onFieldChange) {
+              const sunum = (b.sunum_makami || b.birim_adi || b.ad || "").trim().toUpperCase();
+              onFieldChange(nameField, sunum);
+            }
+          }}
+          style={{
+            fontSize: "7.5pt",
+            padding: "2px 4px",
+            borderRadius: "4px",
+            border: "1px solid #cbd5e1",
+            backgroundColor: "#f8fafc",
+            maxWidth: "160px",
+            cursor: "pointer",
+            fontWeight: "normal",
+            textTransform: "none",
+          }}
+          title="Tanımlı birimlerin muhatap/sunum makamından seç"
+        >
+          <option value="">🏢 Birim Seç...</option>
+          {birimList.map((b: any) => (
+            <option key={b.id} value={b.id}>
+              {b.sunum_makami || b.birim_adi || b.ad}
+            </option>
+          ))}
+        </select>
+      )}
+    </span>
+  );
+};
+
 export const EditableOlurPlaceholder: React.FC = () => {
   const { isEditing, onFieldChange } = useTemplateEdit();
   if (!isEditing || !onFieldChange) return null;

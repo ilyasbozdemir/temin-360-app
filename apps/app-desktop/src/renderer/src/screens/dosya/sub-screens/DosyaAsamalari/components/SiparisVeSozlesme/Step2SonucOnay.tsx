@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { FirmaStats } from './types'
 import { cn } from '@renderer/utils/cn'
+import { ButceVeOdenekCard } from './ButceVeOdenekCard'
 
 interface Props {
   kazananFirmaUnvan: string
@@ -21,6 +22,7 @@ interface Props {
   onOpenButceSorgusu?: () => void
   ekler?: string[]
   onUpdateEkler?: (ekler: string[]) => void
+  activeDosyaId?: number | null
 }
 
 export const STANDART_SUREC_BELGELERI = [
@@ -46,7 +48,8 @@ export const Step2SonucOnay: React.FC<Props> = ({
     'Harcama Talimatı',
     'Yaklaşık Maliyet Hesap Cetveli'
   ],
-  onUpdateEkler
+  onUpdateEkler,
+  activeDosyaId
 }) => {
   const [newEkInput, setNewEkInput] = useState('')
 
@@ -112,6 +115,12 @@ export const Step2SonucOnay: React.FC<Props> = ({
               Bu belgeler harcama yetkilisinin onayına sunularak alımın kesinleşmesini sağlar. Aşağıdaki listeden Sonuç Onay Belgesi altına eklenecek resmi dosya evraklarını seçebilirsiniz.
             </p>
           </div>
+
+          {/* ═══ Bütçe & Ödenek Tertibi Yönetimi Paneli ═══ */}
+          <ButceVeOdenekCard
+            activeDosyaId={activeDosyaId}
+            onOpenButceSorgusu={onOpenButceSorgusu}
+          />
 
           {/* Süreç Belgeleri ve EKLER Seçimi */}
           <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col gap-3 shadow-xs">

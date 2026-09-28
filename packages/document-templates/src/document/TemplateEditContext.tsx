@@ -5,6 +5,7 @@ export interface TemplateEditContextType {
   onFieldChange?: (key: string, value: any) => void;
   personelListesi?: any[];
   firmaListesi?: any[];
+  birimListesi?: any[];
   firstPageLimit?: number | null;
 }
 
@@ -24,6 +25,7 @@ export function TemplateEditProvider({
   onFieldChange,
   personelListesi,
   firmaListesi,
+  birimListesi,
   firstPageLimit,
 }: TemplateEditProviderProps) {
   return (
@@ -33,6 +35,7 @@ export function TemplateEditProvider({
         onFieldChange,
         personelListesi,
         firmaListesi,
+        birimListesi,
         firstPageLimit,
       }}
     >
@@ -40,4 +43,5 @@ export function TemplateEditProvider({
     </TemplateEditContext.Provider>
   );
 }
+
 

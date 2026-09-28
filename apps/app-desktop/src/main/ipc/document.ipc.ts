@@ -568,8 +568,14 @@ export function registerDocumentIpcHandlers(): void {
           )
           .all()
 
+        // 1.1 Fetch active units list
+        const birimListesi = db
+          .prepare(
+            'SELECT id, ad, birim_adi, kisa_ad, sunum_makami, antet_ek_satir, harcama_yetkilisi_id, harcama_yetkilisi_unvan FROM TANIM_Birim WHERE COALESCE(aktif_mi, 1) = 1 ORDER BY birim_adi ASC'
+          )
+          .all()
+
         // 2. Fetch institution and app settings
-        const kurum = db.prepare('SELECT * FROM TANIM_Kurum LIMIT 1').get() || {}
         let settingsMap: Record<string, string> = {}
         try {
           const settingsRows = db.prepare('SELECT key, value FROM settings').all()
@@ -578,8 +584,16 @@ export function registerDocumentIpcHandlers(): void {
           })
         } catch {}
 
+        const activeId = Number(settingsMap.activeKurumId || 1)
+        let kurum =
+          db.prepare('SELECT * FROM TANIM_Kurum WHERE id = ?').get(activeId) ||
+          db.prepare('SELECT * FROM TANIM_Kurum WHERE is_active = 1 LIMIT 1').get() ||
+          db.prepare('SELECT * FROM TANIM_Kurum ORDER BY id ASC LIMIT 1').get() ||
+          {}
+
         const solLogo =
           (kurum as any)?.logo_sol ||
+          (kurum as any)?.logo_kurum ||
           (kurum as any)?.logo_url ||
           settingsMap.logoLeft ||
           settingsMap.institutionLogo ||
@@ -1078,10 +1092,70 @@ export function registerDocumentIpcHandlers(): void {
           talepEdenTelefon: talepEdenPersonel?.telefon || '',
           onaylayanPersonelAdi: onaylayanPersonel?.ad_soyad || '',
           onaylayanPersonelUnvan: onaylayanPersonel?.unvan || '',
+          harcamaYetkilisiAdi:
+            onaylayanPersonel?.ad_soyad ||
+            (komisyonlar as any[]).find((k: any) =>
+              String(k.gorev || k.komisyon_turu_adi || '').toLowerCase().includes('harcama yetkili')
+            )?.resolved_ad_soyad ||
+            (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)?.harcama_yetkilisi_id
+              ? (personelListesi as any[]).find(
+                  (p: any) =>
+                    p.id ===
+                    (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)
+                      ?.harcama_yetkilisi_id
+                )?.ad_soyad || ''
+              : '',
+          harcamaYetkilisiUnvan:
+            onaylayanPersonel?.unvan ||
+            (komisyonlar as any[]).find((k: any) =>
+              String(k.gorev || k.komisyon_turu_adi || '').toLowerCase().includes('harcama yetkili')
+            )?.resolved_unvan ||
+            (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)
+              ?.harcama_yetkilisi_unvan ||
+            'Harcama Yetkilisi',
+          muhatapBirim:
+            (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)?.sunum_makami ||
+            (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)?.birim_adi ||
+            'STRATEJİ GELİŞTİRME DAİRE BAŞKANLIĞINA',
+          sunumMakami:
+            (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)?.sunum_makami ||
+            (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)?.birim_adi ||
+            'STRATEJİ GELİŞTİRME DAİRE BAŞKANLIĞINA',
           antetSatir1: antetSatirlari[0] || '',
           antetSatir2: antetSatirlari[1] || '',
           antetSatir3: antetSatirlari[2] || '',
           antetSatir4: antetSatirlari[3] || '',
+          ustKurumAdi: (kurum as any)?.ust_kurum_adi || '',
+          detsisKodu: (kurum as any)?.detsis_kodu || (kurum as any)?.dtvt_kodu || settingsMap.detsisKodu || '',
+          eButceKodu: (kurum as any)?.ebutce_kodu || settingsMap.eButceKodu || '',
+          say2000iKodu: (kurum as any)?.say2000i_kodu || settingsMap.say2000iKodu || '',
+          fonksiyonelKod: (kurum as any)?.fonksiyonel_kod || settingsMap.fonksiyonelKod || '',
+          muhasebeBirimKodu:
+            (kurum as any)?.muhasebe_birim_kodu ||
+            (dosya as any)?.muhasebe_kodu ||
+            settingsMap.muhasebeBirimKodu ||
+            '',
+          muhasebeBirimAdi: (kurum as any)?.muhasebe_birim_adi || settingsMap.muhasebeBirimAdi || '',
+          harcamaBirimKodu:
+            (kurum as any)?.harcama_birim_kodu ||
+            (dosya as any)?.harcama_birim_kodu ||
+            settingsMap.harcamaBirimKodu ||
+            '',
+          harcamaBirimAdi: (kurum as any)?.harcama_birim_adi || settingsMap.harcamaBirimAdi || '',
+          kurumAdresi: (kurum as any)?.adres || settingsMap.address || '',
+          kurumIl: (kurum as any)?.il || settingsMap.city || '',
+          kurumIlce: (kurum as any)?.ilce || settingsMap.district || '',
+          kurumTelefon: (kurum as any)?.telefon || settingsMap.phone || '',
+          kurumEposta: (kurum as any)?.eposta || settingsMap.email || '',
+          kurumWeb: (kurum as any)?.web_sitesi || settingsMap.website || '',
+          limitType: (kurum as any)?.limit_tipi || settingsMap.limitType || 'diger',
+          finansmanKodu: (kurum as any)?.finansman_kodu || settingsMap.finansmanKodu || '5',
+          odenekTertibi: (dosya as any)?.odenek_tertibi || '',
+          butceTertibi: (dosya as any)?.odenek_tertibi ? [(dosya as any).odenek_tertibi] : [],
+          kullanilabilirOdenek: (dosya as any)?.kullanilabilir_odenek || '',
+          butceYili: (dosya as any)?.butce_yili || String(new Date().getFullYear()),
+          odenekKalemi: (dosya as any)?.odenek_kalemi || '',
+          butceGerekce: (dosya as any)?.butce_gerekce || '',
           solLogo,
           sagLogo,
           dosyaNo: (dosya as any)?.temin_no || '',
@@ -1286,6 +1360,7 @@ export function registerDocumentIpcHandlers(): void {
             sagLogo,
             settings: settingsMap,
             personelListesi,
+            birimListesi,
             firmaListesi: combinedFirms,
             fileFirms,
             items,
