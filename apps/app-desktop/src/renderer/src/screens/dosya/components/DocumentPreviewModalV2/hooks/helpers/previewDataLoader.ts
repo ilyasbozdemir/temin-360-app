@@ -1142,6 +1142,29 @@ export async function loadDocumentPreviewData({
     }
   }
 
+  // Explicit initial data overrides (e.g. from sub-screens or direct openers)
+  if (globalStoreState.initialData && typeof globalStoreState.initialData === 'object') {
+    Object.assign(finalData, globalStoreState.initialData)
+  }
+
+  // Always sync live dossier delivery days if not overridden
+  if (
+    dosyaObj.teslim_gun !== undefined &&
+    dosyaObj.teslim_gun !== null &&
+    String(dosyaObj.teslim_gun).trim() !== ''
+  ) {
+    const liveGun = String(dosyaObj.teslim_gun)
+    if (!globalStoreState.initialData?.teslimGun && !globalStoreState.initialData?.teslimGunu) {
+      finalData.teslimGun = liveGun
+      finalData.teslimGunu = liveGun
+      finalData.teslimSuresi = liveGun
+    }
+  }
+
+  if (dosyaObj.teslim_tarihi && !globalStoreState.initialData?.teslimTarihi) {
+    finalData.teslimTarihi = dosyaObj.teslim_tarihi
+  }
+
   if (!finalData.solLogo && resolvedSolLogo) {
     finalData.solLogo = resolvedSolLogo
   }

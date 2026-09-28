@@ -203,7 +203,7 @@ export function useSiparisVeSozlesmeData() {
 
     try {
       await window.electron.ipcRenderer.invoke(
-        'db:query',
+        'db:run',
         `UPDATE DATA_TeminDosyasi SET teslim_gun = ?, teslim_tarihi = ? WHERE id = ?`,
         [gun, dateStr, activeDosyaId]
       )
@@ -240,7 +240,7 @@ export function useSiparisVeSozlesmeData() {
 
     try {
       await window.electron.ipcRenderer.invoke(
-        'db:query',
+        'db:run',
         `UPDATE DATA_TeminDosyasi SET teslim_tarihi = ?, teslim_gun = ? WHERE id = ?`,
         [dateStr, gun, activeDosyaId]
       )
@@ -268,7 +268,7 @@ export function useSiparisVeSozlesmeData() {
 
     try {
       await window.electron.ipcRenderer.invoke(
-        'db:query',
+        'db:run',
         `UPDATE DATA_TeminDosyasi SET sozlesme_yapilacak_mi = ? WHERE id = ?`,
         [newStatus, activeDosyaId]
       )

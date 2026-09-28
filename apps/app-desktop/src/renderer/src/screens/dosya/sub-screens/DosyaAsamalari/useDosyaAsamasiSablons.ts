@@ -257,6 +257,7 @@ export function useDosyaAsamasiSablons() {
       dosyaId: activeDosyaId || undefined,
       documentTitle: title,
       selectedFirma: selectedFirma || null,
+      initialData: overrideCtx || snapshotCtx || null,
       onClose: () => {
         setPreviewModalOpen(false)
       }

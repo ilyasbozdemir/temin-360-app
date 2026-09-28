@@ -22,83 +22,89 @@ export function Step4KabulVeSiparis({
   handleToggleSozlesme,
   onOpenKabulMektubu
 }: Step4KabulVeSiparisProps): React.JSX.Element {
-  const readyDays = [
-    { gun: 3, label: '3 Gün', sub: 'Acil' },
-    { gun: 7, label: '7 Gün', sub: 'Standart', highlight: true },
-    { gun: 10, label: '10 Gün', sub: 'Yasal Davet', highlight: true },
-    { gun: 15, label: '15 Gün', sub: 'Mal/Hizmet' },
-    { gun: 20, label: '20 Gün', sub: 'Teslimat' },
-    { gun: 30, label: '30 Gün', sub: '1 Ay' },
-    { gun: 45, label: '45 Gün', sub: '1.5 Ay' },
-    { gun: 60, label: '60 Gün', sub: '2 Ay' },
-    { gun: 90, label: '90 Gün', sub: '3 Ay' }
+  const presetDays = [
+    { gun: 3, label: '3 Gün', badge: 'Acil' },
+    { gun: 7, label: '7 Gün', badge: 'Standart' },
+    { gun: 10, label: '10 Gün', badge: 'Yasal' },
+    { gun: 15, label: '15 Gün', badge: 'Mal/İş' },
+    { gun: 30, label: '30 Gün', badge: '1 Ay' },
+    { gun: 60, label: '60 Gün', badge: '2 Ay' }
   ]
+
+  const currentGun = islemlerData.teslimGunu || 7
 
   return (
     <div className="flex flex-col gap-5">
       {/* ═══ 1. Üst Bölüm: Ayarlar ve Canlı Önizleme (2 Kolon) ═══ */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Sol: Teslimat Gün & Tarih Seçici */}
-        <div className="flex flex-col gap-3.5 p-4.5 rounded-2xl bg-slate-50/80 dark:bg-slate-850/60 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
-                <Clock className="w-4 h-4" />
+        {/* Sol: Kibar ve Modern Teslimat Gün & Tarih Seçici */}
+        <div className="flex flex-col justify-between p-4.5 rounded-2xl bg-slate-50/70 dark:bg-slate-850/50 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+          <div className="flex flex-col gap-3">
+            {/* Başlık ve Aktif Gün Göstergesi */}
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200/60 dark:border-slate-800/60">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                  <Clock className="w-3.5 h-3.5" />
+                </div>
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                  Teslimat Süresi
+                </span>
               </div>
-              <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200">
-                Teslimat Süresi & Tarihi
-              </span>
+              <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-extrabold shadow-2xs">
+                <span>{currentGun} Takvim Günü</span>
+              </div>
             </div>
-            <span className="text-xs font-black text-amber-700 dark:text-amber-300 bg-amber-100/70 dark:bg-amber-950/60 px-2.5 py-1 rounded-lg border border-amber-300/80 dark:border-amber-800">
-              {islemlerData.teslimGunu || 7} Takvim Günü
-            </span>
+
+            {/* Kibar Hızlı Seçim Hapları (Pills) */}
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                Hızlı Seçenekler:
+              </span>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {presetDays.map(({ gun, label, badge }) => {
+                  const isSelected = currentGun === gun
+                  return (
+                    <button
+                      key={gun}
+                      type="button"
+                      onClick={() => handleUpdateTeslimGunu(gun)}
+                      className={cn(
+                        'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer select-none active:scale-95',
+                        isSelected
+                          ? 'bg-blue-600 text-white border-blue-600 shadow-xs font-bold'
+                          : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200/90 dark:border-slate-750 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/50 dark:hover:bg-slate-750'
+                      )}
+                    >
+                      <span>{label}</span>
+                      <span
+                        className={cn(
+                          'text-[9px] px-1 py-0.2 rounded-md font-semibold',
+                          isSelected
+                            ? 'bg-white/20 text-white'
+                            : 'bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-400'
+                        )}
+                      >
+                        {badge}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
           </div>
 
-          {/* Hızlı Gün Butonları */}
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
-            {readyDays.map(({ gun, label, sub, highlight }) => {
-              const isSelected = (islemlerData.teslimGunu || 7) === gun
-              return (
-                <button
-                  key={gun}
-                  type="button"
-                  onClick={() => handleUpdateTeslimGunu(gun)}
-                  className={cn(
-                    'flex flex-col items-center justify-center py-2 px-1 rounded-xl border text-center transition-all cursor-pointer active:scale-95 select-none',
-                    isSelected
-                      ? 'bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/20 font-bold scale-[1.02]'
-                      : highlight
-                        ? 'bg-amber-50/70 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200 border-amber-200/80 dark:border-amber-800/50 hover:bg-amber-100 dark:hover:bg-amber-900/40'
-                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-750'
-                  )}
-                >
-                  <span className="text-xs font-extrabold leading-tight">{label}</span>
-                  <span
-                    className={cn(
-                      'text-[9px] leading-tight mt-0.5',
-                      isSelected ? 'text-amber-100' : 'text-slate-400 dark:text-slate-500'
-                    )}
-                  >
-                    {sub}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Özel Gün & Tarih Seçimi */}
-          <div className="grid grid-cols-2 gap-2.5 pt-3 border-t border-slate-200/60 dark:border-slate-800">
-            <div>
-              <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1">
-                Özel Gün Sayısı:
+          {/* Özel Gün Sayısı & Tahmini Teslim Tarihi */}
+          <div className="grid grid-cols-2 gap-3 pt-3 mt-3 border-t border-slate-200/60 dark:border-slate-800">
+            {/* Özel Gün Stepper */}
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500">
+                Özel Gün Belirle:
               </label>
-              <div className="flex items-center">
+              <div className="flex items-center h-8 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-750 p-0.5 shadow-2xs">
                 <button
                   type="button"
-                  onClick={() =>
-                    handleUpdateTeslimGunu(Math.max(1, (islemlerData.teslimGunu || 1) - 1))
-                  }
-                  className="px-2.5 py-1 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 rounded-l-lg font-bold text-xs cursor-pointer transition-colors"
+                  onClick={() => handleUpdateTeslimGunu(Math.max(1, currentGun - 1))}
+                  className="w-7 h-full flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs cursor-pointer transition-colors"
                 >
                   -
                 </button>
@@ -111,27 +117,34 @@ export function Step4KabulVeSiparis({
                     const val = parseInt(e.target.value, 10)
                     if (!isNaN(val) && val > 0) handleUpdateTeslimGunu(val)
                   }}
-                  className="w-full px-1 py-1 text-center text-xs bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-slate-700 font-black text-slate-800 dark:text-slate-100"
+                  className="w-full text-center text-xs font-black text-slate-800 dark:text-slate-100 bg-transparent outline-hidden"
                 />
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 pr-1 select-none">
+                  gün
+                </span>
                 <button
                   type="button"
-                  onClick={() => handleUpdateTeslimGunu((islemlerData.teslimGunu || 0) + 1)}
-                  className="px-2.5 py-1 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 rounded-r-lg font-bold text-xs cursor-pointer transition-colors"
+                  onClick={() => handleUpdateTeslimGunu(currentGun + 1)}
+                  className="w-7 h-full flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs cursor-pointer transition-colors"
                 >
                   +
                 </button>
               </div>
             </div>
-            <div>
-              <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1">
+
+            {/* Tahmini Teslim Tarihi */}
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500">
                 Tahmini Teslim Tarihi:
               </label>
-              <input
-                type="date"
-                value={islemlerData.teslimTarihi || ''}
-                onChange={(e) => handleUpdateTeslimTarihi(e.target.value)}
-                className="w-full px-2 py-1 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-medium text-slate-800 dark:text-slate-100 cursor-pointer"
-              />
+              <div className="relative flex items-center h-8">
+                <input
+                  type="date"
+                  value={islemlerData.teslimTarihi || ''}
+                  onChange={(e) => handleUpdateTeslimTarihi(e.target.value)}
+                  className="w-full h-full px-2.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-750 rounded-xl font-medium text-slate-800 dark:text-slate-100 shadow-2xs cursor-pointer outline-hidden focus:border-blue-500"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -215,7 +228,8 @@ export function Step4KabulVeSiparis({
               Kabul Edilen Teklif Mektubu / Sipariş Formu
             </h4>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Fiyat araştırması sonucunun ve yukarıda belirlediğiniz yasal teslim süresinin kazanan istekliye tebliğ edildiği, alım kalemleri ve bedel tablosunu içeren resmi belgedir.
+              Fiyat araştırması sonucunun ve yukarıda belirlediğiniz yasal teslim süresinin kazanan
+              istekliye tebliğ edildiği, alım kalemleri ve bedel tablosunu içeren resmi belgedir.
             </p>
           </div>
         </div>
@@ -232,4 +246,3 @@ export function Step4KabulVeSiparis({
     </div>
   )
 }
-
