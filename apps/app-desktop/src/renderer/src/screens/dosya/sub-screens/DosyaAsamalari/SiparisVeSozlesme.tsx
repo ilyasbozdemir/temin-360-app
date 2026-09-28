@@ -5,7 +5,7 @@ import { useDosyaAsamasiSablons } from "./useDosyaAsamasiSablons";
 import {
   SiparisGuardWarning,
   SiparisKazananFirmaCard,
-  SiparisVeSozlesmeAccordion,
+  SiparisVeSozlesmeSteps,
   useSiparisDocumentOpener,
   useSiparisVeSozlesmeData,
 } from "./components/SiparisVeSozlesme";
@@ -89,8 +89,8 @@ export function SiparisVeSozlesme(): React.JSX.Element {
             onPrintContractLong={docOpener.handleOpenUzunFormSozlesme}
           />
 
-          {/* ═══ Akordeon Adımları ═══ */}
-          <SiparisVeSozlesmeAccordion
+          {/* ═══ Kibar & Sıralı İşlem Aşamaları ═══ */}
+          <SiparisVeSozlesmeSteps
             kazananFirmaUnvan={kazananFirmaUnvan}
             firmaStats={firmaStats}
             islemlerData={islemlerData}

@@ -10,5 +10,6 @@ export * from "./StepTimelineAll";
 export * from "./SiparisStepperNav";
 export * from "./SiparisGuardWarning";
 export * from "./SiparisVeSozlesmeAccordion";
+export * from "./SiparisVeSozlesmeSteps";
 export * from "./useSiparisVeSozlesmeData";
 export * from "./useSiparisDocumentOpener";
