@@ -1,6 +1,7 @@
-import React from 'react'
 import { Calculator, TrendingDown } from 'lucide-react'
 import { FirmaStats } from './types'
+import { hesaplaKesinti } from '../../../../../../utils/hesaplamalar'
+import type { JSX } from 'react'
 
 interface KabulFaturaHakedisCardProps {
   firmaStats: FirmaStats
@@ -18,11 +19,11 @@ export function KabulFaturaHakedisCard({
   onFaturaNoChange,
   onFaturaTarihiChange,
   formatCurrency
-}: KabulFaturaHakedisCardProps) {
+}: KabulFaturaHakedisCardProps): JSX.Element {
   const teklifToplami = firmaStats.teklifToplami || 0
-  const kdvTutari = teklifToplami * 0.2
-  const brutTutar = teklifToplami * 1.2
-  const damgaVergisi = teklifToplami * 0.00948
+  const kdvTutari = hesaplaKesinti(teklifToplami, '20', 'yuzde')
+  const brutTutar = teklifToplami + kdvTutari
+  const damgaVergisi = hesaplaKesinti(teklifToplami, '9.48', 'binde')
   const netOdenecek = brutTutar - damgaVergisi
 
   return (

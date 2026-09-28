@@ -49,4 +49,70 @@ export const formatTutar = (tutar: number): string => {
   }).format(tutar)
 }
 
+export interface VergiOraniItem {
+  id: string
+  ad: string
+  oran: string
+  tur: VergiOraniTuru
+  hesapKodu?: string
+}
+
+/**
+ * Settings (Ayarlar/Mevzuat) üzerinden vergi oranını bulur.
+ * Tanımlı değilse mevzuat varsayılanını (ör: 9,48 binde) döner.
+ */
+export const getAyarVergiOrani = (
+  settings: any,
+  turAd: 'hakedis_damga' | 'karar_damga' | 'kdv_20' | 'kdv_10' | 'kdv_1',
+  fallbackOran?: string,
+  fallbackTur?: VergiOraniTuru
+): { oran: string; tur: VergiOraniTuru } => {
+  if (settings?.rates) {
+    try {
+      const parsed: VergiOraniItem[] =
+        typeof settings.rates === 'string' ? JSON.parse(settings.rates) : settings.rates
+      if (Array.isArray(parsed)) {
+        if (turAd === 'hakedis_damga') {
+          const item = parsed.find(
+            (r) =>
+              r.ad?.toLowerCase().includes('hakediş') ||
+              r.ad?.toLowerCase().includes('hakedis') ||
+              r.id === '1'
+          )
+          if (item?.oran) return { oran: item.oran, tur: item.tur || 'binde' }
+        }
+        if (turAd === 'karar_damga') {
+          const item = parsed.find((r) => r.ad?.toLowerCase().includes('karar') || r.id === '2')
+          if (item?.oran) return { oran: item.oran, tur: item.tur || 'binde' }
+        }
+        if (turAd === 'kdv_20') {
+          const item = parsed.find((r) => r.oran === '20' || r.id === '3')
+          if (item?.oran) return { oran: item.oran, tur: item.tur || 'yuzde' }
+        }
+        if (turAd === 'kdv_10') {
+          const item = parsed.find((r) => r.oran === '10' || r.id === '4')
+          if (item?.oran) return { oran: item.oran, tur: item.tur || 'yuzde' }
+        }
+        if (turAd === 'kdv_1') {
+          const item = parsed.find((r) => r.oran === '1' || r.id === '5')
+          if (item?.oran) return { oran: item.oran, tur: item.tur || 'yuzde' }
+        }
+      }
+    } catch {
+      // ignore parse error
+    }
+  }
+
+  // Fallbacks
+  if (turAd === 'hakedis_damga') return { oran: fallbackOran || '9,48', tur: fallbackTur || 'binde' }
+  if (turAd === 'karar_damga') return { oran: fallbackOran || '5,69', tur: fallbackTur || 'binde' }
+  if (turAd === 'kdv_20') return { oran: fallbackOran || '20', tur: fallbackTur || 'yuzde' }
+  if (turAd === 'kdv_10') return { oran: fallbackOran || '10', tur: fallbackTur || 'yuzde' }
+  if (turAd === 'kdv_1') return { oran: fallbackOran || '1', tur: fallbackTur || 'yuzde' }
+
+  return { oran: fallbackOran || '9,48', tur: fallbackTur || 'binde' }
+}
+
 export { sayiyiYaziyaCevir, amountToWordsTL, numberToWords } from './sayiyiYaziyaCevir'
+export * from './priceDifference'
+

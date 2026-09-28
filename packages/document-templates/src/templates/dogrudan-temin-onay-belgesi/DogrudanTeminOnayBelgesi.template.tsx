@@ -44,13 +44,16 @@ const AVANS_OPTIONS = [
 ];
 
 const FIYAT_FARKI_OPTIONS = [
-  "Fiyat farkı verilmeyecektir.",
+  "Fiyat Farkı Ödenmeyecek.",
+  "Fiyat Farkı Ödenmeyecek",
+  "31.08.2013 Tarih ve 2013/5216 Sayılı Mal Alımı Bakanlar Kurulu Kararına Göre",
+  "31.08.2013 Tarih ve 2013/5215 Sayılı Hizmet Alımı Bakanlar Kurulu Kararına Göre",
   "Fiyat farkı verilecektir.",
   "Yürürlükteki Fiyat Farkı Kararnamesi esaslarına göre fiyat farkı hesaplanacaktır.",
 ];
 
 const DOKUMAN_OPTIONS = [
-  "Doküman hazırlanmayacaktır.",
+  "Hazırlanmayacaktır.",
   "İdari ve teknik şartname hazırlanacaktır.",
   "Sadece teknik şartname hazırlanacaktır.",
 ];
@@ -70,7 +73,10 @@ export function formatCurrency(val: any, fallback = "-"): string {
   if (str.endsWith("₺")) {
     return str;
   }
-  const clean = str.replace(/\./g, "").replace(",", ".").replace(/[^\d.-]/g, "");
+  const clean = str.replace(/\./g, "").replace(",", ".").replace(
+    /[^\d.-]/g,
+    "",
+  );
   const num = parseFloat(clean);
   if (!isNaN(num) && clean !== "") {
     return (
@@ -93,8 +99,7 @@ export function DogrudanTeminOnayBelgesi({
     (data.antetSatirlari && data.antetSatirlari[1]) ||
     "İDARE ADI";
 
-  const vmakamina =
-    data.vmakamina ||
+  const vmakamina = data.vmakamina ||
     data.makam ||
     data.makamAdi ||
     data.mudurluk ||
@@ -102,13 +107,21 @@ export function DogrudanTeminOnayBelgesi({
       ? `${data.kurumAdi.toUpperCase()} HARCAMA YETKİLİSİ MAKAMINA`
       : "HARCAMA YETKİLİSİ MAKAMINA");
 
-  const butceTertibiList =
-    Array.isArray(data.butceTertibi) && data.butceTertibi.length > 0
-      ? data.butceTertibi
-      : data.butceTertibi
-      ? [String(data.butceTertibi)]
-      : data.butceKodu
-      ? [String(data.butceKodu)]
+  const rawButceTertibi =
+    data.butceTertibi ||
+    data.odenekTertibi ||
+    data.butce_tertibi ||
+    data.butceKodu ||
+    data.butce_kodu ||
+    [];
+
+  const butceTertibiList: string[] =
+    Array.isArray(rawButceTertibi) && rawButceTertibi.length > 0
+      ? rawButceTertibi.map(String)
+      : typeof rawButceTertibi === "string" && rawButceTertibi.trim() !== "" && rawButceTertibi.trim() !== "-"
+      ? rawButceTertibi.split(/[\n,;]+/).map((s: string) => s.trim()).filter(Boolean)
+      : Array.isArray(data.kalemler) && data.kalemler.some((k: any) => k.butce_kodu || k.butceTertibi || k.butce_tertibi)
+      ? Array.from(new Set(data.kalemler.map((k: any) => k.butce_kodu || k.butceTertibi || k.butce_tertibi).filter(Boolean))) as string[]
       : [];
 
   const eklerList = Array.isArray(data.ekler) ? data.ekler : [];
@@ -162,12 +175,11 @@ export function DogrudanTeminOnayBelgesi({
           id: "odenekTutari",
           label: "Kullanılabilir Ödenek Tutarı",
           name: "odenekTutari",
-          value:
-            data.odenekTutari || data.kullanilabilirOdenek
-              ? formatCurrency(data.odenekTutari || data.kullanilabilirOdenek)
-              : data.yaklasikMaliyet
-              ? formatCurrency(data.yaklasikMaliyet)
-              : "Yeterli Ödenek Mevcuttur",
+          value: data.odenekTutari || data.kullanilabilirOdenek || data.kullanilabilir_odenek || data.odenek_tutari
+            ? formatCurrency(data.odenekTutari || data.kullanilabilirOdenek || data.kullanilabilir_odenek || data.odenek_tutari)
+            : data.yaklasikMaliyet
+            ? formatCurrency(data.yaklasikMaliyet)
+            : "Yeterli Ödenek Mevcuttur",
           placeholder: "Ödenek Tutarı",
         },
         {
@@ -217,7 +229,14 @@ export function DogrudanTeminOnayBelgesi({
           id: "fiyatFarkiSartlari",
           label: "Fiyat Farkı Verilecekse Şartları",
           name: "fiyatFarkiSartlari",
-          value: data.fiyatFarkiSartlari || "Fiyat farkı verilmeyecektir.",
+          value:
+            data.fiyatFarkiSartlari ||
+            data.fiyat_farki_dayanagi ||
+            data.fiyatFarkiDayanagi ||
+            (data.fiyat_farki_var_mi === 0 || data.fiyatFarkiVarMi === false
+              ? "Fiyat Farkı Ödenmeyecek."
+              : undefined) ||
+            "Fiyat Farkı Ödenmeyecek.",
           placeholder: "Fiyat Farkı Şartları",
           selectOptions: FIYAT_FARKI_OPTIONS,
         },
@@ -225,7 +244,7 @@ export function DogrudanTeminOnayBelgesi({
           id: "dokumanHazirlik",
           label: "Doküman Hazırlanıp Hazırlanmayacağı",
           name: "dokumanHazirlik",
-          value: data.dokumanHazirlik || "Doküman hazırlanmayacaktır.",
+          value: data.dokumanHazirlik || "Hazırlanmayacaktır.",
           placeholder: "Doküman Durumu",
           selectOptions: DOKUMAN_OPTIONS,
         },

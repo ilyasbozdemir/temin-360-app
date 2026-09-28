@@ -6,6 +6,7 @@ import { calculateNeedItems } from './contextBuilder/itemsHelpers'
 import { buildKapakDetaylari, parseAciklamaMaddeleri } from './contextBuilder/kapakHelpers'
 import { buildFormattedEvrakSayisi } from './contextBuilder/evrakHelpers'
 import { getKurumIhtiyacYeriDefault } from '../../utils/kurumHelper'
+import { hesaplaKesinti, getAyarVergiOrani } from '../../utils/hesaplamalar'
 
 export { formatDateString, getFileDate }
 
@@ -283,7 +284,10 @@ export function buildDocumentContext(
     genelToplamYazi: paraYaziyaCevir(grandTotal),
     sozlesmeBedeli: genelToplam,
     sozlesmeBedeliYazi: paraYaziyaCevir(grandTotal),
-    pulBedeli: formatTR(grandTotal * 0.00948),
+    pulBedeli: (() => {
+      const damgaRate = getAyarVergiOrani(settings, 'hakedis_damga', '9,48', 'binde')
+      return formatTR(hesaplaKesinti(grandTotal, damgaRate.oran, damgaRate.tur))
+    })(),
     teklifler: calculatedTeklifler,
     enAvantajliTeklifSahibi,
     enAvantajliTeklifBedeli,
