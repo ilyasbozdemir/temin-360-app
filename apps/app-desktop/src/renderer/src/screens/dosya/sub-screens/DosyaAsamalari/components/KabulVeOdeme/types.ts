@@ -4,4 +4,8 @@ export interface FirmaStats {
   teslimTarihi: string | null
   yasaklilikDurumu: string | null
   vergiNo: string | null
+  fiyatFarkiDayanagi?: string | null
+  alimTuru?: string | null
+  dosyaTarihi?: string | null
 }
+
