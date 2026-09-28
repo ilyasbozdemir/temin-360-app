@@ -24,6 +24,7 @@ export const APP_ROUTES = {
   TASLAK_YONETIM: '/taslakyonetim',
   RAPORLAR: '/raporlar',
   OKAS_KOD: '/okaskod',
+  BUTCE_KOD: '/butcekod',
   MEVZUAT: '/mevzuat',
   CHANGELOG: '/changelog',
   YARDIM: '/yardim',

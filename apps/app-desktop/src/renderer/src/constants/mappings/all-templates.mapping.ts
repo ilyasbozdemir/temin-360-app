@@ -385,15 +385,45 @@ export const ButceSorgusuMapping: ProcessMapping = {
   butceYili: { tablo: 'DATA_TeminDosyasi', sutun: 'butce_yili', aciklama: 'Bütçe Yılı' },
   butceTertibi: { tablo: 'DATA_TeminDosyasi', sutun: 'butce_tertibi', aciklama: 'Bütçe Tertibi' },
   isAdi: { tablo: 'DATA_TeminDosyasi', sutun: 'konu', aciklama: 'İşin Adı' },
+  harcamaYetkilisiAdi: {
+    tablo: 'DATA_TeminDosyasi',
+    sutun: 'onaylayan_personel_ad',
+    aciklama: 'Harcama Yetkilisi (Onaylayan)'
+  },
+  harcamaYetkilisiUnvan: {
+    tablo: 'DATA_TeminDosyasi',
+    sutun: 'onaylayan_personel_unvan',
+    aciklama: 'Harcama Yetkilisi Ünvanı'
+  },
+  onaylayanPersonelAdi: {
+    tablo: 'DATA_TeminDosyasi',
+    sutun: 'onaylayan_personel_ad',
+    aciklama: 'Harcama Yetkilisi'
+  },
+  onaylayanPersonelUnvan: {
+    tablo: 'DATA_TeminDosyasi',
+    sutun: 'onaylayan_personel_unvan',
+    aciklama: 'Harcama Yetkilisi Ünvanı'
+  },
+  baskanAdi: {
+    tablo: 'DATA_TeminDosyasi',
+    sutun: 'onaylayan_personel_ad',
+    aciklama: 'Harcama Yetkilisi'
+  },
+  baskanUnvan: {
+    tablo: 'DATA_TeminDosyasi',
+    sutun: 'onaylayan_personel_unvan',
+    aciklama: 'Harcama Yetkilisi Ünvanı'
+  },
   hazirlayanPersonelAdi: {
     tablo: 'DATA_TeminDosyasi',
-    sutun: 'hazirlayan_personel_ad',
-    aciklama: 'Hazırlayan Personel'
+    sutun: 'onaylayan_personel_ad',
+    aciklama: 'Harcama Yetkilisi'
   },
   hazirlayanPersonelUnvan: {
     tablo: 'DATA_TeminDosyasi',
-    sutun: 'hazirlayan_personel_unvan',
-    aciklama: 'Hazırlayan Personel Ünvanı'
+    sutun: 'onaylayan_personel_unvan',
+    aciklama: 'Harcama Yetkilisi Ünvanı'
   }
 }
 
@@ -404,6 +434,9 @@ export const DogrudanTeminOnayBelgesiMapping: ProcessMapping = {
   kurumUst: { tablo: 'TANIM_Kurum', sutun: 'ust_kurum_adi', aciklama: 'Üst İdari Birim' },
   kurumAdi: { tablo: 'TANIM_Kurum', sutun: 'kurum_adi', aciklama: 'Kurum Adı' },
   mudurluk: { tablo: 'TANIM_Kurum', sutun: 'makam_adi', aciklama: 'Müdürlük / Makam' },
+  makam: { tablo: 'TANIM_Kurum', sutun: 'makam_adi', aciklama: 'Sunulacak Makam' },
+  vmakamina: { tablo: 'TANIM_Kurum', sutun: 'makam_adi', aciklama: 'Sunulacak Makam' },
+  makamAdi: { tablo: 'TANIM_Kurum', sutun: 'makam_adi', aciklama: 'Sunulacak Makam' },
   idareAdi: { tablo: 'TANIM_Kurum', sutun: 'kurum_adi', aciklama: 'İdare Adı' },
   evrakSayisi: {
     formul:

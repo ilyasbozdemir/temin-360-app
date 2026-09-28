@@ -8,6 +8,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Coins,
   Database,
   FileText,
   FolderKanban,
@@ -138,6 +139,7 @@ const menuGroups: MenuGroup[] = [
           },
           { name: 'Taşınır Kodları', path: '/tasinirkod', icon: FolderTree },
           { name: 'OKAS Kodları', path: '/okaskod', icon: Tag },
+          { name: 'Bütçe Kodları (4 Düzey)', path: '/butcekod', icon: Coins },
           { name: 'Birim Fiyat Pozları', path: '/pozlar', icon: BookOpen },
           { name: 'Ölçü Birimleri', path: '/olcubirimleri', icon: Ruler }
         ]

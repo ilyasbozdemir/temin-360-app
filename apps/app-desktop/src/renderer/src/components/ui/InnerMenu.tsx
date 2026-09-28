@@ -55,6 +55,7 @@ export function InnerMenu({
         return (
           <button
             key={item.id}
+            type="button"
             onClick={() => onChange(item.id)}
             className={cn(
               'flex items-center gap-3 shrink-0 py-2 px-3 lg:py-2.5 lg:px-4 rounded-xl transition-all w-auto lg:w-full text-left',

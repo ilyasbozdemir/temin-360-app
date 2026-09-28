@@ -123,12 +123,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     supportsOlur: false,
   },
   {
-    id: "dogrudan-temin-sonuc-onay-belgesi",
-    name: "DogrudanTeminSonucOnayBelgesi",
-    category: "3-siparis-ve-sozlesme",
-    supportsOlur: true,
-  },
-  {
     id: "dogrudan-temin-onay-belgesi",
     name: "DogrudanTeminOnayBelgesi",
     category: "3-siparis-ve-sozlesme",

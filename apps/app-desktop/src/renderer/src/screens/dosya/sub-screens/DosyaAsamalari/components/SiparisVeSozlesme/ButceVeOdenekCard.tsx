@@ -23,7 +23,7 @@ export interface ButceVeOdenekData {
   butceGerekce: string
 }
 
-export interface OdenekTertipItem {
+interface OdenekTertipItem {
   id?: string
   kod: string
   ad: string
@@ -37,7 +37,7 @@ interface ButceVeOdenekCardProps {
   className?: string
 }
 
-export const DEFAULT_ODENEK_TERTIPLERI: OdenekTertipItem[] = [
+const DEFAULT_ODENEK_TERTIPLERI: OdenekTertipItem[] = [
   { kod: '03.2.1.01', ad: 'Kırtasiye ve Büro Malzemesi Alımları' },
   { kod: '03.2.1.02', ad: 'Büro Mefruşatı ve Donanım Alımları' },
   { kod: '03.2.1.05', ad: 'Baskı ve Cilt Giderleri' },
@@ -95,7 +95,7 @@ export function ButceVeOdenekCard({
   const [savedSuccess, setSavedSuccess] = useState(false)
 
   // Save presets to localStorage
-  const savePresetsToStorage = (updatedList: OdenekTertipItem[]) => {
+  const savePresetsToStorage = (updatedList: OdenekTertipItem[]): void => {
     setPresets(updatedList)
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedList))
@@ -105,7 +105,7 @@ export function ButceVeOdenekCard({
   }
 
   // Add new custom preset
-  const handleAddPreset = (e?: React.FormEvent) => {
+  const handleAddPreset = (e?: React.FormEvent): void => {
     if (e) e.preventDefault()
     const trimmedKod = newKod.trim()
     const trimmedAd = newAd.trim()
@@ -131,7 +131,7 @@ export function ButceVeOdenekCard({
   }
 
   // Add currently typed values to presets
-  const handleSaveCurrentAsPreset = () => {
+  const handleSaveCurrentAsPreset = (): void => {
     const trimmedKod = formData.odenekTertibi.trim()
     const trimmedAd = formData.odenekKalemi.trim()
     if (!trimmedKod) return
@@ -152,15 +152,18 @@ export function ButceVeOdenekCard({
   }
 
   // Delete a preset
-  const handleDeletePreset = (kodToDelete: string, e: React.MouseEvent) => {
+  const handleDeletePreset = (kodToDelete: string, e: React.MouseEvent): void => {
     e.stopPropagation()
     const updated = presets.filter((p) => p.kod !== kodToDelete)
     savePresetsToStorage(updated)
   }
 
   // Reset to defaults
-  const handleResetPresets = () => {
-    if (confirm('Bütçe tertipleri listesini varsayılan fabrika ayarlarına sıfırlamak istiyor musunuz?')) {
+  const handleResetPresets = (): void => {
+    const confirmed = confirm(
+      'Bütçe tertipleri listesini varsayılan fabrika ayarlarına sıfırlamak istiyor musunuz?'
+    )
+    if (confirmed) {
       savePresetsToStorage(DEFAULT_ODENEK_TERTIPLERI)
     }
   }
@@ -170,7 +173,6 @@ export function ButceVeOdenekCard({
     if (!activeDosyaId) return
 
     let isMounted = true
-    setLoading(true)
 
     window.electron.ipcRenderer
       .invoke(
@@ -178,7 +180,7 @@ export function ButceVeOdenekCard({
         'SELECT odenek_tertibi, kullanilabilir_odenek, butce_yili, odenek_kalemi, butce_gerekce FROM DATA_TeminDosyasi WHERE id = ?',
         [activeDosyaId]
       )
-      .then((res: any) => {
+      .then((res: { success?: boolean; data?: Array<Record<string, string>> }) => {
         if (isMounted && res?.success && res.data && res.data[0]) {
           const row = res.data[0]
           setFormData({
@@ -190,7 +192,7 @@ export function ButceVeOdenekCard({
           })
         }
       })
-      .catch((err: any) => {
+      .catch((err: unknown) => {
         console.error('Failed to load budget details for file:', err)
       })
       .finally(() => {
@@ -447,7 +449,7 @@ export function ButceVeOdenekCard({
               value={newKod}
               onChange={(e) => setNewKod(e.target.value)}
               placeholder="Tertip Kodu (Örn: 03.2.1.09 veya Kurum Tertibi)"
-              className="flex-1 min-w-[150px] px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-semibold focus:outline-none focus:ring-1 focus:ring-amber-500 text-xs"
+              className="flex-1 min-w-37.5 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-semibold focus:outline-none focus:ring-1 focus:ring-amber-500 text-xs"
               autoFocus
             />
             <input
@@ -455,7 +457,7 @@ export function ButceVeOdenekCard({
               value={newAd}
               onChange={(e) => setNewAd(e.target.value)}
               placeholder="Açıklama / Kalem Adı (Örn: Özel Güvenlik Hizmeti Alımı)"
-              className="flex-2 min-w-[200px] px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-amber-500 text-xs"
+              className="flex-2 min-w-50 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-amber-500 text-xs"
             />
             <button
               type="submit"

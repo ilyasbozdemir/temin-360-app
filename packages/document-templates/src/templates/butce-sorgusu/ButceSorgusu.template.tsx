@@ -183,29 +183,29 @@ export function ButceSorgusu({
         >
           <div style={{ fontWeight: "bold" }}>
             <PersonelInlineSelect
-              nameField="hazirlayanPersonelAdi"
-              unvanField="hazirlayanPersonelUnvan"
+              nameField="harcamaYetkilisiAdi"
+              unvanField="harcamaYetkilisiUnvan"
               value={
-                data.hazirlayanPersonelAdi ||
                 data.harcamaYetkilisiAdi ||
                 data.onaylayanPersonelAdi ||
-                data.piyasaGorevlisi1Adi
+                data.baskanAdi ||
+                data.hazirlayanPersonelAdi ||
+                ""
               }
               placeholder="Ad Soyad"
             />
           </div>
           <div style={{ fontSize: "10pt", color: "#333" }}>
             <EditableField
-              name="hazirlayanPersonelUnvan"
+              name="harcamaYetkilisiUnvan"
               value={
-                data.hazirlayanPersonelUnvan ||
                 data.harcamaYetkilisiUnvan ||
                 data.onaylayanPersonelUnvan ||
-                data.kurumGorevAdi ||
-                data.piyasaGorevlisi1Unvani ||
+                data.baskanUnvan ||
+                data.hazirlayanPersonelUnvan ||
                 "Harcama Yetkilisi"
               }
-              placeholder="Ünvan"
+              placeholder="Harcama Yetkilisi"
             />
           </div>
         </div>

@@ -40,21 +40,22 @@ export function useSiparisDocumentOpener({
   const handleOpenSonucOnay = (): void => {
     const s = stageSablons.find(
       (sb) =>
+        normalizeForMatch(sb.dosya_adi + sb.ad).includes('dogrudanteminonay') ||
         normalizeForMatch(sb.dosya_adi + sb.ad).includes('sonuconay') ||
-        normalizeForMatch(sb.dosya_adi + sb.ad).includes('sonuc') ||
+        normalizeForMatch(sb.dosya_adi + sb.ad).includes('onaybelgesi') ||
         normalizeForMatch(sb.dosya_adi + sb.ad).includes('karar')
     )
     if (s) {
       handleOpenPreviewForSablon(
         s,
-        s.ad || 'Doğrudan Temin Sonuç Onay Belgesi',
+        s.ad || 'Doğrudan Temin Onay Belgesi',
         { ekler: sonucOnayEkler, ...sharedInitialData }
       )
     } else {
       useGlobalDocumentPreviewStore.getState().openDocument({
-        documentId: 'dogrudan-temin-sonuc-onay-belgesi',
+        documentId: 'dogrudan-temin-onay-belgesi',
         dosyaId: activeDosyaId || undefined,
-        documentTitle: 'Doğrudan Temin Sonuç Onay Belgesi',
+        documentTitle: 'Doğrudan Temin Onay Belgesi',
         initialData: { ekler: sonucOnayEkler, ...sharedInitialData }
       })
     }

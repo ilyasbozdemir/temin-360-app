@@ -55,6 +55,34 @@ const DOKUMAN_OPTIONS = [
   "Sadece teknik şartname hazırlanacaktır.",
 ];
 
+export function formatCurrency(val: any, fallback = "-"): string {
+  if (val === undefined || val === null || val === "") return fallback;
+  if (typeof val === "number") {
+    if (isNaN(val)) return fallback;
+    return (
+      val.toLocaleString("tr-TR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }) + " ₺"
+    );
+  }
+  const str = String(val).trim();
+  if (str.endsWith("₺")) {
+    return str;
+  }
+  const clean = str.replace(/\./g, "").replace(",", ".").replace(/[^\d.-]/g, "");
+  const num = parseFloat(clean);
+  if (!isNaN(num) && clean !== "") {
+    return (
+      num.toLocaleString("tr-TR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }) + " ₺"
+    );
+  }
+  return str;
+}
+
 export function DogrudanTeminOnayBelgesi({
   data = {},
   pageSize = "A4",
@@ -64,6 +92,15 @@ export function DogrudanTeminOnayBelgesi({
     data.kurumAdi ||
     (data.antetSatirlari && data.antetSatirlari[1]) ||
     "İDARE ADI";
+
+  const vmakamina =
+    data.vmakamina ||
+    data.makam ||
+    data.makamAdi ||
+    data.mudurluk ||
+    (data.kurumAdi
+      ? `${data.kurumAdi.toUpperCase()} HARCAMA YETKİLİSİ MAKAMINA`
+      : "HARCAMA YETKİLİSİ MAKAMINA");
 
   const butceTertibiList =
     Array.isArray(data.butceTertibi) && data.butceTertibi.length > 0
@@ -117,7 +154,7 @@ export function DogrudanTeminOnayBelgesi({
           id: "yaklasikMaliyet",
           label: "Yaklaşık Maliyet",
           name: "yaklasikMaliyet",
-          value: data.yaklasikMaliyet ? `${data.yaklasikMaliyet} ₺` : "-",
+          value: formatCurrency(data.yaklasikMaliyet),
           placeholder: "0,00 ₺",
           isBold: true,
         },
@@ -126,12 +163,10 @@ export function DogrudanTeminOnayBelgesi({
           label: "Kullanılabilir Ödenek Tutarı",
           name: "odenekTutari",
           value:
-            data.odenekTutari || data.kullanilabilirOdenek ||
-              data.yaklasikMaliyet
-              ? `${
-                data.odenekTutari || data.kullanilabilirOdenek ||
-                data.yaklasikMaliyet
-              } ₺`
+            data.odenekTutari || data.kullanilabilirOdenek
+              ? formatCurrency(data.odenekTutari || data.kullanilabilirOdenek)
+              : data.yaklasikMaliyet
+              ? formatCurrency(data.yaklasikMaliyet)
               : "Yeterli Ödenek Mevcuttur",
           placeholder: "Ödenek Tutarı",
         },
@@ -298,22 +333,22 @@ export function DogrudanTeminOnayBelgesi({
           </tbody>
         </table>
 
-        {/* CENTERED IDARE BOX */}
+        {/* CENTERED MAKAM / MUHATAP BOX */}
         <div
           style={{
             border: "1px solid #000",
             textAlign: "center",
             fontWeight: "bold",
-            padding: "5px",
+            padding: "6px",
             margin: "8px 0",
             textTransform: "uppercase",
             fontSize: "10pt",
           }}
         >
           <EditableField
-            name="idareAdiBox"
-            value={idareAdi}
-            placeholder="İdare / Kurum Adı"
+            name="vmakamina"
+            value={vmakamina}
+            placeholder="Makam Adı (Örn: HARCAMA YETKİLİSİ MAKAMINA)"
           />
         </div>
 

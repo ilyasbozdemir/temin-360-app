@@ -20,6 +20,7 @@ import { SABLON_Placeholder } from './tables/SABLON_Placeholder'
 import { TANIM_Kalem } from './tables/TANIM_Kalem'
 import { TANIM_TasinirKod } from './tables/TANIM_TasinirKod'
 import { TANIM_OkasKod } from './tables/TANIM_OkasKod'
+import { TANIM_ButceKod } from './tables/TANIM_ButceKod'
 import { TANIM_KodSozlugu } from './tables/TANIM_KodSozlugu'
 import { TANIM_OlcuBirimi } from './tables/TANIM_OlcuBirimi'
 import { TANIM_BirimDonusum } from './tables/TANIM_BirimDonusum'
@@ -58,6 +59,7 @@ const rawTables = [
   TANIM_Proje,
   TANIM_TasinirKod,
   TANIM_OkasKod,
+  TANIM_ButceKod,
   TANIM_Kalem,
   TANIM_OlcuBirimi,
   TANIM_BirimDonusum,

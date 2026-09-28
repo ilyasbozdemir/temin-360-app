@@ -29,7 +29,6 @@ export * from "./templates/piyasa-fiyat-arastirma-gorevlendirmesi";
 export * from "./templates/yaklasik-maliyet-cetveli";
 export * from "./templates/kabul-edilen-teklif";
 export * from "./templates/dogrudan-temin-onay-belgesi";
-export * from "./templates/dogrudan-temin-sonuc-onay-belgesi";
 export * from "./templates/dogrudan-temin-sozlesmesi";
 export * from "./templates/butce-sorgusu";
 export * from "./templates/sozlesmeye-davet";

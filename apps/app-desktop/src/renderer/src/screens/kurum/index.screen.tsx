@@ -23,7 +23,7 @@ import { KurumViewCard } from './components/KurumViewCard'
 import { KeyValuePair, KurumMetadataManager } from './components/KurumMetadataManager'
 import { useSettingsStore } from '../../store/settingsStore'
 
-import { useNavigate, useRouterState } from '@tanstack/react-router'
+import { useRouterState } from '@tanstack/react-router'
 
 import BirimlerScreen from '../birimler/index.screen'
 import PersonelScreen from '../personel/index.screen'
@@ -33,6 +33,7 @@ import AmbarScreen from '../ambar/index.screen'
 import ProjelerScreen from '../projeler/index.screen'
 
 type TabType =
+  | 'onizleme'
   | 'idari'
   | 'mali'
   | 'iletisim'
@@ -56,7 +57,6 @@ export default function KurumScreen(): React.JSX.Element {
   } = useSettingsStore()
 
   const [saving, setSaving] = useState(false)
-  const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
   const [localData, setLocalData] = useState<Partial<KurumVerisi>>({})
   const [institutionLetterhead, setInstitutionLetterhead] = useState<string[]>([])
@@ -75,39 +75,51 @@ export default function KurumScreen(): React.JSX.Element {
     fetchKurum()
   }, [fetchKurum])
 
-  const navigate = useNavigate()
   const routerState = useRouterState()
   const pathname = routerState.location.pathname
 
-  const locationSearch = routerState.location.search as any
-  const hashSearch = window.location.hash.includes('?')
-    ? window.location.hash.substring(window.location.hash.indexOf('?'))
-    : ''
-  const searchParams = new URLSearchParams(hashSearch || window.location.search)
-  const queryTab =
-    (typeof locationSearch === 'object' ? locationSearch?.tab : null) || searchParams.get('tab')
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    const hashPart = window.location.hash.includes('?')
+      ? window.location.hash.substring(window.location.hash.indexOf('?'))
+      : ''
+    const searchParams = new URLSearchParams(hashPart || window.location.search)
+    const tabParam = searchParams.get('tab') as TabType
+    if (
+      tabParam &&
+      [
+        'onizleme',
+        'idari',
+        'mali',
+        'iletisim',
+        'logolar',
+        'birimler',
+        'personel',
+        'komisyonlar',
+        'komisyon-gorevleri',
+        'ambar',
+        'projeler'
+      ].includes(tabParam)
+    ) {
+      return tabParam
+    }
+    if (pathname === '/birimler') return 'birimler'
+    if (pathname === '/personel') return 'personel'
+    if (pathname === '/komisyonlar') return 'komisyonlar'
+    if (pathname === '/komisyon-gorevleri') return 'komisyon-gorevleri'
+    if (pathname === '/ambar') return 'ambar'
+    if (pathname === '/projeler') return 'projeler'
+    return 'onizleme'
+  })
 
-  const resolveTab = (): TabType => {
-    if (pathname === '/birimler' || queryTab === 'birimler') return 'birimler'
-    if (pathname === '/personel' || queryTab === 'personel') return 'personel'
-    if (pathname === '/komisyonlar' || queryTab === 'komisyonlar') return 'komisyonlar'
-    if (pathname === '/komisyon-gorevleri' || queryTab === 'komisyon-gorevleri')
-      return 'komisyon-gorevleri'
-    if (pathname === '/ambar' || queryTab === 'ambar') return 'ambar'
-    if (pathname === '/projeler' || queryTab === 'projeler') return 'projeler'
-    if (queryTab === 'mali') return 'mali'
-    if (queryTab === 'iletisim') return 'iletisim'
-    if (queryTab === 'logolar') return 'logolar'
-    return 'idari'
-  }
-
-  const [activeTab, setActiveTab] = useState<TabType>(resolveTab)
-
-  // Sync state with router search params
+  // Sync state when top-level pathname changes (e.g. sidebar navigation)
   useEffect(() => {
-    const nextTab = resolveTab()
-    setActiveTab(nextTab)
-  }, [pathname, queryTab])
+    if (pathname === '/birimler') setActiveTab('birimler')
+    else if (pathname === '/personel') setActiveTab('personel')
+    else if (pathname === '/komisyonlar') setActiveTab('komisyonlar')
+    else if (pathname === '/komisyon-gorevleri') setActiveTab('komisyon-gorevleri')
+    else if (pathname === '/ambar') setActiveTab('ambar')
+    else if (pathname === '/projeler') setActiveTab('projeler')
+  }, [pathname])
 
   // Sync form when kurumData changes
   useEffect(() => {
@@ -208,10 +220,17 @@ export default function KurumScreen(): React.JSX.Element {
 
   const handleTabChange = (tabId: string): void => {
     setActiveTab(tabId as TabType)
-    navigate({
-      to: '/kurum' as any,
-      search: { tab: tabId } as any
-    })
+    try {
+      const url = new URL(window.location.href)
+      if (url.hash.includes('?')) {
+        url.hash = url.hash.split('?')[0] + `?tab=${tabId}`
+      } else {
+        url.hash = url.hash + `?tab=${tabId}`
+      }
+      window.history.replaceState(null, '', url.toString())
+    } catch {
+      // ignore
+    }
   }
 
   const menuItems: InnerMenuItem[] = [
@@ -222,9 +241,14 @@ export default function KurumScreen(): React.JSX.Element {
       icon: null
     },
     {
+      id: 'onizleme',
+      label: 'Genel Profil & Önizleme',
+      icon: <Eye className="w-4 h-4 shrink-0 text-blue-600" />
+    },
+    {
       id: 'idari',
       label: 'İdari Bilgiler',
-      icon: <Building2 className="w-4 h-4 shrink-0 text-blue-600" />
+      icon: <Building2 className="w-4 h-4 shrink-0 text-indigo-600" />
     },
     {
       id: 'mali',
@@ -238,7 +262,7 @@ export default function KurumScreen(): React.JSX.Element {
     },
     {
       id: 'logolar',
-      label: 'Kurum Logoları',
+      label: 'Kurum Logoları ve Antet',
       icon: <Building2 className="w-4 h-4 shrink-0 text-violet-600" />
     },
     {
@@ -293,7 +317,7 @@ export default function KurumScreen(): React.JSX.Element {
     )
   }
 
-  const isKurumTab = ['idari', 'mali', 'iletisim', 'logolar'].includes(activeTab)
+  const isKurumTab = ['onizleme', 'idari', 'mali', 'iletisim', 'logolar'].includes(activeTab)
 
   return (
     <div className="max-w-[1600px] mx-auto flex flex-col gap-6 w-full animate-in fade-in duration-200">
@@ -315,70 +339,61 @@ export default function KurumScreen(): React.JSX.Element {
                 <div>
                   <h1 className="text-2xl font-bold tracking-tight flex items-center gap-3 text-slate-850 dark:text-slate-100">
                     <Building2 className="w-7 h-7 text-blue-600" />
+                    {activeTab === 'onizleme' && 'Kurum Profili ve Genel Önizleme'}
                     {activeTab === 'idari' && 'İdari Kurum Bilgileri'}
                     {activeTab === 'mali' && 'Mali ve Bütçe Kodları'}
                     {activeTab === 'iletisim' && 'İletişim & Konum Bilgileri'}
                     {activeTab === 'logolar' && 'Kurum Logoları ve Antet'}
                   </h1>
                   <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
-                    Resmi evrak çıktılarında ve sistem genelinde dinamik olarak kullanılan kurum
-                    parametreleri.
+                    {activeTab === 'onizleme'
+                      ? 'Resmi kurum başlığı, DETSİS durumu ve genel parametrelerin özet profili.'
+                      : 'Resmi evrak çıktılarında ve sistem genelinde dinamik olarak kullanılan kurum parametreleri.'}
                   </p>
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
-                  {/* View / Edit Mode Switcher */}
-                  <div className="p-1 rounded-xl bg-slate-200/80 dark:bg-slate-800 flex items-center gap-1 shadow-inner">
-                    <button
-                      type="button"
-                      onClick={() => setIsEditMode(false)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        !isEditMode
-                          ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
-                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                      }`}
-                      title="Özet profil ve resmi başlık görünümü"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>Genel Profil & Önizleme</span>
-                    </button>
+                  {activeTab !== 'onizleme' ? (
+                    <>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => handleTabChange('onizleme')}
+                        className="gap-1.5 text-xs font-bold rounded-xl py-2 px-3.5 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                      >
+                        <Eye className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Genel Profil</span>
+                      </Button>
 
-                    <button
-                      type="button"
-                      onClick={() => setIsEditMode(true)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        isEditMode
-                          ? 'bg-blue-600 text-white shadow-xs'
-                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                      }`}
-                      title="Form ve veri düzenleme modu"
+                      <Button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-2 px-5 text-xs font-bold transition-all shadow-md shadow-emerald-500/20 shrink-0 cursor-pointer"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        {saving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      onClick={() => handleTabChange('idari')}
+                      className="gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-2 px-5 text-xs font-bold transition-all shadow-md shadow-blue-500/20 shrink-0 cursor-pointer"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
-                      <span>Form / Düzenleme</span>
-                    </button>
-                  </div>
-
-                  {isEditMode && (
-                    <Button
-                      onClick={handleSave}
-                      disabled={saving}
-                      className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-2 px-5 text-xs font-bold transition-all shadow-md shadow-emerald-500/20 shrink-0 cursor-pointer"
-                    >
-                      <Save className="w-3.5 h-3.5" />
-                      {saving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
+                      <span>Bilgileri Düzenle</span>
                     </Button>
                   )}
                 </div>
               </div>
 
               {/* Main Content: Full Card View vs Edit Form */}
-              {!isEditMode ? (
+              {activeTab === 'onizleme' ? (
                 <KurumViewCard
                   data={localData}
                   institutionLetterhead={institutionLetterhead}
                   parentInstitutionLines={parentInstitutionLines}
                   customMetadata={customMetadata}
-                  onEditClick={() => setIsEditMode(true)}
+                  onEditClick={() => handleTabChange('idari')}
                 />
               ) : (
                 <div className="space-y-6">

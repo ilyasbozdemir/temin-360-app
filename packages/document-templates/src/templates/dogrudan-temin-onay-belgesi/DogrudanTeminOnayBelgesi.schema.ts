@@ -4,6 +4,10 @@ import { BaseDocumentSchema } from "../../base.schema";
 export const DogrudanTeminOnayBelgesiSchema = BaseDocumentSchema.extend({
   teminNo: z.string().optional().describe("Doğrudan Temin Numarası"),
   idareAdi: z.string().optional().describe("İdare Adı"),
+  makam: z.string().optional().describe("Makam / Muhatap Adı"),
+  vmakamina: z.string().optional().describe("Sunulacak Makam"),
+  makamAdi: z.string().optional().describe("Makam Adı"),
+  mudurluk: z.string().optional().describe("Müdürlük / Makam"),
   dosyaTarihi: z.string().optional().describe("Belge Tarihi"),
   evrakSayisi: z.string().optional().describe("Evrak Sayısı"),
   isAdi: z.string().optional().describe("İşin Adı"),
