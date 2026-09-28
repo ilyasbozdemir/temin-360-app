@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { CreditCard, PackageCheck } from 'lucide-react'
+import { CreditCard, PackageCheck, Users } from 'lucide-react'
 import { SubScreen } from '../../SubScreens.screen'
 import { useDosyaAsamasiSablons } from './useDosyaAsamasiSablons'
 import { PrintDropdownButton } from '../../components/PrintDropdownButton'
@@ -7,12 +7,14 @@ import { useSettingsStore } from '../../../../store/settingsStore'
 import { useWorkspaceStore } from '../../../../store/workspaceStore'
 import { TifOlusturModal } from '../../../../components/ui/TifOlusturModal'
 import { Button } from '../../../../components/ui/Button'
+import { KomisyonAtamaModal } from '../components/MalzemeListesi/components/KomisyonAtamaModal'
 import {
   FirmaStats,
   KabulGuardWarning,
   KabulYukleniciCard,
   KabulAsamalariTimeline,
-  KabulFaturaHakedisCard
+  KabulFaturaHakedisCard,
+  KabulTutanaklariListCard
 } from './components/KabulVeOdeme'
 
 export function KabulVeOdeme(): React.JSX.Element {
@@ -34,15 +36,11 @@ export function KabulVeOdeme(): React.JSX.Element {
   const { disableDocumentGuidance } = useSettingsStore()
   const { activeDosyaId } = useWorkspaceStore()
 
-  const stageSablons = sablons.filter(
-    (s) =>
-      s.kategori === '4-kabul-ve-odeme-islemleri' ||
-      s.kategori === '4. Muayene & Kabul & Ödeme İşlemleri'
-  )
-
   // Kazanan firma guard state
   const [kazananFirmaId, setKazananFirmaId] = useState<number | null | undefined>(undefined)
   const [kazananFirmaUnvan, setKazananFirmaUnvan] = useState<string>('')
+  const [komisyonBaskani, setKomisyonBaskani] = useState<string>('')
+  const [teslimYeri, setTeslimYeri] = useState<string>('')
 
   // İstatistik verileri
   const [firmaStats, setFirmaStats] = useState<FirmaStats>({
@@ -50,13 +48,81 @@ export function KabulVeOdeme(): React.JSX.Element {
     yaklasikMaliyet: null,
     teslimTarihi: null,
     yasaklilikDurumu: null,
-    vergiNo: null
+    vergiNo: null,
+    alimTuru: 'mal'
   })
 
   // Fatura & Hakediş state
   const [faturaNo, setFaturaNo] = useState<string>('')
   const [faturaTarihi, setFaturaTarihi] = useState<string>('')
   const [isTifModalOpen, setIsTifModalOpen] = useState(false)
+  const [isKomisyonModalOpen, setIsKomisyonModalOpen] = useState(false)
+  const [sablonFilter, setSablonFilter] = useState<
+    'otomatik' | 'tumu' | 'mal' | 'hizmet' | 'odeme'
+  >('otomatik')
+
+  const alimTuru = (firmaStats.alimTuru || 'mal').toLowerCase()
+  const isMal = alimTuru === 'mal'
+  const isHizmet = alimTuru === 'hizmet'
+
+  const allStageSablons = sablons.filter(
+    (s) =>
+      s.kategori === '4-kabul-ve-odeme-islemleri' ||
+      s.kategori === '4. Muayene & Kabul & Ödeme İşlemleri'
+  )
+
+  // Alım türüne ve seçilen filtreye göre şablonları filtrele
+  const stageSablons = allStageSablons.filter((s) => {
+    const key = String(s.dosya_adi || s.id || '').toLowerCase()
+    if (sablonFilter === 'tumu') return true
+    if (sablonFilter === 'mal') {
+      return (
+        !key.includes('hizmet-isleri') &&
+        !key.includes('hakedis-raporu') &&
+        !key.includes('puantaj')
+      )
+    }
+    if (sablonFilter === 'hizmet') {
+      return (
+        !key.includes('muayene-kabul-tutanagi') &&
+        !key.includes('muayene-kabul-komisyonu') &&
+        !key.includes('tasinir-islem-fisi')
+      )
+    }
+    if (sablonFilter === 'odeme') {
+      return (
+        key.includes('odeme') ||
+        key.includes('harcama') ||
+        key.includes('kesin-teminat') ||
+        key.includes('banka')
+      )
+    }
+
+    // Otomatik filtreleme (Dosyanın alım türüne göre)
+    if (isHizmet) {
+      return (
+        !key.includes('muayene-kabul-tutanagi') &&
+        !key.includes('muayene-kabul-komisyonu') &&
+        !key.includes('tasinir-islem-fisi')
+      )
+    } else {
+      return (
+        !key.includes('hizmet-isleri') &&
+        !key.includes('hakedis-raporu') &&
+        !key.includes('puantaj')
+      )
+    }
+  })
+
+  const handleQuickPreview = (sablonKey: string): void => {
+    const found =
+      sablons.find(
+        (s) =>
+          String(s.dosya_adi || s.id || '').toLowerCase() === sablonKey.toLowerCase() ||
+          String(s.dosya_adi || s.id || '').toLowerCase().includes(sablonKey.toLowerCase())
+      ) || ({ dosya_adi: sablonKey, ad: sablonKey } as any)
+    handleOpenPreviewForSablon(found, (found as any).ad || sablonKey)
+  }
 
   useEffect(() => {
     if (!activeDosyaId) return
@@ -67,7 +133,9 @@ export function KabulVeOdeme(): React.JSX.Element {
           'db:query',
           `SELECT d.firma_id, f.unvan, f.vergi_no,
                   d.yaklasik_maliyet, d.teslim_tarihi,
-                  d.fiyat_farki_dayanagi, COALESCE(d.tur, 'mal') as alim_turu, d.dosya_acilis_tarihi, d.temin_tarihi, d.tarih
+                  d.fiyat_farki_dayanagi, COALESCE(d.tur, 'mal') as alim_turu,
+                  d.dosya_acilis_tarihi, d.temin_tarihi, d.tarih,
+                  d.ihtiyac_yeri, d.teslim_yeri
            FROM DATA_TeminDosyasi d
            LEFT JOIN TANIM_Firma f ON d.firma_id = f.id
            WHERE d.id = ?`,
@@ -117,6 +185,7 @@ export function KabulVeOdeme(): React.JSX.Element {
 
           setKazananFirmaId(effectiveFirmaId)
           setKazananFirmaUnvan(effectiveUnvan)
+          setTeslimYeri(row.teslim_yeri || row.ihtiyac_yeri || '')
 
           let teklifToplami: number | null = null
           let yasaklilikDurumu: string | null = null
@@ -128,8 +197,8 @@ export function KabulVeOdeme(): React.JSX.Element {
                        FROM DATA_TeminKalemTeklif kt
                        JOIN DATA_TeminKalem k ON kt.temin_kalem_id = k.id
                        WHERE kt.temin_firma_id = tf.id AND kt.temin_dosya_id = ?) as calculated_teklif
-               FROM DATA_TeminFirma tf
-               WHERE tf.temin_dosya_id = ? AND (tf.firma_id = ? OR tf.id = ?)`,
+                FROM DATA_TeminFirma tf
+                WHERE tf.temin_dosya_id = ? AND (tf.firma_id = ? OR tf.id = ?)`,
               [activeDosyaId, activeDosyaId, effectiveFirmaId, effectiveFirmaId]
             )
             if (teklifRes.success && teklifRes.data?.length > 0) {
@@ -137,6 +206,21 @@ export function KabulVeOdeme(): React.JSX.Element {
               yasaklilikDurumu = teklifRes.data[0].yasaklilik_durumu
             }
           }
+
+          // Fetch Muayene ve Kabul Komisyon Başkanı
+          try {
+            const komRes = await window.electron.ipcRenderer.invoke(
+              'db:query',
+              `SELECT ad_soyad, gorev FROM DATA_TeminKomisyon
+               WHERE temin_dosya_id = ? AND (LOWER(gorev) LIKE '%başkan%' OR LOWER(gorev) LIKE '%baskan%' OR komisyon_id = 2)
+               ORDER BY (CASE WHEN LOWER(gorev) LIKE '%başkan%' OR LOWER(gorev) LIKE '%baskan%' THEN 0 ELSE 1 END) ASC
+               LIMIT 1`,
+              [activeDosyaId]
+            )
+            if (komRes.success && komRes.data?.length > 0) {
+              setKomisyonBaskani(komRes.data[0].ad_soyad || '')
+            }
+          } catch {}
 
           setFirmaStats({
             teklifToplami,
@@ -203,13 +287,64 @@ export function KabulVeOdeme(): React.JSX.Element {
         <div className="flex flex-col gap-6 animate-in fade-in duration-300">
           {/* Header Row */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-5">
-            <Button
-              onClick={() => setIsTifModalOpen(true)}
-              className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm text-xs font-bold py-2.5 px-4 rounded-xl shrink-0"
-            >
-              <PackageCheck className="w-4 h-4" />
-              TİF Oluştur &amp; Ambara Aktar
-            </Button>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                onClick={() => setIsKomisyonModalOpen(true)}
+                variant="outline"
+                className="gap-2 border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-xs font-bold py-2.5 px-3.5 rounded-xl shrink-0"
+              >
+                <Users className="w-4 h-4" />
+                Muayene &amp; Kabul Komisyonu
+              </Button>
+
+              {isMal && (
+                <Button
+                  onClick={() => setIsTifModalOpen(true)}
+                  className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm text-xs font-bold py-2.5 px-4 rounded-xl shrink-0"
+                >
+                  <PackageCheck className="w-4 h-4" />
+                  TİF Oluştur &amp; Ambara Aktar
+                </Button>
+              )}
+
+              {/* Filter Pills */}
+              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700/50">
+                <button
+                  type="button"
+                  onClick={() => setSablonFilter('otomatik')}
+                  className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all ${
+                    sablonFilter === 'otomatik'
+                      ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  {isHizmet ? 'Hizmet Belgeleri' : 'Mal Kabul Belgeleri'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSablonFilter('odeme')}
+                  className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all ${
+                    sablonFilter === 'odeme'
+                      ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  Ödeme Evrakları
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSablonFilter('tumu')}
+                  className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all ${
+                    sablonFilter === 'tumu'
+                      ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  Tüm Şablonlar
+                </button>
+              </div>
+            </div>
+
             {stageSablons.length > 0 && (
               <div className="shrink-0 self-start md:self-center">
                 <PrintDropdownButton
@@ -229,6 +364,23 @@ export function KabulVeOdeme(): React.JSX.Element {
               </div>
             )}
           </div>
+
+          {/* Kabul Tutanakları List & Operations Card */}
+          <KabulTutanaklariListCard
+            kazananFirmaUnvan={kazananFirmaUnvan}
+            firmaStats={firmaStats}
+            faturaNo={faturaNo}
+            faturaTarihi={faturaTarihi}
+            komisyonBaskani={komisyonBaskani}
+            teslimYeri={teslimYeri}
+            dosyaNo={dosyaContext?.dosya_no}
+            alimTuru={alimTuru}
+            onOpenPreview={handleQuickPreview}
+            onOpenTifModal={() => setIsTifModalOpen(true)}
+            onOpenKomisyonModal={() => setIsKomisyonModalOpen(true)}
+            formatDate={formatDate}
+            formatCurrency={formatCurrency}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column: Firm & Process */}
@@ -271,6 +423,34 @@ export function KabulVeOdeme(): React.JSX.Element {
         dosyaNo={dosyaContext?.dosya_no}
         dosyaAdi={dosyaContext?.dosya_adi}
       />
+
+      {/* Muayene ve Kabul Komisyonu Atama Modalı */}
+      <KomisyonAtamaModal
+        isOpen={isKomisyonModalOpen}
+        onClose={async () => {
+          setIsKomisyonModalOpen(false)
+          if (!activeDosyaId) return
+          try {
+            const komRes = await window.electron.ipcRenderer.invoke(
+              'db:query',
+              `SELECT ad_soyad, gorev FROM DATA_TeminKomisyon
+               WHERE temin_dosya_id = ? AND (LOWER(gorev) LIKE '%başkan%' OR LOWER(gorev) LIKE '%baskan%' OR komisyon_id = 2)
+               ORDER BY (CASE WHEN LOWER(gorev) LIKE '%başkan%' OR LOWER(gorev) LIKE '%baskan%' THEN 0 ELSE 1 END) ASC
+               LIMIT 1`,
+              [activeDosyaId]
+            )
+            if (komRes.success && komRes.data?.length > 0) {
+              setKomisyonBaskani(komRes.data[0].ad_soyad || '')
+            }
+          } catch (e) {
+            console.error('Failed to reload komisyon baskani:', e)
+          }
+        }}
+        initialType="muayene_kabul"
+        activeDosyaId={activeDosyaId}
+        onOpenDocument={(doc) => handleQuickPreview(doc)}
+      />
     </SubScreen>
   )
 }
+

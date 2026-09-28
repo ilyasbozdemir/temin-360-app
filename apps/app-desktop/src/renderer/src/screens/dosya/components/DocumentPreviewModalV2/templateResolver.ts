@@ -205,15 +205,23 @@ export const TEMPLATE_OPTIONS: TemplateOptionItem[] = [
     categoryLabel: 'Sipariş & Sözleşme',
     description: 'Kazanan firmanın sözleşme imzalamaya davet edildiği resmi yazı'
   },
+  {
+    id: 'ihale-komisyon-karari',
+    name: 'IhaleKomisyonKarari',
+    title: 'İhale Komisyon Kararı',
+    category: '3-siparis-ve-sozlesme',
+    categoryLabel: 'Sipariş & Sözleşme',
+    description: 'İhale komisyonu tarafından alınan nihai karar tutanağı'
+  },
 
   // 4. Kabul ve Ödeme İşlemleri
   {
     id: 'harcama-pusulasi',
     name: 'HarcamaPusulasi',
-    title: 'Harcama Pusulası / Muayene Kabul',
+    title: 'Harcama Pusulası',
     category: '4-kabul-ve-odeme-islemleri',
     categoryLabel: 'Muayene & Kabul & Ödeme',
-    description: 'Ödeme ve muayene kabul belgesi'
+    description: 'Ödeme ve harcama pusulası belgesi'
   },
   {
     id: 'muayene-kabul-komisyonu',
@@ -221,7 +229,63 @@ export const TEMPLATE_OPTIONS: TemplateOptionItem[] = [
     title: 'Muayene ve Kabul Komisyonu',
     category: '4-kabul-ve-odeme-islemleri',
     categoryLabel: 'Muayene & Kabul & Ödeme',
-    description: 'Muayene ve kabul işlemlerini yürütecek komisyon belgesi'
+    description: 'Muayene ve kabul işlemlerini yürütecek komisyon görevlendirme belgesi'
+  },
+  {
+    id: 'muayene-kabul-tutanagi',
+    name: 'MuayeneKabulTutanagi',
+    title: 'Muayene ve Kabul Tutanağı (Mal Alımı)',
+    category: '4-kabul-ve-odeme-islemleri',
+    categoryLabel: 'Muayene & Kabul & Ödeme',
+    description: 'Mal alımı teslimat ve muayene kabul tutanağı'
+  },
+  {
+    id: 'hizmet-isleri-kabul-tutanagi',
+    name: 'HizmetIsleriKabulTutanagi',
+    title: 'Hizmet İşleri Kabul Tutanağı',
+    category: '4-kabul-ve-odeme-islemleri',
+    categoryLabel: 'Muayene & Kabul & Ödeme',
+    description: 'Hizmet alımı iş bitimi ve komisyon kabul tutanağı'
+  },
+  {
+    id: 'hizmet-isleri-kabul-teklif-belgesi',
+    name: 'HizmetIsleriKabulTeklifBelgesi',
+    title: 'Hizmet İşleri Kabul Teklif Belgesi',
+    category: '4-kabul-ve-odeme-islemleri',
+    categoryLabel: 'Muayene & Kabul & Ödeme',
+    description: 'Hizmet alımı yüklenici iş bitirme dilekçesi sonrası ön inceleme ve kabul teklif belgesi'
+  },
+  {
+    id: 'hakedis-raporu',
+    name: 'HakedisRaporu',
+    title: 'Hakediş Raporu',
+    category: '4-kabul-ve-odeme-islemleri',
+    categoryLabel: 'Muayene & Kabul & Ödeme',
+    description: 'Fiyat farkı, kesinti ve damga vergisi dahil hakediş raporu'
+  },
+  {
+    id: 'tasinir-islem-fisi',
+    name: 'TasinirIslemFisi',
+    title: 'Taşınır İşlem Fişi (TİF)',
+    category: '4-kabul-ve-odeme-islemleri',
+    categoryLabel: 'Muayene & Kabul & Ödeme',
+    description: 'Ambara malzeme giriş ve taşınır işlem fişi'
+  },
+  {
+    id: 'odeme-emri-belgesi',
+    name: 'OdemeEmriBelgesi',
+    title: 'Ödeme Emri Belgesi (MIF)',
+    category: '4-kabul-ve-odeme-islemleri',
+    categoryLabel: 'Muayene & Kabul & Ödeme',
+    description: 'Muhasebe birimine iletilen resmi ödeme emri belgesi'
+  },
+  {
+    id: 'odeme-yazisi',
+    name: 'OdemeYazisi',
+    title: 'Ödeme Yazısı',
+    category: '4-kabul-ve-odeme-islemleri',
+    categoryLabel: 'Muayene & Kabul & Ödeme',
+    description: 'Mali hizmetler / muhasebe müdürlüğüne yazılan ödeme üst yazısı'
   }
 ]
 
@@ -313,13 +377,12 @@ export const TEMPLATE_ALIASES: Record<string, string> = {
   'komisyon-atama': 'komisyon-gorevlendirme-onayi',
   'komisyon-onayi': 'komisyon-gorevlendirme-onayi',
   'komisyon-karari': 'komisyon-gorevlendirme-onayi',
-  'ihale-komisyon-karari': 'komisyon-gorevlendirme-onayi',
+  'ihale-komisyon-karari': 'ihale-komisyon-karari',
+  ihalekomisyonkarari: 'ihale-komisyon-karari',
+  'ihale-karari': 'ihale-komisyon-karari',
   'yaklasik-maliyet-tespit-komisyonu': 'komisyon-gorevlendirme-onayi',
   'yaklasik-maliyet-komisyonu': 'komisyon-gorevlendirme-onayi',
   yaklasikmaliyetkomisyonu: 'komisyon-gorevlendirme-onayi',
-  'muayene-kabul-komisyonu': 'muayene-kabul-komisyonu',
-  'muayene-kabul-ve-tespit-komisyonu': 'muayene-kabul-komisyonu',
-  muayenekabulkomisyonu: 'muayene-kabul-komisyonu',
   'fiyat-arastirma-komisyonu': 'piyasa-fiyat-arastirma-gorevlendirmesi',
   fiyatarastirmakomisyonu: 'piyasa-fiyat-arastirma-gorevlendirmesi',
   'komisyon-gorevlendirme-onayi-eki': 'komisyon-gorevlendirme-onayi-eki',
@@ -399,17 +462,31 @@ export const TEMPLATE_ALIASES: Record<string, string> = {
   'harcama-pusulasi': 'harcama-pusulasi',
   harcamapusulasi: 'harcama-pusulasi',
   pusula: 'harcama-pusulasi',
-  'muayene-kabul-belgesi': 'muayene-kabul-komisyonu',
-  'muayene-kabul-tutanagi': 'muayene-kabul-komisyonu',
-  'muayene-kabul': 'muayene-kabul-komisyonu',
-  muayenekabul: 'muayene-kabul-komisyonu',
-  'kabul-tutanagi': 'muayene-kabul-komisyonu',
-  'hizmet-isleri-kabul-tutanagi': 'muayene-kabul-komisyonu',
-  'hizmet-isleri-kabul-teklif-belgesi': 'muayene-kabul-komisyonu',
-  'odeme-emri-belgesi': 'harcama-pusulasi',
-  'odeme-yazisi': 'harcama-pusulasi',
-  'tasinir-islem-fisi': 'harcama-pusulasi',
-  'hakedis-raporu': 'harcama-pusulasi',
+  'muayene-kabul-komisyonu': 'muayene-kabul-komisyonu',
+  muayenekabulkomisyonu: 'muayene-kabul-komisyonu',
+  'muayene-kabul-belgesi': 'muayene-kabul-tutanagi',
+  'muayene-kabul-tutanagi': 'muayene-kabul-tutanagi',
+  muayenekabultutanagi: 'muayene-kabul-tutanagi',
+  'muayene-kabul': 'muayene-kabul-tutanagi',
+  muayenekabul: 'muayene-kabul-tutanagi',
+  'kabul-tutanagi': 'muayene-kabul-tutanagi',
+  'hizmet-isleri-kabul-tutanagi': 'hizmet-isleri-kabul-tutanagi',
+  hizmetislerikabultutanagi: 'hizmet-isleri-kabul-tutanagi',
+  'hizmet-kabul-tutanagi': 'hizmet-isleri-kabul-tutanagi',
+  'hizmet-isleri-kabul-teklif-belgesi': 'hizmet-isleri-kabul-teklif-belgesi',
+  hizmetislerikabulteklifbelgesi: 'hizmet-isleri-kabul-teklif-belgesi',
+  'hizmet-kabul-teklif': 'hizmet-isleri-kabul-teklif-belgesi',
+  'odeme-emri-belgesi': 'odeme-emri-belgesi',
+  odemeemribelgesi: 'odeme-emri-belgesi',
+  'odeme-emri': 'odeme-emri-belgesi',
+  'odeme-yazisi': 'odeme-yazisi',
+  odemeyazisi: 'odeme-yazisi',
+  'tasinir-islem-fisi': 'tasinir-islem-fisi',
+  tasinirislemfisi: 'tasinir-islem-fisi',
+  tif: 'tasinir-islem-fisi',
+  'hakedis-raporu': 'hakedis-raporu',
+  hakedisraporu: 'hakedis-raporu',
+  hakedis: 'hakedis-raporu',
 
   // Klasör & Kapak
   'klasor-sirtligi-3cm': 'ihtiyac-listesi',
