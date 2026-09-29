@@ -1,0 +1,10 @@
+app: 1.0.0-beta.180
+schema_min: 1
+schema_max: 35
+release_date: '2026-09-29'
+changes:
+  - schema: 35
+    type: feat
+    description: "4. Aşama Muayene & Kabul & Ödeme İşlemleri: Kabul tutanakları tablosu ve aşamalar zaman çizelgesine hızlı 'Ödeme Yazısı' ve 'ÖEB' aksiyon butonları eklendi, şablon veri haritalaması güncellendi, zaman çizelgesi adımları interaktif kılındı ve SQL sorgu/tip hataları düzeltildi."
+    tables_added: []
+    columns_added: []

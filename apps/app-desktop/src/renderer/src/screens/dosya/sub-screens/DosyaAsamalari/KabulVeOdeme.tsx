@@ -135,7 +135,7 @@ export function KabulVeOdeme(): React.JSX.Element {
                   d.yaklasik_maliyet, d.teslim_tarihi,
                   d.fiyat_farki_dayanagi, COALESCE(d.tur, 'mal') as alim_turu,
                   d.dosya_acilis_tarihi, d.temin_tarihi, d.tarih,
-                  d.ihtiyac_yeri, d.teslim_yeri
+                  d.ihtiyac_yeri
            FROM DATA_TeminDosyasi d
            LEFT JOIN TANIM_Firma f ON d.firma_id = f.id
            WHERE d.id = ?`,
@@ -185,7 +185,7 @@ export function KabulVeOdeme(): React.JSX.Element {
 
           setKazananFirmaId(effectiveFirmaId)
           setKazananFirmaUnvan(effectiveUnvan)
-          setTeslimYeri(row.teslim_yeri || row.ihtiyac_yeri || '')
+          setTeslimYeri(row.ihtiyac_yeri || '')
 
           let teklifToplami: number | null = null
           let yasaklilikDurumu: string | null = null
@@ -396,7 +396,10 @@ export function KabulVeOdeme(): React.JSX.Element {
                 firmaStats={firmaStats}
                 faturaNo={faturaNo}
                 faturaTarihi={faturaTarihi}
+                alimTuru={alimTuru}
                 onOpenTifModal={() => setIsTifModalOpen(true)}
+                onOpenKomisyonModal={() => setIsKomisyonModalOpen(true)}
+                onOpenPreview={handleQuickPreview}
               />
             </div>
 

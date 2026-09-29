@@ -106,6 +106,15 @@ export function KabulTutanaklariListCard({
           )}
 
           <Button
+            onClick={() => onOpenPreview('odeme-yazisi')}
+            variant="outline"
+            className="gap-1.5 text-xs font-semibold h-9 px-3 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            Ödeme Yazısı
+          </Button>
+
+          <Button
             onClick={() => onOpenPreview(primarySablonKey)}
             className="gap-1.5 text-xs font-semibold h-9 px-3.5 bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
           >
@@ -217,6 +226,18 @@ export function KabulTutanaklariListCard({
                       <span>Teklif Belgesi</span>
                     </Button>
                   )}
+
+                  {/* Ödeme Yazısı */}
+                  <Button
+                    onClick={() => onOpenPreview('odeme-yazisi')}
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-2.5 text-xs font-semibold gap-1 text-emerald-600 hover:text-emerald-700 border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50 dark:border-emerald-900/60 dark:hover:bg-emerald-950/40"
+                    title="Ödeme Yazısını Görüntüle ve Yazdır"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Ödeme Yazısı</span>
+                  </Button>
 
                   {/* Ambara Aktar / TİF */}
                   {isMal && (

@@ -285,6 +285,17 @@ export function buildDocumentContext(
     firmaToplamlariDetay: firmaToplamlari,
     genelToplam,
     genelToplamYazi: paraYaziyaCevir(grandTotal),
+    kdvDahilToplam: formatTR(grandTotal + totalKdv),
+    kdvDahilToplamYazi: paraYaziyaCevir(grandTotal + totalKdv),
+    kdvTutari: formatTR(totalKdv),
+    kdvOrani: kalemlerData?.[0]?.kdv_orani ? `%${kalemlerData[0].kdv_orani}` : '%20',
+    harcamaKalemi: rawButceKodu || 'Bütçe Harcama Kalemi',
+    makamAdi:
+      dosyaResData?.sunulacak_makam ||
+      dosyaResData?.makam ||
+      (antetSatirlari.length > 0 ? antetSatirlari.join(' ') : idareAdi),
+    neyimizin: dosyaResData?.birim_adi ? `${dosyaResData.birim_adi}'mizce` : 'İdaremizce',
+    olurGoster: true,
     sozlesmeBedeli: genelToplam,
     sozlesmeBedeliYazi: paraYaziyaCevir(grandTotal),
     pulBedeli: (() => {
