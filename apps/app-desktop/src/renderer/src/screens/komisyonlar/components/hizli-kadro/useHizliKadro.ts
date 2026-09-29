@@ -86,50 +86,8 @@ export function useHizliKadro({
       }
 
       try {
-        // 1. Eğer aktif dosya seçiliyse, öncelikle bu dosyadaki mevcut DATA_TeminKomisyon kayıtlarını getir
-        if (activeDosyaId) {
-          const fileKomisyonRes = await window.electron.ipcRenderer.invoke(
-            'db:query',
-            `SELECT tk.*, tk.gorev as gorev_adi
-             FROM DATA_TeminKomisyon tk
-             WHERE tk.temin_dosya_id = ? AND (tk.komisyon_id = ? OR tk.komisyon_turu = ?)
-             ORDER BY tk.id ASC`,
-            [activeDosyaId, komisyonId, komisyonAdi]
-          )
-          if (fileKomisyonRes.success && fileKomisyonRes.data && fileKomisyonRes.data.length > 0) {
-            const seen = new Set<string>()
-            const uniqueData = fileKomisyonRes.data.filter((m: any) => {
-              const key = m.personel_id
-                ? `pid_${m.personel_id}`
-                : m.ad_soyad
-                  ? `name_${m.ad_soyad.trim().toLowerCase()}`
-                  : null
-              if (!key || seen.has(key)) return false
-              seen.add(key)
-              return true
-            })
-            const mapped: MemberRow[] = uniqueData.map((m: any) => ({
-              id: m.id,
-              dbUyeId: m.id,
-              gorevId: null,
-              gorevAd: m.gorev || 'Üye',
-              personelId: m.personel_id || null,
-              asilMi: (m.rol || '').toLowerCase().includes('yedek') ? 0 : 1,
-              belgedeGoster:
-                m.belgede_goster === 1 ||
-                m.belgede_goster === true ||
-                m.belgede_goster === undefined ||
-                m.belgede_goster === null
-            }))
-            if (isMounted) {
-              setRows(mapped)
-              return
-            }
-          }
-        }
-
-        // 2. Dosyada özel kayıt yoksa kurumsal TANIM_KomisyonUye kayıtlarını getir
-        const res = await window.electron.ipcRenderer.invoke(
+        // 1. Her durumda kurumsal TANIM_KomisyonUye kayıtlarını al (Master şablon)
+        const masterRes = await window.electron.ipcRenderer.invoke(
           'db:query',
           `SELECT u.id as db_id, u.komisyon_id, u.personel_id, u.gorev_id, u.asil_mi,
                   COALESCE(u.belgede_goster, 1) as belgede_goster,
@@ -141,35 +99,114 @@ export function useHizliKadro({
            ORDER BY u.id ASC`,
           [komisyonId]
         )
+        const masterData = masterRes.success && masterRes.data ? masterRes.data : []
 
-        if (isMounted) {
-          if (res.success && res.data && res.data.length > 0) {
-            const mapped: MemberRow[] = res.data.map((m: any) => ({
-              id: m.db_id,
+        // 2. Eğer aktif dosya seçiliyse, bu dosyadaki DATA_TeminKomisyon kayıtlarını al
+        let fileData: any[] = []
+        if (activeDosyaId) {
+          const lower = komisyonAdi.toLowerCase()
+          const isMaliyet = lower.includes('maliyet') || lower.includes('fiyat') || komisyonId === 1
+          const fileKomisyonRes = await window.electron.ipcRenderer.invoke(
+            'db:query',
+            isMaliyet
+              ? `SELECT tk.*, tk.gorev as gorev_adi
+                 FROM DATA_TeminKomisyon tk
+                 WHERE tk.temin_dosya_id = ? AND (tk.komisyon_id = 1 OR LOWER(COALESCE(tk.komisyon_turu, '')) LIKE '%maliyet%' OR LOWER(COALESCE(tk.komisyon_turu, '')) LIKE '%fiyat%')
+                 ORDER BY tk.id ASC`
+              : `SELECT tk.*, tk.gorev as gorev_adi
+                 FROM DATA_TeminKomisyon tk
+                 WHERE tk.temin_dosya_id = ? AND (tk.komisyon_id = 2 OR LOWER(COALESCE(tk.komisyon_turu, '')) LIKE '%muayene%' OR LOWER(COALESCE(tk.komisyon_turu, '')) LIKE '%kabul%')
+                 ORDER BY tk.id ASC`,
+            [activeDosyaId]
+          )
+          if (fileKomisyonRes.success && fileKomisyonRes.data) {
+            fileData = fileKomisyonRes.data
+          }
+        }
+
+        // 3. Birleştirme (Dosyaya özel veriler varsa onları, eksik kalan kadroları master'dan tamamla)
+        let finalMembers: MemberRow[] = []
+
+        if (fileData.length > 0) {
+          const fileMapped: MemberRow[] = fileData.map((m: any) => ({
+            id: m.id,
+            dbUyeId: m.id,
+            gorevId: null,
+            gorevAd: m.gorev || 'Üye',
+            personelId: m.personel_id || null,
+            asilMi: (m.rol || '').toLowerCase().includes('yedek') ? 0 : 1,
+            belgedeGoster:
+              m.belgede_goster === 0 ||
+              m.belgede_goster === false ||
+              m.belgede_goster === '0' ||
+              m.belgede_goster === 'false'
+                ? false
+                : true
+          }))
+
+          // Master'da tanımlı olup dosyaya yansımamış Onay Veren / Belgede Gösterilmeyen rolleri de ekle
+          const existingPids = new Set(fileMapped.map((r) => r.personelId).filter(Boolean))
+          const existingGorevs = new Set(fileMapped.map((r) => r.gorevAd.toLowerCase()))
+
+          for (const m of masterData) {
+            const mGorev = (m.gorev_adi || 'Üye').toLowerCase()
+            const mPid = m.personel_id || null
+            if (
+              (mPid && existingPids.has(mPid)) ||
+              (mGorev.includes('yetkili') && existingGorevs.has(mGorev))
+            ) {
+              continue
+            }
+            fileMapped.push({
+              id: `master_extra_${m.db_id}`,
               dbUyeId: m.db_id,
               gorevId: m.gorev_id || null,
               gorevAd: m.gorev_adi || 'Üye',
-              personelId: m.personel_id || null,
+              personelId: mPid,
               asilMi: m.asil_mi ?? 1,
-              belgedeGoster: m.belgede_goster === 1 || m.belgede_goster === true
-            }))
-            setRows(mapped)
-          } else {
-            const lower = komisyonAdi.toLowerCase()
-            const isMaliyet =
-              lower.includes('maliyet') || lower.includes('fiyat') || komisyonId === 1
-            const defaultTemplate = isMaliyet ? DEFAULT_YAKLASIK_ROLES : DEFAULT_MUAYENE_ROLES
-            const initialRows: MemberRow[] = defaultTemplate.map((t, idx) => ({
-              id: `init_${Date.now()}_${idx}`,
-              dbUyeId: null,
-              gorevId: null,
-              gorevAd: t.ad,
-              personelId: null,
-              asilMi: t.asil,
-              belgedeGoster: t.belgedeGoster
-            }))
-            setRows(initialRows)
+              belgedeGoster:
+                m.belgede_goster === 0 ||
+                m.belgede_goster === false ||
+                m.belgede_goster === '0' ||
+                m.belgede_goster === 'false'
+                  ? false
+                  : true
+            })
           }
+          finalMembers = fileMapped
+        } else if (masterData.length > 0) {
+          finalMembers = masterData.map((m: any) => ({
+            id: m.db_id,
+            dbUyeId: m.db_id,
+            gorevId: m.gorev_id || null,
+            gorevAd: m.gorev_adi || 'Üye',
+            personelId: m.personel_id || null,
+            asilMi: m.asil_mi ?? 1,
+            belgedeGoster:
+              m.belgede_goster === 0 ||
+              m.belgede_goster === false ||
+              m.belgede_goster === '0' ||
+              m.belgede_goster === 'false'
+                ? false
+                : true
+          }))
+        } else {
+          const lower = komisyonAdi.toLowerCase()
+          const isMaliyet = lower.includes('maliyet') || lower.includes('fiyat') || komisyonId === 1
+          const defaultTemplate = isMaliyet ? DEFAULT_YAKLASIK_ROLES : DEFAULT_MUAYENE_ROLES
+          finalMembers = defaultTemplate.map((t, idx) => ({
+            id: `init_${Date.now()}_${idx}`,
+            dbUyeId: null,
+            gorevId: null,
+            gorevAd: t.ad,
+            personelId: null,
+            asilMi: t.asil,
+            belgedeGoster: t.belgedeGoster
+          }))
+        }
+
+        if (isMounted) {
+          setRows(finalMembers)
         }
       } catch (err) {
         console.error('Komisyon üyeleri çekilirken hata:', err)

@@ -124,13 +124,26 @@ export function useKomisyonAtama({
             )
 
             // Muayene komisyonu üyeleri
-            const muList = allK.filter(
-              (k: any) =>
+            const muList = allK.filter((k: any) => {
+              const isMuayene =
                 k.komisyon_id === 2 ||
                 (k.komisyon_turu &&
                   (k.komisyon_turu.toLowerCase().includes('muayene') ||
                     k.komisyon_turu.toLowerCase().includes('kabul')))
-            )
+              if (!isMuayene) return false
+
+              const g = (k.gorev || '').toLowerCase()
+              if (
+                g.includes('fiyat araştırma') ||
+                g.includes('harcama yetkili') ||
+                g.includes('muhasebe yetkili') ||
+                g.includes('gerçekleştirme') ||
+                g.includes('gerceklestirme')
+              ) {
+                return false
+              }
+              return true
+            })
 
             if (isMounted) {
               if (mList.length > 0) {
