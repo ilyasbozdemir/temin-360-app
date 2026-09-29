@@ -2,6 +2,27 @@
 import { useState, useEffect, useCallback } from 'react'
 import fallbackAnnouncements from '../../constants/announcements.fallback.json'
 import { useAppEventListener } from '../../utils/appEvents'
+import { useSettingsStore } from '../../store/settingsStore'
+
+export interface BirimHarcamaStat {
+  id: number
+  birim_adi: string
+  dosya_sayisi: number
+  toplam_harcama: number
+  yuzde: number
+}
+
+export interface KikLimitStat {
+  donem_kodu: string
+  baslangic_tarihi: string
+  bitis_tarihi: string
+  limit: number
+  harcananTutar: number
+  kalanTutar: number
+  tuketimYuzdesi: number
+  durum: 'normal' | 'uyari' | 'kritik' | 'asildi'
+  limitType: string
+}
 
 export interface DashboardStats {
   ihaleDosyaSayisi: number
@@ -38,6 +59,10 @@ export interface DashboardStats {
   pazarlikMaliyet: number
   hakediseSayisi: number
   hakediseMaliyet: number
+
+  // KİK 22/d Limit ve Birim Harcama Analizi
+  birimHarcamalari: BirimHarcamaStat[]
+  kikLimitStat: KikLimitStat | null
 }
 
 export function useDashboardStats(filterMode: 'dogrudan_temin' | 'ihale' | 'all' = 'all') {
@@ -75,7 +100,11 @@ export function useDashboardStats(filterMode: 'dogrudan_temin' | 'ihale' | 'all'
     pazarlikSayisi: 0,
     pazarlikMaliyet: 0,
     hakediseSayisi: 0,
-    hakediseMaliyet: 0
+    hakediseMaliyet: 0,
+
+    // KİK 22/d Limit ve Birim Harcama Analizi
+    birimHarcamalari: [],
+    kikLimitStat: null
   })
   const [isLoading, setIsLoading] = useState(true)
 
@@ -303,6 +332,90 @@ export function useDashboardStats(filterMode: 'dogrudan_temin' | 'ihale' | 'all'
         })
       }
 
+      // 18. Birimler Bazında Harcama Analizi
+      const birimlerHarcamaRes = await window.electron.ipcRenderer.invoke(
+        'db:query',
+        `SELECT b.id, b.birim_adi, 
+                COUNT(d.id) as dosya_sayisi, 
+                COALESCE(SUM(d.yaklasik_maliyet), 0) as toplam_harcama
+         FROM TANIM_Birim b
+         LEFT JOIN DATA_TeminDosyasi d ON d.birim_id = b.id AND (d.is_deleted = 0 OR d.is_deleted IS NULL)${modeFilter}
+         GROUP BY b.id, b.birim_adi
+         HAVING toplam_harcama > 0 OR dosya_sayisi > 0
+         ORDER BY toplam_harcama DESC`
+      )
+      const rawBirimHarcama =
+        birimlerHarcamaRes.success && Array.isArray(birimlerHarcamaRes.data)
+          ? birimlerHarcamaRes.data
+          : []
+      const totalBirimHarcama = rawBirimHarcama.reduce(
+        (acc: number, curr: any) => acc + (Number(curr.toplam_harcama) || 0),
+        0
+      )
+      const birimHarcamalari: BirimHarcamaStat[] = rawBirimHarcama.map((b: any) => ({
+        id: b.id,
+        birim_adi: b.birim_adi || 'Birim Belirtilmemiş',
+        dosya_sayisi: Number(b.dosya_sayisi) || 0,
+        toplam_harcama: Number(b.toplam_harcama) || 0,
+        yuzde:
+          totalBirimHarcama > 0
+            ? Math.round(((Number(b.toplam_harcama) || 0) / totalBirimHarcama) * 100)
+            : 0
+      }))
+
+      // 19. KİK 22/d Limit Tüketim Analizi
+      const { limitType } = useSettingsStore.getState()
+      let kikLimitStat: KikLimitStat | null = null
+      try {
+        const limitDonemleriRes = await window.electron.ipcRenderer.invoke(
+          'db:query',
+          'SELECT * FROM TANIM_KikLimitDonemleri ORDER BY donem_kodu DESC'
+        )
+        if (
+          limitDonemleriRes.success &&
+          Array.isArray(limitDonemleriRes.data) &&
+          limitDonemleriRes.data.length > 0
+        ) {
+          const currentYear = new Date().getFullYear().toString()
+          const activeDonem =
+            limitDonemleriRes.data.find((d: any) => d.donem_kodu === currentYear) ||
+            limitDonemleriRes.data[0]
+          const effectiveLimit =
+            limitType === 'buyuksehir'
+              ? Number(activeDonem.buyuksehir_limit || 0)
+              : Number(activeDonem.diger_limit || 0)
+          const harcananTutar = dogrudanTeminMaliyet || toplamYaklasikMaliyet || 0
+          const kalanTutar = Math.max(0, effectiveLimit - harcananTutar)
+          const tuketimYuzdesi =
+            effectiveLimit > 0
+              ? Math.min(100, Math.round((harcananTutar / effectiveLimit) * 1000) / 10)
+              : 0
+
+          let durum: 'normal' | 'uyari' | 'kritik' | 'asildi' = 'normal'
+          if (harcananTutar > effectiveLimit && effectiveLimit > 0) {
+            durum = 'asildi'
+          } else if (tuketimYuzdesi >= 85) {
+            durum = 'kritik'
+          } else if (tuketimYuzdesi >= 65) {
+            durum = 'uyari'
+          }
+
+          kikLimitStat = {
+            donem_kodu: activeDonem.donem_kodu,
+            baslangic_tarihi: activeDonem.baslangic_tarihi,
+            bitis_tarihi: activeDonem.bitis_tarihi,
+            limit: effectiveLimit,
+            harcananTutar,
+            kalanTutar,
+            tuketimYuzdesi,
+            durum,
+            limitType: limitType || 'buyuksehir'
+          }
+        }
+      } catch (e) {
+        console.warn('Could not compute KİK limit stat:', e)
+      }
+
       setStats({
         ihaleDosyaSayisi,
         kayitliFirmaSayisi,
@@ -337,7 +450,11 @@ export function useDashboardStats(filterMode: 'dogrudan_temin' | 'ihale' | 'all'
         pazarlikSayisi,
         pazarlikMaliyet,
         hakediseSayisi,
-        hakediseMaliyet
+        hakediseMaliyet,
+
+        // KİK 22/d Limit ve Birim Harcama Analizi
+        birimHarcamalari,
+        kikLimitStat
       })
     } catch (error) {
       console.error('Failed to load dashboard stats:', error)

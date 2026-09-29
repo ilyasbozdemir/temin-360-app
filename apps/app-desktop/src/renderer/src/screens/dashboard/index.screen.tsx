@@ -25,6 +25,7 @@ import { InstitutionCard } from './components/InstitutionCard'
 import { AnnouncementsPanel } from './components/AnnouncementsPanel'
 import { ChartsSection } from './components/ChartsSection'
 import { ActiveFilesPipeline } from './components/ActiveFilesPipeline'
+import { KikLimitVeBirimAnalizSection } from './components/KikLimitVeBirimAnalizSection'
 
 export default function DashboardScreen(): React.JSX.Element {
   const {
@@ -345,6 +346,11 @@ export default function DashboardScreen(): React.JSX.Element {
             </div>
 
             <StatsCards isLoading={isLoading} stats={stats} formatCurrency={formatCurrency} />
+            <KikLimitVeBirimAnalizSection
+              stats={stats}
+              isLoading={isLoading}
+              formatCurrency={formatCurrency}
+            />
             <ChartsSection
               stats={stats}
               monthlyData={monthlyData}

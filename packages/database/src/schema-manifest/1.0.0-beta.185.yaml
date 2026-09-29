@@ -1,0 +1,10 @@
+app: 1.0.0-beta.185
+schema_min: 1
+schema_max: 35
+release_date: '2026-09-29'
+changes:
+  - schema: 35
+    type: feat
+    description: "Bütçe Tüketim ve Limit Analiz Göstergeleri (Dashboard #12): Kurumun 4734 Sayılı Kanun K.İ.K 22/d yıllık parasal limit tüketimi (Büyükşehir/Diğer dinamik hesaplama, uyarı ve kritik eşik takibi, güvenli marj) ve harcama birimlerinin toplam doğrudan temin kullanım oranları/istatistikleri interaktif grafik ve kartlarla gösterge paneline entegre edildi."
+    tables_added: []
+    columns_added: []

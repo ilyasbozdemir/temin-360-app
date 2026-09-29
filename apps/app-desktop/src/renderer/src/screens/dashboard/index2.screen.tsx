@@ -23,6 +23,7 @@ import { InstitutionCardV2 } from './components/InstitutionCardV2'
 import { AiAdvisorCard } from './components/AiAdvisorCard'
 import { AnnouncementsCardV2 } from './components/AnnouncementsCardV2'
 import { AiMissingModal } from './components/AiMissingModal'
+import { KikLimitVeBirimAnalizSection } from './components/KikLimitVeBirimAnalizSection'
 
 export default function DashboardScreenV2(): React.JSX.Element {
   const navigate = useNavigate()
@@ -465,6 +466,13 @@ export default function DashboardScreenV2(): React.JSX.Element {
         stats={stats}
         isLoading={isLoading}
         kikLimit={kikLimit}
+        formatCurrency={formatCurrency}
+      />
+
+      {/* 5.1 K.İ.K 22/d YILLIK LİMİT & BİRİM HARCAMA ANALİZİ */}
+      <KikLimitVeBirimAnalizSection
+        stats={stats}
+        isLoading={isLoading}
         formatCurrency={formatCurrency}
       />
 
