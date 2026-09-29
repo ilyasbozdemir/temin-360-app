@@ -58,15 +58,16 @@ export class TemplateRegistryService {
    */
   static isMemberVisibleInTemplate(
     member: {
-      belgede_goster?: number;
-      belgedeGoster?: boolean | number;
+      belgede_goster?: number | string | boolean;
+      belgedeGoster?: boolean | number | string;
+      goster?: boolean | number | string;
       komisyon_turu?: string;
       hedef_belgeler?: string | string[];
     },
     templateId: string
   ): boolean {
-    const isVisible = member.belgede_goster !== 0 && member.belgedeGoster !== false && member.belgedeGoster !== 0;
-    if (!isVisible) return false;
+    const bg = member.belgede_goster ?? member.belgedeGoster ?? member.goster;
+    if (bg === 0 || bg === "0" || bg === false || bg === "false") return false;
 
     const template = this.getTemplateById(templateId);
     if (!template) return true;

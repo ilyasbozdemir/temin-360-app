@@ -23,20 +23,20 @@ export const MuayeneKabulKomisyonu: React.FC<Props> = ({
   const gorevlendirilenler: Array<{ adSoyad: string; unvan: string }> = (() => {
     let raw: Array<{ adSoyad: string; unvan: string }> = [];
     if (
-      data.gorevlendirilenler && Array.isArray(data.gorevlendirilenler) &&
-      data.gorevlendirilenler.length > 0
-    ) {
-      raw = data.gorevlendirilenler.map((g: any) => ({
-        adSoyad: g.adSoyad || g.ad || g.adi || "",
-        unvan: g.unvan || g.unvani || g.gorev || "",
-      }));
-    } else if (
       data.muayeneKomisyonu && Array.isArray(data.muayeneKomisyonu) &&
       data.muayeneKomisyonu.length > 0
     ) {
       raw = data.muayeneKomisyonu.map((g: any) => ({
         adSoyad: g.adSoyad || g.ad_soyad || g.ad || "",
         unvan: g.unvan || g.gorev || "",
+      }));
+    } else if (
+      data.gorevlendirilenler && Array.isArray(data.gorevlendirilenler) &&
+      data.gorevlendirilenler.length > 0
+    ) {
+      raw = data.gorevlendirilenler.map((g: any) => ({
+        adSoyad: g.adSoyad || g.ad || g.adi || "",
+        unvan: g.unvan || g.unvani || g.gorev || "",
       }));
     } else if (
       data.komisyonUyeleri && Array.isArray(data.komisyonUyeleri) &&

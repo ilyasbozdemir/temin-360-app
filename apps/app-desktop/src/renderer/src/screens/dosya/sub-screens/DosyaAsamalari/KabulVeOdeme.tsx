@@ -14,6 +14,7 @@ import {
   KabulYukleniciCard,
   useKabulVeOdemeData,
 } from "./components/KabulVeOdeme";
+import { KabulTutanaklariListCardV2 } from "./components/KabulVeOdeme/KabulTutanaklariListCardV2";
 
 export function KabulVeOdeme(): React.JSX.Element {
   const {
@@ -132,9 +133,9 @@ export function KabulVeOdeme(): React.JSX.Element {
             )}
           </div>
 
-          {
-            /*
-            <KabulTutanaklariListCard
+          <KabulTutanaklariListCardV2 />
+
+          <KabulTutanaklariListCard
             kazananFirmaUnvan={kazananFirmaUnvan}
             firmaStats={firmaStats}
             faturaNo={faturaNo}
@@ -156,7 +157,6 @@ export function KabulVeOdeme(): React.JSX.Element {
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
             <div className="lg:col-span-1 flex flex-col gap-6">
               <KabulYukleniciCard
                 kazananFirmaUnvan={kazananFirmaUnvan}
@@ -187,9 +187,6 @@ export function KabulVeOdeme(): React.JSX.Element {
               />
             </div>
           </div>
-
-          */
-          }
         </div>
       )}
 

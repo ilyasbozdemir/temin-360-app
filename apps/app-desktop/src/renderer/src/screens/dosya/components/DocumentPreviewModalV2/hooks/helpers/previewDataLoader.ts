@@ -305,39 +305,34 @@ export async function loadDocumentPreviewData({
         [activeDosyaId]
       )
       if (dbKomisyonlar && dbKomisyonlar.length > 0) {
+        const isMemberVisible = (k: any) => {
+          const bg = k.belgede_goster ?? k.belgedeGoster ?? k.goster
+          if (bg === 0 || bg === '0' || bg === false || bg === 'false') return false
+          const g = (k.gorev || '').toLowerCase()
+          if (g.includes('harcama yetkili') || g.includes('muhasebe')) return false
+          return true
+        }
+
         const maliyetMembers = dbKomisyonlar.filter((k: any) => {
+          if (!isMemberVisible(k)) return false
           const isMaliyet =
             k.komisyon_id === 1 ||
             (k.komisyon_turu &&
               (k.komisyon_turu.toLowerCase().includes('maliyet') ||
-                k.komisyon_turu.toLowerCase().includes('fiyat')))
-          if (!isMaliyet) return false
-
-          if (k.belgede_goster === 0 || k.belgede_goster === false) return false
-
-          if (k.belgede_goster === undefined || k.belgede_goster === null) {
-            const g = (k.gorev || '').toLowerCase()
-            if (
-              g.includes('harcama yetkili') ||
-              g.includes('gerçekleştirme') ||
-              g.includes('gerceklestirme') ||
-              g.includes('muhasebe')
-            ) {
-              return false
-            }
-          }
-          return true
+                k.komisyon_turu.toLowerCase().includes('fiyat') ||
+                k.komisyon_turu.toLowerCase().includes('araştırma') ||
+                k.komisyon_turu.toLowerCase().includes('arastirma')))
+          return isMaliyet
         })
 
         const muayeneMembers = dbKomisyonlar.filter((k: any) => {
+          if (!isMemberVisible(k)) return false
           const isMuayene =
             k.komisyon_id === 2 ||
             (k.komisyon_turu &&
               (k.komisyon_turu.toLowerCase().includes('muayene') ||
                 k.komisyon_turu.toLowerCase().includes('kabul')))
-          if (!isMuayene) return false
-          if (k.belgede_goster === 0 || k.belgede_goster === false) return false
-          return true
+          return isMuayene
         })
 
         // 1. Muhasebe Yetkilisi / Mutemet tespiti
@@ -414,19 +409,29 @@ export async function loadDocumentPreviewData({
             rol: m.rol || 'Üye'
           }))
           baseData.fiyatKomisyonu = formattedMaliyet
-          baseData.gorevlendirilenler = formattedMaliyet
-          baseData.gorevliler = formattedMaliyet
-          baseData.dagitimListesi = formattedMaliyet
+          const currentDocId = String(resolvedId || selectedDocId || '').toLowerCase()
+          if (!currentDocId.includes('muayene') && !currentDocId.includes('kabul')) {
+            baseData.gorevlendirilenler = formattedMaliyet
+            baseData.gorevliler = formattedMaliyet
+            baseData.dagitimListesi = formattedMaliyet
+          }
         }
 
         if (muayeneMembers.length > 0) {
           const deduplicatedMuayene = dedupeMembers(muayeneMembers)
-          baseData.muayeneKomisyonu = deduplicatedMuayene.map((m: any) => ({
+          const formattedMuayene = deduplicatedMuayene.map((m: any) => ({
             adSoyad: m.ad_soyad || '',
             unvan: m.unvan || '',
             gorev: m.gorev || 'Üye',
             rol: m.rol || 'Üye'
           }))
+          baseData.muayeneKomisyonu = formattedMuayene
+          const currentDocId = String(resolvedId || selectedDocId || '').toLowerCase()
+          if (currentDocId.includes('muayene') || currentDocId.includes('kabul')) {
+            baseData.gorevlendirilenler = formattedMuayene
+            baseData.gorevliler = formattedMuayene
+            baseData.dagitimListesi = formattedMuayene
+          }
         }
       }
     } catch (e) {

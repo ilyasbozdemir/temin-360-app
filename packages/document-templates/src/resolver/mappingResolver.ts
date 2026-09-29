@@ -510,26 +510,36 @@ export async function resolveTemplateData(
                               LEFT JOIN TANIM_Komisyon k ON tk.komisyon_id = k.id
                               WHERE tk.temin_dosya_id = ?`;
         const fileKomRows = await queryExecutor(fileKomQuery, [activeDosyaId]);
+        const isVisibleMember = (r: any) => {
+          const bg = r.belgede_goster ?? r.belgedeGoster ?? r.goster;
+          if (bg === 0 || bg === "0" || bg === false || bg === "false") return false;
+          const g = String(r.gorev || r.gorev_adi || "").toLowerCase();
+          if (g.includes("harcama yetkili") || g.includes("muhasebe")) return false;
+          return true;
+        };
+
         if (fileKomRows && fileKomRows.length > 0) {
+          const visibleRows = fileKomRows.filter(isVisibleMember);
+          const pool = visibleRows.length > 0 ? visibleRows : [];
           if (
             sablonDegiskeni === 'fiyatKomisyonu' ||
             sablonDegiskeni === 'komisyon' ||
             sablonDegiskeni === 'komisyonUyeleri' ||
             sablonDegiskeni === 'gorevlendirilenler'
           ) {
-            const filtered = fileKomRows.filter((r: any) => {
+            const filtered = pool.filter((r: any) => {
               const kt = String(r.komisyon_turu_adi || r.komisyon_turu || '').toLowerCase();
               return !kt || kt.includes('fiyat') || kt.includes('piyasa') || kt.includes('araştırma') || kt.includes('arastirma');
             });
-            members = filtered.length > 0 ? filtered : fileKomRows;
+            members = filtered;
           } else if (sablonDegiskeni === 'muayeneKomisyonu') {
-            const filtered = fileKomRows.filter((r: any) => {
+            const filtered = pool.filter((r: any) => {
               const kt = String(r.komisyon_turu_adi || r.komisyon_turu || '').toLowerCase();
               return kt.includes('muayene') || kt.includes('kabul');
             });
-            members = filtered.length > 0 ? filtered : fileKomRows;
+            members = filtered;
           } else {
-            members = fileKomRows;
+            members = pool;
           }
         }
 
@@ -543,25 +553,27 @@ export async function resolveTemplateData(
                               WHERE k.aktif_mi = 1 OR k.aktif_mi IS NULL`;
           const tanimRows = await queryExecutor(tanimQuery, []);
           if (tanimRows && tanimRows.length > 0) {
+            const visibleTanim = tanimRows.filter(isVisibleMember);
+            const pool = visibleTanim.length > 0 ? visibleTanim : [];
             if (
               sablonDegiskeni === 'fiyatKomisyonu' ||
               sablonDegiskeni === 'komisyon' ||
               sablonDegiskeni === 'komisyonUyeleri' ||
               sablonDegiskeni === 'gorevlendirilenler'
             ) {
-              const filtered = tanimRows.filter((r: any) => {
+              const filtered = pool.filter((r: any) => {
                 const ka = String(r.komisyon_adi || '').toLowerCase();
                 return ka.includes('fiyat') || ka.includes('piyasa') || ka.includes('araştırma') || ka.includes('arastirma');
               });
-              members = filtered.length > 0 ? filtered : tanimRows;
+              members = filtered;
             } else if (sablonDegiskeni === 'muayeneKomisyonu') {
-              const filtered = tanimRows.filter((r: any) => {
+              const filtered = pool.filter((r: any) => {
                 const ka = String(r.komisyon_adi || '').toLowerCase();
                 return ka.includes('muayene') || ka.includes('kabul');
               });
-              members = filtered.length > 0 ? filtered : tanimRows;
+              members = filtered;
             } else {
-              members = tanimRows;
+              members = pool;
             }
           }
         }
