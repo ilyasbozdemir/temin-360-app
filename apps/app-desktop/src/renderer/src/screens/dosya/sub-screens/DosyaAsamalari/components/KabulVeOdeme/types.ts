@@ -9,3 +9,11 @@ export interface FirmaStats {
   dosyaTarihi?: string | null
 }
 
+export interface KomisyonUye {
+  id: number
+  ad_soyad: string
+  unvan?: string
+  gorev?: string
+  komisyon_turu?: string
+  asli_yedek?: string
+}

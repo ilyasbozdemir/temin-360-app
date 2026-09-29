@@ -1,0 +1,16 @@
+/* eslint-disable */
+export default {
+  app: "1.0.0-beta.182",
+  schema_min: 1,
+  schema_max: 35,
+  release_date: "2026-09-29",
+  changes: [
+    {
+      schema: 35,
+      type: "feat",
+      description: "Muayene & Kabul Heyeti ve Süreç Belgeleri Entegrasyonu: Kabul Tutanakları kartına tanımlı komisyon heyeti (Başkan & Üyeler) şeridi, Komisyon Kararı, Ödeme Yazısı, Ödeme Emri (MİF) ve TİF/Hizmet Teklif belgesi hızlı önizleme butonları eklendi.",
+      tables_added: [],
+      columns_added: []
+    }
+  ]
+};

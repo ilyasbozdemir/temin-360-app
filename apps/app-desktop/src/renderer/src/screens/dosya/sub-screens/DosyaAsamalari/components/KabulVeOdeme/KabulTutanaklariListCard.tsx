@@ -3,16 +3,19 @@ import {
   Building2,
   Calendar,
   CheckCircle2,
+  CreditCard,
   FileCheck,
   FileText,
   MapPin,
   PackageCheck,
   Printer,
+  ShieldCheck,
   UserCheck,
-  Users
+  Users,
+  AlertCircle
 } from 'lucide-react'
 import { Button } from '../../../../../../components/ui/Button'
-import { FirmaStats } from './types'
+import { FirmaStats, KomisyonUye } from './types'
 
 interface KabulTutanaklariListCardProps {
   kazananFirmaUnvan: string
@@ -20,6 +23,7 @@ interface KabulTutanaklariListCardProps {
   faturaNo: string
   faturaTarihi: string
   komisyonBaskani: string
+  komisyonUyeleri?: KomisyonUye[]
   teslimYeri: string
   dosyaNo?: string
   alimTuru: string
@@ -36,6 +40,7 @@ export function KabulTutanaklariListCard({
   faturaNo,
   faturaTarihi,
   komisyonBaskani,
+  komisyonUyeleri = [],
   teslimYeri,
   dosyaNo,
   alimTuru,
@@ -54,6 +59,8 @@ export function KabulTutanaklariListCard({
   const effectiveTeslimYeri = teslimYeri || 'Kurum Ambarı / İhtiyaç Yeri'
 
   const primarySablonKey = isHizmet ? 'hizmet-isleri-kabul-tutanagi' : 'muayene-kabul-tutanagi'
+
+  const hasKomisyon = komisyonUyeleri.length > 0
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden flex flex-col">
@@ -79,26 +86,29 @@ export function KabulTutanaklariListCard({
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Yüklenici teslimatı, muayene heyeti incelemesi ve kabul evrakları
+              Yüklenici teslimatı, muayene heyeti incelemesi ve resmi kabul evrakları
             </p>
           </div>
         </div>
 
         {/* Top Quick Actions */}
         <div className="flex items-center gap-2 self-start sm:self-center flex-wrap">
+          {/* Komisyon Belgesi */}
           <Button
-            onClick={onOpenKomisyonModal}
+            onClick={() => onOpenPreview('muayene-kabul-komisyonu')}
             variant="outline"
             className="gap-1.5 text-xs font-semibold h-9 px-3 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40"
+            title="Muayene ve Kabul Komisyon Kararı Belgesini Aç"
           >
-            <Users className="w-3.5 h-3.5" />
-            Kabul Komisyonu
+            <ShieldCheck className="w-3.5 h-3.5" />
+            Komisyon Kararı
           </Button>
 
           {isMal && (
             <Button
               onClick={onOpenTifModal}
               className="gap-1.5 text-xs font-semibold h-9 px-3 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+              title="Ambara Giriş ve Taşınır İşlem Fişi Oluştur"
             >
               <PackageCheck className="w-3.5 h-3.5" />
               Ambara Aktar (TİF)
@@ -109,9 +119,20 @@ export function KabulTutanaklariListCard({
             onClick={() => onOpenPreview('odeme-yazisi')}
             variant="outline"
             className="gap-1.5 text-xs font-semibold h-9 px-3 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+            title="Mali Hizmetler Ödeme Üst Yazısı"
           >
             <FileText className="w-3.5 h-3.5" />
             Ödeme Yazısı
+          </Button>
+
+          <Button
+            onClick={() => onOpenPreview('odeme-emri-belgesi')}
+            variant="outline"
+            className="gap-1.5 text-xs font-semibold h-9 px-3 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/40"
+            title="Ödeme Emri Belgesi (MİF)"
+          >
+            <CreditCard className="w-3.5 h-3.5" />
+            Ödeme Emri (MİF)
           </Button>
 
           <Button
@@ -124,6 +145,66 @@ export function KabulTutanaklariListCard({
         </div>
       </div>
 
+      {/* Komisyon Heyeti Bilgilendirme / Roster Bar */}
+      <div className="px-5 py-3 bg-indigo-50/40 dark:bg-indigo-950/20 border-b border-indigo-100/80 dark:border-indigo-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 font-bold text-indigo-900 dark:text-indigo-200">
+            <Users className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+            <span>Muayene &amp; Kabul Heyeti:</span>
+          </div>
+
+          {hasKomisyon ? (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {komisyonUyeleri.map((uye, idx) => {
+                const isBaskan =
+                  uye.gorev?.toLowerCase().includes('başkan') ||
+                  uye.gorev?.toLowerCase().includes('baskan')
+                return (
+                  <span
+                    key={uye.id || idx}
+                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${
+                      isBaskan
+                        ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 border-amber-200 dark:border-amber-800/60'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700'
+                    }`}
+                    title={uye.unvan ? `${uye.gorev || 'Üye'} - ${uye.unvan}` : uye.gorev || 'Üye'}
+                  >
+                    {isBaskan ? '👑' : '👤'}
+                    <span className="font-bold">{uye.ad_soyad}</span>
+                    <span className="text-[10px] text-slate-400">
+                      ({isBaskan ? 'Başkan' : uye.gorev || 'Üye'})
+                    </span>
+                  </span>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+              <AlertCircle className="w-3.5 h-3.5" />
+              <span>Komisyon henüz atanmadı. İmzalı belgeler için heyet tanımlayabilirsiniz.</span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={onOpenKomisyonModal}
+            className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 hover:underline cursor-pointer bg-transparent border-0 p-0"
+          >
+            {hasKomisyon ? 'Heyeti Düzenle' : '+ Komisyon Ata'}
+          </button>
+          <span className="text-slate-300 dark:text-slate-700">•</span>
+          <button
+            type="button"
+            onClick={() => onOpenPreview('muayene-kabul-komisyonu')}
+            className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 hover:underline cursor-pointer bg-transparent border-0 p-0"
+          >
+            Görevlendirme Onayı
+          </button>
+        </div>
+      </div>
+
       {/* Table Container */}
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs">
@@ -132,7 +213,7 @@ export function KabulTutanaklariListCard({
               <th className="py-3 px-4">Kabul Tarihi</th>
               <th className="py-3 px-4">Firma</th>
               <th className="py-3 px-4">Sayı / Fatura No</th>
-              <th className="py-3 px-4">Teslim Alan</th>
+              <th className="py-3 px-4">Teslim Alan / Heyet</th>
               <th className="py-3 px-4">Teslim Yeri</th>
               <th className="py-3 px-4">Durum</th>
               <th className="py-3 px-4 text-right">İşlemler</th>
@@ -152,7 +233,7 @@ export function KabulTutanaklariListCard({
               <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-slate-100">
                 <div className="flex items-center gap-1.5">
                   <Building2 className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                  <span className="truncate max-w-[220px]" title={kazananFirmaUnvan}>
+                  <span className="truncate max-w-55" title={kazananFirmaUnvan}>
                     {kazananFirmaUnvan || 'İstekli Firma'}
                   </span>
                 </div>
@@ -174,17 +255,22 @@ export function KabulTutanaklariListCard({
               <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
                 <div className="flex items-center gap-1.5">
                   <UserCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                  <span className="truncate max-w-[160px]" title={effectiveTeslimAlan}>
+                  <span className="truncate max-w-40 font-semibold" title={effectiveTeslimAlan}>
                     {effectiveTeslimAlan}
                   </span>
                 </div>
+                {hasKomisyon && (
+                  <span className="text-[10px] text-indigo-500 block ml-5">
+                    {komisyonUyeleri.length} Kişilik Kabul Heyeti
+                  </span>
+                )}
               </td>
 
               {/* Teslim Yeri */}
               <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">
                 <div className="flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                  <span className="truncate max-w-[180px]" title={effectiveTeslimYeri}>
+                  <span className="truncate max-w-45" title={effectiveTeslimYeri}>
                     {effectiveTeslimYeri}
                   </span>
                 </div>
@@ -207,7 +293,7 @@ export function KabulTutanaklariListCard({
                     variant="outline"
                     size="sm"
                     className="h-8 px-2.5 text-xs font-semibold gap-1 text-blue-600 hover:text-blue-700 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:border-blue-900/60 dark:hover:bg-blue-950/40"
-                    title="Tutanağı Görüntüle ve Yazdır"
+                    title="Kabul Tutanağını Görüntüle ve Yazdır"
                   >
                     <FileText className="w-3.5 h-3.5" />
                     <span>Tutanağı Aç</span>

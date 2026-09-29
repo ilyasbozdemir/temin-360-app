@@ -40,6 +40,7 @@ export function KabulVeOdeme(): React.JSX.Element {
   const [kazananFirmaId, setKazananFirmaId] = useState<number | null | undefined>(undefined)
   const [kazananFirmaUnvan, setKazananFirmaUnvan] = useState<string>('')
   const [komisyonBaskani, setKomisyonBaskani] = useState<string>('')
+  const [komisyonUyeleri, setKomisyonUyeleri] = useState<any[]>([])
   const [teslimYeri, setTeslimYeri] = useState<string>('')
 
   // İstatistik verileri
@@ -234,21 +235,25 @@ export function KabulVeOdeme(): React.JSX.Element {
             }
           }
 
-          // Fetch Muayene ve Kabul Komisyon Başkanı
+          // Fetch Muayene ve Kabul Komisyon Üyeleri & Başkanı
           try {
-            const komRes = await window.electron.ipcRenderer.invoke(
+            const allKomRes = await window.electron.ipcRenderer.invoke(
               'db:query',
-              `SELECT ad_soyad, gorev FROM DATA_TeminKomisyon
-               WHERE temin_dosya_id = ? AND (LOWER(gorev) LIKE '%başkan%' OR LOWER(gorev) LIKE '%baskan%' OR komisyon_id = 2)
-               ORDER BY (CASE WHEN LOWER(gorev) LIKE '%başkan%' OR LOWER(gorev) LIKE '%baskan%' THEN 0 ELSE 1 END) ASC
-               LIMIT 1`,
+              `SELECT id, ad_soyad, unvan, gorev, komisyon_turu, asli_yedek FROM DATA_TeminKomisyon
+               WHERE temin_dosya_id = ?
+               ORDER BY (CASE WHEN LOWER(COALESCE(gorev, '')) LIKE '%başkan%' OR LOWER(COALESCE(gorev, '')) LIKE '%baskan%' THEN 0 ELSE 1 END) ASC, id ASC`,
               [activeDosyaId]
             )
-            if (komRes.success && komRes.data?.length > 0) {
-              setKomisyonBaskani(komRes.data[0].ad_soyad || '')
+            if (allKomRes.success && Array.isArray(allKomRes.data)) {
+              setKomisyonUyeleri(allKomRes.data)
+              const baskan = allKomRes.data.find(
+                (k: any) =>
+                  k.gorev?.toLowerCase().includes('başkan') || k.gorev?.toLowerCase().includes('baskan')
+              )
+              setKomisyonBaskani(baskan ? baskan.ad_soyad : allKomRes.data[0]?.ad_soyad || '')
             }
           } catch (e) {
-            console.warn('Failed to fetch komisyon baskani:', e)
+            console.warn('Failed to fetch komisyon members:', e)
           }
 
           setFirmaStats({
@@ -401,6 +406,7 @@ export function KabulVeOdeme(): React.JSX.Element {
             faturaNo={faturaNo}
             faturaTarihi={faturaTarihi}
             komisyonBaskani={komisyonBaskani}
+            komisyonUyeleri={komisyonUyeleri}
             teslimYeri={teslimYeri}
             dosyaNo={dosyaContext?.dosya_no}
             alimTuru={alimTuru}
@@ -463,19 +469,23 @@ export function KabulVeOdeme(): React.JSX.Element {
           setIsKomisyonModalOpen(false)
           if (!activeDosyaId) return
           try {
-            const komRes = await window.electron.ipcRenderer.invoke(
+            const allKomRes = await window.electron.ipcRenderer.invoke(
               'db:query',
-              `SELECT ad_soyad, gorev FROM DATA_TeminKomisyon
-               WHERE temin_dosya_id = ? AND (LOWER(gorev) LIKE '%başkan%' OR LOWER(gorev) LIKE '%baskan%' OR komisyon_id = 2)
-               ORDER BY (CASE WHEN LOWER(gorev) LIKE '%başkan%' OR LOWER(gorev) LIKE '%baskan%' THEN 0 ELSE 1 END) ASC
-               LIMIT 1`,
+              `SELECT id, ad_soyad, unvan, gorev, komisyon_turu, asli_yedek FROM DATA_TeminKomisyon
+               WHERE temin_dosya_id = ?
+               ORDER BY (CASE WHEN LOWER(COALESCE(gorev, '')) LIKE '%başkan%' OR LOWER(COALESCE(gorev, '')) LIKE '%baskan%' THEN 0 ELSE 1 END) ASC, id ASC`,
               [activeDosyaId]
             )
-            if (komRes.success && komRes.data?.length > 0) {
-              setKomisyonBaskani(komRes.data[0].ad_soyad || '')
+            if (allKomRes.success && Array.isArray(allKomRes.data)) {
+              setKomisyonUyeleri(allKomRes.data)
+              const baskan = allKomRes.data.find(
+                (k: any) =>
+                  k.gorev?.toLowerCase().includes('başkan') || k.gorev?.toLowerCase().includes('baskan')
+              )
+              setKomisyonBaskani(baskan ? baskan.ad_soyad : allKomRes.data[0]?.ad_soyad || '')
             }
           } catch (e) {
-            console.error('Failed to reload komisyon baskani:', e)
+            console.error('Failed to reload komisyon:', e)
           }
         }}
         initialType="muayene_kabul"

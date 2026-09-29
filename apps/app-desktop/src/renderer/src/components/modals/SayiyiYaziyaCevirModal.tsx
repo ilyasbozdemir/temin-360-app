@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
   Calculator,
   Check,
@@ -8,68 +8,70 @@ import {
   Info,
   RotateCcw,
   Sparkles,
-  X
-} from 'lucide-react'
-import { amountToWordsTL } from '../../utils/sayiyiYaziyaCevir'
-import { cn } from '../../utils/cn'
+  X,
+} from "lucide-react";
+import { amountToWordsTL } from "../../utils/sayiyiYaziyaCevir";
+import { cn } from "../../utils/cn";
 
 interface SayiyiYaziyaCevirModalProps {
-  isOpen: boolean
-  onClose: () => void
-  initialValue?: string | number
+  isOpen: boolean;
+  onClose: () => void;
+  initialValue?: string | number;
 }
 
 const PRESETS = [
-  { label: '282.112,00 ₺', value: '282.112,00' },
-  { label: '1.450.000,50 ₺', value: '1.450.000,50' },
-  { label: '45.750,25 ₺', value: '45.750,25' },
-  { label: '1.000,00 ₺', value: '1.000,00' },
-  { label: '100,00 ₺', value: '100,00' },
-  { label: '75,50 ₺', value: '75,50' }
-]
+  { label: "282.112,00 ₺", value: "282.112,00" },
+  { label: "1.450.000,50 ₺", value: "1.450.000,50" },
+  { label: "45.750,25 ₺", value: "45.750,25" },
+  { label: "1.000,00 ₺", value: "1.000,00" },
+  { label: "100,00 ₺", value: "100,00" },
+  { label: "75,50 ₺", value: "75,50" },
+];
 
 export function SayiyiYaziyaCevirModal({
   isOpen,
   onClose,
-  initialValue = '282.112,00'
+  initialValue = "282.112,00",
 }: SayiyiYaziyaCevirModalProps): React.JSX.Element | null {
-  const [inputValue, setInputValue] = useState<string>(String(initialValue))
-  const [harfTipi, setHarfTipi] = useState<'buyuk' | 'baslik' | 'kucuk'>('buyuk')
-  const [paraBirimi, setParaBirimi] = useState<string>('TL')
-  const [altBirim, setAltBirim] = useState<string>('KURUŞ')
-  const [copied, setCopied] = useState(false)
+  const [inputValue, setInputValue] = useState<string>(String(initialValue));
+  const [harfTipi, setHarfTipi] = useState<"buyuk" | "baslik" | "kucuk">(
+    "buyuk",
+  );
+  const [paraBirimi, setParaBirimi] = useState<string>("TL");
+  const [altBirim, setAltBirim] = useState<string>("KURUŞ");
+  const [copied, setCopied] = useState(false);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   const resultWords = amountToWordsTL(inputValue, {
     paraBirimi,
     altBirim,
-    harfTipi
-  })
+    harfTipi,
+  });
 
   const handleCopy = async () => {
-    if (!resultWords) return
+    if (!resultWords) return;
     try {
-      await navigator.clipboard.writeText(resultWords)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(resultWords);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch {
       // Fallback
     }
-  }
+  };
 
-  const handleCurrencyChange = (curr: 'TL' | 'USD' | 'EUR') => {
-    if (curr === 'TL') {
-      setParaBirimi('TL')
-      setAltBirim('KURUŞ')
-    } else if (curr === 'USD') {
-      setParaBirimi('DOLAR')
-      setAltBirim('CENT')
-    } else if (curr === 'EUR') {
-      setParaBirimi('EURO')
-      setAltBirim('CENT')
+  const handleCurrencyChange = (curr: "TL" | "USD" | "EUR") => {
+    if (curr === "TL") {
+      setParaBirimi("TL");
+      setAltBirim("KURUŞ");
+    } else if (curr === "USD") {
+      setParaBirimi("DOLAR");
+      setAltBirim("CENT");
+    } else if (curr === "EUR") {
+      setParaBirimi("EURO");
+      setAltBirim("CENT");
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
@@ -88,8 +90,8 @@ export function SayiyiYaziyaCevirModal({
                 </span>
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                İhale, teklif ve hakediş dokümanlarında kullanılan resmi &quot;Yazı ile&quot;
-                çevirici
+                İhale, teklif ve hakediş dokümanlarında kullanılan resmi
+                &quot;Yazı ile&quot; çevirici
               </p>
             </div>
           </div>
@@ -112,7 +114,7 @@ export function SayiyiYaziyaCevirModal({
               </label>
               <button
                 type="button"
-                onClick={() => setInputValue('')}
+                onClick={() => setInputValue("")}
                 className="text-[11px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center gap-1 transition-colors"
               >
                 <RotateCcw size={12} /> Temizle
@@ -158,36 +160,36 @@ export function SayiyiYaziyaCevirModal({
               <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex gap-1 border border-slate-200/60 dark:border-slate-700">
                 <button
                   type="button"
-                  onClick={() => setHarfTipi('buyuk')}
+                  onClick={() => setHarfTipi("buyuk")}
                   className={cn(
-                    'flex-1 py-1.5 text-xs font-bold rounded-lg transition-all',
-                    harfTipi === 'buyuk'
-                      ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                    "flex-1 py-1.5 text-xs font-bold rounded-lg transition-all",
+                    harfTipi === "buyuk"
+                      ? "bg-white dark:bg-slate-900 text-blue-600 shadow-sm"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900",
                   )}
                 >
-                  BÜYÜK (Resmi)
+                  BÜYÜK
                 </button>
                 <button
                   type="button"
-                  onClick={() => setHarfTipi('baslik')}
+                  onClick={() => setHarfTipi("baslik")}
                   className={cn(
-                    'flex-1 py-1.5 text-xs font-bold rounded-lg transition-all',
-                    harfTipi === 'baslik'
-                      ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                    "flex-1 py-1.5 text-xs font-bold rounded-lg transition-all",
+                    harfTipi === "baslik"
+                      ? "bg-white dark:bg-slate-900 text-blue-600 shadow-sm"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900",
                   )}
                 >
                   Baş Harfler
                 </button>
                 <button
                   type="button"
-                  onClick={() => setHarfTipi('kucuk')}
+                  onClick={() => setHarfTipi("kucuk")}
                   className={cn(
-                    'flex-1 py-1.5 text-xs font-bold rounded-lg transition-all',
-                    harfTipi === 'kucuk'
-                      ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                    "flex-1 py-1.5 text-xs font-bold rounded-lg transition-all",
+                    harfTipi === "kucuk"
+                      ? "bg-white dark:bg-slate-900 text-blue-600 shadow-sm"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900",
                   )}
                 >
                   küçük
@@ -200,18 +202,22 @@ export function SayiyiYaziyaCevirModal({
                 Para Birimi
               </label>
               <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex gap-1 border border-slate-200/60 dark:border-slate-700">
-                {(['TL', 'USD', 'EUR'] as const).map((curr) => (
+                {(["TL", "USD", "EUR"] as const).map((curr) => (
                   <button
                     key={curr}
                     type="button"
                     onClick={() => handleCurrencyChange(curr)}
                     className={cn(
-                      'flex-1 py-1.5 text-xs font-bold rounded-lg transition-all',
+                      "flex-1 py-1.5 text-xs font-bold rounded-lg transition-all",
                       paraBirimi.startsWith(
-                        curr === 'TL' ? 'TL' : curr === 'USD' ? 'DOLAR' : 'EURO'
-                      )
-                        ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-sm'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                          curr === "TL"
+                            ? "TL"
+                            : curr === "USD"
+                            ? "DOLAR"
+                            : "EURO",
+                        )
+                        ? "bg-white dark:bg-slate-900 text-blue-600 shadow-sm"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900",
                     )}
                   >
                     {curr}
@@ -249,21 +255,23 @@ export function SayiyiYaziyaCevirModal({
                   type="button"
                   onClick={handleCopy}
                   className={cn(
-                    'px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shrink-0 transition-all shadow-sm',
+                    "px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shrink-0 transition-all shadow-sm",
                     copied
-                      ? 'bg-emerald-600 text-white scale-105'
-                      : 'bg-blue-600 hover:bg-blue-700 text-white hover:shadow-md'
+                      ? "bg-emerald-600 text-white scale-105"
+                      : "bg-blue-600 hover:bg-blue-700 text-white hover:shadow-md",
                   )}
                 >
-                  {copied ? (
-                    <>
-                      <Check size={16} /> Kopyalandı!
-                    </>
-                  ) : (
-                    <>
-                      <Clipboard size={16} /> Kopyala
-                    </>
-                  )}
+                  {copied
+                    ? (
+                      <>
+                        <Check size={16} /> Kopyalandı!
+                      </>
+                    )
+                    : (
+                      <>
+                        <Clipboard size={16} /> Kopyala
+                      </>
+                    )}
                 </button>
               )}
             </div>
@@ -274,12 +282,15 @@ export function SayiyiYaziyaCevirModal({
             <Info size={16} className="text-blue-500 shrink-0 mt-0.5" />
             <div>
               <span className="font-bold text-slate-700 dark:text-slate-300">
-                Kamu Mevzuat Kuralı:{' '}
+                Kamu Mevzuat Kuralı:{" "}
               </span>
-              4734 sayılı Kamu İhale Kanunu ve Muhasebat standartlarına göre{' '}
-              <b>&quot;BİR BİN&quot;</b> yerine yalnızca <b>&quot;BİN&quot;</b>,{' '}
-              <b>&quot;BİR YÜZ&quot;</b> yerine <b>&quot;YÜZ&quot;</b> ifadeleri kullanılır.
-              Tutarlar otomatik olarak bu kurala göre sadeleştirilir.
+              4734 sayılı Kamu İhale Kanunu ve Muhasebat standartlarına göre
+              {" "}
+              <b>&quot;BİR BİN&quot;</b> yerine yalnızca <b>&quot;BİN&quot;</b>,
+              {" "}
+              <b>&quot;BİR YÜZ&quot;</b> yerine <b>&quot;YÜZ&quot;</b>{" "}
+              ifadeleri kullanılır. Tutarlar otomatik olarak bu kurala göre
+              sadeleştirilir.
             </div>
           </div>
         </div>
@@ -300,5 +311,5 @@ export function SayiyiYaziyaCevirModal({
         </div>
       </div>
     </div>
-  )
+  );
 }
