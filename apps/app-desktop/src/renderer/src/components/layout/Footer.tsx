@@ -8,6 +8,8 @@ import { useSettingsStore } from '../../store/settingsStore'
 import { useTabStore } from '../../store/tabStore'
 import { GoogleDriveFooterWidget } from './GoogleDriveFooterWidget'
 
+import locData from '../../generated-loc.json'
+
 export function Footer(): React.JSX.Element {
   const { activeMeta, activeDosyaId, fileName } = useWorkspaceStore()
   const { institutionName, eButceKodu } = useSettingsStore()
@@ -94,7 +96,17 @@ export function Footer(): React.JSX.Element {
       </div>
 
       <div className="flex items-center space-x-2">
-        <span>v{appVersion}</span>
+        <span className="flex items-center gap-1.5 font-mono text-[11px]">
+          <span>v{appVersion}</span>
+          <span className="text-slate-300 dark:text-slate-700">•</span>
+          <span
+            className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+            onClick={() => setShowAbout(true)}
+            title={`Toplam ${locData.totalFiles} dosyada ${locData.codeLines.toLocaleString('tr-TR')} satır kod`}
+          >
+            {locData.codeLines.toLocaleString('tr-TR')} satır
+          </span>
+        </span>
 
         <button
           onClick={() => setShowNetwork(true)}

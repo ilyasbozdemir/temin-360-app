@@ -13,6 +13,7 @@ import {
   Sparkles
 } from 'lucide-react'
 import packageJson from '../../../../../package.json'
+import locData from '../../generated-loc.json'
 
 interface AboutModalProps {
   isOpen: boolean
@@ -42,12 +43,15 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps): React.ReactNod
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/20 text-white backdrop-blur-md border border-white/25">
                   v{packageJson.version}
                 </span>
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/20 text-white backdrop-blur-md border border-white/25 font-mono">
+                  {locData.codeLines.toLocaleString('tr-TR')} Satır Kod
+                </span>
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-400/20 text-emerald-100 border border-emerald-300/30">
                   Açık Kaynak
                 </span>
               </div>
               <p className="text-xs text-blue-100/90 mt-0.5">
-                Kamu Temin, İhale, Harcama ve Hakediş Yönetim Sistemi
+                Kamu Temin, İhale, Harcama ve Hakediş Yönetim Sistemi • {locData.totalFiles} Dosya
               </p>
             </div>
           </div>

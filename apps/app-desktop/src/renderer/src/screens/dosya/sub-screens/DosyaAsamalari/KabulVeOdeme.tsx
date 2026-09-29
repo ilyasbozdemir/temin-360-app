@@ -18,6 +18,19 @@ import {
   KabulTutanaklariListCard
 } from './components/KabulVeOdeme'
 
+// In-memory cache for instant step switching without loading spinners
+interface KabulDataCacheEntry {
+  kazananFirmaId: number | null
+  kazananFirmaUnvan: string
+  komisyonBaskani: string
+  komisyonUyeleri: KomisyonUye[]
+  teslimYeri: string
+  firmaStats: FirmaStats
+  faturaNo: string
+  faturaTarihi: string
+}
+const kabulDataCache = new Map<number, KabulDataCacheEntry>()
+
 export function KabulVeOdeme(): React.JSX.Element {
   const {
     activeStarredDocs,
@@ -37,26 +50,44 @@ export function KabulVeOdeme(): React.JSX.Element {
   const { disableDocumentGuidance } = useSettingsStore()
   const { activeDosyaId } = useWorkspaceStore()
 
-  // Kazanan firma guard state
-  const [kazananFirmaId, setKazananFirmaId] = useState<number | null | undefined>(undefined)
-  const [kazananFirmaUnvan, setKazananFirmaUnvan] = useState<string>('')
-  const [komisyonBaskani, setKomisyonBaskani] = useState<string>('')
-  const [komisyonUyeleri, setKomisyonUyeleri] = useState<KomisyonUye[]>([])
-  const [teslimYeri, setTeslimYeri] = useState<string>('')
+  // Cached or optimistic initial state
+  const cached = activeDosyaId ? kabulDataCache.get(activeDosyaId) : undefined
+  const optimisticFirmaId =
+    cached?.kazananFirmaId ??
+    (dosyaContext?.kazanan_firma_id ||
+      dosyaContext?.firma_id ||
+      (dosyaContext?.enAvantajliTeklifSahibi ? 1 : undefined))
+
+  const optimisticUnvan =
+    cached?.kazananFirmaUnvan ||
+    dosyaContext?.enAvantajliTeklifSahibi ||
+    dosyaContext?.kazanan_firma ||
+    dosyaContext?.firma_unvani ||
+    ''
+
+  const [kazananFirmaId, setKazananFirmaId] = useState<number | null | undefined>(optimisticFirmaId)
+  const [kazananFirmaUnvan, setKazananFirmaUnvan] = useState<string>(optimisticUnvan)
+  const [komisyonBaskani, setKomisyonBaskani] = useState<string>(cached?.komisyonBaskani || '')
+  const [komisyonUyeleri, setKomisyonUyeleri] = useState<KomisyonUye[]>(cached?.komisyonUyeleri || [])
+  const [teslimYeri, setTeslimYeri] = useState<string>(
+    cached?.teslimYeri || dosyaContext?.ihtiyac_yeri || ''
+  )
 
   // İstatistik verileri
-  const [firmaStats, setFirmaStats] = useState<FirmaStats>({
-    teklifToplami: null,
-    yaklasikMaliyet: null,
-    teslimTarihi: null,
-    yasaklilikDurumu: null,
-    vergiNo: null,
-    alimTuru: 'mal'
-  })
+  const [firmaStats, setFirmaStats] = useState<FirmaStats>(
+    cached?.firmaStats || {
+      teklifToplami: dosyaContext?.enAvantajliTeklifBedeli ? Number(dosyaContext.enAvantajliTeklifBedeli) : null,
+      yaklasikMaliyet: dosyaContext?.yaklasikMaliyet ? Number(dosyaContext.yaklasikMaliyet) : null,
+      teslimTarihi: null,
+      yasaklilikDurumu: null,
+      vergiNo: null,
+      alimTuru: (dosyaContext?.alimTuru || 'mal') as 'mal' | 'hizmet' | 'yapim'
+    }
+  )
 
   // Fatura & Hakediş state
-  const [faturaNo, setFaturaNo] = useState<string>('')
-  const [faturaTarihi, setFaturaTarihi] = useState<string>('')
+  const [faturaNo, setFaturaNo] = useState<string>(cached?.faturaNo || '')
+  const [faturaTarihi, setFaturaTarihi] = useState<string>(cached?.faturaTarihi || '')
   const [isTifModalOpen, setIsTifModalOpen] = useState(false)
   const [isKomisyonModalOpen, setIsKomisyonModalOpen] = useState(false)
 
@@ -98,31 +129,44 @@ export function KabulVeOdeme(): React.JSX.Element {
     handleOpenPreviewForSablon(found, (found as any).ad || sablonKey)
   }
 
+  // Paralel ve arka plan veri tazeleyici (Stale-While-Revalidate)
   useEffect(() => {
     if (!activeDosyaId) return
 
+    let isMounted = true
+
     const checkKazananFirma = async (): Promise<void> => {
       try {
-        const res = await window.electron.ipcRenderer.invoke(
-          'db:query',
-          `SELECT d.firma_id, f.unvan, f.vergi_no,
-                  d.yaklasik_maliyet, d.teslim_tarihi,
-                  d.fiyat_farki_dayanagi, COALESCE(d.tur, 'mal') as alim_turu,
-                  d.dosya_acilis_tarihi, d.temin_tarihi, d.tarih,
-                  d.ihtiyac_yeri
-           FROM DATA_TeminDosyasi d
-           LEFT JOIN TANIM_Firma f ON d.firma_id = f.id
-           WHERE d.id = ?`,
-          [activeDosyaId]
-        )
+        const [dosyaRes, komRes] = await Promise.all([
+          window.electron.ipcRenderer.invoke(
+            'db:query',
+            `SELECT d.firma_id, f.unvan, f.vergi_no,
+                    d.yaklasik_maliyet, d.teslim_tarihi,
+                    d.fiyat_farki_dayanagi, COALESCE(d.tur, 'mal') as alim_turu,
+                    d.dosya_acilis_tarihi, d.temin_tarihi, d.tarih,
+                    d.ihtiyac_yeri
+             FROM DATA_TeminDosyasi d
+             LEFT JOIN TANIM_Firma f ON d.firma_id = f.id
+             WHERE d.id = ?`,
+            [activeDosyaId]
+          ),
+          window.electron.ipcRenderer.invoke(
+            'db:query',
+            `SELECT id, ad_soyad, unvan, gorev, komisyon_turu, asli_yedek FROM DATA_TeminKomisyon
+             WHERE temin_dosya_id = ?
+             ORDER BY (CASE WHEN LOWER(COALESCE(gorev, '')) LIKE '%başkan%' OR LOWER(COALESCE(gorev, '')) LIKE '%baskan%' THEN 0 ELSE 1 END) ASC, id ASC`,
+            [activeDosyaId]
+          )
+        ])
 
-        if (res.success && res.data && res.data.length > 0) {
-          const row = res.data[0]
+        if (!isMounted) return
+
+        if (dosyaRes.success && dosyaRes.data && dosyaRes.data.length > 0) {
+          const row = dosyaRes.data[0]
           let effectiveFirmaId = row.firma_id || null
           let effectiveUnvan = row.unvan || ''
           let effectiveVergiNo = row.vergi_no || null
 
-          // Also check DATA_TeminFirma if row.firma_id is set but unvan was not found via TANIM_Firma
           if (effectiveFirmaId && !effectiveUnvan) {
             try {
               const tfCheck = await window.electron.ipcRenderer.invoke(
@@ -171,22 +215,18 @@ export function KabulVeOdeme(): React.JSX.Element {
               effectiveFirmaId = lowest.firma_id || lowest.temin_firma_id
               effectiveUnvan = lowest.unvan || 'İstekli Firma'
               effectiveVergiNo = lowest.vergi_no || null
-              await window.electron.ipcRenderer.invoke(
+              window.electron.ipcRenderer.invoke(
                 'db:run',
                 'UPDATE DATA_TeminDosyasi SET firma_id = ? WHERE id = ?',
                 [effectiveFirmaId, activeDosyaId]
               )
-              await window.electron.ipcRenderer.invoke(
+              window.electron.ipcRenderer.invoke(
                 'db:run',
                 'UPDATE DATA_TeminFirma SET kazanan_mi = (CASE WHEN firma_id = ? OR id = ? THEN 1 ELSE 0 END) WHERE temin_dosya_id = ?',
                 [effectiveFirmaId, effectiveFirmaId, activeDosyaId]
               )
             }
           }
-
-          setKazananFirmaId(effectiveFirmaId)
-          setKazananFirmaUnvan(effectiveUnvan)
-          setTeslimYeri(row.ihtiyac_yeri || '')
 
           let teklifToplami: number | null = null
           let yasaklilikDurumu: string | null = null
@@ -208,29 +248,19 @@ export function KabulVeOdeme(): React.JSX.Element {
             }
           }
 
-          // Fetch Muayene ve Kabul Komisyon Üyeleri & Başkanı
-          try {
-            const allKomRes = await window.electron.ipcRenderer.invoke(
-              'db:query',
-              `SELECT id, ad_soyad, unvan, gorev, komisyon_turu, asli_yedek FROM DATA_TeminKomisyon
-               WHERE temin_dosya_id = ?
-               ORDER BY (CASE WHEN LOWER(COALESCE(gorev, '')) LIKE '%başkan%' OR LOWER(COALESCE(gorev, '')) LIKE '%baskan%' THEN 0 ELSE 1 END) ASC, id ASC`,
-              [activeDosyaId]
+          let fetchedKomUyeleri: KomisyonUye[] = []
+          let fetchedBaskan = ''
+          if (komRes.success && Array.isArray(komRes.data)) {
+            fetchedKomUyeleri = komRes.data
+            const baskan = (komRes.data as KomisyonUye[]).find(
+              (k) =>
+                k.gorev?.toLowerCase().includes('başkan') ||
+                k.gorev?.toLowerCase().includes('baskan')
             )
-            if (allKomRes.success && Array.isArray(allKomRes.data)) {
-              setKomisyonUyeleri(allKomRes.data)
-              const baskan = (allKomRes.data as KomisyonUye[]).find(
-                (k) =>
-                  k.gorev?.toLowerCase().includes('başkan') ||
-                  k.gorev?.toLowerCase().includes('baskan')
-              )
-              setKomisyonBaskani(baskan ? baskan.ad_soyad : allKomRes.data[0]?.ad_soyad || '')
-            }
-          } catch (e) {
-            console.warn('Failed to fetch komisyon members:', e)
+            fetchedBaskan = baskan ? baskan.ad_soyad : komRes.data[0]?.ad_soyad || ''
           }
 
-          setFirmaStats({
+          const nextStats: FirmaStats = {
             teklifToplami,
             yaklasikMaliyet: row.yaklasik_maliyet || null,
             teslimTarihi: row.teslim_tarihi || null,
@@ -239,16 +269,39 @@ export function KabulVeOdeme(): React.JSX.Element {
             fiyatFarkiDayanagi: row.fiyat_farki_dayanagi || null,
             alimTuru: row.alim_turu || null,
             dosyaTarihi: row.temin_tarihi || row.dosya_acilis_tarihi || row.tarih || null
+          }
+
+          setKazananFirmaId(effectiveFirmaId)
+          setKazananFirmaUnvan(effectiveUnvan)
+          setTeslimYeri(row.ihtiyac_yeri || '')
+          setKomisyonUyeleri(fetchedKomUyeleri)
+          setKomisyonBaskani(fetchedBaskan)
+          setFirmaStats(nextStats)
+
+          // Save to instant memory cache
+          kabulDataCache.set(activeDosyaId, {
+            kazananFirmaId: effectiveFirmaId,
+            kazananFirmaUnvan: effectiveUnvan,
+            komisyonBaskani: fetchedBaskan,
+            komisyonUyeleri: fetchedKomUyeleri,
+            teslimYeri: row.ihtiyac_yeri || '',
+            firmaStats: nextStats,
+            faturaNo,
+            faturaTarihi
           })
         } else {
           setKazananFirmaId(null)
         }
       } catch {
-        setKazananFirmaId(null)
+        if (isMounted) setKazananFirmaId(null)
       }
     }
 
     checkKazananFirma()
+
+    return () => {
+      isMounted = false
+    }
   }, [activeDosyaId])
 
   const formatCurrency = (val: number | null): string => {

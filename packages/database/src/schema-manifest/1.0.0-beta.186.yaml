@@ -1,0 +1,10 @@
+app: 1.0.0-beta.186
+schema_min: 1
+schema_max: 35
+release_date: '2026-09-29'
+changes:
+  - schema: 35
+    type: perf
+    description: "Performans & Arayüz İyileştirmeleri: Dosya aşamaları (Sipariş & Sözleşme, Muayene & Kabul & Ödeme) arasındaki geçişlerde in-memory cache ve dosya context optimizasyonları ile yükleme gecikmeleri sıfırlandı. Footer ve Hakkında pencerelerine dinamik kod satır sayısı (LOC) ve dosya istatistikleri yeniden entegre edildi."
+    tables_added: []
+    columns_added: []

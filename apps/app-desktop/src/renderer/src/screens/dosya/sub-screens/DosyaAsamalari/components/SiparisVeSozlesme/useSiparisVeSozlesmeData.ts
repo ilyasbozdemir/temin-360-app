@@ -3,38 +3,58 @@ import { useWorkspaceStore } from '@renderer/store/workspaceStore'
 import { documentPreloadService } from '@renderer/services/documentPreloadService'
 import { FirmaStats, IslemlerData } from './types'
 
+interface SiparisDataCacheEntry {
+  kazananFirmaId: number | null
+  kazananFirmaUnvan: string
+  firmaStats: FirmaStats
+  islemlerData: IslemlerData
+  sonucOnayEkler: string[]
+}
+const siparisDataCache = new Map<number, SiparisDataCacheEntry>()
+
 export function useSiparisVeSozlesmeData() {
   const { activeDosyaId } = useWorkspaceStore()
+  const cached = activeDosyaId ? siparisDataCache.get(activeDosyaId) : undefined
 
-  const [kazananFirmaId, setKazananFirmaId] = useState<number | null | undefined>(undefined) // undefined = yükleniyor
-  const [kazananFirmaUnvan, setKazananFirmaUnvan] = useState<string>('')
+  const [kazananFirmaId, setKazananFirmaId] = useState<number | null | undefined>(
+    cached?.kazananFirmaId ?? undefined
+  )
+  const [kazananFirmaUnvan, setKazananFirmaUnvan] = useState<string>(
+    cached?.kazananFirmaUnvan || ''
+  )
 
-  const [firmaStats, setFirmaStats] = useState<FirmaStats>({
-    teklifToplami: null,
-    yaklasikMaliyet: null,
-    teslimTarihi: null,
-    yasaklilikDurumu: null,
-    vergiNo: null,
-    teklifSozlesmeTuru: null,
-    sozlesmeYapilacakMi: 0,
-    istekliFirmaSayisi: 0
-  })
+  const [firmaStats, setFirmaStats] = useState<FirmaStats>(
+    cached?.firmaStats || {
+      teklifToplami: null,
+      yaklasikMaliyet: null,
+      teslimTarihi: null,
+      yasaklilikDurumu: null,
+      vergiNo: null,
+      teklifSozlesmeTuru: null,
+      sozlesmeYapilacakMi: 0,
+      istekliFirmaSayisi: 0
+    }
+  )
 
-  const [islemlerData, setIslemlerData] = useState<IslemlerData>({
-    sozlesmeYapilacakMi: false,
-    siparisFormuGerekli: true,
-    teslimGunu: 10,
-    teslimTarihi: '',
-    teklifSozlesmeTuru: 'Mal Alımı'
-  })
+  const [islemlerData, setIslemlerData] = useState<IslemlerData>(
+    cached?.islemlerData || {
+      sozlesmeYapilacakMi: false,
+      siparisFormuGerekli: true,
+      teslimGunu: 10,
+      teslimTarihi: '',
+      teklifSozlesmeTuru: 'Mal Alımı'
+    }
+  )
 
-  const [sonucOnayEkler, setSonucOnayEkler] = useState<string[]>([
-    'Piyasa Fiyat Araştırması Tutanağı',
-    'Teklif Mektupları',
-    'İhtiyaç Raporu',
-    'Harcama Talimatı',
-    'Yaklaşık Maliyet Hesap Cetveli'
-  ])
+  const [sonucOnayEkler, setSonucOnayEkler] = useState<string[]>(
+    cached?.sonucOnayEkler || [
+      'Piyasa Fiyat Araştırması Tutanağı',
+      'Teklif Mektupları',
+      'İhtiyaç Raporu',
+      'Harcama Talimatı',
+      'Yaklaşık Maliyet Hesap Cetveli'
+    ]
+  )
 
   const [savedFeedback, setSavedFeedback] = useState(false)
 
@@ -197,7 +217,7 @@ export function useSiparisVeSozlesmeData() {
             }
           }
 
-          setFirmaStats({
+          const nextStats: FirmaStats = {
             teklifToplami,
             yaklasikMaliyet: row.yaklasik_maliyet || null,
             teslimTarihi: formattedDate || null,
@@ -206,15 +226,28 @@ export function useSiparisVeSozlesmeData() {
             teklifSozlesmeTuru: row.teklif_sozlesme_turu || 'Mal Alımı',
             sozlesmeYapilacakMi: row.sozlesme_yapilacak_mi ? 1 : 0,
             istekliFirmaSayisi
-          })
+          }
 
-          setIslemlerData({
+          const nextIslemler: IslemlerData = {
             sozlesmeYapilacakMi: Boolean(row.sozlesme_yapilacak_mi),
             siparisFormuGerekli: true,
             teslimGunu: teslimGunu,
             teslimTarihi: formattedDate || '',
             teklifSozlesmeTuru: row.teklif_sozlesme_turu || 'Mal Alımı'
-          })
+          }
+
+          setFirmaStats(nextStats)
+          setIslemlerData(nextIslemler)
+
+          if (activeDosyaId) {
+            siparisDataCache.set(activeDosyaId, {
+              kazananFirmaId: effectiveFirmaId,
+              kazananFirmaUnvan: effectiveUnvan,
+              firmaStats: nextStats,
+              islemlerData: nextIslemler,
+              sonucOnayEkler
+            })
+          }
         } else {
           setKazananFirmaId(null)
         }
