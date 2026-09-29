@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { ChevronDown, FileText, Printer } from 'lucide-react'
+import { ChevronDown, Files, FileText, Printer } from 'lucide-react'
 import { cn } from '../../../utils/cn'
 import { BelgeAksiyonlari } from '../../../components/ui/BelgeAksiyonlari'
 import { normalizeForMatch } from '../sub-screens/DosyaAsamalari/useDosyaAsamasiSablons'
@@ -20,6 +20,7 @@ export interface PrintDropdownButtonV2Props {
   className?: string
   buttonHeightClass?: string // Optional button height class, e.g. "h-10"
   label?: string
+  variant?: 'dark' | 'outline' | 'default'
 }
 
 export function PrintDropdownButtonV2({
@@ -35,7 +36,8 @@ export function PrintDropdownButtonV2({
   isSablonDisabled,
   className = '',
   buttonHeightClass = '',
-  label
+  label,
+  variant = 'default'
 }: PrintDropdownButtonV2Props): React.JSX.Element | null {
   const { activeDosyaId } = useWorkspaceStore()
   const [belgeMenuOpen, setBelgeMenuOpen] = useState(false)
@@ -193,13 +195,25 @@ export function PrintDropdownButtonV2({
         }}
         disabled={ciktiLoading}
         className={cn(
-          'flex items-center gap-1.5 px-3 py-2 bg-slate-55 hover:bg-slate-100 text-slate-705 dark:bg-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed',
+          variant === 'dark'
+            ? 'inline-flex items-center gap-2 rounded-xl bg-slate-800 dark:bg-slate-700 px-3.5 py-2.5 text-xs font-bold text-white transition-all hover:bg-slate-700 dark:hover:bg-slate-600 shadow-sm hover:shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
+            : 'flex items-center gap-1.5 px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed',
           buttonHeightClass
         )}
       >
-        <Printer className="w-3.5 h-3.5 text-blue-500" />
-        {label || 'Belgeleri Yazdır'}
-        <ChevronDown className="w-3 h-3 text-slate-400" />
+        {variant === 'dark' ? (
+          <>
+            <Files className="h-4 w-4" />
+            <span>{label || 'Belge İşlemleri'}</span>
+            <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+          </>
+        ) : (
+          <>
+            <Printer className="w-3.5 h-3.5 text-blue-500" />
+            <span>{label || 'Belgeleri Yazdır'}</span>
+            <ChevronDown className="w-3 h-3 text-slate-400" />
+          </>
+        )}
       </button>
 
       {belgeMenuOpen && (

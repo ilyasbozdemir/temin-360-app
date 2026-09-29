@@ -1,0 +1,16 @@
+/* eslint-disable */
+export default {
+  app: "1.0.0-beta.184",
+  schema_min: 1,
+  schema_max: 35,
+  release_date: "2026-09-29",
+  changes: [
+    {
+      schema: 35,
+      type: "feat",
+      description: "Belge İşlemleri & Serbest/Kılavuzlu Mod UI Uyumu: 4. Aşamada (Kabul ve Ödeme) ve sistem genelinde PrintDropdownButton bileşenine 'Belge İşlemleri' koyu tema butonu ve Files ikonu desteği entegre edildi. Serbest ve Yönlendirmeli mod ayarları ile görsel tutarlılık sağlandı.",
+      tables_added: [],
+      columns_added: []
+    }
+  ]
+};

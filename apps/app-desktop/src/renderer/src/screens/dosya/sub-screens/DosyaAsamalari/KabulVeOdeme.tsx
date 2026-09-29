@@ -331,7 +331,8 @@ export function KabulVeOdeme(): React.JSX.Element {
                   quickOpenExternal={quickOpenExternal}
                   isSablonDisabled={isSablonDisabled}
                   buttonHeightClass="h-10"
-                  label={disableDocumentGuidance ? 'İşlemler' : 'Belgeleri İncele ve Çıktı Al'}
+                  variant={disableDocumentGuidance ? 'dark' : 'default'}
+                  label={disableDocumentGuidance ? 'Belge İşlemleri' : 'Belgeleri İncele ve Çıktı Al'}
                 />
               </div>
             )}
