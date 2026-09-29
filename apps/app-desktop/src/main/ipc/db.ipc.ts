@@ -237,7 +237,7 @@ export function registerDbIpcHandlers(): void {
       stmt.run('eButceKodu', code)
       stmt.run('adminUsername', user)
       stmt.run('adminPassword', pass)
-      workspaceManager.recordMutation()
+      workspaceManager.recordMutation('SETTINGS')
       workspaceManager.save()
       return { success: true }
     } catch (error: any) {
@@ -558,7 +558,7 @@ export function registerDbIpcHandlers(): void {
       })
       insertMany()
 
-      workspaceManager.recordMutation()
+      workspaceManager.recordMutation('SETTINGS')
       workspaceManager.save()
       return { success: true }
     } catch (error: any) {
@@ -578,7 +578,7 @@ export function registerDbIpcHandlers(): void {
         }
       })
       transaction(settingsMap)
-      workspaceManager.recordMutation()
+      workspaceManager.recordMutation('SETTINGS')
       workspaceManager.save()
       return { success: true }
     } catch (error: any) {

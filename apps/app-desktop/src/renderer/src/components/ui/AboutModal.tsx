@@ -120,7 +120,40 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps): React.ReactNod
             </div>
           </div>
 
-          {/* 3. Geliştirici & Destek Butonları */}
+          {/* 3. Kod Tabanı & Proje İstatistikleri */}
+          <div className="p-4 rounded-2xl bg-linear-to-br from-slate-50 to-slate-100/80 dark:from-slate-800/60 dark:to-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <Code2 className="w-4 h-4 text-blue-500" />
+                <span>Kod Tabanı &amp; Proje İstatistikleri</span>
+              </h4>
+              <span className="text-[10px] text-slate-400 font-medium">
+                Aktif Versiyon: v{packageJson.version}
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="p-3 rounded-xl bg-white dark:bg-slate-800/90 border border-slate-200/60 dark:border-slate-700/60 text-center shadow-2xs">
+                <div className="text-lg font-black text-blue-600 dark:text-blue-400 font-mono">
+                  {locData.codeLines.toLocaleString('tr-TR')}
+                </div>
+                <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-0.5">Net Kod Satırı</div>
+              </div>
+              <div className="p-3 rounded-xl bg-white dark:bg-slate-800/90 border border-slate-200/60 dark:border-slate-700/60 text-center shadow-2xs">
+                <div className="text-lg font-black text-indigo-600 dark:text-indigo-400 font-mono">
+                  {locData.totalFiles.toLocaleString('tr-TR')}
+                </div>
+                <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-0.5">Kaynak Dosya</div>
+              </div>
+              <div className="p-3 rounded-xl bg-white dark:bg-slate-800/90 border border-slate-200/60 dark:border-slate-700/60 text-center shadow-2xs">
+                <div className="text-lg font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                  {locData.totalLines.toLocaleString('tr-TR')}
+                </div>
+                <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-0.5">Toplam Satır</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. Geliştirici & Destek Butonları */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
             <button
               type="button"

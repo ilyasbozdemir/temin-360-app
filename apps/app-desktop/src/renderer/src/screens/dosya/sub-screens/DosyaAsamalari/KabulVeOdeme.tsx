@@ -250,14 +250,38 @@ export function KabulVeOdeme(): React.JSX.Element {
 
           let fetchedKomUyeleri: KomisyonUye[] = []
           let fetchedBaskan = ''
-          if (komRes.success && Array.isArray(komRes.data)) {
+          if (komRes.success && Array.isArray(komRes.data) && komRes.data.length > 0) {
             fetchedKomUyeleri = komRes.data
-            const baskan = (komRes.data as KomisyonUye[]).find(
+          } else {
+            // Fallback: Dosyaya özel henüz tanımlanmadıysa kurumsal aktif komisyon üyelerini getir
+            try {
+              const globalKomRes = await window.electron.ipcRenderer.invoke(
+                'db:query',
+                `SELECT u.id, u.personel_id, p.ad_soyad, p.unvan, g.ad as gorev, 'Muayene Kabul ve Tespit Komisyonu' as komisyon_turu,
+                        (CASE WHEN LOWER(COALESCE(g.ad, '')) LIKE '%başkan%' THEN 'Başkan' ELSE 'Üye' END) as asli_yedek
+                 FROM TANIM_KomisyonUye u
+                 JOIN TANIM_Personel p ON u.personel_id = p.id
+                 LEFT JOIN TANIM_KomisyonGorevi g ON u.gorev_id = g.id
+                 WHERE u.komisyon_id = 2 OR u.komisyon_id = (
+                   SELECT id FROM TANIM_Komisyon WHERE LOWER(TRIM(ad)) LIKE '%muayene%' OR LOWER(TRIM(ad)) LIKE '%kabul%' LIMIT 1
+                 )
+                 ORDER BY (CASE WHEN LOWER(COALESCE(g.ad, '')) LIKE '%başkan%' THEN 0 ELSE 1 END) ASC, u.id ASC`
+              )
+              if (globalKomRes.success && Array.isArray(globalKomRes.data) && globalKomRes.data.length > 0) {
+                fetchedKomUyeleri = globalKomRes.data
+              }
+            } catch (fallbackErr) {
+              console.warn('Global komisyon fallback hatası:', fallbackErr)
+            }
+          }
+
+          if (fetchedKomUyeleri.length > 0) {
+            const baskan = fetchedKomUyeleri.find(
               (k) =>
                 k.gorev?.toLowerCase().includes('başkan') ||
                 k.gorev?.toLowerCase().includes('baskan')
             )
-            fetchedBaskan = baskan ? baskan.ad_soyad : komRes.data[0]?.ad_soyad || ''
+            fetchedBaskan = baskan ? baskan.ad_soyad : fetchedKomUyeleri[0]?.ad_soyad || ''
           }
 
           const nextStats: FirmaStats = {

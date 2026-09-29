@@ -95,7 +95,7 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
-  const [syncToGlobalCommission, setSyncToGlobalCommission] = useState(true)
+  const [syncToGlobalCommission, setSyncToGlobalCommission] = useState(false)
   // dataLoaded: modal açıldıktan sonra DB verisi yüklenince true olur.
   // Bu flag false iken hiçbir zaman DELETE işlemi yapılmaz.
   const [dataLoaded, setDataLoaded] = useState(false)
@@ -171,36 +171,30 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
 
             if (isMounted) {
               if (mList.length > 0) {
-                const newMaliyet = DEFAULT_MALIYET_ROLES.map((item, idx) => {
-                  const matched = mList[idx]
+                const newMaliyet = mList.map((matched: any, idx: number) => {
                   const hasBelgedeGoster =
                     matched?.belgede_goster !== undefined && matched?.belgede_goster !== null
 
                   return {
                     sira: idx + 1,
-                    gorev: matched?.gorev || item.gorev,
+                    gorev: matched?.gorev || 'Fiyat Araştırma Görevlisi',
                     personelId: matched?.personel_id || null,
-                    belgedeGoster: hasBelgedeGoster
-                      ? matched.belgede_goster === 1
-                      : item.belgedeGoster
+                    belgedeGoster: hasBelgedeGoster ? matched.belgede_goster === 1 : true
                   }
                 })
                 setMaliyetRows(newMaliyet)
               }
 
               if (muList.length > 0) {
-                const newMuayene = DEFAULT_MUAYENE_ROLES.map((item, idx) => {
-                  const matched = muList[idx]
+                const newMuayene = muList.map((matched: any, idx: number) => {
                   const hasBelgedeGoster =
                     matched?.belgede_goster !== undefined && matched?.belgede_goster !== null
 
                   return {
                     sira: idx + 1,
-                    gorev: matched?.gorev || item.gorev,
+                    gorev: matched?.gorev || (idx === 0 ? 'Komisyon Başkanı' : 'Üye'),
                     personelId: matched?.personel_id || null,
-                    belgedeGoster: hasBelgedeGoster
-                      ? matched.belgede_goster === 1
-                      : item.belgedeGoster
+                    belgedeGoster: hasBelgedeGoster ? matched.belgede_goster === 1 : true
                   }
                 })
                 setMuayeneRows(newMuayene)
@@ -256,26 +250,20 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
       if (res.success && res.data && res.data.length > 0) {
         const members = res.data
         if (isMaliyet) {
-          const next = DEFAULT_MALIYET_ROLES.map((item, idx) => {
-            const m = members[idx]
-            return {
-              sira: idx + 1,
-              gorev: m?.gorev_adi || item.gorev,
-              personelId: m ? m.personel_id : null,
-              belgedeGoster: item.belgedeGoster
-            }
-          })
+          const next = members.map((m: any, idx: number) => ({
+            sira: idx + 1,
+            gorev: m.gorev_adi || 'Fiyat Araştırma Görevlisi',
+            personelId: m.personel_id || null,
+            belgedeGoster: m.belgede_goster !== 0
+          }))
           setMaliyetRows(next)
         } else {
-          const next = DEFAULT_MUAYENE_ROLES.map((item, idx) => {
-            const m = members[idx]
-            return {
-              sira: idx + 1,
-              gorev: m?.gorev_adi || item.gorev,
-              personelId: m ? m.personel_id : null,
-              belgedeGoster: item.belgedeGoster
-            }
-          })
+          const next = members.map((m: any, idx: number) => ({
+            sira: idx + 1,
+            gorev: m.gorev_adi || (idx === 0 ? 'Komisyon Başkanı' : 'Üye'),
+            personelId: m.personel_id || null,
+            belgedeGoster: m.belgede_goster !== 0
+          }))
           setMuayeneRows(next)
         }
         setSaveSuccess(true)
