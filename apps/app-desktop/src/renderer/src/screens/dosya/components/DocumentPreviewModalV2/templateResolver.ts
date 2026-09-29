@@ -464,16 +464,16 @@ export const TEMPLATE_ALIASES: Record<string, string> = {
   pusula: 'harcama-pusulasi',
   'muayene-kabul-komisyonu': 'muayene-kabul-komisyonu',
   muayenekabulkomisyonu: 'muayene-kabul-komisyonu',
-  'muayene-kabul-belgesi': 'muayene-kabul-tutanagi',
-  'muayene-kabul-tutanagi': 'muayene-kabul-tutanagi',
-  muayenekabultutanagi: 'muayene-kabul-tutanagi',
-  'muayene-kabul': 'muayene-kabul-tutanagi',
-  muayenekabul: 'muayene-kabul-tutanagi',
-  'kabul-tutanagi': 'muayene-kabul-tutanagi',
-  'hizmet-isleri-kabul-tutanagi': 'hizmet-isleri-kabul-tutanagi',
-  hizmetislerikabultutanagi: 'hizmet-isleri-kabul-tutanagi',
-  'hizmet-kabul-tutanagi': 'hizmet-isleri-kabul-tutanagi',
-  'hizmet-isleri-kabul-teklif-belgesi': 'hizmet-isleri-kabul-teklif-belgesi',
+  'muayene-kabul-belgesi': 'muayene-kabul-komisyonu',
+  'muayene-kabul-tutanagi': 'muayene-kabul-komisyonu',
+  muayenekabultutanagi: 'muayene-kabul-komisyonu',
+  'muayene-kabul': 'muayene-kabul-komisyonu',
+  muayenekabul: 'muayene-kabul-komisyonu',
+  'kabul-tutanagi': 'muayene-kabul-komisyonu',
+  'hizmet-isleri-kabul-tutanagi': 'muayene-kabul-komisyonu',
+  hizmetislerikabultutanagi: 'muayene-kabul-komisyonu',
+  'hizmet-kabul-tutanagi': 'muayene-kabul-komisyonu',
+  'hizmet-isleri-kabul-teklif-belgesi': 'muayene-kabul-komisyonu',
   hizmetislerikabulteklifbelgesi: 'hizmet-isleri-kabul-teklif-belgesi',
   'hizmet-kabul-teklif': 'hizmet-isleri-kabul-teklif-belgesi',
   'odeme-emri-belgesi': 'odeme-emri-belgesi',
@@ -579,15 +579,15 @@ export function resolveTemplateConfig(documentId: string | null | undefined): {
   // 4. Substring / Keyword heuristic matching
   let resolvedId = 'ihtiyac-listesi'
   if (cleanKey.includes('hizmet-isleri-kabul-teklif') || cleanKey.includes('hizmet-kabul-teklif')) {
-    resolvedId = 'hizmet-isleri-kabul-teklif-belgesi'
+    resolvedId = 'muayene-kabul-komisyonu'
   } else if (cleanKey.includes('hizmet-isleri-kabul') || cleanKey.includes('hizmet-kabul')) {
-    resolvedId = 'hizmet-isleri-kabul-tutanagi'
+    resolvedId = 'muayene-kabul-komisyonu'
   } else if (
     cleanKey.includes('muayene-kabul-tutanagi') ||
     cleanKey.includes('kabul-tutanagi') ||
     (cleanKey.includes('muayene') && cleanKey.includes('tutanak'))
   ) {
-    resolvedId = 'muayene-kabul-tutanagi'
+    resolvedId = 'muayene-kabul-komisyonu'
   } else if (
     cleanKey.includes('muayene-kabul-komisyonu') ||
     (cleanKey.includes('muayene') && cleanKey.includes('komisyon'))
@@ -674,7 +674,7 @@ export function resolveTemplateConfig(documentId: string | null | undefined): {
   } else if (cleanKey.includes('sozlesme')) {
     resolvedId = 'dogrudan-temin-sozlesmesi'
   } else if (cleanKey.includes('muayene') || cleanKey.includes('kabul')) {
-    resolvedId = 'muayene-kabul-tutanagi'
+    resolvedId = 'muayene-kabul-komisyonu'
   } else if (cleanKey.includes('pusula')) {
     resolvedId = 'harcama-pusulasi'
   } else if (cleanKey.includes('butce') || cleanKey.includes('odenek')) {
