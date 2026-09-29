@@ -127,8 +127,13 @@ export function registerDocumentIpcHandlers(): void {
     'belge:get-document-payload',
     'get-document-payload',
     async (_, payload: { dosyaId?: number; documentId?: string }) => {
-      const db = workspaceManager.getDb()
-      return resolveDocumentPayload(db, payload)
+      try {
+        const db = workspaceManager.getDb()
+        if (!db) return { success: false, error: 'Çalışma alanı veritabanı aktif değil' }
+        return resolveDocumentPayload(db, payload)
+      } catch (e: any) {
+        return { success: false, error: e?.message || 'Payload hatası' }
+      }
     }
   )
 
@@ -137,8 +142,14 @@ export function registerDocumentIpcHandlers(): void {
     'belge:get-all-cikti-data',
     'get-all-cikti-data',
     async (_, payload: { dosyaId?: number }) => {
-      const db = workspaceManager.getDb()
-      return resolveAllCiktiData(db, payload)
+      try {
+        const db = workspaceManager.getDb()
+        if (!db) return { success: false, error: 'Çalışma alanı veritabanı aktif değil' }
+        return resolveAllCiktiData(db, payload)
+      } catch (e: any) {
+        return { success: false, error: e?.message || 'Çıktı verisi hatası' }
+      }
     }
   )
 }
+
