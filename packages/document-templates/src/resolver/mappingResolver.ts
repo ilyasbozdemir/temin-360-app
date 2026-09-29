@@ -1,4 +1,5 @@
 import { ProcessMapping, TableColumnMapping } from './types';
+import { TemplateRegistryService } from '../services/templateRegistryService';
 
 export function toPossessiveSuffix(str: string): string {
   if (!str) return 'Kurumumuzun';

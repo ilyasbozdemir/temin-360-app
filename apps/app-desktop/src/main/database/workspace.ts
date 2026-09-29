@@ -175,7 +175,8 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     { name: 'alim_turu', def: 'TEXT' },
     { name: 'tur', def: "TEXT DEFAULT 'mal'" },
     { name: 'dosya_no', def: 'TEXT' },
-    { name: 'dosya_adi', def: 'TEXT' }
+    { name: 'dosya_adi', def: 'TEXT' },
+    { name: 'is_tanimi', def: 'TEXT' }
   ]
   for (const c of teminDosyasiColumns) {
     try {
@@ -186,14 +187,39 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     }
   }
 
-  // Keep dosya_no / temin_no and dosya_adi / konu in sync
+  // Explicit migration for DATA_TeminKomisyon & TANIM_KomisyonUye columns
+  const komisyonExtendedColumns = [
+    { name: 'asli_yedek', def: "TEXT DEFAULT 'Asil'" },
+    { name: 'rol', def: "TEXT DEFAULT 'Asil'" },
+    { name: 'komisyon_turu', def: 'TEXT' },
+    { name: 'belgede_goster', def: 'INTEGER DEFAULT 1' },
+    { name: 'hedef_belgeler', def: "TEXT DEFAULT '[\"*\"]'" }
+  ]
+  for (const c of komisyonExtendedColumns) {
+    try {
+      db.exec(`ALTER TABLE DATA_TeminKomisyon ADD COLUMN "${c.name}" ${c.def};`)
+      console.log(`[Schema Self-Healing] Explicitly added DATA_TeminKomisyon.${c.name}`)
+    } catch (e: any) {
+      // Ignored if column already exists
+    }
+    try {
+      db.exec(`ALTER TABLE TANIM_KomisyonUye ADD COLUMN "${c.name}" ${c.def};`)
+    } catch (e: any) {
+      // Ignored if column already exists
+    }
+  }
+
+  // Keep dosya_no / temin_no, dosya_adi / konu / is_tanimi, and asli_yedek / rol in sync
   try {
     db.exec(`
       UPDATE DATA_TeminDosyasi SET dosya_no = temin_no WHERE (dosya_no IS NULL OR dosya_no = '') AND temin_no IS NOT NULL;
       UPDATE DATA_TeminDosyasi SET temin_no = dosya_no WHERE (temin_no IS NULL OR temin_no = '') AND dosya_no IS NOT NULL;
       UPDATE DATA_TeminDosyasi SET dosya_adi = COALESCE(konu, is_tanimi) WHERE (dosya_adi IS NULL OR dosya_adi = '') AND COALESCE(konu, is_tanimi) IS NOT NULL;
+      UPDATE DATA_TeminDosyasi SET is_tanimi = COALESCE(konu, dosya_adi) WHERE (is_tanimi IS NULL OR is_tanimi = '') AND COALESCE(konu, dosya_adi) IS NOT NULL;
       UPDATE DATA_TeminDosyasi SET alim_turu = tur WHERE (alim_turu IS NULL OR alim_turu = '') AND tur IS NOT NULL;
       UPDATE DATA_TeminDosyasi SET tur = alim_turu WHERE (tur IS NULL OR tur = '') AND alim_turu IS NOT NULL;
+      UPDATE DATA_TeminKomisyon SET asli_yedek = COALESCE(rol, 'Asil') WHERE (asli_yedek IS NULL OR asli_yedek = '') AND rol IS NOT NULL;
+      UPDATE DATA_TeminKomisyon SET rol = COALESCE(asli_yedek, 'Asil') WHERE (rol IS NULL OR rol = '') AND asli_yedek IS NOT NULL;
     `)
   } catch {}
 

@@ -45,4 +45,5 @@ export * from "./resolver/TemplateResolver";
 
 export * from "./constants/template-registry";
 export * from "./constants/editable-fields";
+export * from "./services/templateRegistryService";
 export * from "./types";

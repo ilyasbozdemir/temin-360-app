@@ -84,7 +84,7 @@ export function PersonelCombobox({
   }, [isOpen])
 
   return (
-    <div ref={containerRef} className={`relative w-full ${className}`}>
+    <div ref={containerRef} className={`relative w-full ${isOpen ? 'z-50' : 'z-auto'} ${className}`}>
       {/* Trigger Button */}
       <div
         onClick={() => {
@@ -93,7 +93,7 @@ export function PersonelCombobox({
             setSearchTerm('')
           }
         }}
-        className={`flex items-center justify-between ${compact ? 'px-2 py-1 text-xs' : 'px-2.5 py-1.5 text-xs'} bg-white dark:bg-slate-800/90 border rounded-lg font-medium cursor-pointer transition-all ${
+        className={`flex items-center justify-between ${compact ? 'px-2 py-1 text-xs' : 'px-2.5 py-1.5 text-xs'} bg-white dark:bg-slate-800/95 border rounded-lg font-medium cursor-pointer transition-all ${
           disabled
             ? 'opacity-50 cursor-not-allowed bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
             : isOpen
