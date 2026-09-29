@@ -499,7 +499,12 @@ export const TEMPLATE_ALIASES: Record<string, string> = {
 
 export function normalizeTemplateKey(str: string | null | undefined): string {
   if (!str) return ''
-  return str
+  let cleaned = str.trim()
+  // Strip common category folder prefixes
+  cleaned = cleaned.replace(/^(?:\d+-[a-zA-Z0-9_-]+[/\\])+/g, '')
+  // Strip file extensions and index suffixes
+  cleaned = cleaned
+    .replace(/[/\\]index(\.html|\.mustache)?$/i, '')
     .replace(/\.html$/i, '')
     .replace(/\.mustache$/i, '')
     .replace(/^\d+[-_]/, '') // 01_, 01-
@@ -514,6 +519,7 @@ export function normalizeTemplateKey(str: string | null | undefined): string {
     .replace(/[^a-z0-9]/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '')
+  return cleaned
 }
 
 export function resolveTemplateConfig(documentId: string | null | undefined): {
@@ -572,8 +578,33 @@ export function resolveTemplateConfig(documentId: string | null | undefined): {
 
   // 4. Substring / Keyword heuristic matching
   let resolvedId = 'ihtiyac-listesi'
-  if (cleanKey.includes('son-alim') || cleanKey.includes('sonalim')) {
+  if (cleanKey.includes('hizmet-isleri-kabul-teklif') || cleanKey.includes('hizmet-kabul-teklif')) {
+    resolvedId = 'hizmet-isleri-kabul-teklif-belgesi'
+  } else if (cleanKey.includes('hizmet-isleri-kabul') || cleanKey.includes('hizmet-kabul')) {
+    resolvedId = 'hizmet-isleri-kabul-tutanagi'
+  } else if (
+    cleanKey.includes('muayene-kabul-tutanagi') ||
+    cleanKey.includes('kabul-tutanagi') ||
+    (cleanKey.includes('muayene') && cleanKey.includes('tutanak'))
+  ) {
+    resolvedId = 'muayene-kabul-tutanagi'
+  } else if (
+    cleanKey.includes('muayene-kabul-komisyonu') ||
+    (cleanKey.includes('muayene') && cleanKey.includes('komisyon'))
+  ) {
+    resolvedId = 'muayene-kabul-komisyonu'
+  } else if (cleanKey.includes('ihale-komisyon-karari') || cleanKey.includes('ihale-karari')) {
+    resolvedId = 'ihale-komisyon-karari'
+  } else if (cleanKey.includes('odeme-yazisi') || cleanKey.includes('odemeyazisi')) {
+    resolvedId = 'odeme-yazisi'
+  } else if (cleanKey.includes('odeme-emri') || cleanKey.includes('mif')) {
+    resolvedId = 'odeme-emri-belgesi'
+  } else if (cleanKey.includes('hakedis')) {
+    resolvedId = 'hakedis-raporu'
+  } else if (cleanKey.includes('son-alim') || cleanKey.includes('sonalim')) {
     resolvedId = 'son-alim-fiyat-cetveli'
+  } else if (cleanKey.includes('tasinir-islem-fisi') || cleanKey.includes('tif')) {
+    resolvedId = 'tasinir-islem-fisi'
   } else if (cleanKey.includes('tasinir') || cleanKey.includes('ambar')) {
     resolvedId = 'tasinir-kayit-yetkilisi-gorusu'
   } else if (cleanKey.includes('sartname') || cleanKey.includes('teknik')) {
@@ -610,15 +641,12 @@ export function resolveTemplateConfig(documentId: string | null | undefined): {
     }
   } else if (cleanKey.includes('yasak')) {
     resolvedId = 'piyasa-fiyat-arastirma-gorevlendirmesi'
-  } else if (
-    cleanKey.includes('yaklasik') ||
-    cleanKey.includes('maliyet') ||
-    cleanKey.includes('son-alim')
-  ) {
+  } else if (cleanKey.includes('yaklasik') || cleanKey.includes('maliyet')) {
     resolvedId = 'yaklasik-maliyet-cetveli'
   } else if (
-    cleanKey.includes('tutanak') ||
-    (cleanKey.includes('piyasa') && !cleanKey.includes('mektup'))
+    cleanKey.includes('piyasa-fiyat-arastirma-tutanagi') ||
+    (cleanKey.includes('piyasa') && !cleanKey.includes('mektup')) ||
+    cleanKey === 'tutanak'
   ) {
     resolvedId = 'piyasa-fiyat-arastirma-tutanagi'
   } else if (cleanKey.includes('arastirma') || cleanKey.includes('dagitim')) {
@@ -645,15 +673,9 @@ export function resolveTemplateConfig(documentId: string | null | undefined): {
     resolvedId = 'sozlesmeye-davet'
   } else if (cleanKey.includes('sozlesme')) {
     resolvedId = 'dogrudan-temin-sozlesmesi'
-  } else if (
-    cleanKey.includes('arastirma') ||
-    cleanKey.includes('mektup') ||
-    cleanKey.includes('fiyat')
-  ) {
-    resolvedId = 'fiyat-arastirma-mektubu'
   } else if (cleanKey.includes('muayene') || cleanKey.includes('kabul')) {
-    resolvedId = 'muayene-kabul-komisyonu'
-  } else if (cleanKey.includes('pusula') || cleanKey.includes('odeme')) {
+    resolvedId = 'muayene-kabul-tutanagi'
+  } else if (cleanKey.includes('pusula')) {
     resolvedId = 'harcama-pusulasi'
   } else if (cleanKey.includes('butce') || cleanKey.includes('odenek')) {
     resolvedId = 'butce-sorgusu'

@@ -148,6 +148,28 @@ export function KabulVeOdeme(): React.JSX.Element {
           let effectiveUnvan = row.unvan || ''
           let effectiveVergiNo = row.vergi_no || null
 
+          // Also check DATA_TeminFirma if row.firma_id is set but unvan was not found via TANIM_Firma
+          if (effectiveFirmaId && !effectiveUnvan) {
+            try {
+              const tfCheck = await window.electron.ipcRenderer.invoke(
+                'db:query',
+                `SELECT COALESCE(NULLIF(tf.unvan, ''), NULLIF(f.unvan, ''), 'İstekli Firma') as unvan,
+                        COALESCE(NULLIF(tf.vergi_no, ''), NULLIF(f.vergi_no, '')) as vergi_no
+                 FROM DATA_TeminFirma tf
+                 LEFT JOIN TANIM_Firma f ON tf.firma_id = f.id
+                 WHERE tf.temin_dosya_id = ? AND (tf.firma_id = ? OR tf.id = ?)
+                 LIMIT 1`,
+                [activeDosyaId, effectiveFirmaId, effectiveFirmaId]
+              )
+              if (tfCheck.success && tfCheck.data?.length > 0) {
+                effectiveUnvan = tfCheck.data[0].unvan || ''
+                effectiveVergiNo = tfCheck.data[0].vergi_no || effectiveVergiNo
+              }
+            } catch (err) {
+              console.warn('Failed to check DATA_TeminFirma fallback unvan:', err)
+            }
+          }
+
           if (!effectiveFirmaId || !effectiveUnvan) {
             const autoLowestRes = await window.electron.ipcRenderer.invoke(
               'db:query',
@@ -164,7 +186,7 @@ export function KabulVeOdeme(): React.JSX.Element {
                       tf.yasaklilik_durumu
                FROM DATA_TeminFirma tf
                LEFT JOIN TANIM_Firma f ON tf.firma_id = f.id
-               WHERE tf.temin_dosya_id = ? AND tf.aktif_mi = 1
+               WHERE tf.temin_dosya_id = ? AND (COALESCE(tf.aktif_mi, 1) = 1 OR tf.aktif_mi = '1' OR tf.aktif_mi = 'true')
                ORDER BY (CASE WHEN tf.kazanan_mi = 1 THEN 0 ELSE 1 END),
                         CASE WHEN effective_teklif > 0 THEN effective_teklif ELSE 999999999 END ASC
                LIMIT 1`,
@@ -173,12 +195,17 @@ export function KabulVeOdeme(): React.JSX.Element {
             if (autoLowestRes.success && autoLowestRes.data?.length > 0) {
               const lowest = autoLowestRes.data[0]
               effectiveFirmaId = lowest.firma_id || lowest.temin_firma_id
-              effectiveUnvan = lowest.unvan || ''
+              effectiveUnvan = lowest.unvan || 'İstekli Firma'
               effectiveVergiNo = lowest.vergi_no || null
               await window.electron.ipcRenderer.invoke(
                 'db:run',
                 'UPDATE DATA_TeminDosyasi SET firma_id = ? WHERE id = ?',
                 [effectiveFirmaId, activeDosyaId]
+              )
+              await window.electron.ipcRenderer.invoke(
+                'db:run',
+                'UPDATE DATA_TeminFirma SET kazanan_mi = (CASE WHEN firma_id = ? OR id = ? THEN 1 ELSE 0 END) WHERE temin_dosya_id = ?',
+                [effectiveFirmaId, effectiveFirmaId, activeDosyaId]
               )
             }
           }
@@ -220,7 +247,9 @@ export function KabulVeOdeme(): React.JSX.Element {
             if (komRes.success && komRes.data?.length > 0) {
               setKomisyonBaskani(komRes.data[0].ad_soyad || '')
             }
-          } catch {}
+          } catch (e) {
+            console.warn('Failed to fetch komisyon baskani:', e)
+          }
 
           setFirmaStats({
             teklifToplami,
