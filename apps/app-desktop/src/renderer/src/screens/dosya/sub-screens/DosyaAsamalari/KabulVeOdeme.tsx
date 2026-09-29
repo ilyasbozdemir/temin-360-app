@@ -10,6 +10,7 @@ import { Button } from '../../../../components/ui/Button'
 import { KomisyonAtamaModal } from '../components/MalzemeListesi/components/KomisyonAtamaModal'
 import {
   FirmaStats,
+  KomisyonUye,
   KabulGuardWarning,
   KabulYukleniciCard,
   KabulAsamalariTimeline,
@@ -40,7 +41,7 @@ export function KabulVeOdeme(): React.JSX.Element {
   const [kazananFirmaId, setKazananFirmaId] = useState<number | null | undefined>(undefined)
   const [kazananFirmaUnvan, setKazananFirmaUnvan] = useState<string>('')
   const [komisyonBaskani, setKomisyonBaskani] = useState<string>('')
-  const [komisyonUyeleri, setKomisyonUyeleri] = useState<any[]>([])
+  const [komisyonUyeleri, setKomisyonUyeleri] = useState<KomisyonUye[]>([])
   const [teslimYeri, setTeslimYeri] = useState<string>('')
 
   // İstatistik verileri
@@ -58,9 +59,6 @@ export function KabulVeOdeme(): React.JSX.Element {
   const [faturaTarihi, setFaturaTarihi] = useState<string>('')
   const [isTifModalOpen, setIsTifModalOpen] = useState(false)
   const [isKomisyonModalOpen, setIsKomisyonModalOpen] = useState(false)
-  const [sablonFilter, setSablonFilter] = useState<
-    'otomatik' | 'tumu' | 'mal' | 'hizmet' | 'odeme'
-  >('otomatik')
 
   const alimTuru = (firmaStats.alimTuru || 'mal').toLowerCase()
   const isMal = alimTuru === 'mal'
@@ -72,34 +70,9 @@ export function KabulVeOdeme(): React.JSX.Element {
       s.kategori === '4. Muayene & Kabul & Ödeme İşlemleri'
   )
 
-  // Alım türüne ve seçilen filtreye göre şablonları filtrele
+  // Otomatik filtreleme (Dosyanın alım türüne göre)
   const stageSablons = allStageSablons.filter((s) => {
     const key = String(s.dosya_adi || s.id || '').toLowerCase()
-    if (sablonFilter === 'tumu') return true
-    if (sablonFilter === 'mal') {
-      return (
-        !key.includes('hizmet-isleri') &&
-        !key.includes('hakedis-raporu') &&
-        !key.includes('puantaj')
-      )
-    }
-    if (sablonFilter === 'hizmet') {
-      return (
-        !key.includes('muayene-kabul-tutanagi') &&
-        !key.includes('muayene-kabul-komisyonu') &&
-        !key.includes('tasinir-islem-fisi')
-      )
-    }
-    if (sablonFilter === 'odeme') {
-      return (
-        key.includes('odeme') ||
-        key.includes('harcama') ||
-        key.includes('kesin-teminat') ||
-        key.includes('banka')
-      )
-    }
-
-    // Otomatik filtreleme (Dosyanın alım türüne göre)
     if (isHizmet) {
       return (
         !key.includes('muayene-kabul-tutanagi') &&
@@ -246,9 +219,10 @@ export function KabulVeOdeme(): React.JSX.Element {
             )
             if (allKomRes.success && Array.isArray(allKomRes.data)) {
               setKomisyonUyeleri(allKomRes.data)
-              const baskan = allKomRes.data.find(
-                (k: any) =>
-                  k.gorev?.toLowerCase().includes('başkan') || k.gorev?.toLowerCase().includes('baskan')
+              const baskan = (allKomRes.data as KomisyonUye[]).find(
+                (k) =>
+                  k.gorev?.toLowerCase().includes('başkan') ||
+                  k.gorev?.toLowerCase().includes('baskan')
               )
               setKomisyonBaskani(baskan ? baskan.ad_soyad : allKomRes.data[0]?.ad_soyad || '')
             }
@@ -341,42 +315,6 @@ export function KabulVeOdeme(): React.JSX.Element {
                 </Button>
               )}
 
-              {/* Filter Pills */}
-              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700/50">
-                <button
-                  type="button"
-                  onClick={() => setSablonFilter('otomatik')}
-                  className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all ${
-                    sablonFilter === 'otomatik'
-                      ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
-                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                  }`}
-                >
-                  {isHizmet ? 'Hizmet Belgeleri' : 'Mal Kabul Belgeleri'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSablonFilter('odeme')}
-                  className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all ${
-                    sablonFilter === 'odeme'
-                      ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
-                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                  }`}
-                >
-                  Ödeme Evrakları
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSablonFilter('tumu')}
-                  className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all ${
-                    sablonFilter === 'tumu'
-                      ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
-                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                  }`}
-                >
-                  Tüm Şablonlar
-                </button>
-              </div>
             </div>
 
             {stageSablons.length > 0 && (
