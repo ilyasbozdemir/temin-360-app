@@ -6,6 +6,7 @@ import type { KomisyonRow, PersonelItem } from './types'
 interface KomisyonAtamaTableProps {
   rows: KomisyonRow[]
   personeller: PersonelItem[]
+  gorevler?: string[]
   onPersonelChange: (sira: number, personelId: number | null) => void
   onGorevChange: (sira: number, newGorev: string) => void
   onToggleBelgedeGoster: (sira: number) => void
@@ -13,15 +14,29 @@ interface KomisyonAtamaTableProps {
   onRemoveRow: (sira: number) => void
 }
 
+const DEFAULT_SUGGESTED_ROLES = [
+  'Komisyon Başkanı',
+  'Üye',
+  'Fiyat Araştırma Görevlisi',
+  'Harcama Yetkilisi',
+  'Satın Alma Harcama Yetkilisi',
+  'Gerçekleştirme Görevlisi',
+  'Muhasebe Yetkilisi',
+  'Yedek Üye',
+  'Uzman Üye'
+]
+
 export const KomisyonAtamaTable: React.FC<KomisyonAtamaTableProps> = ({
   rows,
   personeller,
+  gorevler = [],
   onPersonelChange,
   onGorevChange,
   onToggleBelgedeGoster,
   onAddRow,
   onRemoveRow
 }) => {
+  const allRoles = Array.from(new Set([...DEFAULT_SUGGESTED_ROLES, ...gorevler]))
   return (
     <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
       <div className="max-h-[48vh] overflow-y-auto custom-scrollbar">
@@ -64,10 +79,17 @@ export const KomisyonAtamaTable: React.FC<KomisyonAtamaTableProps> = ({
                 <td className="py-1.5 px-3 font-semibold text-slate-800 dark:text-slate-200 border-r border-slate-100 dark:border-slate-800">
                   <input
                     type="text"
+                    list={`gorev-options-${row.sira}`}
                     value={row.gorev}
                     onChange={(e) => onGorevChange(row.sira, e.target.value)}
-                    className="w-full bg-transparent hover:bg-white dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 border border-transparent hover:border-slate-200 dark:border-slate-700 focus:border-blue-500 rounded px-2 py-1 text-xs outline-none transition-all font-semibold"
+                    placeholder="Görev seçin veya yazın..."
+                    className="w-full bg-slate-50/70 dark:bg-slate-850 hover:bg-white dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 border border-slate-200/80 dark:border-slate-700 focus:border-blue-500 rounded-lg px-2.5 py-1 text-xs outline-none transition-all font-semibold"
                   />
+                  <datalist id={`gorev-options-${row.sira}`}>
+                    {allRoles.map((r, rIdx) => (
+                      <option key={rIdx} value={r} />
+                    ))}
+                  </datalist>
                 </td>
                 <td className="py-1.5 px-3">
                   <PersonelCombobox

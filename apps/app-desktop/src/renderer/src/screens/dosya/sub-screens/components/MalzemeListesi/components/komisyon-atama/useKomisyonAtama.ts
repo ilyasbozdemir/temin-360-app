@@ -22,6 +22,7 @@ export function useKomisyonAtama({
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<KomisyonType>(initialType)
   const [personeller, setPersoneller] = useState<PersonelItem[]>([])
+  const [gorevler, setGorevler] = useState<string[]>([])
   const [kurumInfo, setKurumInfo] = useState<KurumInfo | null>(null)
 
   const [maliyetRows, setMaliyetRows] = useState<KomisyonRow[]>(
@@ -54,7 +55,7 @@ export function useKomisyonAtama({
     }
   }, [initialType])
 
-  // Personel listesi, kurum bilgisi ve mevcut komisyon üyelerini yükle
+  // Personel listesi, kurum bilgisi, görev tanımları ve mevcut komisyon üyelerini yükle
   useEffect(() => {
     if (!isOpen) return
 
@@ -87,6 +88,20 @@ export function useKomisyonAtama({
         )
         const pList: PersonelItem[] = pRes.success && pRes.data ? pRes.data : []
         if (isMounted) setPersoneller(pList)
+
+        // 3. Görev tanımları (TANIM_KomisyonGorevi)
+        try {
+          const gRes = await (window as any).electron.ipcRenderer.invoke(
+            'db:query',
+            'SELECT ad FROM TANIM_KomisyonGorevi WHERE COALESCE(aktif_mi, 1) = 1 ORDER BY id ASC'
+          )
+          if (gRes.success && gRes.data && isMounted) {
+            const list = gRes.data.map((item: { ad: string }) => item.ad)
+            setGorevler(list)
+          }
+        } catch (e) {
+          console.warn('Görev tanımları yüklenemedi:', e)
+        }
 
         // 3. Mevcut DATA_TeminKomisyon kayıtları
         if (activeDosyaId) {
@@ -505,6 +520,7 @@ export function useKomisyonAtama({
     activeTab,
     setActiveTab,
     personeller,
+    gorevler,
     kurumInfo,
     currentRows,
     loading,

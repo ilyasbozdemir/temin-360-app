@@ -23,6 +23,7 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
     activeTab,
     setActiveTab,
     personeller,
+    gorevler,
     kurumInfo,
     currentRows,
     loading,
@@ -80,6 +81,7 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
         <KomisyonAtamaTable
           rows={currentRows}
           personeller={personeller}
+          gorevler={gorevler}
           onPersonelChange={handlePersonelChange}
           onGorevChange={handleGorevChange}
           onToggleBelgedeGoster={handleToggleBelgedeGoster}
