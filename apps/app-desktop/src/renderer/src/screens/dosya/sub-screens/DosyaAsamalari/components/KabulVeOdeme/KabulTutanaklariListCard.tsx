@@ -20,12 +20,6 @@ import {
   Users
 } from 'lucide-react'
 import { Button } from '../../../../../../components/ui/Button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '../../../../../../components/ui/DropdownMenu'
 import { FirmaStats, KabulTutanakItem, KomisyonUye } from './types'
 
 interface KabulTutanaklariListCardProps {
@@ -81,7 +75,7 @@ export function KabulTutanaklariListCard({
 
   const primarySablonKey = isHizmet
     ? 'hizmet-isleri-kabul-tutanagi'
-    : 'muayene-kabul-tutanagi'
+    : 'muayene-kabul-komisyonu'
 
   const hasKomisyon = komisyonUyeleri.length > 0
   const kayitSayisi = tutanaklar.length > 0 ? tutanaklar.length : 1
@@ -119,30 +113,35 @@ export function KabulTutanaklariListCard({
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden flex flex-col">
-      {/* Header - Resimdeki gibi düzenli ve standart tasarım */}
-      <div className="p-5 border-b border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-800/30">
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-extrabold text-slate-800 dark:text-slate-100">
-              Dosyaya Kaydedilen Tutanak ve Cetveller
-            </h3>
-            <span
-              className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                isHizmet
-                  ? 'bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/60'
-                  : 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60'
-              }`}
-            >
-              {isHizmet ? 'Hizmet Alımı' : 'Mal Alımı'}
-            </span>
+      {/* Header */}
+      <div className="p-5 border-b border-slate-100 dark:border-slate-800/80 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-800/30">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-200 dark:border-blue-800/60">
+            <FileCheck className="w-5 h-5" />
           </div>
-          <p className="mt-0.5 text-[11px] text-slate-400">
-            {kayitSayisi} kayıt bulunmaktadır.
-          </p>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-extrabold text-slate-800 dark:text-slate-100">
+                Bu Doğrudan Temin Sürecine Ait Kabul Tutanakları ({kayitSayisi})
+              </h3>
+              <span
+                className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                  isHizmet
+                    ? 'bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/60'
+                    : 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60'
+                }`}
+              >
+                {isHizmet ? 'Hizmet Alımı' : 'Mal Alımı'}
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Yüklenici teslimatı, muayene heyeti incelemesi ve resmi kabul evrakları
+            </p>
+          </div>
         </div>
 
-        {/* Top Controls Bar */}
-        <div className="flex items-center gap-2 self-start sm:self-center flex-wrap">
+        {/* Top Action Buttons */}
+        <div className="flex items-center gap-2 flex-wrap self-start xl:self-center">
           {/* Görünüm Seçici (Tablo / Liste / Kart) */}
           <div className="flex items-center rounded-lg border border-slate-200 bg-white p-1 dark:border-slate-800 dark:bg-slate-900">
             {[
@@ -188,48 +187,46 @@ export function KabulTutanaklariListCard({
             </Button>
           )}
 
-          {/* Yeni Tutanak / Cetvel Kaydet Dropdown Button */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                className="gap-1.5 text-xs font-bold h-9 px-3.5 bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
-                title="Yeni Muayene ve Kabul Tutanağı veya Belgesi Kaydet"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>+ Yeni Tutanak / Cetvel Kaydet</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64">
-              <DropdownMenuItem onClick={onOpenAddTutanak}>
-                <FileText className="mr-2 h-4 w-4 text-blue-500" />
-                Muayene & Kabul Tutanağı Ekle
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onOpenPreview('muayene-kabul-komisyonu')}>
-                <ShieldCheck className="mr-2 h-4 w-4 text-indigo-500" />
-                Komisyon Kararı Belgesi
-              </DropdownMenuItem>
-              {isHizmet && (
-                <DropdownMenuItem onClick={() => onOpenPreview('hizmet-isleri-kabul-tutanagi')}>
-                  <FileCheck className="mr-2 h-4 w-4 text-purple-500" />
-                  Hizmet İşleri Kabul Tutanağı
-                </DropdownMenuItem>
-              )}
-              {isMal && (
-                <DropdownMenuItem onClick={onOpenTifModal}>
-                  <PackageCheck className="mr-2 h-4 w-4 text-emerald-500" />
-                  Taşınır İşlem Fişi (TİF) Oluştur
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem onClick={() => onOpenPreview('odeme-emri-belgesi')}>
-                <CreditCard className="mr-2 h-4 w-4 text-blue-500" />
-                Ödeme Emri Belgesi (MİF)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onOpenPreview('odeme-yazisi')}>
-                <FileText className="mr-2 h-4 w-4 text-emerald-500" />
-                Ödeme Üst Yazısı
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            onClick={() => onOpenPreview('odeme-yazisi')}
+            variant="outline"
+            className="gap-1.5 text-xs font-semibold h-9 px-3 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+            title="Mali Hizmetler Ödeme Üst Yazısı"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            Ödeme Yazısı
+          </Button>
+
+          <Button
+            onClick={() => onOpenPreview('odeme-emri-belgesi')}
+            variant="outline"
+            className="gap-1.5 text-xs font-semibold h-9 px-3 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/40"
+            title="Ödeme Emri Belgesi (MİF)"
+          >
+            <CreditCard className="w-3.5 h-3.5" />
+            Ödeme Emri (MİF)
+          </Button>
+
+          {/* Primary Button: Belgeyi Doğrudan Açan Kabul Tutanağı Çıktı Butonu */}
+          <Button
+            onClick={() => onOpenPreview(primarySablonKey)}
+            className="gap-1.5 text-xs font-bold h-9 px-3.5 bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
+            title="Kabul Tutanağı Belgesini Önizle ve Yazdır"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>{isHizmet ? 'Hizmet Tutanağı Çıktı' : 'Kabul Tutanağı Çıktı'}</span>
+          </Button>
+
+          {/* İsteğe Bağlı Özel Form Ekleme / Özelleştir Butonu */}
+          <Button
+            onClick={onOpenAddTutanak}
+            variant="ghost"
+            className="gap-1 text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 h-9 px-2"
+            title="Özel Kabul Tutanağı Kaydı / Kısmi Teslimat Düzenle"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Özelleştir</span>
+          </Button>
         </div>
       </div>
 
@@ -380,7 +377,7 @@ export function KabulTutanaklariListCard({
                           title="Tutanağı Görüntüle ve Yazdır"
                         >
                           <FileText className="w-3.5 h-3.5" />
-                          <span>Aç</span>
+                          <span>Tutanağı Aç</span>
                         </Button>
                         <button
                           onClick={() => onEditTutanak(tut)}
@@ -529,7 +526,7 @@ export function KabulTutanaklariListCard({
                   className="h-8 px-2.5 text-xs font-semibold gap-1 text-blue-600 border-blue-200"
                 >
                   <FileText className="w-3.5 h-3.5" />
-                  <span>Aç</span>
+                  <span>Tutanağı Aç</span>
                 </Button>
                 {tut.id !== 'default_1' && (
                   <button
