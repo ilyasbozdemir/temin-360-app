@@ -166,7 +166,7 @@ export function KabulVeOdeme(): React.JSX.Element {
           ),
           window.electron.ipcRenderer.invoke(
             "db:query",
-            `SELECT id, ad_soyad, unvan, gorev, komisyon_turu, COALESCE(asli_yedek, rol, 'Asil') as asli_yedek FROM DATA_TeminKomisyon
+            `SELECT id, ad_soyad, unvan, gorev, komisyon_turu, COALESCE(rol, 'Asil') as asli_yedek FROM DATA_TeminKomisyon
              WHERE temin_dosya_id = ?
              ORDER BY (CASE WHEN LOWER(COALESCE(gorev, '')) LIKE '%başkan%' OR LOWER(COALESCE(gorev, '')) LIKE '%baskan%' THEN 0 ELSE 1 END) ASC, id ASC`,
             [activeDosyaId],
@@ -524,7 +524,7 @@ export function KabulVeOdeme(): React.JSX.Element {
           try {
             const allKomRes = await window.electron.ipcRenderer.invoke(
               "db:query",
-              `SELECT id, ad_soyad, unvan, gorev, komisyon_turu, COALESCE(asli_yedek, rol, 'Asil') as asli_yedek FROM DATA_TeminKomisyon
+              `SELECT id, ad_soyad, unvan, gorev, komisyon_turu, COALESCE(rol, 'Asil') as asli_yedek FROM DATA_TeminKomisyon
                WHERE temin_dosya_id = ?
                ORDER BY (CASE WHEN LOWER(COALESCE(gorev, '')) LIKE '%başkan%' OR LOWER(COALESCE(gorev, '')) LIKE '%baskan%' THEN 0 ELSE 1 END) ASC, id ASC`,
               [activeDosyaId],
