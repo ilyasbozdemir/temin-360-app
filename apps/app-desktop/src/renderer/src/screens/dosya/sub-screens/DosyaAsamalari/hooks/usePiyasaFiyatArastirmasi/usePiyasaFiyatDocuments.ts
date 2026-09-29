@@ -276,7 +276,15 @@ export function usePiyasaFiyatDocuments(
             [activeDosyaId]
           )
           if (komsRes.success && komsRes.data && komsRes.data.length > 0) {
-            komisyonListesi = komsRes.data
+            const maliyetOnly = komsRes.data.filter((tk: any) => {
+              if (tk.komisyon_id === 1) return true
+              if (tk.komisyon_id === 2) return false
+              const tur = (tk.komisyon_turu || '').toLowerCase()
+              if (tur.includes('maliyet') || tur.includes('fiyat')) return true
+              if (tur.includes('muayene') || tur.includes('kabul')) return false
+              return true
+            })
+            komisyonListesi = maliyetOnly.length > 0 ? maliyetOnly : komsRes.data
           } else {
             const fallbackRes = await window.electron.ipcRenderer.invoke(
               'db:query',

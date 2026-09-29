@@ -258,7 +258,7 @@ export function KabulVeOdeme(): React.JSX.Element {
           ),
           window.electron.ipcRenderer.invoke(
             "db:query",
-            `SELECT id, ad_soyad, unvan, gorev, komisyon_turu, COALESCE(rol, 'Asil') as asli_yedek FROM DATA_TeminKomisyon
+            `SELECT id, komisyon_id, ad_soyad, unvan, gorev, komisyon_turu, COALESCE(rol, 'Asil') as asli_yedek FROM DATA_TeminKomisyon
              WHERE temin_dosya_id = ?
              ORDER BY (CASE WHEN LOWER(COALESCE(gorev, '')) LIKE '%başkan%' OR LOWER(COALESCE(gorev, '')) LIKE '%baskan%' THEN 0 ELSE 1 END) ASC, id ASC`,
             [activeDosyaId],
@@ -378,12 +378,38 @@ export function KabulVeOdeme(): React.JSX.Element {
 
           let fetchedKomUyeleri: KomisyonUye[] = [];
           let fetchedBaskan = "";
+
+          const isMuayeneMember = (k: any): boolean => {
+            if (!k) return false;
+            if (k.komisyon_id === 2) return true;
+            if (k.komisyon_id === 1) return false;
+            const tur = (k.komisyon_turu || "").toLowerCase();
+            if (tur.includes("muayene") || tur.includes("kabul")) return true;
+            if (tur.includes("maliyet") || tur.includes("fiyat")) return false;
+            const gorev = (k.gorev || "").toLowerCase();
+            if (
+              gorev.includes("fiyat araştırma") ||
+              gorev.includes("harcama yetkili") ||
+              gorev.includes("muhasebe yetkili") ||
+              gorev.includes("gerçekleştirme") ||
+              gorev.includes("gerceklestirme")
+            ) {
+              return false;
+            }
+            return true;
+          };
+
           if (
             komRes.success && Array.isArray(komRes.data) &&
             komRes.data.length > 0
           ) {
-            fetchedKomUyeleri = komRes.data;
-          } else {
+            const muayeneMembers = komRes.data.filter(isMuayeneMember);
+            if (muayeneMembers.length > 0) {
+              fetchedKomUyeleri = muayeneMembers;
+            }
+          }
+
+          if (fetchedKomUyeleri.length === 0) {
             // Fallback: Dosyaya özel henüz tanımlanmadıysa kurumsal aktif komisyon üyelerini getir
             try {
               const globalKomRes = await window.electron.ipcRenderer.invoke(
@@ -633,20 +659,39 @@ export function KabulVeOdeme(): React.JSX.Element {
           try {
             const allKomRes = await window.electron.ipcRenderer.invoke(
               "db:query",
-              `SELECT id, ad_soyad, unvan, gorev, komisyon_turu, COALESCE(rol, 'Asil') as asli_yedek FROM DATA_TeminKomisyon
+              `SELECT id, komisyon_id, ad_soyad, unvan, gorev, komisyon_turu, COALESCE(rol, 'Asil') as asli_yedek FROM DATA_TeminKomisyon
                WHERE temin_dosya_id = ?
                ORDER BY (CASE WHEN LOWER(COALESCE(gorev, '')) LIKE '%başkan%' OR LOWER(COALESCE(gorev, '')) LIKE '%baskan%' THEN 0 ELSE 1 END) ASC, id ASC`,
               [activeDosyaId],
             );
             if (allKomRes.success && Array.isArray(allKomRes.data)) {
-              setKomisyonUyeleri(allKomRes.data);
-              const baskan = allKomRes.data.find(
+              const muayeneMembers = allKomRes.data.filter((k: any) => {
+                if (!k) return false;
+                if (k.komisyon_id === 2) return true;
+                if (k.komisyon_id === 1) return false;
+                const tur = (k.komisyon_turu || "").toLowerCase();
+                if (tur.includes("muayene") || tur.includes("kabul")) return true;
+                if (tur.includes("maliyet") || tur.includes("fiyat")) return false;
+                const gorev = (k.gorev || "").toLowerCase();
+                if (
+                  gorev.includes("fiyat araştırma") ||
+                  gorev.includes("harcama yetkili") ||
+                  gorev.includes("muhasebe yetkili") ||
+                  gorev.includes("gerçekleştirme") ||
+                  gorev.includes("gerceklestirme")
+                ) {
+                  return false;
+                }
+                return true;
+              });
+              setKomisyonUyeleri(muayeneMembers);
+              const baskan = muayeneMembers.find(
                 (k: any) =>
                   k.gorev?.toLowerCase().includes("başkan") ||
                   k.gorev?.toLowerCase().includes("baskan"),
               );
               setKomisyonBaskani(
-                baskan ? baskan.ad_soyad : allKomRes.data[0]?.ad_soyad || "",
+                baskan ? baskan.ad_soyad : muayeneMembers[0]?.ad_soyad || "",
               );
             }
           } catch (e) {
