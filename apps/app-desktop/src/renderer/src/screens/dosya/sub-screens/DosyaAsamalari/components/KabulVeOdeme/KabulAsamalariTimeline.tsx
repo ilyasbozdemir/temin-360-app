@@ -46,7 +46,7 @@ export function KabulAsamalariTimeline({
 
         {/* 1. Mal/Hizmet Teslimi */}
         <div className="flex gap-3">
-          {firmaStats.teslimTarihi ? (
+          {firmaStats?.teslimTarihi ? (
             <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-center shrink-0 mt-0.5">
               <CheckCircle2 className="w-4 h-4" />
             </div>
@@ -59,7 +59,7 @@ export function KabulAsamalariTimeline({
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <h5
                 className={`text-xs font-bold ${
-                  firmaStats.teslimTarihi
+                  firmaStats?.teslimTarihi
                     ? 'text-slate-800 dark:text-slate-200'
                     : 'text-blue-700 dark:text-blue-400'
                 }`}
@@ -79,7 +79,7 @@ export function KabulAsamalariTimeline({
               )}
             </div>
             <p className="text-[10px] text-slate-500 mt-0.5">
-              {firmaStats.teslimTarihi
+              {firmaStats?.teslimTarihi
                 ? `Teslim Edildi (${new Date(firmaStats.teslimTarihi).toLocaleDateString('tr-TR')})`
                 : 'Tedarikçi teslimatı bekleniyor.'}
             </p>
@@ -88,7 +88,7 @@ export function KabulAsamalariTimeline({
 
         {/* 2. Muayene & Kabul İşlemi */}
         <div className="flex gap-3">
-          {!firmaStats.teslimTarihi ? (
+          {!firmaStats?.teslimTarihi ? (
             <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 mt-0.5">
               <Clock className="w-3.5 h-3.5" />
             </div>
@@ -105,7 +105,7 @@ export function KabulAsamalariTimeline({
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <h5
                 className={`text-xs font-bold ${
-                  !firmaStats.teslimTarihi
+                  !firmaStats?.teslimTarihi
                     ? 'text-slate-500 dark:text-slate-400'
                     : faturaNo
                     ? 'text-slate-800 dark:text-slate-200'
@@ -140,7 +140,7 @@ export function KabulAsamalariTimeline({
               </div>
             </div>
             <p className="text-[10px] text-slate-500 mt-0.5">
-              {!firmaStats.teslimTarihi
+              {!firmaStats?.teslimTarihi
                 ? 'Kabul işlemleri beklemede.'
                 : faturaNo
                 ? 'Kabul Edildi (Komisyon Onaylı)'

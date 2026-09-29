@@ -68,8 +68,8 @@ export function KabulTutanaklariListCard({
   const isMal = alimTuru === "mal";
   const isHizmet = alimTuru === "hizmet";
 
-  const effectiveKabulTarihi = faturaTarihi || firmaStats.teslimTarihi ||
-    firmaStats.dosyaTarihi;
+  const effectiveKabulTarihi = faturaTarihi || firmaStats?.teslimTarihi ||
+    firmaStats?.dosyaTarihi;
   const effectiveSiraNo = faturaNo || dosyaNo || "1";
   const effectiveTeslimAlan = komisyonBaskani || "Muayene & Kabul Komisyonu";
   const effectiveTeslimYeri = teslimYeri || "Kurum Ambarı / İhtiyaç Yeri";
@@ -381,7 +381,7 @@ export function KabulTutanaklariListCard({
                       <td className="py-3.5 px-4 text-right font-bold text-slate-900 dark:text-white whitespace-nowrap">
                         {tut.tutar
                           ? `${formatCurrency(tut.tutar)}`
-                          : formatCurrency(firmaStats.teklifToplami)}
+                          : formatCurrency(firmaStats?.teklifToplami ?? null)}
                       </td>
 
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
@@ -468,7 +468,7 @@ export function KabulTutanaklariListCard({
                     </td>
 
                     <td className="py-3.5 px-4 text-right font-bold text-slate-900 dark:text-white whitespace-nowrap">
-                      {formatCurrency(firmaStats.teklifToplami)}
+                      {formatCurrency(firmaStats?.teklifToplami ?? null)}
                     </td>
 
                     <td className="py-3.5 px-4 text-right whitespace-nowrap">
@@ -509,7 +509,7 @@ export function KabulTutanaklariListCard({
               tutanakTarihi: effectiveKabulTarihi || "",
               faturaNo: effectiveSiraNo,
               durum: "kabul" as const,
-              tutar: firmaStats.teklifToplami,
+              tutar: firmaStats?.teklifToplami ?? null,
               teslimYeri: effectiveTeslimYeri,
               teslimAlan: effectiveTeslimAlan,
             },
@@ -545,7 +545,7 @@ export function KabulTutanaklariListCard({
                   <div className="text-xs font-bold text-slate-900 dark:text-white">
                     {tut.tutar
                       ? formatCurrency(tut.tutar)
-                      : formatCurrency(firmaStats.teklifToplami)}
+                      : formatCurrency(firmaStats?.teklifToplami ?? null)}
                   </div>
                   <div className="text-[10px] text-slate-400">
                     Teslimat Tutarı
@@ -584,7 +584,7 @@ export function KabulTutanaklariListCard({
               tutanakTarihi: effectiveKabulTarihi || "",
               faturaNo: effectiveSiraNo,
               durum: "kabul" as const,
-              tutar: firmaStats.teklifToplami,
+              tutar: firmaStats?.teklifToplami ?? null,
               teslimYeri: effectiveTeslimYeri,
               teslimAlan: effectiveTeslimAlan,
             },
@@ -624,7 +624,7 @@ export function KabulTutanaklariListCard({
                 <div className="text-xs font-bold text-slate-900 dark:text-white">
                   {tut.tutar
                     ? formatCurrency(tut.tutar)
-                    : formatCurrency(firmaStats.teklifToplami)}
+                    : formatCurrency(firmaStats?.teklifToplami ?? null)}
                 </div>
                 <div className="flex items-center gap-1">
                   <Button
@@ -656,10 +656,10 @@ export function KabulTutanaklariListCard({
           <span>
             Toplam Kabul Bedeli:{" "}
             <strong className="text-slate-700 dark:text-slate-200 font-bold">
-              {formatCurrency(firmaStats.teklifToplami)}
+              {formatCurrency(firmaStats?.teklifToplami ?? null)}
             </strong>
           </span>
-          {firmaStats.yaklasikMaliyet && (
+          {firmaStats?.yaklasikMaliyet && (
             <span>
               Yaklaşık Maliyet:{" "}
               <strong className="text-slate-700 dark:text-slate-200 font-bold">

@@ -34,7 +34,7 @@ export function KabulFaturaHakedisCard({
   onFaturaTarihiChange,
   formatCurrency
 }: KabulFaturaHakedisCardProps): JSX.Element {
-  const teklifToplami = firmaStats.teklifToplami || 0
+  const teklifToplami = firmaStats?.teklifToplami || 0
 
   // Yİ-ÜFE Veri Hazırlığı
   useEffect(() => {
@@ -64,16 +64,16 @@ export function KabulFaturaHakedisCard({
 
   // Varsayılan Temel (İhale/Açılış) ve Güncel (Fatura/Teslim) Tarihler
   const initialTemel = useMemo(() => {
-    return parseDateToYearMonth(firmaStats.dosyaTarihi)
-  }, [firmaStats.dosyaTarihi])
+    return parseDateToYearMonth(firmaStats?.dosyaTarihi)
+  }, [firmaStats?.dosyaTarihi])
 
   const initialGuncel = useMemo(() => {
-    return parseDateToYearMonth(faturaTarihi || firmaStats.teslimTarihi)
-  }, [faturaTarihi, firmaStats.teslimTarihi])
+    return parseDateToYearMonth(faturaTarihi || firmaStats?.teslimTarihi)
+  }, [faturaTarihi, firmaStats?.teslimTarihi])
 
   // Fiyat Farkı Durumu & Ayarları
   const defaultHasFiyatFarki = Boolean(
-    firmaStats.fiyatFarkiDayanagi &&
+    firmaStats?.fiyatFarkiDayanagi &&
       firmaStats.fiyatFarkiDayanagi !== 'Fiyat Farkı Ödenmeyecek' &&
       (firmaStats.fiyatFarkiDayanagi.includes('5215') ||
         firmaStats.fiyatFarkiDayanagi.includes('5216'))
@@ -81,7 +81,7 @@ export function KabulFaturaHakedisCard({
 
   const [isFiyatFarkiEnabled, setIsFiyatFarkiEnabled] = useState<boolean>(defaultHasFiyatFarki)
   const [kararKey, setKararKey] = useState<string>(
-    firmaStats.fiyatFarkiDayanagi?.includes('5215') ? '2013/5215' : '2013/5216'
+    firmaStats?.fiyatFarkiDayanagi?.includes('5215') ? '2013/5215' : '2013/5216'
   )
   const [temelYil, setTemelYil] = useState<number>(initialTemel.yil)
   const [temelAy, setTemelAy] = useState<number>(initialTemel.ay)
@@ -100,12 +100,12 @@ export function KabulFaturaHakedisCard({
 
   // Dosya tarihi değiştikçe temel ayı ve yılı güncelle
   useEffect(() => {
-    if (firmaStats.dosyaTarihi) {
+    if (firmaStats?.dosyaTarihi) {
       const parsed = parseDateToYearMonth(firmaStats.dosyaTarihi)
       setTemelYil(parsed.yil)
       setTemelAy(parsed.ay)
     }
-  }, [firmaStats.dosyaTarihi])
+  }, [firmaStats?.dosyaTarihi])
 
   // Endeks Değerleri
   const temelEndeks = useMemo(() => {
@@ -403,7 +403,7 @@ export function KabulFaturaHakedisCard({
               Sözleşme / Teklif Tutarı (KDV Hariç An)
             </span>
             <span className="font-bold text-slate-800 dark:text-slate-200 font-mono">
-              {formatCurrency(firmaStats.teklifToplami)}
+              {formatCurrency(firmaStats?.teklifToplami ?? null)}
             </span>
           </div>
 

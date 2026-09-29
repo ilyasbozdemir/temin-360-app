@@ -99,7 +99,7 @@ export function useKabulVeOdemeData() {
     null,
   );
 
-  const alimTuru = (firmaStats.alimTuru || "mal").toLowerCase();
+  const alimTuru = (firmaStats?.alimTuru || "mal").toLowerCase();
   const isMal = alimTuru === "mal";
   const isHizmet = alimTuru === "hizmet";
 

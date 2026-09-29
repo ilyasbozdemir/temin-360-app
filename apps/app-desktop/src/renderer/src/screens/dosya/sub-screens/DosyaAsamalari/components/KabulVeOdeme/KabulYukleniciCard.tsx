@@ -40,7 +40,7 @@ export function KabulYukleniciCard({
             </span>
           </div>
           <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200">
-            {formatCurrency(firmaStats.teklifToplami)}
+            {formatCurrency(firmaStats?.teklifToplami ?? null)}
           </span>
         </div>
         <div className="bg-white/70 dark:bg-slate-800/50 rounded-xl p-3 border border-emerald-100 dark:border-emerald-900/30">
@@ -51,7 +51,7 @@ export function KabulYukleniciCard({
             </span>
           </div>
           <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200">
-            {formatDate(firmaStats.teslimTarihi)}
+            {formatDate(firmaStats?.teslimTarihi ?? null)}
           </span>
         </div>
       </div>

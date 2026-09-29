@@ -132,8 +132,9 @@ export function KabulVeOdeme(): React.JSX.Element {
             )}
           </div>
 
-          {/* Kabul Tutanakları List & Operations Card */}
-          <KabulTutanaklariListCard
+          {
+            /*
+            <KabulTutanaklariListCard
             kazananFirmaUnvan={kazananFirmaUnvan}
             firmaStats={firmaStats}
             faturaNo={faturaNo}
@@ -155,7 +156,7 @@ export function KabulVeOdeme(): React.JSX.Element {
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column: Firm & Process */}
+
             <div className="lg:col-span-1 flex flex-col gap-6">
               <KabulYukleniciCard
                 kazananFirmaUnvan={kazananFirmaUnvan}
@@ -175,7 +176,6 @@ export function KabulVeOdeme(): React.JSX.Element {
               />
             </div>
 
-            {/* Right Column: Fatura & Hakediş Form */}
             <div className="lg:col-span-2 flex flex-col gap-6">
               <KabulFaturaHakedisCard
                 firmaStats={firmaStats}
@@ -187,6 +187,9 @@ export function KabulVeOdeme(): React.JSX.Element {
               />
             </div>
           </div>
+
+          */
+          }
         </div>
       )}
 
