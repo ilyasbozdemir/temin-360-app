@@ -4,3 +4,5 @@ export * from './KabulYukleniciCard'
 export * from './KabulAsamalariTimeline'
 export * from './KabulFaturaHakedisCard'
 export * from './KabulTutanaklariListCard'
+export * from './KabulTutanakModal'
+

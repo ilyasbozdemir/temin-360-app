@@ -13,6 +13,8 @@ import {
   KabulAsamalariTimeline,
   KabulFaturaHakedisCard,
   KabulGuardWarning,
+  KabulTutanakItem,
+  KabulTutanakModal,
   KabulTutanaklariListCard,
   KabulYukleniciCard,
   KomisyonUye,
@@ -28,6 +30,7 @@ interface KabulDataCacheEntry {
   firmaStats: FirmaStats;
   faturaNo: string;
   faturaTarihi: string;
+  tutanaklar?: KabulTutanakItem[];
 }
 const kabulDataCache = new Map<number, KabulDataCacheEntry>();
 
@@ -103,9 +106,98 @@ export function KabulVeOdeme(): React.JSX.Element {
   const [isTifModalOpen, setIsTifModalOpen] = useState(false);
   const [isKomisyonModalOpen, setIsKomisyonModalOpen] = useState(false);
 
+  // Muayene & Kabul Tutanakları State
+  const [tutanaklar, setTutanaklar] = useState<KabulTutanakItem[]>(
+    cached?.tutanaklar || [],
+  );
+  const [isTutanakModalOpen, setIsTutanakModalOpen] = useState(false);
+  const [editingTutanak, setEditingTutanak] = useState<KabulTutanakItem | null>(
+    null,
+  );
+
   const alimTuru = (firmaStats.alimTuru || "mal").toLowerCase();
   const isMal = alimTuru === "mal";
   const isHizmet = alimTuru === "hizmet";
+
+  const handleOpenAddTutanak = (): void => {
+    setEditingTutanak(null);
+    setIsTutanakModalOpen(true);
+  };
+
+  const handleOpenEditTutanak = (item: KabulTutanakItem): void => {
+    setEditingTutanak(item);
+    setIsTutanakModalOpen(true);
+  };
+
+  const handleSaveTutanak = async (
+    tutanakItem: KabulTutanakItem,
+  ): Promise<void> => {
+    const exists = tutanaklar.some((t) => t.id === tutanakItem.id);
+    const updated = exists
+      ? tutanaklar.map((t) => (t.id === tutanakItem.id ? tutanakItem : t))
+      : [...tutanaklar, tutanakItem];
+
+    setTutanaklar(updated);
+
+    if (activeDosyaId && window.electron) {
+      try {
+        const fileRes = await window.electron.ipcRenderer.invoke(
+          "db:query",
+          "SELECT sablon_tercihleri FROM DATA_TeminDosyasi WHERE id = ?",
+          [activeDosyaId],
+        );
+        let existingObj: any = {};
+        if (fileRes.success && fileRes.data?.[0]?.sablon_tercihleri) {
+          try {
+            existingObj =
+              typeof fileRes.data[0].sablon_tercihleri === "string"
+                ? JSON.parse(fileRes.data[0].sablon_tercihleri) || {}
+                : fileRes.data[0].sablon_tercihleri || {};
+          } catch {}
+        }
+        existingObj.kabulTutanaklari = updated;
+        await window.electron.ipcRenderer.invoke(
+          "db:run",
+          "UPDATE DATA_TeminDosyasi SET sablon_tercihleri = ? WHERE id = ?",
+          [JSON.stringify(existingObj), activeDosyaId],
+        );
+      } catch (e) {
+        console.error("Failed to save kabulTutanaklari:", e);
+      }
+    }
+  };
+
+  const handleDeleteTutanak = async (id: string): Promise<void> => {
+    const updated = tutanaklar.filter((t) => t.id !== id);
+    setTutanaklar(updated);
+
+    if (activeDosyaId && window.electron) {
+      try {
+        const fileRes = await window.electron.ipcRenderer.invoke(
+          "db:query",
+          "SELECT sablon_tercihleri FROM DATA_TeminDosyasi WHERE id = ?",
+          [activeDosyaId],
+        );
+        let existingObj: any = {};
+        if (fileRes.success && fileRes.data?.[0]?.sablon_tercihleri) {
+          try {
+            existingObj =
+              typeof fileRes.data[0].sablon_tercihleri === "string"
+                ? JSON.parse(fileRes.data[0].sablon_tercihleri) || {}
+                : fileRes.data[0].sablon_tercihleri || {};
+          } catch {}
+        }
+        existingObj.kabulTutanaklari = updated;
+        await window.electron.ipcRenderer.invoke(
+          "db:run",
+          "UPDATE DATA_TeminDosyasi SET sablon_tercihleri = ? WHERE id = ?",
+          [JSON.stringify(existingObj), activeDosyaId],
+        );
+      } catch (e) {
+        console.error("Failed to delete kabulTutanaklari:", e);
+      }
+    }
+  };
 
   const allStageSablons = sablons.filter(
     (s) =>
@@ -158,7 +250,7 @@ export function KabulVeOdeme(): React.JSX.Element {
                     d.yaklasik_maliyet, d.teslim_tarihi,
                     d.fiyat_farki_dayanagi, COALESCE(d.tur, 'mal') as alim_turu,
                     d.dosya_acilis_tarihi, d.temin_tarihi, d.tarih,
-                    d.ihtiyac_yeri
+                    d.ihtiyac_yeri, d.sablon_tercihleri
              FROM DATA_TeminDosyasi d
              LEFT JOIN TANIM_Firma f ON d.firma_id = f.id
              WHERE d.id = ?`,
@@ -180,6 +272,19 @@ export function KabulVeOdeme(): React.JSX.Element {
           let effectiveFirmaId = row.firma_id || null;
           let effectiveUnvan = row.unvan || "";
           let effectiveVergiNo = row.vergi_no || null;
+
+          if (row.sablon_tercihleri) {
+            try {
+              const prefs = typeof row.sablon_tercihleri === "string"
+                ? JSON.parse(row.sablon_tercihleri)
+                : row.sablon_tercihleri;
+              if (Array.isArray(prefs?.kabulTutanaklari)) {
+                setTutanaklar(prefs.kabulTutanaklari);
+              }
+            } catch (err) {
+              console.warn("Failed to parse kabulTutanaklari from prefs:", err);
+            }
+          }
 
           if (effectiveFirmaId && !effectiveUnvan) {
             try {
@@ -463,6 +568,10 @@ export function KabulVeOdeme(): React.JSX.Element {
             teslimYeri={teslimYeri}
             dosyaNo={dosyaContext?.dosya_no}
             alimTuru={alimTuru}
+            tutanaklar={tutanaklar}
+            onOpenAddTutanak={handleOpenAddTutanak}
+            onEditTutanak={handleOpenEditTutanak}
+            onDeleteTutanak={handleDeleteTutanak}
             onOpenPreview={handleQuickPreview}
             onOpenTifModal={() => setIsTifModalOpen(true)}
             onOpenKomisyonModal={() => setIsKomisyonModalOpen(true)}
@@ -547,6 +656,22 @@ export function KabulVeOdeme(): React.JSX.Element {
         initialType="muayene_kabul"
         activeDosyaId={activeDosyaId}
         onOpenDocument={(doc) => handleQuickPreview(doc)}
+      />
+
+      {/* Özel Muayene ve Kabul Tutanağı Ekle/Düzenle Modalı */}
+      <KabulTutanakModal
+        isOpen={isTutanakModalOpen}
+        onClose={() => {
+          setIsTutanakModalOpen(false);
+          setEditingTutanak(null);
+        }}
+        onSave={handleSaveTutanak}
+        initialTutanak={editingTutanak}
+        defaultTutar={firmaStats.teklifToplami || undefined}
+        defaultFaturaNo={faturaNo}
+        defaultFaturaTarihi={faturaTarihi}
+        defaultTeslimYeri={teslimYeri}
+        defaultTeslimAlan={komisyonBaskani}
       />
     </SubScreen>
   );

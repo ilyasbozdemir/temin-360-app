@@ -17,3 +17,18 @@ export interface KomisyonUye {
   komisyon_turu?: string
   asli_yedek?: string
 }
+
+export interface KabulTutanakItem {
+  id: string
+  tutanakNo: string
+  tutanakTarihi: string
+  faturaNo?: string
+  faturaTarihi?: string
+  teslimYeri?: string
+  teslimAlan?: string
+  durum: 'kabul' | 'kismi' | 'sartli' | 'red'
+  tutar?: number
+  notlar?: string
+  created_at?: string
+}
+
