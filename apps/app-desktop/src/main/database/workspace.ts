@@ -176,7 +176,9 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     { name: 'tur', def: "TEXT DEFAULT 'mal'" },
     { name: 'dosya_no', def: 'TEXT' },
     { name: 'dosya_adi', def: 'TEXT' },
-    { name: 'is_tanimi', def: 'TEXT' }
+    { name: 'is_tanimi', def: 'TEXT' },
+    { name: 'is_adi', def: 'TEXT' },
+    { name: 'konu', def: 'TEXT' }
   ]
   for (const c of teminDosyasiColumns) {
     try {
@@ -209,13 +211,14 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     }
   }
 
-  // Keep dosya_no / temin_no, dosya_adi / konu / is_tanimi, and asli_yedek / rol in sync
+  // Keep dosya_no / temin_no, dosya_adi / konu / is_tanimi / is_adi, and asli_yedek / rol in sync
   try {
     db.exec(`
       UPDATE DATA_TeminDosyasi SET dosya_no = temin_no WHERE (dosya_no IS NULL OR dosya_no = '') AND temin_no IS NOT NULL;
       UPDATE DATA_TeminDosyasi SET temin_no = dosya_no WHERE (temin_no IS NULL OR temin_no = '') AND dosya_no IS NOT NULL;
-      UPDATE DATA_TeminDosyasi SET dosya_adi = COALESCE(konu, is_tanimi) WHERE (dosya_adi IS NULL OR dosya_adi = '') AND COALESCE(konu, is_tanimi) IS NOT NULL;
-      UPDATE DATA_TeminDosyasi SET is_tanimi = COALESCE(konu, dosya_adi) WHERE (is_tanimi IS NULL OR is_tanimi = '') AND COALESCE(konu, dosya_adi) IS NOT NULL;
+      UPDATE DATA_TeminDosyasi SET dosya_adi = COALESCE(is_adi, konu, is_tanimi) WHERE (dosya_adi IS NULL OR dosya_adi = '') AND COALESCE(is_adi, konu, is_tanimi) IS NOT NULL;
+      UPDATE DATA_TeminDosyasi SET is_adi = COALESCE(dosya_adi, konu, is_tanimi) WHERE (is_adi IS NULL OR is_adi = '') AND COALESCE(dosya_adi, konu, is_tanimi) IS NOT NULL;
+      UPDATE DATA_TeminDosyasi SET is_tanimi = COALESCE(is_adi, konu, dosya_adi) WHERE (is_tanimi IS NULL OR is_tanimi = '') AND COALESCE(is_adi, konu, dosya_adi) IS NOT NULL;
       UPDATE DATA_TeminDosyasi SET alim_turu = tur WHERE (alim_turu IS NULL OR alim_turu = '') AND tur IS NOT NULL;
       UPDATE DATA_TeminDosyasi SET tur = alim_turu WHERE (tur IS NULL OR tur = '') AND alim_turu IS NOT NULL;
       UPDATE DATA_TeminKomisyon SET asli_yedek = COALESCE(rol, 'Asil') WHERE (asli_yedek IS NULL OR asli_yedek = '') AND rol IS NOT NULL;

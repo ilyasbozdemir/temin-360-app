@@ -164,8 +164,8 @@ const fetchAmbarHareketler = async (ambarId?: number): Promise<AmbarHareket[]> =
     SELECT 
       h.*, 
       a.ambar_adi,
-      COALESCE(d.temin_no, '') as dosya_no,
-      COALESCE(d.dosya_adi, d.konu, d.is_tanimi, '') as dosya_adi
+      COALESCE(d.temin_no, d.dosya_no, '') as dosya_no,
+      COALESCE(d.is_adi, d.dosya_adi, d.konu, '') as dosya_adi
     FROM DATA_AmbarHareket h
     LEFT JOIN TANIM_Ambar a ON a.id = h.ambar_id
     LEFT JOIN DATA_TeminDosyasi d ON d.id = h.temin_dosya_id
@@ -187,8 +187,8 @@ const fetchTifListesi = async (teminDosyaId?: number): Promise<TifKayit[]> => {
     SELECT 
       t.*,
       a.ambar_adi,
-      COALESCE(d.temin_no, '') as dosya_no,
-      COALESCE(d.dosya_adi, d.konu, d.is_tanimi, '') as dosya_adi,
+      COALESCE(d.temin_no, d.dosya_no, '') as dosya_no,
+      COALESCE(d.is_adi, d.dosya_adi, d.konu, '') as dosya_adi,
       (SELECT COUNT(*) FROM DATA_TIF_Kalem k WHERE k.tif_id = t.id) as kalem_sayisi,
       (SELECT SUM(k.miktar * COALESCE(k.birim_fiyat, 0)) FROM DATA_TIF_Kalem k WHERE k.tif_id = t.id) as toplam_tutar
     FROM DATA_TIF t
