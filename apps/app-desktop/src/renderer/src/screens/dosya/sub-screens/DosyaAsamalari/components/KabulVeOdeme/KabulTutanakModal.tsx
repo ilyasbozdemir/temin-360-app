@@ -99,7 +99,7 @@ export function KabulTutanakModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={initialTutanak ? 'Kabul Tutanağını Düzenle' : 'Yeni Muayene & Kabul Tutanağı Ekle'}
+      title={initialTutanak ? 'Kabul Tutanağını Düzenle' : 'Yeni Tutanak / Cetvel Kaydet'}
       className="max-w-2xl w-11/12"
     >
       <form onSubmit={handleSubmit} className="space-y-4 p-1">
