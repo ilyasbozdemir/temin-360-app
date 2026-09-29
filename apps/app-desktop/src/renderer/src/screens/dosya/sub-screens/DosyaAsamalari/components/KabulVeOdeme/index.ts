@@ -5,4 +5,4 @@ export * from './KabulAsamalariTimeline'
 export * from './KabulFaturaHakedisCard'
 export * from './KabulTutanaklariListCard'
 export * from './KabulTutanakModal'
-
+export * from './useKabulVeOdemeData'
