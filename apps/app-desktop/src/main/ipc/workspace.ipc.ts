@@ -546,7 +546,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
             closingBuffer
           ])
 
-          const res = await fetch(
+          const res = await fetchWithRetry(
             'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
             {
               method: 'POST',
@@ -634,12 +634,47 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
     }
   )
 
+  async function fetchWithRetry(
+    url: string,
+    options?: RequestInit,
+    maxRetries = 3
+  ): Promise<Response> {
+    let attempt = 0
+    let delay = 500
+    while (attempt < maxRetries) {
+      try {
+        const res = await fetch(url, options)
+        if ((res.status >= 500 && res.status < 600) || res.status === 429) {
+          attempt++
+          if (attempt >= maxRetries) return res
+          console.warn(
+            `[Google Drive API] Geçici sunucu hatası (${res.status}), ${delay}ms sonra tekrar deneniyor... (Deneme ${attempt}/${maxRetries})`
+          )
+          await new Promise((r) => setTimeout(r, delay))
+          delay *= 2
+          continue
+        }
+        return res
+      } catch (err) {
+        attempt++
+        if (attempt >= maxRetries) throw err
+        console.warn(
+          `[Google Drive API] Ağ hatası, ${delay}ms sonra tekrar deneniyor... (Deneme ${attempt}/${maxRetries})`,
+          err
+        )
+        await new Promise((r) => setTimeout(r, delay))
+        delay *= 2
+      }
+    }
+    return fetch(url, options!)
+  }
+
   async function pruneOldBackups(token: string, folderId: string, maxVersions = 7): Promise<void> {
     try {
       const query = encodeURIComponent(
         `'${folderId}' in parents and trashed = false and (name contains '.temin' or name contains '.dtal' or name contains '.hkmp')`
       )
-      const res = await fetch(
+      const res = await fetchWithRetry(
         `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,createdTime)&orderBy=createdTime%20desc`,
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -651,7 +686,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
         if (files.length > maxVersions) {
           const toDelete = files.slice(maxVersions)
           for (const file of toDelete) {
-            await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}`, {
+            await fetchWithRetry(`https://www.googleapis.com/drive/v3/files/${file.id}`, {
               method: 'DELETE',
               headers: { Authorization: `Bearer ${token}` }
             }).catch(console.error)
@@ -669,8 +704,8 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
       `mimeType = 'application/vnd.google-apps.folder' and (name = 'TEMIN_360_YEDEKLER' or name = 'TEMIN_360_YEDEKLERİ') and trashed = false`
     )
 
-    // 1. Klasörü ara
-    const searchRes = await fetch(
+    // 1. Klasörü ara (Geçici 500 hatalarına karşı retry yetenekli)
+    const searchRes = await fetchWithRetry(
       `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)`,
       { headers: { Authorization: `Bearer ${token}` } }
     )
@@ -696,7 +731,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
 
     // 2. Klasör bulunamadıysa oluştur
     console.log(`[Google Drive] ${folderName} bulunamadı, oluşturuluyor...`)
-    const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+    const createRes = await fetchWithRetry('https://www.googleapis.com/drive/v3/files', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -777,7 +812,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
       }
 
       const query = encodeURIComponent(`'${folderId}' in parents and trashed = false`)
-      let res = await fetch(
+      let res = await fetchWithRetry(
         `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,size,mimeType,modifiedTime,createdTime)&orderBy=modifiedTime%20desc`,
         {
           headers: {
@@ -790,7 +825,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
         const newToken = await tryRefreshToken(db)
         if (newToken) {
           cleanToken = newToken
-          res = await fetch(
+          res = await fetchWithRetry(
             `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,size,mimeType,modifiedTime,createdTime)&orderBy=modifiedTime%20desc`,
             {
               headers: {
@@ -867,7 +902,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
 
         // Verify file belongs strictly to TEMIN_360_YEDEKLER folder
         const folderId = await getOrCreateAppFolder(cleanToken)
-        const metaRes = await fetch(
+        const metaRes = await fetchWithRetry(
           `https://www.googleapis.com/drive/v3/files/${args.fileId}?fields=id,name,parents,mimeType`,
           {
             headers: {
@@ -886,7 +921,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
           }
         }
 
-        const res = await fetch(
+        const res = await fetchWithRetry(
           `https://www.googleapis.com/drive/v3/files/${args.fileId}?alt=media`,
           {
             headers: {
@@ -977,7 +1012,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
         const folderId = await getOrCreateAppFolder(cleanToken)
 
         // Verify file is strictly in TEMIN_360_YEDEKLER folder
-        const metaRes = await fetch(
+        const metaRes = await fetchWithRetry(
           `https://www.googleapis.com/drive/v3/files/${args.fileId}?fields=id,parents`,
           { headers: { Authorization: `Bearer ${cleanToken}` } }
         )
@@ -990,10 +1025,13 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
           }
         }
 
-        const res = await fetch(`https://www.googleapis.com/drive/v3/files/${args.fileId}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${cleanToken}` }
-        })
+        const res = await fetchWithRetry(
+          `https://www.googleapis.com/drive/v3/files/${args.fileId}`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${cleanToken}` }
+          }
+        )
 
         if (!res.ok && res.status !== 204) {
           const errText = await res.text()
