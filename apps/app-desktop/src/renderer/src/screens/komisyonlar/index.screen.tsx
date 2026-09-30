@@ -686,16 +686,6 @@ export default function KomisyonlarScreen({
                           <div className="flex items-center gap-1">
                             <button
                               onClick={() => {
-                                setHizliKadroKomisyon({ id: komisyon.id, ad: komisyon.ad })
-                                setHizliKadroOpen(true)
-                              }}
-                              className="p-2 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-xl transition-colors cursor-pointer"
-                              title="⚡ Hızlı Kadro Düzenle"
-                            >
-                              <Zap className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => {
                                 setEditingKomisyonId(komisyon.id)
                                 setIsModalOpen(true)
                               }}
@@ -746,16 +736,6 @@ export default function KomisyonlarScreen({
                             <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">
                               Görevli Kadrosu
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setHizliKadroKomisyon({ id: komisyon.id, ad: komisyon.ad })
-                                setHizliKadroOpen(true)
-                              }}
-                              className="text-[11px] text-blue-600 dark:text-blue-400 font-bold hover:underline cursor-pointer flex items-center gap-1"
-                            >
-                              <Zap className="w-3 h-3" /> Hızlı Güncelle
-                            </button>
                           </div>
 
                           {assignedMembers.length > 0 ? (
