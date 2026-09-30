@@ -95,7 +95,7 @@ export function DosyaHizliIcerikPopover({
       if (!dosya?.id || !window.electron) return [];
       const res = await window.electron.ipcRenderer.invoke(
         "db:query",
-        `SELECT tk.*, COALESCE(NULLIF(tk.kalem_adi, ''), tk.malzeme_adi) as kalem_adi 
+        `SELECT tk.*
          FROM DATA_TeminKalem tk 
          WHERE tk.temin_dosya_id = ? 
          ORDER BY COALESCE(tk.sira_no, tk.id) ASC`,
