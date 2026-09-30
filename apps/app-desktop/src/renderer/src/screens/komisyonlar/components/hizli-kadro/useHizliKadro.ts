@@ -73,12 +73,24 @@ export function useHizliKadro({
           )
           .catch(() => {})
         await window.electron.ipcRenderer
+          .invoke(
+            'db:run',
+            "ALTER TABLE TANIM_KomisyonUye ADD COLUMN belge_kapsami TEXT DEFAULT 'tumu'"
+          )
+          .catch(() => {})
+        await window.electron.ipcRenderer
           .invoke('db:run', 'ALTER TABLE DATA_TeminKomisyon ADD COLUMN komisyon_turu TEXT')
           .catch(() => {})
         await window.electron.ipcRenderer
           .invoke(
             'db:run',
             'ALTER TABLE DATA_TeminKomisyon ADD COLUMN belgede_goster INTEGER DEFAULT 1'
+          )
+          .catch(() => {})
+        await window.electron.ipcRenderer
+          .invoke(
+            'db:run',
+            "ALTER TABLE DATA_TeminKomisyon ADD COLUMN belge_kapsami TEXT DEFAULT 'tumu'"
           )
           .catch(() => {})
       } catch {
@@ -91,6 +103,7 @@ export function useHizliKadro({
           'db:query',
           `SELECT u.id as db_id, u.komisyon_id, u.personel_id, u.gorev_id, u.asil_mi,
                   COALESCE(u.belgede_goster, 1) as belgede_goster,
+                  COALESCE(u.belge_kapsami, 'tumu') as belge_kapsami,
                   p.ad_soyad, p.unvan, g.ad as gorev_adi
            FROM TANIM_KomisyonUye u
            LEFT JOIN TANIM_Personel p ON u.personel_id = p.id
@@ -128,21 +141,24 @@ export function useHizliKadro({
         let finalMembers: MemberRow[] = []
 
         if (fileData.length > 0) {
-          const fileMapped: MemberRow[] = fileData.map((m: any) => ({
-            id: m.id,
-            dbUyeId: m.id,
-            gorevId: null,
-            gorevAd: m.gorev || 'Üye',
-            personelId: m.personel_id || null,
-            asilMi: (m.rol || '').toLowerCase().includes('yedek') ? 0 : 1,
-            belgedeGoster:
-              m.belgede_goster === 0 ||
-              m.belgede_goster === false ||
-              m.belgede_goster === '0' ||
-              m.belgede_goster === 'false'
-                ? false
-                : true
-          }))
+          const fileMapped: MemberRow[] = fileData.map((m: any) => {
+            const isShow =
+              m.belgede_goster !== 0 &&
+              m.belgede_goster !== false &&
+              m.belgede_goster !== '0' &&
+              m.belgede_goster !== 'false'
+            const scope = m.belge_kapsami && m.belge_kapsami !== '' ? m.belge_kapsami : isShow ? 'tumu' : 'gizli'
+            return {
+              id: m.id,
+              dbUyeId: m.id,
+              gorevId: null,
+              gorevAd: m.gorev || 'Üye',
+              personelId: m.personel_id || null,
+              asilMi: (m.rol || '').toLowerCase().includes('yedek') ? 0 : 1,
+              belgedeGoster: scope !== 'gizli',
+              belgeKapsami: scope
+            }
+          })
 
           // Master'da tanımlı olup dosyaya yansımamış Onay Veren / Belgede Gösterilmeyen rolleri de ekle
           const existingPids = new Set(fileMapped.map((r) => r.personelId).filter(Boolean))
@@ -157,6 +173,12 @@ export function useHizliKadro({
             ) {
               continue
             }
+            const isShow =
+              m.belgede_goster !== 0 &&
+              m.belgede_goster !== false &&
+              m.belgede_goster !== '0' &&
+              m.belgede_goster !== 'false'
+            const scope = m.belge_kapsami && m.belge_kapsami !== '' ? m.belge_kapsami : isShow ? 'tumu' : 'gizli'
             fileMapped.push({
               id: `master_extra_${m.db_id}`,
               dbUyeId: m.db_id,
@@ -164,32 +186,30 @@ export function useHizliKadro({
               gorevAd: m.gorev_adi || 'Üye',
               personelId: mPid,
               asilMi: m.asil_mi ?? 1,
-              belgedeGoster:
-                m.belgede_goster === 0 ||
-                m.belgede_goster === false ||
-                m.belgede_goster === '0' ||
-                m.belgede_goster === 'false'
-                  ? false
-                  : true
+              belgedeGoster: scope !== 'gizli',
+              belgeKapsami: scope
             })
           }
           finalMembers = fileMapped
         } else if (masterData.length > 0) {
-          finalMembers = masterData.map((m: any) => ({
-            id: m.db_id,
-            dbUyeId: m.db_id,
-            gorevId: m.gorev_id || null,
-            gorevAd: m.gorev_adi || 'Üye',
-            personelId: m.personel_id || null,
-            asilMi: m.asil_mi ?? 1,
-            belgedeGoster:
-              m.belgede_goster === 0 ||
-              m.belgede_goster === false ||
-              m.belgede_goster === '0' ||
-              m.belgede_goster === 'false'
-                ? false
-                : true
-          }))
+          finalMembers = masterData.map((m: any) => {
+            const isShow =
+              m.belgede_goster !== 0 &&
+              m.belgede_goster !== false &&
+              m.belgede_goster !== '0' &&
+              m.belgede_goster !== 'false'
+            const scope = m.belge_kapsami && m.belge_kapsami !== '' ? m.belge_kapsami : isShow ? 'tumu' : 'gizli'
+            return {
+              id: m.db_id,
+              dbUyeId: m.db_id,
+              gorevId: m.gorev_id || null,
+              gorevAd: m.gorev_adi || 'Üye',
+              personelId: m.personel_id || null,
+              asilMi: m.asil_mi ?? 1,
+              belgedeGoster: scope !== 'gizli',
+              belgeKapsami: scope
+            }
+          })
         } else {
           const lower = komisyonAdi.toLowerCase()
           const isMaliyet = lower.includes('maliyet') || lower.includes('fiyat') || komisyonId === 1
@@ -201,7 +221,8 @@ export function useHizliKadro({
             gorevAd: t.ad,
             personelId: null,
             asilMi: t.asil,
-            belgedeGoster: t.belgedeGoster
+            belgedeGoster: t.belgedeGoster,
+            belgeKapsami: t.belgeKapsami || (t.belgedeGoster ? 'tumu' : 'gizli')
           }))
         }
 
@@ -230,7 +251,8 @@ export function useHizliKadro({
         gorevAd,
         personelId: null,
         asilMi: asil,
-        belgedeGoster: true
+        belgedeGoster: true,
+        belgeKapsami: 'tumu'
       }
     ])
   }
@@ -255,9 +277,31 @@ export function useHizliKadro({
     )
   }
 
+  const handleChangeBelgeKapsami = (rowId: string | number, kapsama: string) => {
+    setRows((prev) =>
+      prev.map((r) =>
+        r.id === rowId
+          ? {
+              ...r,
+              belgeKapsami: kapsama,
+              belgedeGoster: kapsama !== 'gizli'
+            }
+          : r
+      )
+    )
+  }
+
   const handleToggleBelgedeGoster = (rowId: string | number) => {
     setRows((prev) =>
-      prev.map((r) => (r.id === rowId ? { ...r, belgedeGoster: !r.belgedeGoster } : r))
+      prev.map((r) => {
+        if (r.id !== rowId) return r
+        const newGoster = !r.belgedeGoster
+        return {
+          ...r,
+          belgedeGoster: newGoster,
+          belgeKapsami: newGoster ? 'tumu' : 'gizli'
+        }
+      })
     )
   }
 
@@ -274,7 +318,8 @@ export function useHizliKadro({
         gorevAd: t.ad,
         personelId: rows[idx]?.personelId || null,
         asilMi: t.asil,
-        belgedeGoster: t.belgedeGoster
+        belgedeGoster: t.belgedeGoster,
+        belgeKapsami: t.belgeKapsami || (t.belgedeGoster ? 'tumu' : 'gizli')
       }
     })
     setRows(newRows)
@@ -288,6 +333,10 @@ export function useHizliKadro({
         await window.electron.ipcRenderer.invoke(
           'db:run',
           'ALTER TABLE TANIM_KomisyonUye ADD COLUMN belgede_goster INTEGER DEFAULT 1'
+        )
+        await window.electron.ipcRenderer.invoke(
+          'db:run',
+          "ALTER TABLE TANIM_KomisyonUye ADD COLUMN belge_kapsami TEXT DEFAULT 'tumu'"
         )
       } catch {
         /* zaten mevcut */
@@ -312,7 +361,7 @@ export function useHizliKadro({
         }
       }
 
-      // TANIM_KomisyonUye - belgede_goster dahil kaydet
+      // TANIM_KomisyonUye - belgede_goster & belge_kapsami dahil kaydet
       await window.electron.ipcRenderer.invoke(
         'db:run',
         'DELETE FROM TANIM_KomisyonUye WHERE komisyon_id = ?',
@@ -321,21 +370,23 @@ export function useHizliKadro({
 
       for (let i = 0; i < rows.length; i++) {
         const r = rows[i]
+        const isShow = r.belgeKapsami !== 'gizli' && r.belgedeGoster
         await window.electron.ipcRenderer.invoke(
           'db:run',
-          'INSERT INTO TANIM_KomisyonUye (komisyon_id, gorev_id, personel_id, asil_mi, sira, belgede_goster) VALUES (?, ?, ?, ?, ?, ?)',
+          'INSERT INTO TANIM_KomisyonUye (komisyon_id, gorev_id, personel_id, asil_mi, sira, belgede_goster, belge_kapsami) VALUES (?, ?, ?, ?, ?, ?, ?)',
           [
             komisyonId,
             r.gorevId || 1,
             r.personelId || null,
             r.asilMi,
             i + 1,
-            r.belgedeGoster ? 1 : 0
+            isShow ? 1 : 0,
+            r.belgeKapsami || (isShow ? 'tumu' : 'gizli')
           ]
         )
       }
 
-      // Aktif dosyaya senkronize et (belgede_goster dahil)
+      // Aktif dosyaya senkronize et (belgede_goster & belge_kapsami dahil)
       if (syncToActiveFile && activeDosyaId) {
         const lower = komisyonAdi.toLowerCase()
         const isMaliyet = lower.includes('maliyet') || lower.includes('fiyat') || komisyonId === 1
@@ -348,6 +399,12 @@ export function useHizliKadro({
             .invoke(
               'db:run',
               'ALTER TABLE DATA_TeminKomisyon ADD COLUMN belgede_goster INTEGER DEFAULT 1'
+            )
+            .catch(() => {})
+          await window.electron.ipcRenderer
+            .invoke(
+              'db:run',
+              "ALTER TABLE DATA_TeminKomisyon ADD COLUMN belge_kapsami TEXT DEFAULT 'tumu'"
             )
             .catch(() => {})
         } catch {
@@ -374,11 +431,12 @@ export function useHizliKadro({
                   : r.gorevAd.toLowerCase().includes('başkan')
                     ? 'Başkan'
                     : 'Üye'
+              const isShow = r.belgeKapsami !== 'gizli' && r.belgedeGoster
               await window.electron.ipcRenderer.invoke(
                 'db:run',
                 `INSERT INTO DATA_TeminKomisyon 
-                 (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu, belgede_goster)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                 (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu, belgede_goster, belge_kapsami)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                   activeDosyaId,
                   komisyonId,
@@ -388,7 +446,8 @@ export function useHizliKadro({
                   r.gorevAd,
                   rol,
                   komisyonAdi,
-                  r.belgedeGoster ? 1 : 0
+                  isShow ? 1 : 0,
+                  r.belgeKapsami || (isShow ? 'tumu' : 'gizli')
                 ]
               )
             }
@@ -435,6 +494,7 @@ export function useHizliKadro({
     handleSelectPersonel,
     handleSelectGorev,
     handleToggleAsil,
+    handleChangeBelgeKapsami,
     handleToggleBelgedeGoster,
     handleLoadStandardTemplate,
     saveMutation

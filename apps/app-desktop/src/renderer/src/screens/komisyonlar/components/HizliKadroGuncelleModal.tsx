@@ -1,5 +1,5 @@
 import React from 'react'
-import { AlertCircle, CheckCircle2, Eye } from 'lucide-react'
+import { AlertCircle, CheckCircle2, FileText } from 'lucide-react'
 import { Modal } from '../../../components/ui/Modal'
 import {
   HizliKadroFooter,
@@ -32,7 +32,7 @@ export function HizliKadroGuncelleModal({
     handleSelectPersonel,
     handleSelectGorev,
     handleToggleAsil,
-    handleToggleBelgedeGoster,
+    handleChangeBelgeKapsami,
     handleLoadStandardTemplate,
     saveMutation
   } = useHizliKadro({
@@ -48,7 +48,7 @@ export function HizliKadroGuncelleModal({
       isOpen={isOpen}
       onClose={onClose}
       title={`Kadro & Üye Güncelle: ${komisyonAdi}`}
-      description="Görevlileri, asil/yedek durumunu ve belgede gösterilip gösterilmeyeceğini tek yerden yönetin."
+      description="Görevlileri, asil/yedek durumunu ve belgede görünürlük kapsamını tek yerden yönetin."
       className="max-w-5xl"
     >
       <div className="flex flex-col max-h-[78vh] -mx-6 -my-4 px-6 py-4">
@@ -80,14 +80,14 @@ export function HizliKadroGuncelleModal({
         {/* Tablo Başlıkları */}
         <div
           className="grid gap-2 px-3.5 pb-2 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-800 mb-1"
-          style={{ gridTemplateColumns: '28px 190px 1fr 80px 70px 32px' }}
+          style={{ gridTemplateColumns: '28px 180px 1fr 80px 185px 32px' }}
         >
           <span>#</span>
           <span>Görevi / Rolü</span>
           <span>Personel</span>
           <span className="text-center">Asil/Yedek</span>
           <span className="text-center flex items-center justify-center gap-1">
-            <Eye className="w-3 h-3" /> Belgede
+            <FileText className="w-3 h-3 text-blue-500" /> Belge Kapsamı
           </span>
           <span />
         </div>
@@ -116,7 +116,7 @@ export function HizliKadroGuncelleModal({
                 onSelectGorev={handleSelectGorev}
                 onSelectPersonel={handleSelectPersonel}
                 onToggleAsil={handleToggleAsil}
-                onToggleBelgedeGoster={handleToggleBelgedeGoster}
+                onChangeBelgeKapsami={handleChangeBelgeKapsami}
                 onRemoveRow={handleRemoveRow}
               />
             ))
