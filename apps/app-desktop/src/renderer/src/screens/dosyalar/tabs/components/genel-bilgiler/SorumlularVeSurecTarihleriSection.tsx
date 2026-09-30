@@ -214,7 +214,7 @@ export function SorumlularVeSurecTarihleriSection(
         {/* GERÇEKLEŞTİRME GÖREVLİSİ (SUNAN) */}
         <div className="relative">
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-455 mb-1.5">
-            Gerçekleştirme Görevlisi (Sunan)
+            Gerçekleştirme Görevlisi
           </label>
           <button
             type="button"
