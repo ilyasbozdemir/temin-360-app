@@ -26,7 +26,7 @@ export function InnerMenu({
   return (
     <div
       className={cn(
-        'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-sm flex flex-row overflow-x-auto lg:flex-col gap-1.5 custom-scrollbar',
+        'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-sm flex flex-row overflow-x-auto lg:flex-col gap-1.5 custom-scrollbar lg:sticky lg:top-4 self-start max-h-[calc(100vh-2rem)] lg:overflow-y-auto',
         className
       )}
     >
