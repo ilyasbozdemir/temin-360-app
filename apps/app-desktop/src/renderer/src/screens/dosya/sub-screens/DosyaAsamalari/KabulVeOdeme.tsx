@@ -14,7 +14,6 @@ import {
   KabulYukleniciCard,
   useKabulVeOdemeData,
 } from "./components/KabulVeOdeme";
-import { KabulTutanaklariListCardV2 } from "./components/KabulVeOdeme/KabulTutanaklariListCardV2";
 
 export function KabulVeOdeme(): React.JSX.Element {
   const {
@@ -60,8 +59,6 @@ export function KabulVeOdeme(): React.JSX.Element {
     handleDeleteTutanak,
     handleQuickPreview,
     handleReloadKomisyon,
-    formatCurrency,
-    formatDate,
   } = useKabulVeOdemeData();
 
   return (
@@ -133,8 +130,6 @@ export function KabulVeOdeme(): React.JSX.Element {
             )}
           </div>
 
-          <KabulTutanaklariListCardV2 />
-
           <KabulTutanaklariListCard
             kazananFirmaUnvan={kazananFirmaUnvan}
             firmaStats={firmaStats}
@@ -152,41 +147,8 @@ export function KabulVeOdeme(): React.JSX.Element {
             onOpenPreview={handleQuickPreview}
             onOpenTifModal={() => setIsTifModalOpen(true)}
             onOpenKomisyonModal={() => setIsKomisyonModalOpen(true)}
-            formatDate={formatDate}
-            formatCurrency={formatCurrency}
+            onSaveTutanak={handleSaveTutanak}
           />
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1 flex flex-col gap-6">
-              <KabulYukleniciCard
-                kazananFirmaUnvan={kazananFirmaUnvan}
-                firmaStats={firmaStats}
-                formatCurrency={formatCurrency}
-                formatDate={formatDate}
-              />
-
-              <KabulAsamalariTimeline
-                firmaStats={firmaStats}
-                faturaNo={faturaNo}
-                faturaTarihi={faturaTarihi}
-                alimTuru={alimTuru}
-                onOpenTifModal={() => setIsTifModalOpen(true)}
-                onOpenKomisyonModal={() => setIsKomisyonModalOpen(true)}
-                onOpenPreview={handleQuickPreview}
-              />
-            </div>
-
-            <div className="lg:col-span-2 flex flex-col gap-6">
-              <KabulFaturaHakedisCard
-                firmaStats={firmaStats}
-                faturaNo={faturaNo}
-                faturaTarihi={faturaTarihi}
-                onFaturaNoChange={setFaturaNo}
-                onFaturaTarihiChange={setFaturaTarihi}
-                formatCurrency={formatCurrency}
-              />
-            </div>
-          </div>
         </div>
       )}
 
@@ -225,6 +187,8 @@ export function KabulVeOdeme(): React.JSX.Element {
         defaultFaturaTarihi={faturaTarihi}
         defaultTeslimYeri={teslimYeri}
         defaultTeslimAlan={komisyonBaskani}
+        alimTuru={alimTuru}
+        dosyaKalemler={dosyaContext?.kalemler}
       />
     </SubScreen>
   );

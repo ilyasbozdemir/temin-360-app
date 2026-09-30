@@ -332,17 +332,17 @@ export function useKomisyonAtama({
             await (window as any).electron.ipcRenderer.invoke(
               'db:run',
               `UPDATE DATA_TeminDosyasi 
-               SET onay_personel_id = ?, onaylayan_ad_soyad = ?, onaylayan_unvan = ? 
+               SET onay_personel_id = ? 
                WHERE id = ?`,
-              [p.id, p.ad_soyad, p.unvan || null, activeDosyaId]
+              [p.id, activeDosyaId]
             )
           } else if (row.gorev === 'Gerçekleştirme Görevlisi') {
             await (window as any).electron.ipcRenderer.invoke(
               'db:run',
               `UPDATE DATA_TeminDosyasi 
-               SET hazirlayan_personel_id = ?, hazirlayan_ad_soyad = ?, hazirlayan_unvan = ? 
+               SET hazirlayan_personel_id = ? 
                WHERE id = ?`,
-              [p.id, p.ad_soyad, p.unvan || null, activeDosyaId]
+              [p.id, activeDosyaId]
             )
           }
         }

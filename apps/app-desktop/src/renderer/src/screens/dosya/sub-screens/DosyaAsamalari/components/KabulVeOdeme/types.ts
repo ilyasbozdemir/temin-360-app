@@ -18,17 +18,30 @@ export interface KomisyonUye {
   asli_yedek?: string
 }
 
+export interface MalKalemiItem {
+  siraNo: number
+  malzemeAdi: string
+  ozelligi: string
+  birimi: string
+  miktari: number
+  toplamTeslimAlinan: number
+  kabulMiktari: number
+}
+
 export interface KabulTutanakItem {
   id: string
   tutanakNo: string
   tutanakTarihi: string
   faturaNo?: string
   faturaTarihi?: string
+  irsaliyeNo?: string
+  irsaliyeTarihi?: string
   teslimYeri?: string
   teslimAlan?: string
   durum: 'kabul' | 'kismi' | 'sartli' | 'red'
   tutar?: number
   notlar?: string
+  kalemler?: MalKalemiItem[]
   created_at?: string
 }
 

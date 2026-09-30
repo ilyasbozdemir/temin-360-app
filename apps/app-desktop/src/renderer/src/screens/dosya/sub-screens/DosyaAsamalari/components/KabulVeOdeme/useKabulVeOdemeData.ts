@@ -99,9 +99,12 @@ export function useKabulVeOdemeData() {
     null,
   );
 
-  const alimTuru = (firmaStats?.alimTuru || "mal").toLowerCase();
-  const isMal = alimTuru === "mal";
-  const isHizmet = alimTuru === "hizmet";
+  const rawAlimTuru = String(
+    firmaStats?.alimTuru || dosyaContext?.alimTuru || dosyaContext?.alim_turu || "mal",
+  ).toLowerCase();
+  const isHizmet = rawAlimTuru.includes("hizmet") || rawAlimTuru.includes("danismanlik");
+  const isMal = !isHizmet;
+  const alimTuru = isHizmet ? "hizmet" : "mal";
 
   const handleOpenAddTutanak = (): void => {
     setEditingTutanak(null);
@@ -275,7 +278,7 @@ export function useKabulVeOdemeData() {
             "db:query",
             `SELECT d.firma_id, f.unvan, f.vergi_no,
                     d.yaklasik_maliyet, d.teslim_tarihi,
-                    d.fiyat_farki_dayanagi, COALESCE(d.tur, 'mal') as alim_turu,
+                    d.fiyat_farki_dayanagi, COALESCE(NULLIF(d.alim_turu, ''), NULLIF(d.tur, ''), 'mal') as alim_turu,
                     d.dosya_acilis_tarihi, d.temin_tarihi, d.tarih,
                     d.ihtiyac_yeri, d.sablon_tercihleri
              FROM DATA_TeminDosyasi d
