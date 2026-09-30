@@ -211,6 +211,22 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     }
   }
 
+  try {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS DATA_TeminKomisyonHistory (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        temin_dosya_id INTEGER NOT NULL,
+        komisyon_turu TEXT,
+        islem_turu TEXT,
+        islem_yapan TEXT,
+        snapshot_data TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `)
+  } catch (e: any) {
+    // Ignored
+  }
+
   // Keep dosya_no / temin_no, dosya_adi / konu / is_tanimi / is_adi, and asli_yedek / rol in sync
   try {
     db.exec(`

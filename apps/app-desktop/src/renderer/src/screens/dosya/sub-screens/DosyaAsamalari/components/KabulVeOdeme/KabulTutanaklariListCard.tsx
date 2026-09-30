@@ -321,52 +321,28 @@ export function KabulTutanaklariListCard({
             ))}
           </div>
 
-          {/* Primary Action 1: Tutanak Ekle Dropdown */}
-          <div className="relative">
+          {/* Primary Action 1: Tutanak Ekle */}
+          <div className="relative flex items-center">
             <Button
-              onClick={() => setMenuAcik((v) => !v)}
-              className="gap-1.5 text-xs font-bold h-9 px-3.5 bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
-              title="Yeni Muayene Kabul ve Tespit Komisyonu Tutanağı Ekle"
+              onClick={() => {
+                if (onOpenAddTutanak) {
+                  onOpenAddTutanak();
+                } else {
+                  formuAc(isHizmet ? "hizmet" : "mal");
+                }
+              }}
+              className="gap-1.5 text-xs font-bold h-9 px-3.5 bg-blue-600 hover:bg-blue-700 text-white shadow-xs cursor-pointer rounded-xl"
+              title={
+                isHizmet
+                  ? "Yeni Hizmet Muayene ve Kabul Tutanağı Ekle"
+                  : "Yeni Mal Muayene ve Kabul Tutanağı Ekle"
+              }
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>+ Tutanak Ekle</span>
+              <span>
+                + Tutanak Ekle ({isHizmet ? "Hizmet" : "Mal Alımı"})
+              </span>
             </Button>
-
-            {menuAcik && (
-              <div className="absolute right-0 z-20 mt-2 w-64 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-150">
-                <button
-                  type="button"
-                  onClick={() => formuAc("mal")}
-                  className="w-full px-4 py-2.5 text-left text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60 flex items-center justify-between cursor-pointer"
-                >
-                  <span>📦 Mal Muayene ve Kabul</span>
-                  <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-full">
-                    Ambar Girişli
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => formuAc("hizmet")}
-                  className="w-full px-4 py-2.5 text-left text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60 flex items-center justify-between cursor-pointer border-t border-slate-100 dark:border-slate-700/50"
-                >
-                  <span>🛠️ Hizmet Muayene ve Kabul</span>
-                  <span className="text-[10px] text-purple-600 dark:text-purple-400 font-bold bg-purple-50 dark:bg-purple-950/50 px-2 py-0.5 rounded-full">
-                    Hizmet İfa
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMenuAcik(false);
-                    onOpenAddTutanak?.();
-                  }}
-                  className="w-full px-4 py-2.5 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 flex items-center gap-1.5 cursor-pointer border-t border-slate-100 dark:border-slate-700/50"
-                >
-                  <Plus className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Sistem Formu ile Özelleştir</span>
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Primary Action 2: Kabul Tutanağı Çıktı */}

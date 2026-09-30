@@ -13,6 +13,10 @@ export interface KomisyonRow {
   gorev: string
   personelId: number | null
   belgedeGoster: boolean
+  vekaletUnvani?: string
+  baslangicTarihi?: string
+  bitisTarihi?: string
+  belgeKapsami?: string
 }
 
 export interface KurumInfo {

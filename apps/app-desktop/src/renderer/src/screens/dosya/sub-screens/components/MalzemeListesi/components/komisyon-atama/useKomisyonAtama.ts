@@ -155,7 +155,11 @@ export function useKomisyonAtama({
                     sira: idx + 1,
                     gorev: matched?.gorev || 'Fiyat Araştırma Görevlisi',
                     personelId: matched?.personel_id || null,
-                    belgedeGoster: hasBelgedeGoster ? matched.belgede_goster === 1 : true
+                    belgedeGoster: hasBelgedeGoster ? matched.belgede_goster === 1 : true,
+                    vekaletUnvani: matched?.vekalet_unvani || '',
+                    baslangicTarihi: matched?.baslangic_tarihi || '',
+                    bitisTarihi: matched?.bitis_tarihi || '',
+                    belgeKapsami: matched?.belge_kapsami || 'tumu'
                   }
                 })
                 setMaliyetRows(newMaliyet)
@@ -170,7 +174,11 @@ export function useKomisyonAtama({
                     sira: idx + 1,
                     gorev: matched?.gorev || (idx === 0 ? 'Komisyon Başkanı' : 'Üye'),
                     personelId: matched?.personel_id || null,
-                    belgedeGoster: hasBelgedeGoster ? matched.belgede_goster === 1 : true
+                    belgedeGoster: hasBelgedeGoster ? matched.belgede_goster === 1 : true,
+                    vekaletUnvani: matched?.vekalet_unvani || '',
+                    baslangicTarihi: matched?.baslangic_tarihi || '',
+                    bitisTarihi: matched?.bitis_tarihi || '',
+                    belgeKapsami: matched?.belge_kapsami || 'tumu'
                   }
                 })
                 setMuayeneRows(newMuayene)
@@ -230,7 +238,11 @@ export function useKomisyonAtama({
             sira: idx + 1,
             gorev: m.gorev_adi || 'Fiyat Araştırma Görevlisi',
             personelId: m.personel_id || null,
-            belgedeGoster: m.belgede_goster !== 0
+            belgedeGoster: m.belgede_goster !== 0,
+            vekaletUnvani: '',
+            baslangicTarihi: '',
+            bitisTarihi: '',
+            belgeKapsami: 'tumu'
           }))
           setMaliyetRows(next)
         } else {
@@ -238,7 +250,11 @@ export function useKomisyonAtama({
             sira: idx + 1,
             gorev: m.gorev_adi || (idx === 0 ? 'Komisyon Başkanı' : 'Üye'),
             personelId: m.personel_id || null,
-            belgedeGoster: m.belgede_goster !== 0
+            belgedeGoster: m.belgede_goster !== 0,
+            vekaletUnvani: '',
+            baslangicTarihi: '',
+            bitisTarihi: '',
+            belgeKapsami: 'tumu'
           }))
           setMuayeneRows(next)
         }
@@ -277,6 +293,22 @@ export function useKomisyonAtama({
           'db:run',
           'ALTER TABLE DATA_TeminKomisyon ADD COLUMN belgede_goster INTEGER DEFAULT 1'
         )
+        await (window as any).electron.ipcRenderer.invoke(
+          'db:run',
+          'ALTER TABLE DATA_TeminKomisyon ADD COLUMN vekalet_unvani TEXT'
+        )
+        await (window as any).electron.ipcRenderer.invoke(
+          'db:run',
+          'ALTER TABLE DATA_TeminKomisyon ADD COLUMN baslangic_tarihi TEXT'
+        )
+        await (window as any).electron.ipcRenderer.invoke(
+          'db:run',
+          'ALTER TABLE DATA_TeminKomisyon ADD COLUMN bitis_tarihi TEXT'
+        )
+        await (window as any).electron.ipcRenderer.invoke(
+          'db:run',
+          "ALTER TABLE DATA_TeminKomisyon ADD COLUMN belge_kapsami TEXT DEFAULT 'tumu'"
+        )
       } catch {
         // Zaten mevcut
       }
@@ -309,21 +341,27 @@ export function useKomisyonAtama({
             ? 'Başkan'
             : 'Üye'
 
+        const finalUnvan = row.vekaletUnvani?.trim() || p.unvan || null
+
         await (window as any).electron.ipcRenderer.invoke(
           'db:run',
           `INSERT INTO DATA_TeminKomisyon 
-           (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu, belgede_goster)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu, belgede_goster, vekalet_unvani, baslangic_tarihi, bitis_tarihi, belge_kapsami)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             activeDosyaId,
             komId,
             p.id,
             p.ad_soyad,
-            p.unvan || null,
+            finalUnvan,
             row.gorev,
             rol,
             komTitle,
-            row.belgedeGoster ? 1 : 0
+            row.belgedeGoster ? 1 : 0,
+            row.vekaletUnvani?.trim() || null,
+            row.baslangicTarihi || null,
+            row.bitisTarihi || null,
+            row.belgeKapsami || 'tumu'
           ]
         )
 
@@ -346,6 +384,39 @@ export function useKomisyonAtama({
             )
           }
         }
+      }
+
+      // Audit / History Snapshot
+      try {
+        const snapshotMembers = rows
+          .filter((r) => r.personelId)
+          .map((r) => {
+            const p = personeller.find((item) => item.id === r.personelId)
+            return {
+              personelId: r.personelId,
+              ad_soyad: p?.ad_soyad || '',
+              unvan: r.vekaletUnvani?.trim() || p?.unvan || '',
+              vekalet_unvani: r.vekaletUnvani || '',
+              baslangic_tarihi: r.baslangicTarihi || '',
+              bitis_tarihi: r.bitisTarihi || '',
+              belge_kapsami: r.belgeKapsami || 'tumu',
+              gorev: r.gorev,
+              belgedeGoster: r.belgedeGoster
+            }
+          })
+
+        await (window as any).electron.ipcRenderer.invoke(
+          'db:run',
+          `INSERT INTO DATA_TeminKomisyonHistory (temin_dosya_id, komisyon_turu, islem_turu, snapshot_data) VALUES (?, ?, ?, ?)`,
+          [
+            activeDosyaId,
+            komTitle,
+            'Kadro Ataması / Güncelleme',
+            JSON.stringify(snapshotMembers)
+          ]
+        )
+      } catch (histErr) {
+        console.warn('DATA_TeminKomisyonHistory kaydedilirken hata:', histErr)
       }
 
       if (syncToGlobalCommission) {
@@ -489,6 +560,18 @@ export function useKomisyonAtama({
     }
   }
 
+  const handleRowFieldChange = (sira: number, field: keyof KomisyonRow, value: any) => {
+    if (activeTab === 'yaklasik_maliyet') {
+      setMaliyetRows((prev) =>
+        prev.map((r) => (r.sira === sira ? { ...r, [field]: value } : r))
+      )
+    } else {
+      setMuayeneRows((prev) =>
+        prev.map((r) => (r.sira === sira ? { ...r, [field]: value } : r))
+      )
+    }
+  }
+
   const handleAddRow = (gorevName = 'Üye') => {
     if (activeTab === 'yaklasik_maliyet') {
       setMaliyetRows((prev) => [
@@ -497,7 +580,11 @@ export function useKomisyonAtama({
           sira: prev.length + 1,
           gorev: gorevName,
           personelId: null,
-          belgedeGoster: true
+          belgedeGoster: true,
+          vekaletUnvani: '',
+          baslangicTarihi: '',
+          bitisTarihi: '',
+          belgeKapsami: 'tumu'
         }
       ])
     } else {
@@ -507,7 +594,11 @@ export function useKomisyonAtama({
           sira: prev.length + 1,
           gorev: gorevName,
           personelId: null,
-          belgedeGoster: true
+          belgedeGoster: true,
+          vekaletUnvani: '',
+          baslangicTarihi: '',
+          bitisTarihi: '',
+          belgeKapsami: 'tumu'
         }
       ])
     }
@@ -544,6 +635,7 @@ export function useKomisyonAtama({
     handlePersonelChange,
     handleGorevChange,
     handleToggleBelgedeGoster,
+    handleRowFieldChange,
     handleAddRow,
     handleRemoveRow,
     handleSyncFromKomisyonYonetimi,

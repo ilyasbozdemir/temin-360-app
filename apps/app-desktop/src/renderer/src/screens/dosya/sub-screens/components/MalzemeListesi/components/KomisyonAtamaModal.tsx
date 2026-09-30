@@ -34,6 +34,7 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
     handlePersonelChange,
     handleGorevChange,
     handleToggleBelgedeGoster,
+    handleRowFieldChange,
     handleAddRow,
     handleRemoveRow,
     handleSyncFromKomisyonYonetimi,
@@ -85,6 +86,7 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
           onPersonelChange={handlePersonelChange}
           onGorevChange={handleGorevChange}
           onToggleBelgedeGoster={handleToggleBelgedeGoster}
+          onRowFieldChange={handleRowFieldChange}
           onAddRow={handleAddRow}
           onRemoveRow={handleRemoveRow}
         />
