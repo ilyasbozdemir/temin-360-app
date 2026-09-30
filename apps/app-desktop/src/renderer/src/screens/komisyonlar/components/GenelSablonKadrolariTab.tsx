@@ -21,6 +21,7 @@ interface GenelSablonKadrolariTabProps {
   onDeleteKomisyon: (id: number) => void
   onOpenPreview: (sablon: any, title: string) => void
   onOpenDetails: (id: number) => void
+  onManageBelgeler?: (komisyon: { id: number; ad: string }) => void
   activeDosyaId?: number | null
 }
 
@@ -42,6 +43,7 @@ export const GenelSablonKadrolariTab: React.FC<GenelSablonKadrolariTabProps> = (
   onDeleteKomisyon,
   onOpenPreview,
   onOpenDetails,
+  onManageBelgeler,
   activeDosyaId
 }) => {
   return (
@@ -150,6 +152,7 @@ export const GenelSablonKadrolariTab: React.FC<GenelSablonKadrolariTabProps> = (
                   onDeleteKomisyon={onDeleteKomisyon}
                   onOpenPreview={onOpenPreview}
                   onOpenDetails={onOpenDetails}
+                  onManageBelgeler={onManageBelgeler}
                   activeDosyaId={activeDosyaId}
                 />
               ))}

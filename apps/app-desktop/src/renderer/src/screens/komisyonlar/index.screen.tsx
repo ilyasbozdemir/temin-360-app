@@ -17,10 +17,11 @@ import { KomisyonAtamaModal } from '../dosya/sub-screens/components/MalzemeListe
 import { useTabStore } from '../../store/tabStore'
 import { useDosyaAsamasiSablons } from '../dosya/sub-screens/DosyaAsamalari/useDosyaAsamasiSablons'
 import { DocumentPreviewModal } from '../dosya/components/DocumentPreviewModal'
-import { TEMPLATE_REGISTRY } from '@temin360/document-templates'
+import { TemplateRegistryService } from '@temin360/document-templates'
 import { GenelSablonKadrolariTab } from './components/GenelSablonKadrolariTab'
 import { DosyaKomisyonlariTab } from './components/DosyaKomisyonlariTab'
 import { AtamaGecmisiModal } from './components/AtamaGecmisiModal'
+import { KomisyonBelgeleriYonetModal } from './components/KomisyonBelgeleriYonetModal'
 
 const isBaseKomisyon = (ad?: string, id?: number): boolean => {
   if (id === 1 || id === 2) return true
@@ -35,48 +36,6 @@ const isBaseKomisyon = (ad?: string, id?: number): boolean => {
     lower.includes('fiyat araştırma') ||
     lower.includes('fiyat arastirma')
   )
-}
-
-const getKomisyonTypeKey = (komisyonName: string, id: number): string => {
-  const lower = (komisyonName || '').toLowerCase()
-  if (
-    lower.includes('yaklaşık') ||
-    lower.includes('yaklasik') ||
-    lower.includes('fiyat') ||
-    id === 1
-  ) {
-    return 'yaklasik_maliyet'
-  }
-  if (lower.includes('muayene') || lower.includes('kabul') || id === 2) {
-    return 'muayene_kabul'
-  }
-  return 'all'
-}
-
-const getRegistryTemplatesForKomisyon = (komisyonName: string, id: number) => {
-  const typeKey = getKomisyonTypeKey(komisyonName, id)
-  return TEMPLATE_REGISTRY.filter((t) => {
-    if (!t.capabilities?.supportsCommission) return false
-    const commTypes = t.capabilities.supportedCommissionTypes || []
-    if (commTypes.includes('all')) return true
-    if (
-      typeKey === 'yaklasik_maliyet' &&
-      (commTypes.includes('piyasa_fiyat') || commTypes.includes('yaklasik_maliyet'))
-    ) {
-      return true
-    }
-    if (typeKey === 'muayene_kabul' && commTypes.includes('muayene_kabul')) {
-      return true
-    }
-    return false
-  }).map((t, idx) => ({
-    id: `reg-${t.id}-${idx}`,
-    ad: t.title,
-    dosya_adi: t.id,
-    route_path: t.id,
-    aciklama: t.description,
-    kategori: t.category
-  }))
 }
 
 export default function KomisyonlarScreen({
@@ -104,6 +63,13 @@ export default function KomisyonlarScreen({
   const [hizliKadroKomisyon, setHizliKadroKomisyon] = useState<{ id: number; ad: string } | null>(
     null
   )
+
+  // Üretilebilir Belgeleri Yönet Modalı
+  const [manageBelgelerOpen, setManageBelgelerOpen] = useState(false)
+  const [manageBelgelerKomisyon, setManageBelgelerKomisyon] = useState<{
+    id: number
+    ad: string
+  } | null>(null)
 
   // Dosya İçi Komisyon Atama Modalı
   const [editingDosyaId, setEditingDosyaId] = useState<number | null>(null)
@@ -257,42 +223,49 @@ export default function KomisyonlarScreen({
 
       const sablonlarRes = await window.electron.ipcRenderer.invoke(
         'db:query',
-        `SELECT ks.komisyon_id, s.id, s.ad, s.aciklama, s.icerik, s.dosya_adi, s.route_path, s.test_verisi, s.kategori 
-         FROM TANIM_Komisyon_Sablon ks
-         JOIN TANIM_Sablon s ON ks.sablon_id = s.id
-         WHERE s.aktif_mi = 1`
+        'SELECT komisyon_id, sablon_id FROM TANIM_Komisyon_Sablon'
       )
+      const rawSablonData: Array<{ komisyon_id: number; sablon_id: string }> =
+        sablonlarRes.success && Array.isArray(sablonlarRes.data) ? sablonlarRes.data : []
+
+      const allRegistryTemplates = TemplateRegistryService.getAllTemplates()
 
       const komisyonlarData = res.data.map((k: any) => {
         const uyeler = membersRes.success
           ? membersRes.data.filter((m: any) => m.komisyon_id === k.id)
           : []
 
-        const dbSablonlar = sablonlarRes.success
-          ? sablonlarRes.data.filter((s: any) => s.komisyon_id === k.id)
-          : []
+        const customRows = rawSablonData.filter((s) => s.komisyon_id === k.id)
+        let produceableTemplates: any[] = []
 
-        const registrySablonlar = getRegistryTemplatesForKomisyon(k.ad, k.id)
-
-        // Mükerrer şablon kartlarını engellemek için benzersizleştir
-        const uniqueMap = new Map<string, any>()
-        for (const s of registrySablonlar) {
-          const key = (s.dosya_adi || s.ad || '').toLowerCase().trim()
-          if (key && !uniqueMap.has(key)) {
-            uniqueMap.set(key, s)
-          }
-        }
-        for (const s of dbSablonlar) {
-          const key = (s.dosya_adi || s.ad || '').toLowerCase().trim()
-          if (key && !uniqueMap.has(key)) {
-            uniqueMap.set(key, s)
-          }
+        if (customRows.length > 0) {
+          const customIds = new Set(customRows.map((r) => String(r.sablon_id)))
+          produceableTemplates = allRegistryTemplates
+            .filter((t) => customIds.has(t.id))
+            .map((t) => ({
+              id: t.id,
+              ad: t.title,
+              dosya_adi: t.id,
+              route_path: t.id,
+              aciklama: t.description,
+              kategori: t.category
+            }))
+        } else {
+          const defaults = TemplateRegistryService.getTemplatesForCommissionType(k.ad)
+          produceableTemplates = defaults.map((t) => ({
+            id: t.id,
+            ad: t.title,
+            dosya_adi: t.id,
+            route_path: t.id,
+            aciklama: t.description,
+            kategori: t.category
+          }))
         }
 
         return {
           ...k,
           uyeler,
-          sablonlar: Array.from(uniqueMap.values())
+          sablonlar: produceableTemplates
         }
       })
 
@@ -562,6 +535,10 @@ export default function KomisyonlarScreen({
           onOpenDetails={(id) => {
             addTab('/komisyonlar/detay?id=' + id)
           }}
+          onManageBelgeler={(komisyon) => {
+            setManageBelgelerKomisyon(komisyon)
+            setManageBelgelerOpen(true)
+          }}
           activeDosyaId={activeDosyaId}
         />
       )}
@@ -640,6 +617,17 @@ export default function KomisyonlarScreen({
         }}
         roleId={ataRoleId}
         komisyonId={ataKomisyonId}
+      />
+
+      {/* Üretilebilir Belgeleri Yönet Modalı */}
+      <KomisyonBelgeleriYonetModal
+        isOpen={manageBelgelerOpen}
+        onClose={() => {
+          setManageBelgelerOpen(false)
+          setManageBelgelerKomisyon(null)
+        }}
+        komisyonId={manageBelgelerKomisyon?.id || null}
+        komisyonAdi={manageBelgelerKomisyon?.ad}
       />
 
       {previewData && previewModalOpen && (

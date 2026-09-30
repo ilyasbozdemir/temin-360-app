@@ -5,6 +5,7 @@ import {
   Edit2,
   FileText,
   Printer,
+  Settings,
   ShieldCheck,
   Trash2,
   Users,
@@ -23,6 +24,7 @@ interface KomisyonCardProps {
   onDeleteKomisyon: (id: number) => void
   onOpenPreview: (sablon: any, title: string) => void
   onOpenDetails: (id: number) => void
+  onManageBelgeler?: (komisyon: { id: number; ad: string }) => void
   activeDosyaId?: number | null
 }
 
@@ -37,6 +39,7 @@ export const KomisyonCard: React.FC<KomisyonCardProps> = ({
   onDeleteKomisyon,
   onOpenPreview,
   onOpenDetails,
+  onManageBelgeler,
   activeDosyaId
 }) => {
   const assignedMembers =
@@ -163,34 +166,47 @@ export const KomisyonCard: React.FC<KomisyonCardProps> = ({
 
       {/* Content: Üretilebilir Belgeler */}
       <div className="mt-3 mb-3">
-        <button
-          type="button"
-          onClick={onToggleExpanded}
-          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
-            expanded
-              ? 'bg-blue-50/80 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900/50 text-blue-700 dark:text-blue-300 shadow-2xs'
-              : 'bg-slate-50/70 dark:bg-slate-900/40 border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-slate-850'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <FileText className="w-3.5 h-3.5 text-blue-500" />
-            <span>Üretilebilir Belgeler</span>
-            <span
-              className={`px-1.5 py-0.5 text-[10px] font-bold rounded-full ${
-                (komisyon.sablonlar?.length || 0) > 0
-                  ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300'
-                  : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
-              }`}
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={onToggleExpanded}
+            className={`flex-1 flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
+              expanded
+                ? 'bg-blue-50/80 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900/50 text-blue-700 dark:text-blue-300 shadow-2xs'
+                : 'bg-slate-50/70 dark:bg-slate-900/40 border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-slate-850'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <FileText className="w-3.5 h-3.5 text-blue-500" />
+              <span>Üretilebilir Belgeler</span>
+              <span
+                className={`px-1.5 py-0.5 text-[10px] font-bold rounded-full ${
+                  (komisyon.sablonlar?.length || 0) > 0
+                    ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300'
+                    : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
+                }`}
+              >
+                {komisyon.sablonlar?.length || 0}
+              </span>
+            </div>
+            {expanded ? (
+              <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
+            ) : (
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+            )}
+          </button>
+
+          {onManageBelgeler && (
+            <button
+              type="button"
+              onClick={() => onManageBelgeler({ id: komisyon.id, ad: komisyon.ad })}
+              className="p-2 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 border border-slate-200 dark:border-slate-800 rounded-xl transition-all flex items-center justify-center shrink-0 cursor-pointer"
+              title="Üretilebilir Belgeleri Yönet"
             >
-              {komisyon.sablonlar?.length || 0}
-            </span>
-          </div>
-          {expanded ? (
-            <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
-          ) : (
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              <Settings className="w-3.5 h-3.5" />
+            </button>
           )}
-        </button>
+        </div>
 
         {expanded && (
           <div className="mt-2 p-2 bg-slate-50/60 dark:bg-slate-950/40 rounded-xl border border-slate-200/70 dark:border-slate-800/70 animate-in fade-in slide-in-from-top-1 duration-150">
