@@ -11,6 +11,7 @@ import {
 } from '../config/fileFormats'
 import { recentFilesStore } from '../store/recentFiles'
 import { pocketBaseSyncService, PocketBaseConfig } from '../services/pocketbaseSyncService'
+import { minioSyncService, MinIOConfig } from '../services/minioSyncService'
 
 export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => void): void {
   ipcMain.handle('workspace:create', async (_, filePath: string, institutionName: string) => {
@@ -205,6 +206,28 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
 
   ipcMain.handle('workspace:pocketbase-list', async (_, config: PocketBaseConfig) => {
     return await pocketBaseSyncService.listWorkspaces(config)
+  })
+
+  // MinIO / S3 Object Storage API Handlers
+  ipcMain.handle('workspace:minio-test', async (_, config: MinIOConfig) => {
+    return await minioSyncService.testConnection(config)
+  })
+
+  ipcMain.handle('workspace:minio-push', async (_, config: MinIOConfig) => {
+    try {
+      const filePath = workspaceManager.getCurrentFilePath()
+      if (!filePath) {
+        return { success: false, message: 'Aktif bir çalışma dosyası açık değil!' }
+      }
+      workspaceManager.save()
+      return await minioSyncService.pushWorkspace(config, filePath)
+    } catch (err: any) {
+      return { success: false, message: err?.message || String(err) }
+    }
+  })
+
+  ipcMain.handle('workspace:minio-list', async (_, config: MinIOConfig) => {
+    return await minioSyncService.listWorkspaces(config)
   })
 
   // Shared Google Drive Token Refresh Helper (DB'den dinamik okunur, asla hardcoded değil)

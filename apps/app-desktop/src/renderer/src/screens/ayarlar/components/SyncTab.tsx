@@ -3,13 +3,14 @@ import {
   Upload,
   Download,
   RefreshCw,
-  Code,
   Save,
   Cloud,
   Shield,
   Wifi,
   WifiOff,
-  Check
+  Check,
+  Zap,
+  HardDrive
 } from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
 import { Input } from '../../../components/ui/Input'
@@ -32,6 +33,24 @@ export const SyncTab: React.FC = () => {
     setSyncPort,
     syncToken,
     setSyncToken,
+    pocketbaseUrl,
+    setPocketbaseUrl,
+    pocketbaseEmail,
+    setPocketbaseEmail,
+    pocketbasePassword,
+    setPocketbasePassword,
+    minioEndpoint,
+    setMinioEndpoint,
+    minioAccessKey,
+    setMinioAccessKey,
+    minioSecretKey,
+    setMinioSecretKey,
+    minioBucket,
+    setMinioBucket,
+    minioRegion,
+    setMinioRegion,
+    minioUseSSL,
+    setMinioUseSSL,
     isOnlineMode,
     setIsOnlineMode,
     syncStatus,
@@ -47,6 +66,10 @@ export const SyncTab: React.FC = () => {
     loadSettings,
     saveSettings,
     testConnection,
+    testPocketBase,
+    pushPocketBase,
+    testMinIO,
+    pushMinIO,
     triggerSync,
     triggerPush,
     triggerPull
@@ -125,19 +148,18 @@ export const SyncTab: React.FC = () => {
         <div>
           <h2 className="text-lg font-bold text-slate-855 dark:text-slate-100 flex items-center gap-2">
             <Shield className="w-5 h-5 text-blue-500" />
-            Bulut Entegrasyonu ve Senkronizasyon
+            Bulut Entegrasyonu ve Depolama Yönetimi
           </h2>
           <p className="text-xs text-slate-500">
-            Yerel verilerinizi ve çalışma dosyalarınızı (.dtal) bulut sunucusu veya Google Drive ile
-            eşitleyin.
+            Yerel verilerinizi Web Sunucusu, PocketBase, MinIO / S3 veya Google Drive ile senkronize edin.
           </p>
         </div>
 
         {/* Bulut Sağlayıcı Seçim Sekmeleri */}
-        <div className="flex bg-slate-200/60 dark:bg-slate-950 p-1 rounded-xl gap-1 border border-slate-200 dark:border-slate-800 shrink-0">
+        <div className="flex bg-slate-200/60 dark:bg-slate-950 p-1 rounded-xl gap-1 border border-slate-200 dark:border-slate-800 shrink-0 flex-wrap sm:flex-nowrap">
           <button
             onClick={() => setActiveProvider('server')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
               activeProvider === 'server'
                 ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
@@ -145,9 +167,32 @@ export const SyncTab: React.FC = () => {
           >
             🌐 API Web Sunucu
           </button>
+
+          <button
+            onClick={() => setActiveProvider('pocketbase')}
+            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+              activeProvider === 'pocketbase'
+                ? 'bg-white dark:bg-slate-800 text-amber-600 dark:text-amber-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+            }`}
+          >
+            ⚡ PocketBase
+          </button>
+
+          <button
+            onClick={() => setActiveProvider('minio')}
+            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+              activeProvider === 'minio'
+                ? 'bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+            }`}
+          >
+            🪣 MinIO / S3
+          </button>
+
           <button
             onClick={() => setActiveProvider('gdrive')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
               activeProvider === 'gdrive'
                 ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
@@ -158,7 +203,8 @@ export const SyncTab: React.FC = () => {
         </div>
       </div>
 
-      {activeProvider === 'server' ? (
+      {/* 1. API WEB SUNUCUSU PANELİ */}
+      {activeProvider === 'server' && (
         <>
           {/* Sunucu Durum & Güncelleme Bilgi Paneli */}
           <div
@@ -260,7 +306,7 @@ export const SyncTab: React.FC = () => {
           {/* Bağlantı Ayarları */}
           <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 space-y-4">
             <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Sunucu Bağlantı Ayarları
+              API Sunucu Bağlantı Ayarları
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
@@ -379,8 +425,7 @@ export const SyncTab: React.FC = () => {
                 </div>
               </div>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed">
-                Yerel veritabanındaki güncel verileri (dosyalar, belgeler, ayarlar) uzak web
-                sunucusuna göndererek yayınlar.
+                Yerel veritabanındaki güncel verileri uzak web sunucusuna göndererek yayınlar.
               </p>
               <Button
                 onClick={() => triggerPush()}
@@ -418,88 +463,300 @@ export const SyncTab: React.FC = () => {
               </Button>
             </div>
           </div>
+        </>
+      )}
 
-          {/* Senkronizasyon Sonuç Bildirim Alanı */}
-          {syncLastResult && (
-            <div
-              className={`p-3.5 rounded-xl border text-xs font-semibold flex items-center gap-2 animate-in fade-in duration-200 ${
-                syncLastResult.type === 'ok'
-                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300'
-                  : 'bg-rose-500/10 border-rose-500/30 text-rose-700 dark:text-rose-300'
-              }`}
-            >
-              <span>{syncLastResult.msg}</span>
+      {/* 2. POCKETBASE ENTEGRASYON PANELİ */}
+      {activeProvider === 'pocketbase' && (
+        <div className="space-y-4">
+          <div className="bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 rounded-2xl p-5 space-y-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold flex items-center gap-2">
+                <Zap className="w-5 h-5 text-amber-500" /> PocketBase Self-Hosted Backend Entegrasyonu
+              </h3>
+              <span className="text-[10px] font-mono font-bold bg-amber-500/20 px-2 py-0.5 rounded">
+                REST & Realtime Storage
+              </span>
             </div>
-          )}
+            <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+              PocketBase açık kaynaklı, SQLite tabanlı son derece hızlı ve hafif bir backend çözümüdür.
+              Çalışma alanınızı PocketBase REST API koleksiyonuna doğrudan aktarabilir ve saklayabilirsiniz.
+            </p>
+          </div>
 
-          {/* Genel Eşitle */}
-          <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3">
-            <RefreshCw className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="text-xs text-slate-500 flex-1">
-              İki yönlü otomatik eşitleme (Push + Pull)
-            </span>
+          {/* PocketBase Ayarlar Formu */}
+          <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 space-y-4">
+            <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              PocketBase Sunucu & Oturum Bilgileri
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  PocketBase Sunucu URL (Örn: http://localhost:8090)
+                </label>
+                <Input
+                  type="text"
+                  placeholder="http://localhost:8090"
+                  value={pocketbaseUrl}
+                  onChange={(e) => setPocketbaseUrl(e.target.value)}
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 font-mono text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  E-Posta / Admin Kullanıcı
+                </label>
+                <Input
+                  type="text"
+                  placeholder="admin@temin360.com"
+                  value={pocketbaseEmail}
+                  onChange={(e) => setPocketbaseEmail(e.target.value)}
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 font-mono text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  Parola
+                </label>
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  value={pocketbasePassword}
+                  onChange={(e) => setPocketbasePassword(e.target.value)}
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 font-mono text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-3 border-t border-slate-200/50 dark:border-slate-800/50">
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => saveSettings()}
+                  className="text-xs py-1.5 px-4 rounded-lg bg-slate-700 hover:bg-slate-900 text-white gap-1.5"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  Ayarları Kaydet
+                </Button>
+                <Button
+                  onClick={() => testPocketBase()}
+                  disabled={syncStatus === 'loading'}
+                  className="text-xs py-1.5 px-4 rounded-lg bg-amber-600 hover:bg-amber-700 text-white gap-1.5"
+                >
+                  {syncStatus === 'loading' ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : null}
+                  Sına & Doğrula
+                </Button>
+              </div>
+
+              {syncMessage && (
+                <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+                  {syncMessage}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* PocketBase Aktarım Kartı */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400">
+                <Upload size={20} />
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                  PocketBase Koleksiyonuna Aktar (Workspaces Push)
+                </h4>
+                <p className="text-xs text-slate-500">Aktif çalışma dosyasını PocketBase depolama alanına yazar</p>
+              </div>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Çalışma alanınızı PocketBase REST API üzerindeki `workspaces` koleksiyonuna güvenle yükler.
+            </p>
             <Button
-              onClick={() => triggerSync()}
-              disabled={isSyncing || !syncUrl}
-              className="text-xs py-1.5 px-3 rounded-lg bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200"
+              onClick={() => pushPocketBase()}
+              disabled={isPushing || !pocketbaseUrl}
+              className="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-2 rounded-xl"
             >
-              {isSyncing ? '⏳ Eşitleniyor...' : '🔄 Şimdi Eşitle'}
+              {isPushing ? '⏳ PocketBase\'e Aktarılıyor...' : '🚀 Dosyayı PocketBase\'e Gönder'}
             </Button>
           </div>
+        </div>
+      )}
 
-          {/* Sunucu Kurulumu & Docker Kılavuzu */}
-          <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 space-y-4">
-            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-2">
-              <Code className="w-4 h-4 text-blue-500" />
-              <h3 className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-                API Gateway & Sunucu Docker Kurulumu
+      {/* 3. MINIO / S3 NESNE DEPOLAMA PANELİ */}
+      {activeProvider === 'minio' && (
+        <div className="space-y-4">
+          <div className="bg-rose-500/10 border border-rose-500/20 text-rose-800 dark:text-rose-300 rounded-2xl p-5 space-y-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold flex items-center gap-2">
+                <HardDrive className="w-5 h-5 text-rose-500" /> MinIO / AWS S3 Uyumlu Nesne Depolama (Object Storage)
               </h3>
+              <span className="text-[10px] font-mono font-bold bg-rose-500/20 px-2 py-0.5 rounded">
+                S3 API Compatible
+              </span>
             </div>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Masaüstündeki yerel verileri merkezi bir bulut veri tabanında toplamak ve eşitlemek
-              için, projenin root dizinindeki{' '}
-              <code className="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-mono text-[10px] rounded">
-                docker-compose.yml
-              </code>{' '}
-              ile PostgreSQL ve API sunucusunu saniyeler içinde ayağa kaldırabilirsiniz.
+            <p className="text-xs text-rose-700 dark:text-rose-400 leading-relaxed">
+              MinIO, Amazon S3 mimarisiyle tam uyumlu yüksek performanslı nesne depolama sunucusudur.
+              Kurumsal ortamlarda kendi MinIO kümeniz veya S3 servisi üzerine (.dtal) yedeklerinizi aktarabilirsiniz.
             </p>
+          </div>
 
-            <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 rounded-xl p-3.5 space-y-2.5 font-mono text-[10px] text-slate-700 dark:text-slate-400">
-              <div className="text-slate-400">
-                {'# 1. PostgreSQL & TEMİN 360 Web Sunucusunu Docker ile başlatın:'}
-              </div>
-              <div className="text-blue-600 dark:text-blue-400 font-bold">docker compose up -d</div>
-              <div className="text-slate-400 dark:text-slate-500 mt-2">
-                # Veya sadece Web Gateway imajını derleyin:
-              </div>
-              <div className="text-blue-600 dark:text-blue-400">
-                docker build -f Dockerfile.web -t temin360-web .
-              </div>
-              <div className="text-blue-600 dark:text-blue-400">
-                docker run -p 3000:3000 --name temin360-server -d temin360-web
+          {/* MinIO Ayarlar Formu */}
+          <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 space-y-4">
+            <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              MinIO / S3 Depo Erişim Bilgileri
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  MinIO / S3 Endpoint URL (Örn: http://localhost:9000 veya https://minio.kurum.gov.tr)
+                </label>
+                <Input
+                  type="text"
+                  placeholder="http://localhost:9000"
+                  value={minioEndpoint}
+                  onChange={(e) => setMinioEndpoint(e.target.value)}
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 font-mono text-xs"
+                />
               </div>
 
-              <div className="text-slate-400 mt-2">
-                {'// 2. Masaüstü bağlantısında Sunucu Adresi alanına girilecek değerler:'}
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  Access Key ID
+                </label>
+                <Input
+                  type="text"
+                  placeholder="minioadmin"
+                  value={minioAccessKey}
+                  onChange={(e) => setMinioAccessKey(e.target.value)}
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 font-mono text-xs"
+                />
               </div>
-              <div className="space-y-1">
-                <div>
-                  Canlı Demo:{' '}
-                  <span className="text-blue-600 dark:text-blue-400 font-bold">
-                    https://temin360app.demo.ilyasbozdemir.dev/
-                  </span>
-                </div>
-                <div>
-                  Yerel / LAN Sunucu:{' '}
-                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">
-                    http://localhost:3000
-                  </span>
-                </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  Secret Access Key
+                </label>
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  value={minioSecretKey}
+                  onChange={(e) => setMinioSecretKey(e.target.value)}
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 font-mono text-xs"
+                />
               </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  Bucket Adı (Kova)
+                </label>
+                <Input
+                  type="text"
+                  placeholder="temin-360-yedekler"
+                  value={minioBucket}
+                  onChange={(e) => setMinioBucket(e.target.value)}
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 font-mono text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  Bölge (Region - Opsiyonel)
+                </label>
+                <Input
+                  type="text"
+                  placeholder="us-east-1"
+                  value={minioRegion}
+                  onChange={(e) => setMinioRegion(e.target.value)}
+                  className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 font-mono text-xs"
+                />
+              </div>
+            </div>
+
+            {/* SSL Switch */}
+            <div className="flex items-center justify-between border-t border-slate-200/60 dark:border-slate-800/80 pt-3">
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Güvenli SSL / HTTPS Bağlantısı
+                </span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  {minioUseSSL
+                    ? 'HTTPS aktif (Güvenli Sertifikalı İletişim)'
+                    : 'HTTP aktif (Yerel / Test Ortamı)'}
+                </span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={minioUseSSL}
+                  onChange={(e) => setMinioUseSSL(e.target.checked)}
+                  className="sr-only peer cursor-pointer"
+                />
+                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-rose-600"></div>
+              </label>
+            </div>
+
+            <div className="flex items-center justify-between pt-3 border-t border-slate-200/50 dark:border-slate-800/50">
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => saveSettings()}
+                  className="text-xs py-1.5 px-4 rounded-lg bg-slate-700 hover:bg-slate-900 text-white gap-1.5"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  Ayarları Kaydet
+                </Button>
+                <Button
+                  onClick={() => testMinIO()}
+                  disabled={syncStatus === 'loading'}
+                  className="text-xs py-1.5 px-4 rounded-lg bg-rose-600 hover:bg-rose-700 text-white gap-1.5"
+                >
+                  {syncStatus === 'loading' ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : null}
+                  Sına & Bağlan
+                </Button>
+              </div>
+
+              {syncMessage && (
+                <span className="text-xs font-semibold text-rose-600 dark:text-rose-400">
+                  {syncMessage}
+                </span>
+              )}
             </div>
           </div>
-        </>
-      ) : (
+
+          {/* MinIO Aktarım Kartı */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400">
+                <Upload size={20} />
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                  MinIO / S3 Kovasına Gönder (Bucket Push)
+                </h4>
+                <p className="text-xs text-slate-500">Çalışma dosyanızı doğrudan S3 bucket nesnesi olarak yükler</p>
+              </div>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Yedeklerinizi nesne depolama altyapısına otomatik tarih sürümüyle kaydeder.
+            </p>
+            <Button
+              onClick={() => pushMinIO()}
+              disabled={isPushing || !minioEndpoint}
+              className="w-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold py-2 rounded-xl"
+            >
+              {isPushing ? '⏳ MinIO Kovasına Aktarılıyor...' : '🚀 Dosyayı MinIO Kovasına Yükle'}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* 4. GOOGLE DRIVE BULUT PANELİ */}
+      {activeProvider === 'gdrive' && (
         <div className="space-y-5">
           {/* Google Drive Bulut Depo Paneli */}
           <div className="bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-blue-500/10 dark:from-emerald-950/40 dark:via-teal-950/40 dark:to-blue-950/40 rounded-2xl p-6 border border-emerald-200/60 dark:border-emerald-800/40 space-y-4">
@@ -599,7 +856,7 @@ export const SyncTab: React.FC = () => {
               )}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Çalışma dosyanızı (.temin) her kapattığınızda veya uygulamadan çıktığınızda
+              Çalışma dosyanızı her kapattığınızda veya uygulamadan çıktığınızda
               uygulanacak varsayılan davranışı belirleyin.
             </p>
           </div>
@@ -628,7 +885,7 @@ export const SyncTab: React.FC = () => {
               </span>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-              Dosyayı kapatırken Drive, Sunucu veya Yerel yedek seçeneklerinden istediklerinizi
+              Dosyayı kapatırken Drive, Sunucu, PocketBase, MinIO veya Yerel yedek seçeneklerinden istediklerinizi
               seçmeniz için pencere açar.
             </p>
           </button>
@@ -674,7 +931,7 @@ export const SyncTab: React.FC = () => {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
               {[
                 {
                   id: 'gdrive',
@@ -689,6 +946,20 @@ export const SyncTab: React.FC = () => {
                   title: 'API Web Sunucusuna Yedekle',
                   desc: 'Kurumsal sunucuya güvenli HTTPS ile dosya sürümü iletir.',
                   configured: !!settingsData.sync_server_url
+                },
+                {
+                  id: 'pocketbase',
+                  icon: '⚡',
+                  title: 'PocketBase Sunucusuna Yedekle',
+                  desc: 'PocketBase REST koleksiyonuna doğrudan aktarır.',
+                  configured: !!settingsData.pocketbase_url
+                },
+                {
+                  id: 'minio',
+                  icon: '🪣',
+                  title: 'MinIO / S3 Nesne Depoya Yedekle',
+                  desc: 'S3 uyumlu MinIO bucket nesnesi olarak kaydeder.',
+                  configured: !!settingsData.minio_endpoint
                 },
                 {
                   id: 'email',
@@ -735,7 +1006,7 @@ export const SyncTab: React.FC = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
                         <span className="text-sm">{item.icon}</span>
-                        <h5 className="text-xs font-bold text-slate-850 dark:text-slate-150 truncate">
+                        <h5 className="text-xs font-bold text-slate-855 dark:text-slate-150 truncate">
                           {item.title}
                         </h5>
                       </div>

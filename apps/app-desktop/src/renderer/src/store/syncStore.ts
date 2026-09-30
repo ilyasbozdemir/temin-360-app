@@ -13,11 +13,18 @@ export interface SyncState {
   syncLastResult: { type: 'ok' | 'error'; msg: string } | null
   dbVersionLocal: number
   dbVersionCloud: number
-  activeProvider: 'server' | 'gdrive' | 'pocketbase'
+  activeProvider: 'server' | 'gdrive' | 'pocketbase' | 'minio'
   pocketbaseUrl: string
   pocketbaseToken: string
   pocketbaseEmail: string
   pocketbasePassword: string
+
+  minioEndpoint: string
+  minioAccessKey: string
+  minioSecretKey: string
+  minioBucket: string
+  minioRegion: string
+  minioUseSSL: boolean
 
   setSyncUrl: (url: string) => void
   setSyncPort: (port: string) => void
@@ -26,13 +33,21 @@ export interface SyncState {
   setPocketbaseToken: (token: string) => void
   setPocketbaseEmail: (email: string) => void
   setPocketbasePassword: (password: string) => void
+  setMinioEndpoint: (endpoint: string) => void
+  setMinioAccessKey: (key: string) => void
+  setMinioSecretKey: (secret: string) => void
+  setMinioBucket: (bucket: string) => void
+  setMinioRegion: (region: string) => void
+  setMinioUseSSL: (useSSL: boolean) => void
   setIsOnlineMode: (val: boolean) => Promise<void>
-  setActiveProvider: (provider: 'server' | 'gdrive' | 'pocketbase') => void
+  setActiveProvider: (provider: 'server' | 'gdrive' | 'pocketbase' | 'minio') => void
   loadSettings: () => Promise<void>
   saveSettings: () => Promise<void>
   testConnection: () => Promise<{ success: boolean; message?: string }>
   testPocketBase: () => Promise<{ success: boolean; message?: string }>
   pushPocketBase: () => Promise<{ success: boolean; message?: string }>
+  testMinIO: () => Promise<{ success: boolean; message?: string }>
+  pushMinIO: () => Promise<{ success: boolean; message?: string }>
   triggerSync: () => Promise<void>
   triggerPush: () => Promise<void>
   triggerPull: () => Promise<void>
@@ -46,6 +61,12 @@ export const useSyncStore = create<SyncState>((set, get) => ({
   pocketbaseToken: '',
   pocketbaseEmail: '',
   pocketbasePassword: '',
+  minioEndpoint: 'http://localhost:9000',
+  minioAccessKey: '',
+  minioSecretKey: '',
+  minioBucket: 'temin-360-yedekler',
+  minioRegion: 'us-east-1',
+  minioUseSSL: false,
   isOnlineMode: true,
   syncStatus: 'idle',
   syncMessage: '',
@@ -64,6 +85,12 @@ export const useSyncStore = create<SyncState>((set, get) => ({
   setPocketbaseToken: (pocketbaseToken) => set({ pocketbaseToken }),
   setPocketbaseEmail: (pocketbaseEmail) => set({ pocketbaseEmail }),
   setPocketbasePassword: (pocketbasePassword) => set({ pocketbasePassword }),
+  setMinioEndpoint: (minioEndpoint) => set({ minioEndpoint }),
+  setMinioAccessKey: (minioAccessKey) => set({ minioAccessKey }),
+  setMinioSecretKey: (minioSecretKey) => set({ minioSecretKey }),
+  setMinioBucket: (minioBucket) => set({ minioBucket }),
+  setMinioRegion: (minioRegion) => set({ minioRegion }),
+  setMinioUseSSL: (minioUseSSL) => set({ minioUseSSL }),
   setActiveProvider: (activeProvider) => set({ activeProvider }),
 
   setIsOnlineMode: async (checked: boolean) => {
@@ -91,6 +118,16 @@ export const useSyncStore = create<SyncState>((set, get) => ({
           syncPort: settings.sync_server_port || '',
           syncToken: settings.sync_server_token || '',
           isOnlineMode: !isOffline,
+          pocketbaseUrl: settings.pocketbase_url || get().pocketbaseUrl,
+          pocketbaseToken: settings.pocketbase_token || '',
+          pocketbaseEmail: settings.pocketbase_email || '',
+          pocketbasePassword: settings.pocketbase_password || '',
+          minioEndpoint: settings.minio_endpoint || get().minioEndpoint,
+          minioAccessKey: settings.minio_access_key || '',
+          minioSecretKey: settings.minio_secret_key || '',
+          minioBucket: settings.minio_bucket || get().minioBucket,
+          minioRegion: settings.minio_region || 'us-east-1',
+          minioUseSSL: settings.minio_use_ssl === 'true',
           dbVersionLocal: Number(settings.db_version_local || 104),
           dbVersionCloud: Number(settings.db_version_cloud || settings.db_version_local || 104)
         })
@@ -101,18 +138,43 @@ export const useSyncStore = create<SyncState>((set, get) => ({
   },
 
   saveSettings: async () => {
-    const { syncUrl, syncPort, syncToken, isOnlineMode } = get()
+    const {
+      syncUrl,
+      syncPort,
+      syncToken,
+      isOnlineMode,
+      pocketbaseUrl,
+      pocketbaseEmail,
+      pocketbasePassword,
+      pocketbaseToken,
+      minioEndpoint,
+      minioAccessKey,
+      minioSecretKey,
+      minioBucket,
+      minioRegion,
+      minioUseSSL
+    } = get()
     try {
       if (window.electron?.ipcRenderer) {
         await window.electron.ipcRenderer.invoke('db:save-settings', {
           sync_server_url: syncUrl,
           sync_server_port: syncPort,
           sync_server_token: syncToken,
-          is_offline_mode: String(!isOnlineMode)
+          is_offline_mode: String(!isOnlineMode),
+          pocketbase_url: pocketbaseUrl,
+          pocketbase_email: pocketbaseEmail,
+          pocketbase_password: pocketbasePassword,
+          pocketbase_token: pocketbaseToken,
+          minio_endpoint: minioEndpoint,
+          minio_access_key: minioAccessKey,
+          minio_secret_key: minioSecretKey,
+          minio_bucket: minioBucket,
+          minio_region: minioRegion,
+          minio_use_ssl: String(minioUseSSL)
         })
       }
       set({
-        syncLastResult: { type: 'ok', msg: 'Sunucu ayarları başarıyla kaydedildi ✓' }
+        syncLastResult: { type: 'ok', msg: 'Bulut ve depolama ayarları başarıyla kaydedildi ✓' }
       })
     } catch (err: any) {
       set({
@@ -311,6 +373,99 @@ export const useSyncStore = create<SyncState>((set, get) => ({
       return { success: false, message: 'Electron IPC bulunamadı.' }
     } catch (err: any) {
       const msg = err.message || 'PocketBase aktarım hatası'
+      set({ syncStatus: 'error', syncMessage: msg })
+      return { success: false, message: msg }
+    } finally {
+      set({ isPushing: false })
+    }
+  },
+
+  testMinIO: async () => {
+    const { minioEndpoint, minioAccessKey, minioSecretKey, minioBucket, minioRegion, minioUseSSL } = get()
+    if (!minioEndpoint) {
+      set({ syncStatus: 'error', syncMessage: 'Lütfen MinIO Endpoint adresini girin.' })
+      return { success: false, message: 'Lütfen MinIO Endpoint adresini girin.' }
+    }
+
+    set({ syncStatus: 'loading', syncMessage: 'MinIO / S3 bağlantısı sınanıyor...' })
+    try {
+      if (window.electron?.ipcRenderer) {
+        const res = await window.electron.ipcRenderer.invoke('workspace:minio-test', {
+          endpoint: minioEndpoint,
+          accessKey: minioAccessKey,
+          secretKey: minioSecretKey,
+          bucket: minioBucket,
+          region: minioRegion,
+          useSSL: minioUseSSL
+        })
+
+        if (res.success) {
+          set({
+            syncStatus: 'ok',
+            syncMessage: res.message || 'MinIO sunucu bağlantısı başarılı ✓'
+          })
+          return { success: true, message: res.message }
+        } else {
+          set({
+            syncStatus: 'error',
+            syncMessage: res.message || 'MinIO bağlantısı başarısız.'
+          })
+          return { success: false, message: res.message }
+        }
+      }
+      return { success: false, message: 'Electron IPC mevcut değil.' }
+    } catch (err: any) {
+      const msg = err.message || 'MinIO sına hatası'
+      set({ syncStatus: 'error', syncMessage: msg })
+      return { success: false, message: msg }
+    }
+  },
+
+  pushMinIO: async () => {
+    const {
+      minioEndpoint,
+      minioAccessKey,
+      minioSecretKey,
+      minioBucket,
+      minioRegion,
+      minioUseSSL,
+      isPushing
+    } = get()
+    if (isPushing) return { success: false, message: 'İşlem devam ediyor...' }
+    set({
+      isPushing: true,
+      syncStatus: 'loading',
+      syncMessage: 'Dosya MinIO / S3 kovasına aktarılıyor...'
+    })
+
+    try {
+      if (window.electron?.ipcRenderer) {
+        const res = await window.electron.ipcRenderer.invoke('workspace:minio-push', {
+          endpoint: minioEndpoint,
+          accessKey: minioAccessKey,
+          secretKey: minioSecretKey,
+          bucket: minioBucket,
+          region: minioRegion,
+          useSSL: minioUseSSL
+        })
+
+        if (res.success) {
+          set({
+            syncStatus: 'ok',
+            syncMessage: res.message || 'Dosya MinIO kovasına başarıyla aktarıldı ✓'
+          })
+          return { success: true, message: res.message }
+        } else {
+          set({
+            syncStatus: 'error',
+            syncMessage: res.message || 'MinIO aktarımı başarısız.'
+          })
+          return { success: false, message: res.message }
+        }
+      }
+      return { success: false, message: 'Electron IPC bulunamadı.' }
+    } catch (err: any) {
+      const msg = err.message || 'MinIO aktarım hatası'
       set({ syncStatus: 'error', syncMessage: msg })
       return { success: false, message: msg }
     } finally {
