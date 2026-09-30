@@ -338,7 +338,7 @@ export default function KurumScreen(): React.JSX.Element {
             ? (
               <div className="flex flex-col gap-6 w-full animate-in fade-in duration-200">
                 {/* Header Banner & Save Action */}
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-slate-200 dark:border-slate-800 pb-4 gap-4 sticky top-0 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur-md z-10 pt-4 -mt-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-slate-200 dark:border-slate-800 pb-4 gap-4 sticky -top-6 bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-md z-20 pt-4 -mt-4">
                   <div>
                     <h1 className="text-2xl font-bold tracking-tight flex items-center gap-3 text-slate-850 dark:text-slate-100">
                       <Building2 className="w-7 h-7 text-blue-600" />
