@@ -106,7 +106,7 @@ export function DocumentPreviewModalV2({
     <div
       className={
         isFullScreen
-          ? 'fixed inset-0 z-50 w-screen h-screen max-w-none max-h-none rounded-none border-none shadow-none flex flex-col bg-white dark:bg-slate-900 overflow-hidden animate-in fade-in duration-150'
+          ? 'fixed inset-0 z-[200] w-screen h-screen max-w-none max-h-none rounded-none border-none shadow-none flex flex-col bg-white dark:bg-slate-900 overflow-hidden animate-in fade-in duration-150'
           : isModal
             ? 'bg-white dark:bg-slate-900 w-full max-w-[95vw] h-[95vh] rounded-2xl shadow-2xl flex flex-col border border-slate-200 dark:border-slate-800 overflow-hidden'
             : 'bg-white dark:bg-slate-900 w-full h-full min-h-[85vh] rounded-2xl flex flex-col border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm'
@@ -191,7 +191,7 @@ export function DocumentPreviewModalV2({
   if (isModal) {
     return (
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200"
+        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200"
         style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
       >
         {mainContent}
