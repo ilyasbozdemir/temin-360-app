@@ -4,8 +4,8 @@ import { TeminDosyasi, useDosyalarHooks } from './dosyalar.hooks'
 import { useTabStore } from '../../store/tabStore'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useKikLimitDonemleri } from '../system/kik-limitleri.hooks'
-import { DBBirim, DBPersonel, DBKodSozlugu } from './types'
-import { buildAIFormContext } from './yeni.config'
+import { DBBirim, DBPersonel, DBKodSozlugu, DBRol } from './types'
+import { buildAIFormContext, resolveDefaultPersonnel } from './yeni.config'
 import { AIFilledValues } from '../../components/ui/AIFormFillModal'
 import { logActivity } from '../../utils/logger'
 import { cloneDosyaWithItems, CloneDosyaCustomOptions } from '../../utils/cloneDosya'
@@ -23,6 +23,7 @@ export interface UseYeniDosyaScreenReturn {
   birimler: DBBirim[]
   kurum?: any
   personeller: DBPersonel[]
+  roller: DBRol[]
   kodSozlugu: DBKodSozlugu[]
   loadingDb: boolean
   formData: Partial<TeminDosyasi>
@@ -130,6 +131,7 @@ export function useYeniDosyaScreen(): UseYeniDosyaScreenReturn {
   const [birimler, setBirimler] = useState<DBBirim[]>([])
   const [kurum, setKurum] = useState<any>(null)
   const [personeller, setPersoneller] = useState<DBPersonel[]>([])
+  const [roller, setRoller] = useState<DBRol[]>([])
   const [kodSozlugu, setKodSozlugu] = useState<DBKodSozlugu[]>([])
   const [loadingDb, setLoadingDb] = useState(true)
 
@@ -220,7 +222,8 @@ export function useYeniDosyaScreen(): UseYeniDosyaScreenReturn {
         if (resKod.success) setKodSozlugu(resKod.data)
         if (resKurum.success && resKurum.data.length > 0) setKurum(resKurum.data[0])
 
-        const roller = resRoller.success ? resRoller.data : []
+        const fetchedRoller = resRoller.success ? resRoller.data : []
+        if (resRoller.success) setRoller(fetchedRoller)
 
         // Load existing document if in Edit Mode
         if (isEdit) {
@@ -249,11 +252,6 @@ export function useYeniDosyaScreen(): UseYeniDosyaScreenReturn {
           }
         } else {
           // Yeni dosya açılırken varsayılan personelleri set et ve URL parametrelerini işle
-          const findDefaultId = (rolKodu: string) => {
-            const found = roller.find((r: any) => r.rol_kodu === rolKodu)
-            return found?.varsayilan_personel_id || null
-          }
-
           const qParams = new URLSearchParams(window.location.search)
           const urlTur = search?.tur || qParams.get('tur')
           const isKopyala =
@@ -262,23 +260,20 @@ export function useYeniDosyaScreen(): UseYeniDosyaScreenReturn {
             setShowKopyalaModal(true)
           }
 
+          const defaultPers = resolveDefaultPersonnel(
+            resPers.success ? resPers.data : [],
+            resBirim.success ? resBirim.data[0] : null,
+            fetchedRoller
+          )
+
           setFormData((prev) => ({
             ...prev,
             tur: (urlTur as any) || prev.tur || 'mal',
-            onay_personel_id:
-              findDefaultId('harcama_yetkilisi') ||
-              findDefaultId('onaylayan') ||
-              prev.onay_personel_id,
-            hazirlayan_personel_id: findDefaultId('hazirlayan') || prev.hazirlayan_personel_id,
-            talep_eden_personel_id: findDefaultId('talep_eden') || prev.talep_eden_personel_id,
-            sunan_personel_id:
-              findDefaultId('ihale_yetkilisi') ||
-              findDefaultId('talep_eden') ||
-              prev.sunan_personel_id,
-            irtibat_yetkilisi_id:
-              findDefaultId('ilgili_personel') ||
-              findDefaultId('hazirlayan') ||
-              prev.irtibat_yetkilisi_id
+            onay_personel_id: prev.onay_personel_id || defaultPers.onay_personel_id,
+            hazirlayan_personel_id: prev.hazirlayan_personel_id || defaultPers.hazirlayan_personel_id,
+            talep_eden_personel_id: prev.talep_eden_personel_id || defaultPers.talep_eden_personel_id,
+            sunan_personel_id: prev.sunan_personel_id || defaultPers.sunan_personel_id,
+            irtibat_yetkilisi_id: prev.irtibat_yetkilisi_id || defaultPers.irtibat_yetkilisi_id
           }))
         }
       } catch (err) {
@@ -792,6 +787,7 @@ export function useYeniDosyaScreen(): UseYeniDosyaScreenReturn {
     editId,
     birimler,
     personeller,
+    roller,
     kodSozlugu,
     loadingDb,
     formData,

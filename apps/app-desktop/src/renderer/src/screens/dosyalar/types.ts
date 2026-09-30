@@ -7,6 +7,16 @@ export interface DBBirim {
   sunum_makami?: string
   ihtiyac_yeri_eki?: string
   e_butce?: string
+  harcama_yetkilisi_id?: number | null
+  harcama_yetkilisi_unvan?: string
+  gerceklestirme_gorevlisi_id?: number | null
+}
+
+export interface DBRol {
+  id: number
+  rol_kodu: string
+  rol_adi?: string
+  varsayilan_personel_id?: number | null
 }
 
 export interface DBPersonel {
@@ -34,6 +44,7 @@ export interface YeniDosyaTabProps {
   birimler: DBBirim[]
   kurum?: any
   personeller: DBPersonel[]
+  roller?: DBRol[]
   kodSozlugu: DBKodSozlugu[]
   dosyalar: TeminDosyasi[]
 

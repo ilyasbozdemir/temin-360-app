@@ -1,6 +1,93 @@
 import { AIFormContext } from '../../components/ui/AIFormFillModal'
 import { TeminDosyasi } from './dosyalar.hooks'
-import { DBBirim, DBPersonel } from './types'
+import { DBBirim, DBPersonel, DBRol } from './types'
+
+export function resolveDefaultPersonnel(
+  personeller: DBPersonel[] = [],
+  selectedBirim?: DBBirim | null,
+  roller: DBRol[] = []
+) {
+  const findRoleId = (rolKodu: string) => {
+    const found = roller.find((r) => r.rol_kodu === rolKodu)
+    return found?.varsayilan_personel_id || null
+  }
+
+  // 1. Harcama Yetkilisi (Onaylayan)
+  const onayId =
+    findRoleId('harcama_yetkilisi') ||
+    findRoleId('onaylayan') ||
+    selectedBirim?.harcama_yetkilisi_id ||
+    personeller.find((p) => p.harcama_yetkilisi_mi === 1)?.id ||
+    personeller.find(
+      (p) =>
+        p.unvan &&
+        (p.unvan.toLowerCase().includes('harcama') || p.unvan.toLowerCase().includes('onaylayan'))
+    )?.id ||
+    personeller[1]?.id ||
+    personeller[0]?.id ||
+    null
+
+  // 2. Gerçekleştirme Görevlisi (Sunan)
+  const sunanId =
+    findRoleId('gerceklestirme_gorevlisi') ||
+    findRoleId('sunan_personel') ||
+    findRoleId('ihale_yetkilisi') ||
+    selectedBirim?.gerceklestirme_gorevlisi_id ||
+    personeller.find(
+      (p) =>
+        p.unvan &&
+        (p.unvan.toLowerCase().includes('gerçekleştirme') ||
+          p.unvan.toLowerCase().includes('sunan'))
+    )?.id ||
+    personeller.find((p) => p.id !== onayId)?.id ||
+    personeller[0]?.id ||
+    null
+
+  // 3. Dosyayı Hazırlayan
+  const hazirlayanId =
+    findRoleId('hazirlayan') ||
+    personeller.find(
+      (p) =>
+        p.unvan &&
+        (p.unvan.toLowerCase().includes('hazırlayan') ||
+          p.unvan.toLowerCase().includes('uzman') ||
+          p.unvan.toLowerCase().includes('memur') ||
+          p.unvan.toLowerCase().includes('mühendis') ||
+          p.unvan.toLowerCase().includes('tekniker'))
+    )?.id ||
+    personeller[0]?.id ||
+    null
+
+  // 4. Talep Eden
+  const talepEdenId =
+    findRoleId('talep_eden') ||
+    personeller.find(
+      (p) =>
+        p.unvan &&
+        (p.unvan.toLowerCase().includes('şube müdürü') ||
+          p.unvan.toLowerCase().includes('müdür') ||
+          p.unvan.toLowerCase().includes('amiri'))
+    )?.id ||
+    personeller[0]?.id ||
+    null
+
+  // 5. İrtibat Yetkilisi
+  const irtibatId =
+    findRoleId('irtibat') ||
+    findRoleId('ilgili_personel') ||
+    personeller.find((p) => p.unvan && p.unvan.toLowerCase().includes('irtibat'))?.id ||
+    hazirlayanId ||
+    personeller[0]?.id ||
+    null
+
+  return {
+    onay_personel_id: onayId,
+    sunan_personel_id: sunanId,
+    hazirlayan_personel_id: hazirlayanId,
+    talep_eden_personel_id: talepEdenId,
+    irtibat_yetkilisi_id: irtibatId
+  }
+}
 
 export const DOLDURULACAK_ALANLAR: AIFormContext['doldurulacakAlanlar'] = [
   {
@@ -184,8 +271,12 @@ export function getEmptyFormData(
   currentYear: number,
   nextTeminNo: string,
   birimler: DBBirim[],
-  personeller: DBPersonel[]
+  personeller: DBPersonel[],
+  roller: DBRol[] = []
 ): Partial<TeminDosyasi> {
+  const selectedBirim = birimler[0] || null
+  const defaultPers = resolveDefaultPersonnel(personeller, selectedBirim, roller)
+
   return {
     temin_no: nextTeminNo,
     dosya_acilis_tarihi: `${currentYear}-06-03`,
@@ -193,7 +284,7 @@ export function getEmptyFormData(
     butce_tipi: 'Genel Bütçe',
     konu: '',
     isin_aciklamasi: '',
-    birim_id: birimler[0]?.id || null,
+    birim_id: selectedBirim?.id || null,
     antet_ek_satir: '',
     sunulacak_makam: '',
     ihtiyac_yeri: '',
@@ -220,10 +311,7 @@ export function getEmptyFormData(
     hesaplama_esasi: '',
     komisyon_takdiri: 'Sadece araştırma fiyatları dikkate alınacak',
     tibbi_cihaz_alimi_mi: 0,
-    irtibat_yetkilisi_id: personeller[0]?.id || null,
-    onay_personel_id:
-      personeller.find((p) => p.harcama_yetkilisi_mi === 1)?.id || personeller[1]?.id || null,
-    hazirlayan_personel_id: personeller[0]?.id || null,
+    ...defaultPers,
     son_teklif_verme_tarihi: '2026-06-10T14:00',
     teslim_tarihi: '2026-06-30',
     yaklasik_maliyet: 145005

@@ -30,6 +30,7 @@ export function DosyaManageScreen(): React.JSX.Element {
     editId,
     birimler,
     personeller,
+    roller,
     kodSozlugu,
     loadingDb,
     formData,
@@ -175,6 +176,7 @@ export function DosyaManageScreen(): React.JSX.Element {
                     birimler={birimler}
                     kurum={kurum}
                     personeller={personeller}
+                    roller={roller}
                     kodSozlugu={kodSozlugu}
                     dosyalar={dosyalar}
                     getNextTeminNo={getNextTeminNo}
