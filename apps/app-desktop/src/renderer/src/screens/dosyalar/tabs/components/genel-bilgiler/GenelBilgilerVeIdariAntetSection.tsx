@@ -1,8 +1,9 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   CheckCircle2,
   Copy,
   FileText,
+  HelpCircle,
   Loader2,
   RefreshCw,
   Search,
@@ -11,6 +12,7 @@ import {
 import { cn } from "../../../../../utils/cn";
 import { YeniDosyaTabProps } from "../../../types";
 import { useTeminNoChecker } from "../../../../../hooks/useTeminNoChecker";
+import { ButceTipiHelpModal } from "./components/ButceTipiHelpModal";
 
 export function GenelBilgilerVeIdariAntetSection(
   props: YeniDosyaTabProps,
@@ -39,6 +41,8 @@ export function GenelBilgilerVeIdariAntetSection(
     getNextTeminNo,
     kurum,
   } = props;
+
+  const [showButceHelpModal, setShowButceHelpModal] = useState(false);
 
   const targetYear = useMemo(() => {
     return (
@@ -130,9 +134,19 @@ export function GenelBilgilerVeIdariAntetSection(
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
-            Bütçe Tipi *
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400">
+              Bütçe Tipi *
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowButceHelpModal(true)}
+              className="text-[10px] text-blue-600 hover:text-blue-700 dark:text-blue-400 font-bold flex items-center gap-1 cursor-pointer bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-md border-none transition-colors"
+              title="Bütçe tipleri mevzuatı ve kapsam rehberini görüntüle"
+            >
+              <HelpCircle size={12} /> Rehber &amp; Bilgi
+            </button>
+          </div>
           <select
             value={formData.butce_tipi || "Genel Bütçe"}
             onChange={(e) =>
@@ -147,6 +161,15 @@ export function GenelBilgilerVeIdariAntetSection(
             <option value="Özel Bütçe">Özel Bütçe</option>
             <option value="Diğer">Diğer</option>
           </select>
+          <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 font-medium">
+            {formData.butce_tipi === "Döner Sermaye"
+              ? "💡 Döner Sermaye: Kurumun mal/hizmet üretim gelirlerinden karşılanır (Hastaneler, DÖSE vb.)."
+              : formData.butce_tipi === "Özel Bütçe"
+              ? "💡 Özel Bütçe: Kurumun öz gelirleri ve genel bütçe transferiyle karşılanır (Üniversiteler, DSİ vb.)."
+              : formData.butce_tipi === "Diğer"
+              ? "💡 Diğer: Mahalli İdareler (Belediyeler), SGK veya Üst Kurullar (RTÜK, BDDK vb.)."
+              : "💡 Genel Bütçe: Hazine gelirlerinden Merkezi Yönetim Bütçe Kanununa göre karşılanır."}
+          </p>
         </div>
 
         <div>
@@ -731,6 +754,12 @@ export function GenelBilgilerVeIdariAntetSection(
           })()}
         </div>
       </div>
+
+      <ButceTipiHelpModal
+        isOpen={showButceHelpModal}
+        onClose={() => setShowButceHelpModal(false)}
+        selectedType={formData.butce_tipi || "Genel Bütçe"}
+      />
     </div>
   );
 }
