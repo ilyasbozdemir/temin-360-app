@@ -208,15 +208,6 @@ export function useWorkspaceLifecycle(
             result = await openWorkspace(targetPath, true)
           }
           if (result.success) queryClient.clear()
-        } else if (!dbIsOpen && isMounted) {
-          const recent = await window.electron?.ipcRenderer.invoke('app:get-recent-files')
-          if (recent && recent.length > 0 && recent[0]?.path && isMounted) {
-            let result = await openWorkspace(recent[0].path, false)
-            if (result.requiresMigration) {
-              result = await openWorkspace(recent[0].path, true)
-            }
-            if (result.success) queryClient.clear()
-          }
         }
       } catch (e) {
         console.warn('Otomatik son dosya yükleme başarısız:', e)
