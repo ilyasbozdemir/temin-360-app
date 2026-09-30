@@ -10,6 +10,7 @@ interface ModalProps {
   children: React.ReactNode
   description?: string
   className?: string
+  contentClassName?: string
   footer?: React.ReactNode
 }
 
@@ -20,6 +21,7 @@ export function Modal({
   description,
   children,
   className,
+  contentClassName,
   footer
 }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null)
@@ -93,7 +95,7 @@ export function Modal({
         </div>
 
         {/* Content wrapped in Error Boundary */}
-        <div className="p-6 overflow-y-auto max-h-[70vh] custom-scrollbar flex-1">
+        <div className={cn('p-6 overflow-y-auto max-h-[70vh] custom-scrollbar flex-1', contentClassName)}>
           <ModalErrorBoundary onClose={onClose} modalTitle={title}>
             {children}
           </ModalErrorBoundary>

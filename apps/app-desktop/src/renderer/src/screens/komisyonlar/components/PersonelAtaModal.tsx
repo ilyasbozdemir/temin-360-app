@@ -119,102 +119,105 @@ export function PersonelAtaModal({
       title="Komisyona Personel Ata"
       description="Bu komisyon görev ve rolüne atanacak personeli seçin."
       className="max-w-2xl overflow-visible"
+      contentClassName="overflow-visible"
     >
-      <div className="space-y-5">
-        {saveMutation.isError && (
-          <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-xl flex items-center gap-3 text-sm font-medium">
-            <AlertCircle className="w-5 h-5 shrink-0" />
-            {saveMutation.error?.message}
-          </div>
-        )}
-
-        {/* Görev ve Komisyon Bilgi Kartı */}
-        {roleDetail && (
-          <div className="p-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70 rounded-xl space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
-                  {roleDetail.komisyon_adi || "Komisyon"}
-                </span>
-              </div>
-              <span
-                className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                  roleDetail.asil_mi === 1 || roleDetail.asil_mi === true
-                    ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300"
-                    : "bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300"
-                }`}
-              >
-                {roleDetail.asil_mi === 1 || roleDetail.asil_mi === true
-                  ? "Asil Üye"
-                  : "Yedek Üye"}
-              </span>
+      <div className="space-y-5 min-h-[360px] flex flex-col justify-between">
+        <div className="space-y-5">
+          {saveMutation.isError && (
+            <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-xl flex items-center gap-3 text-sm font-medium">
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              {saveMutation.error?.message}
             </div>
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-slate-400" />
-              <span className="text-xs text-slate-600 dark:text-slate-300">
-                Görev:{" "}
-                <strong className="text-slate-900 dark:text-slate-100">
-                  {roleDetail.gorev_adi || "Üye"}
-                </strong>
-              </span>
-            </div>
-          </div>
-        )}
+          )}
 
-        {/* Personel Seçimi */}
-        <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-            <UserPlus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-            Atanacak Personel
-          </label>
-          <PersonelCombobox
-            personeller={personeller}
-            selectedId={selectedPersonelId}
-            onChange={(val) => setSelectedPersonelId(val)}
-            placeholder="Personel arayın veya listeden seçin..."
-          />
-        </div>
-
-        {/* Seçilen Personel Önizleme Kartı */}
-        {selectedPerson && (
-          <div className="p-3.5 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 rounded-xl flex items-center justify-between animate-in fade-in duration-200">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-sm">
-                {selectedPerson.ad_soyad
-                  ? (
-                    selectedPerson.ad_soyad.substring(0, 2).toLocaleUpperCase(
-                      "tr-TR",
-                    )
-                  )
-                  : <User className="w-4 h-4" />}
-              </div>
-              <div className="min-w-0">
-                <div className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate flex items-center gap-2">
-                  {selectedPerson.ad_soyad}
-                  <span className="text-[10px] font-semibold bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">
-                    Seçildi
+          {/* Görev ve Komisyon Bilgi Kartı */}
+          {roleDetail && (
+            <div className="p-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70 rounded-xl space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                    {roleDetail.komisyon_adi || "Komisyon"}
                   </span>
                 </div>
-                <div className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                  {selectedPerson.unvan || "Unvan Belirtilmedi"}
-                  {selectedPerson.birim ? ` • ${selectedPerson.birim}` : ""}
-                </div>
+                <span
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    roleDetail.asil_mi === 1 || roleDetail.asil_mi === true
+                      ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300"
+                      : "bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300"
+                  }`}
+                >
+                  {roleDetail.asil_mi === 1 || roleDetail.asil_mi === true
+                    ? "Asil Üye"
+                    : "Yedek Üye"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-slate-400" />
+                <span className="text-xs text-slate-600 dark:text-slate-300">
+                  Görev:{" "}
+                  <strong className="text-slate-900 dark:text-slate-100">
+                    {roleDetail.gorev_adi || "Üye"}
+                  </strong>
+                </span>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setSelectedPersonelId(null)}
-              className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
-              title="Seçimi Kaldır"
-            >
-              <X className="w-4 h-4" />
-            </button>
+          )}
+
+          {/* Personel Seçimi */}
+          <div className="space-y-2 relative z-20">
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <UserPlus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              Atanacak Personel
+            </label>
+            <PersonelCombobox
+              personeller={personeller}
+              selectedId={selectedPersonelId}
+              onChange={(val) => setSelectedPersonelId(val)}
+              placeholder="Personel arayın veya listeden seçin..."
+            />
           </div>
-        )}
+
+          {/* Seçilen Personel Önizleme Kartı */}
+          {selectedPerson && (
+            <div className="p-3.5 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 rounded-xl flex items-center justify-between animate-in fade-in duration-200">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-sm">
+                  {selectedPerson.ad_soyad
+                    ? (
+                      selectedPerson.ad_soyad.substring(0, 2).toLocaleUpperCase(
+                        "tr-TR",
+                      )
+                    )
+                    : <User className="w-4 h-4" />}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate flex items-center gap-2">
+                    {selectedPerson.ad_soyad}
+                    <span className="text-[10px] font-semibold bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">
+                      Seçildi
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                    {selectedPerson.unvan || "Unvan Belirtilmedi"}
+                    {selectedPerson.birim ? ` • ${selectedPerson.birim}` : ""}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedPersonelId(null)}
+                className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                title="Seçimi Kaldır"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Butonlar */}
-        <div className="flex items-center gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-3 pt-3 border-t border-slate-200 dark:border-slate-800 shrink-0">
           <Button
             type="button"
             variant="outline"
