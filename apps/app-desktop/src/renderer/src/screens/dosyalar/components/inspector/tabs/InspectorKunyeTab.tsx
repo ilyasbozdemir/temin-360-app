@@ -147,7 +147,7 @@ export const InspectorKunyeTab: React.FC<InspectorKunyeTabProps> = ({
               </span>
             </div>
             <div className="flex justify-between items-center px-3.5 py-2">
-              <span className="text-slate-500">Piyasa Araştırma Görevlisi</span>
+              <span className="text-slate-500">Dosyayı Hazırlayan Personel</span>
               <span className="font-bold text-slate-800 dark:text-slate-200">
                 {d.hazirlayan_ad || '-'}
               </span>

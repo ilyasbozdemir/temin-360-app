@@ -1492,10 +1492,18 @@ export function TakipScreen(): React.JSX.Element {
                     </div>
                     <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/60">
                       <span className="text-[10px] text-slate-400 font-bold block">
-                        Piyasa Araştırma Görevlisi (Hazırlayan)
+                        Dosyayı Hazırlayan Personel
                       </span>
                       <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
                         {activeDosya.hazirlayan_ad || "-"}
+                      </span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/60">
+                      <span className="text-[10px] text-slate-400 font-bold block">
+                        Talep Eden Personel
+                      </span>
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                        {activeDosya.talep_eden_ad || "-"}
                       </span>
                     </div>
                   </div>
