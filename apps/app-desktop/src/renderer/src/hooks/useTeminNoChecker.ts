@@ -14,9 +14,28 @@ export interface UseTeminNoCheckerResult {
   isChecking: boolean
   isDuplicate: boolean
   duplicateInfo: DuplicateFileInfo | null
+  isYearMismatch: boolean
+  enteredYear: number | null
   isAvailable: boolean
   nextAvailableNo: string
   checkNow: (targetNo?: string, targetYear?: number) => Promise<boolean>
+}
+
+/**
+ * Extract 4-digit year prefix from temin_no if exists
+ */
+function extractYearPrefix(raw: string): number | null {
+  const clean = (raw || '').trim()
+  if (!clean) return null
+  const ym = clean.match(/^(\d{4})[/-]/)
+  if (ym) {
+    return parseInt(ym[1], 10)
+  }
+  const dtYm = clean.match(/^dt[-]?(\d{4})[/-]/i)
+  if (dtYm) {
+    return parseInt(dtYm[1], 10)
+  }
+  return null
 }
 
 /**
@@ -57,6 +76,8 @@ export function useTeminNoChecker(
   const [isChecking, setIsChecking] = useState(false)
   const [isDuplicate, setIsDuplicate] = useState(false)
   const [duplicateInfo, setDuplicateInfo] = useState<DuplicateFileInfo | null>(null)
+  const [isYearMismatch, setIsYearMismatch] = useState(false)
+  const [enteredYear, setEnteredYear] = useState<number | null>(null)
   const [nextAvailableNo, setNextAvailableNo] = useState<string>('')
 
   const numericCurrentId = currentDosyaId ? Number(currentDosyaId) : null
@@ -67,8 +88,24 @@ export function useTeminNoChecker(
       if (!clean) {
         setIsDuplicate(false)
         setDuplicateInfo(null)
+        setIsYearMismatch(false)
+        setEnteredYear(null)
         setIsChecking(false)
         return true
+      }
+
+      // Check year prefix mismatch
+      const yearPrefix = extractYearPrefix(clean)
+      if (yearPrefix !== null && yearPrefix !== targetYear) {
+        setIsYearMismatch(true)
+        setEnteredYear(yearPrefix)
+        setIsDuplicate(false)
+        setDuplicateInfo(null)
+        setIsChecking(false)
+        return false
+      } else {
+        setIsYearMismatch(false)
+        setEnteredYear(null)
       }
 
       setIsChecking(true)
@@ -179,6 +216,8 @@ export function useTeminNoChecker(
     if (!clean) {
       setIsDuplicate(false)
       setDuplicateInfo(null)
+      setIsYearMismatch(false)
+      setEnteredYear(null)
       setIsChecking(false)
       return
     }
@@ -193,8 +232,8 @@ export function useTeminNoChecker(
 
   const isAvailable = useMemo(() => {
     const clean = (rawTeminNo || '').trim()
-    return clean.length > 0 && !isChecking && !isDuplicate
-  }, [rawTeminNo, isChecking, isDuplicate])
+    return clean.length > 0 && !isChecking && !isDuplicate && !isYearMismatch
+  }, [rawTeminNo, isChecking, isDuplicate, isYearMismatch])
 
   const checkNow = useCallback(
     async (targetNo?: string, targetYear?: number) => {
@@ -207,6 +246,8 @@ export function useTeminNoChecker(
     isChecking,
     isDuplicate,
     duplicateInfo,
+    isYearMismatch,
+    enteredYear,
     isAvailable,
     nextAvailableNo,
     checkNow

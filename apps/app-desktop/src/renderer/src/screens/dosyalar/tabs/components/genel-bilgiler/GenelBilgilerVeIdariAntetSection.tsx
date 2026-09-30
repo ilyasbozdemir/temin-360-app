@@ -58,6 +58,8 @@ export function GenelBilgilerVeIdariAntetSection(
     isChecking: isCheckingTeminNo,
     isDuplicate: isDuplicateTeminNo,
     duplicateInfo,
+    isYearMismatch,
+    enteredYear,
     isAvailable: isAvailableTeminNo,
     nextAvailableNo,
   } = useTeminNoChecker(
@@ -96,13 +98,10 @@ export function GenelBilgilerVeIdariAntetSection(
               let updatedTeminNo = formData.temin_no;
 
               if (newYear && newYear !== oldYear) {
-                const oldYearStr = oldYear ? oldYear.toString() : "";
-                const isOldPattern = !formData.temin_no ||
-                  formData.temin_no.startsWith(`${oldYearStr}/`) ||
-                  formData.temin_no.startsWith(`DT${oldYearStr}/`);
-
-                if (isOldPattern && getNextTeminNo) {
+                if (getNextTeminNo) {
                   updatedTeminNo = getNextTeminNo(newYear);
+                } else if (updatedTeminNo) {
+                  updatedTeminNo = updatedTeminNo.replace(/^\d{4}/, newYear.toString());
                 }
               }
 
@@ -175,13 +174,19 @@ export function GenelBilgilerVeIdariAntetSection(
               onBlur={(e) => {
                 let val = e.target.value.trim();
                 if (!val) return;
-                // Çift yıl temizliği (Örn: "2026/2026/1" -> "2026/1")
+                // Çift yıl temizliği (Örn: "2026/2026/1" -> "2025/1")
                 const doubleMatch = val.match(/^(\d{4})[/-]\1[/-](\d+)$/);
                 if (doubleMatch) {
-                  val = `${doubleMatch[1]}/${doubleMatch[2]}`;
+                  val = `${targetYear}/${doubleMatch[2]}`;
                 } else if (/^\d+$/.test(val)) {
-                  // Sadece sayı girildiyse (Örn: "5" -> "2026/5")
+                  // Sadece sayı girildiyse (Örn: "5" -> "2025/5")
                   val = `${targetYear}/${val}`;
+                } else {
+                  // Yıl prefix'i var ama targetYear ile uyuşmuyorsa (Örn: "2026/1" vs targetYear 2025)
+                  const yearMatch = val.match(/^(\d{4})([/-].+)$/);
+                  if (yearMatch && parseInt(yearMatch[1], 10) !== targetYear) {
+                    val = `${targetYear}${yearMatch[2]}`;
+                  }
                 }
                 setFormData({
                   ...formData,
@@ -191,7 +196,9 @@ export function GenelBilgilerVeIdariAntetSection(
               placeholder={`Örn: ${targetYear}/1`}
               className={cn(
                 "w-full pl-3.5 pr-24 py-2.5 bg-slate-50 dark:bg-slate-950 border rounded-xl text-xs focus:outline-none focus:ring-1 text-slate-800 dark:text-slate-200 font-bold transition-all",
-                isDuplicateTeminNo
+                isYearMismatch
+                  ? "border-rose-400 dark:border-rose-600 focus:ring-rose-400/20 bg-rose-50/20"
+                  : isDuplicateTeminNo
                   ? "border-amber-300 dark:border-amber-700/60 focus:ring-amber-400/20 bg-amber-50/20"
                   : isAvailableTeminNo
                   ? "border-emerald-300 dark:border-emerald-700/50 focus:ring-emerald-400/20"
@@ -214,8 +221,34 @@ export function GenelBilgilerVeIdariAntetSection(
             </button>
           </div>
 
+          {/* YIL UYUŞMAZLIĞI İKAZI */}
+          {isYearMismatch && (
+            <div className="flex items-center justify-between gap-2 mt-1.5 px-3 py-1.5 bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200/60 dark:border-rose-800/50 rounded-lg text-xs text-rose-800 dark:text-rose-300 animate-in fade-in duration-200">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-rose-500 shrink-0">⚠️</span>
+                <span className="truncate">
+                  Temin numarası (<strong>{formData.temin_no}</strong>) bütçe yılı (<strong>{targetYear}</strong>) ile uyumlu değildir!
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  let val = (formData.temin_no || "").trim();
+                  val = val.replace(/^\d{4}/, targetYear.toString());
+                  if (!val.startsWith(`${targetYear}/`) && !val.startsWith(`DT${targetYear}/`)) {
+                    val = `${targetYear}/${val}`;
+                  }
+                  setFormData({ ...formData, temin_no: val });
+                }}
+                className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded text-[10px] font-bold transition-colors shrink-0 cursor-pointer border-none"
+              >
+                {targetYear} Yılına Uyarla
+              </button>
+            </div>
+          )}
+
           {/* KİBAR & ZARİF BİLGİLENDİRME SATIRI */}
-          {isDuplicateTeminNo && duplicateInfo && (
+          {!isYearMismatch && isDuplicateTeminNo && duplicateInfo && (
             <div className="flex items-center justify-between gap-2 mt-1.5 px-3 py-1.5 bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-800/40 rounded-lg text-xs text-amber-800 dark:text-amber-300 animate-in fade-in duration-200">
               <div className="flex items-center gap-1.5 min-w-0">
                 <span className="text-amber-500 shrink-0">ℹ️</span>
@@ -240,7 +273,7 @@ export function GenelBilgilerVeIdariAntetSection(
             </div>
           )}
 
-          {isAvailableTeminNo && formData.temin_no && (
+          {!isYearMismatch && isAvailableTeminNo && formData.temin_no && (
             <div className="flex items-center gap-1.5 mt-1 px-1 text-[11px] text-emerald-600 dark:text-emerald-400 animate-in fade-in duration-150">
               <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
               <span>Bu numara kullanılabilir.</span>
