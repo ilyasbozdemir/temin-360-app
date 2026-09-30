@@ -882,7 +882,8 @@ export function TakipScreen(): React.JSX.Element {
                         <input
                           type="date"
                           value={sonTeklifTarihi}
-                          onChange={(e) => setSonTeklifTarihi(e.target.value)}
+                          onChange={(e) =>
+                            setSonTeklifTarihi(e.target.value)}
                           className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-150 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
                         />
                       </div>
