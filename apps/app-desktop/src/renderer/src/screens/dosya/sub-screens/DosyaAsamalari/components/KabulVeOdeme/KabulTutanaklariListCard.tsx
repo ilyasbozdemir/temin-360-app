@@ -140,19 +140,26 @@ export function KabulTutanaklariListCard({
   const [viewMode, setViewMode] = useState<"table" | "list" | "grid">("table");
   const [menuAcik, setMenuAcik] = useState(false);
   const [digerIslemlerAcik, setDigerIslemlerAcik] = useState(false);
-  const [activeRowMenuId, setActiveRowMenuId] = useState<string | number | null>(null);
+  const [activeRowMenuId, setActiveRowMenuId] = useState<
+    string | number | null
+  >(null);
   const [formTipi, setFormTipi] = useState<TutanakTipi | null>(null);
   const [hata, setHata] = useState("");
 
-  const effectiveFirma = kazananFirmaUnvan || firma || "İstekli Yüklenici Firma";
-  const effectiveTeklifTutar = kabulEdilenTeklif ?? firmaStats?.teklifToplami ?? 0;
-  const effectiveTeslimAlan = komisyonBaskani || varsayilanTeslimAlan || "Muayene & Kabul Komisyonu";
-  const effectiveTeslimYeri = teslimYeri || varsayilanTeslimYeri || "Kurum Ambarı / İhtiyaç Yeri";
+  const effectiveFirma = kazananFirmaUnvan || firma ||
+    "İstekli Yüklenici Firma";
+  const effectiveTeklifTutar = kabulEdilenTeklif ?? firmaStats?.teklifToplami ??
+    0;
+  const effectiveTeslimAlan = komisyonBaskani || varsayilanTeslimAlan ||
+    "Muayene & Kabul Komisyonu";
+  const effectiveTeslimYeri = teslimYeri || varsayilanTeslimYeri ||
+    "Kurum Ambarı / İhtiyaç Yeri";
 
   const rawAlimTuru = String(
     alimTuru || firmaStats?.alimTuru || "mal",
   ).toLowerCase();
-  const isHizmet = rawAlimTuru.includes("hizmet") || rawAlimTuru.includes("danismanlik");
+  const isHizmet = rawAlimTuru.includes("hizmet") ||
+    rawAlimTuru.includes("danismanlik");
   const isMal = !isHizmet;
 
   const primarySablonKey = isHizmet
@@ -160,7 +167,9 @@ export function KabulTutanaklariListCard({
     : "muayene-kabul-komisyonu";
 
   const hasKomisyon = komisyonUyeleri.length > 0;
-  const kayitSayisi = tutanaklar.length > 0 ? tutanaklar.length : (baslangicTutanaklari.length > 0 ? baslangicTutanaklari.length : 1);
+  const kayitSayisi = tutanaklar.length > 0
+    ? tutanaklar.length
+    : (baslangicTutanaklari.length > 0 ? baslangicTutanaklari.length : 1);
 
   const [form, setForm] = useState({
     tarih: new Date().toISOString().slice(0, 10),
@@ -178,7 +187,9 @@ export function KabulTutanaklariListCard({
     setHata("");
     setForm({
       tarih: new Date().toISOString().slice(0, 10),
-      sayi: `KT-${new Date().getFullYear()}-${String(tutanaklar.length + 1).padStart(3, "0")}`,
+      sayi: `KT-${new Date().getFullYear()}-${
+        String(tutanaklar.length + 1).padStart(3, "0")
+      }`,
       teslimAlan: effectiveTeslimAlan,
       teslimYeri: tip === "mal" ? effectiveTeslimYeri : "Hizmet İfa Yeri",
       faturaTarihi: faturaTarihi || new Date().toISOString().slice(0, 10),
@@ -194,11 +205,12 @@ export function KabulTutanaklariListCard({
       ks.map((k) =>
         k.id === id
           ? {
-              ...k,
-              [alan]: ["miktari", "toplamTeslimAlinan", "kabulMiktari"].includes(alan)
+            ...k,
+            [alan]:
+              ["miktari", "toplamTeslimAlinan", "kabulMiktari"].includes(alan)
                 ? Number(deger)
                 : deger,
-            }
+          }
           : k
       )
     );
@@ -219,7 +231,9 @@ export function KabulTutanaklariListCard({
       return;
     }
     if (formTipi === "hizmet" && !form.hizmetAciklamasi.trim()) {
-      setHata("Hizmet işleri kabul tutanağı için hizmet açıklaması zorunludur.");
+      setHata(
+        "Hizmet işleri kabul tutanağı için hizmet açıklaması zorunludur.",
+      );
       return;
     }
 
@@ -332,11 +346,9 @@ export function KabulTutanaklariListCard({
                 }
               }}
               className="gap-1.5 text-xs font-bold h-9 px-3.5 bg-blue-600 hover:bg-blue-700 text-white shadow-xs cursor-pointer rounded-xl"
-              title={
-                isHizmet
-                  ? "Yeni Hizmet Muayene ve Kabul Tutanağı Ekle"
-                  : "Yeni Mal Muayene ve Kabul Tutanağı Ekle"
-              }
+              title={isHizmet
+                ? "Yeni Hizmet Muayene ve Kabul Tutanağı Ekle"
+                : "Yeni Mal Muayene ve Kabul Tutanağı Ekle"}
             >
               <Plus className="w-3.5 h-3.5" />
               <span>
@@ -438,43 +450,44 @@ export function KabulTutanaklariListCard({
             <span>Muayene Kabul ve Tespit Komisyonu Heyeti:</span>
           </div>
 
-          {hasKomisyon ? (
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {komisyonUyeleri.map((uye, idx) => {
-                const isBaskan =
-                  uye.gorev?.toLowerCase().includes("başkan") ||
-                  uye.gorev?.toLowerCase().includes("baskan");
-                return (
-                  <span
-                    key={uye.id || idx}
-                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${
-                      isBaskan
-                        ? "bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 border-amber-200 dark:border-amber-800/60"
-                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700"
-                    }`}
-                    title={
-                      uye.unvan
+          {hasKomisyon
+            ? (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {komisyonUyeleri.map((uye, idx) => {
+                  const isBaskan =
+                    uye.gorev?.toLowerCase().includes("başkan") ||
+                    uye.gorev?.toLowerCase().includes("baskan");
+                  return (
+                    <span
+                      key={uye.id || idx}
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${
+                        isBaskan
+                          ? "bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 border-amber-200 dark:border-amber-800/60"
+                          : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700"
+                      }`}
+                      title={uye.unvan
                         ? `${uye.gorev || "Üye"} - ${uye.unvan}`
-                        : uye.gorev || "Üye"
-                    }
-                  >
-                    {isBaskan ? "👑" : "👤"}
-                    <span className="font-bold">{uye.ad_soyad}</span>
-                    <span className="text-[10px] text-slate-400">
-                      ({isBaskan ? "Başkan" : uye.gorev || "Üye"})
+                        : uye.gorev || "Üye"}
+                    >
+                      {isBaskan ? "👑" : "👤"}
+                      <span className="font-bold">{uye.ad_soyad}</span>
+                      <span className="text-[10px] text-slate-400">
+                        ({isBaskan ? "Başkan" : uye.gorev || "Üye"})
+                      </span>
                     </span>
-                  </span>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
-              <AlertCircle className="w-3.5 h-3.5" />
-              <span>
-                Komisyon henüz atanmadı. İmzalı belgeler için heyet tanımlayabilirsiniz.
-              </span>
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            )
+            : (
+              <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+                <AlertCircle className="w-3.5 h-3.5" />
+                <span>
+                  Komisyon henüz atanmadı. İmzalı belgeler için heyet
+                  tanımlayabilirsiniz.
+                </span>
+              </div>
+            )}
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -504,241 +517,273 @@ export function KabulTutanaklariListCard({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-              {tutanaklar.length > 0 ? (
-                tutanaklar.map((tut) => (
-                  <tr
-                    key={tut.id}
-                    className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
-                  >
+              {tutanaklar.length > 0
+                ? (
+                  tutanaklar.map((tut) => (
+                    <tr
+                      key={tut.id}
+                      className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                    >
+                      <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-200 whitespace-nowrap">
+                        <div className="font-mono text-[11px] font-bold text-blue-600 dark:text-blue-400">
+                          {tut.tutanakNo}
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mt-0.5">
+                          <Calendar className="w-3 h-3 text-slate-400" />
+                          <span>{formatDate(tut.tutanakTarihi)}</span>
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-slate-100">
+                        <div className="flex items-center gap-1.5">
+                          <Building2 className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                          <span
+                            className="truncate max-w-48"
+                            title={effectiveFirma}
+                          >
+                            {effectiveFirma}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4 font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                        {tut.faturaNo || faturaNo
+                          ? (
+                            <span className="font-mono font-semibold text-slate-700 dark:text-slate-200 text-[11px]">
+                              {tut.faturaNo || faturaNo}
+                            </span>
+                          )
+                          : (
+                            <span className="text-slate-400 text-[11px]">
+                              —
+                            </span>
+                          )}
+                        {tut.faturaTarihi && (
+                          <span className="text-[10px] text-slate-400 block mt-0.5">
+                            {formatDate(tut.faturaTarihi)}
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
+                        <div className="flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          <span className="truncate max-w-40 font-medium">
+                            {tut.teslimYeri || effectiveTeslimYeri}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-slate-400 block ml-5 truncate max-w-40">
+                          {tut.teslimAlan || effectiveTeslimAlan}
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        {getDurumBadge(tut.durum)}
+                        {tut.notlar && (
+                          <span className="text-[10px] text-slate-400 block mt-0.5 truncate max-w-36">
+                            {tut.notlar}
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right font-bold text-slate-900 dark:text-white whitespace-nowrap">
+                        {tut.tutar
+                          ? formatCurrency(tut.tutar)
+                          : formatCurrency(effectiveTeklifTutar)}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1.5 relative">
+                          <Button
+                            onClick={() => onOpenPreview?.(primarySablonKey)}
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-2.5 text-xs font-semibold gap-1 text-blue-600 hover:text-blue-700 border-blue-200 hover:border-blue-300"
+                            title="Tutanağı Görüntüle ve Yazdır"
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                            <span>Tutanağı Açx</span>
+                          </Button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setActiveRowMenuId((
+                                cur,
+                              ) => (cur === tut.id ? null : tut.id))}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                            title="Tutanak İşlemleri"
+                          >
+                            <MoreHorizontal size={15} />
+                          </button>
+
+                          {activeRowMenuId === tut.id && (
+                            <div className="absolute right-0 top-10 z-30 w-48 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl overflow-hidden py-1 text-left animate-in fade-in zoom-in-95 duration-150">
+                              {onEditTutanak && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setActiveRowMenuId(null);
+                                    onEditTutanak(tut);
+                                  }}
+                                  className="w-full px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer"
+                                >
+                                  <Edit2 size={13} className="text-blue-500" />
+                                  <span>Düzenle / Özelleştir</span>
+                                </button>
+                              )}
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setActiveRowMenuId(null);
+                                  onOpenPreview?.("odeme-yazisi");
+                                }}
+                                className="w-full px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer"
+                              >
+                                <FileText
+                                  size={13}
+                                  className="text-emerald-500"
+                                />
+                                <span>Ödeme Yazısı Al</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setActiveRowMenuId(null);
+                                  onOpenPreview?.("odeme-emri-belgesi");
+                                }}
+                                className="w-full px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer"
+                              >
+                                <CreditCard
+                                  size={13}
+                                  className="text-blue-500"
+                                />
+                                <span>Ödeme Emri (MİF) Al</span>
+                              </button>
+
+                              {isMal && onOpenTifModal && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setActiveRowMenuId(null);
+                                    onOpenTifModal();
+                                  }}
+                                  className="w-full px-3 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 flex items-center gap-2 cursor-pointer border-t border-slate-100 dark:border-slate-700/60"
+                                >
+                                  <PackageCheck
+                                    size={13}
+                                    className="text-emerald-600"
+                                  />
+                                  <span>Ambara Aktar (TİF)</span>
+                                </button>
+                              )}
+
+                              {onDeleteTutanak && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setActiveRowMenuId(null);
+                                    onDeleteTutanak(tut.id);
+                                  }}
+                                  className="w-full px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 flex items-center gap-2 cursor-pointer border-t border-slate-100 dark:border-slate-700/60"
+                                >
+                                  <Trash2 size={13} />
+                                  <span>Tutanağı Sil</span>
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )
+                : (
+                  <tr className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
                     <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-200 whitespace-nowrap">
-                      <div className="font-mono text-[11px] font-bold text-blue-600 dark:text-blue-400">
-                        {tut.tutanakNo}
-                      </div>
-                      <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mt-0.5">
-                        <Calendar className="w-3 h-3 text-slate-400" />
-                        <span>{formatDate(tut.tutanakTarihi)}</span>
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                        <span>
+                          {formatDate(
+                            faturaTarihi ||
+                              new Date().toISOString().slice(0, 10),
+                          )}
+                        </span>
                       </div>
                     </td>
 
                     <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-slate-100">
                       <div className="flex items-center gap-1.5">
                         <Building2 className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                        <span className="truncate max-w-48" title={effectiveFirma}>
+                        <span
+                          className="truncate max-w-48"
+                          title={effectiveFirma}
+                        >
                           {effectiveFirma}
                         </span>
                       </div>
                     </td>
 
                     <td className="py-3.5 px-4 font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                      {tut.faturaNo || faturaNo ? (
-                        <span className="font-mono font-semibold text-slate-700 dark:text-slate-200 text-[11px]">
-                          {tut.faturaNo || faturaNo}
-                        </span>
-                      ) : (
-                        <span className="text-slate-400 text-[11px]">—</span>
-                      )}
-                      {tut.faturaTarihi && (
-                        <span className="text-[10px] text-slate-400 block mt-0.5">
-                          {formatDate(tut.faturaTarihi)}
-                        </span>
-                      )}
+                      {faturaNo
+                        ? (
+                          <span className="font-mono font-semibold text-slate-700 dark:text-slate-200 text-[11px]">
+                            {faturaNo}
+                          </span>
+                        )
+                        : <span className="text-slate-400 text-[11px]">—</span>}
                     </td>
 
                     <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
                       <div className="flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                        <span className="truncate max-w-40 font-medium">
-                          {tut.teslimYeri || effectiveTeslimYeri}
+                        <UserCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        <span
+                          className="truncate max-w-40 font-semibold"
+                          title={effectiveTeslimAlan}
+                        >
+                          {effectiveTeslimAlan}
                         </span>
                       </div>
-                      <span className="text-[10px] text-slate-400 block ml-5 truncate max-w-40">
-                        {tut.teslimAlan || effectiveTeslimAlan}
-                      </span>
-                    </td>
-
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      {getDurumBadge(tut.durum)}
-                      {tut.notlar && (
-                        <span className="text-[10px] text-slate-400 block mt-0.5 truncate max-w-36">
-                          {tut.notlar}
+                      {hasKomisyon && (
+                        <span className="text-[10px] text-indigo-500 block ml-5">
+                          {komisyonUyeleri.length} Kişilik Heyet
                         </span>
                       )}
                     </td>
 
+                    <td className="py-3.5 px-4 whitespace-nowrap">
+                      {getDurumBadge("kabul")}
+                    </td>
+
                     <td className="py-3.5 px-4 text-right font-bold text-slate-900 dark:text-white whitespace-nowrap">
-                      {tut.tutar
-                        ? formatCurrency(tut.tutar)
-                        : formatCurrency(effectiveTeklifTutar)}
+                      {formatCurrency(effectiveTeklifTutar)}
                     </td>
 
                     <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-1.5 relative">
+                      <div className="flex items-center justify-end gap-1.5">
                         <Button
                           onClick={() => onOpenPreview?.(primarySablonKey)}
                           variant="outline"
                           size="sm"
                           className="h-8 px-2.5 text-xs font-semibold gap-1 text-blue-600 hover:text-blue-700 border-blue-200 hover:border-blue-300"
-                          title="Tutanağı Görüntüle ve Yazdır"
                         >
                           <FileText className="w-3.5 h-3.5" />
                           <span>Tutanağı Aç</span>
                         </Button>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setActiveRowMenuId((cur) => (cur === tut.id ? null : tut.id))
-                          }
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                          title="Tutanak İşlemleri"
+                        <Button
+                          onClick={onOpenAddTutanak}
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2 text-xs text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40"
                         >
-                          <MoreHorizontal size={15} />
-                        </button>
-
-                        {activeRowMenuId === tut.id && (
-                          <div className="absolute right-0 top-10 z-30 w-48 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl overflow-hidden py-1 text-left animate-in fade-in zoom-in-95 duration-150">
-                            {onEditTutanak && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setActiveRowMenuId(null);
-                                  onEditTutanak(tut);
-                                }}
-                                className="w-full px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer"
-                              >
-                                <Edit2 size={13} className="text-blue-500" />
-                                <span>Düzenle / Özelleştir</span>
-                              </button>
-                            )}
-
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setActiveRowMenuId(null);
-                                onOpenPreview?.("odeme-yazisi");
-                              }}
-                              className="w-full px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer"
-                            >
-                              <FileText size={13} className="text-emerald-500" />
-                              <span>Ödeme Yazısı Al</span>
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setActiveRowMenuId(null);
-                                onOpenPreview?.("odeme-emri-belgesi");
-                              }}
-                              className="w-full px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer"
-                            >
-                              <CreditCard size={13} className="text-blue-500" />
-                              <span>Ödeme Emri (MİF) Al</span>
-                            </button>
-
-                            {isMal && onOpenTifModal && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setActiveRowMenuId(null);
-                                  onOpenTifModal();
-                                }}
-                                className="w-full px-3 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 flex items-center gap-2 cursor-pointer border-t border-slate-100 dark:border-slate-700/60"
-                              >
-                                <PackageCheck size={13} className="text-emerald-600" />
-                                <span>Ambara Aktar (TİF)</span>
-                              </button>
-                            )}
-
-                            {onDeleteTutanak && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setActiveRowMenuId(null);
-                                  onDeleteTutanak(tut.id);
-                                }}
-                                className="w-full px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 flex items-center gap-2 cursor-pointer border-t border-slate-100 dark:border-slate-700/60"
-                              >
-                                <Trash2 size={13} />
-                                <span>Tutanağı Sil</span>
-                              </button>
-                            )}
-                          </div>
-                        )}
+                          <Plus className="w-3.5 h-3.5 mr-1" /> Özelleştir
+                        </Button>
                       </div>
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
-                  <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-200 whitespace-nowrap">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{formatDate(faturaTarihi || new Date().toISOString().slice(0, 10))}</span>
-                    </div>
-                  </td>
-
-                  <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-slate-100">
-                    <div className="flex items-center gap-1.5">
-                      <Building2 className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                      <span className="truncate max-w-48" title={effectiveFirma}>
-                        {effectiveFirma}
-                      </span>
-                    </div>
-                  </td>
-
-                  <td className="py-3.5 px-4 font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                    {faturaNo ? (
-                      <span className="font-mono font-semibold text-slate-700 dark:text-slate-200 text-[11px]">
-                        {faturaNo}
-                      </span>
-                    ) : (
-                      <span className="text-slate-400 text-[11px]">—</span>
-                    )}
-                  </td>
-
-                  <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
-                    <div className="flex items-center gap-1.5">
-                      <UserCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                      <span className="truncate max-w-40 font-semibold" title={effectiveTeslimAlan}>
-                        {effectiveTeslimAlan}
-                      </span>
-                    </div>
-                    {hasKomisyon && (
-                      <span className="text-[10px] text-indigo-500 block ml-5">
-                        {komisyonUyeleri.length} Kişilik Heyet
-                      </span>
-                    )}
-                  </td>
-
-                  <td className="py-3.5 px-4 whitespace-nowrap">{getDurumBadge("kabul")}</td>
-
-                  <td className="py-3.5 px-4 text-right font-bold text-slate-900 dark:text-white whitespace-nowrap">
-                    {formatCurrency(effectiveTeklifTutar)}
-                  </td>
-
-                  <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <Button
-                        onClick={() => onOpenPreview?.(primarySablonKey)}
-                        variant="outline"
-                        size="sm"
-                        className="h-8 px-2.5 text-xs font-semibold gap-1 text-blue-600 hover:text-blue-700 border-blue-200 hover:border-blue-300"
-                      >
-                        <FileText className="w-3.5 h-3.5" />
-                        <span>Tutanağı Aç</span>
-                      </Button>
-                      <Button
-                        onClick={onOpenAddTutanak}
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 px-2 text-xs text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40"
-                      >
-                        <Plus className="w-3.5 h-3.5 mr-1" /> Özelleştir
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              )}
+                )}
             </tbody>
           </table>
         </div>
@@ -747,21 +792,19 @@ export function KabulTutanaklariListCard({
       {/* LIST VIEW */}
       {viewMode === "list" && (
         <div className="p-4 space-y-2">
-          {(tutanaklar.length > 0
-            ? tutanaklar
-            : [
-                {
-                  id: "default_1",
-                  tutanakNo: "KT-2026-001",
-                  tutanakTarihi: faturaTarihi || new Date().toISOString().slice(0, 10),
-                  faturaNo: faturaNo || dosyaNo || "1",
-                  durum: "kabul" as const,
-                  tutar: effectiveTeklifTutar,
-                  teslimYeri: effectiveTeslimYeri,
-                  teslimAlan: effectiveTeslimAlan,
-                },
-              ]
-          ).map((tut) => (
+          {(tutanaklar.length > 0 ? tutanaklar : [
+            {
+              id: "default_1",
+              tutanakNo: "KT-2026-001",
+              tutanakTarihi: faturaTarihi ||
+                new Date().toISOString().slice(0, 10),
+              faturaNo: faturaNo || dosyaNo || "1",
+              durum: "kabul" as const,
+              tutar: effectiveTeklifTutar,
+              teslimYeri: effectiveTeslimYeri,
+              teslimAlan: effectiveTeslimAlan,
+            },
+          ]).map((tut) => (
             <div
               key={tut.id}
               className="flex items-center justify-between gap-4 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-blue-200 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-all"
@@ -778,7 +821,8 @@ export function KabulTutanaklariListCard({
                     {getDurumBadge(tut.durum)}
                   </div>
                   <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate mt-0.5">
-                    {effectiveFirma} &bull; {tut.teslimYeri || effectiveTeslimYeri}
+                    {effectiveFirma} &bull;{" "}
+                    {tut.teslimYeri || effectiveTeslimYeri}
                   </div>
                   <div className="text-[11px] text-slate-400 flex items-center gap-3 mt-0.5">
                     <span>Tarih: {formatDate(tut.tutanakTarihi)}</span>
@@ -790,9 +834,13 @@ export function KabulTutanaklariListCard({
               <div className="flex items-center gap-3 shrink-0">
                 <div className="text-right hidden sm:block">
                   <div className="text-xs font-bold text-slate-900 dark:text-white">
-                    {tut.tutar ? formatCurrency(tut.tutar) : formatCurrency(effectiveTeklifTutar)}
+                    {tut.tutar
+                      ? formatCurrency(tut.tutar)
+                      : formatCurrency(effectiveTeklifTutar)}
                   </div>
-                  <div className="text-[10px] text-slate-400">Teslimat Tutarı</div>
+                  <div className="text-[10px] text-slate-400">
+                    Teslimat Tutarı
+                  </div>
                 </div>
                 <Button
                   onClick={() => onOpenPreview?.(primarySablonKey)}
@@ -820,21 +868,19 @@ export function KabulTutanaklariListCard({
       {/* GRID VIEW */}
       {viewMode === "grid" && (
         <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(tutanaklar.length > 0
-            ? tutanaklar
-            : [
-                {
-                  id: "default_1",
-                  tutanakNo: "KT-2026-001",
-                  tutanakTarihi: faturaTarihi || new Date().toISOString().slice(0, 10),
-                  faturaNo: faturaNo || dosyaNo || "1",
-                  durum: "kabul" as const,
-                  tutar: effectiveTeklifTutar,
-                  teslimYeri: effectiveTeslimYeri,
-                  teslimAlan: effectiveTeslimAlan,
-                },
-              ]
-          ).map((tut) => (
+          {(tutanaklar.length > 0 ? tutanaklar : [
+            {
+              id: "default_1",
+              tutanakNo: "KT-2026-001",
+              tutanakTarihi: faturaTarihi ||
+                new Date().toISOString().slice(0, 10),
+              faturaNo: faturaNo || dosyaNo || "1",
+              durum: "kabul" as const,
+              tutar: effectiveTeklifTutar,
+              teslimYeri: effectiveTeslimYeri,
+              teslimAlan: effectiveTeslimAlan,
+            },
+          ]).map((tut) => (
             <div
               key={tut.id}
               className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:shadow-md transition-all flex flex-col justify-between"
@@ -859,14 +905,18 @@ export function KabulTutanaklariListCard({
                   </div>
                   <div className="flex items-center gap-1.5">
                     <MapPin className="w-3 h-3 text-amber-500 shrink-0" />
-                    <span className="truncate">{tut.teslimYeri || effectiveTeslimYeri}</span>
+                    <span className="truncate">
+                      {tut.teslimYeri || effectiveTeslimYeri}
+                    </span>
                   </div>
                 </div>
               </div>
 
               <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                 <div className="text-xs font-bold text-slate-900 dark:text-white">
-                  {tut.tutar ? formatCurrency(tut.tutar) : formatCurrency(effectiveTeklifTutar)}
+                  {tut.tutar
+                    ? formatCurrency(tut.tutar)
+                    : formatCurrency(effectiveTeklifTutar)}
                 </div>
                 <div className="flex items-center gap-1">
                   <Button
@@ -911,7 +961,8 @@ export function KabulTutanaklariListCard({
           )}
         </div>
         <span className="text-[10px] text-slate-400">
-          * Muayene kabul tutanağı onaylandıktan sonra ödeme emri ve taşınır fişi düzenlenebilir.
+          * Muayene kabul tutanağı onaylandıktan sonra ödeme emri ve taşınır
+          fişi düzenlenebilir.
         </span>
       </div>
 
@@ -956,7 +1007,8 @@ export function KabulTutanaklariListCard({
                     type="date"
                     className={inputCls}
                     value={form.tarih}
-                    onChange={(e) => setForm({ ...form, tarih: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, tarih: e.target.value })}
                   />
                 </div>
                 <div>
@@ -968,11 +1020,14 @@ export function KabulTutanaklariListCard({
                   />
                 </div>
                 <div>
-                  <label className={labelCls}>Teslim Alan (Heyet Başkanı)</label>
+                  <label className={labelCls}>
+                    Teslim Alan (Heyet Başkanı)
+                  </label>
                   <input
                     className={inputCls}
                     value={form.teslimAlan}
-                    onChange={(e) => setForm({ ...form, teslimAlan: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, teslimAlan: e.target.value })}
                   />
                 </div>
                 <div>
@@ -980,10 +1035,11 @@ export function KabulTutanaklariListCard({
                   <input
                     className={inputCls}
                     value={form.teslimYeri}
-                    placeholder={
-                      formTipi === "mal" ? "Ambar / Depo" : "Hizmet İfa Yeri"
-                    }
-                    onChange={(e) => setForm({ ...form, teslimYeri: e.target.value })}
+                    placeholder={formTipi === "mal"
+                      ? "Ambar / Depo"
+                      : "Hizmet İfa Yeri"}
+                    onChange={(e) =>
+                      setForm({ ...form, teslimYeri: e.target.value })}
                   />
                 </div>
                 <div>
@@ -992,7 +1048,8 @@ export function KabulTutanaklariListCard({
                     type="date"
                     className={inputCls}
                     value={form.faturaTarihi}
-                    onChange={(e) => setForm({ ...form, faturaTarihi: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, faturaTarihi: e.target.value })}
                   />
                 </div>
                 <div>
@@ -1000,21 +1057,23 @@ export function KabulTutanaklariListCard({
                   <input
                     className={inputCls}
                     value={form.faturaNo}
-                    onChange={(e) => setForm({ ...form, faturaNo: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, faturaNo: e.target.value })}
                   />
                 </div>
               </div>
 
               {formTipi === "hizmet" && (
                 <div>
-                  <label className={labelCls}>Hizmet Açıklaması ve Muayene Notları</label>
+                  <label className={labelCls}>
+                    Hizmet Açıklaması ve Muayene Notları
+                  </label>
                   <textarea
                     rows={3}
                     className={inputCls}
                     value={form.hizmetAciklamasi}
                     onChange={(e) =>
-                      setForm({ ...form, hizmetAciklamasi: e.target.value })
-                    }
+                      setForm({ ...form, hizmetAciklamasi: e.target.value })}
                     placeholder="İfa edilen hizmetin mevzuata ve sözleşme şartlarına uygunluğuna ilişkin muayene notları..."
                   />
                 </div>
@@ -1022,7 +1081,9 @@ export function KabulTutanaklariListCard({
 
               {formTipi === "mal" && (
                 <div>
-                  <label className={labelCls}>Teslim Alınan Malzeme Kalemleri</label>
+                  <label className={labelCls}>
+                    Teslim Alınan Malzeme Kalemleri
+                  </label>
                   <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
                     <table className="w-full text-xs text-left">
                       <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider">
@@ -1037,7 +1098,10 @@ export function KabulTutanaklariListCard({
                             "Kabul Miktarı",
                             "",
                           ].map((h) => (
-                            <th key={h} className="px-3 py-2.5 font-bold whitespace-nowrap">
+                            <th
+                              key={h}
+                              className="px-3 py-2.5 font-bold whitespace-nowrap"
+                            >
                               {h}
                             </th>
                           ))}
@@ -1046,14 +1110,19 @@ export function KabulTutanaklariListCard({
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {kalemler.map((k, i) => (
                           <tr key={k.id}>
-                            <td className="px-3 py-2 text-slate-400 font-bold text-center">{i + 1}</td>
+                            <td className="px-3 py-2 text-slate-400 font-bold text-center">
+                              {i + 1}
+                            </td>
                             <td className="px-3 py-2 min-w-40">
                               <input
                                 className={inputCls}
                                 value={k.malzemeAdi}
                                 onChange={(e) =>
-                                  kalemGuncelle(k.id, "malzemeAdi", e.target.value)
-                                }
+                                  kalemGuncelle(
+                                    k.id,
+                                    "malzemeAdi",
+                                    e.target.value,
+                                  )}
                                 placeholder="Örn: A4 Fotokopi Kağıdı"
                               />
                             </td>
@@ -1062,8 +1131,11 @@ export function KabulTutanaklariListCard({
                                 className={inputCls}
                                 value={k.ozelligi}
                                 onChange={(e) =>
-                                  kalemGuncelle(k.id, "ozelligi", e.target.value)
-                                }
+                                  kalemGuncelle(
+                                    k.id,
+                                    "ozelligi",
+                                    e.target.value,
+                                  )}
                                 placeholder="Örn: 80 gr/m² 500'lü"
                               />
                             </td>
@@ -1072,8 +1144,7 @@ export function KabulTutanaklariListCard({
                                 className={inputCls}
                                 value={k.birimi}
                                 onChange={(e) =>
-                                  kalemGuncelle(k.id, "birimi", e.target.value)
-                                }
+                                  kalemGuncelle(k.id, "birimi", e.target.value)}
                               />
                             </td>
                             <td className="px-3 py-2 w-24">
@@ -1083,8 +1154,11 @@ export function KabulTutanaklariListCard({
                                 className={inputCls}
                                 value={k.miktari}
                                 onChange={(e) =>
-                                  kalemGuncelle(k.id, "miktari", e.target.value)
-                                }
+                                  kalemGuncelle(
+                                    k.id,
+                                    "miktari",
+                                    e.target.value,
+                                  )}
                               />
                             </td>
                             <td className="px-3 py-2 w-28">
@@ -1094,8 +1168,11 @@ export function KabulTutanaklariListCard({
                                 className={inputCls}
                                 value={k.toplamTeslimAlinan}
                                 onChange={(e) =>
-                                  kalemGuncelle(k.id, "toplamTeslimAlinan", e.target.value)
-                                }
+                                  kalemGuncelle(
+                                    k.id,
+                                    "toplamTeslimAlinan",
+                                    e.target.value,
+                                  )}
                               />
                             </td>
                             <td className="px-3 py-2 w-28">
@@ -1105,8 +1182,11 @@ export function KabulTutanaklariListCard({
                                 className={inputCls}
                                 value={k.kabulMiktari}
                                 onChange={(e) =>
-                                  kalemGuncelle(k.id, "kabulMiktari", e.target.value)
-                                }
+                                  kalemGuncelle(
+                                    k.id,
+                                    "kabulMiktari",
+                                    e.target.value,
+                                  )}
                               />
                             </td>
                             <td className="px-3 py-2">
@@ -1114,8 +1194,9 @@ export function KabulTutanaklariListCard({
                                 <button
                                   type="button"
                                   onClick={() =>
-                                    setKalemler((ks) => ks.filter((x) => x.id !== k.id))
-                                  }
+                                    setKalemler((ks) =>
+                                      ks.filter((x) => x.id !== k.id)
+                                    )}
                                   className="text-xs text-rose-600 dark:text-rose-400 hover:underline cursor-pointer"
                                 >
                                   Kaldır
@@ -1133,8 +1214,7 @@ export function KabulTutanaklariListCard({
                       setKalemler((ks) => [
                         ...ks,
                         bosKalem(Math.max(...ks.map((x) => x.id)) + 1),
-                      ])
-                    }
+                      ])}
                     className="mt-3 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer flex items-center gap-1"
                   >
                     <Plus className="w-3.5 h-3.5" />

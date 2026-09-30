@@ -182,6 +182,7 @@ export function KabulVeOdeme(): React.JSX.Element {
         }}
         onSave={handleSaveTutanak}
         initialTutanak={editingTutanak}
+        existingTutanaklar={tutanaklar}
         defaultTutar={firmaStats.teklifToplami || undefined}
         defaultFaturaNo={faturaNo}
         defaultFaturaTarihi={faturaTarihi}

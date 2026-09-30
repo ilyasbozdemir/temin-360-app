@@ -17,6 +17,7 @@ interface KabulTutanakModalProps {
   onClose: () => void;
   onSave: (tutanak: KabulTutanakItem) => void;
   initialTutanak?: KabulTutanakItem | null;
+  existingTutanaklar?: KabulTutanakItem[];
   defaultFaturaNo?: string;
   defaultFaturaTarihi?: string;
   defaultTeslimYeri?: string;
@@ -54,6 +55,7 @@ export function KabulTutanakModal({
   onClose,
   onSave,
   initialTutanak,
+  existingTutanaklar = [],
   defaultFaturaNo = "",
   defaultFaturaTarihi = "",
   defaultTeslimYeri = "",
@@ -82,6 +84,22 @@ export function KabulTutanakModal({
   useEffect(() => {
     if (!isOpen) return;
 
+    // Önceki tutanaklarda kabul edilen miktarları kalem bazında (siraNo) hesaplayalım
+    const previousAcceptedMap: Record<number, number> = {};
+    if (existingTutanaklar && existingTutanaklar.length > 0) {
+      existingTutanaklar.forEach((prevTut) => {
+        // Düzenleme modundaysak mevcut düzenlenen tutanağın miktarlarını dahil etme
+        if (initialTutanak && prevTut.id === initialTutanak.id) return;
+
+        if (prevTut.kalemler) {
+          prevTut.kalemler.forEach((k) => {
+            const prevVal = previousAcceptedMap[k.siraNo] || 0;
+            previousAcceptedMap[k.siraNo] = prevVal + (Number(k.kabulMiktari) || 0);
+          });
+        }
+      });
+    }
+
     if (initialTutanak) {
       setTutanakNo(initialTutanak.tutanakNo || "");
       setTutanakTarihi(initialTutanak.tutanakTarihi || "");
@@ -94,14 +112,22 @@ export function KabulTutanakModal({
       setDurum(initialTutanak.durum || "kabul");
       setTutar(initialTutanak.tutar ? String(initialTutanak.tutar) : "");
       setNotlar(initialTutanak.notlar || "");
-      setKalemler(initialTutanak.kalemler || []);
+      
+      const loadedKalemler = (initialTutanak.kalemler || []).map((k) => {
+        const onceki = previousAcceptedMap[k.siraNo] || 0;
+        return {
+          ...k,
+          oncekiTeslimAlinan: onceki,
+          toplamTeslimAlinan: onceki + Number(k.kabulMiktari || 0)
+        };
+      });
+      setKalemler(loadedKalemler);
     } else {
       const todayStr = new Date().toISOString().split("T")[0];
-      setTutanakNo(
-        `KT-${new Date().getFullYear()}-${
-          Math.floor(100 + Math.random() * 900)
-        }`,
-      );
+      const nextIndex = (existingTutanaklar?.length || 0) + 1;
+      const autoTutanakNo = `KT-${new Date().getFullYear()}-${String(nextIndex).padStart(3, "0")}`;
+
+      setTutanakNo(autoTutanakNo);
       setTutanakTarihi(defaultFaturaTarihi || todayStr);
       setFaturaNo(defaultFaturaNo);
       setFaturaTarihi(defaultFaturaTarihi || todayStr);
@@ -115,15 +141,23 @@ export function KabulTutanakModal({
 
       if (dosyaKalemler && dosyaKalemler.length > 0) {
         setKalemler(
-          dosyaKalemler.map((k, idx) => ({
-            siraNo: k.sira_no || idx + 1,
-            malzemeAdi: k.malzeme_adi || "",
-            ozelligi: k.ozelligi || "",
-            birimi: k.birimi || "Adet",
-            miktari: Number(k.miktar || 0),
-            toplamTeslimAlinan: Number(k.miktar || 0),
-            kabulMiktari: Number(k.miktar || 0),
-          })),
+          dosyaKalemler.map((k, idx) => {
+            const siraNo = k.sira_no || idx + 1;
+            const ihtiyacMiktari = Number(k.miktar || 0);
+            const oncekiTeslim = previousAcceptedMap[siraNo] || 0;
+            const kalanBakiye = Math.max(0, ihtiyacMiktari - oncekiTeslim);
+
+            return {
+              siraNo,
+              malzemeAdi: k.malzeme_adi || "",
+              ozelligi: k.ozelligi || "",
+              birimi: k.birimi || "Adet",
+              miktari: ihtiyacMiktari,
+              oncekiTeslimAlinan: oncekiTeslim,
+              toplamTeslimAlinan: oncekiTeslim + kalanBakiye,
+              kabulMiktari: kalanBakiye,
+            };
+          }),
         );
       } else {
         setKalemler([
@@ -133,6 +167,7 @@ export function KabulTutanakModal({
             ozelligi: "",
             birimi: "Adet",
             miktari: 1,
+            oncekiTeslimAlinan: 0,
             toplamTeslimAlinan: 1,
             kabulMiktari: 1,
           },
@@ -174,6 +209,11 @@ export function KabulTutanakModal({
       prev.map((item, i) => {
         if (i !== idx) return item;
         const updated = { ...item, [field]: val };
+        if (field === "kabulMiktari" || field === "miktari") {
+          const onceki = updated.oncekiTeslimAlinan || 0;
+          const buKabul = Number(updated.kabulMiktari) || 0;
+          updated.toplamTeslimAlinan = onceki + buKabul;
+        }
         return updated;
       })
     );
@@ -405,119 +445,132 @@ export function KabulTutanakModal({
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-slate-200/60 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-700">
-                    <th className="py-2 px-2 w-12 text-center">Sıra</th>
-                    <th className="py-2 px-2 min-w-[160px]">Malzeme Adı *</th>
-                    <th className="py-2 px-2 min-w-[140px]">Özelliği</th>
-                    <th className="py-2 px-2 w-24">Birimi</th>
-                    <th className="py-2 px-2 w-20 text-center">
+                    <th className="py-2 px-2 w-10 text-center">Sıra</th>
+                    <th className="py-2 px-2 min-w-[150px]">Malzeme Adı *</th>
+                    <th className="py-2 px-2 min-w-[120px]">Özelliği</th>
+                    <th className="py-2 px-2 w-20">Birimi</th>
+                    <th className="py-2 px-2 w-20 text-center" title="İhtiyaç Listesindeki Toplam Miktar">
                       İhtiyaç Miktarı
                     </th>
-                    <th className="py-2 px-2 w-24 text-center">
-                      Top. Teslim Alınan
+                    <th className="py-2 px-2 w-24 text-center" title="Önceki Tutanaklarda Kabul Edilen Toplam Miktar">
+                      Önceki Kabul
                     </th>
-                    <th className="py-2 px-2 w-24 text-center">
-                      Kabul Miktarı
+                    <th className="py-2 px-2 w-24 text-center" title="Bu Muayene Tutanağında Kabul Edilen Miktar">
+                      Bu Tutanağın Kabulü *
+                    </th>
+                    <th className="py-2 px-2 w-24 text-center" title="Kalan Teslim Edilecek Miktar Bakiyesi">
+                      Kalan Bakiye
                     </th>
                     <th className="py-2 px-1 w-8 text-center"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200/60 dark:divide-slate-800">
-                  {kalemler.map((kalem, idx) => (
-                    <tr
-                      key={idx}
-                      className="hover:bg-white dark:hover:bg-slate-800/60 transition-colors"
-                    >
-                      <td className="py-1.5 px-2 text-center font-bold text-slate-500">
-                        {kalem.siraNo}
-                      </td>
-                      <td className="py-1.5 px-2">
-                        <input
-                          type="text"
-                          value={kalem.malzemeAdi}
-                          onChange={(e) =>
-                            handleUpdateKalem(
-                              idx,
-                              "malzemeAdi",
-                              e.target.value,
-                            )}
-                          placeholder="Malzeme adı..."
-                          required
-                          className="w-full h-8 px-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
-                        />
-                      </td>
-                      <td className="py-1.5 px-2">
-                        <input
-                          type="text"
-                          value={kalem.ozelligi}
-                          onChange={(e) =>
-                            handleUpdateKalem(idx, "ozelligi", e.target.value)}
-                          placeholder="Teknik özelliği..."
-                          className="w-full h-8 px-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
-                        />
-                      </td>
-                      <td className="py-1.5 px-2">
-                        <input
-                          type="text"
-                          value={kalem.birimi}
-                          onChange={(e) =>
-                            handleUpdateKalem(idx, "birimi", e.target.value)}
-                          placeholder="Adet, Takım..."
-                          className="w-full h-8 px-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
-                        />
-                      </td>
-                      <td className="py-1.5 px-2 text-center">
-                        <input
-                          type="number"
-                          value={kalem.miktari}
-                          onChange={(e) =>
-                            handleUpdateKalem(
-                              idx,
-                              "miktari",
-                              Number(e.target.value),
-                            )}
-                          className="w-full h-8 px-1.5 text-center bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
-                        />
-                      </td>
-                      <td className="py-1.5 px-2 text-center">
-                        <input
-                          type="number"
-                          value={kalem.toplamTeslimAlinan}
-                          onChange={(e) =>
-                            handleUpdateKalem(
-                              idx,
-                              "toplamTeslimAlinan",
-                              Number(e.target.value),
-                            )}
-                          className="w-full h-8 px-1.5 text-center bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
-                        />
-                      </td>
-                      <td className="py-1.5 px-2 text-center">
-                        <input
-                          type="number"
-                          value={kalem.kabulMiktari}
-                          onChange={(e) =>
-                            handleUpdateKalem(
-                              idx,
-                              "kabulMiktari",
-                              Number(e.target.value),
-                            )}
-                          className="w-full h-8 px-1.5 text-center font-bold text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-lg text-xs"
-                        />
-                      </td>
-                      <td className="py-1.5 px-1 text-center">
-                        {kalemler.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveKalem(idx)}
-                            className="p-1 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50"
-                            title="Satırı Sil"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                  {kalemler.map((kalem, idx) => {
+                    const ihtiyac = Number(kalem.miktari || 0);
+                    const onceki = Number(kalem.oncekiTeslimAlinan || 0);
+                    const buKabul = Number(kalem.kabulMiktari || 0);
+                    const bakiye = Math.max(0, ihtiyac - (onceki + buKabul));
+
+                    return (
+                      <tr
+                        key={idx}
+                        className="hover:bg-white dark:hover:bg-slate-800/60 transition-colors"
+                      >
+                        <td className="py-1.5 px-2 text-center font-bold text-slate-500">
+                          {kalem.siraNo}
+                        </td>
+                        <td className="py-1.5 px-2">
+                          <input
+                            type="text"
+                            value={kalem.malzemeAdi}
+                            onChange={(e) =>
+                              handleUpdateKalem(
+                                idx,
+                                "malzemeAdi",
+                                e.target.value,
+                              )}
+                            placeholder="Malzeme adı..."
+                            required
+                            className="w-full h-8 px-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
+                          />
+                        </td>
+                        <td className="py-1.5 px-2">
+                          <input
+                            type="text"
+                            value={kalem.ozelligi}
+                            onChange={(e) =>
+                              handleUpdateKalem(idx, "ozelligi", e.target.value)}
+                            placeholder="Teknik özelliği..."
+                            className="w-full h-8 px-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
+                          />
+                        </td>
+                        <td className="py-1.5 px-2">
+                          <input
+                            type="text"
+                            value={kalem.birimi}
+                            onChange={(e) =>
+                              handleUpdateKalem(idx, "birimi", e.target.value)}
+                            placeholder="Adet, Takım..."
+                            className="w-full h-8 px-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
+                          />
+                        </td>
+                        <td className="py-1.5 px-2 text-center">
+                          <input
+                            type="number"
+                            value={kalem.miktari}
+                            onChange={(e) =>
+                              handleUpdateKalem(
+                                idx,
+                                "miktari",
+                                Number(e.target.value),
+                              )}
+                            className="w-full h-8 px-1.5 text-center bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
+                          />
+                        </td>
+                        <td className="py-1.5 px-2 text-center">
+                          <span className="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono text-xs rounded-lg font-bold">
+                            {onceki}
+                          </span>
+                        </td>
+                        <td className="py-1.5 px-2 text-center">
+                          <input
+                            type="number"
+                            value={kalem.kabulMiktari}
+                            onChange={(e) =>
+                              handleUpdateKalem(
+                                idx,
+                                "kabulMiktari",
+                                Number(e.target.value),
+                              )}
+                            className="w-full h-8 px-1.5 text-center font-bold text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 rounded-lg text-xs font-mono focus:ring-1 focus:ring-emerald-500"
+                          />
+                        </td>
+                        <td className="py-1.5 px-2 text-center">
+                          {bakiye === 0 ? (
+                            <span className="inline-block px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold text-[10px]">
+                              Tam (0)
+                            </span>
+                          ) : (
+                            <span className="inline-block px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold text-[10px]" title="Teslim edilecek kalan bakiye">
+                              Kalan: {bakiye}
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-1.5 px-1 text-center">
+                          {kalemler.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveKalem(idx)}
+                              className="p-1 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50"
+                              title="Satırı Sil"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

@@ -24,6 +24,7 @@ export interface MalKalemiItem {
   ozelligi: string
   birimi: string
   miktari: number
+  oncekiTeslimAlinan?: number
   toplamTeslimAlinan: number
   kabulMiktari: number
 }
