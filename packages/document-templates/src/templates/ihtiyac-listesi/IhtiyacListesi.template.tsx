@@ -73,8 +73,6 @@ export function IhtiyacListesi({
         const isFirstPage = pageIdx === 0;
         const isLastPage = pageIdx === pages.length - 1;
 
-        console.log(data);
-
         return (
           <DocumentLayout
             key={pageIdx}

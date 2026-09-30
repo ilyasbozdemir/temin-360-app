@@ -21,8 +21,6 @@ export function ArastirmaMektubu({
 }: ArastirmaMektubuProps) {
   const items = data.ihtiyacKalemleri || [];
 
-  console.log("data", data);
-
   const komisyonRaw = data.fiyatKomisyonu ||
     data.gorevlendirilenler ||
     data.komisyon ||
