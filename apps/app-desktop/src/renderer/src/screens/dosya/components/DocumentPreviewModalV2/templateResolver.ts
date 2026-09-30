@@ -690,15 +690,31 @@ export function resolveTemplateConfig(documentId: string | null | undefined): {
   }
 
   const found = TEMPLATE_REGISTRY.find((t) => t.id === resolvedId)
-  if (found && V2_TEMPLATES_MAP[found.name]) {
+  if (found) {
+    const comp = V2_TEMPLATES_MAP[found.name] || (found.category === '4-kabul-ve-odeme-islemleri'
+      ? Templates.MuayeneKabulKomisyonu
+      : found.category === '3-siparis-ve-sozlesme'
+      ? Templates.DogrudanTeminOnayBelgesi
+      : found.category === '2-piyasa-fiyat-arastirmasi'
+      ? Templates.PiyasaFiyatArastirmaTutanagi
+      : defaultComponent) as TemplateComponentType
     return {
       config: found,
-      component: V2_TEMPLATES_MAP[found.name],
+      component: comp,
       resolvedId: found.id
     }
   }
 
-  // 5. Ultimate fallback: always return IhtiyacListesi
+  // 5. Ultimate fallback: check cleanKey hints before returning IhtiyacListesi
+  if (cleanKey.includes('odeme') || cleanKey.includes('kabul') || cleanKey.includes('muayene') || cleanKey.includes('tutanak')) {
+    const kabulTemplate = TEMPLATE_REGISTRY.find((t) => t.id === 'muayene-kabul-komisyonu') || defaultTemplate
+    return {
+      config: kabulTemplate,
+      component: Templates.MuayeneKabulKomisyonu as TemplateComponentType,
+      resolvedId: kabulTemplate.id
+    }
+  }
+
   return {
     config: defaultTemplate,
     component: defaultComponent,
