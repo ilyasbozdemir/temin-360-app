@@ -27,6 +27,8 @@ export interface MalKalemiItem {
   oncekiTeslimAlinan?: number
   toplamTeslimAlinan: number
   kabulMiktari: number
+  birimFiyati?: number
+  toplamTutar?: number
 }
 
 export interface KabulTutanakItem {

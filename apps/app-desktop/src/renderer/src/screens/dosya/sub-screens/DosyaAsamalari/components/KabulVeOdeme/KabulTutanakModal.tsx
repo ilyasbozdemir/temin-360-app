@@ -61,7 +61,6 @@ export function KabulTutanakModal({
   defaultTeslimYeri = "",
   defaultTeslimAlan = "",
   defaultTutar = null,
-  alimTuru = "mal",
   dosyaKalemler = [],
 }: KabulTutanakModalProps): React.JSX.Element {
   const [tutanakNo, setTutanakNo] = useState("");
@@ -78,8 +77,6 @@ export function KabulTutanakModal({
   const [tutar, setTutar] = useState("");
   const [notlar, setNotlar] = useState("");
   const [kalemler, setKalemler] = useState<MalKalemiItem[]>([]);
-
-  const isHizmet = alimTuru.toLowerCase().includes("hizmet");
 
   useEffect(() => {
     if (!isOpen) return;
@@ -115,10 +112,14 @@ export function KabulTutanakModal({
       
       const loadedKalemler = (initialTutanak.kalemler || []).map((k) => {
         const onceki = previousAcceptedMap[k.siraNo] || 0;
+        const buKabul = Number(k.kabulMiktari || 0);
+        const bFiyat = Number(k.birimFiyati || 0);
         return {
           ...k,
           oncekiTeslimAlinan: onceki,
-          toplamTeslimAlinan: onceki + Number(k.kabulMiktari || 0)
+          toplamTeslimAlinan: onceki + buKabul,
+          birimFiyati: bFiyat,
+          toplamTutar: buKabul * bFiyat
         };
       });
       setKalemler(loadedKalemler);
@@ -136,30 +137,37 @@ export function KabulTutanakModal({
       setTeslimYeri(defaultTeslimYeri || DEFAULT_AMBARLAR[0]);
       setTeslimAlan(defaultTeslimAlan || DEFAULT_TESLİM_ALANLAR[0]);
       setDurum("kabul");
-      setTutar(defaultTutar ? String(defaultTutar) : "");
       setNotlar("");
 
       if (dosyaKalemler && dosyaKalemler.length > 0) {
-        setKalemler(
-          dosyaKalemler.map((k, idx) => {
-            const siraNo = k.sira_no || idx + 1;
-            const ihtiyacMiktari = Number(k.miktar || 0);
-            const oncekiTeslim = previousAcceptedMap[siraNo] || 0;
-            const kalanBakiye = Math.max(0, ihtiyacMiktari - oncekiTeslim);
+        let computedSum = 0;
+        const mappedKalemler = dosyaKalemler.map((k, idx) => {
+          const siraNo = k.sira_no || idx + 1;
+          const ihtiyacMiktari = Number(k.miktar || 0);
+          const oncekiTeslim = previousAcceptedMap[siraNo] || 0;
+          const kalanBakiye = Math.max(0, ihtiyacMiktari - oncekiTeslim);
+          const birimFiyati = Number(k.birim_fiyat || 0);
+          const lineTotal = kalanBakiye * birimFiyati;
+          computedSum += lineTotal;
 
-            return {
-              siraNo,
-              malzemeAdi: k.malzeme_adi || "",
-              ozelligi: k.ozelligi || "",
-              birimi: k.birimi || "Adet",
-              miktari: ihtiyacMiktari,
-              oncekiTeslimAlinan: oncekiTeslim,
-              toplamTeslimAlinan: oncekiTeslim + kalanBakiye,
-              kabulMiktari: kalanBakiye,
-            };
-          }),
-        );
+          return {
+            siraNo,
+            malzemeAdi: k.malzeme_adi || "",
+            ozelligi: k.ozelligi || "",
+            birimi: k.birimi || "Adet",
+            miktari: ihtiyacMiktari,
+            oncekiTeslimAlinan: oncekiTeslim,
+            toplamTeslimAlinan: oncekiTeslim + kalanBakiye,
+            kabulMiktari: kalanBakiye,
+            birimFiyati,
+            toplamTutar: lineTotal,
+          };
+        });
+
+        setKalemler(mappedKalemler);
+        setTutar(computedSum > 0 ? String(computedSum) : (defaultTutar ? String(defaultTutar) : ""));
       } else {
+        setTutar(defaultTutar ? String(defaultTutar) : "");
         setKalemler([
           {
             siraNo: 1,
@@ -170,6 +178,8 @@ export function KabulTutanakModal({
             oncekiTeslimAlinan: 0,
             toplamTeslimAlinan: 1,
             kabulMiktari: 1,
+            birimFiyati: 0,
+            toplamTutar: 0,
           },
         ]);
       }
@@ -186,8 +196,11 @@ export function KabulTutanakModal({
         ozelligi: "",
         birimi: "Adet",
         miktari: 1,
+        oncekiTeslimAlinan: 0,
         toplamTeslimAlinan: 1,
         kabulMiktari: 1,
+        birimFiyati: 0,
+        toplamTutar: 0,
       },
     ]);
   };
@@ -205,18 +218,30 @@ export function KabulTutanakModal({
     field: keyof MalKalemiItem,
     val: string | number,
   ): void => {
-    setKalemler((prev) =>
-      prev.map((item, i) => {
+    setKalemler((prev) => {
+      const updatedList = prev.map((item, i) => {
         if (i !== idx) return item;
         const updated = { ...item, [field]: val };
-        if (field === "kabulMiktari" || field === "miktari") {
-          const onceki = updated.oncekiTeslimAlinan || 0;
-          const buKabul = Number(updated.kabulMiktari) || 0;
-          updated.toplamTeslimAlinan = onceki + buKabul;
-        }
+        const onceki = updated.oncekiTeslimAlinan || 0;
+        const buKabul = Number(updated.kabulMiktari) || 0;
+        const bFiyat = Number(updated.birimFiyati) || 0;
+        updated.toplamTeslimAlinan = onceki + buKabul;
+        updated.toplamTutar = buKabul * bFiyat;
         return updated;
-      })
-    );
+      });
+
+      const totalSum = updatedList.reduce((acc, k) => {
+        const buKabul = Number(k.kabulMiktari) || 0;
+        const bFiyat = Number(k.birimFiyati) || 0;
+        return acc + buKabul * bFiyat;
+      }, 0);
+
+      if (totalSum > 0) {
+        setTutar(String(totalSum));
+      }
+
+      return updatedList;
+    });
   };
 
   const handleSubmit = (e: React.FormEvent): void => {
@@ -237,7 +262,7 @@ export function KabulTutanakModal({
       durum,
       tutar: tutar ? Number(tutar) : undefined,
       notlar: notlar.trim() || undefined,
-      kalemler: isHizmet ? undefined : kalemler,
+      kalemler: kalemler,
       created_at: initialTutanak?.created_at || new Date().toISOString(),
     };
 
@@ -419,163 +444,196 @@ export function KabulTutanakModal({
           </div>
         </div>
 
-        {/* MAL ALIMI KALEMLER TABLOSU */}
-        {!isHizmet && (
-          <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-900/50 p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <PackageCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                  Mal Muayene ve Teslim Alınan Kalemler Cetveli
-                </h4>
-              </div>
-              <Button
-                type="button"
-                onClick={handleAddKalem}
-                variant="outline"
-                size="sm"
-                className="h-7 text-[11px] gap-1 px-2 border-emerald-300 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50"
-              >
-                <Plus className="w-3 h-3" />
-                Satır Ekle
-              </Button>
+        {/* MUAYENE VE TESLİM ALINAN KALEMLER TABLOSU */}
+        <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-900/50 p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <PackageCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                Muayene ve Teslim Alınan Kalemler Cetveli
+              </h4>
             </div>
-
-            <div className="overflow-x-auto max-h-56">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="bg-slate-200/60 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-700">
-                    <th className="py-2 px-2 w-10 text-center">Sıra</th>
-                    <th className="py-2 px-2 min-w-[150px]">Malzeme Adı *</th>
-                    <th className="py-2 px-2 min-w-[120px]">Özelliği</th>
-                    <th className="py-2 px-2 w-20">Birimi</th>
-                    <th className="py-2 px-2 w-20 text-center" title="İhtiyaç Listesindeki Toplam Miktar">
-                      İhtiyaç Miktarı
-                    </th>
-                    <th className="py-2 px-2 w-24 text-center" title="Önceki Tutanaklarda Kabul Edilen Toplam Miktar">
-                      Önceki Kabul
-                    </th>
-                    <th className="py-2 px-2 w-24 text-center" title="Bu Muayene Tutanağında Kabul Edilen Miktar">
-                      Bu Tutanağın Kabulü *
-                    </th>
-                    <th className="py-2 px-2 w-24 text-center" title="Kalan Teslim Edilecek Miktar Bakiyesi">
-                      Kalan Bakiye
-                    </th>
-                    <th className="py-2 px-1 w-8 text-center"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200/60 dark:divide-slate-800">
-                  {kalemler.map((kalem, idx) => {
-                    const ihtiyac = Number(kalem.miktari || 0);
-                    const onceki = Number(kalem.oncekiTeslimAlinan || 0);
-                    const buKabul = Number(kalem.kabulMiktari || 0);
-                    const bakiye = Math.max(0, ihtiyac - (onceki + buKabul));
-
-                    return (
-                      <tr
-                        key={idx}
-                        className="hover:bg-white dark:hover:bg-slate-800/60 transition-colors"
-                      >
-                        <td className="py-1.5 px-2 text-center font-bold text-slate-500">
-                          {kalem.siraNo}
-                        </td>
-                        <td className="py-1.5 px-2">
-                          <input
-                            type="text"
-                            value={kalem.malzemeAdi}
-                            onChange={(e) =>
-                              handleUpdateKalem(
-                                idx,
-                                "malzemeAdi",
-                                e.target.value,
-                              )}
-                            placeholder="Malzeme adı..."
-                            required
-                            className="w-full h-8 px-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
-                          />
-                        </td>
-                        <td className="py-1.5 px-2">
-                          <input
-                            type="text"
-                            value={kalem.ozelligi}
-                            onChange={(e) =>
-                              handleUpdateKalem(idx, "ozelligi", e.target.value)}
-                            placeholder="Teknik özelliği..."
-                            className="w-full h-8 px-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
-                          />
-                        </td>
-                        <td className="py-1.5 px-2">
-                          <input
-                            type="text"
-                            value={kalem.birimi}
-                            onChange={(e) =>
-                              handleUpdateKalem(idx, "birimi", e.target.value)}
-                            placeholder="Adet, Takım..."
-                            className="w-full h-8 px-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
-                          />
-                        </td>
-                        <td className="py-1.5 px-2 text-center">
-                          <input
-                            type="number"
-                            value={kalem.miktari}
-                            onChange={(e) =>
-                              handleUpdateKalem(
-                                idx,
-                                "miktari",
-                                Number(e.target.value),
-                              )}
-                            className="w-full h-8 px-1.5 text-center bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
-                          />
-                        </td>
-                        <td className="py-1.5 px-2 text-center">
-                          <span className="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono text-xs rounded-lg font-bold">
-                            {onceki}
-                          </span>
-                        </td>
-                        <td className="py-1.5 px-2 text-center">
-                          <input
-                            type="number"
-                            value={kalem.kabulMiktari}
-                            onChange={(e) =>
-                              handleUpdateKalem(
-                                idx,
-                                "kabulMiktari",
-                                Number(e.target.value),
-                              )}
-                            className="w-full h-8 px-1.5 text-center font-bold text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 rounded-lg text-xs font-mono focus:ring-1 focus:ring-emerald-500"
-                          />
-                        </td>
-                        <td className="py-1.5 px-2 text-center">
-                          {bakiye === 0 ? (
-                            <span className="inline-block px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold text-[10px]">
-                              Tam (0)
-                            </span>
-                          ) : (
-                            <span className="inline-block px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold text-[10px]" title="Teslim edilecek kalan bakiye">
-                              Kalan: {bakiye}
-                            </span>
-                          )}
-                        </td>
-                        <td className="py-1.5 px-1 text-center">
-                          {kalemler.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveKalem(idx)}
-                              className="p-1 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50"
-                              title="Satırı Sil"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <Button
+              type="button"
+              onClick={handleAddKalem}
+              variant="outline"
+              size="sm"
+              className="h-7 text-[11px] gap-1 px-2 border-emerald-300 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50"
+            >
+              <Plus className="w-3 h-3" />
+              Satır Ekle
+            </Button>
           </div>
-        )}
+
+          <div className="overflow-x-auto max-h-60">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="bg-slate-200/60 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-700">
+                  <th className="py-2 px-2 w-8 text-center">Sıra</th>
+                  <th className="py-2 px-2 min-w-[140px]">Kalem / Malzeme Adı *</th>
+                  <th className="py-2 px-2 min-w-[100px]">Özelliği</th>
+                  <th className="py-2 px-2 w-16">Birimi</th>
+                  <th className="py-2 px-2 w-20 text-center" title="İhtiyaç Listesindeki Miktar">
+                    İhtiyaç
+                  </th>
+                  <th className="py-2 px-2 w-20 text-center" title="Önceki Tutanaklarda Kabul Edilen Miktar">
+                    Önceki
+                  </th>
+                  <th className="py-2 px-2 w-24 text-center" title="Bu Muayene Tutanağında Kabul Edilen Miktar">
+                    Bu Kabul *
+                  </th>
+                  <th className="py-2 px-2 w-24 text-right" title="Kalem Birim Fiyatı (₺)">
+                    Birim Fiyatı (₺)
+                  </th>
+                  <th className="py-2 px-2 w-28 text-right" title="Bu Tutanağa Ait Kabul Tutarı (₺)">
+                    Kabul Tutarı (₺)
+                  </th>
+                  <th className="py-2 px-2 w-20 text-center" title="Kalan Teslim Edilecek Miktar Bakiyesi">
+                    Kalan Bakiye
+                  </th>
+                  <th className="py-2 px-1 w-8 text-center"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200/60 dark:divide-slate-800">
+                {kalemler.map((kalem, idx) => {
+                  const ihtiyac = Number(kalem.miktari || 0);
+                  const onceki = Number(kalem.oncekiTeslimAlinan || 0);
+                  const buKabul = Number(kalem.kabulMiktari || 0);
+                  const bFiyat = Number(kalem.birimFiyati || 0);
+                  const kalemTutar = buKabul * bFiyat;
+                  const bakiye = Math.max(0, ihtiyac - (onceki + buKabul));
+
+                  return (
+                    <tr
+                      key={idx}
+                      className="hover:bg-white dark:hover:bg-slate-800/60 transition-colors"
+                    >
+                      <td className="py-1.5 px-2 text-center font-bold text-slate-500">
+                        {kalem.siraNo}
+                      </td>
+                      <td className="py-1.5 px-2">
+                        <input
+                          type="text"
+                          value={kalem.malzemeAdi}
+                          onChange={(e) =>
+                            handleUpdateKalem(
+                              idx,
+                              "malzemeAdi",
+                              e.target.value,
+                            )}
+                          placeholder="Kalem / Malzeme adı..."
+                          required
+                          className="w-full h-8 px-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
+                        />
+                      </td>
+                      <td className="py-1.5 px-2">
+                        <input
+                          type="text"
+                          value={kalem.ozelligi}
+                          onChange={(e) =>
+                            handleUpdateKalem(idx, "ozelligi", e.target.value)}
+                          placeholder="Açıklama / Özellik..."
+                          className="w-full h-8 px-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
+                        />
+                      </td>
+                      <td className="py-1.5 px-2">
+                        <input
+                          type="text"
+                          value={kalem.birimi}
+                          onChange={(e) =>
+                            handleUpdateKalem(idx, "birimi", e.target.value)}
+                          placeholder="Adet..."
+                          className="w-full h-8 px-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
+                        />
+                      </td>
+                      <td className="py-1.5 px-2 text-center">
+                        <input
+                          type="number"
+                          value={kalem.miktari}
+                          onChange={(e) =>
+                            handleUpdateKalem(
+                              idx,
+                              "miktari",
+                              Number(e.target.value),
+                            )}
+                          className="w-full h-8 px-1.5 text-center bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
+                        />
+                      </td>
+                      <td className="py-1.5 px-2 text-center">
+                        <span className="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono text-xs rounded-lg font-bold">
+                          {onceki}
+                        </span>
+                      </td>
+                      <td className="py-1.5 px-2 text-center">
+                        <input
+                          type="number"
+                          value={kalem.kabulMiktari}
+                          onChange={(e) =>
+                            handleUpdateKalem(
+                              idx,
+                              "kabulMiktari",
+                              Number(e.target.value),
+                            )}
+                          className="w-full h-8 px-1.5 text-center font-bold text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 rounded-lg text-xs font-mono focus:ring-1 focus:ring-emerald-500"
+                        />
+                      </td>
+                      <td className="py-1.5 px-2 text-right">
+                        <input
+                          type="number"
+                          step="any"
+                          value={kalem.birimFiyati ?? 0}
+                          onChange={(e) =>
+                            handleUpdateKalem(
+                              idx,
+                              "birimFiyati",
+                              Number(e.target.value),
+                            )}
+                          className="w-full h-8 px-1.5 text-right font-mono bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
+                        />
+                      </td>
+                      <td className="py-1.5 px-2 text-right">
+                        <span className="inline-block px-2 py-1 bg-emerald-100/70 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-mono text-xs rounded-lg font-bold">
+                          {kalemTutar > 0
+                            ? kalemTutar.toLocaleString("tr-TR", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }) + " ₺"
+                            : "0,00 ₺"}
+                        </span>
+                      </td>
+                      <td className="py-1.5 px-2 text-center">
+                        {bakiye === 0 ? (
+                          <span className="inline-block px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold text-[10px]">
+                            Tam (0)
+                          </span>
+                        ) : (
+                          <span
+                            className="inline-block px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold text-[10px]"
+                            title="Teslim edilecek kalan bakiye"
+                          >
+                            Kalan: {bakiye}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-1.5 px-1 text-center">
+                        {kalemler.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveKalem(idx)}
+                            className="p-1 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50"
+                            title="Satırı Sil"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         {/* Notlar */}
         <div>
