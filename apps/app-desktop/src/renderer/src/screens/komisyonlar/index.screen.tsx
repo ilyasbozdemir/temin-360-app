@@ -34,11 +34,7 @@ import { KomisyonAtamaModal } from '../dosya/sub-screens/components/MalzemeListe
 import { useTabStore } from '../../store/tabStore'
 import { useDosyaAsamasiSablons } from '../dosya/sub-screens/DosyaAsamalari/useDosyaAsamasiSablons'
 import { DocumentPreviewModal } from '../dosya/components/DocumentPreviewModal'
-import {
-  DEFAULT_YAKLASIK_SABLONLAR,
-  DEFAULT_MUAYENE_SABLONLAR,
-  TEMPLATE_NAMES
-} from '../../../../shared/constants/templateConstants'
+import { TEMPLATE_REGISTRY } from '@temin360/document-templates'
 
 const isBaseKomisyon = (ad?: string, id?: number): boolean => {
   if (id === 1 || id === 2) return true
@@ -53,6 +49,52 @@ const isBaseKomisyon = (ad?: string, id?: number): boolean => {
     lower.includes('fiyat araştırma') ||
     lower.includes('fiyat arastirma')
   )
+}
+
+const getKomisyonTypeKey = (komisyonName: string, id: number): string => {
+  const lower = (komisyonName || '').toLowerCase()
+  if (
+    lower.includes('yaklaşık') ||
+    lower.includes('yaklasik') ||
+    lower.includes('fiyat') ||
+    id === 1
+  ) {
+    return 'yaklasik_maliyet'
+  }
+  if (
+    lower.includes('muayene') ||
+    lower.includes('kabul') ||
+    id === 2
+  ) {
+    return 'muayene_kabul'
+  }
+  return 'all'
+}
+
+const getRegistryTemplatesForKomisyon = (komisyonName: string, id: number) => {
+  const typeKey = getKomisyonTypeKey(komisyonName, id)
+  return TEMPLATE_REGISTRY.filter((t) => {
+    if (!t.capabilities?.supportsCommission) return false
+    const commTypes = t.capabilities.supportedCommissionTypes || []
+    if (commTypes.includes('all')) return true
+    if (
+      typeKey === 'yaklasik_maliyet' &&
+      (commTypes.includes('piyasa_fiyat') || commTypes.includes('yaklasik_maliyet'))
+    ) {
+      return true
+    }
+    if (typeKey === 'muayene_kabul' && commTypes.includes('muayene_kabul')) {
+      return true
+    }
+    return false
+  }).map((t, idx) => ({
+    id: `reg-${t.id}-${idx}`,
+    ad: t.title,
+    dosya_adi: t.id,
+    route_path: t.id,
+    aciklama: t.description,
+    kategori: t.category
+  }))
 }
 
 export default function KomisyonlarScreen({
@@ -204,24 +246,14 @@ export default function KomisyonlarScreen({
           }
         }
 
-        for (const s of DEFAULT_YAKLASIK_SABLONLAR) {
-          await window.electron.ipcRenderer.invoke(
-            'db:run',
-            `INSERT OR IGNORE INTO TANIM_Komisyon_Sablon (komisyon_id, sablon_id)
-             SELECT ?, id FROM TANIM_Sablon 
-             WHERE dosya_adi = ? OR route_path LIKE ? OR html_yolu LIKE ?`,
-            [primaryYaklasikId, s, `%${s}%`, `%${s}%`]
-          )
-        }
-        for (const s of DEFAULT_MUAYENE_SABLONLAR) {
-          await window.electron.ipcRenderer.invoke(
-            'db:run',
-            `INSERT OR IGNORE INTO TANIM_Komisyon_Sablon (komisyon_id, sablon_id)
-             SELECT ?, id FROM TANIM_Sablon 
-             WHERE dosya_adi = ? OR route_path LIKE ? OR html_yolu LIKE ?`,
-            [primaryMuayeneId, s, `%${s}%`, `%${s}%`]
-          )
-        }
+        // DB içindeki mükerrer şablon kayıtlarını temizle
+        await window.electron.ipcRenderer.invoke(
+          'db:run',
+          `DELETE FROM TANIM_Komisyon_Sablon 
+           WHERE rowid NOT IN (
+             SELECT MIN(rowid) FROM TANIM_Komisyon_Sablon GROUP BY komisyon_id, sablon_id
+           )`
+        )
       } catch (normErr) {
         console.warn('Komisyon normalizasyonu hatası:', normErr)
       }
@@ -253,33 +285,32 @@ export default function KomisyonlarScreen({
         const uyeler = membersRes.success
           ? membersRes.data.filter((m: any) => m.komisyon_id === k.id)
           : []
-        let sablonlar = sablonlarRes.success
+
+        const dbSablonlar = sablonlarRes.success
           ? sablonlarRes.data.filter((s: any) => s.komisyon_id === k.id)
           : []
 
-        if (sablonlar.length === 0) {
-          const lower = (k.ad || '').toLowerCase()
-          if (lower.includes('yaklaşık') || lower.includes('fiyat') || k.id === 1) {
-            sablonlar = DEFAULT_YAKLASIK_SABLONLAR.map((key, i) => ({
-              id: 1000 + i,
-              ad: TEMPLATE_NAMES[key] || key,
-              dosya_adi: key,
-              route_path: `/${key}`
-            }))
-          } else if (lower.includes('muayene') || lower.includes('kabul') || k.id === 2) {
-            sablonlar = DEFAULT_MUAYENE_SABLONLAR.map((key, i) => ({
-              id: 2000 + i,
-              ad: TEMPLATE_NAMES[key] || key,
-              dosya_adi: key,
-              route_path: `/${key}`
-            }))
+        const registrySablonlar = getRegistryTemplatesForKomisyon(k.ad, k.id)
+
+        // Mükerrer şablon kartlarını engellemek için benzersizleştir
+        const uniqueMap = new Map<string, any>()
+        for (const s of registrySablonlar) {
+          const key = (s.dosya_adi || s.ad || '').toLowerCase().trim()
+          if (key && !uniqueMap.has(key)) {
+            uniqueMap.set(key, s)
+          }
+        }
+        for (const s of dbSablonlar) {
+          const key = (s.dosya_adi || s.ad || '').toLowerCase().trim()
+          if (key && !uniqueMap.has(key)) {
+            uniqueMap.set(key, s)
           }
         }
 
         return {
           ...k,
           uyeler,
-          sablonlar
+          sablonlar: Array.from(uniqueMap.values())
         }
       })
 

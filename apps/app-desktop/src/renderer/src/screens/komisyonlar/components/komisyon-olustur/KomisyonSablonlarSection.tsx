@@ -1,5 +1,5 @@
 import React from 'react'
-import { Eye, Search } from 'lucide-react'
+import { AlertCircle, Eye, Search } from 'lucide-react'
 
 interface KomisyonSablonlarSectionProps {
   tumSablonlar: any[]
@@ -26,6 +26,19 @@ export const KomisyonSablonlarSection: React.FC<KomisyonSablonlarSectionProps> =
 
   return (
     <div className="space-y-3">
+      {/* V1 / V2 Info Notice */}
+      <div className="p-3 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 rounded-xl text-blue-800 dark:text-blue-300 text-xs flex items-start gap-2.5">
+        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
+        <div>
+          <span className="font-bold block text-blue-900 dark:text-blue-200">
+            ℹ️ Şablon Yönetimi (V1 Klasik - Template Registry Entegreli):
+          </span>
+          <p className="mt-0.5 text-[11px] text-blue-700 dark:text-blue-300/90 leading-relaxed">
+            Şablon bağlantıları geriye dönük uyumluluk için V1 varsayılanlarıyla tutulmakta olup, belgeler dinamik olarak <code className="px-1 py-0.5 bg-blue-100 dark:bg-blue-900/60 rounded font-semibold text-blue-900 dark:text-blue-200">TEMPLATE_REGISTRY</code> üzerinden beslenmektedir. Yakında V2 Form Builder entegrasyonu aktifleşecektir.
+          </p>
+        </div>
+      </div>
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -53,11 +66,11 @@ export const KomisyonSablonlarSection: React.FC<KomisyonSablonlarSectionProps> =
         {filteredSablonlar.length === 0 ? (
           <div className="p-4 text-center text-xs text-slate-400">Şablon bulunamadı</div>
         ) : (
-          filteredSablonlar.map((sablon: any) => {
+          filteredSablonlar.map((sablon: any, idx: number) => {
             const isChecked = seciliSablonlar.includes(sablon.id)
             return (
               <div
-                key={sablon.id}
+                key={`sablon-${sablon.id}-${idx}`}
                 className="flex items-center justify-between p-2.5 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors"
               >
                 <label className="flex items-center gap-2.5 flex-1 cursor-pointer select-none">

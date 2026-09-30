@@ -1024,19 +1024,38 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
         )
         .get()
       if (checkSablonTable) {
+        // Mükerrer kayıtları sil
+        try {
+          db.prepare(
+            `DELETE FROM TANIM_Komisyon_Sablon 
+             WHERE rowid NOT IN (
+               SELECT MIN(rowid) FROM TANIM_Komisyon_Sablon GROUP BY komisyon_id, sablon_id
+             )`
+          ).run()
+
+          db.prepare(
+            `CREATE UNIQUE INDEX IF NOT EXISTS idx_komisyon_sablon_unique 
+             ON TANIM_Komisyon_Sablon(komisyon_id, sablon_id)`
+          ).run()
+        } catch (_) {}
+
         const insertSablonStmt = db.prepare(`
-          INSERT OR IGNORE INTO TANIM_Komisyon_Sablon (komisyon_id, sablon_id)
-          SELECT ?, id FROM TANIM_Sablon WHERE dosya_adi = ?
+          INSERT INTO TANIM_Komisyon_Sablon (komisyon_id, sablon_id)
+          SELECT ?, id FROM TANIM_Sablon 
+          WHERE dosya_adi = ?
+            AND NOT EXISTS (
+              SELECT 1 FROM TANIM_Komisyon_Sablon WHERE komisyon_id = ? AND sablon_id = TANIM_Sablon.id
+            )
         `)
 
         for (const s of DEFAULT_YAKLASIK_SABLONLAR) {
           try {
-            insertSablonStmt.run(yaklasikId, s)
+            insertSablonStmt.run(yaklasikId, s, yaklasikId)
           } catch (_) {}
         }
         for (const s of DEFAULT_MUAYENE_SABLONLAR) {
           try {
-            insertSablonStmt.run(muayeneId, s)
+            insertSablonStmt.run(muayeneId, s, muayeneId)
           } catch (_) {}
         }
       }

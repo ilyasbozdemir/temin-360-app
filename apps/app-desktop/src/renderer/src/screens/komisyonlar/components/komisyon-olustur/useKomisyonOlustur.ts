@@ -61,7 +61,17 @@ export function useKomisyonOlustur({ isOpen, onClose, komisyonId }: UseKomisyonO
         'SELECT * FROM TANIM_Sablon WHERE aktif_mi = 1 ORDER BY ad ASC'
       )
       if (!res.success) throw new Error(res.error)
-      return res.data
+      const raw = res.data || []
+      const uniqueSablonlar: any[] = []
+      const seen = new Set<string>()
+      for (const s of raw) {
+        const key = (s.dosya_adi || s.ad || '').toLowerCase().trim()
+        if (key && !seen.has(key)) {
+          seen.add(key)
+          uniqueSablonlar.push(s)
+        }
+      }
+      return uniqueSablonlar
     },
     enabled: isOpen
   })
@@ -85,7 +95,7 @@ export function useKomisyonOlustur({ isOpen, onClose, komisyonId }: UseKomisyonO
       const membersRes = await window.electron.ipcRenderer.invoke(
         'db:query',
         `SELECT ku.*, kg.ad as gorev_ad,
-          COALESCE(p.ad_soyad, p.ad || ' ' || p.soyad, '') as personel_adi,
+          COALESCE(p.ad_soyad, '') as personel_adi,
           ku.personel_id
          FROM TANIM_KomisyonUye ku
          LEFT JOIN TANIM_KomisyonGorevi kg ON kg.id = ku.gorev_id
@@ -95,8 +105,8 @@ export function useKomisyonOlustur({ isOpen, onClose, komisyonId }: UseKomisyonO
       )
       if (membersRes.success && membersRes.data) {
         setUyeler(
-          membersRes.data.map((m: any) => ({
-            id: Date.now() + Math.random(),
+          membersRes.data.map((m: any, idx: number) => ({
+            id: Number(m.id || 0) > 0 ? Number(m.id) : Date.now() + idx + Math.floor(Math.random() * 10000),
             unvan: m.gorev_ad || '',
             gorevId: m.gorev_id,
             personelId: m.personel_id || null,
@@ -134,7 +144,7 @@ export function useKomisyonOlustur({ isOpen, onClose, komisyonId }: UseKomisyonO
       sablon.roller.map((unvan, i) => {
         const eslesen = gorevler.find((g) => g.ad.toLowerCase() === unvan.toLowerCase())
         return {
-          id: Date.now() + i,
+          id: Date.now() + i * 100 + Math.floor(Math.random() * 1000),
           unvan,
           gorevId: eslesen?.id ?? '',
           personelId: null,
