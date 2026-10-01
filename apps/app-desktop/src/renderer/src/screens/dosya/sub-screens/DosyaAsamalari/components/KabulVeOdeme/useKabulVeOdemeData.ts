@@ -250,6 +250,10 @@ export function useKabulVeOdemeData() {
         // Tutarlar
         genelToplam: fmt(tutanakItem.tutar),
         kdvDahilToplam: fmt(tutanakItem.tutar),
+        tutar: fmt(tutanakItem.tutar),
+        kabulEdilenTutar: fmt(tutanakItem.tutar),
+        tutanakNo: tutanakItem.tutanakNo,
+        tutanakTarihi: tutanakItem.tutanakTarihi,
         // Teslim
         teslimYeri: tutanakItem.teslimYeri,
         // Notlar
@@ -264,6 +268,11 @@ export function useKabulVeOdemeData() {
           buguneKadarKabulEdilen: k.oncekiTeslimAlinan ?? 0,
           bugunKabulEdilenMiktar: k.kabulMiktari,
           kalanMiktar: Math.max(0, k.miktari - (k.kabulMiktari || 0)),
+          birimFiyat: k.birimFiyati,
+          birimFiyati: fmt(k.birimFiyati),
+          kalemTutari: fmt(
+            k.toplamTutar || (k.kabulMiktari || 0) * (k.birimFiyati || 0)
+          ),
           teslimYeri: tutanakItem.teslimYeri,
         })),
         // Komisyon heyeti
