@@ -209,16 +209,77 @@ export function useKabulVeOdemeData() {
     }
   });
 
-  const handleQuickPreview = (sablonKey: string): void => {
-    const found = sablons.find(
-      (s) =>
-        String(s.dosya_adi || s.id || "").toLowerCase() ===
-          sablonKey.toLowerCase() ||
-        String(s.dosya_adi || s.id || "").toLowerCase().includes(
-          sablonKey.toLowerCase(),
-        ),
-    ) || ({ dosya_adi: sablonKey, ad: sablonKey } as any);
-    handleOpenPreviewForSablon(found, (found as any).ad || sablonKey);
+  const handleQuickPreview = (
+    sablonKey: string,
+    tutanakItem?: KabulTutanakItem,
+  ): void => {
+    const found =
+      sablons.find(
+        (s) =>
+          String(s.dosya_adi || s.id || "").toLowerCase() ===
+            sablonKey.toLowerCase() ||
+          String(s.dosya_adi || s.id || "").toLowerCase().includes(
+            sablonKey.toLowerCase(),
+          ),
+      ) || ({ dosya_adi: sablonKey, ad: sablonKey } as any);
+
+    // Build a per-tutanak override context when a specific row is opened
+    let overrideCtx: Record<string, any> | undefined;
+    if (tutanakItem) {
+      const fmt = (val: number | null | undefined) =>
+        val != null
+          ? new Intl.NumberFormat("tr-TR", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }).format(val)
+          : null;
+
+      overrideCtx = {
+        ...(dosyaContext || {}),
+        // Evrak kimliği
+        evrakSayisi: tutanakItem.tutanakNo,
+        dosyaTarihi: tutanakItem.tutanakTarihi,
+        kabulTarihi: tutanakItem.tutanakTarihi,
+        // Fatura / irsaliye
+        faturaNo: tutanakItem.faturaNo,
+        faturaTarihi: tutanakItem.faturaTarihi,
+        irsaliyeNo: tutanakItem.irsaliyeNo,
+        irsaliyeTarihi: tutanakItem.irsaliyeTarihi,
+        // Firma
+        yukleniciFirma: kazananFirmaUnvan,
+        // Tutarlar
+        genelToplam: fmt(tutanakItem.tutar),
+        kdvDahilToplam: fmt(tutanakItem.tutar),
+        // Teslim
+        teslimYeri: tutanakItem.teslimYeri,
+        // Notlar
+        tutanakNotu: tutanakItem.notlar,
+        // Mal kalemleri → muayene-kabul-tutanagi şablonu için
+        ihtiyacKalemleri: (tutanakItem.kalemler || []).map((k, i) => ({
+          siraNo: k.siraNo || i + 1,
+          malzemeAdi: k.malzemeAdi,
+          ozelligi: k.ozelligi,
+          birimi: k.birimi,
+          miktar: k.miktari,
+          buguneKadarKabulEdilen: k.oncekiTeslimAlinan ?? 0,
+          bugunKabulEdilenMiktar: k.kabulMiktari,
+          kalanMiktar: Math.max(0, k.miktari - (k.kabulMiktari || 0)),
+          teslimYeri: tutanakItem.teslimYeri,
+        })),
+        // Komisyon heyeti
+        muayeneKomisyonu: komisyonUyeleri.map((u) => ({
+          gorevi: u.gorev || "Üye",
+          adSoyad: u.ad_soyad,
+          unvan: u.unvan || "",
+        })),
+      };
+    }
+
+    handleOpenPreviewForSablon(
+      found,
+      (found as any).ad || sablonKey,
+      overrideCtx,
+    );
   };
 
   const reloadKomisyonUyeleri = async (): Promise<void> => {

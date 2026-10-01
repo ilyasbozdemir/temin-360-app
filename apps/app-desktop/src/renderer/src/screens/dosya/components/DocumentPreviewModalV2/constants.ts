@@ -29,7 +29,7 @@ export const V2_TEMPLATES_MAP: Record<string, TemplateComponentType> = {
   MuayeneKabulTutanagi: Templates.MuayeneKabulKomisyonu as TemplateComponentType,
   HizmetIsleriKabulTutanagi: Templates.MuayeneKabulKomisyonu as TemplateComponentType,
   HizmetIsleriKabulTeklifBelgesi: Templates.MuayeneKabulKomisyonu as TemplateComponentType,
-  OdemeYazisi: Templates.MuayeneKabulKomisyonu as TemplateComponentType,
+  OdemeYazisi: Templates.OdemeYazisi as TemplateComponentType,
   OdemeEmriBelgesi: Templates.MuayeneKabulKomisyonu as TemplateComponentType,
   DogrudanTeminSonucOnayBelgesi: Templates.DogrudanTeminOnayBelgesi as TemplateComponentType,
   TasinirIslemFisi: Templates.MuayeneKabulKomisyonu as TemplateComponentType,

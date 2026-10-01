@@ -33,6 +33,7 @@ export * from "./templates/dogrudan-temin-sozlesmesi";
 export * from "./templates/butce-sorgusu";
 export * from "./templates/sozlesmeye-davet";
 export * from "./templates/muayene-kabul-komisyonu";
+export * from "./templates/odeme-yazisi";
 export * from "./templates/son-alim-fiyat-cetveli";
 export * from "./templates/tasinir-kayit-yetkilisi-gorusu";
 export * from "./templates/teknik-sartname";

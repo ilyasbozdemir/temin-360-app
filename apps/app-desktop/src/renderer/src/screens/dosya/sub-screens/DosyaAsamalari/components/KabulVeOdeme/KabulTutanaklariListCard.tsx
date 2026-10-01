@@ -72,7 +72,7 @@ export interface KabulTutanaklariListCardProps {
   onOpenAddTutanak?: () => void;
   onEditTutanak?: (tutanak: KabulTutanakItem) => void;
   onDeleteTutanak?: (id: string) => void;
-  onOpenPreview?: (sablonKey: string) => void;
+  onOpenPreview?: (sablonKey: string, tutanak?: KabulTutanakItem) => void;
   onOpenTifModal?: () => void;
   onOpenKomisyonModal?: () => void;
   onSaveTutanak?: (tutanak: KabulTutanakItem) => void;
@@ -595,14 +595,14 @@ export function KabulTutanaklariListCard({
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5 relative">
                           <Button
-                            onClick={() => onOpenPreview?.(primarySablonKey)}
+                            onClick={() => onOpenPreview?.(primarySablonKey, tut)}
                             variant="outline"
                             size="sm"
                             className="h-8 px-2.5 text-xs font-semibold gap-1 text-blue-600 hover:text-blue-700 border-blue-200 hover:border-blue-300"
                             title="Tutanağı Görüntüle ve Yazdır"
                           >
                             <FileText className="w-3.5 h-3.5" />
-                            <span>Tutanağı Açx</span>
+                            <span>Tutanağı Aç</span>
                           </Button>
 
                           <button
@@ -637,7 +637,7 @@ export function KabulTutanaklariListCard({
                                 type="button"
                                 onClick={() => {
                                   setActiveRowMenuId(null);
-                                  onOpenPreview?.("odeme-yazisi");
+                                  onOpenPreview?.("odeme-yazisi", tut);
                                 }}
                                 className="w-full px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer"
                               >
@@ -652,7 +652,7 @@ export function KabulTutanaklariListCard({
                                 type="button"
                                 onClick={() => {
                                   setActiveRowMenuId(null);
-                                  onOpenPreview?.("odeme-emri-belgesi");
+                                  onOpenPreview?.("odeme-emri-belgesi", tut);
                                 }}
                                 className="w-full px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer"
                               >
@@ -661,6 +661,21 @@ export function KabulTutanaklariListCard({
                                   className="text-blue-500"
                                 />
                                 <span>Ödeme Emri (MİF) Al</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setActiveRowMenuId(null);
+                                  onOpenPreview?.("kabul-edilen-teklif", tut);
+                                }}
+                                className="w-full px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer"
+                              >
+                                <FileCheck
+                                  size={13}
+                                  className="text-violet-500"
+                                />
+                                <span>Ödeme Onay Yazısı (Kabul)</span>
                               </button>
 
                               {isMal && onOpenTifModal && (
@@ -685,7 +700,9 @@ export function KabulTutanaklariListCard({
                                   type="button"
                                   onClick={() => {
                                     setActiveRowMenuId(null);
-                                    onDeleteTutanak(tut.id);
+                                    if (window.confirm(`"${tut.tutanakNo}" numaralı tutanağı silmek istediğinizden emin misiniz?`)) {
+                                      onDeleteTutanak(tut.id);
+                                    }
                                   }}
                                   className="w-full px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 flex items-center gap-2 cursor-pointer border-t border-slate-100 dark:border-slate-700/60"
                                 >
@@ -843,7 +860,7 @@ export function KabulTutanaklariListCard({
                   </div>
                 </div>
                 <Button
-                  onClick={() => onOpenPreview?.(primarySablonKey)}
+                  onClick={() => onOpenPreview?.(primarySablonKey, tut)}
                   variant="outline"
                   size="sm"
                   className="h-8 px-2.5 text-xs font-semibold gap-1 text-blue-600 border-blue-200"
@@ -855,8 +872,22 @@ export function KabulTutanaklariListCard({
                   <button
                     onClick={() => onEditTutanak(tut)}
                     className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                    title="Tutanağı Düzenle"
                   >
                     <Edit2 size={14} />
+                  </button>
+                )}
+                {tut.id !== "default_1" && onDeleteTutanak && (
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`"${tut.tutanakNo}" numaralı tutanağı silmek istediğinizden emin misiniz?`)) {
+                        onDeleteTutanak(tut.id);
+                      }
+                    }}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
+                    title="Tutanağı Sil"
+                  >
+                    <Trash2 size={14} />
                   </button>
                 )}
               </div>
@@ -920,7 +951,7 @@ export function KabulTutanaklariListCard({
                 </div>
                 <div className="flex items-center gap-1">
                   <Button
-                    onClick={() => onOpenPreview?.(primarySablonKey)}
+                    onClick={() => onOpenPreview?.(primarySablonKey, tut)}
                     variant="outline"
                     size="sm"
                     className="h-7 px-2 text-xs text-blue-600 border-blue-200"
@@ -931,8 +962,22 @@ export function KabulTutanaklariListCard({
                     <button
                       onClick={() => onEditTutanak(tut)}
                       className="p-1 rounded text-slate-400 hover:text-slate-700 cursor-pointer"
+                      title="Tutanağı Düzenle"
                     >
                       <Edit2 size={13} />
+                    </button>
+                  )}
+                  {tut.id !== "default_1" && onDeleteTutanak && (
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`"${tut.tutanakNo}" numaralı tutanağı silmek istediğinizden emin misiniz?`)) {
+                          onDeleteTutanak(tut.id);
+                        }
+                      }}
+                      className="p-1 rounded text-slate-400 hover:text-red-600 cursor-pointer"
+                      title="Tutanağı Sil"
+                    >
+                      <Trash2 size={13} />
                     </button>
                   )}
                 </div>

@@ -349,19 +349,19 @@ export function KabulTutanakModal({
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
               <Truck className="w-3.5 h-3.5 text-slate-400" />
-              <span>İrsaliye No</span>
+              <span>İrsaliye No <span className="text-[10px] font-normal text-slate-400">(Opsiyonel)</span></span>
             </label>
             <Input
               value={irsaliyeNo}
               onChange={(e) => setIrsaliyeNo(e.target.value)}
-              placeholder="İRS-2026-001"
+              placeholder="İRS-2026-001 (İsteğe bağlı)"
               className="font-mono text-xs"
             />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              İrsaliye Tarihi
+              İrsaliye Tarihi <span className="text-[10px] font-normal text-slate-400">(Opsiyonel)</span>
             </label>
             <Input
               type="date"

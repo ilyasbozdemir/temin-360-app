@@ -385,4 +385,20 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsFirmaListesi: false,
     },
   },
+  {
+    id: "odeme-yazisi",
+    name: "OdemeYazisi",
+    title: "Ödeme Yazısı",
+    category: "4-kabul-ve-odeme-islemleri",
+    description: "Mali hizmetler / muhasebe müdürlüğüne yazılan ödeme üst yazısı",
+    supportsOlur: true,
+    capabilities: {
+      supportsOlur: true,
+      supportsCommission: false,
+      supportedCommissionTypes: ["none"],
+      supportsPersonnelList: true,
+      supportsKalemListesi: false,
+      supportsFirmaListesi: true,
+    },
+  },
 ];
