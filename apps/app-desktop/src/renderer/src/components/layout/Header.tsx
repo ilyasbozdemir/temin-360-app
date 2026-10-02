@@ -122,17 +122,23 @@ export function Header(): React.JSX.Element {
   }, [])
 
   // Mod Seçici Durumu
-  const [procurementMode, setProcurementMode] = useState<'dogrudan_temin' | 'ihale'>(() => {
+  const [procurementMode, setProcurementMode] = useState<
+    'dogrudan_temin' | 'ihale' | 'devlet_ihale_2886'
+  >(() => {
     return (
-      (localStorage.getItem('temin_procurement_mode') as 'dogrudan_temin' | 'ihale') ||
-      'dogrudan_temin'
+      (localStorage.getItem('temin_procurement_mode') as
+        | 'dogrudan_temin'
+        | 'ihale'
+        | 'devlet_ihale_2886') || 'dogrudan_temin'
     )
   })
 
   const isDt = procurementMode === 'dogrudan_temin'
   const [switchFeedback, setSwitchFeedback] = useState<string | null>(null)
 
-  const handleModeChange = (mode: 'dogrudan_temin' | 'ihale'): void => {
+  const handleModeChange = (
+    mode: 'dogrudan_temin' | 'ihale' | 'devlet_ihale_2886'
+  ): void => {
     if (mode === procurementMode) return
     setProcurementMode(mode)
     localStorage.setItem('temin_procurement_mode', mode)
@@ -142,10 +148,13 @@ export function Header(): React.JSX.Element {
       })
     )
 
-    const message =
-      mode === 'dogrudan_temin'
-        ? 'Doğrudan Temin Modu (KİK Md. 22) Aktif'
-        : 'İhale Süreçleri Modu (KİK Md. 19 / 21) Aktif'
+    let message = 'Doğrudan Temin Modu (KİK Md. 22) Aktif'
+    if (mode === 'ihale') {
+      message = 'İhale Süreçleri Modu (KİK Md. 19 / 21) Aktif'
+    } else if (mode === 'devlet_ihale_2886') {
+      message = '2886 Devlet İhale Kanunu Modu (Satış & Kiralama) Aktif'
+    }
+
     setSwitchFeedback(message)
     setTimeout(() => {
       setSwitchFeedback(null)
@@ -431,98 +440,144 @@ export function Header(): React.JSX.Element {
               ]
             : [])
         ]
-      : [
-          {
-            name: 'İhale Yönetimi',
-            onClick: () => navigate({ to: '/harcama-merkezi' }),
-            items: [
-              {
-                label: 'Açık İhale Süreçleri (KİK Md. 19)',
-                onClick: () => navigate({ to: '/harcama-merkezi' })
-              },
-              {
-                label: 'Pazarlık Usulü İhale (KİK Md. 21)',
-                onClick: () => navigate({ to: '/harcama-merkezi' })
-              },
-              {
-                label: 'İhale Hakediş & Harcama Raporları',
-                onClick: () => navigate({ to: '/hakedis' })
-              },
-              { divider: true },
-              {
-                label: 'Şablon & Kategori Yönetimi',
-                onClick: () => navigate({ to: '/degiskenler' })
-              },
-              {
-                label: 'Taslak & Belge Havuzu',
-                onClick: () => navigate({ to: '/taslakyonetim' })
-              }
-            ]
-          },
-          ...(activeDosyaId
-            ? [
+      : procurementMode === 'devlet_ihale_2886'
+        ? [
+            {
+              name: '2886 Devlet İhale',
+              onClick: () => navigate({ to: '/devlet-ihale-2886' }),
+              items: [
                 {
-                  name: 'İhale Süreç Adımları',
-                  items: [
-                    {
-                      label: '1. İhale Onay Belgesi & Şartnameler',
-                      onClick: () => navigate({ to: '/dosya/hazirlik-ve-ihtiyac' })
-                    },
-                    {
-                      label: '2. İhale İlanı & Davet Mektupları',
-                      onClick: () => navigate({ to: '/dosya/piyasa-fiyat-arastirmasi' })
-                    },
-                    {
-                      label: '3. Teklif Değerlendirme & Komisyon Kararı',
-                      onClick: () => navigate({ to: '/dosya/siparis-ve-sozlesme' })
-                    },
-                    {
-                      label: '4. Sözleşme & Teminat İşlemleri',
-                      onClick: () => navigate({ to: '/dosya/kabul-ve-odeme' })
-                    },
-                    {
-                      label: '5. İhale Klasörü & Arşivleme',
-                      onClick: () => navigate({ to: '/dosya/klasor-ve-kapaklar' })
-                    }
-                  ]
+                  label: '🏛️ 2886 Satış & Kiralama Çalışma Masası',
+                  onClick: () => navigate({ to: '/devlet-ihale-2886' })
                 },
                 {
-                  name: 'İhale İşlemleri',
-                  items: [
-                    {
-                      label: 'İhale Dosya Durumu & Takip',
-                      onClick: () => navigate({ to: '/takip' })
-                    },
-                    {
-                      label: 'İhale Belge Çıktı Merkezi',
-                      onClick: () => navigate({ to: '/cikti-merkezi' })
-                    },
-                    {
-                      label: 'Hakediş & Ödeme Takibi',
-                      onClick: () => navigate({ to: '/hakedis' })
-                    }
-                  ]
+                  label: '📊 Taşınmaz & Muhammen Bedel Tespiti',
+                  onClick: () => navigate({ to: '/devlet-ihale-2886' })
+                },
+                {
+                  label: '⚖️ İhale Usulü Seçimi (Md. 45 / 36 / 51)',
+                  onClick: () => navigate({ to: '/devlet-ihale-2886' })
+                },
+                {
+                  label: '📑 2886 Süreç ve İlan Evrakları (16 Evrak)',
+                  onClick: () => navigate({ to: '/devlet-ihale-2886' })
+                },
+                {
+                  label: '🔨 Açık Artırma & Teklif Turları',
+                  onClick: () => navigate({ to: '/devlet-ihale-2886' })
+                },
+                {
+                  label: '💰 Kira Artış & Satış Taksit Planı (5018 Gelir)',
+                  onClick: () => navigate({ to: '/devlet-ihale-2886' })
                 }
               ]
-            : []),
-          {
-            name: 'İhale Mevzuatı',
-            items: [
-              {
-                label: 'İhale Eşik Değerleri & Limitler',
-                onClick: () => navigate({ to: '/mevzuat' })
-              },
-              {
-                label: 'KİK Standart Şablon & Formlar',
-                onClick: () => navigate({ to: '/taslakyonetim' })
-              },
-              {
-                label: 'Mevzuat & Genelgeler',
-                onClick: () => navigate({ to: '/mevzuat' })
-              }
-            ]
-          }
-        ]),
+            },
+            {
+              name: '2886 Mevzuatı',
+              items: [
+                {
+                  label: '2886 Sayılı Devlet İhale Kanunu',
+                  onClick: () => navigate({ to: '/mevzuat' })
+                },
+                {
+                  label: 'Kıymet Takdir ve Encümen Esasları',
+                  onClick: () => navigate({ to: '/mevzuat' })
+                }
+              ]
+            }
+          ]
+        : [
+            {
+              name: 'İhale Yönetimi',
+              onClick: () => navigate({ to: '/harcama-merkezi' }),
+              items: [
+                {
+                  label: 'Açık İhale Süreçleri (KİK Md. 19)',
+                  onClick: () => navigate({ to: '/harcama-merkezi' })
+                },
+                {
+                  label: 'Pazarlık Usulü İhale (KİK Md. 21)',
+                  onClick: () => navigate({ to: '/harcama-merkezi' })
+                },
+                {
+                  label: 'İhale Hakediş & Harcama Raporları',
+                  onClick: () => navigate({ to: '/hakedis' })
+                },
+                { divider: true },
+                {
+                  label: 'Şablon & Kategori Yönetimi',
+                  onClick: () => navigate({ to: '/degiskenler' })
+                },
+                {
+                  label: 'Taslak & Belge Havuzu',
+                  onClick: () => navigate({ to: '/taslakyonetim' })
+                }
+              ]
+            },
+            ...(activeDosyaId
+              ? [
+                  {
+                    name: 'İhale Süreç Adımları',
+                    items: [
+                      {
+                        label: '1. İhale Onay Belgesi & Şartnameler',
+                        onClick: () => navigate({ to: '/dosya/hazirlik-ve-ihtiyac' })
+                      },
+                      {
+                        label: '2. İhale İlanı & Davet Mektupları',
+                        onClick: () => navigate({ to: '/dosya/piyasa-fiyat-arastirmasi' })
+                      },
+                      {
+                        label: '3. Teklif Değerlendirme & Komisyon Kararı',
+                        onClick: () => navigate({ to: '/dosya/siparis-ve-sozlesme' })
+                      },
+                      {
+                        label: '4. Sözleşme & Teminat İşlemleri',
+                        onClick: () => navigate({ to: '/dosya/kabul-ve-odeme' })
+                      },
+                      {
+                        label: '5. İhale Klasörü & Arşivleme',
+                        onClick: () => navigate({ to: '/dosya/klasor-ve-kapaklar' })
+                      }
+                    ]
+                  },
+                  {
+                    name: 'İhale İşlemleri',
+                    items: [
+                      {
+                        label: 'İhale Dosya Durumu & Takip',
+                        onClick: () => navigate({ to: '/takip' })
+                      },
+                      {
+                        label: 'İhale Belge Çıktı Merkezi',
+                        onClick: () => navigate({ to: '/cikti-merkezi' })
+                      },
+                      {
+                        label: 'Hakediş & Ödeme Takibi',
+                        onClick: () => navigate({ to: '/hakedis' })
+                      }
+                    ]
+                  }
+                ]
+              : []),
+            {
+              name: 'İhale Mevzuatı',
+              items: [
+                {
+                  label: 'İhale Eşik Değerleri & Limitler',
+                  onClick: () => navigate({ to: '/mevzuat' })
+                },
+                {
+                  label: 'KİK Standart Şablon & Formlar',
+                  onClick: () => navigate({ to: '/taslakyonetim' })
+                },
+                {
+                  label: 'Mevzuat & Genelgeler',
+                  onClick: () => navigate({ to: '/mevzuat' })
+                }
+              ]
+            }
+          ]),
     {
       name: isDt ? 'Sistem Tanımları (DT)' : 'Sistem Tanımları (İhale)',
       items: isDt

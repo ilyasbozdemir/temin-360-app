@@ -83,6 +83,12 @@ const menuGroups: MenuGroup[] = [
       },
       { name: 'Doğrudan Temin Dosyaları', path: '/dosyalar', icon: FileText },
       {
+        name: '2886 Devlet İhale (Satış & Kiralama)',
+        path: '/devlet-ihale-2886',
+        icon: Landmark,
+        badge: 'GELİR'
+      },
+      {
         name: 'Hakediş & Harcama İşlemleri',
         path: '/hakedis',
         icon: Hammer,

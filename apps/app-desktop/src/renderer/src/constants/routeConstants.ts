@@ -12,6 +12,7 @@ export const APP_ROUTES = {
 
   // Modüller
   PROJELER: '/projeler',
+  DEVLET_IHALE_2886: '/devlet-ihale-2886',
   FIRMALAR: '/firmalar',
   PERSONEL: '/personel',
   SABLONLAR: '/sablonlar',

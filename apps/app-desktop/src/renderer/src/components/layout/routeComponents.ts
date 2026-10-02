@@ -51,6 +51,7 @@ import TaslakYoneticisi from '../../screens/system/TaslakYoneticisi'
 import DTSurecAkisiScreen from '../../screens/system/DTSurecAkisiScreen'
 import NotlarVeGorevlerScreen from '../../screens/notlar/index.screen'
 import ProjelerScreen from '../../screens/projeler/index.screen'
+import DevletIhale2886Screen from '../../screens/devlet-ihale-2886/index.screen'
 
 export const routeComponents: Record<string, React.ComponentType> = {
   '/': DashboardScreen,
@@ -58,6 +59,7 @@ export const routeComponents: Record<string, React.ComponentType> = {
   '/dosyalar': DosyalarScreen,
   '/dosyalar/yeni': YeniDosyaScreen,
   '/dosyalar/manage': YeniDosyaScreen,
+  '/devlet-ihale-2886': DevletIhale2886Screen,
   '/firmalar': FirmalarScreen,
   '/personel': PersonelScreen,
   '/sablonlar': SablonlarScreen,

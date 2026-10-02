@@ -43,6 +43,7 @@ import DosyaDataInspectorScreen from './screens/dosyalar/DosyaDataInspectorScree
 import NotlarVeGorevlerScreen from './screens/notlar/index.screen'
 import PlaygroundScreen from './screens/playground/index.screen'
 import ProjelerScreen from './screens/projeler/index.screen'
+import DevletIhale2886Screen from './screens/devlet-ihale-2886/index.screen'
 
 const rootRoute = createRootRoute({
   component: PageWrapper
@@ -64,6 +65,12 @@ const projelerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.PROJELER,
   component: ProjelerScreen
+})
+
+const devletIhale2886Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: APP_ROUTES.DEVLET_IHALE_2886,
+  component: DevletIhale2886Screen
 })
 
 const dosyalarRoute = createRoute({
@@ -394,6 +401,7 @@ const routeTree = rootRoute.addChildren([
   indexRoute,
   harcamaMerkeziRoute,
   projelerRoute,
+  devletIhale2886Route,
   dosyalarRoute,
   yeniDosyaRoute,
   dosyaManageRoute,
