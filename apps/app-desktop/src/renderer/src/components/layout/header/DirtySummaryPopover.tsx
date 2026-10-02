@@ -29,7 +29,7 @@ export const DirtySummaryPopover = React.memo(function DirtySummaryPopover({
 
   return (
     <div
-      className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1 rounded-md text-xs transition-all pointer-events-auto z-40"
+      className="relative flex items-center gap-2 px-3 py-1 rounded-md text-xs transition-all pointer-events-auto z-40"
       style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
     >
       <div className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-200">
