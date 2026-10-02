@@ -15,7 +15,7 @@ export function NotificationPopover({
   const popoverRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: MouseEvent): void {
       if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
         onToggle(false)
       }
@@ -26,7 +26,7 @@ export function NotificationPopover({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [isOpen, onToggle])
 
-  const getIcon = (type: string) => {
+  const getIcon = (type: string): React.JSX.Element => {
     switch (type) {
       case 'success':
         return <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
@@ -39,7 +39,7 @@ export function NotificationPopover({
     }
   }
 
-  const getBorderColor = (type: string) => {
+  const getBorderColor = (type: string): string => {
     switch (type) {
       case 'success':
         return 'border-l-[3px] border-l-emerald-500'
@@ -52,7 +52,7 @@ export function NotificationPopover({
     }
   }
 
-  const formatDate = (dateVal: string) => {
+  const formatDate = (dateVal: string): string => {
     const d = new Date(dateVal)
     return isNaN(d.getTime())
       ? dateVal
