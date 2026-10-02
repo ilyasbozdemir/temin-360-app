@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { useShallow } from 'zustand/react/shallow'
 import { useWorkspaceStore } from '../../../store/workspaceStore'
 import { useTabStore } from '../../../store/tabStore'
 import { useDosyalarHooks } from '../../../screens/dosyalar/dosyalar.hooks'
@@ -53,9 +54,18 @@ export function useTeminSelector(): UseTeminSelectorReturn {
   const isDt = procurementMode === 'dogrudan_temin'
   const is2886 = procurementMode === 'devlet_ihale_2886'
 
-  const { activeDosyaId, setActiveDosyaId } = useWorkspaceStore()
+  const { activeDosyaId, setActiveDosyaId } = useWorkspaceStore(
+    useShallow((state) => ({
+      activeDosyaId: state.activeDosyaId,
+      setActiveDosyaId: state.setActiveDosyaId
+    }))
+  )
   const { dosyalar, isLoadingDosyalar } = useDosyalarHooks()
-  const { addTab } = useTabStore()
+  const { addTab } = useTabStore(
+    useShallow((state) => ({
+      addTab: state.addTab
+    }))
+  )
   const navigate = useNavigate()
 
   const [dosyalar2886, setDosyalar2886] = useState<Dosya2886Item[]>(getInitial2886Dosyalar)

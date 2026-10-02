@@ -1,17 +1,14 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useNavigate, NavigateFn } from '@tanstack/react-router'
+import { useShallow } from 'zustand/react/shallow'
 import { useTheme } from '../../providers/ThemeProvider'
 import { useWorkspaceStore } from '../../../store/workspaceStore'
 import { useSettingsStore } from '../../../store/settingsStore'
-
-export function calculateMaxVisibleMenus(): number {
-  const w = typeof window !== 'undefined' ? window.innerWidth : 1280
-  if (w >= 1520) return 7
-  if (w >= 1340) return 5
-  if (w >= 1180) return 4
-  if (w >= 1020) return 3
-  return 2
-}
+import { useProcurementMode } from './hooks/useProcurementMode'
+import { useWorkspaceSave } from './hooks/useWorkspaceSave'
+import { useUpdaterStatus } from './hooks/useUpdaterStatus'
+import { useVisibleMenuCount } from './hooks/useVisibleMenuCount'
+import { ProcurementMode } from '../temin-selector/teminSelector.types'
 
 export interface UseHeaderReturn {
   navigate: NavigateFn
@@ -24,21 +21,21 @@ export interface UseHeaderReturn {
   institutionLogo: string | null
   logoLeft: string | null
   showFormatUpgradeModal: boolean
-  setShowFormatUpgradeModal: (show: boolean) => void
+  setShowFormatUpgradeModal: React.Dispatch<React.SetStateAction<boolean>>
   showAboutModal: boolean
-  setShowAboutModal: (show: boolean) => void
+  setShowAboutModal: React.Dispatch<React.SetStateAction<boolean>>
   upgradeFilePath: string | null
-  setUpgradeFilePath: (path: string | null) => void
+  setUpgradeFilePath: React.Dispatch<React.SetStateAction<string | null>>
   showUpdateModal: boolean
-  setShowUpdateModal: (show: boolean) => void
+  setShowUpdateModal: React.Dispatch<React.SetStateAction<boolean>>
   switchFeedback: string | null
   saveFeedback: string | null
   updateStatus: { status: string; version?: string } | null
   maxVisibleMenus: number
-  procurementMode: 'dogrudan_temin' | 'ihale' | 'devlet_ihale_2886'
+  procurementMode: ProcurementMode
   isDt: boolean
   handleUpgradeAndOpen: (filePath: string) => Promise<void>
-  handleModeChange: (mode: 'dogrudan_temin' | 'ihale' | 'devlet_ihale_2886') => void
+  handleModeChange: (mode: ProcurementMode) => void
   handleSaveAndSync: () => Promise<void>
   handleCloseWorkspace: () => Promise<void>
   handleClose: () => void
@@ -47,36 +44,34 @@ export interface UseHeaderReturn {
 export function useHeader(): UseHeaderReturn {
   const navigate = useNavigate()
   const { theme, setTheme } = useTheme()
-  const { activeDosyaId, fileName, isDirty, activeFilePath } = useWorkspaceStore()
-  const { institutionLogo, logoLeft } = useSettingsStore()
+
+  const { activeDosyaId, fileName, isDirty, activeFilePath } = useWorkspaceStore(
+    useShallow((state) => ({
+      activeDosyaId: state.activeDosyaId,
+      fileName: state.fileName,
+      isDirty: state.isDirty,
+      activeFilePath: state.activeFilePath
+    }))
+  )
+
+  const { institutionLogo, logoLeft } = useSettingsStore(
+    useShallow((state) => ({
+      institutionLogo: state.institutionLogo,
+      logoLeft: state.logoLeft
+    }))
+  )
 
   const [showFormatUpgradeModal, setShowFormatUpgradeModal] = useState(false)
   const [showAboutModal, setShowAboutModal] = useState(false)
   const [upgradeFilePath, setUpgradeFilePath] = useState<string | null>(null)
-  const [showUpdateModal, setShowUpdateModal] = useState(false)
-  const [switchFeedback, setSwitchFeedback] = useState<string | null>(null)
-  const [saveFeedback, setSaveFeedback] = useState<string | null>(null)
-  const [updateStatus, setUpdateStatus] = useState<{ status: string; version?: string } | null>(
-    null
-  )
+
+  const { procurementMode, handleModeChange, isDt, switchFeedback } = useProcurementMode()
+  const { saveFeedback, handleSaveAndSync } = useWorkspaceSave()
+  const { updateStatus, showUpdateModal, setShowUpdateModal } = useUpdaterStatus()
+  const maxVisibleMenus = useVisibleMenuCount()
 
   const activeExt = (activeFilePath?.split('.').pop() || '').toLowerCase()
   const isOldFormat = Boolean(activeFilePath && activeExt !== 'temin')
-
-  const [maxVisibleMenus, setMaxVisibleMenus] = useState<number>(calculateMaxVisibleMenus)
-
-  const [procurementMode, setProcurementMode] = useState<
-    'dogrudan_temin' | 'ihale' | 'devlet_ihale_2886'
-  >(() => {
-    return (
-      (localStorage.getItem('temin_procurement_mode') as
-        | 'dogrudan_temin'
-        | 'ihale'
-        | 'devlet_ihale_2886') || 'dogrudan_temin'
-    )
-  })
-
-  const isDt = procurementMode === 'dogrudan_temin'
 
   const handleUpgradeAndOpen = useCallback(async (filePath: string): Promise<void> => {
     const result = await useWorkspaceStore.getState().convertAndOpenWorkspace(filePath)
@@ -84,60 +79,6 @@ export function useHeader(): UseHeaderReturn {
       window.location.reload()
     } else {
       throw new Error(result.error || 'Dönüştürme başarısız oldu.')
-    }
-  }, [])
-
-  const handleModeChange = useCallback(
-    (mode: 'dogrudan_temin' | 'ihale' | 'devlet_ihale_2886'): void => {
-      setProcurementMode((prev) => {
-        if (prev === mode) return prev
-        localStorage.setItem('temin_procurement_mode', mode)
-        window.dispatchEvent(new CustomEvent('procurement-mode-change', { detail: { mode } }))
-
-        let message = 'Doğrudan Temin Modu (KİK Md. 22) Aktif'
-        if (mode === 'ihale') {
-          message = 'İhale Süreçleri Modu (KİK Md. 19 / 21) Aktif'
-        } else if (mode === 'devlet_ihale_2886') {
-          message = '2886 Devlet İhale Kanunu Modu (Satış & Kiralama) Aktif'
-        }
-
-        setSwitchFeedback(message)
-        setTimeout(() => setSwitchFeedback(null), 2400)
-        return mode
-      })
-    },
-    []
-  )
-
-  const handleSaveAndSync = useCallback(async (): Promise<void> => {
-    try {
-      setSaveFeedback('💾 Dosya kaydediliyor...')
-      const saveRes = await window.electron?.ipcRenderer.invoke('workspace:save')
-      if (!saveRes?.success) throw new Error(saveRes?.error || 'Dosya kaydedilemedi.')
-
-      const s = await window.electron?.ipcRenderer.invoke('db:get-settings')
-      if (s?.gdriveAccessToken) {
-        setSaveFeedback('☁️ Google Drive bulutuna yedekleniyor...')
-        const gdriveRes = await window.electron?.ipcRenderer.invoke('workspace:backup-gdrive', {
-          force: true
-        })
-        if (gdriveRes?.success) {
-          setSaveFeedback(
-            gdriveRes?.skipped
-              ? '✓ Kaydedildi (Drive yedeği güncel)'
-              : "✓ Kaydedildi ve Drive'a yedeklendi"
-          )
-        } else {
-          setSaveFeedback(`⚠️ Kaydedildi, bulut uyarısı: ${gdriveRes?.error || 'Yetki hatası'}`)
-        }
-      } else {
-        setSaveFeedback('✓ Çalışma dosyası başarıyla kaydedildi')
-      }
-    } catch (e: unknown) {
-      const errorMsg = e instanceof Error ? e.message : String(e)
-      setSaveFeedback(`❌ Kaydetme hatası: ${errorMsg}`)
-    } finally {
-      setTimeout(() => setSaveFeedback(null), 3500)
     }
   }, [])
 
@@ -150,33 +91,6 @@ export function useHeader(): UseHeaderReturn {
   }, [])
 
   useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout> | null = null
-    const handleResize = (): void => {
-      if (timeoutId) clearTimeout(timeoutId)
-      timeoutId = setTimeout(() => {
-        const next = calculateMaxVisibleMenus()
-        setMaxVisibleMenus((prev) => (prev !== next ? next : prev))
-      }, 100)
-    }
-    window.addEventListener('resize', handleResize)
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId)
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [])
-
-  useEffect(() => {
-    const handleModeEvent = (e: Event): void => {
-      const customEvent = e as CustomEvent<{
-        mode: 'dogrudan_temin' | 'ihale' | 'devlet_ihale_2886'
-      }>
-      if (customEvent.detail?.mode) setProcurementMode(customEvent.detail.mode)
-    }
-    window.addEventListener('procurement-mode-change', handleModeEvent)
-    return () => window.removeEventListener('procurement-mode-change', handleModeEvent)
-  }, [])
-
-  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent): void => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault()
@@ -186,19 +100,6 @@ export function useHeader(): UseHeaderReturn {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleSaveAndSync])
-
-  useEffect(() => {
-    const removeListener = window.electron?.ipcRenderer.on(
-      'updater:status',
-      (_event, data: { status: string; version?: string }) => {
-        setUpdateStatus(data)
-        if (data.status === 'downloaded') setShowUpdateModal(true)
-      }
-    )
-    return () => {
-      if (removeListener) removeListener()
-    }
-  }, [])
 
   return {
     navigate,

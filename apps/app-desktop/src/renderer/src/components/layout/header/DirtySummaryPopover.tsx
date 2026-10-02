@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Check, ChevronDown, Clock, FileSpreadsheet, Layers, Save } from 'lucide-react'
-import { DirtySummaryData } from './header.types'
 import { DirtySummaryItem } from './DirtySummaryItem'
+import { useDirtySummary } from './hooks/useDirtySummary'
 
 interface DirtySummaryPopoverProps {
   fileName?: string | null
@@ -16,74 +16,16 @@ export const DirtySummaryPopover = React.memo(function DirtySummaryPopover({
   saveFeedback,
   handleSaveAndSync
 }: DirtySummaryPopoverProps): React.JSX.Element {
-  const [isDirtySummaryOpen, setIsDirtySummaryOpen] = useState(false)
-  const [dirtySummary, setDirtySummary] = useState<DirtySummaryData | null>(null)
-  const [isLoadingSummary, setIsLoadingSummary] = useState(false)
+  const {
+    isDirtySummaryOpen,
+    setIsDirtySummaryOpen,
+    dirtySummary,
+    isLoadingSummary,
+    toggleDirtySummary,
+    dirtySummaryRef
+  } = useDirtySummary()
+
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
-  const dirtySummaryRef = useRef<HTMLDivElement>(null)
-
-  const loadDirtySummary = async (): Promise<void> => {
-    try {
-      setIsLoadingSummary(true)
-      const res = await window.electron?.ipcRenderer.invoke('workspace:get-dirty-summary')
-      if (res?.success) {
-        setDirtySummary({
-          totalChanges: res.totalChanges ?? 0,
-          lastModifiedAt: res.lastModifiedAt ?? null,
-          items: res.items ?? []
-        })
-      } else {
-        setDirtySummary({
-          totalChanges: 1,
-          lastModifiedAt: null,
-          items: [
-            {
-              tableName: 'Veritabanı',
-              title: 'Çalışma Dosyası Değişiklikleri',
-              action: 'other',
-              actionLabel: 'Düzenlendi',
-              count: 1,
-              lastTime: 'Az önce'
-            }
-          ]
-        })
-      }
-    } catch {
-      setDirtySummary({
-        totalChanges: 1,
-        lastModifiedAt: null,
-        items: [
-          {
-            tableName: 'Veritabanı',
-            title: 'Çalışma Dosyası Değişiklikleri',
-            action: 'other',
-            actionLabel: 'Düzenlendi',
-            count: 1,
-            lastTime: 'Az önce'
-          }
-        ]
-      })
-    } finally {
-      setIsLoadingSummary(false)
-    }
-  }
-
-  const toggleDirtySummary = (): void => {
-    if (!isDirtySummaryOpen) {
-      loadDirtySummary()
-    }
-    setIsDirtySummaryOpen((prev) => !prev)
-  }
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent): void => {
-      if (dirtySummaryRef.current && !dirtySummaryRef.current.contains(event.target as Node)) {
-        setIsDirtySummaryOpen(false)
-      }
-    }
-    if (isDirtySummaryOpen) document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [isDirtySummaryOpen])
 
   return (
     <div
