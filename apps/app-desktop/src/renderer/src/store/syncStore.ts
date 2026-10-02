@@ -381,7 +381,8 @@ export const useSyncStore = create<SyncState>((set, get) => ({
   },
 
   testMinIO: async () => {
-    const { minioEndpoint, minioAccessKey, minioSecretKey, minioBucket, minioRegion, minioUseSSL } = get()
+    const { minioEndpoint, minioAccessKey, minioSecretKey, minioBucket, minioRegion, minioUseSSL } =
+      get()
     if (!minioEndpoint) {
       set({ syncStatus: 'error', syncMessage: 'Lütfen MinIO Endpoint adresini girin.' })
       return { success: false, message: 'Lütfen MinIO Endpoint adresini girin.' }

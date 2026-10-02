@@ -113,12 +113,14 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
 
   // Automatic versioned migration check inside ensureSchemaIntegrity
   try {
-    const row = db
-      .prepare("SELECT value FROM settings WHERE key = 'dbSchemaVersion'")
-      .get() as { value?: string } | undefined
+    const row = db.prepare("SELECT value FROM settings WHERE key = 'dbSchemaVersion'").get() as
+      | { value?: string }
+      | undefined
     const currentDbVer = row?.value ? parseInt(row.value, 10) || 1 : 1
     if (currentDbVer < CURRENT_SCHEMA_VERSION) {
-      console.log(`[Schema Self-Healing] Running pending migrations from v${currentDbVer} to v${CURRENT_SCHEMA_VERSION}`)
+      console.log(
+        `[Schema Self-Healing] Running pending migrations from v${currentDbVer} to v${CURRENT_SCHEMA_VERSION}`
+      )
       runMigrations(db, currentDbVer, schema)
       db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('dbSchemaVersion', ?)").run(
         CURRENT_SCHEMA_VERSION.toString()
@@ -199,7 +201,7 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     { name: 'baslangic_tarihi', def: 'TEXT' },
     { name: 'bitis_tarihi', def: 'TEXT' },
     { name: 'belge_kapsami', def: "TEXT DEFAULT 'tumu'" },
-    { name: 'hedef_belgeler', def: "TEXT DEFAULT '[\"*\"]'" }
+    { name: 'hedef_belgeler', def: 'TEXT DEFAULT \'["*"]\'' }
   ]
   for (const c of komisyonExtendedColumns) {
     try {
@@ -844,7 +846,10 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
               db.exec(`ALTER TABLE ${table.name} ADD COLUMN ${sqlDef};`)
             } catch (colErr: any) {
               if (!colErr.message?.includes('duplicate column name')) {
-                console.warn(`[Schema Self-Healing] Could not add column ${table.name}.${col.name}:`, colErr.message)
+                console.warn(
+                  `[Schema Self-Healing] Could not add column ${table.name}.${col.name}:`,
+                  colErr.message
+                )
               }
             }
           }

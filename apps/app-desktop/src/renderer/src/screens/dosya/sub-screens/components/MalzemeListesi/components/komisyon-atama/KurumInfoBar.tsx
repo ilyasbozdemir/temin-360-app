@@ -19,9 +19,7 @@ export const KurumInfoBar: React.FC<KurumInfoBarProps> = ({ kurumInfo }) => {
         {kurumInfo.makamAdi && (
           <span className="text-slate-400 font-medium text-[11px]">
             • Onay Makamı:{' '}
-            <strong className="text-slate-600 dark:text-slate-300">
-              {kurumInfo.makamAdi}
-            </strong>
+            <strong className="text-slate-600 dark:text-slate-300">{kurumInfo.makamAdi}</strong>
           </span>
         )}
       </div>

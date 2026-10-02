@@ -1,20 +1,20 @@
-import React from "react";
-import { CheckCircle2, Trash2 } from "lucide-react";
+import React from 'react'
+import { CheckCircle2, Trash2 } from 'lucide-react'
 
 interface KabulBatchActionsBarProps {
-  selectedCount: number;
-  onClearSelection: () => void;
-  onBulkApprove?: () => void;
-  onBulkDelete?: () => void;
+  selectedCount: number
+  onClearSelection: () => void
+  onBulkApprove?: () => void
+  onBulkDelete?: () => void
 }
 
 export function KabulBatchActionsBar({
   selectedCount,
   onClearSelection,
   onBulkApprove,
-  onBulkDelete,
+  onBulkDelete
 }: KabulBatchActionsBarProps): React.JSX.Element | null {
-  if (selectedCount === 0) return null;
+  if (selectedCount === 0) return null
 
   return (
     <div className="flex items-center justify-between px-4 py-2.5 bg-blue-50 dark:bg-blue-950/40 border-b border-blue-200 dark:border-blue-900/60 animate-in fade-in duration-150">
@@ -56,5 +56,5 @@ export function KabulBatchActionsBar({
         )}
       </div>
     </div>
-  );
+  )
 }

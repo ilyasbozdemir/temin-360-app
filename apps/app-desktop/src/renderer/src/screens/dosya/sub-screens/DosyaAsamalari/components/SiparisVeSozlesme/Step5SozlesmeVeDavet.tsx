@@ -106,5 +106,5 @@ export function Step5SozlesmeVeDavet({
         </div>
       </div>
     </div>
-  );
+  )
 }

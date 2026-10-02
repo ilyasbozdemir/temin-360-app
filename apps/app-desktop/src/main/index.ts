@@ -74,6 +74,15 @@ if (process.platform === 'win32') {
     app.setAppUserModelId(app.isPackaged ? 'dev.ilyasbozdemir.temin360' : process.execPath)
   } catch {}
 }
+
+// Donanım Hızlandırma & Düşük Donanımlı Bilgisayarlar İçin Performans Optimizasyonları
+try {
+  app.commandLine.appendSwitch('enable-gpu-rasterization')
+  app.commandLine.appendSwitch('enable-zero-copy')
+  app.commandLine.appendSwitch('ignore-gpu-blocklist')
+  app.commandLine.appendSwitch('enable-smooth-scrolling')
+  app.commandLine.appendSwitch('high-dpi-support', '1')
+} catch {}
 import { workspaceManager } from './database/workspace'
 import { CURRENT_SCHEMA_VERSION, manifests } from '@dt/database'
 import nodemailer from 'nodemailer'
@@ -91,7 +100,6 @@ import { generateContent, testConnection, AIGenerateOptions } from './ai/index'
 import { renderPdfBuffer } from './pdfService'
 import { renderDocxBuffer } from './docxService'
 import { startExpressServer, stopExpressServer } from './network/expressServer'
-import { registerArchiveHandlers } from './archive'
 import { registerAllIpcHandlers } from './ipc'
 import { performAutoCloudSync } from './ipc/network.ipc'
 import { TANIM_Placeholder } from '@dt/database'

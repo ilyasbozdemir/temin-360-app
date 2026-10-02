@@ -20,7 +20,8 @@ export function IslemTuruSecici({ selected, onSelect }: Props): React.JSX.Elemen
     {
       id: 'satis',
       title: 'Taşınmaz / Taşınır Satışı',
-      description: 'Mülkiyeti idareye ait arsa, arazi, dükkan, hurda veya mal satışı. Peşin / taksitli tahsilat.',
+      description:
+        'Mülkiyeti idareye ait arsa, arazi, dükkan, hurda veya mal satışı. Peşin / taksitli tahsilat.',
       icon: Landmark,
       badge: 'En Sık Kullanılan',
       color: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50',
@@ -29,25 +30,30 @@ export function IslemTuruSecici({ selected, onSelect }: Props): React.JSX.Elemen
     {
       id: 'kiralama',
       title: 'Taşınmaz Kiralama',
-      description: 'Kantin, büfe, çay bahçesi, dükkan, otopark, tarla vb. kiraya verilmesi ve kira artış takibi.',
+      description:
+        'Kantin, büfe, çay bahçesi, dükkan, otopark, tarla vb. kiraya verilmesi ve kira artış takibi.',
       icon: Key,
       badge: 'Dönemsel Gelir',
       color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50',
-      activeBorder: 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/40 dark:bg-emerald-950/20'
+      activeBorder:
+        'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/40 dark:bg-emerald-950/20'
     },
     {
       id: 'irtifak_intifa',
       title: 'İrtifak / Üst Hakkı Tesisi',
-      description: 'Kamu taşınmazı üzerinde belirli süre ile sınırlı ayni hak (irtifak, intifa, üst hakkı) tesisi.',
+      description:
+        'Kamu taşınmazı üzerinde belirli süre ile sınırlı ayni hak (irtifak, intifa, üst hakkı) tesisi.',
       icon: Building2,
       badge: 'Uzun Vadeli',
       color: 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/50',
-      activeBorder: 'border-purple-500 ring-2 ring-purple-500/20 bg-purple-50/40 dark:bg-purple-950/20'
+      activeBorder:
+        'border-purple-500 ring-2 ring-purple-500/20 bg-purple-50/40 dark:bg-purple-950/20'
     },
     {
       id: 'trampa',
       title: 'Trampa (Takas)',
-      description: 'İdare mülkiyetindeki taşınmazın gerçek/tüzel kişilere ait eşdeğer taşınmazla takası.',
+      description:
+        'İdare mülkiyetindeki taşınmazın gerçek/tüzel kişilere ait eşdeğer taşınmazla takası.',
       icon: RefreshCw,
       badge: 'Özel Usul',
       color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50',

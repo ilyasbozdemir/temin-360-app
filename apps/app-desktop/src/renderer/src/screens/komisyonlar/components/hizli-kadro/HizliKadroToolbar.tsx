@@ -1,24 +1,21 @@
-import React, { useState } from "react";
-import { Eye, FileText, Info, Plus, Users } from "lucide-react";
-import { TemplateRegistryService } from "@temin360/document-templates";
-import { MemberRow } from "./types";
+import React, { useState } from 'react'
+import { Eye, FileText, Info, Plus, Users } from 'lucide-react'
+import { TemplateRegistryService } from '@temin360/document-templates'
+import { MemberRow } from './types'
 
 interface HizliKadroToolbarProps {
-  rows: MemberRow[];
-  onLoadStandardTemplate: () => void;
-  onAddRow: (gorevAd?: string, asil?: number) => void;
+  rows: MemberRow[]
+  onLoadStandardTemplate: () => void
+  onAddRow: (gorevAd?: string, asil?: number) => void
 }
 
-export const HizliKadroToolbar: React.FC<HizliKadroToolbarProps> = ({
-  rows,
-  onAddRow,
-}) => {
-  const [showTemplateInfo, setShowTemplateInfo] = useState(false);
-  const asilCount = rows.filter((r) => r.asilMi === 1 && r.personelId).length;
-  const yedekCount = rows.filter((r) => r.asilMi === 0 && r.personelId).length;
-  const visibleCount = rows.filter((r) => r.belgedeGoster).length;
+export const HizliKadroToolbar: React.FC<HizliKadroToolbarProps> = ({ rows, onAddRow }) => {
+  const [showTemplateInfo, setShowTemplateInfo] = useState(false)
+  const asilCount = rows.filter((r) => r.asilMi === 1 && r.personelId).length
+  const yedekCount = rows.filter((r) => r.asilMi === 0 && r.personelId).length
+  const visibleCount = rows.filter((r) => r.belgedeGoster).length
 
-  const compatibleTemplates = TemplateRegistryService.getTemplatesByCapability("supportsCommission");
+  const compatibleTemplates = TemplateRegistryService.getTemplatesByCapability('supportsCommission')
 
   return (
     <div className="relative flex flex-wrap items-center justify-between gap-3 p-3.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl mb-3">
@@ -65,7 +62,8 @@ export const HizliKadroToolbar: React.FC<HizliKadroToolbarProps> = ({
             </button>
           </div>
           <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-2 leading-relaxed">
-            Bu kadrodaki &quot;Belgede Görünür&quot; işaretli üyeler aşağıdaki uyumlu belge çıktılarına otomatik yansıtılır:
+            Bu kadrodaki &quot;Belgede Görünür&quot; işaretli üyeler aşağıdaki uyumlu belge
+            çıktılarına otomatik yansıtılır:
           </p>
           <div className="space-y-1 max-h-48 overflow-y-auto custom-scrollbar pr-1">
             {compatibleTemplates.map((t) => (
@@ -85,7 +83,7 @@ export const HizliKadroToolbar: React.FC<HizliKadroToolbarProps> = ({
       <div className="flex items-center gap-2">
         <button
           type="button"
-          onClick={() => onAddRow("Üye", 1)}
+          onClick={() => onAddRow('Üye', 1)}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 border border-blue-200 dark:border-blue-800 rounded-xl transition-all shadow-2xs cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5" />
@@ -93,5 +91,5 @@ export const HizliKadroToolbar: React.FC<HizliKadroToolbarProps> = ({
         </button>
       </div>
     </div>
-  );
-};
+  )
+}

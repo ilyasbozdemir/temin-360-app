@@ -1,10 +1,4 @@
-export type StepId =
-  | 'teslimat'
-  | 'sonuc_onay'
-  | 'yasaklilik'
-  | 'siparis'
-  | 'sozlesme'
-  | 'timeline'
+export type StepId = 'teslimat' | 'sonuc_onay' | 'yasaklilik' | 'siparis' | 'sozlesme' | 'timeline'
 
 export interface FirmaStats {
   teklifToplami: number | null

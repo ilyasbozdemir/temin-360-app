@@ -1,15 +1,15 @@
-import React from "react";
-import { Link } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
+import React from 'react'
+import { Link } from '@tanstack/react-router'
+import { ChevronRight } from 'lucide-react'
 
 interface TakipKalemlerVeFirmalarGridProps {
-  kalemler: any[];
-  firmalar: any[];
+  kalemler: any[]
+  firmalar: any[]
 }
 
 export function TakipKalemlerVeFirmalarGrid({
   kalemler,
-  firmalar,
+  firmalar
 }: TakipKalemlerVeFirmalarGridProps): React.JSX.Element {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -41,10 +41,7 @@ export function TakipKalemlerVeFirmalarGrid({
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-slate-600 dark:text-slate-450">
               {kalemler.map((item: any) => (
-                <tr
-                  key={item.id}
-                  className="hover:bg-slate-50/55 dark:hover:bg-slate-900/10"
-                >
+                <tr key={item.id} className="hover:bg-slate-50/55 dark:hover:bg-slate-900/10">
                   <td className="p-3 font-semibold text-slate-800 dark:text-slate-200">
                     {item.kalem_adi}
                   </td>
@@ -52,17 +49,14 @@ export function TakipKalemlerVeFirmalarGrid({
                     {item.miktar}
                   </td>
                   <td className="p-3 text-center text-slate-500 dark:text-slate-400">
-                    {item.olcu_birimi || item.birim || "Adet"}
+                    {item.olcu_birimi || item.birim || 'Adet'}
                   </td>
                 </tr>
               ))}
               {kalemler.length === 0 && (
                 <tr>
-                  <td
-                    colSpan={3}
-                    className="p-6 text-center text-slate-400 italic"
-                  >
-                    Dosyada henüz kayıtlı malzeme bulunmuyor.{" "}
+                  <td colSpan={3} className="p-6 text-center text-slate-400 italic">
+                    Dosyada henüz kayıtlı malzeme bulunmuyor.{' '}
                     <Link
                       to="/dosya/hazirlik-ve-ihtiyac"
                       className="text-blue-600 underline font-semibold ml-1"
@@ -104,10 +98,7 @@ export function TakipKalemlerVeFirmalarGrid({
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-slate-600 dark:text-slate-450">
               {firmalar.map((f: any) => (
-                <tr
-                  key={f.id}
-                  className="hover:bg-slate-50/55 dark:hover:bg-slate-900/10"
-                >
+                <tr key={f.id} className="hover:bg-slate-50/55 dark:hover:bg-slate-900/10">
                   <td className="p-3 font-semibold text-slate-800 dark:text-slate-200">
                     {f.unvan}
                   </td>
@@ -120,11 +111,8 @@ export function TakipKalemlerVeFirmalarGrid({
               ))}
               {firmalar.length === 0 && (
                 <tr>
-                  <td
-                    colSpan={2}
-                    className="p-6 text-center text-slate-400 italic"
-                  >
-                    Dosyada henüz kayıtlı firma teklifi bulunmuyor.{" "}
+                  <td colSpan={2} className="p-6 text-center text-slate-400 italic">
+                    Dosyada henüz kayıtlı firma teklifi bulunmuyor.{' '}
                     <Link
                       to="/dosya/piyasa-fiyat-arastirmasi"
                       className="text-emerald-600 underline font-semibold ml-1"
@@ -139,5 +127,5 @@ export function TakipKalemlerVeFirmalarGrid({
         </div>
       </div>
     </div>
-  );
+  )
 }

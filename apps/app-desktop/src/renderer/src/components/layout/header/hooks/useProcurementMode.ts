@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { ProcurementMode } from '../temin-selector/teminSelector.types'
+import { ProcurementMode } from '../../temin-selector/teminSelector.types'
 
 export interface UseProcurementModeReturn {
   procurementMode: ProcurementMode

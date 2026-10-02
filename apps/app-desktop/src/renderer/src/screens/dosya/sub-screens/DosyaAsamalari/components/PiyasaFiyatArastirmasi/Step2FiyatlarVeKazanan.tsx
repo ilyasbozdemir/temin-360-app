@@ -1,7 +1,7 @@
-import React from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import { PricesSummaryDashboard } from "../PricesSummaryDashboard";
-import { KazananKararPaneli } from "./KazananKararPaneli";
+import React from 'react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { PricesSummaryDashboard } from '../PricesSummaryDashboard'
+import { KazananKararPaneli } from './KazananKararPaneli'
 
 interface Step2FiyatlarVeKazananProps {
   activeWinnerFirma: any
@@ -79,5 +79,5 @@ export function Step2FiyatlarVeKazanan({
         </button>
       </div>
     </div>
-  );
+  )
 }

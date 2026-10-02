@@ -128,11 +128,7 @@ export const InspectorPropertiesTab: React.FC<InspectorPropertiesTabProps> = ({
             value={activeField.visibilityMode || 'all'}
             onChange={(e) =>
               onUpdateActiveField({
-                visibilityMode: e.target.value as
-                  | 'all'
-                  | 'print-only'
-                  | 'edit-only'
-                  | 'screen-only'
+                visibilityMode: e.target.value as 'all' | 'print-only' | 'edit-only' | 'screen-only'
               })
             }
             className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 font-sans"

@@ -540,4 +540,3 @@ export function ButceVeOdenekCard({
     </div>
   )
 }
-

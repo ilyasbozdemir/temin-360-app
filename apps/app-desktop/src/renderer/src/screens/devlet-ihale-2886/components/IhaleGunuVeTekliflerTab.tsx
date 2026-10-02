@@ -1,58 +1,33 @@
 import React, { useState } from 'react'
-import {
-  Gavel,
-  Trophy,
-  Users,
-  Plus,
-  ArrowUpRight,
-  CheckCircle2,
-  AlertCircle
-} from 'lucide-react'
+import { Gavel, Trophy, Users, Plus, CheckCircle2 } from 'lucide-react'
 import { TeklifVerenIstekli } from '../types/devletIhale2886.types'
 
 export function IhaleGunuVeTekliflerTab(): React.JSX.Element {
-  const [muhammenBedel] = useState<number>(1300000)
+  const [muhammenBedel, setMuhammenBedel] = useState<number>(0)
+  const [istekliler, setIstekliler] = useState<TeklifVerenIstekli[]>([])
 
-  const [istekliler, setIstekliler] = useState<TeklifVerenIstekli[]>([
-    {
-      id: '1',
-      unvanVeyaAd: 'Kaya Mimarlık & İnşaat Ltd. Şti.',
-      tcVkn: '5420194812',
-      geciciTeminatYatirdiMi: true,
-      teminatTutari: 39000,
-      teklifler: [1300000, 1350000, 1420000, 1500000],
-      sonTeklifTutari: 1500000,
-      kazandiMi: true
-    },
-    {
-      id: '2',
-      unvanVeyaAd: 'Öztürk Ticaret - Mehmet ÖZTÜRK',
-      tcVkn: '28491029482',
-      geciciTeminatYatirdiMi: true,
-      teminatTutari: 39000,
-      teklifler: [1300000, 1340000, 1400000, 1480000],
-      sonTeklifTutari: 1480000,
-      kazandiMi: false
-    },
-    {
-      id: '3',
-      unvanVeyaAd: 'Ermenek Emlak ve Otomotiv A.Ş.',
-      tcVkn: '3819204910',
-      geciciTeminatYatirdiMi: true,
-      teminatTutari: 39000,
-      teklifler: [1300000, 1320000],
-      sonTeklifTutari: 1320000,
-      kazandiMi: false
-    }
-  ])
-
-  const formatMoney = (n: number) =>
+  const formatMoney = (n: number): string =>
     n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
-  const enYuksekTeklif = Math.max(...istekliler.map((i) => i.sonTeklifTutari))
+  const enYuksekTeklif =
+    istekliler.length > 0 ? Math.max(...istekliler.map((i) => i.sonTeklifTutari || 0)) : 0
   const kazanan = istekliler.find((i) => i.kazandiMi)
-  const artisTutari = enYuksekTeklif - muhammenBedel
-  const artisOrani = ((artisTutari / muhammenBedel) * 100).toFixed(1)
+  const artisTutari = Math.max(0, enYuksekTeklif - muhammenBedel)
+  const artisOrani = muhammenBedel > 0 ? ((artisTutari / muhammenBedel) * 100).toFixed(1) : '0.0'
+
+  const handleAddIstekli = (): void => {
+    const yeni: TeklifVerenIstekli = {
+      id: String(Date.now()),
+      unvanVeyaAd: '',
+      tcVkn: '',
+      geciciTeminatYatirdiMi: true,
+      teminatTutari: (muhammenBedel * 3) / 100,
+      teklifler: [],
+      sonTeklifTutari: 0,
+      kazandiMi: false
+    }
+    setIstekliler((prev) => [...prev, yeni])
+  }
 
   return (
     <div className="space-y-4">
@@ -68,7 +43,7 @@ export function IhaleGunuVeTekliflerTab(): React.JSX.Element {
                 İhalede Oluşan En Yüksek Teklif (Kazanan İstekli)
               </div>
               <div className="text-base font-extrabold text-slate-900 dark:text-slate-100">
-                {kazanan?.unvanVeyaAd}
+                {kazanan?.unvanVeyaAd || 'Henüz ihale sonuçlanmadı'}
               </div>
             </div>
           </div>
@@ -98,65 +73,117 @@ export function IhaleGunuVeTekliflerTab(): React.JSX.Element {
           </h3>
           <button
             type="button"
+            onClick={handleAddIstekli}
             className="px-2.5 py-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-lg border border-indigo-200 dark:border-indigo-800 transition-colors flex items-center gap-1 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" /> Yeni İstekli Ekle
           </button>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
-            <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 bg-slate-50 dark:bg-slate-850">
-                <th className="py-2.5 px-3 font-semibold">Sıra</th>
-                <th className="py-2.5 px-3 font-semibold">İstekli Ünvanı / Adı</th>
-                <th className="py-2.5 px-3 font-semibold">TCKN / VKN</th>
-                <th className="py-2.5 px-3 font-semibold text-center">Geçici Teminat</th>
-                <th className="py-2.5 px-3 font-semibold text-right">Başlangıç (Taban)</th>
-                <th className="py-2.5 px-3 font-semibold text-right">Son Pey / Teklif</th>
-                <th className="py-2.5 px-3 font-semibold text-center">Durum</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {istekliler.map((istekli, idx) => (
-                <tr
-                  key={istekli.id}
-                  className={`hover:bg-slate-50/80 dark:hover:bg-slate-850 ${
-                    istekli.kazandiMi
-                      ? 'bg-emerald-50/40 dark:bg-emerald-950/20 font-medium'
-                      : ''
-                  }`}
-                >
-                  <td className="py-2.5 px-3 font-mono text-slate-400">{idx + 1}</td>
-                  <td className="py-2.5 px-3 font-bold text-slate-800 dark:text-slate-200">
-                    {istekli.unvanVeyaAd}
-                  </td>
-                  <td className="py-2.5 px-3 font-mono text-slate-500">{istekli.tcVkn}</td>
-                  <td className="py-2.5 px-3 text-center">
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-                      <CheckCircle2 className="w-3 h-3" /> ₺{formatMoney(istekli.teminatTutari)}
-                    </span>
-                  </td>
-                  <td className="py-2.5 px-3 font-mono text-right text-slate-500">
-                    ₺{formatMoney(muhammenBedel)}
-                  </td>
-                  <td className="py-2.5 px-3 font-mono font-extrabold text-right text-slate-900 dark:text-slate-100 text-sm">
-                    ₺{formatMoney(istekli.sonTeklifTutari)}
-                  </td>
-                  <td className="py-2.5 px-3 text-center">
-                    {istekli.kazandiMi ? (
-                      <span className="inline-block text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-600 text-white shadow-2xs">
-                        İhale Üzerinde Kaldı
-                      </span>
-                    ) : (
-                      <span className="text-[10px] text-slate-400">Çekildi / Elendi</span>
-                    )}
-                  </td>
+        {istekliler.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-8 px-4 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-slate-400">
+            <Users className="w-8 h-8 mb-2 opacity-40" />
+            <p className="text-xs font-medium">Henüz ihaleye katılan istekli kaydı girilmedi.</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              İstekli firma veya şahısları eklemek için &quot;Yeni İstekli Ekle&quot; butonunu
+              kullanabilirsiniz.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead>
+                <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 bg-slate-50 dark:bg-slate-850">
+                  <th className="py-2.5 px-3 font-semibold">Sıra</th>
+                  <th className="py-2.5 px-3 font-semibold">İstekli Ünvanı / Adı</th>
+                  <th className="py-2.5 px-3 font-semibold">TCKN / VKN</th>
+                  <th className="py-2.5 px-3 font-semibold text-center">Geçici Teminat</th>
+                  <th className="py-2.5 px-3 font-semibold text-right">Başlangıç (Taban)</th>
+                  <th className="py-2.5 px-3 font-semibold text-right">Son Pey / Teklif</th>
+                  <th className="py-2.5 px-3 font-semibold text-center">Durum</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {istekliler.map((istekli, idx) => (
+                  <tr
+                    key={istekli.id}
+                    className={`hover:bg-slate-50/80 dark:hover:bg-slate-850 ${
+                      istekli.kazandiMi ? 'bg-emerald-50/40 dark:bg-emerald-950/20 font-medium' : ''
+                    }`}
+                  >
+                    <td className="py-2.5 px-3 font-mono text-slate-400">{idx + 1}</td>
+                    <td className="py-2.5 px-3">
+                      <input
+                        type="text"
+                        placeholder="İstekli Ünvanı..."
+                        value={istekli.unvanVeyaAd}
+                        onChange={(e) => {
+                          const updated = [...istekliler]
+                          updated[idx].unvanVeyaAd = e.target.value
+                          setIstekliler(updated)
+                        }}
+                        className="px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs font-bold w-full"
+                      />
+                    </td>
+                    <td className="py-2.5 px-3 font-mono">
+                      <input
+                        type="text"
+                        placeholder="TC/VKN"
+                        value={istekli.tcVkn}
+                        onChange={(e) => {
+                          const updated = [...istekliler]
+                          updated[idx].tcVkn = e.target.value
+                          setIstekliler(updated)
+                        }}
+                        className="px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs w-28"
+                      />
+                    </td>
+                    <td className="py-2.5 px-3 text-center">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                        <CheckCircle2 className="w-3 h-3" /> ₺{formatMoney(istekli.teminatTutari)}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-3 font-mono text-right text-slate-500">
+                      ₺{formatMoney(muhammenBedel)}
+                    </td>
+                    <td className="py-2.5 px-3 font-mono font-extrabold text-right text-slate-900 dark:text-slate-100 text-sm">
+                      <input
+                        type="number"
+                        placeholder="0"
+                        value={istekli.sonTeklifTutari || ''}
+                        onChange={(e) => {
+                          const updated = [...istekliler]
+                          updated[idx].sonTeklifTutari = Number(e.target.value) || 0
+                          setIstekliler(updated)
+                        }}
+                        className="px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs text-right font-mono font-bold w-28"
+                      />
+                    </td>
+                    <td className="py-2.5 px-3 text-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = istekliler.map((item, i) => ({
+                            ...item,
+                            kazandiMi: i === idx ? !item.kazandiMi : false
+                          }))
+                          setIstekliler(updated)
+                        }}
+                        className={`text-[10px] font-bold px-2.5 py-1 rounded-full cursor-pointer transition-colors ${
+                          istekli.kazandiMi
+                            ? 'bg-emerald-600 text-white shadow-2xs'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200'
+                        }`}
+                      >
+                        {istekli.kazandiMi ? 'İhale Üzerinde Kaldı' : 'Kazanan Yap'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   )

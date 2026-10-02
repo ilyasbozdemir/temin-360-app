@@ -34,9 +34,24 @@ export const DEFAULT_YAKLASIK_ROLES = [
   { ad: 'Satın Alma Harcama Yetkilisi', asil: 1, belgedeGoster: false, belgeKapsami: 'olur_onay' },
   { ad: 'Gerçekleştirme Görevlisi', asil: 1, belgedeGoster: false, belgeKapsami: 'olur_onay' },
   { ad: 'Muhasebe Yetkilisi', asil: 1, belgedeGoster: false, belgeKapsami: 'gizli' },
-  { ad: 'Fiyat Araştırma Görevlisi', asil: 1, belgedeGoster: true, belgeKapsami: 'piyasa_arastirma' },
-  { ad: 'Fiyat Araştırma Görevlisi', asil: 1, belgedeGoster: true, belgeKapsami: 'piyasa_arastirma' },
-  { ad: 'Fiyat Araştırma Görevlisi', asil: 1, belgedeGoster: true, belgeKapsami: 'piyasa_arastirma' }
+  {
+    ad: 'Fiyat Araştırma Görevlisi',
+    asil: 1,
+    belgedeGoster: true,
+    belgeKapsami: 'piyasa_arastirma'
+  },
+  {
+    ad: 'Fiyat Araştırma Görevlisi',
+    asil: 1,
+    belgedeGoster: true,
+    belgeKapsami: 'piyasa_arastirma'
+  },
+  {
+    ad: 'Fiyat Araştırma Görevlisi',
+    asil: 1,
+    belgedeGoster: true,
+    belgeKapsami: 'piyasa_arastirma'
+  }
 ]
 
 export const DEFAULT_MUAYENE_ROLES = [

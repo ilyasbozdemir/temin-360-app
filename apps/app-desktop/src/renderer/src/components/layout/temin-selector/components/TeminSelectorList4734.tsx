@@ -1,24 +1,13 @@
 import React from 'react'
 import { FileText, FolderClosed, Gavel, Plus, TrendingUp } from 'lucide-react'
-import { formatDosyaNo } from '../../../utils/formatDosyaNo'
+import { formatDosyaNo } from '../../../../utils/formatDosyaNo'
 import { TUR_COLOR, TUR_LABEL } from '../teminSelector.constants'
 import { formatMoney, getMevzuatBadgeInfo, isIhaleOrYapim } from '../teminSelector.utils'
-
-interface DosyaItem {
-  id: number
-  temin_no?: string
-  konu?: string
-  tur?: string
-  yaklasik_maliyet?: number
-  is_deleted?: number
-  ihale_sekli?: string
-  ihale_tipi?: string
-  isin_aciklamasi?: string
-}
+import { DosyaListItem } from '../teminSelector.types'
 
 interface TeminSelectorList4734Props {
   isLoadingDosyalar: boolean
-  filteredDosyalar: DosyaItem[]
+  filteredDosyalar: DosyaListItem[]
   activeDosyaId: number | null
   isDt: boolean
   handleSelect: (id: number) => void

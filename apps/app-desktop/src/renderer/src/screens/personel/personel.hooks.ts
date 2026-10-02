@@ -365,9 +365,7 @@ export function usePersonelUnvanGecmisi(personelId?: number): {
   addUnvanGecmisi: (
     item: Omit<PersonelUnvanGecmisi, 'id' | 'created_at' | 'updated_at'>
   ) => Promise<unknown>
-  updateUnvanGecmisi: (
-    item: Partial<PersonelUnvanGecmisi> & { id: number }
-  ) => Promise<unknown>
+  updateUnvanGecmisi: (item: Partial<PersonelUnvanGecmisi> & { id: number }) => Promise<unknown>
   deleteUnvanGecmisi: (id: number) => Promise<unknown>
 } {
   const queryClient = useQueryClient()
@@ -379,9 +377,7 @@ export function usePersonelUnvanGecmisi(personelId?: number): {
   })
 
   const addUnvanGecmisiMutation = useMutation({
-    mutationFn: async (
-      item: Omit<PersonelUnvanGecmisi, 'id' | 'created_at' | 'updated_at'>
-    ) => {
+    mutationFn: async (item: Omit<PersonelUnvanGecmisi, 'id' | 'created_at' | 'updated_at'>) => {
       await ensureUnvanGecmisiTable()
       const sql = `INSERT INTO TANIM_PersonelUnvanGecmisi 
         (personel_id, unvan, gorev, birim, baslangic_tarihi, bitis_tarihi, aktif_mi, dayanak_belge, aciklama) 
@@ -408,9 +404,7 @@ export function usePersonelUnvanGecmisi(personelId?: number): {
   })
 
   const updateUnvanGecmisiMutation = useMutation({
-    mutationFn: async (
-      item: Partial<PersonelUnvanGecmisi> & { id: number }
-    ) => {
+    mutationFn: async (item: Partial<PersonelUnvanGecmisi> & { id: number }) => {
       await ensureUnvanGecmisiTable()
       const sql = `UPDATE TANIM_PersonelUnvanGecmisi SET 
         unvan = ?, gorev = ?, birim = ?, baslangic_tarihi = ?, bitis_tarihi = ?, aktif_mi = ?, dayanak_belge = ?, aciklama = ? 

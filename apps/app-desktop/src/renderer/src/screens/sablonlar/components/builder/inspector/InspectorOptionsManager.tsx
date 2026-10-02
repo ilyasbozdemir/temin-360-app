@@ -76,7 +76,9 @@ export const InspectorOptionsManager: React.FC<InspectorOptionsManagerProps> = (
                 <span className="w-4 h-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[9px] font-bold text-slate-500">
                   {idx + 1}
                 </span>
-                <span className="text-xs font-medium text-slate-800 dark:text-slate-200">{opt}</span>
+                <span className="text-xs font-medium text-slate-800 dark:text-slate-200">
+                  {opt}
+                </span>
               </div>
               <button
                 type="button"

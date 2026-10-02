@@ -121,8 +121,7 @@ export async function openPdfExternalHandler(
   payload: any
 ): Promise<{ success: boolean; tempPath?: string; error?: string }> {
   try {
-    const html =
-      typeof payload === 'string' ? payload : payload?.html || payload?.htmlContent || ''
+    const html = typeof payload === 'string' ? payload : payload?.html || payload?.htmlContent || ''
     const pdfBuffer = await renderPdfBuffer(html)
     const tempPath = join(app.getPath('temp'), `temin360_preview_${Date.now()}.pdf`)
     fs.writeFileSync(tempPath, pdfBuffer)
@@ -139,8 +138,7 @@ export async function exportPdfHandler(
   legacyFileName?: string
 ): Promise<{ success: boolean; filePath?: string; error?: string }> {
   try {
-    const html =
-      typeof payload === 'string' ? payload : payload?.html || payload?.htmlContent || ''
+    const html = typeof payload === 'string' ? payload : payload?.html || payload?.htmlContent || ''
     const defaultFilename =
       (typeof payload === 'object' &&
         (payload?.defaultFilename || payload?.fileName || payload?.filename)) ||
@@ -149,9 +147,7 @@ export async function exportPdfHandler(
 
     const { canceled, filePath } = await dialog.showSaveDialog({
       title: 'PDF Olarak Kaydet',
-      defaultPath: defaultFilename.endsWith('.pdf')
-        ? defaultFilename
-        : `${defaultFilename}.pdf`,
+      defaultPath: defaultFilename.endsWith('.pdf') ? defaultFilename : `${defaultFilename}.pdf`,
       filters: [{ name: 'PDF Dosyası', extensions: ['pdf'] }]
     })
     if (canceled || !filePath) return { success: false, error: 'İptal edildi' }
@@ -204,9 +200,7 @@ export async function exportZipHandler(
     for (const item of items) {
       const format = (item.format || 'pdf').toLowerCase()
       const rawName = item.name || 'Belge'
-      const cleanName = rawName
-        .replace(/[/\\:*?"<>|]/g, '_')
-        .replace(/\.(pdf|docx|udf|html)$/i, '')
+      const cleanName = rawName.replace(/[/\\:*?"<>|]/g, '_').replace(/\.(pdf|docx|udf|html)$/i, '')
 
       if (Buffer.isBuffer(item.content)) {
         zip.addFile(`${cleanName}.${format}`, item.content)
@@ -318,7 +312,12 @@ export async function exportXlsxHandler(
   }
 }
 
-export async function importDocxHandler(): Promise<{ success: boolean; html?: string; messages?: any[]; error?: string }> {
+export async function importDocxHandler(): Promise<{
+  success: boolean
+  html?: string
+  messages?: any[]
+  error?: string
+}> {
   try {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       title: 'DOCX Seç',
@@ -336,7 +335,11 @@ export async function importDocxHandler(): Promise<{ success: boolean; html?: st
   }
 }
 
-export async function importXlsxHandler(): Promise<{ success: boolean; buffer?: ArrayBuffer; error?: string }> {
+export async function importXlsxHandler(): Promise<{
+  success: boolean
+  buffer?: ArrayBuffer
+  error?: string
+}> {
   try {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       title: 'XLSX Seç',
@@ -353,7 +356,11 @@ export async function importXlsxHandler(): Promise<{ success: boolean; buffer?: 
   }
 }
 
-export async function openExcelHandler(): Promise<{ success: boolean; filePath?: string; error?: string }> {
+export async function openExcelHandler(): Promise<{
+  success: boolean
+  filePath?: string
+  error?: string
+}> {
   try {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       title: 'Excel Dosyası Aç',

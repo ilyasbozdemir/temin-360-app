@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 import {
   Calendar,
   Edit2,
@@ -7,30 +7,30 @@ import {
   MessageSquareText,
   Receipt,
   Trash2,
-  Truck,
-} from "lucide-react";
-import { Button } from "../../../../../../../components/ui/Button";
-import { KabulTutanakItem } from "../types";
-import { KabulDurumBadge } from "./KabulDurumBadge";
+  Truck
+} from 'lucide-react'
+import { Button } from '../../../../../../../components/ui/Button'
+import { KabulTutanakItem } from '../types'
+import { KabulDurumBadge } from './KabulDurumBadge'
 
 interface KabulGridViewProps {
-  tutanaklar: KabulTutanakItem[];
-  filteredTutanaklar: KabulTutanakItem[];
-  effectiveFirma: string;
-  effectiveTeklifTutar: number;
-  effectiveTeslimAlan: string;
-  effectiveTeslimYeri: string;
-  faturaNo?: string;
-  faturaTarihi?: string;
-  irsaliyeNo?: string;
-  irsaliyeTarihi?: string;
-  dosyaNo?: string;
-  primarySablonKey: string;
-  formatDate: (dateStr: string | null) => string;
-  formatCurrency: (val: number | null) => string;
-  onOpenPreview?: (sablonKey: string, tutanak?: KabulTutanakItem) => void;
-  onEditTutanak?: (tutanak: KabulTutanakItem) => void;
-  onDeleteTutanak?: (id: string) => void;
+  tutanaklar: KabulTutanakItem[]
+  filteredTutanaklar: KabulTutanakItem[]
+  effectiveFirma: string
+  effectiveTeklifTutar: number
+  effectiveTeslimAlan: string
+  effectiveTeslimYeri: string
+  faturaNo?: string
+  faturaTarihi?: string
+  irsaliyeNo?: string
+  irsaliyeTarihi?: string
+  dosyaNo?: string
+  primarySablonKey: string
+  formatDate: (dateStr: string | null) => string
+  formatCurrency: (val: number | null) => string
+  onOpenPreview?: (sablonKey: string, tutanak?: KabulTutanakItem) => void
+  onEditTutanak?: (tutanak: KabulTutanakItem) => void
+  onDeleteTutanak?: (id: string) => void
 }
 
 export function KabulGridView({
@@ -40,45 +40,44 @@ export function KabulGridView({
   effectiveTeklifTutar,
   effectiveTeslimAlan,
   effectiveTeslimYeri,
-  faturaNo = "",
-  faturaTarihi = "",
-  irsaliyeNo = "",
-  irsaliyeTarihi = "",
-  dosyaNo = "",
+  faturaNo = '',
+  faturaTarihi = '',
+  irsaliyeNo = '',
+  irsaliyeTarihi = '',
+  dosyaNo = '',
   primarySablonKey,
   formatDate,
   formatCurrency,
   onOpenPreview,
   onEditTutanak,
-  onDeleteTutanak,
+  onDeleteTutanak
 }: KabulGridViewProps): React.JSX.Element {
   const items =
     filteredTutanaklar.length > 0
       ? filteredTutanaklar
       : tutanaklar.length === 0
-      ? [
-          {
-            id: "default_1",
-            tutanakNo: "KT-2026-001",
-            tutanakTarihi:
-              faturaTarihi || new Date().toISOString().slice(0, 10),
-            faturaNo: faturaNo || dosyaNo || "1",
-            faturaTarihi,
-            irsaliyeNo,
-            irsaliyeTarihi,
-            durum: "kabul" as const,
-            tutar: effectiveTeklifTutar,
-            teslimYeri: effectiveTeslimYeri,
-            teslimAlan: effectiveTeslimAlan,
-          },
-        ]
-      : [];
+        ? [
+            {
+              id: 'default_1',
+              tutanakNo: 'KT-2026-001',
+              tutanakTarihi: faturaTarihi || new Date().toISOString().slice(0, 10),
+              faturaNo: faturaNo || dosyaNo || '1',
+              faturaTarihi,
+              irsaliyeNo,
+              irsaliyeTarihi,
+              durum: 'kabul' as const,
+              tutar: effectiveTeklifTutar,
+              teslimYeri: effectiveTeslimYeri,
+              teslimAlan: effectiveTeslimAlan
+            }
+          ]
+        : []
 
   return (
     <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {items.map((tut) => {
-        const rowFaturaNo = tut.faturaNo || faturaNo;
-        const rowIrsaliyeNo = tut.irsaliyeNo || irsaliyeNo;
+        const rowFaturaNo = tut.faturaNo || faturaNo
+        const rowIrsaliyeNo = tut.irsaliyeNo || irsaliyeNo
 
         return (
           <div
@@ -90,10 +89,7 @@ export function KabulGridView({
                 <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs border border-blue-100 dark:border-blue-900/60">
                   <FileText className="w-4 h-4" />
                 </div>
-                <KabulDurumBadge
-                  durum={tut.durum}
-                  onaylandi={tut.onaylandi}
-                />
+                <KabulDurumBadge durum={tut.durum} onaylandi={tut.onaylandi} />
               </div>
               <div className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400">
                 {tut.tutanakNo}
@@ -108,9 +104,7 @@ export function KabulGridView({
                 </div>
                 <div className="flex items-center gap-1.5">
                   <MapPin className="w-3 h-3 text-amber-500 shrink-0" />
-                  <span className="truncate">
-                    {tut.teslimYeri || effectiveTeslimYeri}
-                  </span>
+                  <span className="truncate">{tut.teslimYeri || effectiveTeslimYeri}</span>
                 </div>
                 {rowFaturaNo && (
                   <div className="flex items-center gap-1.5 font-mono text-emerald-700 dark:text-emerald-400">
@@ -138,9 +132,7 @@ export function KabulGridView({
 
             <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <div className="text-xs font-bold text-slate-900 dark:text-white">
-                {tut.tutar
-                  ? formatCurrency(tut.tutar)
-                  : formatCurrency(effectiveTeklifTutar)}
+                {tut.tutar ? formatCurrency(tut.tutar) : formatCurrency(effectiveTeklifTutar)}
               </div>
               <div className="flex items-center gap-1">
                 <Button
@@ -151,7 +143,7 @@ export function KabulGridView({
                 >
                   Aç
                 </Button>
-                {tut.id !== "default_1" && onEditTutanak && (
+                {tut.id !== 'default_1' && onEditTutanak && (
                   <button
                     type="button"
                     onClick={() => onEditTutanak(tut)}
@@ -161,16 +153,16 @@ export function KabulGridView({
                     <Edit2 size={13} />
                   </button>
                 )}
-                {tut.id !== "default_1" && onDeleteTutanak && (
+                {tut.id !== 'default_1' && onDeleteTutanak && (
                   <button
                     type="button"
                     onClick={() => {
                       if (
                         window.confirm(
-                          `"${tut.tutanakNo}" numaralı tutanağı silmek istediğinizden emin misiniz?`,
+                          `"${tut.tutanakNo}" numaralı tutanağı silmek istediğinizden emin misiniz?`
                         )
                       ) {
-                        onDeleteTutanak(tut.id);
+                        onDeleteTutanak(tut.id)
                       }
                     }}
                     className="p-1 rounded text-slate-400 hover:text-red-600 cursor-pointer"
@@ -182,8 +174,8 @@ export function KabulGridView({
               </div>
             </div>
           </div>
-        );
+        )
       })}
     </div>
-  );
+  )
 }

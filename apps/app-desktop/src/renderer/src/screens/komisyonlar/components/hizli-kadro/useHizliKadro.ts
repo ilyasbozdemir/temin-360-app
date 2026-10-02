@@ -147,7 +147,12 @@ export function useHizliKadro({
               m.belgede_goster !== false &&
               m.belgede_goster !== '0' &&
               m.belgede_goster !== 'false'
-            const scope = m.belge_kapsami && m.belge_kapsami !== '' ? m.belge_kapsami : isShow ? 'tumu' : 'gizli'
+            const scope =
+              m.belge_kapsami && m.belge_kapsami !== ''
+                ? m.belge_kapsami
+                : isShow
+                  ? 'tumu'
+                  : 'gizli'
             return {
               id: m.id,
               dbUyeId: m.id,
@@ -178,7 +183,12 @@ export function useHizliKadro({
               m.belgede_goster !== false &&
               m.belgede_goster !== '0' &&
               m.belgede_goster !== 'false'
-            const scope = m.belge_kapsami && m.belge_kapsami !== '' ? m.belge_kapsami : isShow ? 'tumu' : 'gizli'
+            const scope =
+              m.belge_kapsami && m.belge_kapsami !== ''
+                ? m.belge_kapsami
+                : isShow
+                  ? 'tumu'
+                  : 'gizli'
             fileMapped.push({
               id: `master_extra_${m.db_id}`,
               dbUyeId: m.db_id,
@@ -198,7 +208,12 @@ export function useHizliKadro({
               m.belgede_goster !== false &&
               m.belgede_goster !== '0' &&
               m.belgede_goster !== 'false'
-            const scope = m.belge_kapsami && m.belge_kapsami !== '' ? m.belge_kapsami : isShow ? 'tumu' : 'gizli'
+            const scope =
+              m.belge_kapsami && m.belge_kapsami !== ''
+                ? m.belge_kapsami
+                : isShow
+                  ? 'tumu'
+                  : 'gizli'
             return {
               id: m.db_id,
               dbUyeId: m.db_id,

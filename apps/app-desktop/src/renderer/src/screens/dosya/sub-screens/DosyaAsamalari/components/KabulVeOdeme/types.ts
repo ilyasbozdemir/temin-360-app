@@ -50,5 +50,3 @@ export interface KabulTutanakItem {
   kalemler?: MalKalemiItem[]
   created_at?: string
 }
-
-

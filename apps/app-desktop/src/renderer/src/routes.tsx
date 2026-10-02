@@ -44,9 +44,16 @@ import NotlarVeGorevlerScreen from './screens/notlar/index.screen'
 import PlaygroundScreen from './screens/playground/index.screen'
 import ProjelerScreen from './screens/projeler/index.screen'
 import DevletIhale2886Screen from './screens/devlet-ihale-2886/index.screen'
+import HesaplamaAraclariScreen from './screens/araclar/HesaplamaAraclariScreen'
 
 const rootRoute = createRootRoute({
   component: PageWrapper
+})
+
+const hesaplamaAraclariRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: APP_ROUTES.HESAPLAMA_ARACLARI,
+  component: HesaplamaAraclariScreen
 })
 
 const indexRoute = createRoute({
@@ -452,7 +459,8 @@ const routeTree = rootRoute.addChildren([
   notlarRoute,
   playgroundRoute,
   surecAkisiRoute,
-  yardimRoute
+  yardimRoute,
+  hesaplamaAraclariRoute
 ])
 
 const hashHistory = createHashHistory()

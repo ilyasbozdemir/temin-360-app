@@ -34,9 +34,7 @@ export function KlasorStatusHeader({
         </div>
         <div>
           <h3 className="text-sm font-black text-slate-800 dark:text-slate-200">
-            {isDosyaClosed
-              ? 'Dosya Kapatıldı (Arşivlendi)'
-              : 'Süreç Tamamlandı: Arşivlemeye Hazır'}
+            {isDosyaClosed ? 'Dosya Kapatıldı (Arşivlendi)' : 'Süreç Tamamlandı: Arşivlemeye Hazır'}
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             {isDosyaClosed

@@ -1,14 +1,14 @@
-import React from "react";
-import { FileCheck } from "lucide-react";
-import { SubScreen } from "../../SubScreens.screen";
-import { useDosyaAsamasiSablons } from "./useDosyaAsamasiSablons";
+import React from 'react'
+import { FileCheck } from 'lucide-react'
+import { SubScreen } from '../../SubScreens.screen'
+import { useDosyaAsamasiSablons } from './useDosyaAsamasiSablons'
 import {
   SiparisGuardWarning,
   SiparisKazananFirmaCard,
   SiparisVeSozlesmeSteps,
   useSiparisDocumentOpener,
-  useSiparisVeSozlesmeData,
-} from "./components/SiparisVeSozlesme";
+  useSiparisVeSozlesmeData
+} from './components/SiparisVeSozlesme'
 
 export function SiparisVeSozlesme(): React.JSX.Element {
   const {
@@ -16,14 +16,12 @@ export function SiparisVeSozlesme(): React.JSX.Element {
     previewModalOpen,
     setPreviewModalOpen,
     previewData,
-    handleOpenPreviewForSablon,
-  } = useDosyaAsamasiSablons();
+    handleOpenPreviewForSablon
+  } = useDosyaAsamasiSablons()
 
   const stageSablons = sablons.filter(
-    (s) =>
-      s.kategori === "3-siparis-ve-sozlesme" ||
-      s.kategori === "3. Sipariş & Sözleşme",
-  );
+    (s) => s.kategori === '3-siparis-ve-sozlesme' || s.kategori === '3. Sipariş & Sözleşme'
+  )
 
   const {
     activeDosyaId,
@@ -37,34 +35,30 @@ export function SiparisVeSozlesme(): React.JSX.Element {
     handleUpdateTeslimGunu,
     handleUpdateTeslimTarihi,
     handleToggleSozlesme,
-    handleUpdateEkler,
-  } = useSiparisVeSozlesmeData();
+    handleUpdateEkler
+  } = useSiparisVeSozlesmeData()
 
   const docOpener = useSiparisDocumentOpener({
     stageSablons,
     activeDosyaId,
     sonucOnayEkler,
     islemlerData,
-    handleOpenPreviewForSablon,
-  });
+    handleOpenPreviewForSablon
+  })
 
   return (
     <SubScreen
       title="Yüklenici & Sipariş İşlemleri"
       icon={FileCheck}
       description="Doğrudan temin sonuç onay belgesi, sipariş formu, kabul mektubu ve sözleşme süreçlerinizi bu panelden yönetebilirsiniz."
-      previewDocumentId={
-        previewModalOpen && previewData?.dosyaAdi ? previewData.dosyaAdi : null
-      }
+      previewDocumentId={previewModalOpen && previewData?.dosyaAdi ? previewData.dosyaAdi : null}
       onClosePreview={() => setPreviewModalOpen(false)}
     >
       {/* Yükleniyor durumu */}
       {kazananFirmaId === undefined && (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex items-center justify-center">
           <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <span className="ml-3 text-sm text-slate-500">
-            Kontrol ediliyor...
-          </span>
+          <span className="ml-3 text-sm text-slate-500">Kontrol ediliyor...</span>
         </div>
       )}
 
@@ -112,5 +106,5 @@ export function SiparisVeSozlesme(): React.JSX.Element {
         </div>
       )}
     </SubScreen>
-  );
+  )
 }

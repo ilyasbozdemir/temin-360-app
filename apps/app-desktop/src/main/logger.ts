@@ -13,10 +13,8 @@ class AppLogger {
 
     try {
       // In dev mode, keep logs in project root /logs AND in userData/logs
-      const baseDir = app.isReady()
-        ? app.getPath('userData')
-        : join(process.cwd(), 'logs')
-      
+      const baseDir = app.isReady() ? app.getPath('userData') : join(process.cwd(), 'logs')
+
       this.logDir = join(baseDir, 'logs')
       if (!fs.existsSync(this.logDir)) {
         fs.mkdirSync(this.logDir, { recursive: true })
@@ -42,7 +40,9 @@ class AppLogger {
   private formatMessage(level: string, args: unknown[]): string {
     const timestamp = new Date().toISOString().replace('T', ' ').replace('Z', '')
     const formattedArgs = args
-      .map((arg) => (typeof arg === 'string' ? arg : util.inspect(arg, { depth: 4, colors: false })))
+      .map((arg) =>
+        typeof arg === 'string' ? arg : util.inspect(arg, { depth: 4, colors: false })
+      )
       .join(' ')
     return `[${timestamp}] [${level.toUpperCase()}] ${formattedArgs}\n`
   }
@@ -107,7 +107,7 @@ export const appLogger = new AppLogger()
 
 export function registerLoggerIpcHandlers(): void {
   ipcMain.handle('logs:get-path', () => appLogger.getLogFilePath())
-  
+
   ipcMain.handle('logs:open-file', async () => {
     const path = appLogger.getLogFilePath()
     if (path && fs.existsSync(path)) {

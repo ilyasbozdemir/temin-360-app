@@ -18,8 +18,8 @@ export function KabulGuardWarning() {
             <p className="text-xs text-amber-700 dark:text-amber-400/90 leading-relaxed max-w-xl">
               Muayene &amp; Kabul &amp; Ödeme belgelerini oluşturabilmek için önce{' '}
               <strong>Piyasa Fiyat Araştırması</strong> adımında kazanan firmayı belirlemeniz
-              gerekir. Tutanağı kaydederken <em>&ldquo;En Düşük Teklifi Kazanan Yap&rdquo;</em> seçeneğini
-              işaretleyin ya da açılan firma listesinden kazananı elle seçin.
+              gerekir. Tutanağı kaydederken <em>&ldquo;En Düşük Teklifi Kazanan Yap&rdquo;</em>{' '}
+              seçeneğini işaretleyin ya da açılan firma listesinden kazananı elle seçin.
             </p>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 import {
   Calendar,
   Edit2,
@@ -7,30 +7,30 @@ import {
   MessageSquareText,
   Receipt,
   Trash2,
-  Truck,
-} from "lucide-react";
-import { Button } from "../../../../../../../components/ui/Button";
-import { KabulTutanakItem } from "../types";
-import { KabulDurumBadge } from "./KabulDurumBadge";
+  Truck
+} from 'lucide-react'
+import { Button } from '../../../../../../../components/ui/Button'
+import { KabulTutanakItem } from '../types'
+import { KabulDurumBadge } from './KabulDurumBadge'
 
 interface KabulListViewProps {
-  tutanaklar: KabulTutanakItem[];
-  filteredTutanaklar: KabulTutanakItem[];
-  effectiveFirma: string;
-  effectiveTeklifTutar: number;
-  effectiveTeslimAlan: string;
-  effectiveTeslimYeri: string;
-  faturaNo?: string;
-  faturaTarihi?: string;
-  irsaliyeNo?: string;
-  irsaliyeTarihi?: string;
-  dosyaNo?: string;
-  primarySablonKey: string;
-  formatDate: (dateStr: string | null) => string;
-  formatCurrency: (val: number | null) => string;
-  onOpenPreview?: (sablonKey: string, tutanak?: KabulTutanakItem) => void;
-  onEditTutanak?: (tutanak: KabulTutanakItem) => void;
-  onDeleteTutanak?: (id: string) => void;
+  tutanaklar: KabulTutanakItem[]
+  filteredTutanaklar: KabulTutanakItem[]
+  effectiveFirma: string
+  effectiveTeklifTutar: number
+  effectiveTeslimAlan: string
+  effectiveTeslimYeri: string
+  faturaNo?: string
+  faturaTarihi?: string
+  irsaliyeNo?: string
+  irsaliyeTarihi?: string
+  dosyaNo?: string
+  primarySablonKey: string
+  formatDate: (dateStr: string | null) => string
+  formatCurrency: (val: number | null) => string
+  onOpenPreview?: (sablonKey: string, tutanak?: KabulTutanakItem) => void
+  onEditTutanak?: (tutanak: KabulTutanakItem) => void
+  onDeleteTutanak?: (id: string) => void
 }
 
 export function KabulListView({
@@ -40,47 +40,46 @@ export function KabulListView({
   effectiveTeklifTutar,
   effectiveTeslimAlan,
   effectiveTeslimYeri,
-  faturaNo = "",
-  faturaTarihi = "",
-  irsaliyeNo = "",
-  irsaliyeTarihi = "",
-  dosyaNo = "",
+  faturaNo = '',
+  faturaTarihi = '',
+  irsaliyeNo = '',
+  irsaliyeTarihi = '',
+  dosyaNo = '',
   primarySablonKey,
   formatDate,
   formatCurrency,
   onOpenPreview,
   onEditTutanak,
-  onDeleteTutanak,
+  onDeleteTutanak
 }: KabulListViewProps): React.JSX.Element {
   const items =
     filteredTutanaklar.length > 0
       ? filteredTutanaklar
       : tutanaklar.length === 0
-      ? [
-          {
-            id: "default_1",
-            tutanakNo: "KT-2026-001",
-            tutanakTarihi:
-              faturaTarihi || new Date().toISOString().slice(0, 10),
-            faturaNo: faturaNo || dosyaNo || "1",
-            faturaTarihi,
-            irsaliyeNo,
-            irsaliyeTarihi,
-            durum: "kabul" as const,
-            tutar: effectiveTeklifTutar,
-            teslimYeri: effectiveTeslimYeri,
-            teslimAlan: effectiveTeslimAlan,
-          },
-        ]
-      : [];
+        ? [
+            {
+              id: 'default_1',
+              tutanakNo: 'KT-2026-001',
+              tutanakTarihi: faturaTarihi || new Date().toISOString().slice(0, 10),
+              faturaNo: faturaNo || dosyaNo || '1',
+              faturaTarihi,
+              irsaliyeNo,
+              irsaliyeTarihi,
+              durum: 'kabul' as const,
+              tutar: effectiveTeklifTutar,
+              teslimYeri: effectiveTeslimYeri,
+              teslimAlan: effectiveTeslimAlan
+            }
+          ]
+        : []
 
   return (
     <div className="p-4 space-y-2.5">
       {items.map((tut) => {
-        const rowFaturaNo = tut.faturaNo || faturaNo;
-        const rowFaturaTarihi = tut.faturaTarihi || faturaTarihi;
-        const rowIrsaliyeNo = tut.irsaliyeNo || irsaliyeNo;
-        const rowIrsaliyeTarihi = tut.irsaliyeTarihi || irsaliyeTarihi;
+        const rowFaturaNo = tut.faturaNo || faturaNo
+        const rowFaturaTarihi = tut.faturaTarihi || faturaTarihi
+        const rowIrsaliyeNo = tut.irsaliyeNo || irsaliyeNo
+        const rowIrsaliyeTarihi = tut.irsaliyeTarihi || irsaliyeTarihi
 
         return (
           <div
@@ -96,10 +95,7 @@ export function KabulListView({
                   <span className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400">
                     {tut.tutanakNo}
                   </span>
-                  <KabulDurumBadge
-                    durum={tut.durum}
-                    onaylandi={tut.onaylandi}
-                  />
+                  <KabulDurumBadge durum={tut.durum} onaylandi={tut.onaylandi} />
                 </div>
                 <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate mt-1">
                   {effectiveFirma} &bull; {tut.teslimYeri || effectiveTeslimYeri}
@@ -138,13 +134,9 @@ export function KabulListView({
             <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
               <div className="text-right hidden sm:block">
                 <div className="text-xs font-bold text-slate-900 dark:text-white">
-                  {tut.tutar
-                    ? formatCurrency(tut.tutar)
-                    : formatCurrency(effectiveTeklifTutar)}
+                  {tut.tutar ? formatCurrency(tut.tutar) : formatCurrency(effectiveTeklifTutar)}
                 </div>
-                <div className="text-[10px] text-slate-400">
-                  Teslimat Tutarı
-                </div>
+                <div className="text-[10px] text-slate-400">Teslimat Tutarı</div>
               </div>
               <Button
                 onClick={() => onOpenPreview?.(primarySablonKey, tut)}
@@ -155,7 +147,7 @@ export function KabulListView({
                 <FileText className="w-3.5 h-3.5" />
                 <span>Tutanağı Aç</span>
               </Button>
-              {tut.id !== "default_1" && onEditTutanak && (
+              {tut.id !== 'default_1' && onEditTutanak && (
                 <button
                   type="button"
                   onClick={() => onEditTutanak(tut)}
@@ -165,16 +157,16 @@ export function KabulListView({
                   <Edit2 size={14} />
                 </button>
               )}
-              {tut.id !== "default_1" && onDeleteTutanak && (
+              {tut.id !== 'default_1' && onDeleteTutanak && (
                 <button
                   type="button"
                   onClick={() => {
                     if (
                       window.confirm(
-                        `"${tut.tutanakNo}" numaralı tutanağı silmek istediğinizden emin misiniz?`,
+                        `"${tut.tutanakNo}" numaralı tutanağı silmek istediğinizden emin misiniz?`
                       )
                     ) {
-                      onDeleteTutanak(tut.id);
+                      onDeleteTutanak(tut.id)
                     }
                   }}
                   className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
@@ -185,8 +177,8 @@ export function KabulListView({
               )}
             </div>
           </div>
-        );
+        )
       })}
     </div>
-  );
+  )
 }

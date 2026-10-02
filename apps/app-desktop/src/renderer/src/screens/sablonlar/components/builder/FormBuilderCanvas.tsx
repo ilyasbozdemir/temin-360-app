@@ -512,7 +512,9 @@ export const FormBuilderCanvas: React.FC<FormBuilderCanvasProps> = ({
                     ) : field.type === 'page_break' ? (
                       <div className="py-2 text-center">
                         <div className="border border-dashed border-amber-400 bg-amber-50/70 text-amber-800 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-2">
-                          <span>✂️ ---------------- SAYFA SONU KESMESİ (Page Break) ---------------- ✂️</span>
+                          <span>
+                            ✂️ ---------------- SAYFA SONU KESMESİ (Page Break) ---------------- ✂️
+                          </span>
                         </div>
                       </div>
                     ) : field.type === 'grid' ? (
@@ -541,7 +543,9 @@ export const FormBuilderCanvas: React.FC<FormBuilderCanvasProps> = ({
                             {formData[field.variableName] ||
                               field.defaultValue ||
                               field.placeholder ||
-                              (field.options?.[0] ? `Seçili: ${field.options[0]}` : 'Seçim Yapınız')}
+                              (field.options?.[0]
+                                ? `Seçili: ${field.options[0]}`
+                                : 'Seçim Yapınız')}
                           </span>
                           <span className="text-slate-400 text-[9px]">▼</span>
                         </div>
@@ -554,10 +558,15 @@ export const FormBuilderCanvas: React.FC<FormBuilderCanvasProps> = ({
                         <div className="flex flex-wrap gap-3">
                           {field.options && field.options.length > 0 ? (
                             field.options.map((opt, i) => (
-                              <div key={i} className="flex items-center gap-1.5 text-xs text-slate-800">
+                              <div
+                                key={i}
+                                className="flex items-center gap-1.5 text-xs text-slate-800"
+                              >
                                 <span
                                   className={`w-3 h-3 rounded-full border flex items-center justify-center ${
-                                    i === 0 ? 'border-blue-600 bg-blue-600' : 'border-slate-300 bg-white'
+                                    i === 0
+                                      ? 'border-blue-600 bg-blue-600'
+                                      : 'border-slate-300 bg-white'
                                   }`}
                                 >
                                   {i === 0 && <span className="w-1 h-1 rounded-full bg-white" />}
@@ -580,7 +589,10 @@ export const FormBuilderCanvas: React.FC<FormBuilderCanvasProps> = ({
                         <div className="flex flex-wrap gap-3">
                           {field.options && field.options.length > 0 ? (
                             field.options.map((opt, i) => (
-                              <div key={i} className="flex items-center gap-1.5 text-xs text-slate-800">
+                              <div
+                                key={i}
+                                className="flex items-center gap-1.5 text-xs text-slate-800"
+                              >
                                 <span className="w-3.5 h-3.5 rounded border border-blue-600 bg-blue-600 text-white flex items-center justify-center text-[8px] font-bold">
                                   ✓
                                 </span>

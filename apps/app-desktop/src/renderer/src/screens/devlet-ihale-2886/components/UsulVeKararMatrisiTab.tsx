@@ -26,33 +26,38 @@ export function UsulVeKararMatrisiTab(): React.JSX.Element {
       id: 'acik_teklif_45',
       madde: '2886 Sayılı Kanun Madde 45',
       title: 'Açık Teklif Usulü (Açık Artırma)',
-      description: 'Taşınmaz kiralama ve satışlarında parasal limit dahilinde en çok tercih edilen açık artırma yöntemi.',
+      description:
+        'Taşınmaz kiralama ve satışlarında parasal limit dahilinde en çok tercih edilen açık artırma yöntemi.',
       kriterler: [
         'Muhammen bedel kanuni parasal sınırın altında olan satış ve kiralamalar',
         'İsteyen her isteklinin katılımına açık',
         'Sözlü veya pey sürme usulü ile en yüksek teklifin belirlenmesi'
       ],
-      surec: 'İlan → Şartname → Geçici Teminat → Açık Artırma (Sözlü/Pey) → Encümen Kararı → İta Amiri Onayı',
+      surec:
+        'İlan → Şartname → Geçici Teminat → Açık Artırma (Sözlü/Pey) → Encümen Kararı → İta Amiri Onayı',
       uygunluk: 'Dükkan, kantin, arsa satışı ve standart kiralamalar için idealdir.'
     },
     {
       id: 'kapali_teklif_36',
       madde: '2886 Sayılı Kanun Madde 36',
       title: 'Kapalı Teklif Usulü (Asıl Usul)',
-      description: 'Kanunun ana ihale usulüdür. Yüksek değerli taşınmaz satışları ve büyük projelerde uygulanır.',
+      description:
+        'Kanunun ana ihale usulüdür. Yüksek değerli taşınmaz satışları ve büyük projelerde uygulanır.',
       kriterler: [
         'Parasal limiti aşan büyük ölçekli taşınmaz satışları',
         'Tekliflerin çift zarf usulüyle yazılı sunulması',
         'Zarflar açıldıktan sonra son yazılı tekliflerin alınması veya açık artırmaya geçilmesi'
       ],
-      surec: 'Geniş Kapsamlı İlan → Kapalı Zarf Teslimi → Zarf Açılışı & İnceleme → Son Teklifler → Karar',
+      surec:
+        'Geniş Kapsamlı İlan → Kapalı Zarf Teslimi → Zarf Açılışı & İnceleme → Son Teklifler → Karar',
       uygunluk: 'Büyük arsa/bina satışları, mülkiyet devirleri ve yüksek bedelli ihaleler.'
     },
     {
       id: 'pazarlik_51',
       madde: '2886 Sayılı Kanun Madde 51',
       title: 'Pazarlık Usulü',
-      description: 'İhalenin yapılamaması, ivedilik veya özel kanuni bentlerde sayılan durumlarda doğrudan pazarlık yapılması.',
+      description:
+        'İhalenin yapılamaması, ivedilik veya özel kanuni bentlerde sayılan durumlarda doğrudan pazarlık yapılması.',
       kriterler: [
         'Daha önce ihaleye çıkarılıp istekli çıkmayan veya iptal edilen işler',
         'Acil ve ivedi durumlar (Madde 51/a, 51/g vb.)',
@@ -65,12 +70,14 @@ export function UsulVeKararMatrisiTab(): React.JSX.Element {
       id: 'belli_istekliler_44',
       madde: '2886 Sayılı Kanun Madde 44',
       title: 'Belli İstekliler Arasında Kapalı Teklif',
-      description: 'Ön yeterlik değerlendirmesi sonucu uzmanlık veya yeterlilik sahibi isteklilerin davet edildiği usul.',
+      description:
+        'Ön yeterlik değerlendirmesi sonucu uzmanlık veya yeterlilik sahibi isteklilerin davet edildiği usul.',
       kriterler: [
         'Özel uzmanlık, teknik kapasite veya finansal yeterlik gerektiren durumlar',
         'Ön yeterlik ilanı ve şartnamesi düzenlenmesi'
       ],
-      surec: 'Ön Yeterlik İlanı → Başvuruların Değerlendirilmesi → Yeterli İsteklilere Davet → İhale',
+      surec:
+        'Ön Yeterlik İlanı → Başvuruların Değerlendirilmesi → Yeterli İsteklilere Davet → İhale',
       uygunluk: 'Özel tesisler, marina, tema parkı, enerji yatırımı vb. kompleks projeler.'
     }
   ]
@@ -86,7 +93,8 @@ export function UsulVeKararMatrisiTab(): React.JSX.Element {
             </h3>
           </div>
           <span className="text-[11px] text-slate-500 font-medium">
-            Seçilen Usul: <strong className="text-indigo-600 dark:text-indigo-400">Madde 45 Açık Teklif</strong>
+            Seçilen Usul:{' '}
+            <strong className="text-indigo-600 dark:text-indigo-400">Madde 45 Açık Teklif</strong>
           </span>
         </div>
       </div>
@@ -129,7 +137,10 @@ export function UsulVeKararMatrisiTab(): React.JSX.Element {
                   Uygulama Kriterleri:
                 </div>
                 {u.kriterler.map((crit, idx) => (
-                  <div key={idx} className="flex items-start gap-1.5 text-slate-600 dark:text-slate-400">
+                  <div
+                    key={idx}
+                    className="flex items-start gap-1.5 text-slate-600 dark:text-slate-400"
+                  >
                     <span className="text-indigo-500 font-bold">•</span>
                     <span>{crit}</span>
                   </div>
@@ -137,7 +148,9 @@ export function UsulVeKararMatrisiTab(): React.JSX.Element {
               </div>
 
               <div className="mt-3 p-2 bg-slate-50 dark:bg-slate-850 rounded-lg text-[11px] text-slate-500 border border-slate-200/60 dark:border-slate-800">
-                <span className="font-semibold text-slate-700 dark:text-slate-300">Özet Süreç: </span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">
+                  Özet Süreç:{' '}
+                </span>
                 {u.surec}
               </div>
             </div>

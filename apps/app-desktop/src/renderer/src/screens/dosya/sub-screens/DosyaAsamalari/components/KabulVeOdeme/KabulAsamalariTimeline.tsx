@@ -108,8 +108,8 @@ export function KabulAsamalariTimeline({
                   !firmaStats?.teslimTarihi
                     ? 'text-slate-500 dark:text-slate-400'
                     : faturaNo
-                    ? 'text-slate-800 dark:text-slate-200'
-                    : 'text-blue-700 dark:text-blue-400'
+                      ? 'text-slate-800 dark:text-slate-200'
+                      : 'text-blue-700 dark:text-blue-400'
                 }`}
               >
                 2. Muayene &amp; Kabul İşlemi
@@ -143,8 +143,8 @@ export function KabulAsamalariTimeline({
               {!firmaStats?.teslimTarihi
                 ? 'Kabul işlemleri beklemede.'
                 : faturaNo
-                ? 'Kabul Edildi (Komisyon Onaylı)'
-                : 'Komisyon tarafından ürünler inceleniyor.'}
+                  ? 'Kabul Edildi (Komisyon Onaylı)'
+                  : 'Komisyon tarafından ürünler inceleniyor.'}
             </p>
           </div>
         </div>
@@ -171,8 +171,8 @@ export function KabulAsamalariTimeline({
                   !faturaNo
                     ? 'text-slate-500 dark:text-slate-400'
                     : faturaTarihi
-                    ? 'text-slate-800 dark:text-slate-200'
-                    : 'text-blue-700 dark:text-blue-400'
+                      ? 'text-slate-800 dark:text-slate-200'
+                      : 'text-blue-700 dark:text-blue-400'
                 }`}
               >
                 3. TİF &amp; Fatura Kaydı
@@ -200,9 +200,7 @@ export function KabulAsamalariTimeline({
               </div>
             </div>
             <p className="text-[10px] text-slate-500 mt-0.5">
-              {!faturaNo
-                ? 'Kabul sonrası fatura ve taşınır işlemi.'
-                : `Fatura No: ${faturaNo}`}
+              {!faturaNo ? 'Kabul sonrası fatura ve taşınır işlemi.' : `Fatura No: ${faturaNo}`}
             </p>
           </div>
         </div>
@@ -270,4 +268,3 @@ export function KabulAsamalariTimeline({
     </div>
   )
 }
-

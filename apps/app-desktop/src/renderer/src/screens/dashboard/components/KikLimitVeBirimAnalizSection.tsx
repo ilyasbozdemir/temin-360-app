@@ -52,7 +52,9 @@ export const KikLimitVeBirimAnalizSection: React.FC<KikLimitVeBirimAnalizSection
   const birimler: BirimHarcamaStat[] = stats.birimHarcamalari || []
 
   // Durum renk ve metin belirleyicileri
-  const getDurumConfig = (durum?: string): {
+  const getDurumConfig = (
+    durum?: string
+  ): {
     color: string
     bg: string
     barColor: string
@@ -242,7 +244,10 @@ export const KikLimitVeBirimAnalizSection: React.FC<KikLimitVeBirimAnalizSection
             <Info className="w-3.5 h-3.5 text-blue-500 shrink-0" />
             <span>22/d alımlarında kısımlara bölme yasağı ve yıllık limit takibi esastır.</span>
           </div>
-          <Link to="/ayarlar" className="font-bold text-blue-600 dark:text-blue-400 hover:underline shrink-0">
+          <Link
+            to="/ayarlar"
+            className="font-bold text-blue-600 dark:text-blue-400 hover:underline shrink-0"
+          >
             Limitleri Düzenle →
           </Link>
         </div>
@@ -307,7 +312,10 @@ export const KikLimitVeBirimAnalizSection: React.FC<KikLimitVeBirimAnalizSection
                     {/* Progress Bar */}
                     <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div
-                        className={cn('h-full rounded-full bg-gradient-to-r transition-all duration-500', barGradient)}
+                        className={cn(
+                          'h-full rounded-full bg-gradient-to-r transition-all duration-500',
+                          barGradient
+                        )}
                         style={{ width: `${Math.min(100, Math.max(3, b.yuzde))}%` }}
                       />
                     </div>

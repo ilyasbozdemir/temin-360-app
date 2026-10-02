@@ -28,7 +28,9 @@ export function FormBuilderV2Playground({ onBack }: { onBack: () => void }): Rea
   const [fields, setFields] = useState<FormFieldV2[]>(INITIAL_FIELDS)
   const [customPresets, setCustomPresets] = useState<PresetController[]>([])
   const [activeFieldId, setActiveFieldId] = useState<string | null>('f-1')
-  const [activeInspectorTab, setActiveInspectorTab] = useState<'properties' | 'data' | 'format'>('data')
+  const [activeInspectorTab, setActiveInspectorTab] = useState<'properties' | 'data' | 'format'>(
+    'data'
+  )
   const [mode, setMode] = useState<FormBuilderMode>('design')
   const [copied, setCopied] = useState(false)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
@@ -307,7 +309,8 @@ export function FormBuilderV2Playground({ onBack }: { onBack: () => void }): Rea
     const updatedRows = activeField.tableRows.map((r) => {
       if (r.id === rowId) {
         const next = { ...r, ...updates }
-        const m = typeof next.miktar === 'number' ? next.miktar : parseFloat(String(next.miktar)) || 0
+        const m =
+          typeof next.miktar === 'number' ? next.miktar : parseFloat(String(next.miktar)) || 0
         const f =
           typeof next.birimFiyat === 'number'
             ? next.birimFiyat
@@ -434,9 +437,7 @@ export function FormBuilderV2Playground({ onBack }: { onBack: () => void }): Rea
                 onSetActiveInspectorTab={setActiveInspectorTab}
                 availableTabs={availableTabs}
                 formData={formData}
-                onUpdateFormData={(key, val) =>
-                  setFormData((prev) => ({ ...prev, [key]: val }))
-                }
+                onUpdateFormData={(key, val) => setFormData((prev) => ({ ...prev, [key]: val }))}
                 onUpdateActiveField={handleUpdateActiveField}
                 onAddTableRow={handleAddTableRow}
                 onUpdateTableRow={handleUpdateTableRow}

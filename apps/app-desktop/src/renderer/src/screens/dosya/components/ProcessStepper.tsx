@@ -54,11 +54,7 @@ const STEPS: StepConfig[] = [
     shortLabel: 'Yüklenici İşlemleri',
     route: '/dosya/siparis-ve-sozlesme',
     icon: FileSignature,
-    docTemplates: [
-      'kabul-edilen-teklif',
-      'dogrudan-temin-sozlesmesi',
-      'harcama-talimati'
-    ]
+    docTemplates: ['kabul-edilen-teklif', 'dogrudan-temin-sozlesmesi', 'harcama-talimati']
   },
   {
     id: 4,

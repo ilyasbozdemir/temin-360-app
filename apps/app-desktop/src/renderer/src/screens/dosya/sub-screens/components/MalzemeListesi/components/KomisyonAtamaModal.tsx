@@ -74,10 +74,7 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
 
         <KomisyonAtamaTabs activeTab={activeTab} onSelectTab={setActiveTab} />
 
-        <KomisyonSyncToggle
-          checked={syncToGlobalCommission}
-          onChange={setSyncToGlobalCommission}
-        />
+        <KomisyonSyncToggle checked={syncToGlobalCommission} onChange={setSyncToGlobalCommission} />
 
         <KomisyonAtamaTable
           rows={currentRows}

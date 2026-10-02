@@ -174,10 +174,7 @@ export async function loadDocumentPreviewData({
     baseData.antetSatirlari = resolved.antetSatirlari
   } else {
     try {
-      const kurumRows = await queryExecutor(
-        'SELECT * FROM TANIM_Kurum LIMIT 1',
-        []
-      )
+      const kurumRows = await queryExecutor('SELECT * FROM TANIM_Kurum LIMIT 1', [])
       if (kurumRows && kurumRows[0]) {
         const kRow = kurumRows[0]
         if (kRow.kurum_anteti) {
@@ -497,17 +494,14 @@ export async function loadDocumentPreviewData({
       const gRow = globalKomisyonlar.find((k: any) => {
         const g = (k.gorev || '').toLowerCase()
         return (
-          g.includes('gerçekleştirme') ||
-          g.includes('gerceklestirme') ||
-          g.includes('hazırlayan')
+          g.includes('gerçekleştirme') || g.includes('gerceklestirme') || g.includes('hazırlayan')
         )
       })
       if (gRow && gRow.ad_soyad) {
         baseData.hazirlayanPersonelAdi = baseData.hazirlayanPersonelAdi || gRow.ad_soyad
         baseData.hazirlayanPersonelUnvan =
           baseData.hazirlayanPersonelUnvan || gRow.unvan || 'Gerçekleştirme Görevlisi'
-        baseData.gerceklestirmeGorevlisiAdi =
-          baseData.gerceklestirmeGorevlisiAdi || gRow.ad_soyad
+        baseData.gerceklestirmeGorevlisiAdi = baseData.gerceklestirmeGorevlisiAdi || gRow.ad_soyad
         baseData.gerceklestirmeGorevlisiUnvan =
           baseData.gerceklestirmeGorevlisiUnvan || gRow.unvan || 'Gerçekleştirme Görevlisi'
       }
@@ -567,11 +561,7 @@ export async function loadDocumentPreviewData({
     }
   }
 
-  if (
-    !baseData.mutemetAdi ||
-    baseData.mutemetAdi === '......' ||
-    !baseData.muhasebeYetkilisiAdi
-  ) {
+  if (!baseData.mutemetAdi || baseData.mutemetAdi === '......' || !baseData.muhasebeYetkilisiAdi) {
     const pMuhasebe = (personelList || []).find((p: any) => {
       const u = `${p.unvan || ''} ${p.gorev || ''} ${p.birim || ''}`.toLowerCase()
       return u.includes('muhasebe') || u.includes('mutemet')
@@ -838,7 +828,9 @@ export async function loadDocumentPreviewData({
 
       const teklifler = activeFirms.map((firm: any, fIdx: number) => {
         const firmId = firm.id ?? firm.temin_firma_id ?? firm.firma_id
-        const firmUnvan = (firm.unvan || firm.firma_adi || firm.firmaUnvan || '').trim().toLowerCase()
+        const firmUnvan = (firm.unvan || firm.firma_adi || firm.firmaUnvan || '')
+          .trim()
+          .toLowerCase()
 
         // 1. Match from bids list
         const bid = bids.find(
@@ -976,8 +968,7 @@ export async function loadDocumentPreviewData({
         const miktarNum = Number(kalem.miktar || 0)
         const tf = (kalem.firmaTeklifleriDetay || []).find(
           (t: any) =>
-            (firm.id && t.firmaId === firm.id) ||
-            (firm.unvan && t.firmaUnvan === firm.unvan)
+            (firm.id && t.firmaId === firm.id) || (firm.unvan && t.firmaUnvan === firm.unvan)
         )
         if (tf && tf.birimFiyat > 0) {
           firmTotalNum += tf.birimFiyat * miktarNum
@@ -1209,4 +1200,3 @@ export async function loadDocumentPreviewData({
     initialSnapshotJson
   }
 }
-

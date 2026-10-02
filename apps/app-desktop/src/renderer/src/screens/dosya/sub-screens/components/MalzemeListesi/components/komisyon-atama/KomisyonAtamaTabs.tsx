@@ -7,10 +7,7 @@ interface KomisyonAtamaTabsProps {
   onSelectTab: (tab: KomisyonType) => void
 }
 
-export const KomisyonAtamaTabs: React.FC<KomisyonAtamaTabsProps> = ({
-  activeTab,
-  onSelectTab
-}) => {
+export const KomisyonAtamaTabs: React.FC<KomisyonAtamaTabsProps> = ({ activeTab, onSelectTab }) => {
   return (
     <div className="flex border-b border-slate-200 dark:border-slate-800 -mx-2 px-2 gap-1 pb-1">
       <button

@@ -327,10 +327,7 @@ export function resolveAllCiktiData(
           antetSatirlari = parsed.filter((s: string) => s && s.trim() !== '')
         }
       } catch {
-        if (
-          typeof (kurum as any).kurum_anteti === 'string' &&
-          (kurum as any).kurum_anteti.trim()
-        ) {
+        if (typeof (kurum as any).kurum_anteti === 'string' && (kurum as any).kurum_anteti.trim()) {
           antetSatirlari = (kurum as any).kurum_anteti
             .split('\n')
             .map((s: string) => s.trim())
@@ -461,9 +458,7 @@ export function resolveAllCiktiData(
         }
         if (body) {
           const innerHtml = Mustache.render(body, dosyaContext)
-          const fullHtml = masterHtml
-            ? masterHtml.replace('{{{content}}}', innerHtml)
-            : innerHtml
+          const fullHtml = masterHtml ? masterHtml.replace('{{{content}}}', innerHtml) : innerHtml
           renderedHtmlMap[sab.id] = fullHtml
         }
       } catch {}

@@ -45,10 +45,10 @@ export interface PriceDifferenceParams {
 
 /**
  * Fiyat Farkı Hesabı
- * 
+ *
  * Formül: F = An * (Pn - 1)
  * Pn = a + ∑ [bi * (In_i / Io_i)]
- * 
+ *
  * @param configKey - '2013/5215' veya '2013/5216' ya da tam etiket metni
  * @param params - Hesaplama parametreleri (Hakediş tutarı An, Io ve In endeksleri)
  */

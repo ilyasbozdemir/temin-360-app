@@ -148,13 +148,15 @@ export function registerDbIpcHandlers(): void {
           .prepare(
             'SELECT kurum_adi, kurum_anteti, logo_kurum, logo_sol, logo_sag FROM TANIM_Kurum WHERE is_deleted = 0 OR is_deleted IS NULL ORDER BY id ASC LIMIT 1'
           )
-          .get() as {
-          kurum_adi?: string
-          kurum_anteti?: string
-          logo_kurum?: string
-          logo_sol?: string
-          logo_sag?: string
-        } | undefined
+          .get() as
+          | {
+              kurum_adi?: string
+              kurum_anteti?: string
+              logo_kurum?: string
+              logo_sol?: string
+              logo_sag?: string
+            }
+          | undefined
 
         if (kurumRow) {
           if (!settingsObj.institutionName || settingsObj.institutionName === 'Bilinmeyen Kurum') {

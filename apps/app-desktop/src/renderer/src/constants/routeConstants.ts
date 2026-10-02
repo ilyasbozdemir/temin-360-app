@@ -47,6 +47,7 @@ export const APP_ROUTES = {
   HAKEDIS: '/hakedis',
   NOTLAR: '/notlar',
   PLAYGROUND: '/playground',
+  HESAPLAMA_ARACLARI: '/hesaplama-araclari',
 
   // Dosya Alt Süreçleri (SubScreens)
   // Aşamalar

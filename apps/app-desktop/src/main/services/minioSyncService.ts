@@ -58,7 +58,10 @@ export class MinIOSyncService {
 
       // 2. Genel HTTP GET denemesi
       const rootRes = await fetch(baseUrl).catch(() => null)
-      if (rootRes && (rootRes.ok || rootRes.status === 403 || rootRes.status === 400 || rootRes.status === 401)) {
+      if (
+        rootRes &&
+        (rootRes.ok || rootRes.status === 403 || rootRes.status === 400 || rootRes.status === 401)
+      ) {
         return {
           success: true,
           message: `MinIO / S3 sunucusuna başarıyla ulaşıldı (${baseUrl}) ✓`

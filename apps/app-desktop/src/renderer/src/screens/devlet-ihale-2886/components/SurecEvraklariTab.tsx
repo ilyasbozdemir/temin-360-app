@@ -166,11 +166,31 @@ export function SurecEvraklariTab(): React.JSX.Element {
     title: string
     color: string
   }[] = [
-    { id: 'baslangic', title: '1. Aşama: Başlangıç ve Yetki Evrakları', color: 'text-blue-600 dark:text-blue-400' },
-    { id: 'kiymet_takdir', title: '2. Aşama: Kıymet Takdiri & Muhammen Bedel', color: 'text-indigo-600 dark:text-indigo-400' },
-    { id: 'sartname_ve_ilan', title: '3. Aşama: Şartname, İhale Kararı & İlan Süreci', color: 'text-purple-600 dark:text-purple-400' },
-    { id: 'ihale_gunu', title: '4. Aşama: İhale Günü, Açık Artırma & Encümen Kararı', color: 'text-amber-600 dark:text-amber-400' },
-    { id: 'onay_ve_sozlesme', title: '5. Aşama: İta Amiri Onayı, Tebligat & Sözleşme', color: 'text-emerald-600 dark:text-emerald-400' }
+    {
+      id: 'baslangic',
+      title: '1. Aşama: Başlangıç ve Yetki Evrakları',
+      color: 'text-blue-600 dark:text-blue-400'
+    },
+    {
+      id: 'kiymet_takdir',
+      title: '2. Aşama: Kıymet Takdiri & Muhammen Bedel',
+      color: 'text-indigo-600 dark:text-indigo-400'
+    },
+    {
+      id: 'sartname_ve_ilan',
+      title: '3. Aşama: Şartname, İhale Kararı & İlan Süreci',
+      color: 'text-purple-600 dark:text-purple-400'
+    },
+    {
+      id: 'ihale_gunu',
+      title: '4. Aşama: İhale Günü, Açık Artırma & Encümen Kararı',
+      color: 'text-amber-600 dark:text-amber-400'
+    },
+    {
+      id: 'onay_ve_sozlesme',
+      title: '5. Aşama: İta Amiri Onayı, Tebligat & Sözleşme',
+      color: 'text-emerald-600 dark:text-emerald-400'
+    }
   ]
 
   const getDurumBadge = (durum: SurecEvrakiItem['durum']) => {

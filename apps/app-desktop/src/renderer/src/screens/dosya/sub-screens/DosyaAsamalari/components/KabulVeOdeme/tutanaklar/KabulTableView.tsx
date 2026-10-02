@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 import {
   Building2,
   Calendar,
@@ -10,40 +10,40 @@ import {
   Plus,
   Receipt,
   Truck,
-  UserCheck,
-} from "lucide-react";
-import { Button } from "../../../../../../../components/ui/Button";
-import { KabulTutanakItem, KomisyonUye } from "../types";
-import { KabulDurumBadge } from "./KabulDurumBadge";
-import { TutanakRowActionsMenu } from "./TutanakRowActionsMenu";
+  UserCheck
+} from 'lucide-react'
+import { Button } from '../../../../../../../components/ui/Button'
+import { KabulTutanakItem, KomisyonUye } from '../types'
+import { KabulDurumBadge } from './KabulDurumBadge'
+import { TutanakRowActionsMenu } from './TutanakRowActionsMenu'
 
 interface KabulTableViewProps {
-  tutanaklar: KabulTutanakItem[];
-  filteredTutanaklar: KabulTutanakItem[];
-  selectedIds: Set<string>;
-  effectiveFirma: string;
-  effectiveTeklifTutar: number;
-  effectiveTeslimAlan: string;
-  effectiveTeslimYeri: string;
-  faturaNo?: string;
-  faturaTarihi?: string;
-  irsaliyeNo?: string;
-  irsaliyeTarihi?: string;
-  primarySablonKey: string;
-  isMal: boolean;
-  hasKomisyon: boolean;
-  komisyonUyeleri: KomisyonUye[];
-  formatDate: (dateStr: string | null) => string;
-  formatCurrency: (val: number | null) => string;
-  onToggleSelectAll: () => void;
-  onToggleSelectOne: (id: string) => void;
-  onResetFilter: () => void;
-  onOpenPreview?: (sablonKey: string, tutanak?: KabulTutanakItem) => void;
-  onToggleApproveTutanak?: (id: string) => void;
-  onEditTutanak?: (tutanak: KabulTutanakItem) => void;
-  onDeleteTutanak?: (id: string) => void;
-  onOpenTifModal?: () => void;
-  onOpenAddTutanak?: () => void;
+  tutanaklar: KabulTutanakItem[]
+  filteredTutanaklar: KabulTutanakItem[]
+  selectedIds: Set<string>
+  effectiveFirma: string
+  effectiveTeklifTutar: number
+  effectiveTeslimAlan: string
+  effectiveTeslimYeri: string
+  faturaNo?: string
+  faturaTarihi?: string
+  irsaliyeNo?: string
+  irsaliyeTarihi?: string
+  primarySablonKey: string
+  isMal: boolean
+  hasKomisyon: boolean
+  komisyonUyeleri: KomisyonUye[]
+  formatDate: (dateStr: string | null) => string
+  formatCurrency: (val: number | null) => string
+  onToggleSelectAll: () => void
+  onToggleSelectOne: (id: string) => void
+  onResetFilter: () => void
+  onOpenPreview?: (sablonKey: string, tutanak?: KabulTutanakItem) => void
+  onToggleApproveTutanak?: (id: string) => void
+  onEditTutanak?: (tutanak: KabulTutanakItem) => void
+  onDeleteTutanak?: (id: string) => void
+  onOpenTifModal?: () => void
+  onOpenAddTutanak?: () => void
 }
 
 export function KabulTableView({
@@ -54,10 +54,10 @@ export function KabulTableView({
   effectiveTeklifTutar,
   effectiveTeslimAlan,
   effectiveTeslimYeri,
-  faturaNo = "",
-  faturaTarihi = "",
-  irsaliyeNo = "",
-  irsaliyeTarihi = "",
+  faturaNo = '',
+  faturaTarihi = '',
+  irsaliyeNo = '',
+  irsaliyeTarihi = '',
   primarySablonKey,
   isMal,
   hasKomisyon,
@@ -72,7 +72,7 @@ export function KabulTableView({
   onEditTutanak,
   onDeleteTutanak,
   onOpenTifModal,
-  onOpenAddTutanak,
+  onOpenAddTutanak
 }: KabulTableViewProps): React.JSX.Element {
   return (
     <div className="overflow-x-auto">
@@ -83,8 +83,7 @@ export function KabulTableView({
               <input
                 type="checkbox"
                 checked={
-                  selectedIds.size === filteredTutanaklar.length &&
-                  filteredTutanaklar.length > 0
+                  selectedIds.size === filteredTutanaklar.length && filteredTutanaklar.length > 0
                 }
                 onChange={onToggleSelectAll}
                 className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer w-4 h-4"
@@ -103,18 +102,16 @@ export function KabulTableView({
         <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
           {filteredTutanaklar.length > 0 ? (
             filteredTutanaklar.map((tut) => {
-              const rowFaturaNo = tut.faturaNo || faturaNo;
-              const rowFaturaTarihi = tut.faturaTarihi || faturaTarihi;
-              const rowIrsaliyeNo = tut.irsaliyeNo || irsaliyeNo;
-              const rowIrsaliyeTarihi = tut.irsaliyeTarihi || irsaliyeTarihi;
+              const rowFaturaNo = tut.faturaNo || faturaNo
+              const rowFaturaTarihi = tut.faturaTarihi || faturaTarihi
+              const rowIrsaliyeNo = tut.irsaliyeNo || irsaliyeNo
+              const rowIrsaliyeTarihi = tut.irsaliyeTarihi || irsaliyeTarihi
 
               return (
                 <tr
                   key={tut.id}
                   className={`hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors ${
-                    selectedIds.has(tut.id)
-                      ? "bg-blue-50/40 dark:bg-blue-950/20"
-                      : ""
+                    selectedIds.has(tut.id) ? 'bg-blue-50/40 dark:bg-blue-950/20' : ''
                   }`}
                 >
                   <td className="py-3.5 px-3 text-center">
@@ -138,10 +135,7 @@ export function KabulTableView({
                   <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-slate-100">
                     <div className="flex items-center gap-1.5">
                       <Building2 className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                      <span
-                        className="truncate max-w-48"
-                        title={effectiveFirma}
-                      >
+                      <span className="truncate max-w-48" title={effectiveFirma}>
                         {effectiveFirma}
                       </span>
                     </div>
@@ -198,10 +192,7 @@ export function KabulTableView({
                   </td>
 
                   <td className="py-3.5 px-4">
-                    <KabulDurumBadge
-                      durum={tut.durum}
-                      onaylandi={tut.onaylandi}
-                    />
+                    <KabulDurumBadge durum={tut.durum} onaylandi={tut.onaylandi} />
                     {tut.notlar && (
                       <div
                         className="flex items-center gap-1 text-[10px] text-slate-600 dark:text-slate-300 mt-1 max-w-44 bg-slate-50 dark:bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-200/60 dark:border-slate-700/60"
@@ -214,9 +205,7 @@ export function KabulTableView({
                   </td>
 
                   <td className="py-3.5 px-4 text-right font-bold text-slate-900 dark:text-white whitespace-nowrap">
-                    {tut.tutar
-                      ? formatCurrency(tut.tutar)
-                      : formatCurrency(effectiveTeklifTutar)}
+                    {tut.tutar ? formatCurrency(tut.tutar) : formatCurrency(effectiveTeklifTutar)}
                   </td>
 
                   <td className="py-3.5 px-4 text-right whitespace-nowrap">
@@ -257,16 +246,14 @@ export function KabulTableView({
                     </div>
                   </td>
                 </tr>
-              );
+              )
             })
           ) : tutanaklar.length > 0 ? (
             <tr>
               <td colSpan={8} className="py-10 text-center text-slate-400">
                 <div className="flex flex-col items-center justify-center gap-2">
                   <Filter className="w-6 h-6 text-slate-300 dark:text-slate-600" />
-                  <p className="text-xs font-medium">
-                    Seçilen filtreye uygun tutanak bulunamadı.
-                  </p>
+                  <p className="text-xs font-medium">Seçilen filtreye uygun tutanak bulunamadı.</p>
                   <button
                     type="button"
                     onClick={onResetFilter}
@@ -283,11 +270,7 @@ export function KabulTableView({
               <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-200 whitespace-nowrap">
                 <div className="flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                  <span>
-                    {formatDate(
-                      faturaTarihi || new Date().toISOString().slice(0, 10),
-                    )}
-                  </span>
+                  <span>{formatDate(faturaTarihi || new Date().toISOString().slice(0, 10))}</span>
                 </div>
               </td>
 
@@ -316,10 +299,7 @@ export function KabulTableView({
               <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
                 <div className="flex items-center gap-1.5">
                   <UserCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                  <span
-                    className="truncate max-w-40 font-semibold"
-                    title={effectiveTeslimAlan}
-                  >
+                  <span className="truncate max-w-40 font-semibold" title={effectiveTeslimAlan}>
                     {effectiveTeslimAlan}
                   </span>
                 </div>
@@ -364,5 +344,5 @@ export function KabulTableView({
         </tbody>
       </table>
     </div>
-  );
+  )
 }

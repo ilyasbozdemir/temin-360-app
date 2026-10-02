@@ -135,11 +135,7 @@ export function useSiparisVeSozlesmeData() {
                LIMIT 1`,
               [activeDosyaId, activeDosyaId]
             )
-            if (
-              autoLowestRes.success &&
-              autoLowestRes.data &&
-              autoLowestRes.data.length > 0
-            ) {
+            if (autoLowestRes.success && autoLowestRes.data && autoLowestRes.data.length > 0) {
               const lowest = autoLowestRes.data[0]
               effectiveFirmaId = lowest.firma_id || lowest.temin_firma_id
               effectiveUnvan = lowest.unvan || 'İstekli Firma'
@@ -176,7 +172,8 @@ export function useSiparisVeSozlesmeData() {
               [activeDosyaId, activeDosyaId, effectiveFirmaId, effectiveFirmaId]
             )
             if (tfRes.success && tfRes.data && tfRes.data.length > 0) {
-              teklifToplami = tfRes.data[0].teklif_toplami || tfRes.data[0].calculated_teklif || null
+              teklifToplami =
+                tfRes.data[0].teklif_toplami || tfRes.data[0].calculated_teklif || null
               yasaklilikDurumu = tfRes.data[0].yasaklilik_durumu
             }
           }
@@ -187,22 +184,15 @@ export function useSiparisVeSozlesmeData() {
             [activeDosyaId]
           )
           const istekliFirmaSayisi =
-            firmCountRes.success &&
-            firmCountRes.data &&
-            firmCountRes.data.length > 0
+            firmCountRes.success && firmCountRes.data && firmCountRes.data.length > 0
               ? firmCountRes.data[0].cnt
               : 0
 
           let formattedDate = ''
           let teslimGunu =
-            row.teslim_gun !== undefined && row.teslim_gun !== null
-              ? row.teslim_gun
-              : 10
+            row.teslim_gun !== undefined && row.teslim_gun !== null ? row.teslim_gun : 10
 
-          if (
-            (row.teslim_gun === undefined || row.teslim_gun === null) &&
-            row.teslim_tarihi
-          ) {
+          if ((row.teslim_gun === undefined || row.teslim_gun === null) && row.teslim_tarihi) {
             const tDate = new Date(row.teslim_tarihi)
             const today = new Date()
             const diffTime = tDate.getTime() - today.getTime()

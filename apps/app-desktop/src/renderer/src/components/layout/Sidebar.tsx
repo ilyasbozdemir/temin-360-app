@@ -59,144 +59,18 @@ interface MenuGroup {
   items: MenuItem[]
 }
 
-const menuGroups: MenuGroup[] = [
-  {
-    title: 'Ana Menü',
-    items: [
-      { name: 'Gösterge Paneli', path: '/', icon: Home },
-      {
-        name: 'Harcama & Hakediş Merkezi',
-        path: '/harcama-merkezi',
-        icon: Landmark,
-        badge: 'YENİ'
-      }
-    ]
-  },
-  {
-    title: 'Süreç Yönetimi',
-    items: [
-      {
-        name: 'Proje Yönetimi & Yatırımlar',
-        path: '/projeler',
-        icon: FolderKanban,
-        badge: 'YENİ'
-      },
-      { name: 'Doğrudan Temin Dosyaları', path: '/dosyalar', icon: FileText },
-      {
-        name: '2886 Devlet İhale (Satış & Kiralama)',
-        path: '/devlet-ihale-2886',
-        icon: Landmark,
-        badge: 'GELİR'
-      },
-      {
-        name: 'Hakediş & Harcama İşlemleri',
-        path: '/hakedis',
-        icon: Hammer,
-        badge: 'YENİ'
-      },
-      {
-        name: 'İhale & Hesaplama Araçları',
-        path: '/playground',
-        icon: Calculator,
-        badge: 'YENİ'
-      },
-      {
-        name: 'Hızlı Dosya Ekle / Güncelle',
-        path: '/hizli-dosya-ekle',
-        icon: Database
-      },
-      {
-        name: 'Süreç Akış Haritası',
-        path: '/surec-akisi',
-        icon: Layers,
-        badge: 'BETA'
-      }
-    ]
-  },
-  {
-    title: 'Kayıtlar & Tanımlar',
-    items: [
-      {
-        name: 'Kurum Yönetimi',
-        icon: Building2,
-        children: [
-          { name: 'Kurum Bilgileri', path: '/kurum', icon: Building2 },
-          { name: 'Birim Yönetimi', path: '/birimler', icon: LayoutGrid },
-          { name: 'Personel Yönetimi', path: '/personel', icon: Users },
-          { name: 'Ambar & Stok Yönetimi', path: '/ambar', icon: Boxes },
-          { name: 'Proje Yönetimi & Yatırımlar', path: '/projeler', icon: FolderKanban },
-          { name: 'Komisyon Yönetimi', path: '/komisyonlar', icon: Users },
-          {
-            name: 'Görev Tanımları',
-            path: '/komisyon-gorevleri',
-            icon: Settings
-          }
-        ]
-      },
-      { name: 'İstekli Firma Yönetimi', path: '/firmalar', icon: Building2 },
-      {
-        name: 'Malzeme & Kodlar',
-        icon: PackageSearch,
-        children: [
-          {
-            name: 'Mal, Hizmet & Yapım Kataloğu',
-            path: '/malzemeler',
-            icon: PackageSearch
-          },
-          { name: 'Taşınır Kodları', path: '/tasinirkod', icon: FolderTree },
-          { name: 'OKAS Kodları', path: '/okaskod', icon: Tag },
-          { name: 'Bütçe Kodları (4 Düzey)', path: '/butcekod', icon: Coins },
-          { name: 'Birim Fiyat Pozları', path: '/pozlar', icon: BookOpen },
-          { name: 'Ölçü Birimleri', path: '/olcubirimleri', icon: Ruler }
-        ]
-      }
-    ]
-  },
-  {
-    title: 'Sistem',
-    items: [
-      { name: 'Raporlar', path: '/raporlar', icon: BarChart3 },
-      {
-        name: 'Şablon Listesi ve Süreçler',
-        path: '/taslakyonetim',
-        icon: Star
-      },
-      { name: 'Sürüm Notları', path: '/changelog', icon: Megaphone },
-      { name: 'Yardım & Kılavuzlar', path: '/yardim', icon: HelpCircle },
-      {
-        name: 'Ayarlar',
-        icon: Settings,
-        children: [
-          { name: 'Genel Ayarlar', path: '/ayarlar', icon: Settings },
-          { name: 'Kullanıcı Profili & Şifre', path: '/profil', icon: User },
-          { name: 'Mevzuat ve Parametreler', path: '/mevzuat', icon: Scale },
-          { name: 'Toplu İçe Aktarma', path: '/import', icon: Database },
-          {
-            name: 'Form Builder v2 (Sürükle & Bırak)',
-            path: '/form-builder',
-            icon: LayoutTemplate,
-            badge: 'YENİ'
-          },
-          {
-            name: 'Şablon Yönetimi',
-            path: '/sablonlar',
-            icon: FileText
-          },
-          {
-            name: 'Şablon & Kategori Yönetimi',
-            path: '/degiskenler',
-            icon: Key
-          }
-        ]
-      }
-    ]
-  }
-]
-
 export function Sidebar(): React.JSX.Element {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [expandedItems, setExpandedItems] = useState<Set<string>>(
-    new Set(['/malzemeler', 'Malzeme & Kodlar'])
+    new Set([
+      '/malzemeler',
+      'Malzeme & Kodlar',
+      'Malzeme & Kodlar (2886)',
+      'Pozlar & OKAS Kodları',
+      'Kurum Yönetimi',
+      'İdare & Emlak Servisi',
+      'İdare & Makam Yönetimi'
+    ])
   )
   const {
     institutionName,
@@ -208,6 +82,31 @@ export function Sidebar(): React.JSX.Element {
     loadSettings
   } = useSettingsStore()
   const { fileName, activeDosyaId, setActiveDosyaId } = useWorkspaceStore()
+
+  // Mod Seçici Durumu
+  const [procurementMode, setProcurementMode] = useState<
+    'dogrudan_temin' | 'ihale' | 'devlet_ihale_2886'
+  >(() => {
+    return (
+      (localStorage.getItem('temin_procurement_mode') as
+        | 'dogrudan_temin'
+        | 'ihale'
+        | 'devlet_ihale_2886') || 'dogrudan_temin'
+    )
+  })
+
+  useEffect(() => {
+    const handleModeEvent = (e: Event): void => {
+      const customEvent = e as CustomEvent<{
+        mode: 'dogrudan_temin' | 'ihale' | 'devlet_ihale_2886'
+      }>
+      if (customEvent.detail?.mode) {
+        setProcurementMode(customEvent.detail.mode)
+      }
+    }
+    window.addEventListener('procurement-mode-change', handleModeEvent)
+    return () => window.removeEventListener('procurement-mode-change', handleModeEvent)
+  }, [])
 
   const handleCloseWorkspace = async (): Promise<void> => {
     window.dispatchEvent(new CustomEvent('workspace-close-request'))
@@ -243,31 +142,400 @@ export function Sidebar(): React.JSX.Element {
   }
 
   const finalMenuGroups: MenuGroup[] = useMemo(() => {
-    if (!activeDosyaId) return menuGroups
-    return menuGroups.map((group) => {
-      if (group.title === 'Süreç Yönetimi') {
-        const activeItems: MenuItem[] = [
+    if (procurementMode === 'devlet_ihale_2886') {
+      return [
+        {
+          title: '2886 Devlet İhale (Gelir)',
+          items: [
+            { name: 'Gösterge Paneli', path: '/', icon: Home },
+            {
+              name: '2886 Satış & Kiralama Masası',
+              path: '/devlet-ihale-2886',
+              icon: Landmark,
+              badge: 'GELİR'
+            }
+          ]
+        },
+        {
+          title: '2886 Süreç İşlemleri',
+          items: [
+            {
+              name: '🏛️ Satış & Kiralama Masası',
+              path: '/devlet-ihale-2886',
+              icon: Landmark,
+              badge: '2886'
+            },
+            {
+              name: '📊 Muhammen Bedel & Takdir',
+              path: '/devlet-ihale-2886',
+              icon: Calculator
+            },
+            {
+              name: '⚖️ Usul & Karar Matrisi (Md. 45/36/51)',
+              path: '/devlet-ihale-2886',
+              icon: Scale
+            },
+            {
+              name: '🔨 İhale Günü & Teklifler',
+              path: '/devlet-ihale-2886',
+              icon: Hammer
+            },
+            {
+              name: '📑 Süreç & İlan Evrakları (16 Evrak)',
+              path: '/devlet-ihale-2886',
+              icon: FileText
+            },
+            {
+              name: '💰 Kira Artış & Tahsilat Takibi',
+              path: '/devlet-ihale-2886',
+              icon: Coins,
+              badge: '5018'
+            }
+          ]
+        },
+        {
+          title: 'Kayıtlar & Tanımlar (2886)',
+          items: [
+            {
+              name: 'İdare & Emlak Servisi',
+              icon: Building2,
+              children: [
+                { name: 'İdare Bilgileri', path: '/kurum', icon: Building2 },
+                { name: 'Emlak & İstimlak Servisleri', path: '/birimler', icon: LayoutGrid },
+                { name: 'İhale Yetkilileri & Raportörler', path: '/personel', icon: Users },
+                { name: 'Encümen & Takdir Komisyonu', path: '/komisyonlar', icon: Users },
+                { name: 'Görev Tanımları', path: '/komisyon-gorevleri', icon: Settings }
+              ]
+            },
+            { name: 'İstekliler & Kiracılar / Alıcılar', path: '/firmalar', icon: Building2 },
+            {
+              name: 'Malzeme & Kodlar (2886)',
+              icon: PackageSearch,
+              children: [
+                {
+                  name: 'Taşınmaz & Mal Kataloğu',
+                  path: '/malzemeler',
+                  icon: PackageSearch
+                },
+                { name: 'Taşınmaz / Taşınır Kodları', path: '/tasinirkod', icon: FolderTree },
+                { name: 'Ölçü Birimleri', path: '/olcubirimleri', icon: Ruler }
+              ]
+            }
+          ]
+        },
+        {
+          title: 'Sistem',
+          items: [
+            { name: 'Raporlar & Gelir Cetvelleri', path: '/raporlar', icon: BarChart3 },
+            { name: '2886 Mevzuat ve Parametreler', path: '/mevzuat', icon: Scale },
+            { name: 'Şablon Listesi ve Süreçler', path: '/taslakyonetim', icon: Star },
+            { name: 'Sürüm Notları', path: '/changelog', icon: Megaphone },
+            { name: 'Yardım & Kılavuzlar', path: '/yardim', icon: HelpCircle },
+            {
+              name: 'Ayarlar',
+              icon: Settings,
+              children: [
+                { name: 'Genel Ayarlar', path: '/ayarlar', icon: Settings },
+                { name: 'Kullanıcı Profili & Şifre', path: '/profil', icon: User },
+                { name: 'Mevzuat ve Parametreler', path: '/mevzuat', icon: Scale },
+                { name: 'Toplu İçe Aktarma', path: '/import', icon: Database },
+                {
+                  name: 'Form Builder v2 (Sürükle & Bırak)',
+                  path: '/form-builder',
+                  icon: LayoutTemplate,
+                  badge: 'YENİ'
+                },
+                { name: 'Şablon Yönetimi', path: '/sablonlar', icon: FileText },
+                { name: 'Şablon & Kategori Yönetimi', path: '/degiskenler', icon: Key }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+
+    if (procurementMode === 'ihale') {
+      return [
+        {
+          title: 'İhale Süreçleri (KİK 19/21)',
+          items: [
+            { name: 'Gösterge Paneli', path: '/', icon: Home },
+            {
+              name: 'Harcama & İhale Merkezi',
+              path: '/harcama-merkezi',
+              icon: Landmark,
+              badge: 'KİK'
+            },
+            {
+              name: 'İhale Hakediş & Harcama',
+              path: '/hakedis',
+              icon: Hammer,
+              badge: 'HAKEDİŞ'
+            }
+          ]
+        },
+        {
+          title: 'İhale Süreç Yönetimi',
+          items: [
+            ...(activeDosyaId
+              ? [
+                  {
+                    name: 'Aktif Dosya (Süreç Takip)',
+                    path: '/takip',
+                    icon: FolderOpen,
+                    badge: 'AÇIK'
+                  }
+                ]
+              : []),
+            {
+              name: 'Açık & Pazarlık İhale Masası',
+              path: '/harcama-merkezi',
+              icon: Landmark,
+              badge: '19/21'
+            },
+            {
+              name: 'Hakediş & Harcama İşlemleri',
+              path: '/hakedis',
+              icon: Hammer,
+              badge: 'YENİ'
+            },
+            {
+              name: 'İhale & Hesaplama Araçları',
+              path: '/hesaplama-araclari',
+              icon: Calculator,
+              badge: '4734/2886'
+            },
+            {
+              name: 'Proje Yönetimi & Yatırımlar',
+              path: '/projeler',
+              icon: FolderKanban
+            },
+            {
+              name: 'Şablon Listesi ve Dokümanlar',
+              path: '/taslakyonetim',
+              icon: Star
+            }
+          ]
+        },
+        {
+          title: 'Kayıtlar & Tanımlar (İhale)',
+          items: [
+            {
+              name: 'İdare & Makam Yönetimi',
+              icon: Building2,
+              children: [
+                { name: 'İdare Bilgileri', path: '/kurum', icon: Building2 },
+                { name: 'İhale Birimleri (EKAP)', path: '/birimler', icon: LayoutGrid },
+                { name: 'İhale Yetkilileri & Raportörler', path: '/personel', icon: Users },
+                { name: 'İhale Komisyonları (Md. 6)', path: '/komisyonlar', icon: Users },
+                { name: 'Muayene & Kabul Heyetleri', path: '/komisyonlar', icon: Users },
+                { name: 'Görev Tanımları', path: '/komisyon-gorevleri', icon: Settings }
+              ]
+            },
+            { name: 'Müteahhit & İstekli Firmalar', path: '/firmalar', icon: Building2 },
+            {
+              name: 'Pozlar & OKAS Kodları',
+              icon: PackageSearch,
+              children: [
+                { name: 'ÇŞB Birim Fiyat Pozları', path: '/pozlar', icon: BookOpen },
+                { name: 'OKAS Kodları', path: '/okaskod', icon: Tag },
+                { name: 'Bütçe Kodları (4 Düzey)', path: '/butcekod', icon: Coins },
+                {
+                  name: 'Mal, Hizmet & Yapım Kataloğu',
+                  path: '/malzemeler',
+                  icon: PackageSearch
+                },
+                { name: 'Ölçü Birimleri', path: '/olcubirimleri', icon: Ruler }
+              ]
+            }
+          ]
+        },
+        {
+          title: 'Sistem',
+          items: [
+            { name: 'Raporlar & Harcama Analizleri', path: '/raporlar', icon: BarChart3 },
+            { name: 'İhale Mevzuatı ve Parametreler', path: '/mevzuat', icon: Scale },
+            { name: 'Sürüm Notları', path: '/changelog', icon: Megaphone },
+            { name: 'Yardım & Kılavuzlar', path: '/yardim', icon: HelpCircle },
+            {
+              name: 'Ayarlar',
+              icon: Settings,
+              children: [
+                { name: 'Genel Ayarlar', path: '/ayarlar', icon: Settings },
+                { name: 'Kullanıcı Profili & Şifre', path: '/profil', icon: User },
+                { name: 'Mevzuat ve Parametreler', path: '/mevzuat', icon: Scale },
+                { name: 'Toplu İçe Aktarma', path: '/import', icon: Database },
+                {
+                  name: 'Form Builder v2 (Sürükle & Bırak)',
+                  path: '/form-builder',
+                  icon: LayoutTemplate,
+                  badge: 'YENİ'
+                },
+                { name: 'Şablon Yönetimi', path: '/sablonlar', icon: FileText },
+                { name: 'Şablon & Kategori Yönetimi', path: '/degiskenler', icon: Key }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+
+    // Doğrudan Temin (Varsayılan)
+    const baseGroups: MenuGroup[] = [
+      {
+        title: 'Ana Menü',
+        items: [
+          { name: 'Gösterge Paneli', path: '/', icon: Home },
           {
-            name: 'Aktif Dosya (Süreç Takip)',
-            path: '/takip',
-            icon: FolderOpen,
-            badge: 'AÇIK'
+            name: 'Doğrudan Temin Dosyaları',
+            path: '/dosyalar',
+            icon: FileText,
+            badge: '22'
+          },
+          {
+            name: 'Harcama & Hakediş Merkezi',
+            path: '/harcama-merkezi',
+            icon: Landmark,
+            badge: 'YENİ'
+          }
+        ]
+      },
+      {
+        title: 'Süreç Yönetimi',
+        items: [
+          ...(activeDosyaId
+            ? [
+                {
+                  name: 'Aktif Dosya (Süreç Takip)',
+                  path: '/takip',
+                  icon: FolderOpen,
+                  badge: 'AÇIK'
+                },
+                {
+                  name: 'Süreç Akış Haritası',
+                  path: '/surec-akisi',
+                  icon: Layers,
+                  badge: 'BETA'
+                }
+              ]
+            : []),
+          {
+            name: 'Doğrudan Temin Dosyaları',
+            path: '/dosyalar',
+            icon: FileText
+          },
+          {
+            name: 'Proje Yönetimi & Yatırımlar',
+            path: '/projeler',
+            icon: FolderKanban,
+            badge: 'YENİ'
+          },
+          {
+            name: 'Hızlı Dosya Ekle / Güncelle',
+            path: '/hizli-dosya-ekle',
+            icon: Database
           },
           {
             name: 'Süreç Akış Haritası',
             path: '/surec-akisi',
             icon: Layers,
             badge: 'BETA'
+          },
+          {
+            name: 'Hakediş & Harcama İşlemleri',
+            path: '/hakedis',
+            icon: Hammer
+          },
+          {
+            name: 'İhale & Hesaplama Araçları',
+            path: '/hesaplama-araclari',
+            icon: Calculator,
+            badge: '4734/2886'
           }
         ]
-        return {
-          ...group,
-          items: [...activeItems, ...group.items]
-        }
+      },
+      {
+        title: 'Kayıtlar & Tanımlar',
+        items: [
+          {
+            name: 'Kurum Yönetimi',
+            icon: Building2,
+            children: [
+              { name: 'Kurum Bilgileri', path: '/kurum', icon: Building2 },
+              { name: 'Birim Yönetimi', path: '/birimler', icon: LayoutGrid },
+              { name: 'Personel Yönetimi', path: '/personel', icon: Users },
+              { name: 'Ambar & Stok Yönetimi', path: '/ambar', icon: Boxes },
+              { name: 'Proje Yönetimi & Yatırımlar', path: '/projeler', icon: FolderKanban },
+              { name: 'Komisyon Yönetimi', path: '/komisyonlar', icon: Users },
+              {
+                name: 'Görev Tanımları',
+                path: '/komisyon-gorevleri',
+                icon: Settings
+              }
+            ]
+          },
+          { name: 'İstekli Firma Yönetimi', path: '/firmalar', icon: Building2 },
+          {
+            name: 'Malzeme & Kodlar',
+            icon: PackageSearch,
+            children: [
+              {
+                name: 'Mal, Hizmet & Yapım Kataloğu',
+                path: '/malzemeler',
+                icon: PackageSearch
+              },
+              { name: 'Taşınır Kodları', path: '/tasinirkod', icon: FolderTree },
+              { name: 'OKAS Kodları', path: '/okaskod', icon: Tag },
+              { name: 'Bütçe Kodları (4 Düzey)', path: '/butcekod', icon: Coins },
+              { name: 'Birim Fiyat Pozları', path: '/pozlar', icon: BookOpen },
+              { name: 'Ölçü Birimleri', path: '/olcubirimleri', icon: Ruler }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Sistem',
+        items: [
+          { name: 'Raporlar', path: '/raporlar', icon: BarChart3 },
+          {
+            name: 'Şablon Listesi ve Süreçler',
+            path: '/taslakyonetim',
+            icon: Star
+          },
+          { name: 'Sürüm Notları', path: '/changelog', icon: Megaphone },
+          { name: 'Yardım & Kılavuzlar', path: '/yardim', icon: HelpCircle },
+          {
+            name: 'Ayarlar',
+            icon: Settings,
+            children: [
+              { name: 'Genel Ayarlar', path: '/ayarlar', icon: Settings },
+              { name: 'Kullanıcı Profili & Şifre', path: '/profil', icon: User },
+              { name: 'Mevzuat ve Parametreler', path: '/mevzuat', icon: Scale },
+              { name: 'Toplu İçe Aktarma', path: '/import', icon: Database },
+              {
+                name: 'Form Builder v2 (Sürükle & Bırak)',
+                path: '/form-builder',
+                icon: LayoutTemplate,
+                badge: 'YENİ'
+              },
+              {
+                name: 'Şablon Yönetimi',
+                path: '/sablonlar',
+                icon: FileText
+              },
+              {
+                name: 'Şablon & Kategori Yönetimi',
+                path: '/degiskenler',
+                icon: Key
+              }
+            ]
+          }
+        ]
       }
-      return group
-    })
-  }, [activeDosyaId])
+    ]
+
+    return baseGroups
+  }, [procurementMode, activeDosyaId])
 
   return (
     <div

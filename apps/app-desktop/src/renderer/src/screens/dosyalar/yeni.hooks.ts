@@ -270,8 +270,10 @@ export function useYeniDosyaScreen(): UseYeniDosyaScreenReturn {
             ...prev,
             tur: (urlTur as any) || prev.tur || 'mal',
             onay_personel_id: prev.onay_personel_id || defaultPers.onay_personel_id,
-            hazirlayan_personel_id: prev.hazirlayan_personel_id || defaultPers.hazirlayan_personel_id,
-            talep_eden_personel_id: prev.talep_eden_personel_id || defaultPers.talep_eden_personel_id,
+            hazirlayan_personel_id:
+              prev.hazirlayan_personel_id || defaultPers.hazirlayan_personel_id,
+            talep_eden_personel_id:
+              prev.talep_eden_personel_id || defaultPers.talep_eden_personel_id,
             sunan_personel_id: prev.sunan_personel_id || defaultPers.sunan_personel_id,
             irtibat_yetkilisi_id: prev.irtibat_yetkilisi_id || defaultPers.irtibat_yetkilisi_id
           }))

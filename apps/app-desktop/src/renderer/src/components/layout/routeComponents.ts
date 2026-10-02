@@ -52,10 +52,12 @@ import DTSurecAkisiScreen from '../../screens/system/DTSurecAkisiScreen'
 import NotlarVeGorevlerScreen from '../../screens/notlar/index.screen'
 import ProjelerScreen from '../../screens/projeler/index.screen'
 import DevletIhale2886Screen from '../../screens/devlet-ihale-2886/index.screen'
+import HesaplamaAraclariScreen from '../../screens/araclar/HesaplamaAraclariScreen'
 
 export const routeComponents: Record<string, React.ComponentType> = {
   '/': DashboardScreen,
   '/projeler': ProjelerScreen,
+  '/hesaplama-araclari': HesaplamaAraclariScreen,
   '/dosyalar': DosyalarScreen,
   '/dosyalar/yeni': YeniDosyaScreen,
   '/dosyalar/manage': YeniDosyaScreen,

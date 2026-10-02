@@ -47,9 +47,7 @@ describe('calculatePriceDifference', () => {
 
   it('should retrieve custom tax rate from settings or fallback to default', () => {
     const mockSettings = {
-      rates: JSON.stringify([
-        { id: '1', ad: 'Hakediş Damga Vergisi', oran: '9,48', tur: 'binde' }
-      ])
+      rates: JSON.stringify([{ id: '1', ad: 'Hakediş Damga Vergisi', oran: '9,48', tur: 'binde' }])
     }
     const rate = getAyarVergiOrani(mockSettings, 'hakedis_damga')
     expect(rate.oran).toBe('9,48')
@@ -57,4 +55,3 @@ describe('calculatePriceDifference', () => {
     expect(hesaplaKesinti(100000, rate.oran, rate.tur)).toBe(948)
   })
 })
-

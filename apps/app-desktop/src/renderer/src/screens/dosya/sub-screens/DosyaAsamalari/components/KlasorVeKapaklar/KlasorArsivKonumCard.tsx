@@ -63,9 +63,7 @@ export function KlasorArsivKonumCard({
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-slate-600 dark:text-slate-400">
-            Raf No
-          </label>
+          <label className="text-xs font-bold text-slate-600 dark:text-slate-400">Raf No</label>
           <input
             type="text"
             disabled={isDosyaClosed}

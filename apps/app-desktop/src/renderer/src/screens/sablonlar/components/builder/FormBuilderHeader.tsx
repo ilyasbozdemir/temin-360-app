@@ -284,9 +284,7 @@ export const FormBuilderHeader: React.FC<FormBuilderHeaderProps> = ({
         <div className="flex items-center gap-0.5">
           <button
             type="button"
-            onClick={() =>
-              onUpdateDocSettings((s) => ({ ...s, zoom: Math.max(50, s.zoom - 10) }))
-            }
+            onClick={() => onUpdateDocSettings((s) => ({ ...s, zoom: Math.max(50, s.zoom - 10) }))}
             className="p-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer"
             title="Küçült"
           >
@@ -297,9 +295,7 @@ export const FormBuilderHeader: React.FC<FormBuilderHeaderProps> = ({
           </span>
           <button
             type="button"
-            onClick={() =>
-              onUpdateDocSettings((s) => ({ ...s, zoom: Math.min(150, s.zoom + 10) }))
-            }
+            onClick={() => onUpdateDocSettings((s) => ({ ...s, zoom: Math.min(150, s.zoom + 10) }))}
             className="p-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer"
             title="Büyüt"
           >

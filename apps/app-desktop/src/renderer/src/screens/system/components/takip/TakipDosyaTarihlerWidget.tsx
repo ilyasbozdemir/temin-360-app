@@ -1,22 +1,22 @@
-import React from "react";
-import { Calendar, Save } from "lucide-react";
+import React from 'react'
+import { Calendar, Save } from 'lucide-react'
 
 interface TakipDosyaTarihlerWidgetProps {
-  status: string;
-  setStatus: (v: string) => void;
-  acilisTarihi: string;
-  setAcilisTarihi: (v: string) => void;
-  sonTeklifTarihi: string;
-  setSonTeklifTarihi: (v: string) => void;
-  teminTarihi: string;
-  setTeminTarihi: (v: string) => void;
-  teslimTarihi: string;
-  setTeslimTarihi: (v: string) => void;
-  notlar: string;
-  setNotlar: (v: string) => void;
-  saveLoading: boolean;
-  saveMessage: string;
-  onSubmit: (e: React.FormEvent) => void;
+  status: string
+  setStatus: (v: string) => void
+  acilisTarihi: string
+  setAcilisTarihi: (v: string) => void
+  sonTeklifTarihi: string
+  setSonTeklifTarihi: (v: string) => void
+  teminTarihi: string
+  setTeminTarihi: (v: string) => void
+  teslimTarihi: string
+  setTeslimTarihi: (v: string) => void
+  notlar: string
+  setNotlar: (v: string) => void
+  saveLoading: boolean
+  saveMessage: string
+  onSubmit: (e: React.FormEvent) => void
 }
 
 export function TakipDosyaTarihlerWidget({
@@ -34,7 +34,7 @@ export function TakipDosyaTarihlerWidget({
   setNotlar,
   saveLoading,
   saveMessage,
-  onSubmit,
+  onSubmit
 }: TakipDosyaTarihlerWidgetProps): React.JSX.Element {
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
@@ -45,8 +45,7 @@ export function TakipDosyaTarihlerWidget({
             Dosya Durumu & İşlem Tarihleri
           </h3>
           <p className="text-[10px] text-slate-500">
-            Süreç milat tarihlerini ve dosya durumunu buradan kaydedip
-            güncelleyebilirsiniz.
+            Süreç milat tarihlerini ve dosya durumunu buradan kaydedip güncelleyebilirsiniz.
           </p>
         </div>
       </div>
@@ -147,15 +146,15 @@ export function TakipDosyaTarihlerWidget({
             disabled={saveLoading}
             className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer ml-auto"
           >
-            {saveLoading
-              ? (
-                <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              )
-              : <Save className="w-3.5 h-3.5" />}
+            {saveLoading ? (
+              <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <Save className="w-3.5 h-3.5" />
+            )}
             Kaydet
           </button>
         </div>
       </form>
     </div>
-  );
+  )
 }

@@ -1,7 +1,7 @@
-import React from "react";
-import { Link } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft, PackageSearch } from "lucide-react";
-import { APP_ROUTES } from "../../../../../../constants/routeConstants";
+import React from 'react'
+import { Link } from '@tanstack/react-router'
+import { AlertTriangle, ArrowLeft, PackageSearch } from 'lucide-react'
+import { APP_ROUTES } from '../../../../../../constants/routeConstants'
 
 export function SiparisGuardWarning() {
   return (
@@ -16,13 +16,10 @@ export function SiparisGuardWarning() {
               Kazanan Firma Belirlenmedi
             </h3>
             <p className="text-xs text-amber-700 dark:text-amber-400/90 leading-relaxed max-w-xl">
-              Sipariş &amp; Sözleşme belgelerini oluşturabilmek için önce{" "}
-              <strong>Piyasa Fiyat Araştırması</strong>{" "}
-              adımında kazanan firmayı belirlemeniz gerekir. Tutanağı
-              kaydederken <em>&ldquo;En Düşük Teklifi Kazanan Yap&rdquo;</em>
-              {" "}
-              seçeneğini işaretleyin ya da açılan firma listesinden kazananı
-              elle seçin.
+              Sipariş &amp; Sözleşme belgelerini oluşturabilmek için önce{' '}
+              <strong>Piyasa Fiyat Araştırması</strong> adımında kazanan firmayı belirlemeniz
+              gerekir. Tutanağı kaydederken <em>&ldquo;En Düşük Teklifi Kazanan Yap&rdquo;</em>{' '}
+              seçeneğini işaretleyin ya da açılan firma listesinden kazananı elle seçin.
             </p>
           </div>
         </div>
@@ -54,53 +51,53 @@ export function SiparisGuardWarning() {
         <ol className="flex flex-col gap-2">
           {[
             {
-              step: "1",
-              label: "Hazırlık & İhtiyaç",
+              step: '1',
+              label: 'Hazırlık & İhtiyaç',
               done: true,
-              current: false,
+              current: false
             },
             {
-              step: "2",
-              label: "Piyasa Fiyat Araştırması — Kazanan firma belirle",
+              step: '2',
+              label: 'Piyasa Fiyat Araştırması — Kazanan firma belirle',
               done: false,
-              current: true,
+              current: true
             },
             {
-              step: "3",
-              label: "Sipariş & Sözleşme",
+              step: '3',
+              label: 'Sipariş & Sözleşme',
               done: false,
-              current: false,
+              current: false
             },
             {
-              step: "4",
-              label: "Muayene & Kabul & Ödeme İşlemleri",
+              step: '4',
+              label: 'Muayene & Kabul & Ödeme İşlemleri',
               done: false,
-              current: false,
+              current: false
             },
             {
-              step: "5",
-              label: "Klasör & Kapaklar",
+              step: '5',
+              label: 'Klasör & Kapaklar',
               done: false,
-              current: false,
-            },
+              current: false
+            }
           ].map((item) => (
             <li
               key={item.step}
               className={`flex items-center gap-3 text-xs font-bold px-3 py-2 rounded-xl transition-colors ${
                 item.current
-                  ? "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60"
+                  ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60'
                   : item.done
-                  ? "text-emerald-600 dark:text-emerald-400"
-                  : "text-slate-400 dark:text-slate-600"
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-slate-400 dark:text-slate-600'
               }`}
             >
               <span
                 className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 ${
                   item.current
-                    ? "bg-amber-500 text-white"
+                    ? 'bg-amber-500 text-white'
                     : item.done
-                    ? "bg-emerald-500 text-white"
-                    : "bg-slate-200 dark:bg-slate-800 text-slate-500"
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
                 }`}
               >
                 {item.step}
@@ -116,5 +113,5 @@ export function SiparisGuardWarning() {
         </ol>
       </div>
     </div>
-  );
+  )
 }

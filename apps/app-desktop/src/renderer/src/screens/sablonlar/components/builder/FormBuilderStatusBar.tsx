@@ -33,16 +33,19 @@ export const FormBuilderStatusBar: React.FC<FormBuilderStatusBarProps> = ({
           {activeField && `(${activeField.variableName})`}
         </span>
         <span className="border-l border-slate-300 dark:border-slate-800 pl-3">
-          Aktif Sekme: <span className="text-slate-800 dark:text-slate-200 font-semibold">{selectedTab}</span>
+          Aktif Sekme:{' '}
+          <span className="text-slate-800 dark:text-slate-200 font-semibold">{selectedTab}</span>
         </span>
       </div>
 
       <div className="flex items-center gap-4">
         <span>
-          Toplam Blok: <span className="text-slate-900 dark:text-white font-bold">{totalItems}</span>
+          Toplam Blok:{' '}
+          <span className="text-slate-900 dark:text-white font-bold">{totalItems}</span>
         </span>
         <span className="border-l border-slate-300 dark:border-slate-800 pl-3">
-          Sayfa Düzeni: <span className="text-slate-900 dark:text-white font-semibold">{pageSize}</span> (
+          Sayfa Düzeni:{' '}
+          <span className="text-slate-900 dark:text-white font-semibold">{pageSize}</span> (
           {orientation === 'portrait' ? 'Dikey' : 'Yatay'})
         </span>
         <span className="border-l border-slate-300 dark:border-slate-800 pl-3 font-bold text-blue-600 dark:text-blue-400">

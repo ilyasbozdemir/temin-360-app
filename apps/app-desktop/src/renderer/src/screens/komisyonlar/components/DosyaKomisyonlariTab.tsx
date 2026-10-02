@@ -33,12 +33,15 @@ export const DosyaKomisyonlariTab: React.FC<DosyaKomisyonlariTabProps> = ({
               Dosya Komisyon Atamaları & Kadro Tarihçesi
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Tüm doğrudan temin ve ihale dosyalarının komisyon kadrolarının ve geçmiş revizyonlarının zaman çizelgesi
+              Tüm doğrudan temin ve ihale dosyalarının komisyon kadrolarının ve geçmiş
+              revizyonlarının zaman çizelgesi
             </p>
           </div>
         </div>
         <div className="text-xs text-slate-500 font-semibold self-end md:self-auto">
-          Toplam <span className="font-extrabold text-blue-600">{filteredDosyaKomisyonlar.length}</span> temin dosyası
+          Toplam{' '}
+          <span className="font-extrabold text-blue-600">{filteredDosyaKomisyonlar.length}</span>{' '}
+          temin dosyası
         </div>
       </div>
 
@@ -49,8 +52,9 @@ export const DosyaKomisyonlariTab: React.FC<DosyaKomisyonlariTabProps> = ({
           <strong className="text-slate-800 dark:text-slate-200 font-bold">
             Komisyon Kadro &amp; Zaman Çizelgesi Takibi:
           </strong>{' '}
-          Dosyalarda tanımlanan komisyon kadroları veya yapılan üye değişiklikleri anlık versiyon snapshot'ı olarak arşivlenir.
-          Geçmiş tarihli belgeler bastırılırken personellerin o dönemki vekalet unvanı ve görevleri otomatik korunur.
+          Dosyalarda tanımlanan komisyon kadroları veya yapılan üye değişiklikleri anlık versiyon
+          snapshot'ı olarak arşivlenir. Geçmiş tarihli belgeler bastırılırken personellerin o
+          dönemki vekalet unvanı ve görevleri otomatik korunur.
         </div>
       </div>
 
@@ -184,7 +188,9 @@ export const DosyaKomisyonlariTab: React.FC<DosyaKomisyonlariTabProps> = ({
                   <div className="flex items-center gap-2 shrink-0 self-end md:self-start">
                     <button
                       type="button"
-                      onClick={() => onOpenHistory({ id: d.id, dosya_no: d.dosya_no, is_tanimi: d.is_tanimi })}
+                      onClick={() =>
+                        onOpenHistory({ id: d.id, dosya_no: d.dosya_no, is_tanimi: d.is_tanimi })
+                      }
                       className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 text-xs font-bold hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200/80 dark:border-indigo-800 transition-colors cursor-pointer shadow-2xs"
                     >
                       <History className="w-4 h-4" />

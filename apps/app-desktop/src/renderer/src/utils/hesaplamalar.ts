@@ -104,7 +104,8 @@ export const getAyarVergiOrani = (
   }
 
   // Fallbacks
-  if (turAd === 'hakedis_damga') return { oran: fallbackOran || '9,48', tur: fallbackTur || 'binde' }
+  if (turAd === 'hakedis_damga')
+    return { oran: fallbackOran || '9,48', tur: fallbackTur || 'binde' }
   if (turAd === 'karar_damga') return { oran: fallbackOran || '5,69', tur: fallbackTur || 'binde' }
   if (turAd === 'kdv_20') return { oran: fallbackOran || '20', tur: fallbackTur || 'yuzde' }
   if (turAd === 'kdv_10') return { oran: fallbackOran || '10', tur: fallbackTur || 'yuzde' }
@@ -115,4 +116,3 @@ export const getAyarVergiOrani = (
 
 export { sayiyiYaziyaCevir, amountToWordsTL, numberToWords } from './sayiyiYaziyaCevir'
 export * from './priceDifference'
-

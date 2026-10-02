@@ -22,14 +22,14 @@ export interface BadgeInfo {
 
 export interface DosyaListItem {
   id: number
-  temin_no?: string
-  konu?: string
-  tur?: string
-  yaklasik_maliyet?: number
-  is_deleted?: number
-  ihale_sekli?: string
-  ihale_tipi?: string
-  isin_aciklamasi?: string
+  temin_no?: string | null
+  konu?: string | null
+  tur?: string | null
+  yaklasik_maliyet?: number | null
+  is_deleted?: number | null
+  ihale_sekli?: string | null
+  ihale_tipi?: string | null
+  isin_aciklamasi?: string | null
 }
 
 export interface Dosya2886Item {

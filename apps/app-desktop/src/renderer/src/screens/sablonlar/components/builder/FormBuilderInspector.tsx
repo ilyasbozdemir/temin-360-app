@@ -1,10 +1,6 @@
 import React from 'react'
 import { Sliders } from 'lucide-react'
-import {
-  FormFieldV2,
-  TableRowItem,
-  SignatureMemberItem
-} from '../../types/formBuilder.types'
+import { FormFieldV2, TableRowItem, SignatureMemberItem } from '../../types/formBuilder.types'
 import {
   InspectorHeader,
   InspectorDataTab,

@@ -1,27 +1,27 @@
-import React from "react";
-import { ArrowRight } from "lucide-react";
-import { FiyatIstenenFirmalarınSecilmesi } from "../FiyatIstenenFirmalarınSecilmesi";
-import { DagitimBelgeleriKartlari } from "./DagitimBelgeleriKartlari";
+import React from 'react'
+import { ArrowRight } from 'lucide-react'
+import { FiyatIstenenFirmalarınSecilmesi } from '../FiyatIstenenFirmalarınSecilmesi'
+import { DagitimBelgeleriKartlari } from './DagitimBelgeleriKartlari'
 
 interface Step1IsteklilerVeDagitimProps {
-  formattedFirms: any[];
-  firmaColumns: any[];
-  manualWinnerFirmaId?: number | null;
-  handleSetWinnerFirma?: (firmaMasterId: number | null) => Promise<void>;
+  formattedFirms: any[]
+  firmaColumns: any[]
+  manualWinnerFirmaId?: number | null
+  handleSetWinnerFirma?: (firmaMasterId: number | null) => Promise<void>
   handleCreateNewFirm?: (firmaData: {
-    unvan: string;
-    vergi_no?: string;
-    telefon?: string;
-    email?: string;
-    sehir?: string;
-  }) => Promise<void>;
-  setCurrentStep: (step: 1 | 2 | 3) => void;
-  setIsFormOpen: (val: boolean) => void;
-  setActiveFormTab: (tab: "firms" | "matrix") => void;
-  handleOpenSablonByDosyaAdi: (targetKey: string, firmData?: any) => void;
-  handleOpenEkapSorgu: (firma?: any) => void;
-  handleAddSingleFirm?: (firma: any) => void;
-  handleRemoveFirm?: (id: number) => void;
+    unvan: string
+    vergi_no?: string
+    telefon?: string
+    email?: string
+    sehir?: string
+  }) => Promise<void>
+  setCurrentStep: (step: 1 | 2 | 3) => void
+  setIsFormOpen: (val: boolean) => void
+  setActiveFormTab: (tab: 'firms' | 'matrix') => void
+  handleOpenSablonByDosyaAdi: (targetKey: string, firmData?: any) => void
+  handleOpenEkapSorgu: (firma?: any) => void
+  handleAddSingleFirm?: (firma: any) => void
+  handleRemoveFirm?: (id: number) => void
 }
 
 export function Step1IsteklilerVeDagitim({
@@ -36,7 +36,7 @@ export function Step1IsteklilerVeDagitim({
   handleOpenSablonByDosyaAdi,
   handleOpenEkapSorgu,
   handleAddSingleFirm,
-  handleRemoveFirm,
+  handleRemoveFirm
 }: Step1IsteklilerVeDagitimProps): React.JSX.Element {
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-200">
@@ -48,42 +48,40 @@ export function Step1IsteklilerVeDagitim({
         winnerFirmaId={manualWinnerFirmaId}
         onSetWinnerFirma={(f) => {
           if (handleSetWinnerFirma) {
-            const targetId = (f.firma_id as number) || f.id;
-            handleSetWinnerFirma(
-              manualWinnerFirmaId === targetId ? null : targetId,
-            );
+            const targetId = (f.firma_id as number) || f.id
+            handleSetWinnerFirma(manualWinnerFirmaId === targetId ? null : targetId)
           }
         }}
         onCreateNewFirm={handleCreateNewFirm}
         onFiyatGir={() => {
-          setCurrentStep(2);
-          setIsFormOpen(true);
-          setActiveFormTab("matrix");
+          setCurrentStep(2)
+          setIsFormOpen(true)
+          setActiveFormTab('matrix')
         }}
         onFiyatPiyasaFormu={(firma) => {
-          handleOpenSablonByDosyaAdi("arastirma-mektubu", firma);
+          handleOpenSablonByDosyaAdi('arastirma-mektubu', firma)
         }}
         onIdareFiyatArastirmaMektubu={(firma) => {
-          handleOpenSablonByDosyaAdi("fiyat-arastirma-mektubu", firma);
+          handleOpenSablonByDosyaAdi('fiyat-arastirma-mektubu', firma)
         }}
         onBirimFiyatArastirmasi={(firma) => {
-          handleOpenSablonByDosyaAdi("birim-fiyat-teklif-mektubu", firma);
+          handleOpenSablonByDosyaAdi('birim-fiyat-teklif-mektubu', firma)
         }}
         onBosTeklifCetveli={(firma) => {
-          handleOpenSablonByDosyaAdi("birim-fiyat-teklif-mektubu", firma);
+          handleOpenSablonByDosyaAdi('birim-fiyat-teklif-mektubu', firma)
         }}
         onEkapSorgula={(firma) => {
-          handleOpenEkapSorgu(firma);
+          handleOpenEkapSorgu(firma)
         }}
         onFirmaEkle={async (firma) => {
           if (handleAddSingleFirm) {
-            handleAddSingleFirm(firma);
+            handleAddSingleFirm(firma)
           }
         }}
         onFirmaCikar={(firma) => {
           if (handleRemoveFirm) {
-            const targetId = (firma.temin_firma_id as number) || firma.id;
-            handleRemoveFirm(targetId);
+            const targetId = (firma.temin_firma_id as number) || firma.id
+            handleRemoveFirm(targetId)
           }
         }}
       />
@@ -99,8 +97,8 @@ export function Step1IsteklilerVeDagitim({
         <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
           <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
           <span>
-            Firmaları ekleyip mektupları dağıttıktan sonra toplanan fiyatları
-            girmek için sonraki adıma geçin.
+            Firmaları ekleyip mektupları dağıttıktan sonra toplanan fiyatları girmek için sonraki
+            adıma geçin.
           </span>
         </div>
         <button
@@ -113,5 +111,5 @@ export function Step1IsteklilerVeDagitim({
         </button>
       </div>
     </div>
-  );
+  )
 }

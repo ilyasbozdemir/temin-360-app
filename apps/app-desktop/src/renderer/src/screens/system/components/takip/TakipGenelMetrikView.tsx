@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "@tanstack/react-router";
+import React from 'react'
+import { Link } from '@tanstack/react-router'
 import {
   Building,
   CheckCircle2,
@@ -7,17 +7,17 @@ import {
   ClipboardList,
   Clock,
   FileCheck,
-  Layers,
-} from "lucide-react";
-import { Button } from "../../../../components/ui/Button";
+  Layers
+} from 'lucide-react'
+import { Button } from '../../../../components/ui/Button'
 
 interface TakipGenelMetrikViewProps {
-  dosyalar: any[];
-  allBelgeler: any[];
-  stages: any[];
-  dbAsamalar: any[];
-  formatCurrency: (val: number) => string;
-  setActiveDosyaId: (id: number) => void;
+  dosyalar: any[]
+  allBelgeler: any[]
+  stages: any[]
+  dbAsamalar: any[]
+  formatCurrency: (val: number) => string
+  setActiveDosyaId: (id: number) => void
 }
 
 export function TakipGenelMetrikView({
@@ -26,7 +26,7 @@ export function TakipGenelMetrikView({
   stages,
   dbAsamalar,
   formatCurrency,
-  setActiveDosyaId,
+  setActiveDosyaId
 }: TakipGenelMetrikViewProps): React.JSX.Element {
   return (
     <div className="flex flex-col gap-6 max-w-[1600px] mx-auto my-6 w-full">
@@ -39,9 +39,8 @@ export function TakipGenelMetrikView({
             Takip Edilecek Aktif Dosya Seçilmedi
           </h2>
           <p className="text-xs text-slate-500 max-w-md mx-auto mt-2 leading-relaxed">
-            Süreçlerin aşama aşama takibini ve evrak kontrolünü görmek için
-            listeden bir dosya seçerek aktif hale getirin veya aşağıdaki genel
-            durumu inceleyin.
+            Süreçlerin aşama aşama takibini ve evrak kontrolünü görmek için listeden bir dosya
+            seçerek aktif hale getirin veya aşağıdaki genel durumu inceleyin.
           </p>
         </div>
         <Link to="/dosyalar">
@@ -79,9 +78,7 @@ export function TakipGenelMetrikView({
               <p className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">
                 {allBelgeler.filter((b) => !b.is_signed).length}
               </p>
-              <p className="text-[10px] text-slate-500 mt-0.5">
-                İmza Bekleyen Belge
-              </p>
+              <p className="text-[10px] text-slate-500 mt-0.5">İmza Bekleyen Belge</p>
             </div>
 
             {/* İmzalanan Belge */}
@@ -94,9 +91,7 @@ export function TakipGenelMetrikView({
               <p className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">
                 {allBelgeler.filter((b) => b.is_signed).length}
               </p>
-              <p className="text-[10px] text-slate-500 mt-0.5">
-                İmzalanan Belge
-              </p>
+              <p className="text-[10px] text-slate-500 mt-0.5">İmzalanan Belge</p>
             </div>
 
             {/* Toplam Yaklaşık Maliyet */}
@@ -107,16 +102,9 @@ export function TakipGenelMetrikView({
                 </div>
               </div>
               <p className="text-lg font-extrabold text-slate-800 dark:text-slate-100">
-                {formatCurrency(
-                  dosyalar.reduce(
-                    (sum, d) => sum + (d.yaklasik_maliyet || 0),
-                    0,
-                  ),
-                )}
+                {formatCurrency(dosyalar.reduce((sum, d) => sum + (d.yaklasik_maliyet || 0), 0))}
               </p>
-              <p className="text-[10px] text-slate-500 mt-0.5">
-                Toplam Yaklaşık Maliyet
-              </p>
+              <p className="text-[10px] text-slate-500 mt-0.5">Toplam Yaklaşık Maliyet</p>
             </div>
           </div>
 
@@ -136,11 +124,9 @@ export function TakipGenelMetrikView({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {stages.map((asama) => {
                 const count = dosyalar.filter(
-                  (d) => (d.durum_asama_id || 1) === asama.asama_sira,
-                ).length;
-                const pct = dosyalar.length > 0
-                  ? (count / dosyalar.length) * 100
-                  : 0;
+                  (d) => (d.durum_asama_id || 1) === asama.asama_sira
+                ).length
+                const pct = dosyalar.length > 0 ? (count / dosyalar.length) * 100 : 0
                 return (
                   <div
                     key={asama.asama_sira}
@@ -168,7 +154,7 @@ export function TakipGenelMetrikView({
                       </div>
                     </div>
                   </div>
-                );
+                )
               })}
             </div>
           </div>
@@ -188,9 +174,9 @@ export function TakipGenelMetrikView({
             <div className="flex flex-col gap-2">
               {dosyalar.slice(0, 5).map((dosya) => {
                 const stageInfo = dbAsamalar.find(
-                  (a) => a.asama_sira === (dosya.durum_asama_id || 1),
-                );
-                const stageName = stageInfo?.asama_adi || "Süreç Başlangıcı";
+                  (a) => a.asama_sira === (dosya.durum_asama_id || 1)
+                )
+                const stageName = stageInfo?.asama_adi || 'Süreç Başlangıcı'
 
                 return (
                   <div
@@ -204,7 +190,7 @@ export function TakipGenelMetrikView({
                       </div>
                       <div className="flex flex-col text-left">
                         <span className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors line-clamp-1">
-                          {dosya.konu || "İsimsiz Temin"}
+                          {dosya.konu || 'İsimsiz Temin'}
                         </span>
                         <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-2">
                           <span className="font-mono bg-slate-200/50 dark:bg-slate-700/50 px-1 rounded">
@@ -213,9 +199,7 @@ export function TakipGenelMetrikView({
                           <span>•</span>
                           <span>{dosya.tur} Alımı</span>
                           <span>•</span>
-                          <span>
-                            {formatCurrency(dosya.yaklasik_maliyet || 0)}
-                          </span>
+                          <span>{formatCurrency(dosya.yaklasik_maliyet || 0)}</span>
                         </span>
                       </div>
                     </div>
@@ -226,12 +210,12 @@ export function TakipGenelMetrikView({
                       <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors" />
                     </div>
                   </div>
-                );
+                )
               })}
             </div>
           </div>
         </>
       )}
     </div>
-  );
+  )
 }

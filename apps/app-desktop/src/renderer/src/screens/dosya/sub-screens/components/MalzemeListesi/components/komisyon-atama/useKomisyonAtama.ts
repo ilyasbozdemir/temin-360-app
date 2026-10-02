@@ -408,12 +408,7 @@ export function useKomisyonAtama({
         await (window as any).electron.ipcRenderer.invoke(
           'db:run',
           `INSERT INTO DATA_TeminKomisyonHistory (temin_dosya_id, komisyon_turu, islem_turu, snapshot_data) VALUES (?, ?, ?, ?)`,
-          [
-            activeDosyaId,
-            komTitle,
-            'Kadro Ataması / Güncelleme',
-            JSON.stringify(snapshotMembers)
-          ]
+          [activeDosyaId, komTitle, 'Kadro Ataması / Güncelleme', JSON.stringify(snapshotMembers)]
         )
       } catch (histErr) {
         console.warn('DATA_TeminKomisyonHistory kaydedilirken hata:', histErr)
@@ -562,13 +557,9 @@ export function useKomisyonAtama({
 
   const handleRowFieldChange = (sira: number, field: keyof KomisyonRow, value: any) => {
     if (activeTab === 'yaklasik_maliyet') {
-      setMaliyetRows((prev) =>
-        prev.map((r) => (r.sira === sira ? { ...r, [field]: value } : r))
-      )
+      setMaliyetRows((prev) => prev.map((r) => (r.sira === sira ? { ...r, [field]: value } : r)))
     } else {
-      setMuayeneRows((prev) =>
-        prev.map((r) => (r.sira === sira ? { ...r, [field]: value } : r))
-      )
+      setMuayeneRows((prev) => prev.map((r) => (r.sira === sira ? { ...r, [field]: value } : r)))
     }
   }
 
@@ -607,15 +598,11 @@ export function useKomisyonAtama({
   const handleRemoveRow = (sira: number) => {
     if (activeTab === 'yaklasik_maliyet') {
       setMaliyetRows((prev) =>
-        prev
-          .filter((r) => r.sira !== sira)
-          .map((r, idx) => ({ ...r, sira: idx + 1 }))
+        prev.filter((r) => r.sira !== sira).map((r, idx) => ({ ...r, sira: idx + 1 }))
       )
     } else {
       setMuayeneRows((prev) =>
-        prev
-          .filter((r) => r.sira !== sira)
-          .map((r, idx) => ({ ...r, sira: idx + 1 }))
+        prev.filter((r) => r.sira !== sira).map((r, idx) => ({ ...r, sira: idx + 1 }))
       )
     }
   }

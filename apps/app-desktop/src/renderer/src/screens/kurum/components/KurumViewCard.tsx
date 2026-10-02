@@ -52,24 +52,16 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
       : storeSettings.institutionLogo || data.logo_kurum || null
 
   const effectiveLogoLeft =
-    propLogoLeft !== undefined
-      ? propLogoLeft
-      : storeSettings.logoLeft || data.logo_sol || null
+    propLogoLeft !== undefined ? propLogoLeft : storeSettings.logoLeft || data.logo_sol || null
 
   const effectiveLogoRight =
-    propLogoRight !== undefined
-      ? propLogoRight
-      : storeSettings.logoRight || data.logo_sag || null
+    propLogoRight !== undefined ? propLogoRight : storeSettings.logoRight || data.logo_sag || null
 
   const effectiveShowLogoLeft =
-    propShowLogoLeft !== undefined
-      ? propShowLogoLeft
-      : storeSettings.showLogoLeft !== false
+    propShowLogoLeft !== undefined ? propShowLogoLeft : storeSettings.showLogoLeft !== false
 
   const effectiveShowLogoRight =
-    propShowLogoRight !== undefined
-      ? propShowLogoRight
-      : storeSettings.showLogoRight !== false
+    propShowLogoRight !== undefined ? propShowLogoRight : storeSettings.showLogoRight !== false
 
   const [copiedField, setCopiedField] = useState<string | null>(null)
 
@@ -105,7 +97,7 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(59,130,246,0.25),transparent_60%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(147,51,234,0.2),transparent_50%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_90%,rgba(16,185,129,0.15),transparent_60%)]" />
-          
+
           {/* Subtle Grid Watermark Overlay */}
           <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#ffffff15_1px,transparent_1px),linear-gradient(to_bottom,#ffffff15_1px,transparent_1px)] bg-[size:24px_24px]" />
 
@@ -158,7 +150,10 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
                     <Building2 className="w-10 h-10" />
                   </div>
                 )}
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-slate-900 flex items-center justify-center" title="Profil Aktif">
+                <div
+                  className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-slate-900 flex items-center justify-center"
+                  title="Profil Aktif"
+                >
                   <Check className="w-3 h-3 text-white stroke-[3]" />
                 </div>
               </div>
@@ -208,7 +203,11 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
                   title="Resmi Belge Sol Logosu"
                 >
                   {effectiveLogoLeft ? (
-                    <img src={effectiveLogoLeft} alt="Sol Logo" className="w-full h-full object-contain" />
+                    <img
+                      src={effectiveLogoLeft}
+                      alt="Sol Logo"
+                      className="w-full h-full object-contain"
+                    />
                   ) : (
                     <ImageIcon className="w-4 h-4 text-slate-500" />
                   )}
@@ -229,7 +228,11 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
                   title="Resmi Belge Sağ Logosu (Bakanlık)"
                 >
                   {effectiveLogoRight ? (
-                    <img src={effectiveLogoRight} alt="Sağ Logo" className="w-full h-full object-contain" />
+                    <img
+                      src={effectiveLogoRight}
+                      alt="Sağ Logo"
+                      className="w-full h-full object-contain"
+                    />
                   ) : (
                     <ImageIcon className="w-4 h-4 text-slate-500" />
                   )}
@@ -259,7 +262,8 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
                 Resmi Evrak Anteti & Canlı Başlık Görünümü
               </h3>
               <p className="text-[11px] text-slate-400">
-                Resmi yazışma, onay belgesi ve doğrudan temin çıktılarında görünecek üst antet düzeni.
+                Resmi yazışma, onay belgesi ve doğrudan temin çıktılarında görünecek üst antet
+                düzeni.
               </p>
             </div>
           </div>
@@ -273,7 +277,11 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
           {/* Left Logo Slot */}
           <div className="w-20 sm:w-24 h-16 flex items-center justify-center shrink-0">
             {effectiveShowLogoLeft && effectiveLogoLeft ? (
-              <img src={effectiveLogoLeft} alt="Sol Logo" className="max-h-16 max-w-full object-contain" />
+              <img
+                src={effectiveLogoLeft}
+                alt="Sol Logo"
+                className="max-h-16 max-w-full object-contain"
+              />
             ) : (
               <div className="w-full h-full rounded-lg border border-dashed border-slate-300 dark:border-slate-750 flex flex-col items-center justify-center text-[10px] text-slate-400 p-1 text-center">
                 <span>{effectiveShowLogoLeft ? 'Sol Logo Yok' : 'Sol Kapalı'}</span>
@@ -302,7 +310,11 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
           {/* Right Logo Slot */}
           <div className="w-20 sm:w-24 h-16 flex items-center justify-center shrink-0">
             {effectiveShowLogoRight && effectiveLogoRight ? (
-              <img src={effectiveLogoRight} alt="Sağ Logo" className="max-h-16 max-w-full object-contain" />
+              <img
+                src={effectiveLogoRight}
+                alt="Sağ Logo"
+                className="max-h-16 max-w-full object-contain"
+              />
             ) : (
               <div className="w-full h-full rounded-lg border border-dashed border-slate-300 dark:border-slate-750 flex flex-col items-center justify-center text-[10px] text-slate-400 p-1 text-center">
                 <span>{effectiveShowLogoRight ? 'Sağ Logo Yok' : 'Sağ Kapalı'}</span>
@@ -317,16 +329,24 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 flex items-center gap-3">
             <div className="w-12 h-12 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-1 shrink-0 overflow-hidden shadow-xs">
               {effectiveLogoLeft ? (
-                <img src={effectiveLogoLeft} alt="Sol Logo" className="max-h-full max-w-full object-contain" />
+                <img
+                  src={effectiveLogoLeft}
+                  alt="Sol Logo"
+                  className="max-h-full max-w-full object-contain"
+                />
               ) : (
                 <ImageIcon className="w-5 h-5 text-slate-400" />
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-[11px] font-bold text-slate-850 dark:text-slate-200 truncate">Sol Logo (Kurum)</div>
+              <div className="text-[11px] font-bold text-slate-850 dark:text-slate-200 truncate">
+                Sol Logo (Kurum)
+              </div>
               <div className="text-[10px] text-slate-400">Belge Sol Üst</div>
               <div className="mt-1">
-                <span className={`inline-block text-[9px] font-bold px-1.5 py-0.5 rounded ${effectiveShowLogoLeft ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}>
+                <span
+                  className={`inline-block text-[9px] font-bold px-1.5 py-0.5 rounded ${effectiveShowLogoLeft ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}
+                >
                   {effectiveShowLogoLeft ? 'Belgelerde Aktif' : 'Belgelerde Pasif'}
                 </span>
               </div>
@@ -337,13 +357,19 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 flex items-center gap-3">
             <div className="w-12 h-12 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-1 shrink-0 overflow-hidden shadow-xs">
               {effectiveInstitutionLogo ? (
-                <img src={effectiveInstitutionLogo} alt="Uygulama Logosu" className="max-h-full max-w-full object-contain" />
+                <img
+                  src={effectiveInstitutionLogo}
+                  alt="Uygulama Logosu"
+                  className="max-h-full max-w-full object-contain"
+                />
               ) : (
                 <Building2 className="w-5 h-5 text-blue-500" />
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-[11px] font-bold text-slate-850 dark:text-slate-200 truncate">Uygulama Logosu</div>
+              <div className="text-[11px] font-bold text-slate-850 dark:text-slate-200 truncate">
+                Uygulama Logosu
+              </div>
               <div className="text-[10px] text-slate-400">Giriş & Menü Arması</div>
               <div className="mt-1">
                 <span className="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded text-blue-600 bg-blue-50 dark:bg-blue-950/60 dark:text-blue-300">
@@ -357,16 +383,24 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 flex items-center gap-3">
             <div className="w-12 h-12 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-1 shrink-0 overflow-hidden shadow-xs">
               {effectiveLogoRight ? (
-                <img src={effectiveLogoRight} alt="Sağ Logo" className="max-h-full max-w-full object-contain" />
+                <img
+                  src={effectiveLogoRight}
+                  alt="Sağ Logo"
+                  className="max-h-full max-w-full object-contain"
+                />
               ) : (
                 <ImageIcon className="w-5 h-5 text-slate-400" />
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-[11px] font-bold text-slate-850 dark:text-slate-200 truncate">Sağ Logo (Bakanlık)</div>
+              <div className="text-[11px] font-bold text-slate-850 dark:text-slate-200 truncate">
+                Sağ Logo (Bakanlık)
+              </div>
               <div className="text-[10px] text-slate-400">Belge Sağ Üst</div>
               <div className="mt-1">
-                <span className={`inline-block text-[9px] font-bold px-1.5 py-0.5 rounded ${effectiveShowLogoRight ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}>
+                <span
+                  className={`inline-block text-[9px] font-bold px-1.5 py-0.5 rounded ${effectiveShowLogoRight ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}
+                >
                   {effectiveShowLogoRight ? 'Belgelerde Aktif' : 'Belgelerde Pasif'}
                 </span>
               </div>
@@ -423,9 +457,7 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
             <div className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850">
               <span className="text-slate-500 font-medium">22/d Limit Sınırı:</span>
               <span className="font-bold text-emerald-600 dark:text-emerald-400 text-right">
-                {data.limit_tipi === 'buyuksehir'
-                  ? 'Büyükşehir Sınırları'
-                  : 'Diğer İdareler'}
+                {data.limit_tipi === 'buyuksehir' ? 'Büyükşehir Sınırları' : 'Diğer İdareler'}
               </span>
             </div>
           </div>
@@ -593,4 +625,3 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
     </div>
   )
 }
-

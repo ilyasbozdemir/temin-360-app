@@ -26,7 +26,9 @@ export const AtamaGecmisiModal: React.FC<AtamaGecmisiModalProps> = ({
       isOpen={!!historyDosya}
       onClose={onClose}
       title={`Komisyon Atama Geçmişi (${historyDosya.dosya_no || `Dosya #${historyDosya.id}`})`}
-      description={historyDosya.is_tanimi || 'Bu dosya için geçmişte yapılmış komisyon kadrosu değişiklikleri.'}
+      description={
+        historyDosya.is_tanimi || 'Bu dosya için geçmişte yapılmış komisyon kadrosu değişiklikleri.'
+      }
       className="max-w-4xl"
     >
       <div className="space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar p-1">

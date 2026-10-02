@@ -168,80 +168,80 @@ export const DosyaManageHeader: React.FC<DosyaManageHeaderProps> = ({
               ref={menuContainerRef}
               className="fixed right-4 top-[52px] w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl z-[9999] overflow-hidden flex flex-col py-1 animate-in fade-in zoom-in-95 duration-150"
             >
-                {!isEdit && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onOpenKopyalaModal()
-                      setShowMoreMenu(false)
-                    }}
-                    className="px-4 py-2.5 text-left text-xs font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 flex items-center gap-2 cursor-pointer"
-                  >
-                    <Copy size={13} className="text-amber-500" />
-                    Mevcut Dosyalardan Kopyala
-                  </button>
-                )}
-
-                <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
-
+              {!isEdit && (
                 <button
                   type="button"
                   onClick={() => {
+                    onOpenKopyalaModal()
                     setShowMoreMenu(false)
-                    onAiFormValidation()
                   }}
-                  className="px-4 py-2.5 text-left text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 cursor-pointer"
+                  className="px-4 py-2.5 text-left text-xs font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 flex items-center gap-2 cursor-pointer"
                 >
-                  <Bot size={13} className="text-teal-500" />
-                  YZ — Hata ve Tutarsızlık Kontrolü
+                  <Copy size={13} className="text-amber-500" />
+                  Mevcut Dosyalardan Kopyala
                 </button>
+              )}
+
+              <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowMoreMenu(false)
+                  onAiFormValidation()
+                }}
+                className="px-4 py-2.5 text-left text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 cursor-pointer"
+              >
+                <Bot size={13} className="text-teal-500" />
+                YZ — Hata ve Tutarsızlık Kontrolü
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowMoreMenu(false)
+                  onAiFullFormGenerate()
+                }}
+                className="px-4 py-2.5 text-left text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 cursor-pointer"
+              >
+                <Sparkles size={13} className="text-indigo-500" />
+                YZ — Metinden Dosya Üret
+              </button>
+
+              <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
+
+              <button
+                type="button"
+                onClick={() => {
+                  onClearForm()
+                  setShowMoreMenu(false)
+                }}
+                className="px-4 py-2.5 text-left text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 cursor-pointer"
+              >
+                Formu Temizle
+              </button>
+
+              {import.meta.env.DEV && (
                 <button
                   type="button"
                   onClick={() => {
-                    setShowMoreMenu(false)
-                    onAiFullFormGenerate()
-                  }}
-                  className="px-4 py-2.5 text-left text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 cursor-pointer"
-                >
-                  <Sparkles size={13} className="text-indigo-500" />
-                  YZ — Metinden Dosya Üret
-                </button>
-
-                <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    onClearForm()
+                    onFillMockData()
                     setShowMoreMenu(false)
                   }}
-                  className="px-4 py-2.5 text-left text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 cursor-pointer"
+                  className="px-4 py-2.5 text-left text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 flex items-center gap-2 cursor-pointer"
                 >
-                  Formu Temizle
+                  Test Verisi Doldur
                 </button>
+              )}
 
-                {import.meta.env.DEV && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onFillMockData()
-                      setShowMoreMenu(false)
-                    }}
-                    className="px-4 py-2.5 text-left text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 flex items-center gap-2 cursor-pointer"
-                  >
-                    Test Verisi Doldur
-                  </button>
-                )}
+              <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
 
-                <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
-
-                <Link
-                  to="/dosyalar"
-                  className="px-4 py-2.5 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 cursor-pointer"
-                >
-                  İptal &amp; Listeye Dön
-                </Link>
-              </div>
+              <Link
+                to="/dosyalar"
+                className="px-4 py-2.5 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 cursor-pointer"
+              >
+                İptal &amp; Listeye Dön
+              </Link>
+            </div>
           )}
         </div>
 

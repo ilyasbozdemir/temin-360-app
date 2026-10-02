@@ -1,14 +1,5 @@
 import React, { useState } from 'react'
-import {
-  Calculator,
-  Plus,
-  Trash2,
-  Users,
-  Building,
-  TrendingUp,
-  FileCheck2,
-  AlertCircle
-} from 'lucide-react'
+import { Calculator, Plus, Users, Building, TrendingUp, UserPlus, FileSearch } from 'lucide-react'
 import {
   TasinmazBilgisi,
   KiymetTakdirKomisyonUyesi,
@@ -18,54 +9,35 @@ import {
 
 export function MuhammenBedelVeTakdirTab(): React.JSX.Element {
   const [tasinmaz, setTasinmaz] = useState<TasinmazBilgisi>({
-    il: 'Karaman',
-    ilce: 'Ermenek',
-    mahalleKoy: 'Meydan Mahallesi',
-    ada: '305',
-    parsel: '426',
-    yuzolcumuM2: 85.5,
-    cinsi: 'Dükkan / İşyeri (Bağımsız Bölüm No: 10)',
-    hisseOrani: 'Tam (1/1)',
-    mevcutDurumu: 'Boş',
-    adres: 'Sanayi Alanı 4. Blok No: 12 Ermenek'
+    il: '',
+    ilce: '',
+    mahalleKoy: '',
+    ada: '',
+    parsel: '',
+    yuzolcumuM2: 0,
+    cinsi: '',
+    hisseOrani: '',
+    mevcutDurumu: '',
+    adres: ''
   })
 
-  const [emsaller, setEmsaller] = useState<EmsalArastirma[]>([
-    {
-      id: '1',
-      kaynak: 'Ermenek Esnaf ve Sanatkarlar Odası Başkanlığı Fiyat Araştırması',
-      tarih: '2026-03-10',
-      metrekareFiyati: 14500,
-      aciklama: 'Bölgedeki emsal ticari işyeri m2 birim rayici 14.000 - 15.000 TL aralığında bildirilmiştir.'
-    },
-    {
-      id: '2',
-      kaynak: 'Meydan Mahallesi Muhtarlığı ve Bölge Emlak Değerlendirmesi',
-      tarih: '2026-03-12',
-      metrekareFiyati: 15000,
-      aciklama: 'Benzer nitelikteki sanayi alanı dükkan satışları baz alınmıştır.'
-    }
-  ])
+  const [emsaller, setEmsaller] = useState<EmsalArastirma[]>([])
 
-  const [komisyonUyeleri] = useState<KiymetTakdirKomisyonUyesi[]>([
-    { id: '1', adSoyad: 'Ahmet YILMAZ', unvan: 'Fen İşleri Müdürü', gorev: 'Baskan' },
-    { id: '2', adSoyad: 'Mehmet DEMİR', unvan: 'İnşaat Mühendisi', gorev: 'Uye' },
-    { id: '3', adSoyad: 'Ali KAYA', unvan: 'Emlak ve İstimlak Şefi', gorev: 'Uzman' }
-  ])
+  const [komisyonUyeleri, setKomisyonUyeleri] = useState<KiymetTakdirKomisyonUyesi[]>([])
 
   const [hesap, setHesap] = useState<MuhammenBedelHesabi>({
-    birimFiyatM2: 15000,
-    toplamAlanM2: 85.5,
-    hesaplananBedel: 1282500,
-    takdirEdilenMuhammenBedel: 1300000,
-    geciciTeminatOrani: 3, // %3
-    geciciTeminatTutari: 39000,
+    birimFiyatM2: 0,
+    toplamAlanM2: 0,
+    hesaplananBedel: 0,
+    takdirEdilenMuhammenBedel: 0,
+    geciciTeminatOrani: 3, // %3 yasal standart
+    geciciTeminatTutari: 0,
     kdvOrani: 20,
-    kararTarihi: '2026-03-15',
-    kararNo: '2026/08-KT'
+    kararTarihi: '',
+    kararNo: ''
   })
 
-  const handleBirimFiyatChange = (val: number) => {
+  const handleBirimFiyatChange = (val: number): void => {
     const calculated = val * (tasinmaz.yuzolcumuM2 || 0)
     const teminat = (hesap.takdirEdilenMuhammenBedel * hesap.geciciTeminatOrani) / 100
     setHesap((prev) => ({
@@ -76,7 +48,7 @@ export function MuhammenBedelVeTakdirTab(): React.JSX.Element {
     }))
   }
 
-  const handleTakdirBedelChange = (val: number) => {
+  const handleTakdirBedelChange = (val: number): void => {
     const teminat = (val * hesap.geciciTeminatOrani) / 100
     setHesap((prev) => ({
       ...prev,
@@ -85,7 +57,28 @@ export function MuhammenBedelVeTakdirTab(): React.JSX.Element {
     }))
   }
 
-  const formatMoney = (n: number) =>
+  const handleAddKomisyonUyesi = (): void => {
+    const yeniUye: KiymetTakdirKomisyonUyesi = {
+      id: String(Date.now()),
+      adSoyad: '',
+      unvan: '',
+      gorev: komisyonUyeleri.length === 0 ? 'Baskan' : 'Uye'
+    }
+    setKomisyonUyeleri((prev) => [...prev, yeniUye])
+  }
+
+  const handleAddEmsal = (): void => {
+    const yeniEmsal: EmsalArastirma = {
+      id: String(Date.now()),
+      kaynak: '',
+      tarih: new Date().toISOString().split('T')[0],
+      metrekareFiyati: 0,
+      aciklama: ''
+    }
+    setEmsaller((prev) => [...prev, yeniEmsal])
+  }
+
+  const formatMoney = (n: number): string =>
     n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
   return (
@@ -99,14 +92,23 @@ export function MuhammenBedelVeTakdirTab(): React.JSX.Element {
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 text-xs">
           <div>
-            <label className="text-[11px] font-semibold text-slate-500">İl / İlçe</label>
+            <label className="text-[11px] font-semibold text-slate-500">İl</label>
             <input
               type="text"
-              value={`${tasinmaz.il} / ${tasinmaz.ilce}`}
-              onChange={(e) => {
-                const parts = e.target.value.split('/')
-                setTasinmaz({ ...tasinmaz, il: parts[0]?.trim() || '', ilce: parts[1]?.trim() || '' })
-              }}
+              placeholder="İl giriniz..."
+              value={tasinmaz.il}
+              onChange={(e) => setTasinmaz({ ...tasinmaz, il: e.target.value })}
+              className="w-full mt-1 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
+            />
+          </div>
+
+          <div>
+            <label className="text-[11px] font-semibold text-slate-500">İlçe</label>
+            <input
+              type="text"
+              placeholder="İlçe giriniz..."
+              value={tasinmaz.ilce}
+              onChange={(e) => setTasinmaz({ ...tasinmaz, ilce: e.target.value })}
               className="w-full mt-1 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
             />
           </div>
@@ -115,6 +117,7 @@ export function MuhammenBedelVeTakdirTab(): React.JSX.Element {
             <label className="text-[11px] font-semibold text-slate-500">Mahalle / Köy</label>
             <input
               type="text"
+              placeholder="Mahalle veya köy..."
               value={tasinmaz.mahalleKoy}
               onChange={(e) => setTasinmaz({ ...tasinmaz, mahalleKoy: e.target.value })}
               className="w-full mt-1 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
@@ -145,7 +148,8 @@ export function MuhammenBedelVeTakdirTab(): React.JSX.Element {
             <label className="text-[11px] font-semibold text-slate-500">Yüzölçümü (m²)</label>
             <input
               type="number"
-              value={tasinmaz.yuzolcumuM2}
+              placeholder="0"
+              value={tasinmaz.yuzolcumuM2 || ''}
               onChange={(e) => {
                 const m2 = Number(e.target.value) || 0
                 setTasinmaz({ ...tasinmaz, yuzolcumuM2: m2 })
@@ -163,16 +167,29 @@ export function MuhammenBedelVeTakdirTab(): React.JSX.Element {
             <label className="text-[11px] font-semibold text-slate-500">Cinsi & Nitelik</label>
             <input
               type="text"
+              placeholder="Taşınmaz cinsi (Örn: Arsa, Dükkan, Tarla)..."
               value={tasinmaz.cinsi}
               onChange={(e) => setTasinmaz({ ...tasinmaz, cinsi: e.target.value })}
               className="w-full mt-1 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
             />
           </div>
 
-          <div className="md:col-span-2">
+          <div>
+            <label className="text-[11px] font-semibold text-slate-500">Hisse Oranı</label>
+            <input
+              type="text"
+              placeholder="Tam (1/1)..."
+              value={tasinmaz.hisseOrani}
+              onChange={(e) => setTasinmaz({ ...tasinmaz, hisseOrani: e.target.value })}
+              className="w-full mt-1 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
+            />
+          </div>
+
+          <div className="md:col-span-4">
             <label className="text-[11px] font-semibold text-slate-500">Adres / Konum</label>
             <input
               type="text"
+              placeholder="Açık adres / mevkii bilgisi..."
               value={tasinmaz.adres}
               onChange={(e) => setTasinmaz({ ...tasinmaz, adres: e.target.value })}
               className="w-full mt-1 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
@@ -192,34 +209,66 @@ export function MuhammenBedelVeTakdirTab(): React.JSX.Element {
             </h3>
             <button
               type="button"
+              onClick={handleAddKomisyonUyesi}
               className="px-2 py-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-lg border border-indigo-200 dark:border-indigo-800 transition-colors flex items-center gap-1 cursor-pointer"
             >
               <Plus className="w-3 h-3" /> Üye Ekle
             </button>
           </div>
 
-          <div className="space-y-2">
-            {komisyonUyeleri.map((u) => (
-              <div
-                key={u.id}
-                className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-850 border border-slate-200/60 dark:border-slate-800 rounded-lg text-xs"
-              >
-                <div>
-                  <div className="font-bold text-slate-800 dark:text-slate-200">{u.adSoyad}</div>
-                  <div className="text-[11px] text-slate-500">{u.unvan}</div>
-                </div>
-                <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    u.gorev === 'Baskan'
-                      ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
-                      : 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300'
-                  }`}
+          {komisyonUyeleri.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-6 px-4 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-slate-400">
+              <UserPlus className="w-7 h-7 mb-2 opacity-50" />
+              <p className="text-xs font-medium">Henüz komisyon üyesi atanmadı.</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                2886 sayılı kanuna uygun komisyon üyelerini eklemek için yukarıdaki butonu
+                kullanabilirsiniz.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {komisyonUyeleri.map((u, idx) => (
+                <div
+                  key={u.id}
+                  className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-850 border border-slate-200/60 dark:border-slate-800 rounded-lg text-xs"
                 >
-                  {u.gorev === 'Baskan' ? 'Komisyon Başkanı' : 'Komisyon Üyesi'}
-                </span>
-              </div>
-            ))}
-          </div>
+                  <div className="flex-1 grid grid-cols-2 gap-2 mr-2">
+                    <input
+                      type="text"
+                      placeholder="Ad Soyad"
+                      value={u.adSoyad}
+                      onChange={(e) => {
+                        const updated = [...komisyonUyeleri]
+                        updated[idx].adSoyad = e.target.value
+                        setKomisyonUyeleri(updated)
+                      }}
+                      className="px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Ünvan (Örn: Şube Müdürü)"
+                      value={u.unvan}
+                      onChange={(e) => {
+                        const updated = [...komisyonUyeleri]
+                        updated[idx].unvan = e.target.value
+                        setKomisyonUyeleri(updated)
+                      }}
+                      className="px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs"
+                    />
+                  </div>
+                  <span
+                    className={`text-[10px] font-bold px-2 py-1 rounded-md shrink-0 ${
+                      u.gorev === 'Baskan'
+                        ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
+                        : 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300'
+                    }`}
+                  >
+                    {u.gorev === 'Baskan' ? 'Başkan' : 'Üye'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Emsal ve Piyasa Araştırmaları */}
@@ -231,28 +280,72 @@ export function MuhammenBedelVeTakdirTab(): React.JSX.Element {
             </h3>
             <button
               type="button"
+              onClick={handleAddEmsal}
               className="px-2 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 rounded-lg border border-emerald-200 dark:border-emerald-800 transition-colors flex items-center gap-1 cursor-pointer"
             >
               <Plus className="w-3 h-3" /> Emsal Ekle
             </button>
           </div>
 
-          <div className="space-y-2">
-            {emsaller.map((e) => (
-              <div
-                key={e.id}
-                className="p-2.5 bg-slate-50 dark:bg-slate-850 border border-slate-200/60 dark:border-slate-800 rounded-lg text-xs"
-              >
-                <div className="flex items-center justify-between font-bold text-slate-800 dark:text-slate-200 mb-1">
-                  <span>{e.kaynak}</span>
-                  <span className="font-mono text-emerald-600 dark:text-emerald-400">
-                    ₺{formatMoney(e.metrekareFiyati)} / m²
-                  </span>
+          {emsaller.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-6 px-4 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-slate-400">
+              <FileSearch className="w-7 h-7 mb-2 opacity-50" />
+              <p className="text-xs font-medium">Henüz emsal rayiç araştırması eklenmedi.</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Bölgedeki emsal satış ve bilirkişi araştırmalarını girmek için yukarıdaki butonu
+                kullanabilirsiniz.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {emsaller.map((e, idx) => (
+                <div
+                  key={e.id}
+                  className="p-2.5 bg-slate-50 dark:bg-slate-850 border border-slate-200/60 dark:border-slate-800 rounded-lg text-xs"
+                >
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <input
+                      type="text"
+                      placeholder="Kaynak / Kurum adı..."
+                      value={e.kaynak}
+                      onChange={(evt) => {
+                        const updated = [...emsaller]
+                        updated[idx].kaynak = evt.target.value
+                        setEmsaller(updated)
+                      }}
+                      className="flex-1 px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs font-bold"
+                    />
+                    <div className="flex items-center gap-1 font-mono text-emerald-600 dark:text-emerald-400">
+                      <span>₺</span>
+                      <input
+                        type="number"
+                        placeholder="0"
+                        value={e.metrekareFiyati || ''}
+                        onChange={(evt) => {
+                          const updated = [...emsaller]
+                          updated[idx].metrekareFiyati = Number(evt.target.value) || 0
+                          setEmsaller(updated)
+                        }}
+                        className="w-24 px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs font-bold text-right"
+                      />
+                      <span className="text-[11px]">/ m²</span>
+                    </div>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Açıklama / tespit detayı..."
+                    value={e.aciklama}
+                    onChange={(evt) => {
+                      const updated = [...emsaller]
+                      updated[idx].aciklama = evt.target.value
+                      setEmsaller(updated)
+                    }}
+                    className="w-full px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-[11px] text-slate-600 dark:text-slate-300"
+                  />
                 </div>
-                <div className="text-[11px] text-slate-500 line-clamp-2">{e.aciklama}</div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -264,7 +357,7 @@ export function MuhammenBedelVeTakdirTab(): React.JSX.Element {
             Muhammen Bedel & İhale Katılım Teminatı Hesabı
           </h3>
           <span className="text-[11px] font-mono text-slate-500">
-            Karar No: {hesap.kararNo} ({hesap.kararTarihi})
+            {hesap.kararNo ? `Karar No: ${hesap.kararNo}` : 'Karar henüz oluşturulmadı'}
           </span>
         </div>
 
@@ -275,7 +368,8 @@ export function MuhammenBedelVeTakdirTab(): React.JSX.Element {
               <span className="text-slate-400 mr-1">₺</span>
               <input
                 type="number"
-                value={hesap.birimFiyatM2}
+                placeholder="0"
+                value={hesap.birimFiyatM2 || ''}
                 onChange={(e) => handleBirimFiyatChange(Number(e.target.value) || 0)}
                 className="w-full font-mono font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-hidden"
               />
@@ -284,11 +378,15 @@ export function MuhammenBedelVeTakdirTab(): React.JSX.Element {
           </div>
 
           <div className="p-3 bg-white/80 dark:bg-slate-900/80 rounded-xl border border-slate-200/80 dark:border-slate-800">
-            <span className="text-[11px] font-semibold text-slate-500">Hesaplanan Değer (m² x Rayiç)</span>
+            <span className="text-[11px] font-semibold text-slate-500">
+              Hesaplanan Değer (m² x Rayiç)
+            </span>
             <div className="mt-1 font-mono font-bold text-slate-700 dark:text-slate-200 text-sm">
               ₺{formatMoney(hesap.hesaplananBedel)}
             </div>
-            <span className="text-[10px] text-slate-400">{tasinmaz.yuzolcumuM2} m² alan karşılığı</span>
+            <span className="text-[10px] text-slate-400">
+              {tasinmaz.yuzolcumuM2} m² alan karşılığı
+            </span>
           </div>
 
           <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border-2 border-blue-500/80 shadow-xs">
@@ -299,7 +397,8 @@ export function MuhammenBedelVeTakdirTab(): React.JSX.Element {
               <span className="text-blue-600 font-bold mr-1">₺</span>
               <input
                 type="number"
-                value={hesap.takdirEdilenMuhammenBedel}
+                placeholder="0"
+                value={hesap.takdirEdilenMuhammenBedel || ''}
                 onChange={(e) => handleTakdirBedelChange(Number(e.target.value) || 0)}
                 className="w-full font-mono font-extrabold text-blue-700 dark:text-blue-300 text-sm bg-transparent focus:outline-hidden"
               />
@@ -314,7 +413,9 @@ export function MuhammenBedelVeTakdirTab(): React.JSX.Element {
             <div className="mt-1 font-mono font-extrabold text-emerald-800 dark:text-emerald-200 text-sm">
               ₺{formatMoney(hesap.geciciTeminatTutari)}
             </div>
-            <span className="text-[10px] text-emerald-600">İhaleye katılım için yatırılması zorunlu</span>
+            <span className="text-[10px] text-emerald-600">
+              İhaleye katılım için yatırılması zorunlu
+            </span>
           </div>
         </div>
       </div>

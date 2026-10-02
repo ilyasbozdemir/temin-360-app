@@ -46,11 +46,10 @@ export function useSiparisDocumentOpener({
         normalizeForMatch(sb.dosya_adi + sb.ad).includes('karar')
     )
     if (s) {
-      handleOpenPreviewForSablon(
-        s,
-        s.ad || 'Doğrudan Temin Onay Belgesi',
-        { ekler: sonucOnayEkler, ...sharedInitialData }
-      )
+      handleOpenPreviewForSablon(s, s.ad || 'Doğrudan Temin Onay Belgesi', {
+        ekler: sonucOnayEkler,
+        ...sharedInitialData
+      })
     } else {
       useGlobalDocumentPreviewStore.getState().openDocument({
         documentId: 'dogrudan-temin-onay-belgesi',
@@ -129,15 +128,9 @@ export function useSiparisDocumentOpener({
   }
 
   const handleOpenDavetMektubu = (): void => {
-    const s = stageSablons.find((sb) =>
-      normalizeForMatch(sb.dosya_adi + sb.ad).includes('davet')
-    )
+    const s = stageSablons.find((sb) => normalizeForMatch(sb.dosya_adi + sb.ad).includes('davet'))
     if (s) {
-      handleOpenPreviewForSablon(
-        s,
-        s.ad || 'Sözleşmeye Davet Mektubu',
-        sharedInitialData
-      )
+      handleOpenPreviewForSablon(s, s.ad || 'Sözleşmeye Davet Mektubu', sharedInitialData)
     } else {
       useGlobalDocumentPreviewStore.getState().openDocument({
         documentId: 'sozlesmeye-davet',
@@ -156,11 +149,7 @@ export function useSiparisDocumentOpener({
         !normalizeForMatch(sb.dosya_adi + sb.ad).includes('uzun')
     )
     if (s) {
-      handleOpenPreviewForSablon(
-        s,
-        s.ad || 'Doğrudan Temin Sözleşmesi',
-        sharedInitialData
-      )
+      handleOpenPreviewForSablon(s, s.ad || 'Doğrudan Temin Sözleşmesi', sharedInitialData)
     } else {
       useGlobalDocumentPreviewStore.getState().openDocument({
         documentId: 'dogrudan-temin-sozlesmesi',

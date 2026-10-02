@@ -35,4 +35,3 @@ export interface LoadPreviewDataResult {
   activeOrientation: 'portrait' | 'landscape'
   initialSnapshotJson: string
 }
-

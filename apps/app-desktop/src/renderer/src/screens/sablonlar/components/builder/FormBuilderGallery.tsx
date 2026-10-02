@@ -151,7 +151,9 @@ export const FormBuilderGallery: React.FC<FormBuilderGalleryProps> = ({
     }
   ]
 
-  const filterList = <T extends { label?: string; name?: string; desc?: string; description?: string }>(
+  const filterList = <
+    T extends { label?: string; name?: string; desc?: string; description?: string }
+  >(
     list: T[]
   ): T[] => {
     if (!toolboxSearch) return list
@@ -435,4 +437,3 @@ export const FormBuilderGallery: React.FC<FormBuilderGalleryProps> = ({
     </div>
   )
 }
-

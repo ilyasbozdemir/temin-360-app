@@ -84,7 +84,10 @@ export function PersonelCombobox({
   }, [isOpen])
 
   return (
-    <div ref={containerRef} className={`relative w-full ${isOpen ? 'z-50' : 'z-auto'} ${className}`}>
+    <div
+      ref={containerRef}
+      className={`relative w-full ${isOpen ? 'z-50' : 'z-auto'} ${className}`}
+    >
       {/* Trigger Button */}
       <div
         onClick={() => {

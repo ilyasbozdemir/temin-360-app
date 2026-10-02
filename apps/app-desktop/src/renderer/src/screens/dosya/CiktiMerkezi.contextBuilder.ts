@@ -12,7 +12,6 @@ import { calculatePriceDifference } from '../../utils/priceDifference'
 
 export { formatDateString, getFileDate }
 
-
 export function buildDocumentContext(
   dosyaResData: any,
   kalemlerData: any[],
@@ -363,8 +362,7 @@ export function buildDocumentContext(
         : undefined,
     // TÜİK Yİ-ÜFE ve Fiyat Farkı Hesabı Alanları
     ...(() => {
-      const fiyatFarkiDayanagi =
-        dosyaResData?.fiyat_farki_dayanagi || 'Fiyat Farkı Ödenmeyecek'
+      const fiyatFarkiDayanagi = dosyaResData?.fiyat_farki_dayanagi || 'Fiyat Farkı Ödenmeyecek'
       const isFiyatFarkiVar =
         fiyatFarkiDayanagi &&
         fiyatFarkiDayanagi !== 'Fiyat Farkı Ödenmeyecek' &&
@@ -379,11 +377,8 @@ export function buildDocumentContext(
 
       if (isFiyatFarkiVar) {
         const rawTemelTarih =
-          dosyaResData?.temin_tarihi ||
-          dosyaResData?.dosya_acilis_tarihi ||
-          dosyaResData?.tarih
-        const rawGuncelTarih =
-          dosyaResData?.teslim_tarihi || new Date().toISOString()
+          dosyaResData?.temin_tarihi || dosyaResData?.dosya_acilis_tarihi || dosyaResData?.tarih
+        const rawGuncelTarih = dosyaResData?.teslim_tarihi || new Date().toISOString()
 
         const d0 = rawTemelTarih ? new Date(rawTemelTarih) : new Date()
         const dn = rawGuncelTarih ? new Date(rawGuncelTarih) : new Date()
@@ -422,7 +417,9 @@ export function buildDocumentContext(
         fiyatFarkiDahilHakedis: formatTR(fiyatFarkiDahilToplam),
         fiyatFarkiDahilHakedisYazi: paraYaziyaCevir(fiyatFarkiDahilToplam),
         fiyatFarkiKdv: formatTR(fiyatFarkiKdv),
-        fiyatFarkiDahilGenelToplam: formatTR(fiyatFarkiDahilToplam + (isFiyatFarkiVar ? fiyatFarkiKdv + totalKdv : totalKdv))
+        fiyatFarkiDahilGenelToplam: formatTR(
+          fiyatFarkiDahilToplam + (isFiyatFarkiVar ? fiyatFarkiKdv + totalKdv : totalKdv)
+        )
       }
     })()
   }

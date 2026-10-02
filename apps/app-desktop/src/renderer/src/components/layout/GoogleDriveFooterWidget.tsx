@@ -124,8 +124,7 @@ export function GoogleDriveFooterWidget(): React.JSX.Element | null {
       const localTime = Math.max(localSyncTime, localFileTime)
 
       // Buluttaki dosya ID'si son yüklediğimizden farklı ve zamanı yerelden en az 30 saniye yeniyse
-      const isCloudNewer =
-        latestCloudFile.id !== lastFileId && cloudTime > localTime + 30000
+      const isCloudNewer = latestCloudFile.id !== lastFileId && cloudTime > localTime + 30000
 
       if (isCloudNewer) {
         setHasNewerVersion(true)

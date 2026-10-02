@@ -1,69 +1,69 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { CreditCard, FileText, MoreHorizontal, PackageCheck, ShieldCheck } from "lucide-react";
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { CreditCard, FileText, MoreHorizontal, PackageCheck, ShieldCheck } from 'lucide-react'
 
 interface HeaderDigerActionsMenuProps {
-  isMal: boolean;
-  onOpenPreview?: (sablonKey: string) => void;
-  onOpenTifModal?: () => void;
+  isMal: boolean
+  onOpenPreview?: (sablonKey: string) => void
+  onOpenTifModal?: () => void
 }
 
 export function HeaderDigerActionsMenu({
   isMal,
   onOpenPreview,
-  onOpenTifModal,
+  onOpenTifModal
 }: HeaderDigerActionsMenuProps): React.JSX.Element {
-  const [open, setOpen] = useState(false);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
+  const [open, setOpen] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null)
 
   const updateCoords = useCallback(() => {
     if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      const menuWidth = 240;
-      let left = rect.right - menuWidth;
-      if (left < 10) left = 10;
-      let top = rect.bottom + 4;
+      const rect = buttonRef.current.getBoundingClientRect()
+      const menuWidth = 240
+      let left = rect.right - menuWidth
+      if (left < 10) left = 10
+      let top = rect.bottom + 4
       if (top + 260 > window.innerHeight) {
-        top = Math.max(10, rect.top - 260 - 4);
+        top = Math.max(10, rect.top - 260 - 4)
       }
-      setCoords({ top, left });
+      setCoords({ top, left })
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    if (!open) return undefined;
-    updateCoords();
-    window.addEventListener("resize", updateCoords);
-    window.addEventListener("scroll", updateCoords, true);
+    if (!open) return undefined
+    updateCoords()
+    window.addEventListener('resize', updateCoords)
+    window.addEventListener('scroll', updateCoords, true)
     return () => {
-      window.removeEventListener("resize", updateCoords);
-      window.removeEventListener("scroll", updateCoords, true);
-    };
-  }, [open, updateCoords]);
+      window.removeEventListener('resize', updateCoords)
+      window.removeEventListener('scroll', updateCoords, true)
+    }
+  }, [open, updateCoords])
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) return
     const handler = (e: MouseEvent): void => {
-      const target = e.target as Node;
+      const target = e.target as Node
       if (
         buttonRef.current &&
         !buttonRef.current.contains(target) &&
         menuRef.current &&
         !menuRef.current.contains(target)
       ) {
-        setOpen(false);
+        setOpen(false)
       }
-    };
-    const handleClear = (): void => setOpen(false);
-    document.addEventListener("mousedown", handler);
-    window.addEventListener("app:clear-overlays", handleClear);
+    }
+    const handleClear = (): void => setOpen(false)
+    document.addEventListener('mousedown', handler)
+    window.addEventListener('app:clear-overlays', handleClear)
     return () => {
-      document.removeEventListener("mousedown", handler);
-      window.removeEventListener("app:clear-overlays", handleClear);
-    };
-  }, [open]);
+      document.removeEventListener('mousedown', handler)
+      window.removeEventListener('app:clear-overlays', handleClear)
+    }
+  }, [open])
 
   return (
     <>
@@ -91,8 +91,8 @@ export function HeaderDigerActionsMenu({
             <button
               type="button"
               onClick={() => {
-                setOpen(false);
-                onOpenPreview?.("muayene-kabul-komisyonu");
+                setOpen(false)
+                onOpenPreview?.('muayene-kabul-komisyonu')
               }}
               className="w-full px-3 py-2 text-left text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60 flex items-center gap-2 cursor-pointer"
             >
@@ -102,8 +102,8 @@ export function HeaderDigerActionsMenu({
             <button
               type="button"
               onClick={() => {
-                setOpen(false);
-                onOpenPreview?.("odeme-yazisi");
+                setOpen(false)
+                onOpenPreview?.('odeme-yazisi')
               }}
               className="w-full px-3 py-2 text-left text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60 flex items-center gap-2 cursor-pointer"
             >
@@ -113,8 +113,8 @@ export function HeaderDigerActionsMenu({
             <button
               type="button"
               onClick={() => {
-                setOpen(false);
-                onOpenPreview?.("odeme-emri-belgesi");
+                setOpen(false)
+                onOpenPreview?.('odeme-emri-belgesi')
               }}
               className="w-full px-3 py-2 text-left text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60 flex items-center gap-2 cursor-pointer"
             >
@@ -128,8 +128,8 @@ export function HeaderDigerActionsMenu({
                 <button
                   type="button"
                   onClick={() => {
-                    setOpen(false);
-                    onOpenTifModal?.();
+                    setOpen(false)
+                    onOpenTifModal?.()
                   }}
                   className="w-full px-3 py-2 text-left text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 flex items-center gap-2 cursor-pointer"
                 >
@@ -139,8 +139,8 @@ export function HeaderDigerActionsMenu({
               </>
             )}
           </div>,
-          document.body,
+          document.body
         )}
     </>
-  );
+  )
 }

@@ -2,16 +2,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useWorkspaceStore } from '../../store/workspaceStore'
 
 const fetchAllSettings = async (): Promise<Record<string, string>> => {
-  const res = await window.electron.ipcRenderer.invoke(
-    'db:query',
-    'SELECT key, value FROM settings'
-  )
-  if (res.success && res.data) {
-    const settingsObj: Record<string, string> = {}
-    res.data.forEach((row: { key: string; value: string }) => {
-      settingsObj[row.key] = row.value
-    })
-    return settingsObj
+  const res = await window.electron.ipcRenderer.invoke('db:get-settings')
+  if (res && typeof res === 'object') {
+    return res as Record<string, string>
   }
   return {}
 }
@@ -37,11 +30,7 @@ export function useAyarlarHooks(): AyarlarHooksReturn {
 
   const updateSettingMutation = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: string }) => {
-      const res = await window.electron.ipcRenderer.invoke(
-        'db:run',
-        'INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)',
-        [key, value]
-      )
+      const res = await window.electron.ipcRenderer.invoke('db:save-settings', { [key]: value })
       if (!res.success) throw new Error(res.error)
       return res
     },

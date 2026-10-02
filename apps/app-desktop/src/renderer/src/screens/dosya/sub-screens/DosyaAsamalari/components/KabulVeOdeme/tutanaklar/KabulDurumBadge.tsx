@@ -1,34 +1,31 @@
-import React from "react";
-import { AlertCircle, CheckCircle2, ShieldCheck } from "lucide-react";
+import React from 'react'
+import { AlertCircle, CheckCircle2, ShieldCheck } from 'lucide-react'
 
 interface KabulDurumBadgeProps {
-  durum?: string;
-  onaylandi?: boolean;
+  durum?: string
+  onaylandi?: boolean
 }
 
-export function KabulDurumBadge({
-  durum,
-  onaylandi,
-}: KabulDurumBadgeProps): React.JSX.Element {
-  const isApproved = onaylandi ?? true;
+export function KabulDurumBadge({ durum, onaylandi }: KabulDurumBadgeProps): React.JSX.Element {
+  const isApproved = onaylandi ?? true
   return (
     <div className="flex flex-col gap-1 items-start">
-      {durum === "kismi" && (
+      {durum === 'kismi' && (
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50">
           🔶 Kısmi Kabul
         </span>
       )}
-      {durum === "sartli" && (
+      {durum === 'sartli' && (
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50">
           ⚠️ Şartlı Kabul
         </span>
       )}
-      {durum === "red" && (
+      {durum === 'red' && (
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-800/50">
           ❌ Reddedildi
         </span>
       )}
-      {(durum === "kabul" || !durum) && (
+      {(durum === 'kabul' || !durum) && (
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50">
           <CheckCircle2 className="w-3 h-3" />
           <span>Kabul Edildi</span>
@@ -46,5 +43,5 @@ export function KabulDurumBadge({
         </span>
       )}
     </div>
-  );
+  )
 }

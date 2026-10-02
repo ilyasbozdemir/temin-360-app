@@ -26,11 +26,17 @@ interface Props {
 }
 
 export const STANDART_SUREC_BELGELERI = [
-  { label: 'Piyasa Fiyat Araştırması Tutanağı', desc: 'İsteklilerden toplanan tekliflerin özet tablosu' },
+  {
+    label: 'Piyasa Fiyat Araştırması Tutanağı',
+    desc: 'İsteklilerden toplanan tekliflerin özet tablosu'
+  },
   { label: 'Teklif Mektupları', desc: 'Firmalar tarafından sunulan kaşeli/imzalı teklifler' },
   { label: 'İhtiyaç Raporu', desc: 'Birim tarafından talep edilen ihtiyaç gerekçesi' },
   { label: 'Harcama Talimatı', desc: 'Harcama yetkilisinin doğrudan temin alım talimatı' },
-  { label: 'Yaklaşık Maliyet Hesap Cetveli', desc: 'Fiyat araştırması öncesi belirlenen tahmini maliyet' },
+  {
+    label: 'Yaklaşık Maliyet Hesap Cetveli',
+    desc: 'Fiyat araştırması öncesi belirlenen tahmini maliyet'
+  },
   { label: 'Teknik Şartname / Talep Yazısı', desc: 'Alınacak mal/hizmetin teknik özellikleri' },
   { label: 'Ödenek / Bütçe Uygunluk Belgesi', desc: 'Mali hizmetler ödenek teyit belgesi' }
 ]
@@ -87,9 +93,7 @@ export const Step2SonucOnay: React.FC<Props> = ({
   }
 
   // Standart dışı kullanıcı tarafından elle girilmiş ekler
-  const customEkler = ekler.filter(
-    (e) => !STANDART_SUREC_BELGELERI.some((s) => s.label === e)
-  )
+  const customEkler = ekler.filter((e) => !STANDART_SUREC_BELGELERI.some((s) => s.label === e))
 
   return (
     <div className="flex flex-col gap-4">
@@ -103,16 +107,26 @@ export const Step2SonucOnay: React.FC<Props> = ({
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               <div className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                <span className="text-[10px] text-slate-400 block font-bold">Uygun Görülen İstekli</span>
-                <strong className="text-slate-800 dark:text-slate-100">{kazananFirmaUnvan || 'Belirtilmedi'}</strong>
+                <span className="text-[10px] text-slate-400 block font-bold">
+                  Uygun Görülen İstekli
+                </span>
+                <strong className="text-slate-800 dark:text-slate-100">
+                  {kazananFirmaUnvan || 'Belirtilmedi'}
+                </strong>
               </div>
               <div className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                <span className="text-[10px] text-slate-400 block font-bold">Onaylanacak Tutar (KDV Hariç)</span>
-                <strong className="text-emerald-600 dark:text-emerald-400">{formatCurrency(firmaStats.teklifToplami)}</strong>
+                <span className="text-[10px] text-slate-400 block font-bold">
+                  Onaylanacak Tutar (KDV Hariç)
+                </span>
+                <strong className="text-emerald-600 dark:text-emerald-400">
+                  {formatCurrency(firmaStats.teklifToplami)}
+                </strong>
               </div>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-              Bu belgeler harcama yetkilisinin onayına sunularak alımın kesinleşmesini sağlar. Aşağıdaki listeden Sonuç Onay Belgesi altına eklenecek resmi dosya evraklarını seçebilirsiniz.
+              Bu belgeler harcama yetkilisinin onayına sunularak alımın kesinleşmesini sağlar.
+              Aşağıdaki listeden Sonuç Onay Belgesi altına eklenecek resmi dosya evraklarını
+              seçebilirsiniz.
             </p>
           </div>
 
@@ -186,7 +200,11 @@ export const Step2SonucOnay: React.FC<Props> = ({
                             : 'bg-slate-200 dark:bg-slate-800 text-slate-400'
                         )}
                       >
-                        {isSelected ? <CheckCircle2 className="w-3.5 h-3.5" /> : <FileText className="w-3 h-3" />}
+                        {isSelected ? (
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        ) : (
+                          <FileText className="w-3 h-3" />
+                        )}
                       </div>
                       <div className="min-w-0">
                         <span
@@ -223,7 +241,9 @@ export const Step2SonucOnay: React.FC<Props> = ({
             {/* Özel Ekler (Varsa) */}
             {customEkler.length > 0 && (
               <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <span className="text-[10.5px] font-bold text-slate-500">Özel Eklenen Diğer Belgeler:</span>
+                <span className="text-[10.5px] font-bold text-slate-500">
+                  Özel Eklenen Diğer Belgeler:
+                </span>
                 <div className="flex flex-wrap gap-1.5">
                   {customEkler.map((item, idx) => (
                     <span
@@ -282,7 +302,8 @@ export const Step2SonucOnay: React.FC<Props> = ({
                 Onay Belgeleri İşlemleri
               </span>
               <p className="text-[11px] text-emerald-700 dark:text-emerald-400 leading-relaxed">
-                Sonuç onay belgesini veya bütçe sorgusu belgesini doğrudan açarak yazdırabilir veya indirebilirsiniz.
+                Sonuç onay belgesini veya bütçe sorgusu belgesini doğrudan açarak yazdırabilir veya
+                indirebilirsiniz.
               </p>
             </div>
 
@@ -323,9 +344,7 @@ export const Step2SonucOnay: React.FC<Props> = ({
                 ))}
               </ol>
             ) : (
-              <span className="text-[11px] text-slate-400 italic">
-                Hiçbir ek seçilmedi.
-              </span>
+              <span className="text-[11px] text-slate-400 italic">Hiçbir ek seçilmedi.</span>
             )}
           </div>
         </div>

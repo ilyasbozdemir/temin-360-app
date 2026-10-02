@@ -1,17 +1,17 @@
 /* eslint-disable */
-import React from "react";
-import { useTakip } from "./components/takip/useTakip";
-import { TakipHeader } from "./components/takip/TakipHeader";
-import { TakipActiveDosyaSummary } from "./components/takip/TakipActiveDosyaSummary";
-import { TakipDosyaTarihlerWidget } from "./components/takip/TakipDosyaTarihlerWidget";
-import { TakipUretilenBelgelerWidget } from "./components/takip/TakipUretilenBelgelerWidget";
-import { TakipAsamaStepper } from "./components/takip/TakipAsamaStepper";
-import { TakipIsAkisiYonergesi } from "./components/takip/TakipIsAkisiYonergesi";
-import { TakipKalemlerVeFirmalarGrid } from "./components/takip/TakipKalemlerVeFirmalarGrid";
-import { TakipDosyaDetayBilgileri } from "./components/takip/TakipDosyaDetayBilgileri";
-import { TakipAsamaAciklamalari } from "./components/takip/TakipAsamaAciklamalari";
-import { TakipGenelMetrikView } from "./components/takip/TakipGenelMetrikView";
-import { DosyaNotlariWidget } from "../notlar/components/DosyaNotlariWidget";
+import React from 'react'
+import { useTakip } from './components/takip/useTakip'
+import { TakipHeader } from './components/takip/TakipHeader'
+import { TakipActiveDosyaSummary } from './components/takip/TakipActiveDosyaSummary'
+import { TakipDosyaTarihlerWidget } from './components/takip/TakipDosyaTarihlerWidget'
+import { TakipUretilenBelgelerWidget } from './components/takip/TakipUretilenBelgelerWidget'
+import { TakipAsamaStepper } from './components/takip/TakipAsamaStepper'
+import { TakipIsAkisiYonergesi } from './components/takip/TakipIsAkisiYonergesi'
+import { TakipKalemlerVeFirmalarGrid } from './components/takip/TakipKalemlerVeFirmalarGrid'
+import { TakipDosyaDetayBilgileri } from './components/takip/TakipDosyaDetayBilgileri'
+import { TakipAsamaAciklamalari } from './components/takip/TakipAsamaAciklamalari'
+import { TakipGenelMetrikView } from './components/takip/TakipGenelMetrikView'
+import { DosyaNotlariWidget } from '../notlar/components/DosyaNotlariWidget'
 
 export function TakipScreen(): React.JSX.Element {
   const {
@@ -49,16 +49,13 @@ export function TakipScreen(): React.JSX.Element {
     handleDelete,
     handleUpdateDosya,
     handleToggleSign,
-    formatCurrency,
-  } = useTakip();
+    formatCurrency
+  } = useTakip()
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto pb-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* HEADER SECTION */}
-      <TakipHeader
-        activeDosya={activeDosya}
-        onEditClick={handleEditDosya}
-      />
+      <TakipHeader activeDosya={activeDosya} onEditClick={handleEditDosya} />
 
       {activeDosya ? (
         <div className="space-y-6">
@@ -81,10 +78,7 @@ export function TakipScreen(): React.JSX.Element {
             {/* RIGHT COLUMN: NOTLAR, DATES/STATUS & SIGNED DOCUMENTS */}
             <div className="lg:col-span-4 space-y-6">
               {activeDosyaId && (
-                <DosyaNotlariWidget
-                  dosyaId={activeDosyaId}
-                  dosyaNo={activeDosya?.temin_no}
-                />
+                <DosyaNotlariWidget dosyaId={activeDosyaId} dosyaNo={activeDosya?.temin_no} />
               )}
 
               <TakipDosyaTarihlerWidget
@@ -123,10 +117,7 @@ export function TakipScreen(): React.JSX.Element {
 
             <TakipIsAkisiYonergesi />
 
-            <TakipKalemlerVeFirmalarGrid
-              kalemler={kalemler}
-              firmalar={firmalar}
-            />
+            <TakipKalemlerVeFirmalarGrid kalemler={kalemler} firmalar={firmalar} />
 
             <TakipDosyaDetayBilgileri
               activeDosya={activeDosya}
@@ -134,10 +125,7 @@ export function TakipScreen(): React.JSX.Element {
               onEditClick={handleEditDosya}
             />
 
-            <TakipAsamaAciklamalari
-              stages={stages}
-              currentAsamaSira={currentAsamaSira}
-            />
+            <TakipAsamaAciklamalari stages={stages} currentAsamaSira={currentAsamaSira} />
           </div>
         </div>
       ) : (
@@ -152,5 +140,5 @@ export function TakipScreen(): React.JSX.Element {
         />
       )}
     </div>
-  );
+  )
 }

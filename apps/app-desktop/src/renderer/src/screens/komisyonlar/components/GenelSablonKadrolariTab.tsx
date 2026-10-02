@@ -91,10 +91,7 @@ export const GenelSablonKadrolariTab: React.FC<GenelSablonKadrolariTabProps> = (
                     : 'bg-slate-200 dark:bg-slate-800'
                 }`}
               >
-                {
-                  komisyonlar.filter((k: any) => isKomisyonMatchingMode(k, 'dogrudan_temin'))
-                    .length
-                }
+                {komisyonlar.filter((k: any) => isKomisyonMatchingMode(k, 'dogrudan_temin')).length}
               </span>
             </button>
             <button

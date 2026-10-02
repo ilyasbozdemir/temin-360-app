@@ -106,7 +106,10 @@ export function useKomisyonOlustur({ isOpen, onClose, komisyonId }: UseKomisyonO
       if (membersRes.success && membersRes.data) {
         setUyeler(
           membersRes.data.map((m: any, idx: number) => ({
-            id: Number(m.id || 0) > 0 ? Number(m.id) : Date.now() + idx + Math.floor(Math.random() * 10000),
+            id:
+              Number(m.id || 0) > 0
+                ? Number(m.id)
+                : Date.now() + idx + Math.floor(Math.random() * 10000),
             unvan: m.gorev_ad || '',
             gorevId: m.gorev_id,
             personelId: m.personel_id || null,

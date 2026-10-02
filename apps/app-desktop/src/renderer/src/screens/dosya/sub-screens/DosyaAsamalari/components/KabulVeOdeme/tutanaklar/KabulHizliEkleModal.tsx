@@ -1,26 +1,25 @@
-import React, { useState } from "react";
-import { MessageSquareText, Plus, Receipt, Truck, X } from "lucide-react";
-import { bosKalem, MalKalemi, TutanakTipi } from "./types";
+import React, { useState } from 'react'
+import { MessageSquareText, Plus, Receipt, Truck, X } from 'lucide-react'
+import { bosKalem, MalKalemi, TutanakTipi } from './types'
 
 interface KabulHizliEkleModalProps {
-  formTipi: TutanakTipi | null;
-  onClose: () => void;
-  onSave: () => void;
-  effectiveFirma: string;
-  effectiveTeslimAlan: string;
-  effectiveTeslimYeri: string;
-  faturaNo?: string;
-  faturaTarihi?: string;
-  irsaliyeNo?: string;
-  irsaliyeTarihi?: string;
-  dosyaNo?: string;
-  tutanaklarLength: number;
+  formTipi: TutanakTipi | null
+  onClose: () => void
+  onSave: () => void
+  effectiveFirma: string
+  effectiveTeslimAlan: string
+  effectiveTeslimYeri: string
+  faturaNo?: string
+  faturaTarihi?: string
+  irsaliyeNo?: string
+  irsaliyeTarihi?: string
+  dosyaNo?: string
+  tutanaklarLength: number
 }
 
 const inputCls =
-  "w-full rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-400/40 transition-all";
-const labelCls =
-  "block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5";
+  'w-full rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-400/40 transition-all'
+const labelCls = 'block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5'
 
 export function KabulHizliEkleModal({
   formTipi,
@@ -29,35 +28,32 @@ export function KabulHizliEkleModal({
   effectiveFirma,
   effectiveTeslimAlan,
   effectiveTeslimYeri,
-  faturaNo = "",
-  faturaTarihi = "",
-  irsaliyeNo = "",
-  irsaliyeTarihi = "",
-  dosyaNo = "",
-  tutanaklarLength,
+  faturaNo = '',
+  faturaTarihi = '',
+  irsaliyeNo = '',
+  irsaliyeTarihi = '',
+  dosyaNo = '',
+  tutanaklarLength
 }: KabulHizliEkleModalProps): React.JSX.Element | null {
-  const [hata, setHata] = useState("");
+  const [hata, setHata] = useState('')
   const [form, setForm] = useState({
     tarih: new Date().toISOString().slice(0, 10),
     sayi:
       faturaNo ||
       dosyaNo ||
-      `KT-${new Date().getFullYear()}-${String(tutanaklarLength + 1).padStart(
-        3,
-        "0",
-      )}`,
+      `KT-${new Date().getFullYear()}-${String(tutanaklarLength + 1).padStart(3, '0')}`,
     teslimAlan: effectiveTeslimAlan,
-    teslimYeri: formTipi === "mal" ? effectiveTeslimYeri : "Hizmet İfa Yeri",
+    teslimYeri: formTipi === 'mal' ? effectiveTeslimYeri : 'Hizmet İfa Yeri',
     faturaTarihi: faturaTarihi || new Date().toISOString().slice(0, 10),
-    faturaNo: faturaNo || "",
+    faturaNo: faturaNo || '',
     irsaliyeTarihi: irsaliyeTarihi || new Date().toISOString().slice(0, 10),
-    irsaliyeNo: irsaliyeNo || "",
-    notlar: "",
-    hizmetAciklamasi: "",
-  });
-  const [kalemler, setKalemler] = useState<MalKalemi[]>([bosKalem(1)]);
+    irsaliyeNo: irsaliyeNo || '',
+    notlar: '',
+    hizmetAciklamasi: ''
+  })
+  const [kalemler, setKalemler] = useState<MalKalemi[]>([bosKalem(1)])
 
-  if (!formTipi) return null;
+  if (!formTipi) return null
 
   const kalemGuncelle = (id: number, alan: keyof MalKalemi, deger: string) => {
     setKalemler((ks) =>
@@ -65,41 +61,32 @@ export function KabulHizliEkleModal({
         k.id === id
           ? {
               ...k,
-              [alan]: ["miktari", "toplamTeslimAlinan", "kabulMiktari"].includes(
-                alan,
-              )
+              [alan]: ['miktari', 'toplamTeslimAlinan', 'kabulMiktari'].includes(alan)
                 ? Number(deger)
-                : deger,
+                : deger
             }
-          : k,
-      ),
-    );
-  };
+          : k
+      )
+    )
+  }
 
   const handleSubmit = () => {
-    if (
-      !form.tarih ||
-      !form.sayi ||
-      !form.teslimAlan.trim() ||
-      !form.teslimYeri.trim()
-    ) {
-      setHata("Tarih, sayı, teslim alan ve teslim yeri alanları zorunludur.");
-      return;
+    if (!form.tarih || !form.sayi || !form.teslimAlan.trim() || !form.teslimYeri.trim()) {
+      setHata('Tarih, sayı, teslim alan ve teslim yeri alanları zorunludur.')
+      return
     }
-    if (formTipi === "mal" && kalemler.some((k) => !k.malzemeAdi.trim())) {
-      setHata("Lütfen tüm malzeme satırları için malzeme adını doldurun.");
-      return;
+    if (formTipi === 'mal' && kalemler.some((k) => !k.malzemeAdi.trim())) {
+      setHata('Lütfen tüm malzeme satırları için malzeme adını doldurun.')
+      return
     }
-    if (formTipi === "hizmet" && !form.hizmetAciklamasi.trim()) {
-      setHata(
-        "Hizmet işleri kabul tutanağı için hizmet açıklaması zorunludur.",
-      );
-      return;
+    if (formTipi === 'hizmet' && !form.hizmetAciklamasi.trim()) {
+      setHata('Hizmet işleri kabul tutanağı için hizmet açıklaması zorunludur.')
+      return
     }
 
-    onSave();
-    onClose();
-  };
+    onSave()
+    onClose()
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
@@ -107,15 +94,13 @@ export function KabulHizliEkleModal({
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/60 dark:bg-slate-800/40">
           <div>
             <h4 className="text-base font-extrabold text-slate-900 dark:text-slate-100">
-              {formTipi === "mal"
-                ? "Mal Muayene Kabul ve Tespit Komisyonu Tutanağı"
-                : "Hizmet Muayene Kabul ve Tespit Komisyonu Tutanağı"}
+              {formTipi === 'mal'
+                ? 'Mal Muayene Kabul ve Tespit Komisyonu Tutanağı'
+                : 'Hizmet Muayene Kabul ve Tespit Komisyonu Tutanağı'}
             </h4>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Yüklenici:{" "}
-              <strong className="text-slate-700 dark:text-slate-200">
-                {effectiveFirma}
-              </strong>
+              Yüklenici:{' '}
+              <strong className="text-slate-700 dark:text-slate-200">{effectiveFirma}</strong>
             </p>
           </div>
           <button
@@ -158,9 +143,7 @@ export function KabulHizliEkleModal({
               <input
                 className={inputCls}
                 value={form.teslimAlan}
-                onChange={(e) =>
-                  setForm({ ...form, teslimAlan: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, teslimAlan: e.target.value })}
               />
             </div>
             <div>
@@ -168,12 +151,8 @@ export function KabulHizliEkleModal({
               <input
                 className={inputCls}
                 value={form.teslimYeri}
-                placeholder={
-                  formTipi === "mal" ? "Ambar / Depo" : "Hizmet İfa Yeri"
-                }
-                onChange={(e) =>
-                  setForm({ ...form, teslimYeri: e.target.value })
-                }
+                placeholder={formTipi === 'mal' ? 'Ambar / Depo' : 'Hizmet İfa Yeri'}
+                onChange={(e) => setForm({ ...form, teslimYeri: e.target.value })}
               />
             </div>
           </div>
@@ -189,9 +168,7 @@ export function KabulHizliEkleModal({
                 className={inputCls}
                 value={form.faturaNo}
                 placeholder="Örn: FAT-2026-001"
-                onChange={(e) =>
-                  setForm({ ...form, faturaNo: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, faturaNo: e.target.value })}
               />
             </div>
             <div>
@@ -200,9 +177,7 @@ export function KabulHizliEkleModal({
                 type="date"
                 className={inputCls}
                 value={form.faturaTarihi}
-                onChange={(e) =>
-                  setForm({ ...form, faturaTarihi: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, faturaTarihi: e.target.value })}
               />
             </div>
             <div>
@@ -214,9 +189,7 @@ export function KabulHizliEkleModal({
                 className={inputCls}
                 value={form.irsaliyeNo}
                 placeholder="Örn: IRS-2026-001"
-                onChange={(e) =>
-                  setForm({ ...form, irsaliyeNo: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, irsaliyeNo: e.target.value })}
               />
             </div>
             <div>
@@ -225,9 +198,7 @@ export function KabulHizliEkleModal({
                 type="date"
                 className={inputCls}
                 value={form.irsaliyeTarihi}
-                onChange={(e) =>
-                  setForm({ ...form, irsaliyeTarihi: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, irsaliyeTarihi: e.target.value })}
               />
             </div>
           </div>
@@ -246,46 +217,37 @@ export function KabulHizliEkleModal({
             />
           </div>
 
-          {formTipi === "hizmet" && (
+          {formTipi === 'hizmet' && (
             <div>
-              <label className={labelCls}>
-                Hizmet Açıklaması ve Muayene Notları
-              </label>
+              <label className={labelCls}>Hizmet Açıklaması ve Muayene Notları</label>
               <textarea
                 rows={3}
                 className={inputCls}
                 value={form.hizmetAciklamasi}
-                onChange={(e) =>
-                  setForm({ ...form, hizmetAciklamasi: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, hizmetAciklamasi: e.target.value })}
                 placeholder="İfa edilen hizmetin mevzuata ve sözleşme şartlarına uygunluğuna ilişkin muayene notları..."
               />
             </div>
           )}
 
-          {formTipi === "mal" && (
+          {formTipi === 'mal' && (
             <div>
-              <label className={labelCls}>
-                Teslim Alınan Malzeme Kalemleri
-              </label>
+              <label className={labelCls}>Teslim Alınan Malzeme Kalemleri</label>
               <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
                 <table className="w-full text-xs text-left">
                   <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider">
                     <tr>
                       {[
-                        "Sıra",
-                        "Malzeme Adı",
-                        "Özelliği",
-                        "Birimi",
-                        "Miktarı",
-                        "Teslim Alınan",
-                        "Kabul Miktarı",
-                        "",
+                        'Sıra',
+                        'Malzeme Adı',
+                        'Özelliği',
+                        'Birimi',
+                        'Miktarı',
+                        'Teslim Alınan',
+                        'Kabul Miktarı',
+                        ''
                       ].map((h) => (
-                        <th
-                          key={h}
-                          className="px-3 py-2.5 font-bold whitespace-nowrap"
-                        >
+                        <th key={h} className="px-3 py-2.5 font-bold whitespace-nowrap">
                           {h}
                         </th>
                       ))}
@@ -294,20 +256,12 @@ export function KabulHizliEkleModal({
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {kalemler.map((k, i) => (
                       <tr key={k.id}>
-                        <td className="px-3 py-2 text-slate-400 font-bold text-center">
-                          {i + 1}
-                        </td>
+                        <td className="px-3 py-2 text-slate-400 font-bold text-center">{i + 1}</td>
                         <td className="px-3 py-2 min-w-40">
                           <input
                             className={inputCls}
                             value={k.malzemeAdi}
-                            onChange={(e) =>
-                              kalemGuncelle(
-                                k.id,
-                                "malzemeAdi",
-                                e.target.value,
-                              )
-                            }
+                            onChange={(e) => kalemGuncelle(k.id, 'malzemeAdi', e.target.value)}
                             placeholder="Örn: A4 Fotokopi Kağıdı"
                           />
                         </td>
@@ -315,9 +269,7 @@ export function KabulHizliEkleModal({
                           <input
                             className={inputCls}
                             value={k.ozelligi}
-                            onChange={(e) =>
-                              kalemGuncelle(k.id, "ozelligi", e.target.value)
-                            }
+                            onChange={(e) => kalemGuncelle(k.id, 'ozelligi', e.target.value)}
                             placeholder="Örn: 80 gr/m² 500'lü"
                           />
                         </td>
@@ -325,9 +277,7 @@ export function KabulHizliEkleModal({
                           <input
                             className={inputCls}
                             value={k.birimi}
-                            onChange={(e) =>
-                              kalemGuncelle(k.id, "birimi", e.target.value)
-                            }
+                            onChange={(e) => kalemGuncelle(k.id, 'birimi', e.target.value)}
                           />
                         </td>
                         <td className="px-3 py-2 w-24">
@@ -336,9 +286,7 @@ export function KabulHizliEkleModal({
                             min={0}
                             className={inputCls}
                             value={k.miktari}
-                            onChange={(e) =>
-                              kalemGuncelle(k.id, "miktari", e.target.value)
-                            }
+                            onChange={(e) => kalemGuncelle(k.id, 'miktari', e.target.value)}
                           />
                         </td>
                         <td className="px-3 py-2 w-28">
@@ -348,11 +296,7 @@ export function KabulHizliEkleModal({
                             className={inputCls}
                             value={k.toplamTeslimAlinan}
                             onChange={(e) =>
-                              kalemGuncelle(
-                                k.id,
-                                "toplamTeslimAlinan",
-                                e.target.value,
-                              )
+                              kalemGuncelle(k.id, 'toplamTeslimAlinan', e.target.value)
                             }
                           />
                         </td>
@@ -362,24 +306,14 @@ export function KabulHizliEkleModal({
                             min={0}
                             className={inputCls}
                             value={k.kabulMiktari}
-                            onChange={(e) =>
-                              kalemGuncelle(
-                                k.id,
-                                "kabulMiktari",
-                                e.target.value,
-                              )
-                            }
+                            onChange={(e) => kalemGuncelle(k.id, 'kabulMiktari', e.target.value)}
                           />
                         </td>
                         <td className="px-3 py-2">
                           {kalemler.length > 1 && (
                             <button
                               type="button"
-                              onClick={() =>
-                                setKalemler((ks) =>
-                                  ks.filter((x) => x.id !== k.id),
-                                )
-                              }
+                              onClick={() => setKalemler((ks) => ks.filter((x) => x.id !== k.id))}
                               className="text-xs text-rose-600 dark:text-rose-400 hover:underline cursor-pointer"
                             >
                               Kaldır
@@ -394,10 +328,7 @@ export function KabulHizliEkleModal({
               <button
                 type="button"
                 onClick={() =>
-                  setKalemler((ks) => [
-                    ...ks,
-                    bosKalem(Math.max(...ks.map((x) => x.id)) + 1),
-                  ])
+                  setKalemler((ks) => [...ks, bosKalem(Math.max(...ks.map((x) => x.id)) + 1)])
                 }
                 className="mt-3 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer flex items-center gap-1"
               >
@@ -426,5 +357,5 @@ export function KabulHizliEkleModal({
         </div>
       </div>
     </div>
-  );
+  )
 }

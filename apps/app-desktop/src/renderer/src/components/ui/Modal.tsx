@@ -95,7 +95,12 @@ export function Modal({
         </div>
 
         {/* Content wrapped in Error Boundary */}
-        <div className={cn('p-6 overflow-y-auto max-h-[70vh] custom-scrollbar flex-1', contentClassName)}>
+        <div
+          className={cn(
+            'p-6 overflow-y-auto max-h-[70vh] custom-scrollbar flex-1',
+            contentClassName
+          )}
+        >
           <ModalErrorBoundary onClose={onClose} modalTitle={title}>
             {children}
           </ModalErrorBoundary>

@@ -47,7 +47,9 @@ export default function KomisyonlarScreen({
   const queryClient = useQueryClient()
 
   // Ana Sekme Değişimi: 'sablonlar' | 'dosya_komisyonlari'
-  const [activeMainTab, setActiveMainTab] = useState<'sablonlar' | 'dosya_komisyonlari'>('sablonlar')
+  const [activeMainTab, setActiveMainTab] = useState<'sablonlar' | 'dosya_komisyonlari'>(
+    'sablonlar'
+  )
 
   const [searchTerm, setSearchTerm] = useState('')
   const [dosyaKomisyonSearch, setDosyaKomisyonSearch] = useState('')
@@ -412,11 +414,13 @@ export default function KomisyonlarScreen({
     const matchIsTanimi = (d.is_tanimi || '').toLowerCase().includes(s)
     const matchPiyasa = d.piyasaMembers.some(
       (m: any) =>
-        (m.ad_soyad || '').toLowerCase().includes(s) || (m.gorev_adi || '').toLowerCase().includes(s)
+        (m.ad_soyad || '').toLowerCase().includes(s) ||
+        (m.gorev_adi || '').toLowerCase().includes(s)
     )
     const matchMuayene = d.muayeneMembers.some(
       (m: any) =>
-        (m.ad_soyad || '').toLowerCase().includes(s) || (m.gorev_adi || '').toLowerCase().includes(s)
+        (m.ad_soyad || '').toLowerCase().includes(s) ||
+        (m.gorev_adi || '').toLowerCase().includes(s)
     )
     return matchDosyaNo || matchIsTanimi || matchPiyasa || matchMuayene
   })

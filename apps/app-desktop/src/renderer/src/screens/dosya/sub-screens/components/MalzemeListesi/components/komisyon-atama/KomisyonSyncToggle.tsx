@@ -5,10 +5,7 @@ interface KomisyonSyncToggleProps {
   onChange: (checked: boolean) => void
 }
 
-export const KomisyonSyncToggle: React.FC<KomisyonSyncToggleProps> = ({
-  checked,
-  onChange
-}) => {
+export const KomisyonSyncToggle: React.FC<KomisyonSyncToggleProps> = ({ checked, onChange }) => {
   return (
     <div className="flex items-center justify-between p-2.5 bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 rounded-xl text-xs">
       <label className="flex items-center gap-2.5 text-slate-700 dark:text-slate-300 font-medium cursor-pointer select-none">

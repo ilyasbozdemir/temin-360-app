@@ -224,8 +224,8 @@ export const InspectorDataTab: React.FC<InspectorDataTabProps> = ({
             Sayfa Kesme Noktası
           </div>
           <p className="text-[11px] leading-relaxed text-amber-700 dark:text-amber-300">
-            Bu bileşenin yerleştiği noktada belge yazdırmada veya PDF üretiminde otomatik olarak yeni
-            sayfaya geçecektir.
+            Bu bileşenin yerleştiği noktada belge yazdırmada veya PDF üretiminde otomatik olarak
+            yeni sayfaya geçecektir.
           </p>
         </div>
       )}

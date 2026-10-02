@@ -151,7 +151,8 @@ export const SyncTab: React.FC = () => {
             Bulut Entegrasyonu ve Depolama Yönetimi
           </h2>
           <p className="text-xs text-slate-500">
-            Yerel verilerinizi Web Sunucusu, PocketBase, MinIO / S3 veya Google Drive ile senkronize edin.
+            Yerel verilerinizi Web Sunucusu, PocketBase, MinIO / S3 veya Google Drive ile senkronize
+            edin.
           </p>
         </div>
 
@@ -472,15 +473,17 @@ export const SyncTab: React.FC = () => {
           <div className="bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 rounded-2xl p-5 space-y-2">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold flex items-center gap-2">
-                <Zap className="w-5 h-5 text-amber-500" /> PocketBase Self-Hosted Backend Entegrasyonu
+                <Zap className="w-5 h-5 text-amber-500" /> PocketBase Self-Hosted Backend
+                Entegrasyonu
               </h3>
               <span className="text-[10px] font-mono font-bold bg-amber-500/20 px-2 py-0.5 rounded">
                 REST & Realtime Storage
               </span>
             </div>
             <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
-              PocketBase açık kaynaklı, SQLite tabanlı son derece hızlı ve hafif bir backend çözümüdür.
-              Çalışma alanınızı PocketBase REST API koleksiyonuna doğrudan aktarabilir ve saklayabilirsiniz.
+              PocketBase açık kaynaklı, SQLite tabanlı son derece hızlı ve hafif bir backend
+              çözümüdür. Çalışma alanınızı PocketBase REST API koleksiyonuna doğrudan aktarabilir ve
+              saklayabilirsiniz.
             </p>
           </div>
 
@@ -569,18 +572,21 @@ export const SyncTab: React.FC = () => {
                 <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
                   PocketBase Koleksiyonuna Aktar (Workspaces Push)
                 </h4>
-                <p className="text-xs text-slate-500">Aktif çalışma dosyasını PocketBase depolama alanına yazar</p>
+                <p className="text-xs text-slate-500">
+                  Aktif çalışma dosyasını PocketBase depolama alanına yazar
+                </p>
               </div>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Çalışma alanınızı PocketBase REST API üzerindeki `workspaces` koleksiyonuna güvenle yükler.
+              Çalışma alanınızı PocketBase REST API üzerindeki `workspaces` koleksiyonuna güvenle
+              yükler.
             </p>
             <Button
               onClick={() => pushPocketBase()}
               disabled={isPushing || !pocketbaseUrl}
               className="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-2 rounded-xl"
             >
-              {isPushing ? '⏳ PocketBase\'e Aktarılıyor...' : '🚀 Dosyayı PocketBase\'e Gönder'}
+              {isPushing ? "⏳ PocketBase'e Aktarılıyor..." : "🚀 Dosyayı PocketBase'e Gönder"}
             </Button>
           </div>
         </div>
@@ -592,15 +598,17 @@ export const SyncTab: React.FC = () => {
           <div className="bg-rose-500/10 border border-rose-500/20 text-rose-800 dark:text-rose-300 rounded-2xl p-5 space-y-2">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold flex items-center gap-2">
-                <HardDrive className="w-5 h-5 text-rose-500" /> MinIO / AWS S3 Uyumlu Nesne Depolama (Object Storage)
+                <HardDrive className="w-5 h-5 text-rose-500" /> MinIO / AWS S3 Uyumlu Nesne Depolama
+                (Object Storage)
               </h3>
               <span className="text-[10px] font-mono font-bold bg-rose-500/20 px-2 py-0.5 rounded">
                 S3 API Compatible
               </span>
             </div>
             <p className="text-xs text-rose-700 dark:text-rose-400 leading-relaxed">
-              MinIO, Amazon S3 mimarisiyle tam uyumlu yüksek performanslı nesne depolama sunucusudur.
-              Kurumsal ortamlarda kendi MinIO kümeniz veya S3 servisi üzerine (.dtal) yedeklerinizi aktarabilirsiniz.
+              MinIO, Amazon S3 mimarisiyle tam uyumlu yüksek performanslı nesne depolama
+              sunucusudur. Kurumsal ortamlarda kendi MinIO kümeniz veya S3 servisi üzerine (.dtal)
+              yedeklerinizi aktarabilirsiniz.
             </p>
           </div>
 
@@ -612,7 +620,8 @@ export const SyncTab: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                  MinIO / S3 Endpoint URL (Örn: http://localhost:9000 veya https://minio.kurum.gov.tr)
+                  MinIO / S3 Endpoint URL (Örn: http://localhost:9000 veya
+                  https://minio.kurum.gov.tr)
                 </label>
                 <Input
                   type="text"
@@ -738,7 +747,9 @@ export const SyncTab: React.FC = () => {
                 <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
                   MinIO / S3 Kovasına Gönder (Bucket Push)
                 </h4>
-                <p className="text-xs text-slate-500">Çalışma dosyanızı doğrudan S3 bucket nesnesi olarak yükler</p>
+                <p className="text-xs text-slate-500">
+                  Çalışma dosyanızı doğrudan S3 bucket nesnesi olarak yükler
+                </p>
               </div>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -856,8 +867,8 @@ export const SyncTab: React.FC = () => {
               )}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Çalışma dosyanızı her kapattığınızda veya uygulamadan çıktığınızda
-              uygulanacak varsayılan davranışı belirleyin.
+              Çalışma dosyanızı her kapattığınızda veya uygulamadan çıktığınızda uygulanacak
+              varsayılan davranışı belirleyin.
             </p>
           </div>
         </div>
@@ -885,8 +896,8 @@ export const SyncTab: React.FC = () => {
               </span>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-              Dosyayı kapatırken Drive, Sunucu, PocketBase, MinIO veya Yerel yedek seçeneklerinden istediklerinizi
-              seçmeniz için pencere açar.
+              Dosyayı kapatırken Drive, Sunucu, PocketBase, MinIO veya Yerel yedek seçeneklerinden
+              istediklerinizi seçmeniz için pencere açar.
             </p>
           </button>
 

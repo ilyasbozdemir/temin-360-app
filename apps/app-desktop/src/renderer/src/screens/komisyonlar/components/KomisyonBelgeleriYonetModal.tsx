@@ -379,7 +379,12 @@ export function KomisyonBelgeleriYonetModal({
 
         {/* Modal Alt Aksiyonlar */}
         <div className="pt-4 mt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
-          <Button type="button" variant="outline" onClick={onClose} disabled={saveMutation.isPending}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={saveMutation.isPending}
+          >
             İptal
           </Button>
 

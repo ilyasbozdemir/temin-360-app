@@ -160,7 +160,8 @@ function ButceDuzeyOnizleme({ kod }: { kod: string }): React.JSX.Element {
 }
 
 export default function ButceKodScreen(): React.JSX.Element {
-  const { butceKodList, isLoading, addButceKod, updateButceKod, deleteButceKod } = useButceKodHooks()
+  const { butceKodList, isLoading, addButceKod, updateButceKod, deleteButceKod } =
+    useButceKodHooks()
 
   const [search, setSearch] = useState('')
   const [selectedTab, setSelectedTab] = useState<
@@ -322,7 +323,8 @@ export default function ButceKodScreen(): React.JSX.Element {
               </span>
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Doğrudan temin ve ihale süreçlerinde kullanılan bütçe tertipleri, analitik harcama kalemleri ve muhasebe hesap kodları.
+              Doğrudan temin ve ihale süreçlerinde kullanılan bütçe tertipleri, analitik harcama
+              kalemleri ve muhasebe hesap kodları.
             </p>
           </div>
         </div>
@@ -458,7 +460,8 @@ export default function ButceKodScreen(): React.JSX.Element {
                       <AlertCircle className="w-8 h-8 text-slate-300 dark:text-slate-600" />
                       <p className="font-semibold text-sm">Eşleşen bütçe kodu bulunamadı.</p>
                       <p className="text-xs text-slate-400">
-                        Arama kriterlerinizi değiştirebilir veya yeni bir bütçe kodu ekleyebilirsiniz.
+                        Arama kriterlerinizi değiştirebilir veya yeni bir bütçe kodu
+                        ekleyebilirsiniz.
                       </p>
                     </div>
                   </td>

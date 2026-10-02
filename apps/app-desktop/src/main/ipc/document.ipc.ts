@@ -83,8 +83,10 @@ export function registerDocumentIpcHandlers(): void {
     (_, payload: any, legacyOptions?: any, legacyFileName?: string) =>
       exportPdfHandler(payload, legacyOptions, legacyFileName)
   )
-  ipcMain.handle('app:export-pdf', (_, payload: any, legacyOptions?: any, legacyFileName?: string) =>
-    exportPdfHandler(payload, legacyOptions, legacyFileName)
+  ipcMain.handle(
+    'app:export-pdf',
+    (_, payload: any, legacyOptions?: any, legacyFileName?: string) =>
+      exportPdfHandler(payload, legacyOptions, legacyFileName)
   )
 
   // 5.2 Open PDF Preview
@@ -152,4 +154,3 @@ export function registerDocumentIpcHandlers(): void {
     }
   )
 }
-

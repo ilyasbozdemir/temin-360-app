@@ -83,9 +83,7 @@ export function SplashScreen({
   // Institution identification
   const currentInstitutionName =
     activeMeta?.institution ||
-    (institutionName && institutionName !== 'Kurum Bilgisi Bekleniyor...'
-      ? institutionName
-      : null)
+    (institutionName && institutionName !== 'Kurum Bilgisi Bekleniyor...' ? institutionName : null)
   const customInstLogo = institutionLogo || logoLeft
 
   const finishImmediately = useCallback((): void => {
@@ -327,9 +325,7 @@ export function SplashScreen({
                 >
                   <div
                     className={`w-2 h-2 rounded-full shrink-0 transition-colors ${
-                      isPassed
-                        ? 'bg-blue-600 dark:bg-sky-400'
-                        : 'bg-slate-300 dark:bg-slate-700'
+                      isPassed ? 'bg-blue-600 dark:bg-sky-400' : 'bg-slate-300 dark:bg-slate-700'
                     }`}
                   />
                   <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 truncate hidden md:inline">

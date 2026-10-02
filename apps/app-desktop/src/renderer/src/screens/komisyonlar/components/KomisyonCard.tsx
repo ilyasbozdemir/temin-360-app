@@ -42,16 +42,13 @@ export const KomisyonCard: React.FC<KomisyonCardProps> = ({
   onManageBelgeler,
   activeDosyaId
 }) => {
-  const assignedMembers =
-    komisyon.uyeler?.filter((m: any) => m.personel_id || m.ad_soyad) || []
+  const assignedMembers = komisyon.uyeler?.filter((m: any) => m.personel_id || m.ad_soyad) || []
   const asilCount =
-    komisyon.uyeler?.filter(
-      (m: any) => m.asil_mi === 1 && (m.personel_id || m.ad_soyad)
-    ).length || 0
+    komisyon.uyeler?.filter((m: any) => m.asil_mi === 1 && (m.personel_id || m.ad_soyad)).length ||
+    0
   const yedekCount =
-    komisyon.uyeler?.filter(
-      (m: any) => m.asil_mi === 0 && (m.personel_id || m.ad_soyad)
-    ).length || 0
+    komisyon.uyeler?.filter((m: any) => m.asil_mi === 0 && (m.personel_id || m.ad_soyad)).length ||
+    0
 
   return (
     <div className="group flex flex-col p-5 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-700/60 transition-all duration-300">
@@ -143,9 +140,7 @@ export const KomisyonCard: React.FC<KomisyonCardProps> = ({
                 />
                 <span className="font-bold">{m.ad_soyad || 'Atanmamış'}</span>
                 {m.gorev_adi && (
-                  <span className="text-[10px] text-slate-400 font-normal">
-                    ({m.gorev_adi})
-                  </span>
+                  <span className="text-[10px] text-slate-400 font-normal">({m.gorev_adi})</span>
                 )}
               </div>
             ))}

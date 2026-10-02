@@ -93,4 +93,3 @@ export interface PresetController {
   description: string
   defaultField: Omit<FormFieldV2, 'id'>
 }
-

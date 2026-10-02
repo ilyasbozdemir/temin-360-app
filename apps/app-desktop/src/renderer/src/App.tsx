@@ -18,7 +18,9 @@ const queryClient = new QueryClient({
 setGlobalQueryClient(queryClient)
 
 function App(): React.JSX.Element {
-  const [showSplash, setShowSplash] = useState(true)
+  const [showSplash, setShowSplash] = useState<boolean>(() => {
+    return localStorage.getItem('temin_splash_enabled') !== 'false'
+  })
 
   useEffect(() => {
     const handleTriggerSplash = (): void => {

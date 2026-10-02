@@ -70,7 +70,10 @@ export function WinnerDocumentsMenu({
           <span>Sonuç Onay Belgesi</span>
         </DropdownMenuItem>
 
-        <DropdownMenuItem onClick={onPrintOrderForm || onPrintAcceptanceLetter} className="cursor-pointer">
+        <DropdownMenuItem
+          onClick={onPrintOrderForm || onPrintAcceptanceLetter}
+          className="cursor-pointer"
+        >
           <FileText className="mr-2 h-4 w-4 text-blue-500" />
           <span>Kabul Edilen Teklif / Sipariş Formu</span>
         </DropdownMenuItem>

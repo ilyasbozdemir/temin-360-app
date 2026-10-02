@@ -172,13 +172,7 @@ export function resolveDocumentPayload(
         ORDER BY id DESC LIMIT 1
       `
           )
-          .get(
-            dosyaId,
-            cleanDocId,
-            `${cleanDocId}.html`,
-            `${cleanDocId}.html`,
-            cleanDocId
-          ) as any
+          .get(dosyaId, cleanDocId, `${cleanDocId}.html`, `${cleanDocId}.html`, cleanDocId) as any
         if (snapRow?.veri_json) {
           savedSnapshot = JSON.parse(snapRow.veri_json)
         }
@@ -259,8 +253,7 @@ export function resolveDocumentPayload(
         g.unvan &&
         !combinedFirms.some(
           (f: any) =>
-            f.unvan &&
-            String(f.unvan).trim().toLowerCase() === String(g.unvan).trim().toLowerCase()
+            f.unvan && String(f.unvan).trim().toLowerCase() === String(g.unvan).trim().toLowerCase()
         )
       ) {
         combinedFirms.push(g)
@@ -380,10 +373,7 @@ export function resolveDocumentPayload(
           antetSatirlari = parsed.filter((s: string) => s && s.trim() !== '')
         }
       } catch {
-        if (
-          typeof (kurum as any).kurum_anteti === 'string' &&
-          (kurum as any).kurum_anteti.trim()
-        ) {
+        if (typeof (kurum as any).kurum_anteti === 'string' && (kurum as any).kurum_anteti.trim()) {
           antetSatirlari = (kurum as any).kurum_anteti
             .split('\n')
             .map((s: string) => s.trim())
@@ -467,9 +457,12 @@ export function resolveDocumentPayload(
       harcamaYetkilisiAdi:
         onaylayanPersonel?.ad_soyad ||
         (komisyonlar as any[]).find((k: any) =>
-          String(k.gorev || k.komisyon_turu_adi || '').toLowerCase().includes('harcama yetkili')
+          String(k.gorev || k.komisyon_turu_adi || '')
+            .toLowerCase()
+            .includes('harcama yetkili')
         )?.resolved_ad_soyad ||
-        (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)?.harcama_yetkilisi_id
+        (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)
+          ?.harcama_yetkilisi_id
           ? (personelListesi as any[]).find(
               (p: any) =>
                 p.id ===
@@ -480,7 +473,9 @@ export function resolveDocumentPayload(
       harcamaYetkilisiUnvan:
         onaylayanPersonel?.unvan ||
         (komisyonlar as any[]).find((k: any) =>
-          String(k.gorev || k.komisyon_turu_adi || '').toLowerCase().includes('harcama yetkili')
+          String(k.gorev || k.komisyon_turu_adi || '')
+            .toLowerCase()
+            .includes('harcama yetkili')
         )?.resolved_unvan ||
         (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)
           ?.harcama_yetkilisi_unvan ||
@@ -498,7 +493,8 @@ export function resolveDocumentPayload(
       antetSatir3: antetSatirlari[2] || '',
       antetSatir4: antetSatirlari[3] || '',
       ustKurumAdi: (kurum as any)?.ust_kurum_adi || '',
-      detsisKodu: (kurum as any)?.detsis_kodu || (kurum as any)?.dtvt_kodu || settingsMap.detsisKodu || '',
+      detsisKodu:
+        (kurum as any)?.detsis_kodu || (kurum as any)?.dtvt_kodu || settingsMap.detsisKodu || '',
       eButceKodu: (kurum as any)?.ebutce_kodu || settingsMap.eButceKodu || '',
       say2000iKodu: (kurum as any)?.say2000i_kodu || settingsMap.say2000iKodu || '',
       fonksiyonelKod: (kurum as any)?.fonksiyonel_kod || settingsMap.fonksiyonelKod || '',
@@ -524,8 +520,13 @@ export function resolveDocumentPayload(
       finansmanKodu: (kurum as any)?.finansman_kodu || settingsMap.finansmanKodu || '5',
       odenekTertibi: (dosya as any)?.odenek_tertibi || '',
       butceTertibi: (dosya as any)?.odenek_tertibi || '',
-      kullanilabilirOdenek: (dosya as any)?.kullanilabilir_odenek ? String((dosya as any).kullanilabilir_odenek) : '',
-      butceYili: (dosya as any)?.butce_yili || (dosya as any)?.butce_yili_str || new Date().getFullYear().toString(),
+      kullanilabilirOdenek: (dosya as any)?.kullanilabilir_odenek
+        ? String((dosya as any).kullanilabilir_odenek)
+        : '',
+      butceYili:
+        (dosya as any)?.butce_yili ||
+        (dosya as any)?.butce_yili_str ||
+        new Date().getFullYear().toString(),
       odenekKalemi: (dosya as any)?.odenek_kalemi || '',
       butceGerekce: (dosya as any)?.butce_gerekce || '',
       solLogo,
@@ -559,12 +560,27 @@ export function resolveDocumentPayload(
           ? String((dosya as any).teslim_gun)
           : '7',
       teslimTarihi: (dosya as any)?.teslim_tarihi || '',
-      dosyaAcilisTarihi: formatTurkishDate((dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at),
-      acilisTarihi: formatTurkishDate((dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at),
-      dosyaTarihi: formatTurkishDate((dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at),
-      onayaSunulanTarih: formatTurkishDate((dosya as any)?.temin_tarihi || (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at),
-      onayTarihi: formatTurkishDate((dosya as any)?.onay_tarihi || (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih),
-      tarih: formatTurkishDate((dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at),
+      dosyaAcilisTarihi: formatTurkishDate(
+        (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at
+      ),
+      acilisTarihi: formatTurkishDate(
+        (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at
+      ),
+      dosyaTarihi: formatTurkishDate(
+        (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at
+      ),
+      onayaSunulanTarih: formatTurkishDate(
+        (dosya as any)?.temin_tarihi ||
+          (dosya as any)?.dosya_acilis_tarihi ||
+          (dosya as any)?.tarih ||
+          (dosya as any)?.created_at
+      ),
+      onayTarihi: formatTurkishDate(
+        (dosya as any)?.onay_tarihi || (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih
+      ),
+      tarih: formatTurkishDate(
+        (dosya as any)?.dosya_acilis_tarihi || (dosya as any)?.tarih || (dosya as any)?.created_at
+      ),
       evrakSayisi: (dosya as any)?.evrak_sayisi || (dosya as any)?.temin_no || '',
       ihtiyacKalemleri,
       firmaListesi: combinedFirms,

@@ -91,7 +91,9 @@ export const KomisyonAtamaTable: React.FC<KomisyonAtamaTableProps> = ({
             {rows.map((row, idx) => {
               const isExpanded = !!expandedRows[row.sira]
               const hasCustomSettings =
-                !!row.vekaletUnvani || !!row.baslangicTarihi || (row.belgeKapsami && row.belgeKapsami !== 'tumu')
+                !!row.vekaletUnvani ||
+                !!row.baslangicTarihi ||
+                (row.belgeKapsami && row.belgeKapsami !== 'tumu')
 
               return (
                 <React.Fragment key={row.sira}>
@@ -210,7 +212,8 @@ export const KomisyonAtamaTable: React.FC<KomisyonAtamaTableProps> = ({
                               className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1 text-xs font-semibold focus:border-blue-500 outline-none"
                             />
                             <span className="text-[10px] text-slate-400 mt-0.5 block">
-                              Boş bırakılırsa personelin varsayılan unvanı resmi belgelerde kullanılır.
+                              Boş bırakılırsa personelin varsayılan unvanı resmi belgelerde
+                              kullanılır.
                             </span>
                           </div>
 
@@ -264,9 +267,7 @@ export const KomisyonAtamaTable: React.FC<KomisyonAtamaTableProps> = ({
                               <option value="muayene_kabul">
                                 🔬 Sadece Muayene & Kabul Belgelerinde
                               </option>
-                              <option value="olur_onay">
-                                📑 Sadece Olur / Onay Yazılarında
-                              </option>
+                              <option value="olur_onay">📑 Sadece Olur / Onay Yazılarında</option>
                             </select>
                             <span className="text-[10px] text-slate-400 mt-0.5 block">
                               Bu personelin hangi belge türlerinde imzacı olarak çıkacağını seçin.
@@ -296,4 +297,3 @@ export const KomisyonAtamaTable: React.FC<KomisyonAtamaTableProps> = ({
     </div>
   )
 }
-

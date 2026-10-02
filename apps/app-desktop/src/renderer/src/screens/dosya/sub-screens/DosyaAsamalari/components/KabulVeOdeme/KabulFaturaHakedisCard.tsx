@@ -74,9 +74,9 @@ export function KabulFaturaHakedisCard({
   // Fiyat Farkı Durumu & Ayarları
   const defaultHasFiyatFarki = Boolean(
     firmaStats?.fiyatFarkiDayanagi &&
-      firmaStats.fiyatFarkiDayanagi !== 'Fiyat Farkı Ödenmeyecek' &&
-      (firmaStats.fiyatFarkiDayanagi.includes('5215') ||
-        firmaStats.fiyatFarkiDayanagi.includes('5216'))
+    firmaStats.fiyatFarkiDayanagi !== 'Fiyat Farkı Ödenmeyecek' &&
+    (firmaStats.fiyatFarkiDayanagi.includes('5215') ||
+      firmaStats.fiyatFarkiDayanagi.includes('5216'))
   )
 
   const [isFiyatFarkiEnabled, setIsFiyatFarkiEnabled] = useState<boolean>(defaultHasFiyatFarki)
@@ -291,7 +291,9 @@ export function KabulFaturaHakedisCard({
               <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800/80">
                 <span className="text-[11px] text-slate-500">TÜİK Endeks Değeri:</span>
                 <span className="text-xs font-black text-slate-800 dark:text-slate-100 font-mono">
-                  {temelEndeks > 0 ? temelEndeks.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) : 'Veri Yok'}
+                  {temelEndeks > 0
+                    ? temelEndeks.toLocaleString('tr-TR', { minimumFractionDigits: 2 })
+                    : 'Veri Yok'}
                 </span>
               </div>
             </div>
@@ -339,7 +341,9 @@ export function KabulFaturaHakedisCard({
               <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800/80">
                 <span className="text-[11px] text-slate-500">TÜİK Endeks Değeri:</span>
                 <span className="text-xs font-black text-slate-800 dark:text-slate-100 font-mono">
-                  {guncelEndeks > 0 ? guncelEndeks.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) : 'Veri Yok'}
+                  {guncelEndeks > 0
+                    ? guncelEndeks.toLocaleString('tr-TR', { minimumFractionDigits: 2 })
+                    : 'Veri Yok'}
                 </span>
               </div>
             </div>
@@ -348,23 +352,33 @@ export function KabulFaturaHakedisCard({
           {/* Katsayı ve Fark Özeti */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white/80 dark:bg-slate-900/80 p-3 rounded-xl border border-amber-200/80 dark:border-amber-900/40">
             <div className="flex flex-col">
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Fiyat Farkı Katsayısı (Pn)</span>
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                Fiyat Farkı Katsayısı (Pn)
+              </span>
               <span className="text-sm font-black text-slate-800 dark:text-slate-200 font-mono">
                 {fiyatFarkiHesap.pn.toFixed(4)}
               </span>
             </div>
 
             <div className="flex flex-col">
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Endeks Artış Oranı</span>
-              <span className={`text-sm font-bold flex items-center gap-1 ${
-                fiyatFarkiHesap.percentChange >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
-              }`}>
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                Endeks Artış Oranı
+              </span>
+              <span
+                className={`text-sm font-bold flex items-center gap-1 ${
+                  fiyatFarkiHesap.percentChange >= 0
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-red-600 dark:text-red-400'
+                }`}
+              >
                 {fiyatFarkiHesap.percentChange >= 0 ? '+' : ''}%{fiyatFarkiHesap.percentChange}
               </span>
             </div>
 
             <div className="flex flex-col">
-              <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400">Hesaplanan Fiyat Farkı</span>
+              <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400">
+                Hesaplanan Fiyat Farkı
+              </span>
               <span className="text-sm font-black text-amber-900 dark:text-amber-200 font-mono">
                 + {formatCurrency(fiyatFarkiHesap.difference)}
               </span>
@@ -377,8 +391,14 @@ export function KabulFaturaHakedisCard({
             onClick={() => setShowFormulaDetails(!showFormulaDetails)}
             className="text-[11px] font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1 hover:underline self-start"
           >
-            {showFormulaDetails ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-            {showFormulaDetails ? 'Formül ve Dayanak Detaylarını Gizle' : 'Kararname Formülü ve Dayanak Detaylarını Göster'}
+            {showFormulaDetails ? (
+              <ChevronUp className="w-3 h-3" />
+            ) : (
+              <ChevronDown className="w-3 h-3" />
+            )}
+            {showFormulaDetails
+              ? 'Formül ve Dayanak Detaylarını Gizle'
+              : 'Kararname Formülü ve Dayanak Detaylarını Göster'}
           </button>
 
           {showFormulaDetails && (
@@ -388,7 +408,10 @@ export function KabulFaturaHakedisCard({
                 Hesaplama Formülü: F = An × (Pn - 1)
               </div>
               <p className="text-[11px] leading-relaxed text-amber-800/90 dark:text-amber-300/90">
-                Pn = Yn / Y₀ formülüne göre temel endeks ({temelEndeks.toLocaleString('tr-TR')}) ve güncel hakediş ayı endeksi ({guncelEndeks.toLocaleString('tr-TR')}) oranlanarak katsayı ({fiyatFarkiHesap.pn.toFixed(4)}) elde edilmiş ve dönem hakediş tutarı olan {formatCurrency(teklifToplami)} üzerinden fiyat farkı tahakkuk ettirilmiştir.
+                Pn = Yn / Y₀ formülüne göre temel endeks ({temelEndeks.toLocaleString('tr-TR')}) ve
+                güncel hakediş ayı endeksi ({guncelEndeks.toLocaleString('tr-TR')}) oranlanarak
+                katsayı ({fiyatFarkiHesap.pn.toFixed(4)}) elde edilmiş ve dönem hakediş tutarı olan{' '}
+                {formatCurrency(teklifToplami)} üzerinden fiyat farkı tahakkuk ettirilmiştir.
               </p>
             </div>
           )}
@@ -413,9 +436,7 @@ export function KabulFaturaHakedisCard({
                 <Sparkles className="w-3.5 h-3.5" />
                 TÜİK Yİ-ÜFE Fiyat Farkı Tutarı (F)
               </span>
-              <span className="font-bold font-mono">
-                + {formatCurrency(fiyatFarkiTutari)}
-              </span>
+              <span className="font-bold font-mono">+ {formatCurrency(fiyatFarkiTutari)}</span>
             </div>
           )}
 
@@ -431,9 +452,7 @@ export function KabulFaturaHakedisCard({
           )}
 
           <div className="flex justify-between items-center text-sm">
-            <span className="text-slate-600 dark:text-slate-400 font-medium">
-              KDV (%20)
-            </span>
+            <span className="text-slate-600 dark:text-slate-400 font-medium">KDV (%20)</span>
             <span className="font-bold text-slate-800 dark:text-slate-200 font-mono">
               {formatCurrency(kdvTutari)}
             </span>
@@ -442,9 +461,7 @@ export function KabulFaturaHakedisCard({
           <div className="h-px w-full bg-slate-200 dark:bg-slate-700 my-0.5" />
 
           <div className="flex justify-between items-center text-sm">
-            <span className="text-slate-800 dark:text-slate-200 font-bold">
-              Brüt Toplam Tutar
-            </span>
+            <span className="text-slate-800 dark:text-slate-200 font-bold">Brüt Toplam Tutar</span>
             <span className="font-black text-slate-900 dark:text-white font-mono text-base">
               {formatCurrency(brutTutar)}
             </span>
@@ -455,9 +472,7 @@ export function KabulFaturaHakedisCard({
               <TrendingDown className="w-3.5 h-3.5" />
               Damga Vergisi Kesintisi (‰9,48)
             </span>
-            <span className="font-bold font-mono">
-              - {formatCurrency(damgaVergisi)}
-            </span>
+            <span className="font-bold font-mono">- {formatCurrency(damgaVergisi)}</span>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
-import React from "react";
-import { BookOpen } from "lucide-react";
+import React from 'react'
+import { BookOpen } from 'lucide-react'
 
 export function TakipIsAkisiYonergesi(): React.JSX.Element {
   return (
@@ -18,11 +18,10 @@ export function TakipIsAkisiYonergesi(): React.JSX.Element {
         <p>
           Sistemimizdeki tüm şablonlar, dosyaya girdiğiniz veriler ile
           <strong className="text-slate-800 dark:text-slate-200">
-            {" "}
-            tamamen dinamik ve otomatik{" "}
+            {' '}
+            tamamen dinamik ve otomatik{' '}
           </strong>
-          olarak doldurulur. Süreç boyunca yaptığınız her giriş anında evraklara
-          yansır.
+          olarak doldurulur. Süreç boyunca yaptığınız her giriş anında evraklara yansır.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-2">
@@ -33,8 +32,8 @@ export function TakipIsAkisiYonergesi(): React.JSX.Element {
                 Esnek & Dinamik Şablonlar
               </h4>
               <p className="text-[10.5px] text-slate-500 leading-normal">
-                Şablonların yerleşimleri ve içerikleri mevzuata uygun şekilde
-                dinamik olarak bağlanmıştır.
+                Şablonların yerleşimleri ve içerikleri mevzuata uygun şekilde dinamik olarak
+                bağlanmıştır.
               </p>
             </div>
           </div>
@@ -46,9 +45,8 @@ export function TakipIsAkisiYonergesi(): React.JSX.Element {
                 Süreç Nasıl Başlar? (1. Aşama)
               </h4>
               <p className="text-[10.5px] text-slate-500 leading-normal">
-                İhtiyaç listesini girerek süreci başlatırsınız. Bu adıma göre
-                Lüzum Müzekkeresi ve Harcama Talimatı gibi başlangıç belgeleri
-                üretilir.
+                İhtiyaç listesini girerek süreci başlatırsınız. Bu adıma göre Lüzum Müzekkeresi ve
+                Harcama Talimatı gibi başlangıç belgeleri üretilir.
               </p>
             </div>
           </div>
@@ -60,8 +58,8 @@ export function TakipIsAkisiYonergesi(): React.JSX.Element {
                 Piyasa Fiyat Araştırması (2. Aşama)
               </h4>
               <p className="text-[10.5px] text-slate-500 leading-normal">
-                Firma tekliflerini girdiğinizde, komisyonlar ve yaklaşık maliyet
-                hesaplamaları otomatik olarak dolup cetvel haline getirilir.
+                Firma tekliflerini girdiğinizde, komisyonlar ve yaklaşık maliyet hesaplamaları
+                otomatik olarak dolup cetvel haline getirilir.
               </p>
             </div>
           </div>
@@ -73,13 +71,13 @@ export function TakipIsAkisiYonergesi(): React.JSX.Element {
                 Sözleşme & Süreç Sonu (3/4. Aşama)
               </h4>
               <p className="text-[10.5px] text-slate-500 leading-normal">
-                Kazanan firmayı atar, sözleşme basar ve son aşamada Muayene
-                Kabul Tutanağı ile süreci kapatıp imzaya çıkarırsınız.
+                Kazanan firmayı atar, sözleşme basar ve son aşamada Muayene Kabul Tutanağı ile
+                süreci kapatıp imzaya çıkarırsınız.
               </p>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }

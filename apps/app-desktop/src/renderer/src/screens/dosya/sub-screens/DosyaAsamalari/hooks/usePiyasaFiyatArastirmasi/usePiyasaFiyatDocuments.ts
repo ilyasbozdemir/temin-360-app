@@ -89,9 +89,10 @@ export function usePiyasaFiyatDocuments(
         })
 
         const winnerToSet =
-          (!setLowestFirmAsWinner && manualWinnerFirmaId)
+          !setLowestFirmAsWinner && manualWinnerFirmaId
             ? manualWinnerFirmaId
-            : lowestBidFirmMasterId || (invitedFirms[0] ? (invitedFirms[0].firma_id || invitedFirms[0].id) : null)
+            : lowestBidFirmMasterId ||
+              (invitedFirms[0] ? invitedFirms[0].firma_id || invitedFirms[0].id : null)
 
         if (winnerToSet) {
           await window.electron.ipcRenderer.invoke(

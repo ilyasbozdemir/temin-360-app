@@ -34,7 +34,12 @@ export const KomisyonSablonlarSection: React.FC<KomisyonSablonlarSectionProps> =
             ℹ️ Şablon Yönetimi (V1 Klasik - Template Registry Entegreli):
           </span>
           <p className="mt-0.5 text-[11px] text-blue-700 dark:text-blue-300/90 leading-relaxed">
-            Şablon bağlantıları geriye dönük uyumluluk için V1 varsayılanlarıyla tutulmakta olup, belgeler dinamik olarak <code className="px-1 py-0.5 bg-blue-100 dark:bg-blue-900/60 rounded font-semibold text-blue-900 dark:text-blue-200">TEMPLATE_REGISTRY</code> üzerinden beslenmektedir. Yakında V2 Form Builder entegrasyonu aktifleşecektir.
+            Şablon bağlantıları geriye dönük uyumluluk için V1 varsayılanlarıyla tutulmakta olup,
+            belgeler dinamik olarak{' '}
+            <code className="px-1 py-0.5 bg-blue-100 dark:bg-blue-900/60 rounded font-semibold text-blue-900 dark:text-blue-200">
+              TEMPLATE_REGISTRY
+            </code>{' '}
+            üzerinden beslenmektedir. Yakında V2 Form Builder entegrasyonu aktifleşecektir.
           </p>
         </div>
       </div>

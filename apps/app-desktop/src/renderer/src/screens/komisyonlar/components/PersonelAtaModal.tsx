@@ -1,42 +1,40 @@
-import React, { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, Shield, User, UserPlus, Users, X } from "lucide-react";
-import { Button } from "../../../components/ui/Button";
-import { Modal } from "../../../components/ui/Modal";
-import { PersonelCombobox } from "../../../components/ui/PersonelCombobox";
+import React, { useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { AlertCircle, Shield, User, UserPlus, Users, X } from 'lucide-react'
+import { Button } from '../../../components/ui/Button'
+import { Modal } from '../../../components/ui/Modal'
+import { PersonelCombobox } from '../../../components/ui/PersonelCombobox'
 
 interface PersonelAtaModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  roleId: number | null;
-  komisyonId: number | null;
+  isOpen: boolean
+  onClose: () => void
+  roleId: number | null
+  komisyonId: number | null
 }
 
 interface PersonelInfo {
-  id: number;
-  ad_soyad: string;
-  unvan: string | null;
-  birim?: string | null;
+  id: number
+  ad_soyad: string
+  unvan: string | null
+  birim?: string | null
 }
 
 export function PersonelAtaModal({
   isOpen,
   onClose,
   roleId,
-  komisyonId,
+  komisyonId
 }: PersonelAtaModalProps): React.JSX.Element | null {
-  const queryClient = useQueryClient();
-  const [selectedPersonelId, setSelectedPersonelId] = useState<number | null>(
-    null,
-  );
-  const [lastRoleId, setLastRoleId] = useState<number | null>(null);
+  const queryClient = useQueryClient()
+  const [selectedPersonelId, setSelectedPersonelId] = useState<number | null>(null)
+  const [lastRoleId, setLastRoleId] = useState<number | null>(null)
 
   const { data: roleDetail } = useQuery({
-    queryKey: ["komisyon_role_detail", roleId],
+    queryKey: ['komisyon_role_detail', roleId],
     queryFn: async () => {
-      if (!roleId) return null;
+      if (!roleId) return null
       const res = await window.electron.ipcRenderer.invoke(
-        "db:query",
+        'db:query',
         `SELECT u.id, u.komisyon_id, u.gorev_id, u.asil_mi, u.sira, u.personel_id,
                 g.ad as gorev_adi, k.ad as komisyon_adi,
                 p.ad_soyad as mevcut_personel, p.unvan as mevcut_unvan
@@ -45,72 +43,68 @@ export function PersonelAtaModal({
          LEFT JOIN TANIM_Komisyon k ON u.komisyon_id = k.id
          LEFT JOIN TANIM_Personel p ON u.personel_id = p.id
          WHERE u.id = ?`,
-        [roleId],
-      );
+        [roleId]
+      )
       if (res.success && res.data && res.data.length > 0) {
-        return res.data[0];
+        return res.data[0]
       }
-      return null;
+      return null
     },
-    enabled: isOpen && !!roleId,
-  });
+    enabled: isOpen && !!roleId
+  })
 
   if (roleId !== lastRoleId) {
-    setLastRoleId(roleId);
-    setSelectedPersonelId(roleDetail?.personel_id || null);
+    setLastRoleId(roleId)
+    setSelectedPersonelId(roleDetail?.personel_id || null)
   }
 
   const { data: personeller = [] } = useQuery<PersonelInfo[]>({
-    queryKey: ["personel_listesi_komisyon_ata"],
+    queryKey: ['personel_listesi_komisyon_ata'],
     queryFn: async () => {
       const res = await window.electron.ipcRenderer.invoke(
-        "db:query",
-        "SELECT * FROM TANIM_Personel WHERE aktif_mi = 1 ORDER BY ad_soyad ASC",
-      );
-      if (!res.success) throw new Error(res.error);
-      return res.data as PersonelInfo[];
+        'db:query',
+        'SELECT * FROM TANIM_Personel WHERE aktif_mi = 1 ORDER BY ad_soyad ASC'
+      )
+      if (!res.success) throw new Error(res.error)
+      return res.data as PersonelInfo[]
     },
-    enabled: isOpen,
-  });
+    enabled: isOpen
+  })
 
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!selectedPersonelId) {
-        throw new Error("Lütfen atanacak personeli seçin.");
+        throw new Error('Lütfen atanacak personeli seçin.')
       }
       if (!roleId || !komisyonId) {
-        throw new Error("Rol veya Komisyon ID eksik.");
+        throw new Error('Rol veya Komisyon ID eksik.')
       }
 
-      const updateRes = await window.electron.ipcRenderer.invoke(
-        "db:transaction",
-        [
-          {
-            sql:
-              "UPDATE TANIM_KomisyonUye SET personel_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-            params: [selectedPersonelId, roleId],
-          },
-        ],
-      );
-      if (!updateRes.success) throw new Error(updateRes.error);
-      return true;
+      const updateRes = await window.electron.ipcRenderer.invoke('db:transaction', [
+        {
+          sql: 'UPDATE TANIM_KomisyonUye SET personel_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+          params: [selectedPersonelId, roleId]
+        }
+      ])
+      if (!updateRes.success) throw new Error(updateRes.error)
+      return true
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["komisyonlar"] });
+      queryClient.invalidateQueries({ queryKey: ['komisyonlar'] })
       if (komisyonId) {
         queryClient.invalidateQueries({
-          queryKey: ["komisyon_detay", komisyonId],
-        });
+          queryKey: ['komisyon_detay', komisyonId]
+        })
       }
       queryClient.invalidateQueries({
-        queryKey: ["komisyon_role_detail", roleId],
-      });
-      onClose();
-      setSelectedPersonelId(null);
-    },
-  });
+        queryKey: ['komisyon_role_detail', roleId]
+      })
+      onClose()
+      setSelectedPersonelId(null)
+    }
+  })
 
-  const selectedPerson = personeller.find((p) => p.id === selectedPersonelId);
+  const selectedPerson = personeller.find((p) => p.id === selectedPersonelId)
 
   return (
     <Modal
@@ -137,27 +131,27 @@ export function PersonelAtaModal({
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
-                    {roleDetail.komisyon_adi || "Komisyon"}
+                    {roleDetail.komisyon_adi || 'Komisyon'}
                   </span>
                 </div>
                 <span
                   className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                     roleDetail.asil_mi === 1 || roleDetail.asil_mi === true
-                      ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300"
-                      : "bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300"
+                      ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
+                      : 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300'
                   }`}
                 >
                   {roleDetail.asil_mi === 1 || roleDetail.asil_mi === true
-                    ? "Asil Üye"
-                    : "Yedek Üye"}
+                    ? 'Asil Üye'
+                    : 'Yedek Üye'}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <Shield className="w-4 h-4 text-slate-400" />
                 <span className="text-xs text-slate-600 dark:text-slate-300">
-                  Görev:{" "}
+                  Görev:{' '}
                   <strong className="text-slate-900 dark:text-slate-100">
-                    {roleDetail.gorev_adi || "Üye"}
+                    {roleDetail.gorev_adi || 'Üye'}
                   </strong>
                 </span>
               </div>
@@ -183,13 +177,11 @@ export function PersonelAtaModal({
             <div className="p-3.5 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 rounded-xl flex items-center justify-between animate-in fade-in duration-200">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-sm">
-                  {selectedPerson.ad_soyad
-                    ? (
-                      selectedPerson.ad_soyad.substring(0, 2).toLocaleUpperCase(
-                        "tr-TR",
-                      )
-                    )
-                    : <User className="w-4 h-4" />}
+                  {selectedPerson.ad_soyad ? (
+                    selectedPerson.ad_soyad.substring(0, 2).toLocaleUpperCase('tr-TR')
+                  ) : (
+                    <User className="w-4 h-4" />
+                  )}
                 </div>
                 <div className="min-w-0">
                   <div className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate flex items-center gap-2">
@@ -199,8 +191,8 @@ export function PersonelAtaModal({
                     </span>
                   </div>
                   <div className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                    {selectedPerson.unvan || "Unvan Belirtilmedi"}
-                    {selectedPerson.birim ? ` • ${selectedPerson.birim}` : ""}
+                    {selectedPerson.unvan || 'Unvan Belirtilmedi'}
+                    {selectedPerson.birim ? ` • ${selectedPerson.birim}` : ''}
                   </div>
                 </div>
               </div>
@@ -218,12 +210,7 @@ export function PersonelAtaModal({
 
         {/* Butonlar */}
         <div className="flex items-center gap-3 pt-3 border-t border-slate-200 dark:border-slate-800 shrink-0">
-          <Button
-            type="button"
-            variant="outline"
-            className="flex-1"
-            onClick={onClose}
-          >
+          <Button type="button" variant="outline" className="flex-1" onClick={onClose}>
             İptal
           </Button>
           <Button
@@ -232,10 +219,10 @@ export function PersonelAtaModal({
             onClick={() => saveMutation.mutate()}
             disabled={saveMutation.isPending || !selectedPersonelId}
           >
-            {saveMutation.isPending ? "Atanıyor..." : "Personeli Ata"}
+            {saveMutation.isPending ? 'Atanıyor...' : 'Personeli Ata'}
           </Button>
         </div>
       </div>
     </Modal>
-  );
+  )
 }

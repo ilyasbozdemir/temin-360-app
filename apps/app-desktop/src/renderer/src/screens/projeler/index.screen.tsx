@@ -336,9 +336,7 @@ export default function ProjelerScreen({
               {summary.activeCount}{' '}
               <span className="text-sm font-normal text-slate-400">/ {summary.totalProjects}</span>
             </div>
-            <p className="text-[11px] text-slate-400 mt-1">
-              Yürürlükteki aktif yatırım ve alımlar
-            </p>
+            <p className="text-[11px] text-slate-400 mt-1">Yürürlükteki aktif yatırım ve alımlar</p>
           </div>
         </div>
       </div>
@@ -695,8 +693,8 @@ export default function ProjelerScreen({
                     </strong>
                     <p>
                       Proje harcamaları manuel sayı girilerek yönetilmez. Bu projeye doğrudan temin
-                      veya ihale dosyası bağlandıkça, dosyaların maliyet tutarları proje
-                      harcamasına otomatik yansıtılır.
+                      veya ihale dosyası bağlandıkça, dosyaların maliyet tutarları proje harcamasına
+                      otomatik yansıtılır.
                     </p>
                   </div>
                 </div>
@@ -975,7 +973,10 @@ export default function ProjelerScreen({
                 </div>
 
                 <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
-                  <Button type="submit" className="text-xs bg-blue-600 text-white hover:bg-blue-700">
+                  <Button
+                    type="submit"
+                    className="text-xs bg-blue-600 text-white hover:bg-blue-700"
+                  >
                     Guncellemeleri Kaydet
                   </Button>
                 </div>
@@ -1196,4 +1197,3 @@ export default function ProjelerScreen({
     </div>
   )
 }
-

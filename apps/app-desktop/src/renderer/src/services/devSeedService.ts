@@ -17,6 +17,9 @@ export interface SeedResult {
     ambarCount?: number
     kikLimitCount?: number
     dosyalarEnrichedCount?: number
+    dogrudanTeminCount?: number
+    ihale4734Count?: number
+    devletIhale2886Count?: number
     totalRecordsInserted?: number
   }
 }
@@ -118,10 +121,14 @@ export const devSeedService = {
       const enrichedCount = await this.enrichExistingDosyalar(firmaIds, personelIds, birimIds)
       details.dosyalarEnrichedCount = enrichedCount
 
+      // 9. 2886 Devlet İhale Satış & Kiralama Süreçlerini Tohumla
+      const ihale2886Count = await this.seedDevletIhale2886()
+      details.devletIhale2886Count = ihale2886Count
+
       return {
         success: true,
         message:
-          'Tüm sistem (Kurum, Birimler, Personeller, Firmalar, Kalemler, Komisyonlar, Ambarlar ve Dosyalar) tertemiz sıfırlanıp eksiksiz tohumlandı!',
+          'Tüm sistem (Kurum, Birimler, Personeller, Firmalar, Kalemler, Komisyonlar, Ambarlar, DT Dosyaları ve 2886 Devlet İhale Süreçleri) tertemiz sıfırlanıp eksiksiz tohumlandı!',
         details
       }
     } catch (error: unknown) {
@@ -1297,6 +1304,7 @@ export const devSeedService = {
     const dy = currentYear
 
     const predefinedDosyalar = [
+      // --- DOĞRUDAN TEMİN (KİK 22) DOSYALARI ---
       {
         temin_no: `DT-${dy}/01`,
         konu: `${dy} Yılı 1. Çeyrek Kırtasiye, Kağıt ve Büro Tüketim Malzemeleri Alımı`,
@@ -1338,14 +1346,101 @@ export const devSeedService = {
         butce_tipi: 'Genel Bütçe',
         ihale_sekli: '4734 Sayılı KİK Md. 22/d (Doğrudan Temin)',
         ihale_tipi: 'Doğrudan Temin'
+      },
+      {
+        temin_no: `DT-${dy}/04`,
+        konu: 'Ağ Altyapısı Güvenlik ve Sunucu Yazılım Lisansı Teknik Destek Alımı',
+        isin_aciklamasi:
+          'Kurumsal ağ omurgası güvenlik duvarı ve sanallaştırma lisanslarının 1 yıllık teknik destek ve güncelleme alımı.',
+        tur: 'hizmet',
+        birim_id: birimIds[3] || birimIds[0] || 1,
+        ihtiyac_yeri: 'Bilgi İşlem Birimi / Veri Merkezi',
+        butce_kodu: '03.7.1.90 Diğer Dayanıklı Mal ve Malzeme Alımları',
+        butce_yili: dy,
+        butce_tipi: 'Genel Bütçe',
+        ihale_sekli: '4734 Sayılı KİK Md. 22/c (Mevcut Uyumluluk)',
+        ihale_tipi: 'Doğrudan Temin'
+      },
+      {
+        temin_no: `DT-${dy}/05`,
+        konu: 'Tıbbi Cihaz ve Biyomedikal Ekipman Kalibrasyon Hizmet Alımı',
+        isin_aciklamasi:
+          'Kurumumuz bünyesindeki tıbbi analiz ve ölçüm cihazlarının yıllık akredite kalibrasyon hizmeti.',
+        tur: 'hizmet',
+        birim_id: birimIds[0] || 1,
+        ihtiyac_yeri: 'Laboratuvar ve Tanı Hizmetleri',
+        butce_kodu: '03.5.1.08 Laboratuvar Hizmet Alımları',
+        butce_yili: dy,
+        butce_tipi: 'Genel Bütçe',
+        ihale_sekli: '4734 Sayılı KİK Md. 22/f (İlaç ve Tıbbi Cihaz)',
+        ihale_tipi: 'Doğrudan Temin'
+      },
+
+      // --- İHALE SÜREÇLERİ (KİK 19/21) DOSYALARI ---
+      {
+        temin_no: `İH-${dy}/01`,
+        konu: 'İl Geneli Sağlık Tesisleri 12 Aylık Malzemeli Genel Temizlik ve Destek Hizmetleri İhalesi',
+        isin_aciklamasi:
+          'Kuruma bağlı merkez ve taşra hizmet binalarının 12 ay süresince hijyen, temizlik ve destek hizmetlerinin 4734 sayılı KİK Md. 19 Açık İhale Usulü ile temini.',
+        tur: 'hizmet',
+        birim_id: birimIds[1] || birimIds[0] || 1,
+        ihtiyac_yeri: 'Tüm Hizmet Binaları ve Ek Hizmet Tesisleri',
+        butce_kodu: '03.5.1.04 Temizlik Hizmeti Alım Giderleri',
+        butce_yili: dy,
+        butce_tipi: 'Genel Bütçe',
+        ihale_sekli: '4734 Sayılı KİK Md. 19 (Açık İhale Usulü)',
+        ihale_tipi: 'Açık İhale'
+      },
+      {
+        temin_no: `İH-${dy}/02`,
+        konu: 'İlçe Hizmet Binası Güçlendirme, Çatı ve Dış Cephe Yalıtımı Yapım İşi',
+        isin_aciklamasi:
+          'Deprem tahkik raporu doğrultusunda hizmet binası betonarme güçlendirme, mekanik çatı yenileme ve mantolama yapım işi.',
+        tur: 'yapim_isi',
+        birim_id: birimIds[2] || birimIds[0] || 1,
+        ihtiyac_yeri: 'İlçe Hizmet Kompleksi Ana Hizmet Bloğu',
+        butce_kodu: '06.5.7.01 Hizmet Binası Büyük Onarım ve Güçlendirme',
+        butce_yili: dy,
+        butce_tipi: 'Yatırım Bütçesi',
+        ihale_sekli: '4734 Sayılı KİK Md. 19 (Açık İhale Usulü)',
+        ihale_tipi: 'Açık İhale'
+      },
+      {
+        temin_no: `İH-${dy}/03`,
+        konu: 'Acil Müdahale ve Afet Koordinasyon Merkezi Prefabrik Üniteleri Kurulumu',
+        isin_aciklamasi:
+          'Doğal afet ve acil durum planı kapsamında 4734 sayılı KİK Md. 21/b Pazarlık Usulü ile çelik konstrüksiyonlu modüler koordinasyon merkezinin ivedi imalat ve montajı.',
+        tur: 'yapim_isi',
+        birim_id: birimIds[0] || 1,
+        ihtiyac_yeri: 'Afet Koordinasyon ve Lojistik Sahası',
+        butce_kodu: '06.1.1.01 Prefabrik Hizmet Binası Alım ve Kurulum Giderleri',
+        butce_yili: dy,
+        butce_tipi: 'Özel Ödenek / Yatırım',
+        ihale_sekli: '4734 Sayılı KİK Md. 21/b (Pazarlık Usulü)',
+        ihale_tipi: 'Pazarlık'
+      },
+      {
+        temin_no: `İH-${dy}/04`,
+        konu: '2026 Yılı Kurumsal Veri Merkezi Donanım ve Sunucu Sistemi Alımı',
+        isin_aciklamasi:
+          'Yüksek erişilebilirlikli blade sunucular, SAN depolama üniteleri ve yedekleme altyapısının 4734 sayılı KİK Md. 21/f Pazarlık Usulü ile alımı.',
+        tur: 'mal',
+        birim_id: birimIds[3] || birimIds[0] || 1,
+        ihtiyac_yeri: 'Bilgi İşlem Dairesi Veri Merkezi Odası',
+        butce_kodu: '06.1.2.01 Bilgisayar ve Bilişim Donanımı Alımları',
+        butce_yili: dy,
+        butce_tipi: 'Genel Bütçe',
+        ihale_sekli: '4734 Sayılı KİK Md. 21/f (Pazarlık Usulü)',
+        ihale_tipi: 'Pazarlık'
       }
     ]
 
     const samplePackages = [
+      // 1. DT-01 (Kırtasiye)
       [
         {
           ad: 'A4 80 gr/m² Fotokopi Kağıdı',
-          ozelligi: '1. hamur beyazlık',
+          ozelligi: '1. hamur yüksek beyazlık',
           tip: 'Mal',
           birim: 'Paket',
           miktar: 100,
@@ -1356,8 +1451,8 @@ export const devSeedService = {
           f3: 175
         },
         {
-          ad: 'Siyah Lazer Toner',
-          ozelligi: 'Yüksek kapasiteli',
+          ad: 'Siyah Lazer Toner Kartuşu',
+          ozelligi: 'Yüksek kapasiteli orijinal muadili',
           tip: 'Mal',
           birim: 'Adet',
           miktar: 12,
@@ -1368,10 +1463,11 @@ export const devSeedService = {
           f3: 1190
         }
       ],
+      // 2. DT-02 (Klima Bakım)
       [
         {
-          ad: 'Klimalar Periyodik Bakım',
-          ozelligi: 'Antibakteriyel',
+          ad: 'Split ve VRF Klimalar Periyodik Bakım',
+          ozelligi: 'Antibakteriyel dezenfeksiyon ve filtre temizliği',
           tip: 'Hizmet',
           birim: 'Adet',
           miktar: 24,
@@ -1382,8 +1478,8 @@ export const devSeedService = {
           f3: 800
         },
         {
-          ad: 'R410A / R32 Soğutucu Gaz Dolumu',
-          ozelligi: 'Orijinal gaz',
+          ad: 'R410A / R32 Çevre Dostu Soğutucu Gaz Dolumu',
+          ozelligi: 'Orijinal gaz takviyesi ve kaçak testi',
           tip: 'Hizmet',
           birim: 'Kg',
           miktar: 15,
@@ -1394,10 +1490,11 @@ export const devSeedService = {
           f3: 600
         }
       ],
+      // 3. DT-03 (Islak Hacim)
       [
         {
-          ad: '60x60 Taşyünü Asma Tavan',
-          ozelligi: 'Akustik',
+          ad: '60x60 Taşyünü Asma Tavan İmalatı',
+          ozelligi: 'Akustik ve neme dayanıklı',
           tip: 'Yapım İşi',
           birim: 'm²',
           miktar: 180,
@@ -1408,8 +1505,8 @@ export const devSeedService = {
           f3: 390
         },
         {
-          ad: 'İç Cephe Silikonlu Boya',
-          ozelligi: 'Çift kat astar',
+          ad: 'İç Cephe Silikonlu Mat Boya Uygulaması',
+          ozelligi: 'Çift kat astar ve son kat boya',
           tip: 'Yapım İşi',
           birim: 'm²',
           miktar: 350,
@@ -1420,8 +1517,8 @@ export const devSeedService = {
           f3: 165
         },
         {
-          ad: 'Kaymaz Zemin Seramiği',
-          ozelligi: 'Porselen',
+          ad: 'Kaymaz Porselen Zemin Seramiği',
+          ozelligi: '1. sınıf aşınma dirençli',
           tip: 'Yapım İşi',
           birim: 'm²',
           miktar: 75,
@@ -1430,6 +1527,180 @@ export const devSeedService = {
           f1: 650,
           f2: 720,
           f3: 610
+        }
+      ],
+      // 4. DT-04 (Yazılım Lisans)
+      [
+        {
+          ad: 'Güvenlik Duvarı UTM Lisansı ve 1 Yıllık Destek',
+          ozelligi: 'Web Filtreleme, IPS/IDS ve Antivirus modülleri dahil',
+          tip: 'Hizmet',
+          birim: 'Adet',
+          miktar: 1,
+          kdv: 20,
+          tkod: '150.08.02.01',
+          f1: 85000,
+          f2: 89000,
+          f3: 82000
+        },
+        {
+          ad: 'SSL VPN & Uzaktan Erişim Kullanıcı Lisans Paketi',
+          ozelligi: '100 Eşzamanlı Kullanıcı Destekli',
+          tip: 'Hizmet',
+          birim: 'Paket',
+          miktar: 1,
+          kdv: 20,
+          tkod: '150.08.02.02',
+          f1: 34000,
+          f2: 36500,
+          f3: 32500
+        }
+      ],
+      // 5. DT-05 (Kalibrasyon)
+      [
+        {
+          ad: 'Hasta Başı Monitörleri ve Defibrilatör Kalibrasyonu',
+          ozelligi: 'TÜRKAK akredite ölçüm ve sertifikalandırma',
+          tip: 'Hizmet',
+          birim: 'Adet',
+          miktar: 18,
+          kdv: 20,
+          tkod: '150.08.03.01',
+          f1: 1600,
+          f2: 1750,
+          f3: 1500
+        },
+        {
+          ad: 'Laboratuvar Santrifüj ve Otoklav Cihazı Testi',
+          ozelligi: 'Sıcaklık ve devir kalibrasyonu',
+          tip: 'Hizmet',
+          birim: 'Adet',
+          miktar: 6,
+          kdv: 20,
+          tkod: '150.08.03.02',
+          f1: 2400,
+          f2: 2600,
+          f3: 2250
+        }
+      ],
+      // 6. İH-01 (Genel Temizlik İhalesi - 4734 Md. 19)
+      [
+        {
+          ad: '12 Aylık Tesis İçi Hijyen ve Temizlik Hizmeti',
+          ozelligi: 'Personel çalıştırmaya dayalı olmayan, malzemeli ve makineli genel temizlik',
+          tip: 'Hizmet',
+          birim: 'Ay',
+          miktar: 12,
+          kdv: 20,
+          tkod: '150.08.04.01',
+          f1: 360000,
+          f2: 385000,
+          f3: 345000
+        },
+        {
+          ad: 'Yıllık Sarf Temizlik Kimyasalları ve Hijyen Malzemeleri',
+          ozelligi: 'TSE ve Sağlık Bakanlığı onaylı dezenfektan ve hijyen ürünleri',
+          tip: 'Mal',
+          birim: 'Set',
+          miktar: 12,
+          kdv: 20,
+          tkod: '150.01.03.01',
+          f1: 65000,
+          f2: 72000,
+          f3: 59000
+        }
+      ],
+      // 7. İH-02 (Güçlendirme & Çatı Yapım İşi - 4734 Md. 19)
+      [
+        {
+          ad: 'Kolon ve Kiriş Betonarme Güçlendirme İmalatları',
+          ozelligi: 'Karbon elyaf ve betonarme mantolama güçlendirme',
+          tip: 'Yapım İşi',
+          birim: 'Adet',
+          miktar: 45,
+          kdv: 20,
+          tkod: '150.07.04.01',
+          f1: 180000,
+          f2: 195000,
+          f3: 165000
+        },
+        {
+          ad: 'Kenet Metal Çatı Kaplama ve Taşyünü İzolasyonu',
+          ozelligi: '0.70mm alüminyum kenet sistem ve su yalıtımı',
+          tip: 'Yapım İşi',
+          birim: 'm²',
+          miktar: 2400,
+          kdv: 20,
+          tkod: '150.07.04.02',
+          f1: 1450,
+          f2: 1600,
+          f3: 1380
+        },
+        {
+          ad: 'Dış Cephe Mantolama ve Taş Yünü Isı Yalıtımı',
+          ozelligi: '8 cm taş yünü, fileli sıva ve silikonlu dış cephe boyası',
+          tip: 'Yapım İşi',
+          birim: 'm²',
+          miktar: 3200,
+          kdv: 20,
+          tkod: '150.07.04.03',
+          f1: 850,
+          f2: 920,
+          f3: 810
+        }
+      ],
+      // 8. İH-03 (Afet Koordinasyon Prefabrik - 4734 Md. 21/b)
+      [
+        {
+          ad: 'Çelik Konstrüksiyon Modüler Prefabrik Hizmet Üniteleri',
+          ozelligi: 'Yalıtımlı sandviç panel, elektrik ve sıhhi tesisat donanımlı',
+          tip: 'Yapım İşi',
+          birim: 'm²',
+          miktar: 650,
+          kdv: 20,
+          tkod: '150.07.05.01',
+          f1: 6500,
+          f2: 7100,
+          f3: 6100
+        },
+        {
+          ad: 'Bağımsız Güç Ünitesi ve Otomatik Dizel Jeneratör Sistemi',
+          ozelligi: '150 kVA otomatik transfer panolu jeneratör',
+          tip: 'Mal',
+          birim: 'Adet',
+          miktar: 2,
+          kdv: 20,
+          tkod: '150.06.01.01',
+          f1: 620000,
+          f2: 675000,
+          f3: 585000
+        }
+      ],
+      // 9. İH-04 (Veri Merkezi Sunucu - 4734 Md. 21/f)
+      [
+        {
+          ad: '2U Rack Sunucu Donanımı',
+          ozelligi: '2x AMD EPYC 64C, 512GB DDR5 RAM, 4x 3.84TB NVMe SSD',
+          tip: 'Mal',
+          birim: 'Adet',
+          miktar: 4,
+          kdv: 20,
+          tkod: '150.06.02.01',
+          f1: 295000,
+          f2: 320000,
+          f3: 280000
+        },
+        {
+          ad: 'SAN Depolama Genişleme Ünitesi',
+          ozelligi: '100TB All-Flash depolama dizisi ve çift denetleyici',
+          tip: 'Mal',
+          birim: 'Adet',
+          miktar: 1,
+          kdv: 20,
+          tkod: '150.06.02.02',
+          f1: 420000,
+          f2: 460000,
+          f3: 395000
         }
       ]
     ]
@@ -1651,5 +1922,501 @@ export const devSeedService = {
     }
 
     return enrichedCount
+  },
+
+  /**
+   * Sadece 4734 Sayılı KİK 22 Doğrudan Temin Dosyalarını tohumlar (5 Farklı Dosya)
+   */
+  async seedDogrudanTeminOnly(
+    firmaIds: number[] = [],
+    personelIds: number[] = [],
+    birimIds: number[] = []
+  ): Promise<number> {
+    return await this.enrichExistingDosyalar(firmaIds, personelIds, birimIds)
+  },
+
+  /**
+   * Sadece 4734 Sayılı KİK 19 / 21 Açık İhale ve Pazarlık Usulü Dosyalarını tohumlar (4 Farklı İhale Dosyası)
+   */
+  async seedIhale4734Only(
+    firmaIds: number[] = [],
+    personelIds: number[] = [],
+    birimIds: number[] = []
+  ): Promise<number> {
+    return await this.enrichExistingDosyalar(firmaIds, personelIds, birimIds)
+  },
+
+  /**
+   * 2886 Sayılı Devlet İhale Kanunu Kapsamında Satış, Kiralama, Trampa ve Hak Tesisi
+   * için Emlak Servisleri, Encümen & Kıymet Takdir Komisyonları, Alıcı / Kiracı İstekliler,
+   * Taşınmaz Kataloğu ve Örnek İhale Süreç Dosyalarını Eksiksiz Tohumlar.
+   */
+  async seedDevletIhale2886(): Promise<number> {
+    const runSql = async (sql: string, params: unknown[] = []): Promise<void> => {
+      try {
+        await window.electron.ipcRenderer.invoke('db:run', sql, params)
+      } catch (e) {
+        console.warn('[devSeedService] 2886 step SQL warning:', sql, e)
+      }
+    }
+
+    // 1. Emlak ve İstimlak / Gelir Birimleri Ekle
+    const birimler2886 = [
+      {
+        ad: 'Emlak ve İstimlak Müdürlüğü',
+        kisa_ad: 'EMLAK',
+        birim_adi: 'Emlak ve İstimlak Müdürlüğü',
+        antet_ek_satir: 'Emlak ve İstimlak Müdürlüğü (Taşınmaz ve Gelir Servisi)',
+        sunum_makami: 'Emlak ve İstimlak Müdürlüğüne',
+        dtvt_kodu: 'DT-EMLAK',
+        detsis_kodu: '10234530',
+        harcama_kodu: '1007',
+        harcama_adi: 'Emlak ve İstimlak Hizmetleri'
+      },
+      {
+        ad: 'Gelirler ve Mali Hizmetler Şefliği',
+        kisa_ad: 'GELİR',
+        birim_adi: 'Gelirler ve Mali Hizmetler Şefliği',
+        antet_ek_satir: 'Mali Hizmetler Müdürlüğü (Gelir ve Tahsilat Şefliği)',
+        sunum_makami: 'Gelirler Şefliğine',
+        dtvt_kodu: 'DT-GELIR',
+        detsis_kodu: '10234531',
+        harcama_kodu: '1008',
+        harcama_adi: 'Gelir ve Tahakkuk İşlemleri'
+      }
+    ]
+
+    for (const b of birimler2886) {
+      const ex = await window.electron.ipcRenderer.invoke(
+        'db:query',
+        'SELECT id FROM TANIM_Birim WHERE ad = ? OR birim_adi = ? LIMIT 1',
+        [b.ad, b.birim_adi]
+      )
+      if (!ex.success || !ex.data || ex.data.length === 0) {
+        await runSql(
+          `INSERT INTO TANIM_Birim (
+            ad, kisa_ad, birim_adi, antet_ek_satir, sunum_makami, dtvt_kodu, detsis_kodu,
+            harcama_kodu, harcama_adi, harcama_yetkilisi_id, harcama_yetkilisi_unvan,
+            gerceklestirme_gorevlisi_id, gerceklestirme_gorevlisi_unvan, aktif_mi
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 'Harcama Yetkilisi / Müdür', 2, 'Şube Müdürü', 1)`,
+          [
+            b.ad,
+            b.kisa_ad,
+            b.birim_adi,
+            b.antet_ek_satir,
+            b.sunum_makami,
+            b.dtvt_kodu,
+            b.detsis_kodu,
+            b.harcama_kodu,
+            b.harcama_adi
+          ]
+        )
+      }
+    }
+
+    // 2. 2886 Kıymet Takdir ve Encümen Komisyonu Ekle
+    const komisyonlar2886 = [
+      {
+        ad: '2886 Sayılı Kanun Kıymet Takdir Komisyonu',
+        aciklama:
+          '2886 sayılı DİK kapsamında taşınmaz ve menkul malların muhammen bedel tespiti için oluşturulan takdir heyeti.'
+      },
+      {
+        ad: 'Belediye Encümeni (2886 İhale Komisyonu)',
+        aciklama:
+          '2886 sayılı DİK Madde 13 uyarınca belediyelerde ihale komisyonu görevini yürüten Belediye Encümeni.'
+      }
+    ]
+
+    for (const k of komisyonlar2886) {
+      const ex = await window.electron.ipcRenderer.invoke(
+        'db:query',
+        'SELECT id FROM TANIM_Komisyon WHERE ad = ? LIMIT 1',
+        [k.ad]
+      )
+      if (!ex.success || !ex.data || ex.data.length === 0) {
+        await runSql(`INSERT INTO TANIM_Komisyon (ad, aciklama, aktif_mi) VALUES (?, ?, 1)`, [
+          k.ad,
+          k.aciklama
+        ])
+      }
+    }
+
+    // 3. 2886 İstekli / Alıcı / Kiracı Firmalar ve Şahıslar Ekle
+    const firmalar2886 = [
+      {
+        unvan: 'Anadolu Gayrimenkul Yatırım & İnşaat A.Ş.',
+        kod: 'FRM-2886-01',
+        vkn: '8450129845',
+        vd: 'Çankaya V.D.',
+        adres: 'Mustafa Kemal Mah. 2118. Cad. No: 142 Çankaya / Ankara',
+        tel: '0312 444 10 20',
+        yetkili: 'Ahmet Faruk Yılmaz',
+        il: 'Ankara',
+        ilce: 'Çankaya'
+      },
+      {
+        unvan: 'Marmara Sosyal Tesisler ve Kafe İşletmeciliği Ltd. Şti.',
+        kod: 'FRM-2886-02',
+        vkn: '1129485721',
+        vd: 'Kadıköy V.D.',
+        adres: 'Bağdat Cad. No: 120 Kadıköy / İstanbul',
+        tel: '0216 350 40 50',
+        yetkili: 'Mustafa Kemal Akdeniz',
+        il: 'İstanbul',
+        ilce: 'Kadıköy'
+      },
+      {
+        unvan: 'Ege Tarım, Hayvancılık & Lojistik San. Tic. A.Ş.',
+        kod: 'FRM-2886-03',
+        vkn: '4455667788',
+        vd: 'Bornova V.D.',
+        adres: 'Organize Sanayi Bölgesi 4. Cad. No: 18 Bornova / İzmir',
+        tel: '0232 460 70 80',
+        yetkili: 'Salih Güneyli',
+        il: 'İzmir',
+        ilce: 'Bornova'
+      },
+      {
+        unvan: 'Hakan Yıldırım (Bireysel Yatırımcı / İstekli)',
+        kod: 'FRM-2886-04',
+        vkn: '32165498710',
+        vd: 'Nilüfer V.D.',
+        adres: 'Ataevler Mah. Barış Cad. No: 8 Nilüfer / Bursa',
+        tel: '0532 555 12 34',
+        yetkili: 'Hakan Yıldırım',
+        il: 'Bursa',
+        ilce: 'Nilüfer'
+      }
+    ]
+
+    for (const f of firmalar2886) {
+      const ex = await window.electron.ipcRenderer.invoke(
+        'db:query',
+        'SELECT id FROM TANIM_Firma WHERE unvan = ? OR vergi_no = ? LIMIT 1',
+        [f.unvan, f.vkn]
+      )
+      if (!ex.success || !ex.data || ex.data.length === 0) {
+        await runSql(
+          `INSERT INTO TANIM_Firma (
+            unvan, firma_kodu, ilgili_adi, vergi_no, vergi_dairesi, telefon, email, adres, il, ilce, aktif_mi, kalite_skoru, deneyim_skoru
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 5, 5)`,
+          [
+            f.unvan,
+            f.kod,
+            f.yetkili,
+            f.vkn,
+            f.vd,
+            f.tel,
+            'info@' + f.unvan.toLowerCase().split(' ')[0] + '.com.tr',
+            f.adres,
+            f.il,
+            f.ilce
+          ]
+        )
+      }
+    }
+
+    // 4. 2886 Taşınmaz & Menkul Varlık Kataloğu Ekle
+    const tasinmazKalemleri = [
+      {
+        barkod: '2886001',
+        ad: 'Merkez Mah. 104 Ada 12 Parsel Ticari İmarlı Arsa (1.450 m²)',
+        tip: 'Yapım',
+        birim: 'm²',
+        kdv: 0,
+        tkod: '252.01.01.01',
+        ozelligi:
+          'Emsal: 1.50, Hmax: 15.50m (5 Kat), Ticaret + Konut Alanı, Belediye Mülkiyetinde Taşınmaz Satışı.'
+      },
+      {
+        barkod: '2886002',
+        ad: 'Belediye İş Merkezi Zemin Kat 4 Nolu Dükkan (85 m²)',
+        tip: 'Hizmet',
+        birim: 'Adet',
+        kdv: 20,
+        tkod: '150.01.01.01',
+        ozelligi:
+          'Kira süresi: 3 Yıl. Aylık kira bedeli ve yıllık TÜFE/Yİ-ÜFE artışı uygulanacaktır.'
+      },
+      {
+        barkod: '2886003',
+        ad: 'Atatürk Parkı İçi Kafeterya ve Çay Bahçesi (350 m²)',
+        tip: 'Hizmet',
+        birim: 'Adet',
+        kdv: 20,
+        tkod: '150.01.01.02',
+        ozelligi:
+          'Açık ve kapalı alanı bulunan belediye sosyal tesisi işletme hakkı devri / kiralaması.'
+      },
+      {
+        barkod: '2886004',
+        ad: 'Yayla Mevkii 205 Ada 3 Parsel Tarım Arazisi (12.000 m²)',
+        tip: 'Hizmet',
+        birim: 'Dekar',
+        kdv: 0,
+        tkod: '252.02.01.01',
+        ozelligi: '5 yıllık tarımsal amaçlı kiralama ihalesi.'
+      }
+    ]
+
+    for (const k of tasinmazKalemleri) {
+      const ex = await window.electron.ipcRenderer.invoke(
+        'db:query',
+        'SELECT id FROM TANIM_Kalem WHERE barkod_id = ? OR kalem_adi = ? LIMIT 1',
+        [k.barkod, k.ad]
+      )
+      if (!ex.success || !ex.data || ex.data.length === 0) {
+        await runSql(
+          `INSERT INTO TANIM_Kalem (
+            barkod_id, kalem_adi, tipi, birim, kdv_orani, tasinir_kodu, ozelligi, aktif_mi
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
+          [k.barkod, k.ad, k.tip, k.birim, k.kdv, k.tkod, k.ozelligi]
+        )
+      }
+    }
+
+    // 5. 2886 Örnek Çalışma Masası Verisini localStorage'a Hazırla & Kaydet
+    const sample2886Dosyalar = [
+      {
+        id: '2886-SATIS-2026-01',
+        islemTuru: 'satis',
+        usul: 'acik_teklif_45',
+        ihaleAdi: 'Merkez Mah. 104 Ada 12 Parsel 1.450 m² Ticari İmarlı Arsa Satışı İhalesi',
+        ihaleKayitNo: '2026/2886-ST-01',
+        ihaleTarihi: '2026-10-15',
+        ihaleSaati: '14:30',
+        ihaleYeri: 'Belediye Encümen Toplantı Salonu',
+        tasinmaz: {
+          il: 'Ankara',
+          ilce: 'Çankaya',
+          mahalleKoy: 'Çukurambar Mahallesi',
+          ada: '104',
+          parsel: '12',
+          yuzolcumuM2: 1450,
+          cinsi: 'Ticaret + Konut İmarlı Arsa',
+          hisseOrani: '1/1 (Tamamı Belediyeye Ait)',
+          mevcutDurumu: 'Boş / Teslime Hazır',
+          adres: 'Öğretmenler Caddesi No: 45 Çankaya / Ankara'
+        },
+        muhammenBedel: {
+          birimFiyatM2: 3103.45,
+          toplamAlanM2: 1450,
+          hesaplananBedel: 4500000,
+          takdirEdilenMuhammenBedel: 4500000,
+          geciciTeminatOrani: 3,
+          geciciTeminatTutari: 135000,
+          kdvOrani: 0,
+          kararTarihi: '2026-09-20',
+          kararNo: '2026/KKT-14'
+        },
+        istekliler: [
+          {
+            id: 'ist-1',
+            unvanVeyaAd: 'Anadolu Gayrimenkul Yatırım & İnşaat A.Ş.',
+            tcVkn: '8450129845',
+            geciciTeminatYatirdiMi: true,
+            teminatTutari: 135000,
+            teklifler: [4500000, 4750000, 5000000, 5250000],
+            sonTeklifTutari: 5250000,
+            kazandiMi: true
+          },
+          {
+            id: 'ist-2',
+            unvanVeyaAd: 'Ege Tarım, Hayvancılık & Lojistik San. Tic. A.Ş.',
+            tcVkn: '4455667788',
+            geciciTeminatYatirdiMi: true,
+            teminatTutari: 135000,
+            teklifler: [4500000, 4700000, 4950000, 5200000],
+            sonTeklifTutari: 5200000,
+            kazandiMi: false
+          },
+          {
+            id: 'ist-3',
+            unvanVeyaAd: 'Hakan Yıldırım',
+            tcVkn: '32165498710',
+            geciciTeminatYatirdiMi: true,
+            teminatTutari: 135000,
+            teklifler: [4500000, 4650000],
+            sonTeklifTutari: 4650000,
+            kazandiMi: false
+          }
+        ]
+      },
+      {
+        id: '2886-KIRA-2026-02',
+        islemTuru: 'kiralama',
+        usul: 'acik_teklif_45',
+        ihaleAdi: 'Atatürk Parkı İçi Sosyal Tesis ve Kafeterya Alanı 3 Yıllık Kiralanması',
+        ihaleKayitNo: '2026/2886-KR-02',
+        ihaleTarihi: '2026-10-22',
+        ihaleSaati: '10:00',
+        ihaleYeri: 'Belediye Encümen Toplantı Salonu',
+        tasinmaz: {
+          il: 'İstanbul',
+          ilce: 'Kadıköy',
+          mahalleKoy: 'Fenerbahçe Mahallesi',
+          ada: '88',
+          parsel: '4',
+          yuzolcumuM2: 350,
+          cinsi: 'Sosyal Tesis / Kafeterya ve Çay Bahçesi',
+          hisseOrani: '1/1',
+          mevcutDurumu: 'Kirada (Sözleşme Bitiş: 31.10.2026)',
+          adres: 'Fenerbahçe Parkı İçi Tesisler Kadıköy / İstanbul'
+        },
+        muhammenBedel: {
+          birimFiyatM2: 514.28,
+          toplamAlanM2: 350,
+          hesaplananBedel: 180000,
+          takdirEdilenMuhammenBedel: 180000,
+          geciciTeminatOrani: 3,
+          geciciTeminatTutari: 16200,
+          kdvOrani: 20,
+          kararTarihi: '2026-09-25',
+          kararNo: '2026/KKT-18'
+        },
+        kiraPlani: {
+          yil: 3,
+          aylikKiraBedeli: 20000,
+          yillikToplamKira: 240000,
+          artisOraniTuru: 'yi_ufe_12_aylik',
+          guvenceBedeliDepozito: 60000,
+          odemeGunu: 5
+        },
+        istekliler: [
+          {
+            id: 'ist-k1',
+            unvanVeyaAd: 'Marmara Sosyal Tesisler ve Kafe İşletmeciliği Ltd. Şti.',
+            tcVkn: '1129485721',
+            geciciTeminatYatirdiMi: true,
+            teminatTutari: 16200,
+            teklifler: [180000, 200000, 220000, 240000],
+            sonTeklifTutari: 240000,
+            kazandiMi: true
+          },
+          {
+            id: 'ist-k2',
+            unvanVeyaAd: 'Anadolu Gayrimenkul Yatırım & İnşaat A.Ş.',
+            tcVkn: '8450129845',
+            geciciTeminatYatirdiMi: true,
+            teminatTutari: 16200,
+            teklifler: [180000, 195000, 215000, 235000],
+            sonTeklifTutari: 235000,
+            kazandiMi: false
+          }
+        ]
+      },
+      {
+        id: '2886-SATIS-2026-03',
+        islemTuru: 'satis',
+        usul: 'acik_teklif_45',
+        ihaleAdi: 'Ekonomik Ömrünü Tamamlamış 5 Adet Hizmet Aracı ve İş Makinesi Satış İhalesi',
+        ihaleKayitNo: '2026/2886-MS-03',
+        ihaleTarihi: '2026-10-28',
+        ihaleSaati: '11:30',
+        ihaleYeri: 'Belediye Encümen Toplantı Salonu',
+        tasinmaz: {
+          il: 'İzmir',
+          ilce: 'Bornova',
+          mahalleKoy: 'Sanayi Mahallesi',
+          ada: '0',
+          parsel: '0',
+          yuzolcumuM2: 0,
+          cinsi: 'Menkul Mal / 5 Adet Motorlu Taşıt ve İş Makinesi',
+          hisseOrani: '1/1',
+          mevcutDurumu: 'Fen İşleri Şantiyesinde Park Halinde',
+          adres: 'Fen İşleri Makine İkmal Sahası Bornova / İzmir'
+        },
+        muhammenBedel: {
+          birimFiyatM2: 0,
+          toplamAlanM2: 0,
+          hesaplananBedel: 1850000,
+          takdirEdilenMuhammenBedel: 1850000,
+          geciciTeminatOrani: 3,
+          geciciTeminatTutari: 55500,
+          kdvOrani: 1,
+          kararTarihi: '2026-09-28',
+          kararNo: '2026/KKT-22'
+        },
+        istekliler: [
+          {
+            id: 'ist-m1',
+            unvanVeyaAd: 'Ege Lojistik & Ağır Vasıta Ltd. Şti.',
+            tcVkn: '8450129845',
+            geciciTeminatYatirdiMi: true,
+            teminatTutari: 55500,
+            teklifler: [1850000, 1920000, 2050000],
+            sonTeklifTutari: 2050000,
+            kazandiMi: true
+          },
+          {
+            id: 'ist-m2',
+            unvanVeyaAd: 'Hakan Yıldırım',
+            tcVkn: '32165498710',
+            geciciTeminatYatirdiMi: true,
+            teminatTutari: 55500,
+            teklifler: [1850000, 1900000, 2000000],
+            sonTeklifTutari: 2000000,
+            kazandiMi: false
+          }
+        ]
+      },
+      {
+        id: '2886-HAK-2026-04',
+        islemTuru: 'irtifak_hakki',
+        usul: 'kapali_teklif_36',
+        ihaleAdi:
+          'Kent Meydanı Otopark ve Elektrikli Şarj İstasyonu 10 Yıllık Sınırlı Ayni Hak Tesis İhalesi',
+        ihaleKayitNo: '2026/2886-HT-04',
+        ihaleTarihi: '2026-11-05',
+        ihaleSaati: '15:00',
+        ihaleYeri: 'Belediye Encümen Toplantı Salonu',
+        tasinmaz: {
+          il: 'Bursa',
+          ilce: 'Nilüfer',
+          mahalleKoy: 'Cumhuriyet Mahallesi',
+          ada: '152',
+          parsel: '8',
+          yuzolcumuM2: 2200,
+          cinsi: 'Meydan Altı Kapalı Otopark Alanı',
+          hisseOrani: '1/1',
+          mevcutDurumu: 'Mevcut Tesis',
+          adres: 'FSM Bulvarı Kent Meydanı Altı Nilüfer / Bursa'
+        },
+        muhammenBedel: {
+          birimFiyatM2: 163.63,
+          toplamAlanM2: 2200,
+          hesaplananBedel: 3600000,
+          takdirEdilenMuhammenBedel: 3600000,
+          geciciTeminatOrani: 3,
+          geciciTeminatTutari: 108000,
+          kdvOrani: 20,
+          kararTarihi: '2026-10-01',
+          kararNo: '2026/KKT-25'
+        },
+        istekliler: [
+          {
+            id: 'ist-h1',
+            unvanVeyaAd: 'Anadolu Gayrimenkul Yatırım & İnşaat A.Ş.',
+            tcVkn: '8450129845',
+            geciciTeminatYatirdiMi: true,
+            teminatTutari: 108000,
+            teklifler: [3600000, 3850000, 4100000],
+            sonTeklifTutari: 4100000,
+            kazandiMi: true
+          }
+        ]
+      }
+    ]
+
+    try {
+      localStorage.setItem('temin_2886_dosyalar_samples', JSON.stringify(sample2886Dosyalar))
+      localStorage.setItem('temin_2886_active_dosya', JSON.stringify(sample2886Dosyalar[0]))
+      window.dispatchEvent(new CustomEvent('devlet-ihale-2886-reloaded'))
+    } catch (e) {
+      console.warn('[devSeedService] localStorage 2886 write error:', e)
+    }
+
+    return sample2886Dosyalar.length
   }
 }

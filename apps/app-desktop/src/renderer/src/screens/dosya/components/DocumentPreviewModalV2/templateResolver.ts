@@ -253,7 +253,8 @@ export const TEMPLATE_OPTIONS: TemplateOptionItem[] = [
     title: 'Hizmet İşleri Kabul Teklif Belgesi',
     category: '4-kabul-ve-odeme-islemleri',
     categoryLabel: 'Muayene & Kabul & Ödeme',
-    description: 'Hizmet alımı yüklenici iş bitirme dilekçesi sonrası ön inceleme ve kabul teklif belgesi'
+    description:
+      'Hizmet alımı yüklenici iş bitirme dilekçesi sonrası ön inceleme ve kabul teklif belgesi'
   },
   {
     id: 'hakedis-raporu',
@@ -691,13 +692,15 @@ export function resolveTemplateConfig(documentId: string | null | undefined): {
 
   const found = TEMPLATE_REGISTRY.find((t) => t.id === resolvedId)
   if (found) {
-    const comp = V2_TEMPLATES_MAP[found.name] || (found.category === '4-kabul-ve-odeme-islemleri'
-      ? Templates.MuayeneKabulKomisyonu
-      : found.category === '3-siparis-ve-sozlesme'
-      ? Templates.DogrudanTeminOnayBelgesi
-      : found.category === '2-piyasa-fiyat-arastirmasi'
-      ? Templates.PiyasaFiyatArastirmaTutanagi
-      : defaultComponent) as TemplateComponentType
+    const comp =
+      V2_TEMPLATES_MAP[found.name] ||
+      ((found.category === '4-kabul-ve-odeme-islemleri'
+        ? Templates.MuayeneKabulKomisyonu
+        : found.category === '3-siparis-ve-sozlesme'
+          ? Templates.DogrudanTeminOnayBelgesi
+          : found.category === '2-piyasa-fiyat-arastirmasi'
+            ? Templates.PiyasaFiyatArastirmaTutanagi
+            : defaultComponent) as TemplateComponentType)
     return {
       config: found,
       component: comp,
@@ -706,8 +709,14 @@ export function resolveTemplateConfig(documentId: string | null | undefined): {
   }
 
   // 5. Ultimate fallback: check cleanKey hints before returning IhtiyacListesi
-  if (cleanKey.includes('odeme') || cleanKey.includes('kabul') || cleanKey.includes('muayene') || cleanKey.includes('tutanak')) {
-    const kabulTemplate = TEMPLATE_REGISTRY.find((t) => t.id === 'muayene-kabul-komisyonu') || defaultTemplate
+  if (
+    cleanKey.includes('odeme') ||
+    cleanKey.includes('kabul') ||
+    cleanKey.includes('muayene') ||
+    cleanKey.includes('tutanak')
+  ) {
+    const kabulTemplate =
+      TEMPLATE_REGISTRY.find((t) => t.id === 'muayene-kabul-komisyonu') || defaultTemplate
     return {
       config: kabulTemplate,
       component: Templates.MuayeneKabulKomisyonu as TemplateComponentType,

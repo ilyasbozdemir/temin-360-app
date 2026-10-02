@@ -1,25 +1,25 @@
-import React from "react";
-import { FileCheck, FileText, Grid2X2, List, Plus, Table2 } from "lucide-react";
-import { Button } from "../../../../../../../components/ui/Button";
-import { HeaderDigerActionsMenu } from "./HeaderDigerActionsMenu";
+import React from 'react'
+import { FileCheck, FileText, Grid2X2, List, Plus, Table2 } from 'lucide-react'
+import { Button } from '../../../../../../../components/ui/Button'
+import { HeaderDigerActionsMenu } from './HeaderDigerActionsMenu'
 
 interface KabulCardHeaderProps {
-  kayitSayisi: number;
-  isYapim: boolean;
-  isHizmet: boolean;
-  isMal: boolean;
-  alimTuruEtiketi: string;
-  alimTuruKisa: string;
-  effectiveFirma: string;
-  effectiveTeklifTutar: number;
-  viewMode: "table" | "list" | "grid";
-  setViewMode: (mode: "table" | "list" | "grid") => void;
-  primarySablonKey: string;
-  formatCurrency: (val: number | null) => string;
-  onOpenAddTutanak?: () => void;
-  onOpenFallbackForm: () => void;
-  onOpenPreview?: (sablonKey: string) => void;
-  onOpenTifModal?: () => void;
+  kayitSayisi: number
+  isYapim: boolean
+  isHizmet: boolean
+  isMal: boolean
+  alimTuruEtiketi: string
+  alimTuruKisa: string
+  effectiveFirma: string
+  effectiveTeklifTutar: number
+  viewMode: 'table' | 'list' | 'grid'
+  setViewMode: (mode: 'table' | 'list' | 'grid') => void
+  primarySablonKey: string
+  formatCurrency: (val: number | null) => string
+  onOpenAddTutanak?: () => void
+  onOpenFallbackForm: () => void
+  onOpenPreview?: (sablonKey: string) => void
+  onOpenTifModal?: () => void
 }
 
 export function KabulCardHeader({
@@ -38,7 +38,7 @@ export function KabulCardHeader({
   onOpenAddTutanak,
   onOpenFallbackForm,
   onOpenPreview,
-  onOpenTifModal,
+  onOpenTifModal
 }: KabulCardHeaderProps): React.JSX.Element {
   return (
     <div className="p-5 border-b border-slate-100 dark:border-slate-800/80 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-800/30">
@@ -54,21 +54,19 @@ export function KabulCardHeader({
             <span
               className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
                 isYapim
-                  ? "bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60"
+                  ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60'
                   : isHizmet
-                  ? "bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/60"
-                  : "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60"
+                    ? 'bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/60'
+                    : 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60'
               }`}
             >
               {alimTuruEtiketi}
             </span>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Yüklenici:{" "}
-            <strong className="text-slate-700 dark:text-slate-200">
-              {effectiveFirma}
-            </strong>{" "}
-            &bull; Kabul Edilen Teklif:{" "}
+            Yüklenici:{' '}
+            <strong className="text-slate-700 dark:text-slate-200">{effectiveFirma}</strong> &bull;
+            Kabul Edilen Teklif:{' '}
             <strong className="text-emerald-600 dark:text-emerald-400">
               {formatCurrency(effectiveTeklifTutar)}
             </strong>
@@ -81,9 +79,9 @@ export function KabulCardHeader({
         {/* Görünüm Seçici (Tablo / Liste / Kart) */}
         <div className="flex items-center rounded-lg border border-slate-200 bg-white p-1 dark:border-slate-800 dark:bg-slate-900">
           {[
-            { mode: "table" as const, icon: Table2, label: "Tablo" },
-            { mode: "list" as const, icon: List, label: "Liste" },
-            { mode: "grid" as const, icon: Grid2X2, label: "Kart" },
+            { mode: 'table' as const, icon: Table2, label: 'Tablo' },
+            { mode: 'list' as const, icon: List, label: 'Liste' },
+            { mode: 'grid' as const, icon: Grid2X2, label: 'Kart' }
           ].map(({ mode, icon: Icon, label }) => (
             <button
               key={mode}
@@ -92,8 +90,8 @@ export function KabulCardHeader({
               onClick={() => setViewMode(mode)}
               className={`rounded-md p-1.5 transition-colors cursor-pointer ${
                 viewMode === mode
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  ? 'bg-blue-600 text-white'
+                  : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -106,9 +104,9 @@ export function KabulCardHeader({
           <Button
             onClick={() => {
               if (onOpenAddTutanak) {
-                onOpenAddTutanak();
+                onOpenAddTutanak()
               } else {
-                onOpenFallbackForm();
+                onOpenFallbackForm()
               }
             }}
             className="gap-1.5 text-xs font-bold h-9 px-3.5 bg-blue-600 hover:bg-blue-700 text-white shadow-xs cursor-pointer rounded-xl"
@@ -129,10 +127,10 @@ export function KabulCardHeader({
           <FileText className="w-3.5 h-3.5" />
           <span>
             {isYapim
-              ? "Geçici Kabul Tutanağı Çıktı"
+              ? 'Geçici Kabul Tutanağı Çıktı'
               : isHizmet
-              ? "Hizmet Tutanağı Çıktı"
-              : "Kabul Tutanağı Çıktı"}
+                ? 'Hizmet Tutanağı Çıktı'
+                : 'Kabul Tutanağı Çıktı'}
           </span>
         </Button>
 
@@ -144,5 +142,5 @@ export function KabulCardHeader({
         />
       </div>
     </div>
-  );
+  )
 }
