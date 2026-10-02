@@ -1,8 +1,5 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, Suspense, lazy } from 'react'
 import { Sparkles } from 'lucide-react'
-import { FormatUpgradeModal } from '../modals/FormatUpgradeModal'
-import { UpdateModal } from '../ui/UpdateModal'
-import { AboutModal } from '../ui/AboutModal'
 import { WindowControls } from './header/WindowControls'
 import { NativeMenuBar } from './header/NativeMenuBar'
 import { DirtySummaryPopover } from './header/DirtySummaryPopover'
@@ -10,6 +7,14 @@ import { HeaderActions } from './header/HeaderActions'
 import { HeaderBottomRow } from './header/HeaderBottomRow'
 import { useHeader } from './header/useHeader'
 import { getHeaderMenus } from './header/headerNavigation'
+
+const FormatUpgradeModal = lazy(() =>
+  import('../modals/FormatUpgradeModal').then((m) => ({ default: m.FormatUpgradeModal }))
+)
+const UpdateModal = lazy(() =>
+  import('../ui/UpdateModal').then((m) => ({ default: m.UpdateModal }))
+)
+const AboutModal = lazy(() => import('../ui/AboutModal').then((m) => ({ default: m.AboutModal })))
 
 export function Header(): React.JSX.Element {
   const {
@@ -22,10 +27,6 @@ export function Header(): React.JSX.Element {
     isOldFormat,
     institutionLogo,
     logoLeft,
-    activeMenu,
-    setActiveMenu,
-    hoveredSubMenu,
-    setHoveredSubMenu,
     showFormatUpgradeModal,
     setShowFormatUpgradeModal,
     showAboutModal,
@@ -34,21 +35,13 @@ export function Header(): React.JSX.Element {
     setUpgradeFilePath,
     showUpdateModal,
     setShowUpdateModal,
-    showNotifications,
-    setShowNotifications,
     switchFeedback,
     saveFeedback,
-    isDirtySummaryOpen,
-    setIsDirtySummaryOpen,
-    dirtySummary,
-    isLoadingSummary,
-    dirtySummaryRef,
     updateStatus,
-    windowWidth,
+    maxVisibleMenus,
     procurementMode,
     isDt,
     handleUpgradeAndOpen,
-    toggleDirtySummary,
     handleModeChange,
     handleSaveAndSync,
     handleCloseWorkspace,
@@ -83,25 +76,17 @@ export function Header(): React.JSX.Element {
     ]
   )
 
-  const maxVisibleMenus = useMemo(() => {
-    if (windowWidth >= 1520) return 7
-    if (windowWidth >= 1340) return 5
-    if (windowWidth >= 1180) return 4
-    if (windowWidth >= 1020) return 3
-    return 2
-  }, [windowWidth])
-
-  const visibleMenus = menus.slice(0, maxVisibleMenus)
-  const overflowMenus = menus.slice(maxVisibleMenus)
+  const visibleMenus = useMemo(() => menus.slice(0, maxVisibleMenus), [menus, maxVisibleMenus])
+  const overflowMenus = useMemo(() => menus.slice(maxVisibleMenus), [menus, maxVisibleMenus])
 
   return (
     <header
-      className="flex flex-col bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-800/50 shrink-0 z-50 shadow-xs transition-all duration-300 relative select-none"
+      className="flex flex-col bg-slate-50/95 dark:bg-slate-900/95 border-b border-slate-200/50 dark:border-slate-800/50 shrink-0 z-50 shadow-xs relative select-none"
       style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
     >
-      {/* Üst Vurgu Çizgisi: Seçilen moda göre renk tonu */}
+      {/* Üst Vurgu Çizgisi */}
       <div
-        className={`h-0.5 w-full transition-all duration-500 bg-linear-to-r ${
+        className={`h-0.5 w-full bg-linear-to-r ${
           isDt
             ? 'from-blue-500 via-sky-400 to-indigo-500'
             : 'from-indigo-600 via-purple-500 to-pink-500'
@@ -121,10 +106,6 @@ export function Header(): React.JSX.Element {
         <NativeMenuBar
           visibleMenus={visibleMenus}
           overflowMenus={overflowMenus}
-          activeMenu={activeMenu}
-          setActiveMenu={setActiveMenu}
-          hoveredSubMenu={hoveredSubMenu}
-          setHoveredSubMenu={setHoveredSubMenu}
           isDt={isDt}
           logo={institutionLogo || logoLeft}
         />
@@ -133,13 +114,7 @@ export function Header(): React.JSX.Element {
           fileName={fileName}
           isDirty={isDirty}
           saveFeedback={saveFeedback}
-          isDirtySummaryOpen={isDirtySummaryOpen}
-          toggleDirtySummary={toggleDirtySummary}
-          dirtySummaryRef={dirtySummaryRef}
-          dirtySummary={dirtySummary}
-          isLoadingSummary={isLoadingSummary}
           handleSaveAndSync={handleSaveAndSync}
-          setIsDirtySummaryOpen={setIsDirtySummaryOpen}
         />
 
         <HeaderActions
@@ -148,8 +123,6 @@ export function Header(): React.JSX.Element {
           navigate={navigate}
           updateStatus={updateStatus}
           setShowUpdateModal={setShowUpdateModal}
-          showNotifications={showNotifications}
-          setShowNotifications={setShowNotifications}
         />
 
         <WindowControls />
@@ -163,27 +136,34 @@ export function Header(): React.JSX.Element {
         activeDosyaId={activeDosyaId}
       />
 
-      {saveFeedback && (
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 z-50 px-4 py-1.5 rounded-full shadow-lg text-xs font-medium bg-slate-900/95 dark:bg-slate-800 text-white backdrop-blur border border-slate-700 flex items-center gap-2 pointer-events-none transition-all duration-300">
-          <span>{saveFeedback}</span>
-        </div>
+      {/* Tembel (Lazy) Yüklenen Modallar: Sadece açıkken render edilir */}
+      {showFormatUpgradeModal && (
+        <Suspense fallback={null}>
+          <FormatUpgradeModal
+            isOpen={showFormatUpgradeModal}
+            filePath={upgradeFilePath}
+            onClose={(): void => setShowFormatUpgradeModal(false)}
+            onUpgradeAndOpen={handleUpgradeAndOpen}
+          />
+        </Suspense>
       )}
 
-      <FormatUpgradeModal
-        isOpen={showFormatUpgradeModal}
-        filePath={upgradeFilePath}
-        onClose={() => setShowFormatUpgradeModal(false)}
-        onUpgradeAndOpen={handleUpgradeAndOpen}
-      />
+      {showUpdateModal && (
+        <Suspense fallback={null}>
+          <UpdateModal
+            isOpen={showUpdateModal}
+            onClose={(): void => setShowUpdateModal(false)}
+            version={updateStatus?.version}
+            status={updateStatus?.status}
+          />
+        </Suspense>
+      )}
 
-      <UpdateModal
-        isOpen={showUpdateModal}
-        onClose={() => setShowUpdateModal(false)}
-        version={updateStatus?.version}
-        status={updateStatus?.status}
-      />
-
-      <AboutModal isOpen={showAboutModal} onClose={() => setShowAboutModal(false)} />
+      {showAboutModal && (
+        <Suspense fallback={null}>
+          <AboutModal isOpen={showAboutModal} onClose={(): void => setShowAboutModal(false)} />
+        </Suspense>
+      )}
     </header>
   )
 }

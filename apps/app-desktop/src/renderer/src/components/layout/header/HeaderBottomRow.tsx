@@ -10,7 +10,7 @@ interface HeaderBottomRowProps {
   activeDosyaId?: number | string | null
 }
 
-export function HeaderBottomRow({
+export const HeaderBottomRow = React.memo(function HeaderBottomRow({
   isDt,
   procurementMode = isDt ? 'dogrudan_temin' : 'ihale',
   handleModeChange,
@@ -155,4 +155,4 @@ export function HeaderBottomRow({
       ) : null}
     </div>
   )
-}
+})

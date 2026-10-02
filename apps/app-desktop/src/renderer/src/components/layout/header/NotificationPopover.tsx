@@ -1,30 +1,23 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { Bell, X, Info, CheckCircle, AlertTriangle, AlertCircle } from 'lucide-react'
 import { useAnnouncements } from '../../../screens/dashboard/dashboard.hooks'
 
-interface NotificationPopoverProps {
-  isOpen: boolean
-  onToggle: (open: boolean) => void
-}
-
-export function NotificationPopover({
-  isOpen,
-  onToggle
-}: NotificationPopoverProps): React.JSX.Element {
+export const NotificationPopover = React.memo(function NotificationPopover(): React.JSX.Element {
+  const [isOpen, setIsOpen] = useState(false)
   const { announcements } = useAnnouncements()
   const popoverRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent): void {
       if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
-        onToggle(false)
+        setIsOpen(false)
       }
     }
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside)
     }
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [isOpen, onToggle])
+  }, [isOpen])
 
   const getIcon = (type: string): React.JSX.Element => {
     switch (type) {
@@ -68,7 +61,7 @@ export function NotificationPopover({
   return (
     <div className="relative" ref={popoverRef}>
       <button
-        onClick={() => onToggle(!isOpen)}
+        onClick={(): void => setIsOpen(!isOpen)}
         className="p-1 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-all rounded hover:bg-slate-200/50 dark:hover:bg-slate-800/50 relative cursor-pointer"
         title="Bildirimler"
       >
@@ -81,7 +74,7 @@ export function NotificationPopover({
           <div className="p-3 border-b border-slate-100 dark:border-slate-800 font-bold text-sm text-slate-700 dark:text-slate-200 flex justify-between items-center">
             Bildirimler ve İşlem Logları
             <button
-              onClick={() => onToggle(false)}
+              onClick={(): void => setIsOpen(false)}
               className="text-slate-400 hover:text-slate-650 cursor-pointer"
               title="Kapat"
             >
@@ -119,4 +112,4 @@ export function NotificationPopover({
       )}
     </div>
   )
-}
+})

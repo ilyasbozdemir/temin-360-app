@@ -5,22 +5,18 @@ import { NotificationPopover } from './NotificationPopover'
 
 interface HeaderActionsProps {
   theme: string
-  setTheme: (theme: 'light' | 'dark') => void
+  setTheme: (theme: 'light' | 'dark' | 'system') => void
   navigate: (opts: { to: string }) => void
   updateStatus: { status: string; version?: string } | null
   setShowUpdateModal: (show: boolean) => void
-  showNotifications: boolean
-  setShowNotifications: (show: boolean) => void
 }
 
-export function HeaderActions({
+export const HeaderActions = React.memo(function HeaderActions({
   theme,
   setTheme,
   navigate,
   updateStatus,
-  setShowUpdateModal,
-  showNotifications,
-  setShowNotifications
+  setShowUpdateModal
 }: HeaderActionsProps): React.JSX.Element {
   return (
     <div
@@ -29,7 +25,7 @@ export function HeaderActions({
     >
       {/* Sayıyı Yazıya Çevirici Hızlı Araç */}
       <button
-        onClick={() =>
+        onClick={(): boolean =>
           window.dispatchEvent(
             new CustomEvent('open:sayiyi-yaziya-cevir', {
               detail: { value: '282.112,00' }
@@ -44,7 +40,7 @@ export function HeaderActions({
 
       {/* Notlar & Yapılacaklar (To-Do) Hızlı Erişim Butonu */}
       <button
-        onClick={() => navigate({ to: '/notlar' })}
+        onClick={(): void => navigate({ to: '/notlar' })}
         className="p-1 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-all rounded hover:bg-slate-200/50 dark:hover:bg-slate-800/50 cursor-pointer"
         title="Notlar & Yapılacaklar Listesi (To-Do)"
       >
@@ -53,7 +49,7 @@ export function HeaderActions({
 
       {/* Tema Değiştir */}
       <button
-        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        onClick={(): void => setTheme(theme === 'dark' ? 'light' : 'dark')}
         className="p-1 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-all rounded hover:bg-slate-200/50 dark:hover:bg-slate-800/50 cursor-pointer"
         title="Tema Değiştir"
       >
@@ -65,7 +61,7 @@ export function HeaderActions({
         (updateStatus.status === 'available' || updateStatus.status === 'downloaded') && (
           <button
             type="button"
-            onClick={() => setShowUpdateModal(true)}
+            onClick={(): void => setShowUpdateModal(true)}
             className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition-all border shadow-xs cursor-pointer ${
               updateStatus.status === 'downloaded'
                 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20 animate-pulse'
@@ -97,7 +93,7 @@ export function HeaderActions({
       <SyncPopover />
 
       {/* Bildirim Popover */}
-      <NotificationPopover isOpen={showNotifications} onToggle={setShowNotifications} />
+      <NotificationPopover />
     </div>
   )
-}
+})

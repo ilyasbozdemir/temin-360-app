@@ -1,7 +1,7 @@
 import React from 'react'
 import { Minus, Square, X } from 'lucide-react'
 
-export function WindowControls(): React.JSX.Element {
+export const WindowControls = React.memo(function WindowControls(): React.JSX.Element {
   const handleMinimize = (): void => window.electron?.ipcRenderer.send('window-minimize')
   const handleMaximize = (): void => window.electron?.ipcRenderer.send('window-maximize')
   const handleClose = (): void => window.electron?.ipcRenderer.send('window-close')
@@ -36,4 +36,4 @@ export function WindowControls(): React.JSX.Element {
       </button>
     </div>
   )
-}
+})

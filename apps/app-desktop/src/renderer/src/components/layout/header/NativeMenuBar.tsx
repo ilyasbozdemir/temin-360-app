@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { ChevronRight, MoreHorizontal } from 'lucide-react'
 import { HeaderMenu } from './header.types'
 import appIcon from '../../../assets/icon.png'
@@ -6,24 +6,31 @@ import appIcon from '../../../assets/icon.png'
 interface NativeMenuBarProps {
   visibleMenus: HeaderMenu[]
   overflowMenus: HeaderMenu[]
-  activeMenu: string | null
-  setActiveMenu: (menu: string | null) => void
-  hoveredSubMenu: string | null
-  setHoveredSubMenu: (subMenu: string | null) => void
   isDt: boolean
   logo?: string | null
 }
 
-export function NativeMenuBar({
+export const NativeMenuBar = React.memo(function NativeMenuBar({
   visibleMenus,
   overflowMenus,
-  activeMenu,
-  setActiveMenu,
-  hoveredSubMenu,
-  setHoveredSubMenu,
   isDt,
   logo
 }: NativeMenuBarProps): React.JSX.Element {
+  const [activeMenu, setActiveMenu] = useState<string | null>(null)
+  const [hoveredSubMenu, setHoveredSubMenu] = useState<string | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent): void {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setActiveMenu(null)
+        setHoveredSubMenu(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const handleMenuHover = (menuName: string): void => {
     if (activeMenu) {
       setActiveMenu(menuName)
@@ -32,6 +39,7 @@ export function NativeMenuBar({
 
   return (
     <div
+      ref={containerRef}
       id="native-menu-bar"
       className="flex items-center gap-0.5 z-50 text-[11px] font-medium"
       style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
@@ -109,7 +117,7 @@ export function NativeMenuBar({
         </div>
       ))}
 
-      {/* TAŞAN MENÜLER (...) BUTONU VE KASKAD (CASCADE) AÇILIR LİSTE */}
+      {/* TAŞAN MENÜLER (...) BUTONU */}
       {overflowMenus.length > 0 && (
         <div className="relative">
           <button
@@ -169,7 +177,6 @@ export function NativeMenuBar({
                     {om.items && <ChevronRight className="w-3.5 h-3.5 opacity-70" />}
                   </button>
 
-                  {/* Kaskad Alt Menü (Nested Flyout) */}
                   {hoveredSubMenu === om.name && om.items && (
                     <div className="absolute top-0 left-full ml-1 w-56 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-lg shadow-2xl py-1 z-[120] animate-in fade-in slide-in-from-left-1">
                       {om.items.map((item, idx) =>
@@ -203,4 +210,4 @@ export function NativeMenuBar({
       )}
     </div>
   )
-}
+})
