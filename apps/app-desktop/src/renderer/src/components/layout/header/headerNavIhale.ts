@@ -64,7 +64,14 @@ export function getIhaleMenus(navigate: NavigateFn, activeDosyaId: number | null
     {
       name: 'İhale Mevzuatı',
       items: [
-        { label: 'İhale Eşik Değerleri & Limitler', onClick: () => navigate({ to: '/mevzuat' }) },
+        {
+          label: '🧮 İhale & Kamu Maliyesi Hesaplama Araçları',
+          onClick: (): Promise<void> => navigate({ to: '/hesaplama-araclari' })
+        },
+        {
+          label: 'İhale Eşik Değerleri & Limitler',
+          onClick: (): Promise<void> => navigate({ to: '/mevzuat' })
+        },
         {
           label: 'KİK Standart Şablon & Formlar',
           onClick: () => navigate({ to: '/taslakyonetim' })

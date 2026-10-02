@@ -94,6 +94,10 @@ export function getDogrudanTeminMenus(
       name: 'Mevzuat & Limitler',
       items: [
         {
+          label: '🧮 İhale & Kamu Maliyesi Hesaplama Araçları',
+          onClick: (): Promise<void> => navigate({ to: '/hesaplama-araclari' })
+        },
+        {
           label: '4734 Sayılı Kamu İhale Kanunu (KİK Md. 22)',
           onClick: (): Promise<void> => navigate({ to: '/mevzuat' })
         },

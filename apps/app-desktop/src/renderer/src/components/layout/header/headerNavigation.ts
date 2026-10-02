@@ -167,6 +167,10 @@ function getYonetimVeYardimMenu(
       { label: 'Toplu İçe Aktarma', onClick: (): Promise<void> => navigate({ to: '/import' }) },
       { label: 'Raporlar', onClick: (): Promise<void> => navigate({ to: '/raporlar' }) },
       {
+        label: '🧮 İhale & Maliye Hesaplama Araçları',
+        onClick: (): Promise<void> => navigate({ to: '/hesaplama-araclari' })
+      },
+      {
         label: '📋 Notlar & Yapılacaklar Listesi (To-Do)',
         onClick: (): Promise<void> => navigate({ to: '/notlar' })
       },
