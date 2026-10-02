@@ -37,6 +37,7 @@ import {
 import { cn } from '../../utils/cn'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useWorkspaceStore } from '../../store/workspaceStore'
+import { useShallow } from 'zustand/react/shallow'
 
 interface SubItem {
   name: string
@@ -78,10 +79,23 @@ export function Sidebar(): React.JSX.Element {
     adminName,
     adminTitle,
     adminUsername,
-    eButceKodu,
     loadSettings
-  } = useSettingsStore()
-  const { fileName, activeDosyaId, setActiveDosyaId } = useWorkspaceStore()
+  } = useSettingsStore(
+    useShallow((s) => ({
+      institutionName: s.institutionName,
+      institutionLogo: s.institutionLogo,
+      adminName: s.adminName,
+      adminTitle: s.adminTitle,
+      adminUsername: s.adminUsername,
+      loadSettings: s.loadSettings
+    }))
+  )
+  const { fileName, activeDosyaId } = useWorkspaceStore(
+    useShallow((s) => ({
+      fileName: s.fileName,
+      activeDosyaId: s.activeDosyaId
+    }))
+  )
 
   // Mod Seçici Durumu
   const [procurementMode, setProcurementMode] = useState<

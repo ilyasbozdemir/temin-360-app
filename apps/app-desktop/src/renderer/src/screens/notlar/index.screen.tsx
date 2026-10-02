@@ -35,7 +35,7 @@ export default function NotlarVeGorevlerScreen(): React.JSX.Element {
     deleteNot
   } = useNotlarHooks()
 
-  const { activeDosyaId } = useWorkspaceStore()
+  const activeDosyaId = useWorkspaceStore((s) => s.activeDosyaId)
 
   // Filtre durumları
   const [search, setSearch] = useState('')
@@ -179,9 +179,9 @@ export default function NotlarVeGorevlerScreen(): React.JSX.Element {
     <div className="flex-1 flex flex-col h-full bg-slate-50/50 dark:bg-slate-950 overflow-y-auto">
       {/* ÜST BAŞLIK ALANI */}
       <div className="p-6 pb-4 border-b border-slate-200/70 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/25">
+            <div className="w-11 h-11 rounded-2xl bg-linear-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/25">
               <CheckSquare className="w-6 h-6" />
             </div>
             <div>
@@ -254,7 +254,7 @@ export default function NotlarVeGorevlerScreen(): React.JSX.Element {
       </div>
 
       {/* İÇERİK KONTEYNERİ */}
-      <div className="max-w-7xl mx-auto w-full p-6 space-y-6">
+      <div className="w-full p-6 space-y-6">
         {/* 1. İSTATİSTİK KARTLARI */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
           {/* Toplam Not & Görev */}

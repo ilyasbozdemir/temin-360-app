@@ -6,14 +6,26 @@ import { AboutModal } from '../ui/AboutModal'
 import { useWorkspaceStore } from '../../store/workspaceStore'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useTabStore } from '../../store/tabStore'
+import { useShallow } from 'zustand/react/shallow'
 import { GoogleDriveFooterWidget } from './GoogleDriveFooterWidget'
 
 import locData from '../../generated-loc.json'
 
 export function Footer(): React.JSX.Element {
-  const { activeMeta, activeDosyaId, fileName } = useWorkspaceStore()
-  const { institutionName, eButceKodu } = useSettingsStore()
-  const { addTab } = useTabStore()
+  const { activeMeta, activeDosyaId, fileName } = useWorkspaceStore(
+    useShallow((s) => ({
+      activeMeta: s.activeMeta,
+      activeDosyaId: s.activeDosyaId,
+      fileName: s.fileName
+    }))
+  )
+  const { institutionName, eButceKodu } = useSettingsStore(
+    useShallow((s) => ({
+      institutionName: s.institutionName,
+      eButceKodu: s.eButceKodu
+    }))
+  )
+  const addTab = useTabStore((s) => s.addTab)
   const [showAbout, setShowAbout] = useState(false)
   const [showNetwork, setShowNetwork] = useState(false)
   const [appVersion, setAppVersion] = useState(packageJson.version)

@@ -5,7 +5,7 @@ import { ArrowRight, FileCheck, FileText, Printer } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 
 export function CiktiMerkezi(): React.JSX.Element {
-  const { activeDosyaId } = useWorkspaceStore()
+  const activeDosyaId = useWorkspaceStore((s) => s.activeDosyaId)
   const [activeDosya, setActiveDosya] = useState<any>(null)
 
   // Fetch active dosya
@@ -76,7 +76,7 @@ export function CiktiMerkezi(): React.JSX.Element {
     enabled: !!activeDosyaId
   })
 
-  const getDocumentRoute = (docName: string) => {
+  const getDocumentRoute = (docName: string): string | null => {
     const lower = docName.toLowerCase()
     if (lower.includes('yaklaşık maliyet')) {
       return '/dosya/firmalar-maliyet/yaklasik'
@@ -92,6 +92,16 @@ export function CiktiMerkezi(): React.JSX.Element {
     }
     if (lower.includes('lüzum müzekkeresi')) {
       return '/dosya/hazirlik-ve-ihtiyac'
+    }
+    if (
+      lower.includes('2886') ||
+      lower.includes('muhammen') ||
+      lower.includes('tahmin edilen bedel') ||
+      lower.includes('şartname') ||
+      lower.includes('ilan metni') ||
+      lower.includes('komisyon kararı')
+    ) {
+      return '/devlet-ihale-2886'
     }
     return null
   }
@@ -114,11 +124,11 @@ export function CiktiMerkezi(): React.JSX.Element {
 
   if (!activeDosyaId || !activeDosya) {
     return (
-      <div className="p-8 max-w-7xl mx-auto w-full">
+      <div className="p-8 w-full">
         <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/30 text-amber-800 dark:text-amber-400 p-6 rounded-2xl flex items-center gap-3">
           <FileText className="w-6 h-6" />
           <div className="font-semibold">
-            Lütfen önce bir dosya seçin. İşlem yapabilmek için sol taraftan veya "Dosyalar"
+            Lütfen önce bir dosya seçin. İşlem yapabilmek için sol taraftan veya &quot;Dosyalar&quot;
             menüsünden aktif bir dosya seçmeniz gerekmektedir.
           </div>
         </div>
@@ -156,7 +166,7 @@ export function CiktiMerkezi(): React.JSX.Element {
           ]
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="p-6 md:p-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex items-center gap-4 mb-8">
         <div className="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-2xl">
           <Printer className="w-8 h-8" />
