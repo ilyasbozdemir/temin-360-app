@@ -212,7 +212,7 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps): React.ReactNod
         <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
             <ShieldCheck className="w-4 h-4 text-emerald-500" />
-            <span>Kamu standartlarına ve 4734 Sayılı KİK mevzuatına uygundur.</span>
+            <span>Kamu standartlarına, 4734 Sayılı KİK ve 2886 Sayılı Devlet İhale mevzuatına uygundur.</span>
           </div>
           <button
             type="button"

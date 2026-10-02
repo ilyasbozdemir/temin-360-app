@@ -41,7 +41,7 @@ const LOADING_STEPS = [
   },
   {
     progress: 70,
-    title: '4734 Sayılı KİK Mevzuat & Şablon Motoru',
+    title: '4734 KİK & 2886 Devlet İhale Mevzuat Motoru',
     subtitle: 'Doğrudan temin standart formülleri, hesaplama cetvelleri yükleniyor...',
     icon: FileCheck,
     color: 'from-sky-500 via-indigo-500 to-violet-500'
@@ -179,7 +179,7 @@ export function SplashScreen({
         <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 shadow-xs backdrop-blur-md">
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
           <span className="text-xs font-bold tracking-tight text-slate-700 dark:text-slate-300">
-            4734 Sayılı Kamu İhale Mevzuatı • Doğrudan Temin ve Hakediş Sistemi
+            4734/4735 KİK & 2886 Devlet İhale Mevzuatı • Doğrudan Temin ve Hakediş Sistemi
           </span>
         </div>
 

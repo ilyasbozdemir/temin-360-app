@@ -59,13 +59,13 @@ export const DisclaimerModal: React.FC = () => {
         <div className="p-6 text-sm text-slate-600 dark:text-slate-300 leading-relaxed space-y-3.5 max-h-[60vh] overflow-y-auto">
           <div className="p-3.5 bg-blue-50 dark:bg-blue-950/30 rounded-xl border border-blue-200 dark:border-blue-900/50 text-blue-900 dark:text-blue-200 text-xs">
             💡 <strong>Yardımcı ve Kolaylaştırıcı Araç:</strong> Bu program, kamu kurumları ve satın
-            alma birimlerinin doğrudan temin, ihale ve evrak süreçlerini hızlandırmak, düzenlemek ve
+            alma birimlerinin 4734 doğrudan temin / ihale, 2886 devlet ihale (satış, kiralama, irtifak) ve evrak süreçlerini hızlandırmak, düzenlemek ve
             dosya takibini kolaylaştırmak amacıyla geliştirilmiş{' '}
             <strong>ücretsiz bir yardımcı yazılımdır</strong>.
           </div>
 
           <p className="text-xs text-slate-600 dark:text-slate-300">
-            Kamu İhale Mevzuatı (4734 ve 4735 sayılı Kanunlar), KİK Genel Tebliğleri, parasal
+            Kamu İhale Mevzuatı (4734 ve 4735 sayılı Kanunlar), 2886 Sayılı Devlet İhale Kanunu, KİK Genel Tebliğleri, parasal
             limitler, vergi/SGK kesinti oranları ve Bakanlık birim fiyat pozları resmî makamlarca
             periyodik olarak güncellenmektedir.
           </p>
