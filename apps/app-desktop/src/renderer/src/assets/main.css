@@ -90,17 +90,21 @@
    Ensures all inputs, textareas, selects and buttons can receive mouse focus,
    caret placement, and text selection without window-drag interference.
    ========================================================================== */
-input,
-textarea,
-select,
-[contenteditable='true'] {
+input:not(:disabled),
+textarea:not(:disabled),
+select:not(:disabled),
+[contenteditable='true'],
+[contenteditable=''] {
   -webkit-app-region: no-drag !important;
   user-select: text !important;
   -webkit-user-select: text !important;
+  pointer-events: auto !important;
 }
 
-button,
+button:not(:disabled),
 a,
-[role='button'] {
+[role='button']:not([aria-disabled='true']) {
   -webkit-app-region: no-drag !important;
+  pointer-events: auto;
 }
+

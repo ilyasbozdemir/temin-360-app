@@ -49,6 +49,29 @@ export const DosyaManageHeader: React.FC<DosyaManageHeaderProps> = ({
 }) => {
   const [showMoreMenu, setShowMoreMenu] = useState(false)
   const moreMenuBtnRef = useRef<HTMLButtonElement>(null)
+  const menuContainerRef = useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    if (!showMoreMenu) return
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node
+      if (
+        moreMenuBtnRef.current &&
+        !moreMenuBtnRef.current.contains(target) &&
+        menuContainerRef.current &&
+        !menuContainerRef.current.contains(target)
+      ) {
+        setShowMoreMenu(false)
+      }
+    }
+    const handleClear = () => setShowMoreMenu(false)
+    document.addEventListener('mousedown', handleClickOutside)
+    window.addEventListener('app:clear-overlays', handleClear)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      window.removeEventListener('app:clear-overlays', handleClear)
+    }
+  }, [showMoreMenu])
 
   const dosyaTitle = isEdit
     ? formatDosyaNo({ ...formData, id: editId })
@@ -141,11 +164,10 @@ export const DosyaManageHeader: React.FC<DosyaManageHeaderProps> = ({
           </button>
 
           {showMoreMenu && (
-            <>
-              {/* Backdrop */}
-              <div className="fixed inset-0 z-[9998]" onClick={() => setShowMoreMenu(false)} />
-              {/* Dropdown */}
-              <div className="fixed right-4 top-[52px] w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl z-[9999] overflow-hidden flex flex-col py-1 animate-in fade-in zoom-in-95 duration-150">
+            <div
+              ref={menuContainerRef}
+              className="fixed right-4 top-[52px] w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl z-[9999] overflow-hidden flex flex-col py-1 animate-in fade-in zoom-in-95 duration-150"
+            >
                 {!isEdit && (
                   <button
                     type="button"
@@ -220,7 +242,6 @@ export const DosyaManageHeader: React.FC<DosyaManageHeaderProps> = ({
                   İptal &amp; Listeye Dön
                 </Link>
               </div>
-            </>
           )}
         </div>
 

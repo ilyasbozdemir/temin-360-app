@@ -1,22 +1,39 @@
 import { useEffect } from 'react'
 
-export function useGlobalInteractivityGuard(locationHref: string): void {
+export function useGlobalInteractivityGuard(activeRouteOrTab: string): void {
   useEffect(() => {
+    // Notify all open custom dropdowns/popovers to close when tab/route changes
+    window.dispatchEvent(new CustomEvent('app:clear-overlays'))
+
     const isElementVisible = (el: Element): boolean => {
       if (!(el instanceof HTMLElement)) return false
       const rect = el.getBoundingClientRect()
-      if (rect.width === 0 || rect.height === 0) return false
+      if (rect.width === 0 && rect.height === 0) return false
       const style = window.getComputedStyle(el)
       return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0'
     }
 
-    const ensureInteractivity = () => {
+    const ensureInteractivity = (): void => {
+      // 1. Force pointer-events auto on body and html if inadvertently set to none
+      if (
+        document.body.style.pointerEvents === 'none' ||
+        window.getComputedStyle(document.body).pointerEvents === 'none'
+      ) {
+        document.body.style.setProperty('pointer-events', 'auto', 'important')
+      }
+      if (
+        document.documentElement.style.pointerEvents === 'none' ||
+        window.getComputedStyle(document.documentElement).pointerEvents === 'none'
+      ) {
+        document.documentElement.style.setProperty('pointer-events', 'auto', 'important')
+      }
+
+      // 2. Check if a real, visible dialog is currently mounted on screen
       const candidateModals = Array.from(
         document.querySelectorAll(
-          '[role="dialog"], [data-radix-portal] [role="dialog"], .fixed.inset-0.z-\\[99999\\], .fixed.inset-0.z-\\[100\\], .fixed.inset-0.z-\\[200\\], .fixed.inset-0.z-\\[9999\\], .fixed.inset-0.z-50'
+          '[role="dialog"], [data-radix-portal] [role="dialog"], .fixed.inset-0.z-\\[99999\\], .fixed.inset-0.z-\\[100\\], .fixed.inset-0.z-\\[200\\], .fixed.inset-0.z-\\[9999\\]'
         )
       )
-
       const hasVisibleModal = candidateModals.some(isElementVisible)
 
       if (!hasVisibleModal) {
@@ -33,19 +50,6 @@ export function useGlobalInteractivityGuard(locationHref: string): void {
               // ignore
             }
           })
-
-        if (
-          document.body.style.pointerEvents === 'none' ||
-          window.getComputedStyle(document.body).pointerEvents === 'none'
-        ) {
-          document.body.style.setProperty('pointer-events', 'auto', 'important')
-        }
-        if (
-          document.documentElement.style.pointerEvents === 'none' ||
-          window.getComputedStyle(document.documentElement).pointerEvents === 'none'
-        ) {
-          document.documentElement.style.setProperty('pointer-events', 'auto', 'important')
-        }
 
         if (document.body.style.overflow === 'hidden') {
           document.body.style.overflow = 'unset'
@@ -69,7 +73,7 @@ export function useGlobalInteractivityGuard(locationHref: string): void {
     }
 
     ensureInteractivity()
-    const interval = setInterval(ensureInteractivity, 250)
+    const interval = setInterval(ensureInteractivity, 300)
 
     const observer = new MutationObserver(() => {
       ensureInteractivity()
@@ -80,7 +84,7 @@ export function useGlobalInteractivityGuard(locationHref: string): void {
       attributeFilter: ['style', 'aria-hidden', 'inert', 'class', 'data-scroll-locked']
     })
 
-    const handleUserInteraction = (e: Event) => {
+    const handleUserInteraction = (e: Event): void => {
       ensureInteractivity()
 
       if (
@@ -97,6 +101,11 @@ export function useGlobalInteractivityGuard(locationHref: string): void {
       }
     }
 
+    const handleClearOverlays = (): void => {
+      ensureInteractivity()
+    }
+
+    window.addEventListener('app:clear-overlays', handleClearOverlays)
     window.addEventListener('pointerdown', handleUserInteraction, true)
     window.addEventListener('mousedown', handleUserInteraction, true)
     window.addEventListener('click', handleUserInteraction, true)
@@ -107,6 +116,7 @@ export function useGlobalInteractivityGuard(locationHref: string): void {
     return () => {
       clearInterval(interval)
       observer.disconnect()
+      window.removeEventListener('app:clear-overlays', handleClearOverlays)
       window.removeEventListener('pointerdown', handleUserInteraction, true)
       window.removeEventListener('mousedown', handleUserInteraction, true)
       window.removeEventListener('click', handleUserInteraction, true)
@@ -114,5 +124,5 @@ export function useGlobalInteractivityGuard(locationHref: string): void {
       window.removeEventListener('keydown', ensureInteractivity, true)
       window.removeEventListener('focus', ensureInteractivity, true)
     }
-  }, [locationHref])
+  }, [activeRouteOrTab])
 }

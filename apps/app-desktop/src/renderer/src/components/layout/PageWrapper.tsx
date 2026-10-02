@@ -44,9 +44,6 @@ export function PageWrapper(): React.ReactNode {
     hashParams.get("mode") === "dosya_window";
   const isAnyWindowMode = isWindowMode || isDosyaWindowMode;
 
-  useDocumentTitle(routerState.location.pathname);
-  useGlobalInteractivityGuard(routerState.location.href);
-
   const { isSayiModalOpen, sayiInitialVal, setIsSayiModalOpen } =
     useSayiyiYaziyaCevirModal();
 
@@ -61,6 +58,14 @@ export function PageWrapper(): React.ReactNode {
   } = useWorkspaceStore();
   const { unifiedStepperMode, loadSettings } = useSettingsStore();
 
+  const { tabs, activeTabPath, addTab, clearTabs, clearDosyaTabs } =
+    useTabStore();
+
+  useDocumentTitle(routerState.location.pathname);
+  useGlobalInteractivityGuard(
+    `${routerState.location.href}::${activeTabPath || ""}`,
+  );
+
   useEffect(() => {
     const idParam = searchParams.get("id");
     if (idParam) {
@@ -70,19 +75,6 @@ export function PageWrapper(): React.ReactNode {
       }
     }
   }, [window.location.search, setActiveDosyaId, activeDosyaId]);
-
-  const { tabs, activeTabPath, addTab, clearTabs, clearDosyaTabs } =
-    useTabStore();
-
-  const isDosyaAsamasi = [
-    "/dosya/hazirlik-ve-ihtiyac",
-    "/dosya/piyasa-fiyat-arastirmasi",
-    "/dosya/siparis-ve-sozlesme",
-    "/dosya/kabul-ve-odeme",
-    "/dosya/klasor-ve-kapaklar",
-  ].some((path) => activeTabPath && activeTabPath.includes(path));
-
-  const showRightSidebar = !(unifiedStepperMode && isDosyaAsamasi);
 
   const {
     isCloseModalOpen,

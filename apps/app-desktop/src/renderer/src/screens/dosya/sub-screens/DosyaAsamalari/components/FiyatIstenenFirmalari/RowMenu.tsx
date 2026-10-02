@@ -66,8 +66,13 @@ export function RowMenu({
         setOpen(false)
       }
     }
+    const handleClear = () => setOpen(false)
     document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    window.addEventListener('app:clear-overlays', handleClear)
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      window.removeEventListener('app:clear-overlays', handleClear)
+    }
   }, [open])
 
   const handleItem = (fn: () => void) => {

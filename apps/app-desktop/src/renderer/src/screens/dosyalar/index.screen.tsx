@@ -47,11 +47,21 @@ export default function DosyalarScreen(): React.ReactNode {
     )
   }
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [selectedDosyaForMaliyet, setSelectedDosyaForMaliyet] = useState<any | null>(null)
+  const [showAIModal, setShowAIModal] = useState(false)
+  const [selectedFileForAI, setSelectedFileForAI] = useState<Partial<TeminDosyasi> | null>(null)
+
+  const [ekapModalOpen, setEkapModalOpen] = useState(false)
+  const [ekapInputVal, setEkapInputVal] = useState('')
+  const [ekapTargetId, setEkapTargetId] = useState<number | null>(null)
 
   useEffect(() => {
-    setIsMenuOpen(false)
-  }, [activeDosyaId])
+    const handleClear = (): void => {
+      setSelectedDosyaForMaliyet(null)
+    }
+    window.addEventListener('app:clear-overlays', handleClear)
+    return () => window.removeEventListener('app:clear-overlays', handleClear)
+  }, [])
 
   useEffect(() => {
     if (isWindowMode) return
@@ -62,15 +72,6 @@ export default function DosyalarScreen(): React.ReactNode {
       updateTabLabel(currentHref, 'Doğrudan Temin')
     }
   }, [routerState.location.href, updateTabLabel, isWindowMode])
-
-  const [showAIModal, setShowAIModal] = useState(false)
-  const [selectedFileForAI, setSelectedFileForAI] = useState<Partial<TeminDosyasi> | null>(null)
-
-  const [ekapModalOpen, setEkapModalOpen] = useState(false)
-  const [ekapInputVal, setEkapInputVal] = useState('')
-  const [ekapTargetId, setEkapTargetId] = useState<number | null>(null)
-
-  const [selectedDosyaForMaliyet, setSelectedDosyaForMaliyet] = useState<any | null>(null)
 
   const handleSaveMaliyetAyarlari = async (): Promise<void> => {
     if (!selectedDosyaForMaliyet) return
