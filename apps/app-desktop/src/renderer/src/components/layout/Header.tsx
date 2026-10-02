@@ -103,29 +103,37 @@ export function Header(): React.JSX.Element {
 
       {/* ÜST SATIR: Menü Çubuğu, Çalışma Dosyası Özeti ve Sistem Kontrolleri */}
       <div className="h-9 flex items-center justify-between px-3 border-b border-slate-200/40 dark:border-slate-800/40 relative z-40">
-        <NativeMenuBar
-          visibleMenus={visibleMenus}
-          overflowMenus={overflowMenus}
-          isDt={isDt}
-          logo={institutionLogo || logoLeft}
-        />
+        {/* Sol Alan: Uygulama Menüleri */}
+        <div className="flex items-center min-w-0 shrink-0">
+          <NativeMenuBar
+            visibleMenus={visibleMenus}
+            overflowMenus={overflowMenus}
+            isDt={isDt}
+            logo={institutionLogo || logoLeft}
+          />
+        </div>
 
-        <DirtySummaryPopover
-          fileName={fileName}
-          isDirty={isDirty}
-          saveFeedback={saveFeedback}
-          handleSaveAndSync={handleSaveAndSync}
-        />
+        {/* Orta Alan: Çalışma Dosyası ve Kaydetme Durumu */}
+        <div className="flex-1 flex items-center justify-center min-w-0 px-2">
+          <DirtySummaryPopover
+            fileName={fileName}
+            isDirty={isDirty}
+            saveFeedback={saveFeedback}
+            handleSaveAndSync={handleSaveAndSync}
+          />
+        </div>
 
-        <HeaderActions
-          theme={theme}
-          setTheme={setTheme}
-          navigate={navigate}
-          updateStatus={updateStatus}
-          setShowUpdateModal={setShowUpdateModal}
-        />
-
-        <WindowControls />
+        {/* Sağ Alan: Hızlı Araçlar ve Pencere Kontrolleri */}
+        <div className="flex items-center gap-2 shrink-0">
+          <HeaderActions
+            theme={theme}
+            setTheme={setTheme}
+            navigate={navigate}
+            updateStatus={updateStatus}
+            setShowUpdateModal={setShowUpdateModal}
+          />
+          <WindowControls />
+        </div>
       </div>
 
       {/* ALT SATIR: Çalışma Dosyası Seçimi, Mod Rozeti & Süreç Butonları */}
