@@ -32,10 +32,12 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "TEMİN 360 - Yeni Nesil Süreç, İhale & Hakediş Yönetim Sistemi",
     description:
-      "4734 Sayılı Kamu İhale Kanunu ve 5018 standartlarında doğrudan temin, piyasa fiyat araştırması ve hakediş yönetiminde hibrit masaüstü & bulut iş asistanı.",
+      "4734 Sayılı Kamu İhale Kanunu, 2886 Sayılı Devlet İhale Kanunu ve 5018 standartlarında doğrudan temin, ihale, piyasa fiyat araştırması ve hakediş yönetiminde hibrit masaüstü & bulut iş asistanı.",
     keywords: [
       "Doğrudan Temin",
       "4734 Sayılı Kanun",
+      "2886 Sayılı Kanun",
+      "Devlet İhale",
       "Kamu İhale",
       "Piyasa Fiyat Araştırması",
       "Hakediş",

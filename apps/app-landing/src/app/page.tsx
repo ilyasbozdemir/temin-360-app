@@ -96,9 +96,9 @@ export default function Home() {
     date: string;
     url: string;
   }>({
-    tag: "v1.0.0-beta.92",
+    tag: "v1.0.0-beta.219",
     size: "68.5 MB",
-    date: "07.09.2026",
+    date: "02.10.2026",
     url: "https://github.com/ilyasbozdemir/temin-360-app/releases",
   });
 
@@ -418,8 +418,9 @@ export default function Home() {
         </h1>
 
         <p className="max-w-2xl mx-auto text-slate-600 dark:text-slate-400 text-xs sm:text-base leading-relaxed font-medium px-2">
-          TEMİN 360; 4734 Sayılı Kamu İhale Kanunu Madde 22/d ve 5018 Sayılı
-          Kanun standartlarında doğrudan temin, piyasa fiyat araştırması ve
+          TEMİN 360; 4734 Sayılı Kamu İhale Kanunu, 2886 Sayılı Devlet İhale
+          Kanunu ve 5018 Sayılı Kamu Malî Yönetimi standartlarında doğrudan
+          temin, ihale, taşınmaz satış & kiralama, piyasa fiyat araştırması ve
           hakediş evraklarını saniyeler içinde mevzuata tam uyumlu üreten, yerel
           SQLite motoruyla sıfır gecikmeli çalışan hibrit iş asistanıdır.
         </p>
@@ -509,7 +510,7 @@ export default function Home() {
                   <span className="font-semibold">TEMİN 360</span>
                   <span className="text-slate-400 hidden xs:inline">|</span>
                   <span className="text-slate-500 dark:text-slate-400 hidden xs:inline">
-                    Komuta Merkezi (KİK 4734 / 22-d)
+                    Komuta Merkezi (4734 KİK & 2886 Devlet İhale)
                   </span>
                 </div>
 
@@ -609,12 +610,12 @@ export default function Home() {
                   <FileText className="w-5 h-5" />
                 </div>
                 <h3 className="font-bold text-base text-slate-900 dark:text-white">
-                  4734 ve 5018 Mevzuat Uyumu
+                  4734, 4735 ve 2886 Mevzuat Uyumu
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Piyasa fiyat araştırma tutanakları, onay belgeleri, sözleşme
-                  ve muayene-kabul tutanakları gibi tüm resmi şablonlar kamu
-                  ihale mevzuatına %100 uyumludur.
+                  Piyasa fiyat araştırma tutanakları, onay belgeleri, 2886 taşınmaz
+                  satış ve kiralama şartnameleri, sözleşme ve muayene-kabul
+                  tutanakları gibi tüm resmi şablonlar kamu mevzuatına %100 uyumludur.
                 </p>
               </div>
 
@@ -776,8 +777,9 @@ volumes:
                 Onay Belgesi & Karar
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                4734 Sayılı Kanun 22/d standartlarında Harcama Yetkilisi Onay
-                Belgesi ve Piyasa Fiyat Tutanağını tek tıkla üretin.
+                4734 Sayılı Kanun 22/d ve 2886 Devlet İhale standartlarında
+                Harcama Yetkilisi Onay Belgesi, İhale Kararı ve Piyasa Fiyat
+                Tutanağını tek tıkla üretin.
               </p>
             </div>
 
