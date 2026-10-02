@@ -94,17 +94,28 @@ export function useKabulVeOdemeData() {
   const [tutanaklar, setTutanaklar] = useState<KabulTutanakItem[]>(
     cached?.tutanaklar || [],
   );
+  const [dosyaKalemler, setDosyaKalemler] = useState<any[]>([]);
   const [isTutanakModalOpen, setIsTutanakModalOpen] = useState(false);
   const [editingTutanak, setEditingTutanak] = useState<KabulTutanakItem | null>(
     null,
   );
 
   const rawAlimTuru = String(
-    firmaStats?.alimTuru || dosyaContext?.alimTuru || dosyaContext?.alim_turu || "mal",
+    firmaStats?.alimTuru ||
+      dosyaContext?.alimTuru ||
+      dosyaContext?.alim_turu ||
+      dosyaContext?.tur ||
+      "mal",
   ).toLowerCase();
-  const isHizmet = rawAlimTuru.includes("hizmet") || rawAlimTuru.includes("danismanlik");
-  const isMal = !isHizmet;
-  const alimTuru = isHizmet ? "hizmet" : "mal";
+  const isYapim =
+    rawAlimTuru.includes("yapim") ||
+    rawAlimTuru.includes("inşaat") ||
+    rawAlimTuru.includes("insaat");
+  const isHizmet =
+    !isYapim &&
+    (rawAlimTuru.includes("hizmet") || rawAlimTuru.includes("danismanlik"));
+  const isMal = !isYapim && !isHizmet;
+  const alimTuru = isYapim ? "yapim" : isHizmet ? "hizmet" : "mal";
 
   const handleOpenAddTutanak = (): void => {
     setEditingTutanak(null);
@@ -182,6 +193,130 @@ export function useKabulVeOdemeData() {
         );
       } catch (e) {
         console.error("Failed to delete kabulTutanaklari:", e);
+      }
+    }
+  };
+
+  const handleBulkDeleteTutanaklar = async (ids: string[]): Promise<void> => {
+    const idSet = new Set(ids);
+    const updated = tutanaklar.filter((t) => !idSet.has(t.id));
+    setTutanaklar(updated);
+
+    if (activeDosyaId && window.electron) {
+      try {
+        const fileRes = await window.electron.ipcRenderer.invoke(
+          "db:query",
+          "SELECT sablon_tercihleri FROM DATA_TeminDosyasi WHERE id = ?",
+          [activeDosyaId],
+        );
+        let existingObj: any = {};
+        if (fileRes.success && fileRes.data?.[0]?.sablon_tercihleri) {
+          try {
+            existingObj =
+              typeof fileRes.data[0].sablon_tercihleri === "string"
+                ? JSON.parse(fileRes.data[0].sablon_tercihleri) || {}
+                : fileRes.data[0].sablon_tercihleri || {};
+          } catch {}
+        }
+        existingObj.kabulTutanaklari = updated;
+        await window.electron.ipcRenderer.invoke(
+          "db:run",
+          "UPDATE DATA_TeminDosyasi SET sablon_tercihleri = ? WHERE id = ?",
+          [JSON.stringify(existingObj), activeDosyaId],
+        );
+      } catch (e) {
+        console.error("Failed to delete multiple kabulTutanaklari:", e);
+      }
+    }
+  };
+
+  const handleToggleApproveTutanak = async (id: string): Promise<void> => {
+    const todayStr = new Date().toISOString().split("T")[0];
+    const updated = tutanaklar.map((t) => {
+      if (t.id === id) {
+        const nextApproved = !(t.onaylandi ?? true); // varsayılan olarak true değilse toggle
+        return {
+          ...t,
+          onaylandi: nextApproved,
+          islenmisMi: nextApproved,
+          onayTarihi: nextApproved ? (t.onayTarihi || todayStr) : undefined,
+        };
+      }
+      return t;
+    });
+    setTutanaklar(updated);
+
+    if (activeDosyaId && window.electron) {
+      try {
+        const fileRes = await window.electron.ipcRenderer.invoke(
+          "db:query",
+          "SELECT sablon_tercihleri FROM DATA_TeminDosyasi WHERE id = ?",
+          [activeDosyaId],
+        );
+        let existingObj: any = {};
+        if (fileRes.success && fileRes.data?.[0]?.sablon_tercihleri) {
+          try {
+            existingObj =
+              typeof fileRes.data[0].sablon_tercihleri === "string"
+                ? JSON.parse(fileRes.data[0].sablon_tercihleri) || {}
+                : fileRes.data[0].sablon_tercihleri || {};
+          } catch {}
+        }
+        existingObj.kabulTutanaklari = updated;
+        await window.electron.ipcRenderer.invoke(
+          "db:run",
+          "UPDATE DATA_TeminDosyasi SET sablon_tercihleri = ? WHERE id = ?",
+          [JSON.stringify(existingObj), activeDosyaId],
+        );
+      } catch (e) {
+        console.error("Failed to toggle approve tutanak:", e);
+      }
+    }
+  };
+
+  const handleBulkApproveTutanaklar = async (
+    ids: string[],
+    approved = true,
+  ): Promise<void> => {
+    const idSet = new Set(ids);
+    const todayStr = new Date().toISOString().split("T")[0];
+    const updated = tutanaklar.map((t) => {
+      if (idSet.has(t.id)) {
+        return {
+          ...t,
+          onaylandi: approved,
+          islenmisMi: approved,
+          onayTarihi: approved ? (t.onayTarihi || todayStr) : undefined,
+        };
+      }
+      return t;
+    });
+    setTutanaklar(updated);
+
+    if (activeDosyaId && window.electron) {
+      try {
+        const fileRes = await window.electron.ipcRenderer.invoke(
+          "db:query",
+          "SELECT sablon_tercihleri FROM DATA_TeminDosyasi WHERE id = ?",
+          [activeDosyaId],
+        );
+        let existingObj: any = {};
+        if (fileRes.success && fileRes.data?.[0]?.sablon_tercihleri) {
+          try {
+            existingObj =
+              typeof fileRes.data[0].sablon_tercihleri === "string"
+                ? JSON.parse(fileRes.data[0].sablon_tercihleri) || {}
+                : fileRes.data[0].sablon_tercihleri || {};
+          } catch {}
+        }
+        existingObj.kabulTutanaklari = updated;
+        await window.electron.ipcRenderer.invoke(
+          "db:run",
+          "UPDATE DATA_TeminDosyasi SET sablon_tercihleri = ? WHERE id = ?",
+          [JSON.stringify(existingObj), activeDosyaId],
+        );
+      } catch (e) {
+        console.error("Failed to bulk approve tutanaklar:", e);
       }
     }
   };
@@ -564,6 +699,35 @@ export function useKabulVeOdemeData() {
           setKomisyonBaskani(fetchedBaskan);
           setFirmaStats(nextStats);
 
+          try {
+            const kalemRes = await window.electron.ipcRenderer.invoke(
+              "db:query",
+              `SELECT k.id, k.id as sira_no, k.kalem_adi as malzeme_adi, k.kalem_adi,
+                      k.aciklama as ozelligi, k.aciklama,
+                      k.birim as birimi, k.birim, k.miktar, k.tasinir_kodu, k.kdv_orani,
+                      COALESCE(
+                        (SELECT kt.birim_fiyat FROM DATA_TeminKalemTeklif kt WHERE kt.temin_kalem_id = k.id AND (kt.temin_firma_id = ? OR kt.temin_firma_id = (SELECT id FROM DATA_TeminFirma WHERE temin_dosya_id = ? AND (firma_id = ? OR id = ?) LIMIT 1)) LIMIT 1),
+                        (SELECT MIN(kt2.birim_fiyat) FROM DATA_TeminKalemTeklif kt2 WHERE kt2.temin_kalem_id = k.id AND kt2.birim_fiyat > 0),
+                        0
+                      ) as birim_fiyat
+               FROM DATA_TeminKalem k
+               WHERE k.temin_dosya_id = ?
+               ORDER BY k.id ASC`,
+              [
+                effectiveFirmaId,
+                activeDosyaId,
+                effectiveFirmaId,
+                effectiveFirmaId,
+                activeDosyaId,
+              ],
+            );
+            if (kalemRes.success && Array.isArray(kalemRes.data)) {
+              setDosyaKalemler(kalemRes.data);
+            }
+          } catch (kalemErr) {
+            console.warn("Failed to load DATA_TeminKalem:", kalemErr);
+          }
+
           kabulDataCache.set(activeDosyaId, {
             kazananFirmaId: effectiveFirmaId,
             kazananFirmaUnvan: effectiveUnvan,
@@ -619,6 +783,7 @@ export function useKabulVeOdemeData() {
     stageSablons,
     ciktiLoading,
     dosyaContext,
+    dosyaKalemler,
     previewModalOpen,
     setPreviewModalOpen,
     previewData,
@@ -650,10 +815,14 @@ export function useKabulVeOdemeData() {
     alimTuru,
     isMal,
     isHizmet,
+    isYapim,
     handleOpenAddTutanak,
     handleOpenEditTutanak,
     handleSaveTutanak,
     handleDeleteTutanak,
+    handleBulkDeleteTutanaklar,
+    handleToggleApproveTutanak,
+    handleBulkApproveTutanaklar,
     handleQuickPreview,
     reloadKomisyonUyeleri,
     handleReloadKomisyon: reloadKomisyonUyeleri,

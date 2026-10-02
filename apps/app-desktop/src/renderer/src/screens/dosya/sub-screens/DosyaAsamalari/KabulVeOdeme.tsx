@@ -19,6 +19,7 @@ export function KabulVeOdeme(): React.JSX.Element {
   const {
     activeDosyaId,
     dosyaContext,
+    dosyaKalemler,
     disableDocumentGuidance,
     activeStarredDocs,
     sablons,
@@ -57,6 +58,9 @@ export function KabulVeOdeme(): React.JSX.Element {
     handleOpenEditTutanak,
     handleSaveTutanak,
     handleDeleteTutanak,
+    handleBulkDeleteTutanaklar,
+    handleToggleApproveTutanak,
+    handleBulkApproveTutanaklar,
     handleQuickPreview,
     handleReloadKomisyon,
   } = useKabulVeOdemeData();
@@ -144,6 +148,9 @@ export function KabulVeOdeme(): React.JSX.Element {
             onOpenAddTutanak={handleOpenAddTutanak}
             onEditTutanak={handleOpenEditTutanak}
             onDeleteTutanak={handleDeleteTutanak}
+            onBulkDeleteTutanaklar={handleBulkDeleteTutanaklar}
+            onToggleApproveTutanak={handleToggleApproveTutanak}
+            onBulkApproveTutanaklar={handleBulkApproveTutanaklar}
             onOpenPreview={handleQuickPreview}
             onOpenTifModal={() => setIsTifModalOpen(true)}
             onOpenKomisyonModal={() => setIsKomisyonModalOpen(true)}
@@ -189,7 +196,11 @@ export function KabulVeOdeme(): React.JSX.Element {
         defaultTeslimYeri={teslimYeri}
         defaultTeslimAlan={komisyonBaskani}
         alimTuru={alimTuru}
-        dosyaKalemler={dosyaContext?.kalemler}
+        dosyaKalemler={
+          dosyaKalemler && dosyaKalemler.length > 0
+            ? dosyaKalemler
+            : (dosyaContext?.kalemler || [])
+        }
       />
     </SubScreen>
   );

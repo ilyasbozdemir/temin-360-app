@@ -593,44 +593,46 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
 
           // Track backup history in SQLite database
           try {
-            const db = workspaceManager.getDb()
-            db.exec(`
-            CREATE TABLE IF NOT EXISTS LOG_YedekGecmisi (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              hedef TEXT NOT NULL,
-              dosya_adi TEXT NOT NULL,
-              gdrive_file_id TEXT,
-              boyut_bytes INTEGER,
-              surum_no TEXT,
-              tarih TEXT NOT NULL,
-              aciklama TEXT
-            );
-          `)
-            db.prepare(
-              `
-            INSERT INTO LOG_YedekGecmisi (hedef, dosya_adi, gdrive_file_id, boyut_bytes, surum_no, tarih, aciklama)
-            VALUES (?, ?, ?, ?, ?, datetime('now', 'localtime'), ?)
-          `
-            ).run(
-              'gdrive',
-              backupFileName,
-              uploadedFile.id,
-              fileData.length,
-              '1.0.0-beta.92',
-              'Google Drive Bulut Yedeği (TEMIN_360_YEDEKLER)'
-            )
-            db.prepare(
-              `INSERT OR REPLACE INTO settings (key, value) VALUES ('lastGdriveSync', ?)`
-            ).run(new Date().toISOString())
-            db.prepare(
-              `INSERT OR REPLACE INTO settings (key, value) VALUES ('lastBackupFileName', ?)`
-            ).run(backupFileName)
-            db.prepare(
-              `INSERT OR REPLACE INTO settings (key, value) VALUES ('lastBackupFileId', ?)`
-            ).run(uploadedFile.id)
-            db.prepare(
-              `INSERT OR REPLACE INTO settings (key, value) VALUES ('dbVersion', '1.0.0-beta.92')`
-            ).run()
+            if (workspaceManager.isOpen()) {
+              const db = workspaceManager.getDb()
+              db.exec(`
+              CREATE TABLE IF NOT EXISTS LOG_YedekGecmisi (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                hedef TEXT NOT NULL,
+                dosya_adi TEXT NOT NULL,
+                gdrive_file_id TEXT,
+                boyut_bytes INTEGER,
+                surum_no TEXT,
+                tarih TEXT NOT NULL,
+                aciklama TEXT
+              );
+            `)
+              db.prepare(
+                `
+              INSERT INTO LOG_YedekGecmisi (hedef, dosya_adi, gdrive_file_id, boyut_bytes, surum_no, tarih, aciklama)
+              VALUES (?, ?, ?, ?, ?, datetime('now', 'localtime'), ?)
+            `
+              ).run(
+                'gdrive',
+                backupFileName,
+                uploadedFile.id,
+                fileData.length,
+                '1.0.0-beta.92',
+                'Google Drive Bulut Yedeği (TEMIN_360_YEDEKLER)'
+              )
+              db.prepare(
+                `INSERT OR REPLACE INTO settings (key, value) VALUES ('lastGdriveSync', ?)`
+              ).run(new Date().toISOString())
+              db.prepare(
+                `INSERT OR REPLACE INTO settings (key, value) VALUES ('lastBackupFileName', ?)`
+              ).run(backupFileName)
+              db.prepare(
+                `INSERT OR REPLACE INTO settings (key, value) VALUES ('lastBackupFileId', ?)`
+              ).run(uploadedFile.id)
+              db.prepare(
+                `INSERT OR REPLACE INTO settings (key, value) VALUES ('dbVersion', '1.0.0-beta.92')`
+              ).run()
+            }
           } catch (dbErr) {
             console.error('Failed to log backup history in DB:', dbErr)
           }

@@ -42,9 +42,13 @@ export interface KabulTutanakItem {
   teslimYeri?: string
   teslimAlan?: string
   durum: 'kabul' | 'kismi' | 'sartli' | 'red'
+  onaylandi?: boolean
+  onayTarihi?: string
+  islenmisMi?: boolean
   tutar?: number
   notlar?: string
   kalemler?: MalKalemiItem[]
   created_at?: string
 }
+
 

@@ -62,6 +62,7 @@ export function KabulTutanakModal({
   defaultTeslimAlan = "",
   defaultTutar = null,
   dosyaKalemler = [],
+  alimTuru = "",
 }: KabulTutanakModalProps): React.JSX.Element {
   const [tutanakNo, setTutanakNo] = useState("");
   const [tutanakTarihi, setTutanakTarihi] = useState("");
@@ -78,6 +79,22 @@ export function KabulTutanakModal({
   const [notlar, setNotlar] = useState("");
   const [kalemler, setKalemler] = useState<MalKalemiItem[]>([]);
 
+  const normalizedAlimTuru = (alimTuru || "").toLowerCase();
+  const isYapim =
+    normalizedAlimTuru.includes("yapim") ||
+    normalizedAlimTuru.includes("inşaat") ||
+    normalizedAlimTuru.includes("insaat");
+  const isHizmet =
+    !isYapim &&
+    (normalizedAlimTuru.includes("hizmet") ||
+      normalizedAlimTuru.includes("danismanlik"));
+
+  const turAdi = isYapim
+    ? "Yapım İşi Geçici Kabul Tutanağı"
+    : isHizmet
+    ? "Hizmet İşleri Muayene ve Kabul Tutanağı"
+    : "Muayene ve Kabul Tutanağı";
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -91,7 +108,8 @@ export function KabulTutanakModal({
         if (prevTut.kalemler) {
           prevTut.kalemler.forEach((k) => {
             const prevVal = previousAcceptedMap[k.siraNo] || 0;
-            previousAcceptedMap[k.siraNo] = prevVal + (Number(k.kabulMiktari) || 0);
+            previousAcceptedMap[k.siraNo] = prevVal +
+              (Number(k.kabulMiktari) || 0);
           });
         }
       });
@@ -109,7 +127,7 @@ export function KabulTutanakModal({
       setDurum(initialTutanak.durum || "kabul");
       setTutar(initialTutanak.tutar ? String(initialTutanak.tutar) : "");
       setNotlar(initialTutanak.notlar || "");
-      
+
       const loadedKalemler = (initialTutanak.kalemler || []).map((k) => {
         const onceki = previousAcceptedMap[k.siraNo] || 0;
         const buKabul = Number(k.kabulMiktari || 0);
@@ -119,14 +137,16 @@ export function KabulTutanakModal({
           oncekiTeslimAlinan: onceki,
           toplamTeslimAlinan: onceki + buKabul,
           birimFiyati: bFiyat,
-          toplamTutar: buKabul * bFiyat
+          toplamTutar: buKabul * bFiyat,
         };
       });
       setKalemler(loadedKalemler);
     } else {
       const todayStr = new Date().toISOString().split("T")[0];
       const nextIndex = (existingTutanaklar?.length || 0) + 1;
-      const autoTutanakNo = `KT-${new Date().getFullYear()}-${String(nextIndex).padStart(3, "0")}`;
+      const autoTutanakNo = `KT-${new Date().getFullYear()}-${
+        String(nextIndex).padStart(3, "0")
+      }`;
 
       setTutanakNo(autoTutanakNo);
       setTutanakTarihi(defaultFaturaTarihi || todayStr);
@@ -150,11 +170,24 @@ export function KabulTutanakModal({
           const lineTotal = kalanBakiye * birimFiyati;
           computedSum += lineTotal;
 
+          const malzemeAdi = k.malzeme_adi ||
+            (k as any).kalem_adi ||
+            (k as any).malzemeAdi ||
+            (k as any).ad ||
+            "";
+          const ozelligi = k.ozelligi ||
+            (k as any).aciklama ||
+            (k as any).ozellik ||
+            "";
+          const birimi = k.birimi ||
+            (k as any).birim ||
+            "Adet";
+
           return {
             siraNo,
-            malzemeAdi: k.malzeme_adi || "",
-            ozelligi: k.ozelligi || "",
-            birimi: k.birimi || "Adet",
+            malzemeAdi,
+            ozelligi,
+            birimi,
             miktari: ihtiyacMiktari,
             oncekiTeslimAlinan: oncekiTeslim,
             toplamTeslimAlinan: oncekiTeslim + kalanBakiye,
@@ -165,7 +198,11 @@ export function KabulTutanakModal({
         });
 
         setKalemler(mappedKalemler);
-        setTutar(computedSum > 0 ? String(computedSum) : (defaultTutar ? String(defaultTutar) : ""));
+        setTutar(
+          computedSum > 0
+            ? String(computedSum)
+            : (defaultTutar ? String(defaultTutar) : ""),
+        );
       } else {
         setTutar(defaultTutar ? String(defaultTutar) : "");
         setKalemler([
@@ -275,8 +312,8 @@ export function KabulTutanakModal({
       isOpen={isOpen}
       onClose={onClose}
       title={initialTutanak
-        ? "Kabul Tutanağını Düzenle"
-        : "Yeni Muayene & Kabul Tutanağı Kaydet"}
+        ? `${turAdi} Düzenle`
+        : `Yeni ${turAdi} Kaydet`}
       className="max-w-4xl w-11/12"
     >
       <form onSubmit={handleSubmit} className="space-y-4 p-1">
@@ -284,10 +321,12 @@ export function KabulTutanakModal({
         <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-xs text-blue-900 dark:text-blue-200 flex items-start gap-2.5">
           <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
           <div>
-            <strong>Muayene Kabul Tutanağı Kaydı:</strong>{" "}
-            Kısmi teslimatlar, irsaliye/fatura numaraları ve ambar teslim yeri
-            bilgilerini girebilir, muayene komisyonu onay kararlarını
-            kaydedebilirsiniz.
+            <strong>{turAdi} Kaydı:</strong>{" "}
+            {isYapim
+              ? "Yapım işi hakediş, geçici kabul, imalat tespit ve komisyon onay kararlarını kaydedebilirsiniz."
+              : isHizmet
+              ? "İfa edilen hizmet, danışmanlık veya bakım-onarım kabul tutanağı ve komisyon kararlarını kaydedebilirsiniz."
+              : "Kısmi teslimatlar, irsaliye/fatura numaraları ve ambar teslim yeri bilgilerini girebilir, muayene komisyonu onay kararlarını kaydedebilirsiniz."}
           </div>
         </div>
 
@@ -349,7 +388,12 @@ export function KabulTutanakModal({
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
               <Truck className="w-3.5 h-3.5 text-slate-400" />
-              <span>İrsaliye No <span className="text-[10px] font-normal text-slate-400">(Opsiyonel)</span></span>
+              <span>
+                İrsaliye No{" "}
+                <span className="text-[10px] font-normal text-slate-400">
+                  (Opsiyonel)
+                </span>
+              </span>
             </label>
             <Input
               value={irsaliyeNo}
@@ -361,7 +405,10 @@ export function KabulTutanakModal({
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              İrsaliye Tarihi <span className="text-[10px] font-normal text-slate-400">(Opsiyonel)</span>
+              İrsaliye Tarihi{" "}
+              <span className="text-[10px] font-normal text-slate-400">
+                (Opsiyonel)
+              </span>
             </label>
             <Input
               type="date"
@@ -470,25 +517,45 @@ export function KabulTutanakModal({
               <thead>
                 <tr className="bg-slate-200/60 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-700">
                   <th className="py-2 px-2 w-8 text-center">Sıra</th>
-                  <th className="py-2 px-2 min-w-[140px]">Kalem / Malzeme Adı *</th>
+                  <th className="py-2 px-2 min-w-[140px]">
+                    Kalem / Malzeme Adı *
+                  </th>
                   <th className="py-2 px-2 min-w-[100px]">Özelliği</th>
                   <th className="py-2 px-2 w-16">Birimi</th>
-                  <th className="py-2 px-2 w-20 text-center" title="İhtiyaç Listesindeki Miktar">
+                  <th
+                    className="py-2 px-2 w-20 text-center"
+                    title="İhtiyaç Listesindeki Miktar"
+                  >
                     İhtiyaç
                   </th>
-                  <th className="py-2 px-2 w-20 text-center" title="Önceki Tutanaklarda Kabul Edilen Miktar">
+                  <th
+                    className="py-2 px-2 w-20 text-center"
+                    title="Önceki Tutanaklarda Kabul Edilen Miktar"
+                  >
                     Önceki
                   </th>
-                  <th className="py-2 px-2 w-24 text-center" title="Bu Muayene Tutanağında Kabul Edilen Miktar">
+                  <th
+                    className="py-2 px-2 w-24 text-center"
+                    title="Bu Muayene Tutanağında Kabul Edilen Miktar"
+                  >
                     Bu Kabul *
                   </th>
-                  <th className="py-2 px-2 w-24 text-right" title="Kalem Birim Fiyatı (₺)">
+                  <th
+                    className="py-2 px-2 w-24 text-right"
+                    title="Kalem Birim Fiyatı (₺)"
+                  >
                     Birim Fiyatı (₺)
                   </th>
-                  <th className="py-2 px-2 w-28 text-right" title="Bu Tutanağa Ait Kabul Tutarı (₺)">
+                  <th
+                    className="py-2 px-2 w-28 text-right"
+                    title="Bu Tutanağa Ait Kabul Tutarı (₺)"
+                  >
                     Kabul Tutarı (₺)
                   </th>
-                  <th className="py-2 px-2 w-20 text-center" title="Kalan Teslim Edilecek Miktar Bakiyesi">
+                  <th
+                    className="py-2 px-2 w-20 text-center"
+                    title="Kalan Teslim Edilecek Miktar Bakiyesi"
+                  >
                     Kalan Bakiye
                   </th>
                   <th className="py-2 px-1 w-8 text-center"></th>
@@ -595,25 +662,27 @@ export function KabulTutanakModal({
                         <span className="inline-block px-2 py-1 bg-emerald-100/70 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-mono text-xs rounded-lg font-bold">
                           {kalemTutar > 0
                             ? kalemTutar.toLocaleString("tr-TR", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              }) + " ₺"
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }) + " ₺"
                             : "0,00 ₺"}
                         </span>
                       </td>
                       <td className="py-1.5 px-2 text-center">
-                        {bakiye === 0 ? (
-                          <span className="inline-block px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold text-[10px]">
-                            Tam (0)
-                          </span>
-                        ) : (
-                          <span
-                            className="inline-block px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold text-[10px]"
-                            title="Teslim edilecek kalan bakiye"
-                          >
-                            Kalan: {bakiye}
-                          </span>
-                        )}
+                        {bakiye === 0
+                          ? (
+                            <span className="inline-block px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold text-[10px]">
+                              Tam (0)
+                            </span>
+                          )
+                          : (
+                            <span
+                              className="inline-block px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold text-[10px]"
+                              title="Teslim edilecek kalan bakiye"
+                            >
+                              Kalan: {bakiye}
+                            </span>
+                          )}
                       </td>
                       <td className="py-1.5 px-1 text-center">
                         {kalemler.length > 1 && (

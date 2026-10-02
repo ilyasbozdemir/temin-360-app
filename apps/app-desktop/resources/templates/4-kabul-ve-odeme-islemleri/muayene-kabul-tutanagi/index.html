@@ -50,6 +50,14 @@
         break-inside: avoid;
         page-break-inside: avoid;
       }
+      .not-box {
+        margin-top: 12px;
+        padding: 8px 12px;
+        background-color: #f8fafc;
+        border: 1px dashed #94a3b8;
+        font-size: 10.5pt;
+        border-radius: 4px;
+      }
     </style>
   </head>
   <body>
@@ -113,7 +121,11 @@
                     Sayı &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
                     {{evrakSayisi}}
                   </td>
-                  <td align="right" style="vertical-align: bottom; font-size: 10pt"></td>
+                  <td align="right" style="vertical-align: bottom; font-size: 10pt">
+                    {{#irsaliyeNo}}
+                    <span><b>İrsaliye:</b> {{irsaliyeNo}} ({{irsaliyeTarihi}})</span>
+                    {{/irsaliyeNo}}
+                  </td>
                 </tr>
               </table>
             </td>
@@ -155,7 +167,7 @@
                       {{bugunKabulEdilenMiktar}}{{^bugunKabulEdilenMiktar}}{{miktar}}{{/bugunKabulEdilenMiktar}}
                     </td>
                     <td class="right">{{kalanMiktar}}{{^kalanMiktar}}0{{/kalanMiktar}}</td>
-                    <td>{{teslimYeri}}{{^teslimYeri}}Belediye Deposu{{/teslimYeri}}</td>
+                    <td>{{teslimYeri}}{{^teslimYeri}}Kurum Ambarı{{/teslimYeri}}</td>
                   </tr>
                   {{/ihtiyacKalemleri}}
                 </tbody>
@@ -163,15 +175,19 @@
             </td>
           </tr>
 
-          <!-- NOT -->
+          <!-- NOTLAR ALANI -->
+          {{#tutanakNotu}}
           <tr>
-            <td colspan="99" style="padding-top: 15px; font-size: 10.5pt; text-align: left">
-              {{#tutanakNotu}} {{tutanakNotu}} {{/tutanakNotu}}
+            <td colspan="99">
+              <div class="not-box">
+                <b>Muayene ve Tespit Notları:</b> {{tutanakNotu}}
+              </div>
             </td>
           </tr>
+          {{/tutanakNotu}}
 
           <tr>
-            <td colspan="99" style="height: 20px"></td>
+            <td colspan="99" style="height: 15px"></td>
           </tr>
 
           <!-- TUTANAK PARAGRAPH -->
@@ -181,10 +197,13 @@
               style="text-align: justify; line-height: 1.6; font-size: 11pt; padding-bottom: 25px"
             >
               {{yukleniciFirma}} tarafından
-              {{#faturaTarihi}}{{faturaTarihi}}{{/faturaTarihi}}{{^faturaTarihi}}..../..../20....{{/faturaTarihi}}
-              tarih ve
-              {{#faturaNo}}{{faturaNo}}{{/faturaNo}}{{^faturaNo}}................{{/faturaNo}} no’lu
-              faturayla KDV hariç {{genelToplam}} TL ye doğrudan temin yoluyla alınan,
+              {{#faturaNo}}
+              {{#faturaTarihi}}{{faturaTarihi}}{{/faturaTarihi}}{{^faturaTarihi}}..../..../20....{{/faturaTarihi}} tarih ve {{faturaNo}} no’lu faturayla{{/faturaNo}}
+              {{#irsaliyeNo}}
+              {{#faturaNo}} ve {{/faturaNo}}
+              {{#irsaliyeTarihi}}{{irsaliyeTarihi}}{{/irsaliyeTarihi}}{{^irsaliyeTarihi}}..../..../20....{{/irsaliyeTarihi}} tarih ve {{irsaliyeNo}} no’lu sevk irsaliyesiyle{{/irsaliyeNo}}
+              {{^faturaNo}}{{^irsaliyeNo}}..../..../20.... tarihli faturayla{{/irsaliyeNo}}{{/faturaNo}}
+              KDV hariç {{genelToplam}} TL ye doğrudan temin yoluyla alınan,
               {{#kabulTarihi}}{{kabulTarihi}}{{/kabulTarihi}}{{^kabulTarihi}}{{dosyaTarihi}}{{/kabulTarihi}}
               tarihinde teslim edilen ve yukarıda cins, birim ve miktarı belirtilen mal/hizmet
               kalemleri, doğrudan temin kapsamında istenilen şartlara göre tarafımızca muayene

@@ -195,6 +195,10 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     { name: 'rol', def: "TEXT DEFAULT 'Asil'" },
     { name: 'komisyon_turu', def: 'TEXT' },
     { name: 'belgede_goster', def: 'INTEGER DEFAULT 1' },
+    { name: 'vekalet_unvani', def: 'TEXT' },
+    { name: 'baslangic_tarihi', def: 'TEXT' },
+    { name: 'bitis_tarihi', def: 'TEXT' },
+    { name: 'belge_kapsami', def: "TEXT DEFAULT 'tumu'" },
     { name: 'hedef_belgeler', def: "TEXT DEFAULT '[\"*\"]'" }
   ]
   for (const c of komisyonExtendedColumns) {
@@ -2237,6 +2241,10 @@ export class DtmWorkspace {
     }
   }
 
+  public isOpen(): boolean {
+    return !!this.db
+  }
+
   private ensureTempDir() {
     if (fs.existsSync(this.tempDir)) {
       fs.rmSync(this.tempDir, { recursive: true, force: true })
@@ -2302,6 +2310,9 @@ export const workspaceManager = {
       activeWorkspace.closeWorkspace()
       activeWorkspace = null
     }
+  },
+  isOpen: () => {
+    return !!activeWorkspace && activeWorkspace.isOpen()
   },
   getDb: () => {
     if (!activeWorkspace) throw new Error('Açık bir veri dosyası yok.')
