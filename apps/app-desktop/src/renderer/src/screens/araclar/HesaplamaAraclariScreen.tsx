@@ -37,7 +37,7 @@ export default function HesaplamaAraclariScreen(): React.JSX.Element {
   const [activeTab, setActiveTab] = useState<TabType>('usul')
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-200">
+    <div className="p-4 md:p-6 w-full space-y-6 animate-in fade-in duration-200">
       {/* Başlık Banner */}
       <div className="p-6 bg-linear-to-r from-blue-900 via-indigo-900 to-slate-900 text-white rounded-3xl shadow-xl border border-blue-800/40 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
