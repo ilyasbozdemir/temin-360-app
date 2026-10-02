@@ -7,6 +7,13 @@ export function readSystemTemplate(fileName: string): string | null {
   const templatesDirProd = join(process.resourcesPath, 'templates')
   const targetDir = fs.existsSync(templatesDirProd) ? templatesDirProd : templatesDirDev
 
+  const altName1 = fileName.endsWith('.html')
+    ? fileName.replace(/\.html$/, '.mustache')
+    : fileName.replace(/\.mustache$/, '.html')
+  const altName2 = fileName.endsWith('.html.json')
+    ? fileName.replace(/\.html\.json$/, '.mustache.json')
+    : fileName.replace(/\.mustache\.json$/, '.html.json')
+
   const findFile = (dir: string): string | null => {
     try {
       if (!fs.existsSync(dir)) return null
@@ -17,7 +24,7 @@ export function readSystemTemplate(fileName: string): string | null {
         if (stat.isDirectory()) {
           const found = findFile(filePath)
           if (found) return found
-        } else if (file === fileName) {
+        } else if (file === fileName || file === altName1 || file === altName2) {
           return filePath
         }
       }
