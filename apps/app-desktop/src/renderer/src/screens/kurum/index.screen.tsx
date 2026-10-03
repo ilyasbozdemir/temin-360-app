@@ -12,7 +12,8 @@ import {
   Save,
   ShieldCheck,
   Users,
-  Warehouse
+  Warehouse,
+  Wallet
 } from 'lucide-react'
 import { InnerMenu, InnerMenuItem } from '../../components/ui/InnerMenu'
 import { IdariBilgilerTab } from './components/IdariBilgilerTab'
@@ -31,6 +32,7 @@ import KomisyonlarScreen from '../komisyonlar/index.screen'
 import KomisyonGorevleriScreen from '../komisyon-gorevleri/index.screen'
 import AmbarScreen from '../ambar/index.screen'
 import ProjelerScreen from '../projeler/index.screen'
+import { ButceOdenekTanimTab } from './components/ButceOdenekTanimTab'
 
 type TabType =
   | 'onizleme'
@@ -38,6 +40,7 @@ type TabType =
   | 'mali'
   | 'iletisim'
   | 'logolar'
+  | 'butce-odenek'
   | 'birimler'
   | 'personel'
   | 'komisyonlar'
@@ -271,6 +274,11 @@ export default function KurumScreen(): React.JSX.Element {
       icon: <LayoutGrid className="w-4 h-4 shrink-0 text-indigo-500" />
     },
     {
+      id: 'butce-odenek',
+      label: 'Bütçe & Ödenek Yönetimi',
+      icon: <Wallet className="w-4 h-4 shrink-0 text-purple-600" />
+    },
+    {
       id: 'personel',
       label: 'Personel Yönetimi',
       icon: <Users className="w-4 h-4 shrink-0 text-emerald-500" />
@@ -450,6 +458,7 @@ export default function KurumScreen(): React.JSX.Element {
             </div>
           ) : (
             <div className="w-full">
+              {activeTab === 'butce-odenek' && <ButceOdenekTanimTab />}
               {activeTab === 'birimler' && <BirimlerScreen isSubComponent />}
               {activeTab === 'personel' && <PersonelScreen isSubComponent />}
               {activeTab === 'komisyonlar' && <KomisyonlarScreen isSubComponent />}

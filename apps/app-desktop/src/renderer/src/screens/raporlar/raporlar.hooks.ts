@@ -6,7 +6,7 @@ export interface RaporDosyaItem {
   temin_no?: string
   is_adi: string
   konu?: string
-  tur: 'mal' | 'hizmet' | 'yapim' | 'danismanlik' | string
+  tur: string
   alim_turu: string
   madde: string
   tarih?: string
@@ -15,6 +15,7 @@ export interface RaporDosyaItem {
   butce_yili?: string
   odenek_tertibi?: string
   kullanilabilir_odenek?: string
+  birim?: string
   durum?: string
   created_at?: string
   toplam_tutar: number
@@ -23,8 +24,24 @@ export interface RaporDosyaItem {
   kazanan_vkn?: string
 }
 
-export function useRaporlarData(seciliYil: string, seciliAy?: string) {
+export interface RaporFilters {
+  seciliYil: string
+  seciliAy?: string
+  tarihEsasi?: 'temin' | 'acilis'
+  tarihBaslangic?: string
+  tarihBitis?: string
+  seciliBirim?: string
+  alimTuru?: string
+}
+
+export function useRaporlarData(filtersOrYear: string | RaporFilters, ay?: string) {
+  const filters: RaporFilters =
+    typeof filtersOrYear === 'string'
+      ? { seciliYil: filtersOrYear, seciliAy: ay }
+      : filtersOrYear
+
   const [data, setData] = useState<RaporDosyaItem[]>([])
+  const [birimlerList, setBirimlerList] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -34,6 +51,11 @@ export function useRaporlarData(seciliYil: string, seciliAy?: string) {
     setError(null)
 
     try {
+      const dateCol =
+        filters.tarihEsasi === 'acilis'
+          ? 'COALESCE(d.dosya_acilis_tarihi, d.tarih)'
+          : 'COALESCE(d.temin_tarihi, d.tarih)'
+
       const res = await window.electron.ipcRenderer.invoke(
         'db:query',
         `SELECT 
@@ -47,10 +69,13 @@ export function useRaporlarData(seciliYil: string, seciliAy?: string) {
           d.tarih,
           d.temin_tarihi,
           d.dosya_acilis_tarihi,
+          ${dateCol} as aktif_tarih,
           d.butce_yili,
           d.odenek_tertibi,
           d.kullanilabilir_odenek,
-          d.durum,
+          COALESCE(d.birim, d.harcama_birimi, '') as birim,
+          COALESCE(d.durum, 'Tamamlandı') as durum,
+          COALESCE(d.madde, '4734 Sayılı Kanun Md. 22/d') as madde,
           d.created_at,
           COALESCE((SELECT SUM(miktar * birim_fiyat) FROM DATA_TeminKalem WHERE (temin_dosya_id = d.id OR dosya_id = d.id)), 0) as toplam_tutar,
           (
@@ -73,18 +98,17 @@ export function useRaporlarData(seciliYil: string, seciliAy?: string) {
       )
 
       if (res.success && Array.isArray(res.data)) {
+        const units = new Set<string>()
         const mapped: RaporDosyaItem[] = res.data.map((r: any) => {
+          if (r.birim) units.add(r.birim)
           const rawTur = (r.alim_turu || r.tur || 'mal').toLowerCase()
           let normalizedTur = 'Mal Alımı'
           if (rawTur.includes('hizmet')) normalizedTur = 'Hizmet Alımı'
           else if (rawTur.includes('yapım') || rawTur.includes('yapim')) normalizedTur = 'Yapım İşi'
           else if (rawTur.includes('danışman') || rawTur.includes('danisman')) normalizedTur = 'Danışmanlık'
 
-          // Yasal Madde / Usul (Doğrudan Temin 22/d veya 22/a vb.)
-          const madde = '4734 Sayılı Kanun Md. 22/d'
-
           const tutar = Number(r.toplam_tutar) || 0
-          const kdvDahil = tutar * 1.2 // %20 standart
+          const kdvDahil = tutar * 1.2
 
           return {
             id: r.id,
@@ -94,13 +118,14 @@ export function useRaporlarData(seciliYil: string, seciliAy?: string) {
             konu: r.konu || '',
             tur: rawTur,
             alim_turu: normalizedTur,
-            madde,
-            tarih: r.temin_tarihi || r.tarih || r.created_at?.split('T')[0] || '',
+            madde: '4734 Sayılı Kanun Md. 22/d',
+            tarih: r.aktif_tarih || r.temin_tarihi || r.tarih || r.created_at?.split('T')[0] || '',
             temin_tarihi: r.temin_tarihi || r.tarih || '',
             dosya_acilis_tarihi: r.dosya_acilis_tarihi || r.created_at?.split('T')[0] || '',
             butce_yili: r.butce_yili || (r.tarih ? r.tarih.slice(0, 4) : ''),
             odenek_tertibi: r.odenek_tertibi || '',
             kullanilabilir_odenek: r.kullanilabilir_odenek || '',
+            birim: r.birim || '',
             durum: r.durum || 'Tamamlandı',
             created_at: r.created_at || '',
             toplam_tutar: tutar,
@@ -110,12 +135,29 @@ export function useRaporlarData(seciliYil: string, seciliAy?: string) {
           }
         })
 
-        // Filtrele (Yıl bazında)
-        const filtered = mapped.filter((item) => {
-          if (!seciliYil) return true
-          const itemYear = item.butce_yili || item.tarih?.slice(0, 4) || item.created_at?.slice(0, 4)
-          return itemYear === seciliYil
-        })
+        setBirimlerList(Array.from(units))
+
+        let filtered = mapped
+
+        if (filters.seciliYil) {
+          filtered = filtered.filter((item) => {
+            const itemYear = item.butce_yili || item.tarih?.slice(0, 4) || item.created_at?.slice(0, 4)
+            return itemYear === filters.seciliYil
+          })
+        }
+
+        if (filters.tarihBaslangic) {
+          filtered = filtered.filter((item) => !item.tarih || item.tarih >= filters.tarihBaslangic!)
+        }
+        if (filters.tarihBitis) {
+          filtered = filtered.filter((item) => !item.tarih || item.tarih <= filters.tarihBitis!)
+        }
+        if (filters.seciliBirim && filters.seciliBirim !== 'tumu') {
+          filtered = filtered.filter((item) => item.birim === filters.seciliBirim)
+        }
+        if (filters.alimTuru && filters.alimTuru !== 'tumu') {
+          filtered = filtered.filter((item) => item.alim_turu.toLowerCase().includes(filters.alimTuru!.toLowerCase()))
+        }
 
         setData(filtered)
       } else {
@@ -131,7 +173,15 @@ export function useRaporlarData(seciliYil: string, seciliAy?: string) {
 
   useEffect(() => {
     fetchData()
-  }, [seciliYil, seciliAy])
+  }, [
+    filters.seciliYil,
+    filters.seciliAy,
+    filters.tarihEsasi,
+    filters.tarihBaslangic,
+    filters.tarihBitis,
+    filters.seciliBirim,
+    filters.alimTuru
+  ])
 
-  return { data, loading, error, refetch: fetchData }
+  return { data, birimlerList, loading, error, refetch: fetchData }
 }

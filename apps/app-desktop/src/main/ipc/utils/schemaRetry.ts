@@ -31,8 +31,14 @@ export async function withSchemaRetry<T>(
       throw error
     }
 
-    console.warn(
-      `[schemaRetry] Column/Table missing detected. Triggering schema auto-repair... Error: ${error?.message} | Query: ${sqlQuery || 'unknown'}`
+    // ANSI Color formatting for terminal/console visibility
+    console.error(
+      `\x1b[1;31m═══════════════════════════════════════════════════════════════════════════\x1b[0m\n` +
+      `\x1b[1;41;37m [ŞEMA HATASI / EKSİK SÜTUN VEYA TABLO TESPİT EDİLDİ] \x1b[0m\n` +
+      `\x1b[1;31m► HATA DETAYI : \x1b[0m\x1b[31m${error?.message || error}\x1b[0m\n` +
+      `\x1b[1;33m► ÇALIŞAN SQL : \x1b[0m\x1b[33m${sqlQuery || 'Bilinmiyor'}\x1b[0m\n` +
+      `\x1b[1;36m► Şema otomatik onarım (schema auto-repair) devreye alınıyor...\x1b[0m\n` +
+      `\x1b[1;31m═══════════════════════════════════════════════════════════════════════════\x1b[0m`
     )
 
     // Reuse in-flight repair promise to prevent race conditions during concurrent queries
