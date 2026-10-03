@@ -7,7 +7,9 @@ import {
   Coins,
   TrendingUp,
   FileSpreadsheet,
-  Cpu
+  Cpu,
+  ArrowLeftRight,
+  Ruler
 } from 'lucide-react'
 import {
   UsulBelirleyiciTab,
@@ -16,19 +18,33 @@ import {
   GecikmeCezasiTab,
   ButceTavaniTab,
   FiyatFarkiTab,
+  SayiyiYaziyaCevirTab,
+  BirimDonusumTab,
   ExcelPanoTab,
   FormulMotoruTab
 } from './components'
 
-type TabType = 'usul' | 'vergi' | 'sure' | 'ceza' | 'butce' | 'fiyatFarki' | 'pano' | 'formul'
+type TabType =
+  | 'usul'
+  | 'vergi'
+  | 'fiyatFarki'
+  | 'yazi'
+  | 'birim'
+  | 'sure'
+  | 'ceza'
+  | 'butce'
+  | 'pano'
+  | 'formul'
 
 const TABS: { id: TabType; label: string; icon: React.ComponentType<{ size?: number }> }[] = [
   { id: 'usul', label: 'Alım Usulü Belirleyici', icon: Scale },
   { id: 'vergi', label: 'Vergi & Tevkifat (Brüt ↔ Net)', icon: Coins },
+  { id: 'fiyatFarki', label: 'TÜİK Fiyat Farkı', icon: TrendingUp },
+  { id: 'yazi', label: 'Çift Yönlü Sayı ↔ Yazı', icon: ArrowLeftRight },
+  { id: 'birim', label: 'Ölçü Birimi Çevirici', icon: Ruler },
   { id: 'sure', label: 'Resmi Tatil & Süreler', icon: Calendar },
   { id: 'ceza', label: 'Gecikme Cezası & Faiz', icon: Clock },
   { id: 'butce', label: '%10 Bütçe Tavanı', icon: Percent },
-  { id: 'fiyatFarki', label: 'TÜİK Fiyat Farkı', icon: TrendingUp },
   { id: 'pano', label: "Excel'den Tablo Alıcı", icon: FileSpreadsheet },
   { id: 'formul', label: 'Dinamik Formül Motoru', icon: Cpu }
 ]
@@ -54,8 +70,7 @@ export default function HesaplamaAraclariScreen(): React.JSX.Element {
               </span>
             </div>
             <p className="text-xs text-blue-200/80 mt-1">
-              Mevzuat eşik değerleri, vergi/tevkifat matrahı, resmi tatil atlamalı iş günü, ceza ve
-              bütçe tavanı motoru
+              Mevzuat limitleri, vergi/tevkifat, Yİ-ÜFE fiyat farkı, sayı-yazı çevirici, birim dönüştürücü ve tatil motoru
             </p>
           </div>
         </div>
@@ -70,13 +85,13 @@ export default function HesaplamaAraclariScreen(): React.JSX.Element {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 isActive
                   ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200 dark:border-slate-700'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <Icon size={16} />
+              <Icon size={15} />
               <span>{tab.label}</span>
             </button>
           )
@@ -86,10 +101,12 @@ export default function HesaplamaAraclariScreen(): React.JSX.Element {
       {/* Aktif Sekme İçeriği */}
       {activeTab === 'usul' && <UsulBelirleyiciTab />}
       {activeTab === 'vergi' && <VergiVeKesintiTab />}
+      {activeTab === 'fiyatFarki' && <FiyatFarkiTab />}
+      {activeTab === 'yazi' && <SayiyiYaziyaCevirTab />}
+      {activeTab === 'birim' && <BirimDonusumTab />}
       {activeTab === 'sure' && <ResmiTatilVeSureTab />}
       {activeTab === 'ceza' && <GecikmeCezasiTab />}
       {activeTab === 'butce' && <ButceTavaniTab />}
-      {activeTab === 'fiyatFarki' && <FiyatFarkiTab />}
       {activeTab === 'pano' && <ExcelPanoTab />}
       {activeTab === 'formul' && <FormulMotoruTab />}
     </div>
