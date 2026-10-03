@@ -1,5 +1,61 @@
 import { TEMPLATE_REGISTRY } from "../constants/template-registry";
-import { TemplateType, TemplateCapabilities, RoleCode, RoleVisibility } from "../types";
+import {
+  CANONICAL_TEMPLATE_ALIASES,
+  normalizeTemplateKey,
+  toCanonicalDocId,
+} from "../constants/template-constants";
+import {
+  TemplateType,
+  TemplateGroup,
+  TemplateCapabilities,
+  RoleCode,
+  RoleVisibility,
+} from "../types";
+
+/**
+ * Grup bazlı varsayılan rol görünürlük politikaları.
+ * Şablon düzeyindeki roleVisibility tanımları yalnızca istisnai override içindir.
+ */
+export const GROUP_DEFAULT_ROLE_VISIBILITY: Record<
+  TemplateGroup,
+  Partial<Record<RoleCode, RoleVisibility>>
+> = {
+  olur_onay: {
+    harcama_yetkilisi: "show",
+    onaylayan: "show",
+    gerceklestirme_gorevlisi: "optional",
+    hazirlayan: "optional",
+    talep_eden: "optional",
+    muhasebe: "optional",
+  },
+  piyasa_arastirma: {
+    harcama_yetkilisi: "hide",
+    onaylayan: "optional",
+    gerceklestirme_gorevlisi: "optional",
+    hazirlayan: "optional",
+    talep_eden: "optional",
+    muhasebe: "hide",
+  },
+  muayene_kabul: {
+    harcama_yetkilisi: "hide",
+    onaylayan: "optional",
+    gerceklestirme_gorevlisi: "optional",
+    hazirlayan: "optional",
+    talep_eden: "optional",
+    muhasebe: "hide",
+  },
+};
+
+export const UNGROUPED_DEFAULT_ROLE_VISIBILITY: Partial<Record<RoleCode, RoleVisibility>> = {
+  harcama_yetkilisi: "hide",
+  onaylayan: "optional",
+  gerceklestirme_gorevlisi: "optional",
+  hazirlayan: "optional",
+  talep_eden: "optional",
+  muhasebe: "hide",
+};
+
+import { isMemberVisibleInDocument } from "../constants/visibility.config";
 
 export class TemplateRegistryService {
   private static templatesMap: Map<string, TemplateType> = new Map();
@@ -18,10 +74,17 @@ export class TemplateRegistryService {
   }
 
   /**
-   * Get specific template metadata by ID
+   * Get specific template metadata by ID or alias
    */
   static getTemplateById(id: string): TemplateType | undefined {
-    return this.templatesMap.get(id);
+    if (!id) return undefined;
+    const clean = normalizeTemplateKey(id);
+    const canonical = CANONICAL_TEMPLATE_ALIASES[clean] || clean;
+    return (
+      this.templatesMap.get(id) ||
+      this.templatesMap.get(clean) ||
+      this.templatesMap.get(canonical)
+    );
   }
 
   /**
@@ -33,14 +96,26 @@ export class TemplateRegistryService {
 
   /**
    * Resolve role visibility policy for a template ('show' | 'hide' | 'optional')
-   * Defaults to 'hide' if not explicitly defined.
+   * Uses template-specific override if present, else falls back to group default.
    */
   static resolveRoleVisibility(templateId: string, roleCode: RoleCode): RoleVisibility {
     const template = this.getTemplateById(templateId);
-    if (!template || !template.capabilities.roleVisibility) {
+    if (!template) {
       return "hide";
     }
-    return template.capabilities.roleVisibility[roleCode] ?? "hide";
+
+    // 1. Template-specific override
+    if (template.capabilities?.roleVisibility?.[roleCode]) {
+      return template.capabilities.roleVisibility[roleCode]!;
+    }
+
+    // 2. Group default
+    if (template.group && GROUP_DEFAULT_ROLE_VISIBILITY[template.group]?.[roleCode]) {
+      return GROUP_DEFAULT_ROLE_VISIBILITY[template.group]![roleCode]!;
+    }
+
+    // 3. Ungrouped default
+    return UNGROUPED_DEFAULT_ROLE_VISIBILITY[roleCode] ?? "hide";
   }
 
   /**
@@ -50,7 +125,8 @@ export class TemplateRegistryService {
     const template = this.getTemplateById(templateId);
     if (!template) return "show";
 
-    const customVis = template.capabilities.commissionRoleVisibility;
+    // 1. Template-specific override
+    const customVis = template.capabilities?.commissionRoleVisibility;
     if (customVis) {
       const matchKey = Object.keys(customVis).find(
         (k) => k.toLowerCase().trim() === commissionRoleName.toLowerCase().trim()
@@ -60,15 +136,30 @@ export class TemplateRegistryService {
       }
     }
 
-    const norm = commissionRoleName.toLowerCase();
-    if (norm.includes("harcama yetkili")) {
-      return this.resolveRoleVisibility(templateId, "harcama_yetkilisi");
-    }
-    if (norm.includes("muhasebe")) {
-      return this.resolveRoleVisibility(templateId, "muhasebe");
+    // 2. Group default
+    const normRole = commissionRoleName.toLowerCase().trim();
+    if (template.group === "piyasa_arastirma" || template.group === "muayene_kabul") {
+      if (normRole.includes("harcama yetkili") || normRole.includes("muhasebe yetkili")) {
+        return "hide";
+      }
     }
 
     return "show";
+  }
+
+  /**
+   * Map commission role name to RoleCode enum
+   */
+  static mapCommissionRoleNameToRoleCode(roleName: string): RoleCode | null {
+    const norm = roleName.toLowerCase().trim();
+    if (norm.includes("harcama yetkili")) return "harcama_yetkilisi";
+    if (norm.includes("ihale yetkili")) return "ihale_yetkilisi";
+    if (norm.includes("gerçekleştirme") || norm.includes("gerceklestirme")) return "gerceklestirme_gorevlisi";
+    if (norm.includes("muhasebe")) return "muhasebe";
+    if (norm.includes("hazırlayan") || norm.includes("hazirlayan")) return "hazirlayan";
+    if (norm.includes("talep eden") || norm.includes("talep_eden")) return "talep_eden";
+    if (norm.includes("onaylayan") || norm.includes("başkan") || norm.includes("baskan")) return "onaylayan";
+    return null;
   }
 
   /**
@@ -80,7 +171,12 @@ export class TemplateRegistryService {
       if (!t.capabilities.supportsCommission) return false;
       const types = t.capabilities.supportedCommissionTypes;
       if (types.includes("all")) return true;
-      if (norm.includes("fiyat") || norm.includes("piyasa") || norm.includes("araştırma") || norm.includes("arastirma")) {
+      if (
+        norm.includes("fiyat") ||
+        norm.includes("piyasa") ||
+        norm.includes("araştırma") ||
+        norm.includes("arastirma")
+      ) {
         return types.includes("piyasa_fiyat") || types.includes("yaklasik_maliyet");
       }
       if (norm.includes("muayene") || norm.includes("kabul")) {
@@ -94,77 +190,23 @@ export class TemplateRegistryService {
   }
 
   /**
-   * Check whether a specific member/commission row is visible in a target document template.
-   * Priority Order:
-   * 1. Template policy 'hide' -> not visible
-   * 2. Member belgede_goster=0 or belge_kapsami='gizli' -> not visible
-   * 3. Member belge_kapsami='ozel' and hedef_belgeler does not include templateId -> not visible
-   * 4. Otherwise visible
+   * Komisyon üyesinin / kişinin hedef belgede görünür olup olmadığını belirler.
+   */
+  static isMemberVisibleInDocument(
+    member: any,
+    docIds: string | string[]
+  ): boolean {
+    return isMemberVisibleInDocument(member, docIds);
+  }
+
+  /**
+   * Geriye uyumluluk için templateId bazlı görünürlük fonksiyonu.
    */
   static isMemberVisibleInTemplate(
-    member: {
-      belgede_goster?: number | string | boolean;
-      belgedeGoster?: boolean | number | string;
-      goster?: boolean | number | string;
-      belge_kapsami?: string;
-      belgeKapsami?: string;
-      hedef_belgeler?: string | string[];
-      hedefBelgeler?: string | string[];
-      gorev?: string;
-      gorev_adi?: string;
-      gorevi?: string;
-      komisyonGorevi?: string;
-      rol?: string;
-      komisyon_turu?: string;
-    },
+    member: any,
     templateId: string
   ): boolean {
-    const roleName = member.gorev || member.gorev_adi || member.gorevi || member.komisyonGorevi || member.rol || "";
-    if (roleName) {
-      const vis = this.resolveCommissionRoleVisibility(templateId, roleName);
-      if (vis === "hide") return false;
-    }
-
-    const bg = member.belgede_goster ?? member.belgedeGoster ?? member.goster;
-    if (bg === 0 || bg === "0" || bg === false || bg === "false") return false;
-
-    const kapsam = member.belge_kapsami || member.belgeKapsami;
-    if (kapsam === "gizli") return false;
-
-    const rawTargets = member.hedef_belgeler || member.hedefBelgeler;
-    if (kapsam === "ozel" || (rawTargets && !kapsam)) {
-      let targets: string[] = [];
-      if (typeof rawTargets === "string") {
-        try {
-          targets = JSON.parse(rawTargets);
-        } catch {
-          targets = rawTargets ? [rawTargets] : [];
-        }
-      } else if (Array.isArray(rawTargets)) {
-        targets = rawTargets;
-      }
-
-      if (
-        targets.length > 0 &&
-        !targets.includes("*") &&
-        !targets.includes("all") &&
-        !targets.includes(templateId)
-      ) {
-        return false;
-      }
-    }
-
-    if (member.komisyon_turu) {
-      const template = this.getTemplateById(templateId);
-      if (template && template.capabilities.supportsCommission) {
-        const compatible = this.getTemplatesForCommissionType(member.komisyon_turu);
-        if (!compatible.some((t) => t.id === templateId)) {
-          return false;
-        }
-      }
-    }
-
-    return true;
+    return isMemberVisibleInDocument(member, [templateId]);
   }
 
   /**
@@ -174,6 +216,12 @@ export class TemplateRegistryService {
     members: T[],
     templateId: string
   ): T[] {
-    return members.filter((m) => this.isMemberVisibleInTemplate(m, templateId));
+    return members.filter((m) => isMemberVisibleInDocument(m, [templateId]));
   }
 }
+
+export {
+  CANONICAL_TEMPLATE_ALIASES,
+  normalizeTemplateKey,
+  toCanonicalDocId,
+};

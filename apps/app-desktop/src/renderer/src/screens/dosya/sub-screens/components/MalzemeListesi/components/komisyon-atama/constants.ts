@@ -5,9 +5,9 @@ export interface DefaultRoleConfig {
 }
 
 export const DEFAULT_MALIYET_ROLES: DefaultRoleConfig[] = [
-  { gorev: 'Harcama Yetkilisi', belgedeGoster: false, belgeKapsami: 'olur_onay' },
-  { gorev: 'Satın Alma Harcama Yetkilisi', belgedeGoster: false, belgeKapsami: 'olur_onay' },
-  { gorev: 'Gerçekleştirme Görevlisi', belgedeGoster: false, belgeKapsami: 'olur_onay' },
+  { gorev: 'Harcama Yetkilisi', belgedeGoster: true, belgeKapsami: 'olur_onay' },
+  { gorev: 'Satın Alma Harcama Yetkilisi', belgedeGoster: true, belgeKapsami: 'olur_onay' },
+  { gorev: 'Gerçekleştirme Görevlisi', belgedeGoster: true, belgeKapsami: 'olur_onay' },
   { gorev: 'Muhasebe Yetkilisi', belgedeGoster: false, belgeKapsami: 'gizli' },
   { gorev: 'Fiyat Araştırma Görevlisi', belgedeGoster: true, belgeKapsami: 'piyasa_arastirma' },
   { gorev: 'Fiyat Araştırma Görevlisi', belgedeGoster: true, belgeKapsami: 'piyasa_arastirma' },
@@ -34,13 +34,19 @@ export function getRoleDefaults(gorevName: string): {
   belgeKapsami: 'tumu' | 'piyasa_arastirma' | 'muayene_kabul' | 'olur_onay' | 'ozel' | 'gizli'
 } {
   const g = (gorevName || '').toLowerCase().trim()
-  if (g.includes('harcama yetkili') || g.includes('gerçekleştirme') || g.includes('gerceklestirme')) {
-    return { belgedeGoster: false, belgeKapsami: 'olur_onay' }
-  }
   if (g.includes('muhasebe')) {
     return { belgedeGoster: false, belgeKapsami: 'gizli' }
   }
-  if (g.includes('fiyat araştırma') || g.includes('fiyat') || g.includes('piyasa')) {
+  if (
+    g.includes('harcama') ||
+    g.includes('gerçekleştirme') ||
+    g.includes('gerceklestirme') ||
+    g.includes('onay') ||
+    g.includes('olur')
+  ) {
+    return { belgedeGoster: true, belgeKapsami: 'olur_onay' }
+  }
+  if (g.includes('fiyat') || g.includes('piyasa') || g.includes('yaklaşık') || g.includes('yaklasik')) {
     return { belgedeGoster: true, belgeKapsami: 'piyasa_arastirma' }
   }
   if (g.includes('muayene') || g.includes('kabul')) {

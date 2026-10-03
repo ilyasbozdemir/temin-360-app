@@ -12,11 +12,11 @@ export interface LoadPreviewDataParams {
   resolvedId: string
   selectedDocId: string
   propInvitedFirms?: any[]
-  showLogoLeft: boolean
-  showLogoRight: boolean
-  logoLeft: string | null
-  logoRight: string | null
-  institutionLogo: string | null
+  showLogoLeft?: boolean
+  showLogoRight?: boolean
+  logoLeft?: string | null
+  logoRight?: string | null
+  institutionLogo?: string | null
   subInstitutionType?: string
   customSubInstitutionLabel?: string
   customSubInstitutionKurumumuz?: string

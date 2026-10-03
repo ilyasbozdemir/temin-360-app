@@ -30,11 +30,14 @@ export interface TemplateCapabilities {
   commissionRoleVisibility?: Record<string, RoleVisibility>;
 }
 
+export type TemplateGroup = 'piyasa_arastirma' | 'muayene_kabul' | 'olur_onay';
+
 export type TemplateType = {
   id: string;
   name: string;
   title: string;
   category: string;
+  group?: TemplateGroup;
   description?: string;
   capabilities: TemplateCapabilities;
   supportsOlur?: boolean; // Legacy fallback

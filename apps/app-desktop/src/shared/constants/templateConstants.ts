@@ -241,12 +241,3 @@ export const DEFAULT_OLUR_ONAY_SABLONLAR = [
   'butce-sorgusu'
 ] as const
 
-/**
- * Komisyon Belge Kapsamı (Scope) varsayılan şablon haritası.
- */
-export const SCOPE_DEFAULT_TEMPLATES: Record<string, readonly string[]> = {
-  piyasa_arastirma: DEFAULT_YAKLASIK_SABLONLAR,
-  muayene_kabul: DEFAULT_MUAYENE_SABLONLAR,
-  olur_onay: DEFAULT_OLUR_ONAY_SABLONLAR
-}
-

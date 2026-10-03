@@ -32,9 +32,9 @@ export interface HizliKadroGuncelleModalProps {
 }
 
 export const DEFAULT_YAKLASIK_ROLES = [
-  { ad: 'Harcama Yetkilisi', asil: 1, belgedeGoster: false, belgeKapsami: 'olur_onay' },
-  { ad: 'Satın Alma Harcama Yetkilisi', asil: 1, belgedeGoster: false, belgeKapsami: 'olur_onay' },
-  { ad: 'Gerçekleştirme Görevlisi', asil: 1, belgedeGoster: false, belgeKapsami: 'olur_onay' },
+  { ad: 'Harcama Yetkilisi', asil: 1, belgedeGoster: true, belgeKapsami: 'olur_onay' },
+  { ad: 'Satın Alma Harcama Yetkilisi', asil: 1, belgedeGoster: true, belgeKapsami: 'olur_onay' },
+  { ad: 'Gerçekleştirme Görevlisi', asil: 1, belgedeGoster: true, belgeKapsami: 'olur_onay' },
   { ad: 'Muhasebe Yetkilisi', asil: 1, belgedeGoster: false, belgeKapsami: 'gizli' },
   {
     ad: 'Fiyat Araştırma Görevlisi',
@@ -63,3 +63,35 @@ export const DEFAULT_MUAYENE_ROLES = [
   { ad: 'Üye', asil: 0, belgedeGoster: true, belgeKapsami: 'muayene_kabul' },
   { ad: 'Üye', asil: 0, belgedeGoster: true, belgeKapsami: 'muayene_kabul' }
 ]
+
+export function getDefaultScopeForRole(gorevAd: string): {
+  belgeKapsami: string
+  belgedeGoster: boolean
+} {
+  const lower = (gorevAd || '').toLowerCase().trim()
+  if (lower.includes('muhasebe')) {
+    return { belgeKapsami: 'gizli', belgedeGoster: false }
+  }
+  if (
+    lower.includes('harcama') ||
+    lower.includes('gerçekleştirme') ||
+    lower.includes('gerceklestirme') ||
+    lower.includes('onay') ||
+    lower.includes('olur')
+  ) {
+    return { belgeKapsami: 'olur_onay', belgedeGoster: true }
+  }
+  if (
+    lower.includes('fiyat') ||
+    lower.includes('piyasa') ||
+    lower.includes('yaklaşık') ||
+    lower.includes('yaklasik')
+  ) {
+    return { belgeKapsami: 'piyasa_arastirma', belgedeGoster: true }
+  }
+  if (lower.includes('muayene') || lower.includes('kabul')) {
+    return { belgeKapsami: 'muayene_kabul', belgedeGoster: true }
+  }
+  return { belgeKapsami: 'tumu', belgedeGoster: true }
+}
+

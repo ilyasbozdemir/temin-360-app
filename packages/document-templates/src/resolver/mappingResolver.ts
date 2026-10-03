@@ -1,8 +1,8 @@
 import { ProcessMapping, TableColumnMapping } from './types';
 import { TemplateRegistryService } from '../services/templateRegistryService';
-import { toPossessiveSuffix } from '../utils/textHelpers';
+import { toPossessiveSuffix, formatDateTR } from '../utils/textHelpers';
 
-export { toPossessiveSuffix };
+export { toPossessiveSuffix, formatDateTR };
 
 /**
  * Resolves official E-DETSIS formatted document number e.g. E-10234521-934.01-0001
@@ -55,14 +55,11 @@ export async function resolveEvrakSayisi(
 
     // 3. Fetch dosya details
     const dosyaRes = await queryExecutor(
-      'SELECT id, temin_no, evrak_sayisi, tur, butce_yili, dosya_acilis_tarihi, created_at FROM DATA_TeminDosyasi WHERE id = ? LIMIT 1',
+      'SELECT id, temin_no, tur, butce_yili, dosya_acilis_tarihi, created_at FROM DATA_TeminDosyasi WHERE id = ? LIMIT 1',
       [activeDosyaId]
     );
 
     const row = dosyaRes?.[0];
-    if (row?.evrak_sayisi && String(row.evrak_sayisi).trim() !== '') {
-      return String(row.evrak_sayisi).trim();
-    }
 
     const dosyaSayisi = String(row?.temin_no || '').trim();
     const rawTur = String(row?.tur || 'mal').toLowerCase();
@@ -261,39 +258,7 @@ export async function resolveAntetSatirlari(
   return ['T.C.'];
 }
 
-/**
- * Formats any date string (ISO or YYYY-MM-DD) into Turkish DD.MM.YYYY format
- */
-export function formatDateTR(dateVal: any): string {
-  if (!dateVal) return '';
-  const str = String(dateVal).trim();
 
-  if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
-    const parts = str.split('T')[0].split('-');
-    if (parts.length === 3) {
-      const [y, m, d] = parts;
-      return `${d}.${m}.${y}`;
-    }
-  }
-
-  if (/^\d{2}\.\d{2}\.\d{4}/.test(str)) {
-    return str;
-  }
-
-  try {
-    const d = new Date(str);
-    if (!isNaN(d.getTime())) {
-      const day = String(d.getDate()).padStart(2, '0');
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const year = d.getFullYear();
-      return `${day}.${month}.${year}`;
-    }
-  } catch {
-    // Ignore
-  }
-
-  return str;
-}
 
 /**
  * Resolves all variables in a ProcessMapping using database query execution.
@@ -550,21 +515,6 @@ export async function resolveTemplateData(
           }
         }
 
-        // 3. Fallback: Query TANIM_Personel if no commission table setup exists
-        if (members.length === 0) {
-          const pRows = await queryExecutor(
-            'SELECT ad_soyad, unvan FROM TANIM_Personel WHERE (aktif_mi = 1 OR aktif_mi IS NULL) ORDER BY id ASC LIMIT 3',
-            []
-          );
-          if (pRows && pRows.length > 0) {
-            members = pRows.map((p: any) => ({
-              resolved_ad_soyad: p.ad_soyad,
-              resolved_unvan: p.unvan,
-              gorev_adi: 'Görevli'
-            }));
-          }
-        }
-
         const seenMemberNames = new Set<string>();
         const uniqueMembers = (members || []).filter((m: any) => {
           const name = (m.resolved_ad_soyad || m.ad_soyad || m.adSoyad || '').trim().toLowerCase();
@@ -585,22 +535,7 @@ export async function resolveTemplateData(
         }));
 
         if (sablonDegiskeni === 'fiyatKomisyonu' || sablonDegiskeni === 'gorevlendirilenler') {
-          const onlyGorevliler = (resolvedPayload[sablonDegiskeni] as any[]).filter((m: any) => {
-            const combined = `${m.adSoyad} ${m.unvan} ${m.gorev}`.toLowerCase();
-            return (
-              !combined.includes('harcama yetkili') &&
-              !combined.includes('gerçekleştirme') &&
-              !combined.includes('gerceklestirme') &&
-              !combined.includes('muhasebe') &&
-              !combined.includes('satın alma harcama') &&
-              !combined.includes('satin alma harcama') &&
-              !combined.includes('talep eden personel') &&
-              !combined.includes('hazırlayan personel') &&
-              !combined.includes('onaylayan') &&
-              m.adSoyad.trim() !== ''
-            );
-          });
-          resolvedPayload.gorevlendirilenler = onlyGorevliler.length > 0 ? onlyGorevliler : resolvedPayload[sablonDegiskeni];
+          resolvedPayload.gorevlendirilenler = resolvedPayload[sablonDegiskeni];
           resolvedPayload.dagitimListesi = resolvedPayload.gorevlendirilenler;
         }
         continue;

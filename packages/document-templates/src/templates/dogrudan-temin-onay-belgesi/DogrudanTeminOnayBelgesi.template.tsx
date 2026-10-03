@@ -59,7 +59,7 @@ const DOKUMAN_OPTIONS = [
   "Sadece teknik şartname hazırlanacaktır.",
 ];
 
-export function formatCurrency(val: any, fallback = "-"): string {
+function formatCurrency(val: any, fallback = "-"): string {
   return formatCurrencyHelper(val, fallback, true);
 }
 

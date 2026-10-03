@@ -1,51 +1,5 @@
-import { SCOPE_DEFAULT_TEMPLATES } from '../../../shared/constants/templateConstants'
+import { isMemberVisibleInDocument } from '@temin360/document-templates'
 import { formatTurkishDate, getIpcKurumBizimText, getIpcKurumIhtiyacYeri } from './documentUtils'
-
-function isMemberEligibleForDoc(member: any, docId?: string): boolean {
-  if (!member) return false
-  if (
-    member.belgede_goster === 0 ||
-    member.belgede_goster === false ||
-    member.belgede_goster === '0' ||
-    member.belgede_goster === 'false' ||
-    member.belge_kapsami === 'gizli'
-  ) {
-    return false
-  }
-
-  const scope = member.belge_kapsami || 'tumu'
-  if (scope === 'tumu' || !docId) {
-    return true
-  }
-
-  const clean = docId.toLowerCase().replace(/\.html$/i, '').trim()
-
-  // Özel seçili belgeler kontrolü
-  if (scope === 'ozel') {
-    try {
-      const parsed = Array.isArray(member.hedef_belgeler)
-        ? member.hedef_belgeler
-        : JSON.parse(member.hedef_belgeler || '[]')
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.some(
-          (p: string) => clean === p.toLowerCase() || clean.includes(p.toLowerCase()) || p.toLowerCase().includes(clean)
-        )
-      }
-    } catch {
-      return false
-    }
-  }
-
-  // Tanımlı scope şablon listesi kontrolü (piyasa_arastirma, muayene_kabul, olur_onay vb.)
-  const targetTemplates = SCOPE_DEFAULT_TEMPLATES[scope]
-  if (targetTemplates && Array.isArray(targetTemplates)) {
-    return targetTemplates.some(
-      (tpl: string) => clean === tpl.toLowerCase() || clean.includes(tpl.toLowerCase()) || tpl.toLowerCase().includes(clean)
-    )
-  }
-
-  return true
-}
 
 export function resolveDocumentPayload(
   db: any,
@@ -545,27 +499,16 @@ export function resolveDocumentPayload(
       onaylayanPersonelUnvan: onaylayanPersonel?.unvan || '',
       harcamaYetkilisiAdi:
         onaylayanPersonel?.ad_soyad ||
-        (komisyonlar as any[]).find((k: any) =>
-          String(k.gorev || k.komisyon_turu_adi || '')
-            .toLowerCase()
-            .includes('harcama yetkili')
-        )?.resolved_ad_soyad ||
-        (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)
-          ?.harcama_yetkilisi_id
+        ((birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)?.harcama_yetkilisi_id
           ? (personelListesi as any[]).find(
               (p: any) =>
                 p.id ===
                 (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)
                   ?.harcama_yetkilisi_id
             )?.ad_soyad || ''
-          : '',
+          : ''),
       harcamaYetkilisiUnvan:
         onaylayanPersonel?.unvan ||
-        (komisyonlar as any[]).find((k: any) =>
-          String(k.gorev || k.komisyon_turu_adi || '')
-            .toLowerCase()
-            .includes('harcama yetkili')
-        )?.resolved_unvan ||
         (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)
           ?.harcama_yetkilisi_unvan ||
         'Harcama Yetkilisi',
@@ -677,8 +620,8 @@ export function resolveDocumentPayload(
       firmaToplamlari: firmaTotals,
       firmaToplamlariDetay: firmaTotals,
       komisyon: (() => {
-        const eligible = komisyonlar.filter((k: any) => isMemberEligibleForDoc(k, documentId))
-        const mapped = (eligible.length > 0 ? eligible : komisyonlar).map((k: any) => ({
+        const eligible = komisyonlar.filter((k: any) => isMemberVisibleInDocument(k, documentId))
+        const mapped = eligible.map((k: any) => ({
           adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
           unvan: k.resolved_unvan || k.unvan || '',
           gorevi: k.gorev || k.gorevi || 'Üye',
@@ -693,38 +636,15 @@ export function resolveDocumentPayload(
         })
       })(),
       fiyatKomisyonu: (() => {
-        const eligible = komisyonlar.filter((k: any) => isMemberEligibleForDoc(k, documentId))
-        const pool = eligible.length > 0 ? eligible : komisyonlar
-        const filtered = (
-          pool.filter((k: any) => {
-            const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
-            return (
-              !kt ||
-              kt.includes('fiyat') ||
-              kt.includes('piyasa') ||
-              kt.includes('araştırma') ||
-              kt.includes('arastirma')
-            )
-          }).length > 0
-            ? pool.filter((k: any) => {
-                const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
-                return (
-                  !kt ||
-                  kt.includes('fiyat') ||
-                  kt.includes('piyasa') ||
-                  kt.includes('araştırma') ||
-                  kt.includes('arastirma')
-                )
-              })
-            : pool
-        ).map((k: any) => ({
+        const eligible = komisyonlar.filter((k: any) => isMemberVisibleInDocument(k, documentId))
+        const mapped = eligible.map((k: any) => ({
           adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
           unvan: k.resolved_unvan || k.unvan || '',
           gorevi: k.gorev || k.gorevi || 'Üye',
           pozisyonu: k.resolved_unvan || k.unvan || ''
         }))
         const seen = new Set<string>()
-        return filtered.filter((item: any) => {
+        return mapped.filter((item: any) => {
           const name = (item.adSoyad || '').trim().toLowerCase()
           if (!name || seen.has(name)) return false
           seen.add(name)
@@ -732,26 +652,15 @@ export function resolveDocumentPayload(
         })
       })(),
       muayeneKomisyonu: (() => {
-        const eligible = komisyonlar.filter((k: any) => isMemberEligibleForDoc(documentId ? k : null, documentId))
-        const pool = eligible.length > 0 ? eligible : komisyonlar
-        const filtered = (
-          pool.filter((k: any) => {
-            const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
-            return kt.includes('muayene') || kt.includes('kabul')
-          }).length > 0
-            ? pool.filter((k: any) => {
-                const kt = String(k.komisyon_turu_adi || k.komisyon_turu || '').toLowerCase()
-                return kt.includes('muayene') || kt.includes('kabul')
-              })
-            : pool
-        ).map((k: any) => ({
+        const eligible = komisyonlar.filter((k: any) => isMemberVisibleInDocument(k, documentId))
+        const mapped = eligible.map((k: any) => ({
           adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
           unvan: k.resolved_unvan || k.unvan || '',
           gorevi: k.gorev || k.gorevi || 'Üye',
           pozisyonu: k.resolved_unvan || k.unvan || ''
         }))
         const seen = new Set<string>()
-        return filtered.filter((item: any) => {
+        return mapped.filter((item: any) => {
           const name = (item.adSoyad || '').trim().toLowerCase()
           if (!name || seen.has(name)) return false
           seen.add(name)

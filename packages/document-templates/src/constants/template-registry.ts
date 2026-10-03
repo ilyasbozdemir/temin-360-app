@@ -15,12 +15,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-        talep_eden: "optional",
-      },
     },
   },
   {
@@ -37,12 +31,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-        talep_eden: "optional",
-      },
     },
   },
   {
@@ -59,12 +47,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-        talep_eden: "optional",
-      },
     },
   },
   {
@@ -81,11 +63,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-      },
     },
   },
   {
@@ -102,12 +79,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-        talep_eden: "optional",
-      },
     },
   },
   {
@@ -124,10 +95,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-      },
     },
   },
   {
@@ -135,6 +102,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "LuzumMuzekkeresiTeslimTesellum",
     title: "Lüzum Müzekkeresi Teslim Tesellüm",
     category: "1-ihtiyac-tespiti-ve-baslangic",
+    group: "muayene_kabul",
     description: "Lüzum müzekkeresi teslim alma ve evrak devir tutanağı",
     supportsOlur: false,
     capabilities: {
@@ -144,11 +112,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-      },
     },
   },
   {
@@ -156,6 +119,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "HarcamaTalimati",
     title: "Harcama Talimatı",
     category: "1-ihtiyac-tespiti-ve-baslangic",
+    group: "olur_onay",
     description: "Harcama Yetkilisi tarafından imzalanan alım ve ihale başlatma oluru",
     supportsOlur: true,
     capabilities: {
@@ -165,13 +129,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
-      roleVisibility: {
-        harcama_yetkilisi: "show",
-        onaylayan: "show",
-        gerceklestirme_gorevlisi: "optional",
-        hazirlayan: "optional",
-        muhasebe: "optional",
-      },
     },
   },
   {
@@ -179,6 +136,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "KomisyonGorevlendirmeOnayi",
     title: "Komisyon Görevlendirme Onayı",
     category: "1-ihtiyac-tespiti-ve-baslangic",
+    group: "piyasa_arastirma",
     description: "Piyasa Araştırma veya Muayene Kabul Komisyon üyelerinin görevlendirme oluru",
     supportsOlur: true,
     capabilities: {
@@ -188,14 +146,10 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: false,
       supportsFirmaListesi: false,
+      // Exception: Olur içeren görevlendirme belgesinde Harcama Yetkilisi görünür
       roleVisibility: {
         harcama_yetkilisi: "show",
         onaylayan: "show",
-        hazirlayan: "optional",
-      },
-      commissionRoleVisibility: {
-        "Harcama Yetkilisi": "hide",
-        "Muhasebe Yetkilisi": "hide",
       },
     },
   },
@@ -204,6 +158,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "KomisyonGorevlendirmeOnayiEki",
     title: "Komisyon Görevlendirme Onayı Eki",
     category: "1-ihtiyac-tespiti-ve-baslangic",
+    group: "piyasa_arastirma",
     description: "Görevlendirilen komisyon üyelerinin detaylı görev dağılım listesi",
     supportsOlur: false,
     capabilities: {
@@ -213,13 +168,10 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: false,
       supportsFirmaListesi: false,
+      // Exception: Ek listesinde onaylayan gizlenir
       roleVisibility: {
         harcama_yetkilisi: "hide",
         onaylayan: "hide",
-      },
-      commissionRoleVisibility: {
-        "Harcama Yetkilisi": "hide",
-        "Muhasebe Yetkilisi": "hide",
       },
     },
   },
@@ -228,6 +180,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "PiyasaFiyatArastirmaGorevlendirmesi",
     title: "Piyasa Fiyat Araştırma Görevlendirmesi",
     category: "1-ihtiyac-tespiti-ve-baslangic",
+    group: "piyasa_arastirma",
     description: "Piyasa fiyat araştırmasını yapmak üzere görevlendirilen personelin olur belgesi",
     supportsOlur: true,
     capabilities: {
@@ -237,14 +190,10 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: false,
       supportsFirmaListesi: false,
+      // Exception: Görevlendirme olurunda Harcama Yetkilisi görünür
       roleVisibility: {
         harcama_yetkilisi: "show",
         onaylayan: "show",
-        hazirlayan: "optional",
-      },
-      commissionRoleVisibility: {
-        "Harcama Yetkilisi": "hide",
-        "Muhasebe Yetkilisi": "hide",
       },
     },
   },
@@ -253,6 +202,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "SonAlimFiyatCetveli",
     title: "Son Alım Fiyat Cetveli",
     category: "1-ihtiyac-tespiti-ve-baslangic",
+    group: "piyasa_arastirma",
     description: "Geçmiş alımlara ait birim fiyat ve fatura karşılaştırma cetveli",
     supportsOlur: true,
     capabilities: {
@@ -262,11 +212,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-      },
     },
   },
   {
@@ -274,6 +219,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "FiyatArastirmaMektubu",
     title: "Fiyat Araştırma Mektubu",
     category: "2-piyasa-fiyat-arastirmasi",
+    group: "piyasa_arastirma",
     description: "Firmalara teklif sunmaları için gönderilen resmi davet yazısı",
     supportsOlur: false,
     capabilities: {
@@ -283,11 +229,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-      },
     },
   },
   {
@@ -295,7 +236,30 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "BirimFiyatTeklifMektubu",
     title: "Birim Fiyat Teklif Mektubu",
     category: "2-piyasa-fiyat-arastirmasi",
+    group: "piyasa_arastirma",
     description: "Firmaların birim fiyatlarını doldurarak imzaladığı teklif mektubu",
+    supportsOlur: false,
+    capabilities: {
+      supportsOlur: false,
+      supportsCommission: false,
+      supportedCommissionTypes: ["none"],
+      supportsPersonnelList: false,
+      supportsKalemListesi: true,
+      supportsFirmaListesi: true,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "hide",
+        hazirlayan: "hide",
+      },
+    },
+  },
+  {
+    id: "birim-fiyat-teklif-cetveli",
+    name: "BirimFiyatTeklifCetveli",
+    title: "Birim Fiyat Teklif Cetveli",
+    category: "2-piyasa-fiyat-arastirmasi",
+    group: "piyasa_arastirma",
+    description: "İsteklilerin kalem bazlı birim fiyatlarını sunduğu detaylı cetvel",
     supportsOlur: false,
     capabilities: {
       supportsOlur: false,
@@ -316,6 +280,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "ArastirmaMektubu",
     title: "Araştırma Mektubu",
     category: "2-piyasa-fiyat-arastirmasi",
+    group: "piyasa_arastirma",
     description: "Piyasa araştırması kapsamında gönderilen bilgi ve teklif toplama yazısı",
     supportsOlur: false,
     capabilities: {
@@ -325,11 +290,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-      },
     },
   },
   {
@@ -337,6 +297,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "YaklasikMaliyetCetveli",
     title: "Yaklaşık Maliyet Cetveli",
     category: "2-piyasa-fiyat-arastirmasi",
+    group: "piyasa_arastirma",
     description: "Toplanan tekliflerden alımın yaklaşık maliyetinin hesaplandığı cetvel",
     supportsOlur: false,
     capabilities: {
@@ -346,15 +307,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-      },
-      commissionRoleVisibility: {
-        "Harcama Yetkilisi": "hide",
-        "Muhasebe Yetkilisi": "hide",
-      },
     },
   },
   {
@@ -362,6 +314,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "PiyasaFiyatArastirmaTutanagi",
     title: "Piyasa Fiyat Araştırma Tutanağı",
     category: "2-piyasa-fiyat-arastirmasi",
+    group: "piyasa_arastirma",
     description: "Piyasa fiyat araştırması görevlilerinin teklifleri değerlendirdiği ana tutanak",
     supportsOlur: true,
     capabilities: {
@@ -371,15 +324,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-      },
-      commissionRoleVisibility: {
-        "Harcama Yetkilisi": "hide",
-        "Muhasebe Yetkilisi": "hide",
-      },
     },
   },
   {
@@ -387,6 +331,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "KabulEdilenTeklif",
     title: "Kabul Edilen Teklif Bildirimi",
     category: "3-siparis-ve-sozlesme",
+    group: "olur_onay",
     description: "En avantajlı teklifi veren firmaya yapılan alım kabul bildirimi",
     supportsOlur: false,
     capabilities: {
@@ -396,11 +341,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-      },
     },
   },
   {
@@ -408,6 +348,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "DogrudanTeminOnayBelgesi",
     title: "Doğrudan Temin Onay Belgesi",
     category: "3-siparis-ve-sozlesme",
+    group: "olur_onay",
     description: "Karara bağlanan alımın yetkili makam onay belgesi",
     supportsOlur: true,
     capabilities: {
@@ -417,13 +358,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
-      roleVisibility: {
-        harcama_yetkilisi: "show",
-        onaylayan: "show",
-        gerceklestirme_gorevlisi: "optional",
-        hazirlayan: "optional",
-        talep_eden: "optional",
-      },
     },
   },
   {
@@ -431,6 +365,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "ButceSorgusu",
     title: "Bütçe Sorgusu ve Ödenek Belgesi",
     category: "3-siparis-ve-sozlesme",
+    group: "olur_onay",
     description: "Alım tutarının ilgili bütçe tertibinden karşılanabilirliğini gösteren form",
     supportsOlur: false,
     capabilities: {
@@ -440,12 +375,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-        muhasebe: "optional",
-      },
     },
   },
   {
@@ -453,6 +382,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "DogrudanTeminSozlesmesi",
     title: "Doğrudan Temin Sözleşmesi",
     category: "3-siparis-ve-sozlesme",
+    group: "olur_onay",
     description: "Yüklenici firma ile İdare arasında imzalanan matbu alım sözleşmesi",
     supportsOlur: false,
     capabilities: {
@@ -462,11 +392,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-      },
     },
   },
   {
@@ -474,6 +399,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "SozlesmeyeDavet",
     title: "Sözleşmeye Davet Yazısı",
     category: "3-siparis-ve-sozlesme",
+    group: "olur_onay",
     description: "Kazanan yükleniciye sözleşme imzalaması için iletilen davet yazısı",
     supportsOlur: false,
     capabilities: {
@@ -483,11 +409,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: false,
       supportsFirmaListesi: true,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-      },
     },
   },
   {
@@ -495,6 +416,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "MuayeneKabulTutanagi",
     title: "Muayene ve Kabul Tutanağı",
     category: "4-kabul-ve-odeme-islemleri",
+    group: "muayene_kabul",
     description: "Teslim alınan mal veya hizmetin muayene ve kabul tutanağı cetveli",
     supportsOlur: true,
     capabilities: {
@@ -504,15 +426,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-      },
-      commissionRoleVisibility: {
-        "Harcama Yetkilisi": "hide",
-        "Muhasebe Yetkilisi": "hide",
-      },
     },
   },
   {
@@ -520,6 +433,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "MuayeneKabulKomisyonu",
     title: "Muayene ve Kabul Komisyon Kararı",
     category: "4-kabul-ve-odeme-islemleri",
+    group: "muayene_kabul",
     description: "Teslim alınan mal veya hizmetin muayene kabul komisyonunca onaylanma kararı",
     supportsOlur: true,
     capabilities: {
@@ -529,15 +443,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
-      roleVisibility: {
-        harcama_yetkilisi: "hide",
-        onaylayan: "optional",
-        hazirlayan: "optional",
-      },
-      commissionRoleVisibility: {
-        "Harcama Yetkilisi": "hide",
-        "Muhasebe Yetkilisi": "hide",
-      },
     },
   },
   {
@@ -545,6 +450,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "HarcamaPusulasi",
     title: "Harcama Pusulası",
     category: "4-kabul-ve-odeme-islemleri",
+    group: "muayene_kabul",
     description: "Fatura kesme yükümlülüğü olmayan gerçek kişilerden yapılan alımların tutanağı",
     supportsOlur: false,
     capabilities: {
@@ -554,10 +460,10 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
+      // Exception: Harcama Pusulası Harcama Yetkilisi imzası içerir
       roleVisibility: {
         harcama_yetkilisi: "show",
         onaylayan: "show",
-        hazirlayan: "optional",
       },
     },
   },
@@ -566,6 +472,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "OdemeYazisi",
     title: "Ödeme Yazısı",
     category: "4-kabul-ve-odeme-islemleri",
+    group: "olur_onay",
     description: "Mali hizmetler / muhasebe müdürlüğüne yazılan ödeme üst yazısı",
     supportsOlur: true,
     capabilities: {
@@ -575,12 +482,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: false,
       supportsFirmaListesi: true,
-      roleVisibility: {
-        harcama_yetkilisi: "show",
-        onaylayan: "show",
-        gerceklestirme_gorevlisi: "optional",
-        muhasebe: "optional",
-      },
     },
   },
   {
@@ -588,6 +489,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "DogrudanTeminSonucOnayBelgesi",
     title: "Doğrudan Temin Sonuç Onay Belgesi",
     category: "3-siparis-ve-sozlesme",
+    group: "olur_onay",
     description: "Alım sonucunun yetkili makam onay belgesi",
     supportsOlur: true,
     capabilities: {
@@ -597,10 +499,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
-      roleVisibility: {
-        harcama_yetkilisi: "show",
-        onaylayan: "show",
-      },
     },
   },
   {
@@ -608,6 +506,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "GorevlendirmeYazisi",
     title: "Görevlendirme Yazısı",
     category: "2-piyasa-fiyat-arastirmasi",
+    group: "piyasa_arastirma",
     description: "Piyasa fiyat araştırması görevlendirme yazısı",
     supportsOlur: true,
     capabilities: {
@@ -617,13 +516,10 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: false,
       supportsFirmaListesi: false,
+      // Exception: Görevlendirme olurunda Harcama Yetkilisi görünür
       roleVisibility: {
         harcama_yetkilisi: "show",
         onaylayan: "show",
-      },
-      commissionRoleVisibility: {
-        "Harcama Yetkilisi": "hide",
-        "Muhasebe Yetkilisi": "hide",
       },
     },
   },
@@ -632,6 +528,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     name: "IdareOnayBelgesi",
     title: "İdare Onay Belgesi",
     category: "3-siparis-ve-sozlesme",
+    group: "olur_onay",
     description: "İdare onay ve karar belgesi",
     supportsOlur: true,
     capabilities: {
@@ -641,10 +538,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
-      roleVisibility: {
-        harcama_yetkilisi: "show",
-        onaylayan: "show",
-      },
     },
   },
 ];

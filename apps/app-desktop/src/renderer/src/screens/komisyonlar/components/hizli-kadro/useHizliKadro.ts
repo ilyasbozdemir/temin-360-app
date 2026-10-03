@@ -5,7 +5,8 @@ import {
   DEFAULT_YAKLASIK_ROLES,
   GorevItem,
   MemberRow,
-  PersonelItem
+  PersonelItem,
+  getDefaultScopeForRole
 } from './types'
 
 interface UseHizliKadroProps {
@@ -285,6 +286,7 @@ export function useHizliKadro({
 
   const handleAddRow = (gorevAd = 'Üye', asil = 1) => {
     const matchedGorev = gorevler.find((g) => g.ad.toLowerCase() === gorevAd.toLowerCase())
+    const { belgeKapsami, belgedeGoster } = getDefaultScopeForRole(gorevAd)
     setRows((prev) => [
       ...prev,
       {
@@ -294,8 +296,8 @@ export function useHizliKadro({
         gorevAd,
         personelId: null,
         asilMi: asil,
-        belgedeGoster: true,
-        belgeKapsami: 'tumu'
+        belgedeGoster,
+        belgeKapsami
       }
     ])
   }
@@ -311,7 +313,20 @@ export function useHizliKadro({
   }
 
   const handleSelectGorev = (rowId: string | number, gorevAd: string, gorevId: number | null) => {
-    setRows((prev) => prev.map((r) => (r.id === rowId ? { ...r, gorevAd, gorevId } : r)))
+    const { belgeKapsami, belgedeGoster } = getDefaultScopeForRole(gorevAd)
+    setRows((prev) =>
+      prev.map((r) =>
+        r.id === rowId
+          ? {
+              ...r,
+              gorevAd,
+              gorevId,
+              belgeKapsami,
+              belgedeGoster
+            }
+          : r
+      )
+    )
   }
 
   const handleToggleAsil = (rowId: string | number) => {
@@ -433,7 +448,7 @@ export function useHizliKadro({
 
       for (let i = 0; i < rows.length; i++) {
         const r = rows[i]
-        const isShow = r.belgeKapsami !== 'gizli' && r.belgedeGoster
+        const isShow = r.belgeKapsami !== 'gizli'
         const hedefJson = JSON.stringify(r.hedefBelgeler && r.hedefBelgeler.length > 0 ? r.hedefBelgeler : ['*'])
         await window.electron.ipcRenderer.invoke(
           'db:run',
@@ -502,7 +517,7 @@ export function useHizliKadro({
                   : r.gorevAd.toLowerCase().includes('başkan')
                     ? 'Başkan'
                     : 'Üye'
-              const isShow = r.belgeKapsami !== 'gizli' && r.belgedeGoster
+              const isShow = r.belgeKapsami !== 'gizli'
               const hedefJson = JSON.stringify(r.hedefBelgeler && r.hedefBelgeler.length > 0 ? r.hedefBelgeler : ['*'])
               await window.electron.ipcRenderer.invoke(
                 'db:run',

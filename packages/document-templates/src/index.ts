@@ -47,6 +47,8 @@ export * from "./resolver/MappingResolverTest";
 export * from "./resolver/TemplateResolver";
 
 export * from "./constants/template-registry";
+export * from "./constants/template-constants";
+export * from "./constants/visibility.config";
 export * from "./constants/editable-fields";
 export * from "./services/templateRegistryService";
 export * from "./types";

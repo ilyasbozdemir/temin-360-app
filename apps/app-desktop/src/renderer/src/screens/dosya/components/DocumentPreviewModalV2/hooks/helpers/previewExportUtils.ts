@@ -1,11 +1,11 @@
 import React from 'react'
 import { renderToString } from 'react-dom/server'
-import { TemplateEditProvider, TemplateResolver } from '@temin360/document-templates'
+import { TemplateEditProvider } from '@temin360/document-templates'
 import { useSettingsStore } from '../../../../../../store/settingsStore'
 import { usePrintQueueStore } from '../../../../../../store/printQueueStore'
 import { documentPreloadService } from '../../../../../../services/documentPreloadService'
 import { buildExportFileName } from '../../../../../../utils/exportFileName'
-import { getDefaultMappingForProcess } from '../../../../../../constants/mappings'
+import { loadDocumentPreviewData } from './previewDataLoader'
 import { Personel } from '../../types'
 
 interface CompileHtmlParams {
@@ -295,11 +295,13 @@ export async function openPdfPreview({
 interface RefreshFromDbParams {
   activeDosyaId: number
   resolvedId: string
+  selectedDocId?: string
 }
 
 export async function refreshDocumentFromDb({
   activeDosyaId,
-  resolvedId
+  resolvedId,
+  selectedDocId
 }: RefreshFromDbParams): Promise<Record<string, any> | null> {
   if (!activeDosyaId || !resolvedId) return null
 
@@ -310,36 +312,11 @@ export async function refreshDocumentFromDb({
   )
   documentPreloadService.invalidateCache(activeDosyaId)
 
-  const queryExecutor = async (sql: string, params: any[]): Promise<any[]> => {
-    const res = await window.electron.ipcRenderer.invoke('db:query', sql, params)
-    if (res && res.success) {
-      return res.data
-    }
-    return []
-  }
+  const previewResult = await loadDocumentPreviewData({
+    activeDosyaId,
+    resolvedId,
+    selectedDocId: selectedDocId || resolvedId
+  })
 
-  const mapping = getDefaultMappingForProcess(resolvedId)
-  const resolver = new TemplateResolver(queryExecutor)
-  const [, resolved] = await Promise.all([
-    window.electron.ipcRenderer.invoke('belge:get-document-payload', {
-      dosyaId: activeDosyaId,
-      documentId: resolvedId
-    }),
-    resolver.resolve(mapping, activeDosyaId || 0)
-  ])
-
-  const baseData: any = { ...resolved }
-  const defaultDate = baseData.tarih || baseData.onayaSunulanTarih || ''
-  if (defaultDate) {
-    if (!baseData.tarih) baseData.tarih = defaultDate
-    if (!baseData.onayaSunulanTarih) baseData.onayaSunulanTarih = defaultDate
-    if (!baseData.belgeTarihi) baseData.belgeTarihi = defaultDate
-  }
-  const defaultOnayDate = baseData.onayTarihi || baseData.dosyaTarihi || ''
-  if (defaultOnayDate) {
-    baseData.onayTarihi = defaultOnayDate
-    baseData.olurTarihi = defaultOnayDate
-  }
-
-  return baseData
+  return previewResult?.finalData || null
 }

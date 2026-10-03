@@ -130,10 +130,17 @@ export function toIsoDate(trDateStr?: string | null): string {
 }
 
 /**
- * Tarihi Türkçe GG.AA.YYYY formatına dönüştürür.
+ * Tarihi Türkçe GG.AA.YYYY formatına dönüştürür (String, Date veya timestamp kabul eder).
  */
-export function toTrDate(isoOrStr?: string | null): string {
+export function toTrDate(isoOrStr?: any): string {
   if (!isoOrStr) return "";
+  if (isoOrStr instanceof Date) {
+    if (isNaN(isoOrStr.getTime())) return "";
+    const d = String(isoOrStr.getDate()).padStart(2, "0");
+    const m = String(isoOrStr.getMonth() + 1).padStart(2, "0");
+    const y = isoOrStr.getFullYear();
+    return `${d}.${m}.${y}`;
+  }
   const clean = String(isoOrStr).trim();
   if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
     const [y, m, d] = clean.split(" ")[0].split("-");
@@ -142,6 +149,15 @@ export function toTrDate(isoOrStr?: string | null): string {
   if (/^\d{2}\.\d{2}\.\d{4}/.test(clean)) {
     return clean;
   }
+  try {
+    const dt = new Date(clean);
+    if (!isNaN(dt.getTime())) {
+      const d = String(dt.getDate()).padStart(2, "0");
+      const m = String(dt.getMonth() + 1).padStart(2, "0");
+      const y = dt.getFullYear();
+      return `${d}.${m}.${y}`;
+    }
+  } catch {}
   return clean;
 }
 
