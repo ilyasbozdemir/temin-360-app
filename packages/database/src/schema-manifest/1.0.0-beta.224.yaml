@@ -1,0 +1,8 @@
+app: 1.0.0-beta.224
+schema_min: 1
+schema_max: 38
+release_date: "2026-10-03"
+changes:
+  - schema: 38
+    type: update
+    description: "Şablon görünürlük tek kaynak (visibility.config) mimarisi, veritabanı sağlık aracı ve veri onarım adımları"

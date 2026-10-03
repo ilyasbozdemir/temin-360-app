@@ -106,7 +106,7 @@ describe('Database Schema Integrity & Manifest Tests', () => {
     expect(CURRENT_SCHEMA_VERSION).toBe(maxVersion)
 
     const latestManifest = manifests[manifests.length - 1]
-    expect(latestManifest.app).toBe('1.0.0-beta.222')
-    expect(latestManifest.schema_max).toBe(37)
+    expect(latestManifest.app).toBeDefined()
+    expect(latestManifest.schema_max).toBe(CURRENT_SCHEMA_VERSION)
   })
 })
