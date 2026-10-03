@@ -23,8 +23,8 @@ import { LogolarTab } from './components/LogolarTab'
 import { KurumViewCard } from './components/KurumViewCard'
 import { KeyValuePair, KurumMetadataManager } from './components/KurumMetadataManager'
 import { useSettingsStore } from '../../store/settingsStore'
-
-import { useRouterState } from '@tanstack/react-router'
+import { useTabStore } from '../../store/tabStore'
+import { useNavigate, useRouterState } from '@tanstack/react-router'
 
 import BirimlerScreen from '../birimler/index.screen'
 import PersonelScreen from '../personel/index.screen'
@@ -209,7 +209,24 @@ export default function KurumScreen(): React.JSX.Element {
     }
   }
 
+  const navigate = useNavigate()
+  const { addTab } = useTabStore()
+
   const handleTabChange = (tabId: string): void => {
+    if (
+      [
+        'birimler',
+        'personel',
+        'komisyonlar',
+        'komisyon-gorevleri',
+        'ambar',
+        'projeler'
+      ].includes(tabId)
+    ) {
+      addTab(`/${tabId}`)
+      navigate({ to: `/${tabId}` as any })
+      return
+    }
     setActiveTab(tabId as TabType)
     try {
       const url = new URL(window.location.href)
@@ -316,7 +333,7 @@ export default function KurumScreen(): React.JSX.Element {
   const isKurumTab = ['onizleme', 'idari', 'mali', 'iletisim', 'logolar'].includes(activeTab)
 
   return (
-    <div className="max-w-[1600px] mx-auto flex flex-col gap-6 w-full animate-in fade-in duration-200">
+    <div className="w-full flex flex-col gap-6 animate-in fade-in duration-200">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-4">
         {/* SOL MENÜ */}
         <InnerMenu

@@ -281,10 +281,13 @@ export default function KomisyonlarScreen({
     queryFn: async () => {
       const dosyaRes = await window.electron.ipcRenderer.invoke(
         'db:query',
-        `SELECT d.id, d.dosya_no, d.is_tanimi, d.created_at,
+        `SELECT d.id, 
+                COALESCE(d.dosya_no, d.temin_no, '#' || d.id) as dosya_no, 
+                COALESCE(d.is_tanimi, d.konu, 'Doğrudan Temin Dosyası') as is_tanimi, 
+                d.created_at,
                 (SELECT COUNT(*) FROM DATA_TeminKomisyonHistory h WHERE h.temin_dosya_id = d.id) as history_count
          FROM DATA_TeminDosyasi d
-         WHERE d.aktif_mi = 1
+         WHERE COALESCE(d.is_deleted, 0) = 0
          ORDER BY d.id DESC`
       )
       if (!dosyaRes.success) return []

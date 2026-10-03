@@ -17,6 +17,7 @@ export interface KomisyonRow {
   baslangicTarihi?: string
   bitisTarihi?: string
   belgeKapsami?: string
+  hedefBelgeler?: string[]
 }
 
 export interface KurumInfo {

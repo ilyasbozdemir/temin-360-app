@@ -21,6 +21,12 @@ const YardimScreen = lazyRoute(() => import('./screens/system/YardimScreen'))
 const AyarlarScreen = lazyRoute(() => import('./screens/ayarlar/index.screen'))
 const TemaScreen = lazyRoute(() => import('./screens/ayarlar/TemaScreen'))
 const AmbarScreen = lazyRoute(() => import('./screens/ambar/index.screen'))
+const BirimlerScreen = lazyRoute(() => import('./screens/birimler/index.screen'))
+const PersonelScreen = lazyRoute(() => import('./screens/personel/index.screen'))
+const KomisyonlarScreen = lazyRoute(() => import('./screens/komisyonlar/index.screen'))
+const KomisyonGorevleriScreen = lazyRoute(
+  () => import('./screens/komisyon-gorevleri/index.screen')
+)
 const MalzemelerScreen = lazyRoute(() => import('./screens/malzemeler/index.screen'))
 const TasinirKodScreen = lazyRoute(() => import('./screens/tasinirkod/index.screen'))
 const KurumScreen = lazyRoute(() => import('./screens/kurum/index.screen'))
@@ -153,7 +159,7 @@ const firmalarRoute = createRoute({
 const personelRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.PERSONEL,
-  component: KurumScreen
+  component: PersonelScreen
 })
 
 const sablonlarRoute = createRoute({
@@ -177,7 +183,7 @@ const degiskenlerRoute = createRoute({
 const komisyonlarRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.KOMISYONLAR,
-  component: KurumScreen
+  component: KomisyonlarScreen
 })
 
 const komisyonDetayRoute = createRoute({
@@ -189,7 +195,7 @@ const komisyonDetayRoute = createRoute({
 const komisyonGorevleriRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.KOMISYON_GOREVLERI,
-  component: KurumScreen
+  component: KomisyonGorevleriScreen
 })
 
 // Dynamic routes
@@ -304,7 +310,7 @@ const temaRoute = createRoute({
 const birimlerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.BIRIMLER,
-  component: KurumScreen
+  component: BirimlerScreen
 })
 
 const ambarRoute = createRoute({
