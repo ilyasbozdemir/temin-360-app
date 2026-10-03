@@ -1,9 +1,59 @@
-import { TemplateResolver } from '@temin360/document-templates'
+import { TemplateResolver, TemplateRegistryService } from '@temin360/document-templates'
 import { getDefaultMappingForProcess } from '../../../../../../constants/mappings'
 import { useSettingsStore } from '../../../../../../store/settingsStore'
 import { useGlobalDocumentPreviewStore } from '../../../../../../store/globalDocumentPreviewStore'
 import { formatDateString } from '../../../../contextBuilder/dateHelpers'
 import { LoadPreviewDataParams, LoadPreviewDataResult } from './types'
+
+export function applyRolePolicy(baseData: any, templateId: string, _komisyonSatirlari?: any[]): void {
+  const harcamaPolicy = TemplateRegistryService.resolveRoleVisibility(templateId, 'harcama_yetkilisi')
+  const onaylayanPolicy = TemplateRegistryService.resolveRoleVisibility(templateId, 'onaylayan')
+  const hazirlayanPolicy = TemplateRegistryService.resolveRoleVisibility(templateId, 'hazirlayan')
+  const talepEdenPolicy = TemplateRegistryService.resolveRoleVisibility(templateId, 'talep_eden')
+  const gerceklestirmePolicy = TemplateRegistryService.resolveRoleVisibility(templateId, 'gerceklestirme_gorevlisi')
+  const muhasebePolicy = TemplateRegistryService.resolveRoleVisibility(templateId, 'muhasebe')
+
+  if (harcamaPolicy === 'hide') {
+    baseData.harcamaYetkilisiAdi = ''
+    baseData.harcamaYetkilisiUnvan = ''
+  }
+
+  if (onaylayanPolicy === 'hide') {
+    baseData.onaylayanPersonelAdi = ''
+    baseData.onaylayanPersonelUnvan = ''
+    baseData.baskanAdi = ''
+    baseData.baskanUnvan = ''
+  }
+
+  if (hazirlayanPolicy === 'hide' && gerceklestirmePolicy === 'hide') {
+    baseData.hazirlayanPersonelAdi = ''
+    baseData.hazirlayanPersonelUnvan = ''
+    baseData.gerceklestirmeGorevlisiAdi = ''
+    baseData.gerceklestirmeGorevlisiUnvan = ''
+  }
+
+  if (talepEdenPolicy === 'hide') {
+    baseData.talepEdenPersonelAdi = ''
+    baseData.talepEdenPersonelUnvan = ''
+  }
+
+  if (muhasebePolicy === 'hide') {
+    baseData.mutemetAdi = ''
+    baseData.mutemetUnvan = ''
+    baseData.muhasebeYetkilisiAdi = ''
+    baseData.muhasebeYetkilisiUnvan = ''
+    baseData.muhasebeYetkilisi = ''
+  }
+
+  baseData.goster = {
+    harcamaYetkilisi: harcamaPolicy !== 'hide',
+    onaylayan: onaylayanPolicy !== 'hide',
+    hazirlayan: hazirlayanPolicy !== 'hide',
+    talepEden: talepEdenPolicy !== 'hide',
+    gerceklestirmeGorevlisi: gerceklestirmePolicy !== 'hide',
+    muhasebe: muhasebePolicy !== 'hide'
+  }
+}
 
 function dedupeMembers(members: any[]) {
   if (!Array.isArray(members)) return []
@@ -240,7 +290,12 @@ export async function loadDocumentPreviewData({
     }
   }
 
-  if (!baseData.talepEdenPersonelAdi) {
+  const targetDocTemplateId = String(resolvedId || selectedDocId || '')
+  const talepPolicy = TemplateRegistryService.resolveRoleVisibility(targetDocTemplateId, 'talep_eden')
+  const onayPolicy = TemplateRegistryService.resolveRoleVisibility(targetDocTemplateId, 'onaylayan')
+  const harcamaPol = TemplateRegistryService.resolveRoleVisibility(targetDocTemplateId, 'harcama_yetkilisi')
+
+  if (!baseData.talepEdenPersonelAdi && talepPolicy !== 'hide') {
     baseData.talepEdenPersonelAdi = ctx.talepEdenPersonelAdi || ''
     baseData.talepEdenPersonelUnvan = ctx.talepEdenPersonelUnvan || ''
     if (!baseData.talepEdenPersonelAdi && dosyaObj.talep_eden_personel_id) {
@@ -252,7 +307,7 @@ export async function loadDocumentPreviewData({
     }
   }
 
-  if (!baseData.onaylayanPersonelAdi) {
+  if (!baseData.onaylayanPersonelAdi && (onayPolicy !== 'hide' || harcamaPol !== 'hide')) {
     baseData.onaylayanPersonelAdi = ctx.onaylayanPersonelAdi || ''
     baseData.onaylayanPersonelUnvan = ctx.onaylayanPersonelUnvan || ''
     if (!baseData.onaylayanPersonelAdi && dosyaObj.onay_personel_id) {
@@ -303,11 +358,7 @@ export async function loadDocumentPreviewData({
       )
       if (dbKomisyonlar && dbKomisyonlar.length > 0) {
         const isMemberVisible = (k: any) => {
-          const bg = k.belgede_goster ?? k.belgedeGoster ?? k.goster
-          if (bg === 0 || bg === '0' || bg === false || bg === 'false') return false
-          const g = (k.gorev || '').toLowerCase()
-          if (g.includes('harcama yetkili') || g.includes('muhasebe')) return false
-          return true
+          return TemplateRegistryService.isMemberVisibleInTemplate(k, targetDocTemplateId)
         }
 
         const maliyetMembers = dbKomisyonlar.filter((k: any) => {
@@ -1179,6 +1230,9 @@ export async function loadDocumentPreviewData({
   if (!finalData.sagLogo && resolvedSagLogo) {
     finalData.sagLogo = resolvedSagLogo
   }
+
+  // Ensure role policy is applied at the very end to guarantee finalData conforms to template policy
+  applyRolePolicy(finalData, targetDocTemplateId)
 
   const initialSnapshotJson = JSON.stringify({
     ...finalData,

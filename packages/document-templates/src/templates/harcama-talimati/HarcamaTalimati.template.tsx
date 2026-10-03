@@ -7,6 +7,7 @@ import {
   PersonelInlineSelect,
 } from "../../document/ApprovalSignature";
 import { HarcamaTalimatiType } from "./HarcamaTalimati.schema";
+import { getDativeSuffix, formatCurrency } from "../../utils/textHelpers";
 
 interface HarcamaTalimatiProps {
   data?: Partial<HarcamaTalimatiType> & Record<string, any>;
@@ -14,56 +15,6 @@ interface HarcamaTalimatiProps {
   orientation?: "portrait" | "landscape";
   hideHeader?: boolean;
   hideFooter?: boolean;
-}
-
-function getDativeSuffix(name?: string): string {
-  if (!name || typeof name !== "string") return "’a";
-  const trimmed = name.split("(")[0].trim();
-  if (!trimmed || trimmed.includes(".")) return "’a";
-
-  const vowels = "aıoueiöüAIOUEİÖÜ";
-  const backVowels = "aıouAIOU";
-
-  let lastVowel = "";
-  for (let i = trimmed.length - 1; i >= 0; i--) {
-    const char = trimmed[i];
-    if (vowels.includes(char)) {
-      lastVowel = char;
-      break;
-    }
-  }
-
-  if (!lastVowel) return "’a";
-
-  const lastChar = trimmed[trimmed.length - 1];
-  const endsWithVowel = vowels.includes(lastChar);
-  const isBack = backVowels.includes(lastVowel);
-
-  if (isBack) {
-    return endsWithVowel ? "’ya" : "’a";
-  } else {
-    return endsWithVowel ? "’ye" : "’e";
-  }
-}
-
-function formatCurrency(val: any, fallback = "-"): string {
-  if (val === undefined || val === null || val === "") return fallback;
-  if (typeof val === "number") {
-    if (isNaN(val)) return fallback;
-    return val.toLocaleString("tr-TR", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-  }
-  const cleanStr = String(val).trim().replace("₺", "").trim();
-  const num = Number(cleanStr.replace(/\./g, "").replace(",", "."));
-  if (!isNaN(num) && cleanStr !== "") {
-    return num.toLocaleString("tr-TR", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-  }
-  return String(val);
 }
 
 export function HarcamaTalimati({
@@ -86,30 +37,6 @@ export function HarcamaTalimati({
     data.mutemetAdi ||
     data.muhasebeYetkilisiAdi ||
     data.muhasebeYetkilisi ||
-    (Array.isArray((data as any).komisyonUyeleri)
-      ? (data as any).komisyonUyeleri.find((k: any) => {
-          const g = (k.gorev || k.komisyonGorevi || k.rol || k.unvan || "").toLowerCase();
-          return g.includes("muhasebe") || g.includes("mutemet");
-        })?.adSoyad || ""
-      : "") ||
-    (Array.isArray((data as any).komisyonlar)
-      ? (data as any).komisyonlar.find((k: any) => {
-          const g = (k.gorev || k.komisyonGorevi || k.rol || k.unvan || "").toLowerCase();
-          return g.includes("muhasebe") || g.includes("mutemet");
-        })?.adSoyad || ""
-      : "") ||
-    (Array.isArray((data as any).fiyatKomisyonu)
-      ? (data as any).fiyatKomisyonu.find((k: any) => {
-          const g = (k.gorev || k.gorevi || k.komisyonGorevi || k.rol || k.unvan || "").toLowerCase();
-          return g.includes("muhasebe") || g.includes("mutemet");
-        })?.adSoyad || ""
-      : "") ||
-    (Array.isArray((data as any).muayeneKomisyonu)
-      ? (data as any).muayeneKomisyonu.find((k: any) => {
-          const g = (k.gorev || k.gorevi || k.komisyonGorevi || k.rol || k.unvan || "").toLowerCase();
-          return g.includes("muhasebe") || g.includes("mutemet");
-        })?.adSoyad || ""
-      : "") ||
     "";
   const cleanMutemet = typeof rawMutemet === "string"
     ? rawMutemet.split("(")[0].trim()

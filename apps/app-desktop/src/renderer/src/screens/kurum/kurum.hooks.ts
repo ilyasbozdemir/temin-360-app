@@ -39,6 +39,9 @@ export interface KurumVerisi {
   eposta?: string
   kep_adresi?: string
   web_sitesi?: string
+  kurum_baskani?: string
+  baskan_unvani?: string
+  harcama_yetkilisi?: string
   created_by?: number | null
   created_at?: string
   updated_by?: number | null

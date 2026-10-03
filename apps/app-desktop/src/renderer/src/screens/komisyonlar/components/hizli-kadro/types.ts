@@ -8,6 +8,7 @@ export interface PersonelItem {
 export interface GorevItem {
   id: number
   ad: string
+  aciklama?: string | null
 }
 
 export interface MemberRow {

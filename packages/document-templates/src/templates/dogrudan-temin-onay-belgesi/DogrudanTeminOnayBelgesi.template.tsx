@@ -3,6 +3,7 @@ import { DocumentLayout } from "../../document/DocumentLayout";
 import { EditableField } from "../../document/EditableField";
 import { DateEditableField } from "../../document/ApprovalSignature";
 import { DogrudanTeminOnayBelgesiType } from "./DogrudanTeminOnayBelgesi.schema";
+import { formatCurrency as formatCurrencyHelper } from "../../utils/textHelpers";
 
 interface DogrudanTeminOnayBelgesiProps {
   data?: Partial<DogrudanTeminOnayBelgesiType> & Record<string, any>;
@@ -59,34 +60,7 @@ const DOKUMAN_OPTIONS = [
 ];
 
 export function formatCurrency(val: any, fallback = "-"): string {
-  if (val === undefined || val === null || val === "") return fallback;
-  if (typeof val === "number") {
-    if (isNaN(val)) return fallback;
-    return (
-      val.toLocaleString("tr-TR", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }) + " ₺"
-    );
-  }
-  const str = String(val).trim();
-  if (str.endsWith("₺")) {
-    return str;
-  }
-  const clean = str.replace(/\./g, "").replace(",", ".").replace(
-    /[^\d.-]/g,
-    "",
-  );
-  const num = parseFloat(clean);
-  if (!isNaN(num) && clean !== "") {
-    return (
-      num.toLocaleString("tr-TR", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }) + " ₺"
-    );
-  }
-  return str;
+  return formatCurrencyHelper(val, fallback, true);
 }
 
 export function DogrudanTeminOnayBelgesi({

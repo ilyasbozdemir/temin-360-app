@@ -12,7 +12,8 @@ import {
   Save,
   ShieldCheck,
   Users,
-  Warehouse
+  Warehouse,
+  Wallet
 } from 'lucide-react'
 import { InnerMenu, InnerMenuItem } from '../../components/ui/InnerMenu'
 import { IdariBilgilerTab } from './components/IdariBilgilerTab'
@@ -22,8 +23,8 @@ import { LogolarTab } from './components/LogolarTab'
 import { KurumViewCard } from './components/KurumViewCard'
 import { KeyValuePair, KurumMetadataManager } from './components/KurumMetadataManager'
 import { useSettingsStore } from '../../store/settingsStore'
-
-import { useRouterState } from '@tanstack/react-router'
+import { useTabStore } from '../../store/tabStore'
+import { useNavigate, useRouterState } from '@tanstack/react-router'
 
 import BirimlerScreen from '../birimler/index.screen'
 import PersonelScreen from '../personel/index.screen'
@@ -31,6 +32,7 @@ import KomisyonlarScreen from '../komisyonlar/index.screen'
 import KomisyonGorevleriScreen from '../komisyon-gorevleri/index.screen'
 import AmbarScreen from '../ambar/index.screen'
 import ProjelerScreen from '../projeler/index.screen'
+import { ButceOdenekTanimTab } from './components/ButceOdenekTanimTab'
 
 type TabType =
   | 'onizleme'
@@ -38,6 +40,7 @@ type TabType =
   | 'mali'
   | 'iletisim'
   | 'logolar'
+  | 'butce-odenek'
   | 'birimler'
   | 'personel'
   | 'komisyonlar'
@@ -206,7 +209,24 @@ export default function KurumScreen(): React.JSX.Element {
     }
   }
 
+  const navigate = useNavigate()
+  const { addTab } = useTabStore()
+
   const handleTabChange = (tabId: string): void => {
+    if (
+      [
+        'birimler',
+        'personel',
+        'komisyonlar',
+        'komisyon-gorevleri',
+        'ambar',
+        'projeler'
+      ].includes(tabId)
+    ) {
+      addTab(`/${tabId}`)
+      navigate({ to: `/${tabId}` as any })
+      return
+    }
     setActiveTab(tabId as TabType)
     try {
       const url = new URL(window.location.href)
@@ -271,6 +291,11 @@ export default function KurumScreen(): React.JSX.Element {
       icon: <LayoutGrid className="w-4 h-4 shrink-0 text-indigo-500" />
     },
     {
+      id: 'butce-odenek',
+      label: 'Bütçe & Ödenek Yönetimi',
+      icon: <Wallet className="w-4 h-4 shrink-0 text-purple-600" />
+    },
+    {
       id: 'personel',
       label: 'Personel Yönetimi',
       icon: <Users className="w-4 h-4 shrink-0 text-emerald-500" />
@@ -308,7 +333,7 @@ export default function KurumScreen(): React.JSX.Element {
   const isKurumTab = ['onizleme', 'idari', 'mali', 'iletisim', 'logolar'].includes(activeTab)
 
   return (
-    <div className="max-w-[1600px] mx-auto flex flex-col gap-6 w-full animate-in fade-in duration-200">
+    <div className="w-full flex flex-col gap-6 animate-in fade-in duration-200">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-4">
         {/* SOL MENÜ */}
         <InnerMenu
@@ -450,6 +475,7 @@ export default function KurumScreen(): React.JSX.Element {
             </div>
           ) : (
             <div className="w-full">
+              {activeTab === 'butce-odenek' && <ButceOdenekTanimTab />}
               {activeTab === 'birimler' && <BirimlerScreen isSubComponent />}
               {activeTab === 'personel' && <PersonelScreen isSubComponent />}
               {activeTab === 'komisyonlar' && <KomisyonlarScreen isSubComponent />}

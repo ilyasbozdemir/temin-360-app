@@ -8,6 +8,17 @@ export type CommissionTypeCategory =
   | 'all'
   | 'none';
 
+export type RoleVisibility = 'show' | 'hide' | 'optional';
+
+export type RoleCode =
+  | 'harcama_yetkilisi'
+  | 'ihale_yetkilisi'
+  | 'muhasebe'
+  | 'hazirlayan'
+  | 'talep_eden'
+  | 'onaylayan'
+  | 'gerceklestirme_gorevlisi';
+
 export interface TemplateCapabilities {
   supportsOlur: boolean;
   supportsCommission: boolean;
@@ -15,6 +26,8 @@ export interface TemplateCapabilities {
   supportsPersonnelList: boolean;
   supportsKalemListesi: boolean;
   supportsFirmaListesi: boolean;
+  roleVisibility?: Partial<Record<RoleCode, RoleVisibility>>;
+  commissionRoleVisibility?: Record<string, RoleVisibility>;
 }
 
 export type TemplateType = {

@@ -42,7 +42,10 @@ export const TANIM_Kurum = {
     { name: 'faks', type: 'TEXT', default: '""' },
     { name: 'eposta', type: 'TEXT', default: '""' },
     { name: 'kep_adresi', type: 'TEXT', default: '""' },
-    { name: 'web_sitesi', type: 'TEXT', default: '""' }
+    { name: 'web_sitesi', type: 'TEXT', default: '""' },
+    { name: 'kurum_baskani', type: 'TEXT', default: '""', description: 'Kurum / Belediye Başkanı / En Üst Yönetici' },
+    { name: 'baskan_unvani', type: 'TEXT', default: '""', description: 'Başkan / Üst Yönetici Unvanı' },
+    { name: 'harcama_yetkilisi', type: 'TEXT', default: '""', description: 'Varsayılan Harcama Yetkilisi' }
   ],
   initialData: [
     {

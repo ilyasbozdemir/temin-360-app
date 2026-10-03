@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { documentPreloadService } from '@renderer/services/documentPreloadService'
-import { DEFAULT_MALIYET_ROLES, DEFAULT_MUAYENE_ROLES } from './constants'
+import { DEFAULT_MALIYET_ROLES, DEFAULT_MUAYENE_ROLES, getRoleDefaults } from './constants'
 import type { KomisyonRow, KomisyonType, KurumInfo, PersonelItem } from './types'
 
 interface UseKomisyonAtamaParams {
@@ -151,6 +151,18 @@ export function useKomisyonAtama({
                   const hasBelgedeGoster =
                     matched?.belgede_goster !== undefined && matched?.belgede_goster !== null
 
+                  let parsedHedefBelgeler: string[] = []
+                  if (matched?.hedef_belgeler) {
+                    try {
+                      parsedHedefBelgeler =
+                        typeof matched.hedef_belgeler === 'string'
+                          ? JSON.parse(matched.hedef_belgeler)
+                          : matched.hedef_belgeler
+                    } catch {
+                      parsedHedefBelgeler = []
+                    }
+                  }
+
                   return {
                     sira: idx + 1,
                     gorev: matched?.gorev || 'Fiyat Araştırma Görevlisi',
@@ -159,7 +171,8 @@ export function useKomisyonAtama({
                     vekaletUnvani: matched?.vekalet_unvani || '',
                     baslangicTarihi: matched?.baslangic_tarihi || '',
                     bitisTarihi: matched?.bitis_tarihi || '',
-                    belgeKapsami: matched?.belge_kapsami || 'tumu'
+                    belgeKapsami: matched?.belge_kapsami || 'tumu',
+                    hedefBelgeler: parsedHedefBelgeler
                   }
                 })
                 setMaliyetRows(newMaliyet)
@@ -170,6 +183,18 @@ export function useKomisyonAtama({
                   const hasBelgedeGoster =
                     matched?.belgede_goster !== undefined && matched?.belgede_goster !== null
 
+                  let parsedHedefBelgeler: string[] = []
+                  if (matched?.hedef_belgeler) {
+                    try {
+                      parsedHedefBelgeler =
+                        typeof matched.hedef_belgeler === 'string'
+                          ? JSON.parse(matched.hedef_belgeler)
+                          : matched.hedef_belgeler
+                    } catch {
+                      parsedHedefBelgeler = []
+                    }
+                  }
+
                   return {
                     sira: idx + 1,
                     gorev: matched?.gorev || (idx === 0 ? 'Komisyon Başkanı' : 'Üye'),
@@ -178,7 +203,8 @@ export function useKomisyonAtama({
                     vekaletUnvani: matched?.vekalet_unvani || '',
                     baslangicTarihi: matched?.baslangic_tarihi || '',
                     bitisTarihi: matched?.bitis_tarihi || '',
-                    belgeKapsami: matched?.belge_kapsami || 'tumu'
+                    belgeKapsami: matched?.belge_kapsami || 'tumu',
+                    hedefBelgeler: parsedHedefBelgeler
                   }
                 })
                 setMuayeneRows(newMuayene)
@@ -309,6 +335,10 @@ export function useKomisyonAtama({
           'db:run',
           "ALTER TABLE DATA_TeminKomisyon ADD COLUMN belge_kapsami TEXT DEFAULT 'tumu'"
         )
+        await (window as any).electron.ipcRenderer.invoke(
+          'db:run',
+          "ALTER TABLE DATA_TeminKomisyon ADD COLUMN hedef_belgeler TEXT DEFAULT '[\"*\"]'"
+        )
       } catch {
         // Zaten mevcut
       }
@@ -342,12 +372,13 @@ export function useKomisyonAtama({
             : 'Üye'
 
         const finalUnvan = row.vekaletUnvani?.trim() || p.unvan || null
+        const hedefBelgelerJson = JSON.stringify(row.hedefBelgeler || ['*'])
 
         await (window as any).electron.ipcRenderer.invoke(
           'db:run',
           `INSERT INTO DATA_TeminKomisyon 
-           (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu, belgede_goster, vekalet_unvani, baslangic_tarihi, bitis_tarihi, belge_kapsami)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu, belgede_goster, vekalet_unvani, baslangic_tarihi, bitis_tarihi, belge_kapsami, hedef_belgeler)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             activeDosyaId,
             komId,
@@ -361,7 +392,8 @@ export function useKomisyonAtama({
             row.vekaletUnvani?.trim() || null,
             row.baslangicTarihi || null,
             row.bitisTarihi || null,
-            row.belgeKapsami || 'tumu'
+            row.belgeKapsami || 'tumu',
+            hedefBelgelerJson
           ]
         )
 
@@ -536,10 +568,33 @@ export function useKomisyonAtama({
   }
 
   const handleGorevChange = (sira: number, newGorev: string) => {
+    const defaults = getRoleDefaults(newGorev)
     if (activeTab === 'yaklasik_maliyet') {
-      setMaliyetRows((prev) => prev.map((r) => (r.sira === sira ? { ...r, gorev: newGorev } : r)))
+      setMaliyetRows((prev) =>
+        prev.map((r) =>
+          r.sira === sira
+            ? {
+                ...r,
+                gorev: newGorev,
+                belgeKapsami: defaults.belgeKapsami,
+                belgedeGoster: defaults.belgedeGoster
+              }
+            : r
+        )
+      )
     } else {
-      setMuayeneRows((prev) => prev.map((r) => (r.sira === sira ? { ...r, gorev: newGorev } : r)))
+      setMuayeneRows((prev) =>
+        prev.map((r) =>
+          r.sira === sira
+            ? {
+                ...r,
+                gorev: newGorev,
+                belgeKapsami: defaults.belgeKapsami,
+                belgedeGoster: defaults.belgedeGoster
+              }
+            : r
+        )
+      )
     }
   }
 

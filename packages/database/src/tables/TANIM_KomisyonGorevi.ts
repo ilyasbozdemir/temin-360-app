@@ -5,7 +5,7 @@ export const TANIM_KomisyonGorevi = {
     { name: 'id', type: 'INTEGER', primaryKey: true, autoIncrement: true },
     { name: 'ad', type: 'TEXT', notNull: true, description: 'Adı' },
     { name: 'aciklama', type: 'TEXT', description: 'Aciklama' },
-    { name: 'aktif_mi', type: 'BOOLEAN', notNull: true, default: 1, description: 'Aktif mı?' },
+    { name: 'aktif_mi', type: 'INTEGER', notNull: true, default: 1, description: 'Aktif mı?' },
     {
       name: 'created_at',
       type: 'DATETIME',

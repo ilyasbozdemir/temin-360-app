@@ -10,6 +10,20 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     db.exec(`
       CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT);
       CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS TANIM_ButceOdenek (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        birim_id INTEGER,
+        birim_adi TEXT,
+        kurumsal_kod TEXT,
+        butce_kodu TEXT NOT NULL,
+        butce_kalemi TEXT NOT NULL,
+        butce_turu TEXT DEFAULT 'Mal Alımı',
+        butce_yili INTEGER NOT NULL,
+        yillik_odenek REAL DEFAULT 0,
+        aciklama TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
     `)
   } catch {}
 
@@ -72,6 +86,11 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     { name: 'fiyat_farki_dayanagi', def: 'TEXT' },
     { name: 'alim_turu', def: 'TEXT' },
     { name: 'tur', def: "TEXT DEFAULT 'mal'" },
+    { name: 'birim', def: 'TEXT' },
+    { name: 'harcama_birimi', def: 'TEXT' },
+    { name: 'birim_id', def: 'INTEGER' },
+    { name: 'durum', def: "TEXT DEFAULT 'Tamamlandı'" },
+    { name: 'madde', def: "TEXT DEFAULT '4734 Sayılı Kanun Md. 22/d'" },
     { name: 'dosya_no', def: 'TEXT' },
     { name: 'dosya_adi', def: 'TEXT' },
     { name: 'is_tanimi', def: 'TEXT' },
@@ -129,6 +148,8 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
       UPDATE DATA_TeminDosyasi SET is_tanimi = COALESCE(is_adi, konu, dosya_adi) WHERE (is_tanimi IS NULL OR is_tanimi = '') AND COALESCE(is_adi, konu, dosya_adi) IS NOT NULL;
       UPDATE DATA_TeminDosyasi SET alim_turu = tur WHERE (alim_turu IS NULL OR alim_turu = '') AND tur IS NOT NULL;
       UPDATE DATA_TeminDosyasi SET tur = alim_turu WHERE (tur IS NULL OR tur = '') AND alim_turu IS NOT NULL;
+      UPDATE DATA_TeminDosyasi SET birim = harcama_birimi WHERE (birim IS NULL OR birim = '') AND harcama_birimi IS NOT NULL;
+      UPDATE DATA_TeminDosyasi SET harcama_birimi = birim WHERE (harcama_birimi IS NULL OR harcama_birimi = '') AND birim IS NOT NULL;
       UPDATE DATA_TeminKomisyon SET asli_yedek = COALESCE(rol, 'Asil') WHERE (asli_yedek IS NULL OR asli_yedek = '') AND rol IS NOT NULL;
       UPDATE DATA_TeminKomisyon SET rol = COALESCE(asli_yedek, 'Asil') WHERE (rol IS NULL OR rol = '') AND asli_yedek IS NOT NULL;
     `)

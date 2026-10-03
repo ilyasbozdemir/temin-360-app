@@ -51,7 +51,7 @@ export function useHizliKadro({
     queryFn: async () => {
       const res = await window.electron.ipcRenderer.invoke(
         'db:query',
-        'SELECT id, ad FROM TANIM_KomisyonGorevi WHERE COALESCE(aktif_mi, 1) = 1 ORDER BY id ASC'
+        'SELECT id, ad, aciklama FROM TANIM_KomisyonGorevi WHERE COALESCE(aktif_mi, 1) = 1 ORDER BY id ASC'
       )
       if (res && res.success && Array.isArray(res.data)) return res.data
       return []

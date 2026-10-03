@@ -16,6 +16,7 @@ export const DATA_TeminDosyasi = {
     { name: 'konu', type: 'TEXT', notNull: true, description: 'İşin Adı / Temin Konusu' }, // Temin konusu (İşin Adı)
     { name: 'isin_aciklamasi', type: 'TEXT', description: 'İşin Detaylı Açıklaması' },
     { name: 'birim_id', type: 'INTEGER', description: 'Birim ID' }, // İhalesi yapılacak birim (TANIM_Birim)
+    { name: 'birim', type: 'TEXT', description: 'Birim Adı' },
 
     // Antet / İdari Alanlar
     { name: 'antet_ek_satir', type: 'TEXT', description: 'Antet Ek Satir' },

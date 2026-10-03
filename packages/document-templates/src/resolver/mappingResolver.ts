@@ -1,33 +1,8 @@
 import { ProcessMapping, TableColumnMapping } from './types';
 import { TemplateRegistryService } from '../services/templateRegistryService';
+import { toPossessiveSuffix } from '../utils/textHelpers';
 
-export function toPossessiveSuffix(str: string): string {
-  if (!str) return 'Kurumumuzun';
-  const trimmed = str.trim();
-  const lower = trimmed.toLowerCase();
-  if (
-    lower.endsWith('n') ||
-    lower.endsWith('in') ||
-    lower.endsWith('ın') ||
-    lower.endsWith('un') ||
-    lower.endsWith('ün')
-  ) {
-    return trimmed;
-  }
-  if (lower.endsWith('miz') || lower.endsWith('müz')) return `${trimmed}in`;
-  if (lower.endsWith('mız') || lower.endsWith('muz')) return `${trimmed}ın`;
-  if (
-    lower.endsWith('si') ||
-    lower.endsWith('su') ||
-    lower.endsWith('sü') ||
-    lower.endsWith('sı')
-  ) {
-    return `${trimmed}nin`;
-  }
-  if (lower.endsWith('i') || lower.endsWith('ü')) return `${trimmed}nin`;
-  if (lower.endsWith('ı') || lower.endsWith('u')) return `${trimmed}nun`;
-  return `${trimmed}in`;
-}
+export { toPossessiveSuffix };
 
 /**
  * Resolves official E-DETSIS formatted document number e.g. E-10234521-934.01-0001
@@ -326,7 +301,8 @@ export function formatDateTR(dateVal: any): string {
 export async function resolveTemplateData(
   mapping: ProcessMapping,
   activeDosyaId: number,
-  rawQueryExecutor: (sql: string, params: any[]) => Promise<any[]>
+  rawQueryExecutor: (sql: string, params: any[]) => Promise<any[]>,
+  templateId?: string
 ): Promise<Record<string, any>> {
   const queryCache = new Map<string, Promise<any[]>>();
   const queryExecutor = (sql: string, params: any[]): Promise<any[]> => {
@@ -511,11 +487,7 @@ export async function resolveTemplateData(
                               WHERE tk.temin_dosya_id = ?`;
         const fileKomRows = await queryExecutor(fileKomQuery, [activeDosyaId]);
         const isVisibleMember = (r: any) => {
-          const bg = r.belgede_goster ?? r.belgedeGoster ?? r.goster;
-          if (bg === 0 || bg === "0" || bg === false || bg === "false") return false;
-          const g = String(r.gorev || r.gorev_adi || "").toLowerCase();
-          if (g.includes("harcama yetkili") || g.includes("muhasebe")) return false;
-          return true;
+          return TemplateRegistryService.isMemberVisibleInTemplate(r, templateId || '');
         };
 
         if (fileKomRows && fileKomRows.length > 0) {
@@ -738,22 +710,6 @@ export async function resolveTemplateData(
 
         const res = await queryExecutor(query, params);
         let rawValue = res?.[0]?.res_val;
-
-        // Personnel signature auto-fallback if no specific personnel is selected on active file
-        if (effectiveRule.iliskiliTablo === 'TANIM_Personel' && (!rawValue || String(rawValue).trim() === '')) {
-          try {
-            let pQuery = '';
-            if (sablonDegiskeni.toLowerCase().includes('onay') || sablonDegiskeni.toLowerCase().includes('yetkili')) {
-              pQuery = `SELECT ${effectiveRule.iliskiliSutun} AS res_val FROM TANIM_Personel WHERE (unvan LIKE '%Harcama Yetkilisi%' OR unvan LIKE '%Müdür%' OR unvan LIKE '%Başkan%') AND (aktif_mi = 1 OR aktif_mi IS NULL) ORDER BY id ASC LIMIT 1`;
-            } else {
-              pQuery = `SELECT ${effectiveRule.iliskiliSutun} AS res_val FROM TANIM_Personel WHERE (aktif_mi = 1 OR aktif_mi IS NULL) ORDER BY id ASC LIMIT 1`;
-            }
-            const pRes = await queryExecutor(pQuery, []);
-            if (pRes?.[0]?.res_val) {
-              rawValue = pRes[0].res_val;
-            }
-          } catch (e) {}
-        }
 
         // Dynamic fallback for sunulacakMakamAdi from TANIM_Kurum
         if (sablonDegiskeni === 'sunulacakMakamAdi') {

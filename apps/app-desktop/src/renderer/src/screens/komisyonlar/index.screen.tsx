@@ -281,10 +281,13 @@ export default function KomisyonlarScreen({
     queryFn: async () => {
       const dosyaRes = await window.electron.ipcRenderer.invoke(
         'db:query',
-        `SELECT d.id, d.dosya_no, d.is_tanimi, d.created_at,
+        `SELECT d.id, 
+                COALESCE(d.dosya_no, d.temin_no, '#' || d.id) as dosya_no, 
+                COALESCE(d.is_tanimi, d.konu, 'Doğrudan Temin Dosyası') as is_tanimi, 
+                d.created_at,
                 (SELECT COUNT(*) FROM DATA_TeminKomisyonHistory h WHERE h.temin_dosya_id = d.id) as history_count
          FROM DATA_TeminDosyasi d
-         WHERE d.aktif_mi = 1
+         WHERE COALESCE(d.is_deleted, 0) = 0
          ORDER BY d.id DESC`
       )
       if (!dosyaRes.success) return []
@@ -292,11 +295,12 @@ export default function KomisyonlarScreen({
 
       const membersRes = await window.electron.ipcRenderer.invoke(
         'db:query',
-        `SELECT k.id, k.temin_dosya_id, k.komisyon_turu, k.asil_mi, k.personel_id, k.gorev_id, k.updated_at,
-                p.ad_soyad, p.unvan, g.ad as gorev_adi
+        `SELECT k.id, k.temin_dosya_id, k.komisyon_turu, k.asli_yedek, k.personel_id, k.gorev, k.updated_at,
+                COALESCE(k.ad_soyad, p.ad_soyad) as ad_soyad, 
+                COALESCE(k.unvan, p.unvan) as unvan, 
+                COALESCE(k.gorev, 'Üye') as gorev_adi
          FROM DATA_TeminKomisyon k
          LEFT JOIN TANIM_Personel p ON k.personel_id = p.id
-         LEFT JOIN TANIM_KomisyonGorevi g ON k.gorev_id = g.id
          ORDER BY k.id ASC`
       )
       const members = membersRes.success ? membersRes.data || [] : []

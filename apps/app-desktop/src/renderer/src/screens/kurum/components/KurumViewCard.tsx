@@ -424,9 +424,52 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* 📊 RESMİ BİLGİ KARTLARI (3'LÜ / 2'Lİ RESPONSIVE GRID)           */}
+      {/* 📊 RESMİ BİLGİ KARTLARI (4'LÜ / 2'Lİ RESPONSIVE GRID)           */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KART 0: En Üst Yönetici / Kurum Başkanı & Harcama Yetkilisi */}
+        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 space-y-3 shadow-xs hover:border-blue-300 dark:hover:border-blue-700 transition-colors">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
+            <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
+              <Landmark className="w-4 h-4 text-blue-600" />
+              Üst Yönetici & Makam
+            </h3>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400">
+              Yetkili
+            </span>
+          </div>
+
+          <div className="space-y-2 text-xs">
+            <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850">
+              <span className="text-[10px] text-slate-400 font-bold uppercase block">Kurum / Belediye Başkanı</span>
+              <span className="font-bold text-slate-800 dark:text-slate-200 text-xs block truncate mt-0.5">
+                {data.kurum_baskani || '—'}
+              </span>
+              {data.baskan_unvani && (
+                <span className="text-[10px] text-slate-500 block truncate font-medium">
+                  {data.baskan_unvani}
+                </span>
+              )}
+            </div>
+
+            <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850">
+              <span className="text-[10px] text-slate-400 font-bold uppercase block">Varsayılan Harcama Yetkilisi</span>
+              <span className="font-bold text-slate-800 dark:text-slate-200 text-xs block truncate mt-0.5">
+                {data.harcama_yetkilisi || '—'}
+              </span>
+            </div>
+
+            {data.makam_adi && (
+              <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850">
+                <span className="text-[10px] text-slate-400 font-bold uppercase block">Muhatap Makam</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300 text-[11px] block truncate mt-0.5">
+                  {data.makam_adi}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* KART 1: Kurum Tipi & Mevzuat Şablonu */}
         <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 space-y-4 shadow-xs hover:border-blue-300 dark:hover:border-blue-700 transition-colors">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">

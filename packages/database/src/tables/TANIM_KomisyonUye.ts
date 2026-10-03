@@ -6,7 +6,7 @@ export const TANIM_KomisyonUye = {
     { name: 'komisyon_id', type: 'INTEGER', notNull: true, description: 'Komisyon ID' }, // TANIM_Komisyon
     { name: 'personel_id', type: 'INTEGER', description: 'Personel ID' }, // TANIM_Personel (Boş olabilir, rol açılıp sonra atanabilir)
     { name: 'gorev_id', type: 'INTEGER', notNull: true, description: 'Gorev ID' }, // TANIM_KomisyonGorevi (Örn: Başkan, Üye)
-    { name: 'asil_mi', type: 'BOOLEAN', default: 1, description: 'Asil mı?' }, // Asil Üye mi Yedek Üye mi?
+    { name: 'asil_mi', type: 'INTEGER', default: 1, description: 'Asil mı?' }, // Asil Üye mi Yedek Üye mi?
     { name: 'sira', type: 'INTEGER', default: 0, description: 'Sıralama (üyelerin liste içindeki sırası)' },
     { name: 'belgede_goster', type: 'INTEGER', default: 1, description: 'Belgede Gösterilsin mi (1: Evet, 0: Hayır)' },
     { name: 'belge_kapsami', type: 'TEXT', default: "'tumu'", description: 'Belge Kapsamı' },

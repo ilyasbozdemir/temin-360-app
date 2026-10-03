@@ -152,6 +152,51 @@ export const IdariBilgilerTab: React.FC<KurumTabProps> = ({
           </div>
         </div>
 
+        {/* Kurum Başkanı & En Üst Yönetici */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+            Kurum En Üst Yöneticisi / Başkanı (Seçimle / Atamayla Gelen)
+          </label>
+          <Input
+            value={data.kurum_baskani || ''}
+            onChange={(e) => onChange('kurum_baskani', e.target.value)}
+            placeholder="Örn: Ahmet YILMAZ"
+            className="bg-slate-55 dark:bg-slate-955 border-slate-200 dark:border-slate-800 text-xs"
+          />
+          <span className="text-[10px] text-slate-400 mt-0.5 block">
+            Belediye Başkanı, Kaymakam, Rektör, Genel Müdür vb.
+          </span>
+        </div>
+
+        {/* Kurum Başkanı Unvanı */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+            Üst Yönetici Unvanı (Resmi Yazışmalardaki)
+          </label>
+          <Input
+            value={data.baskan_unvani || ''}
+            onChange={(e) => onChange('baskan_unvani', e.target.value)}
+            placeholder="Örn: Belediye Başkanı, İlçe Kaymakamı, Rektör"
+            className="bg-slate-55 dark:bg-slate-955 border-slate-200 dark:border-slate-800 text-xs"
+          />
+        </div>
+
+        {/* Varsayılan Harcama Yetkilisi */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+            Varsayılan Harcama Yetkilisi (Ad Soyad / Unvan)
+          </label>
+          <Input
+            value={data.harcama_yetkilisi || ''}
+            onChange={(e) => onChange('harcama_yetkilisi', e.target.value)}
+            placeholder="Örn: Harcama Yetkilisi Adı Soyadı veya Makam Unvanı"
+            className="bg-slate-55 dark:bg-slate-955 border-slate-200 dark:border-slate-800 text-xs"
+          />
+          <span className="text-[10px] text-slate-400 mt-0.5 block">
+            Onay belgelerinde ve harcama talimatlarında en üst seviye imza yetkilisi.
+          </span>
+        </div>
+
         <div>
           <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
             Sunulacak Makam Adı (Muhatap)
@@ -159,10 +204,11 @@ export const IdariBilgilerTab: React.FC<KurumTabProps> = ({
           <Input
             value={data.makam_adi || ''}
             onChange={(e) => onChange('makam_adi', e.target.value)}
-            placeholder="Makam Adı"
+            placeholder="Makam Adı (Örn: BAŞKANLIK MAKAMINA)"
             className="bg-slate-55 dark:bg-slate-955 border-slate-200 dark:border-slate-800 text-xs"
           />
         </div>
+
         <div>
           <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 flex items-center gap-1.5">
             Bağlı Olduğu Kurum

@@ -1,6 +1,6 @@
 {
   "name": "app-desktop",
-  "version": "1.0.0-beta.221",
+  "version": "1.0.0-beta.223",
   "description": "TEMİN 360 - Kamu Alımları, Doğrudan Temin ve Hakediş Yönetim Sistemi",
   "main": "./out/main/index.js",
   "author": "ilyasbozdemir.dev",
@@ -14,7 +14,7 @@
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
     "start": "electron-vite preview",
-    "dev": "pnpm --filter @dt/database build && node scripts/count-loc.js && electron-vite dev",
+    "dev": "chcp 65001 >nul 2>&1 && pnpm --filter @dt/database build && node scripts/count-loc.js && electron-vite dev",
     "dev:multi": "node scripts/dev-multi.js",
     "build": "pnpm --filter @dt/database build && node scripts/count-loc.js && npm run typecheck && electron-vite build",
     "postinstall": "electron-builder install-app-deps",

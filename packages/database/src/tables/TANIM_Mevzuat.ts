@@ -29,7 +29,7 @@ export const TANIM_Mevzuat = {
       default: 5.69,
       description: 'Karar Pulu Orani'
     },
-    { name: 'aktif_mi', type: 'BOOLEAN', notNull: true, default: 0, description: 'Aktif mı?' },
+    { name: 'aktif_mi', type: 'INTEGER', notNull: true, default: 0, description: 'Aktif mı?' },
     {
       name: 'created_at',
       type: 'DATETIME',
