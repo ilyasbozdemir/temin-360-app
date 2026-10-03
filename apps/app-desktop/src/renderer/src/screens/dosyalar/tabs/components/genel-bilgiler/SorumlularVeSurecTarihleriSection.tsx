@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { Check, Info, RefreshCw, Search, Sparkles, User } from 'lucide-react'
+import { Check, Info, Sparkles, User } from 'lucide-react'
 import { YeniDosyaTabProps } from '../../../types'
 import { resolveDefaultPersonnel } from '../../../yeni.config'
+import { PersonnelSelectField } from './PersonnelSelectField'
 
 export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): React.JSX.Element {
   const {
@@ -12,14 +13,13 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
     roller = [],
     showPersonelSearch,
     setShowPersonelSearch,
-    personelSearchQuery,
+    personelSearchQuery = '',
     setPersonelSearchQuery,
-    filteredPersoneller
+    filteredPersoneller = []
   } = props
 
   const [assignMessage, setAssignMessage] = useState('')
 
-  // Kurum & Birim Varsayılan Personellerini Otomatik Atama
   const handleAutoAssignDefaults = () => {
     if (!personeller || personeller.length === 0) return
 
@@ -33,6 +33,13 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
 
     setAssignMessage('Kurum ve birim varsayılan yetkilileri dosyaya aktarıldı.')
     setTimeout(() => setAssignMessage(''), 4000)
+  }
+
+  const handleSelectField = (field: string, id: number | null) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: id
+    }))
   }
 
   return (
@@ -69,324 +76,99 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
           <p className="font-bold">Yetkili Personel &amp; Tarih Bilgilendirmesi</p>
           <p className="leading-relaxed opacity-90">
             Doğrudan temin evraklarının alt bilgileri, onay ve imza alanlarında yer alacak
-            personelleri (İrtibat Yetkilisi, Dosyayı Hazırlayan, Talep Eden, Sunan ve Onaylayan)
-            buradan belirleyebilirsiniz. Yukarıdaki{' '}
-            <strong>"Kurum Varsayılan Yetkililerini Yükle"</strong> butonunu kullanarak sistemde
-            kayıtlı varsayılan idari kişileri tek tıkla dosyaya atayabilirsiniz.
+            personelleri buradan belirleyebilir veya dilediğiniz personeli boş bırakabilirsiniz.
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* HAZIRLAYAN PERSONEL */}
-        <div className="relative">
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-bold text-slate-600 dark:text-slate-455">
-              Dosyayı Hazırlayan Personel
-            </label>
-            {formData.hazirlayan_personel_id && (
-              <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded">
-                Seçili
-              </span>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={() =>
-              setShowPersonelSearch?.(showPersonelSearch === 'hazirlayan' ? null : 'hazirlayan')
-            }
-            className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none text-slate-800 dark:text-slate-200 text-left font-semibold"
-          >
-            <span>
-              {formData.hazirlayan_personel_id
-                ? personeller.find((p) => p.id === formData.hazirlayan_personel_id)?.ad_soyad
-                : 'Hazırlayan Seçin...'}
-            </span>
-            <Search size={14} className="text-slate-400" />
-          </button>
+        <PersonnelSelectField
+          label="Dosyayı Hazırlayan Personel"
+          selectedPersonelId={formData.hazirlayan_personel_id}
+          onSelect={(id) => handleSelectField('hazirlayan_personel_id', id)}
+          isOpen={showPersonelSearch === 'hazirlayan'}
+          onToggleOpen={() =>
+            setShowPersonelSearch?.(showPersonelSearch === 'hazirlayan' ? null : 'hazirlayan')
+          }
+          onClose={() => setShowPersonelSearch?.(null)}
+          searchQuery={personelSearchQuery}
+          onSearchChange={(q) => setPersonelSearchQuery?.(q)}
+          personeller={personeller}
+          filteredPersoneller={filteredPersoneller}
+          placeholder="Hazırlayan Seçin..."
+        />
 
-          {showPersonelSearch === 'hazirlayan' && (
-            <div className="absolute left-0 mt-1.5 w-full bg-white dark:bg-slate-955 border border-slate-250 dark:border-slate-800 rounded-2xl shadow-xl p-2 z-50">
-              <input
-                type="text"
-                placeholder="Personel ara..."
-                value={personelSearchQuery}
-                onChange={(e) => setPersonelSearchQuery?.(e.target.value)}
-                className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 mb-2"
-                autoFocus
-              />
-              <div className="max-h-40 overflow-y-auto custom-scrollbar space-y-0.5">
-                {(filteredPersoneller ?? []).map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        hazirlayan_personel_id: p.id
-                      }))
-                      setShowPersonelSearch?.(null)
-                      setPersonelSearchQuery?.('')
-                    }}
-                    className="w-full text-left p-2 text-xs rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors flex items-center justify-between border-none bg-transparent"
-                  >
-                    <span>{p.ad_soyad}</span>
-                    {p.unvan && <span className="text-[10px] text-slate-400">{p.unvan}</span>}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        {/* TALEP EDEN PERSONEL */}
+        <PersonnelSelectField
+          label="Talep Eden Personel"
+          selectedPersonelId={formData.talep_eden_personel_id}
+          onSelect={(id) => handleSelectField('talep_eden_personel_id', id)}
+          isOpen={showPersonelSearch === 'talep_eden'}
+          onToggleOpen={() =>
+            setShowPersonelSearch?.(showPersonelSearch === 'talep_eden' ? null : 'talep_eden')
+          }
+          onClose={() => setShowPersonelSearch?.(null)}
+          searchQuery={personelSearchQuery}
+          onSearchChange={(q) => setPersonelSearchQuery?.(q)}
+          personeller={personeller}
+          filteredPersoneller={filteredPersoneller}
+          placeholder="Talep Eden Seçin..."
+        />
 
-        {/* TALEP EDEN (ŞUBE MÜDÜRÜ VB) */}
-        <div className="relative">
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-bold text-slate-600 dark:text-slate-455">
-              Talep Eden Personel
-            </label>
-            {formData.talep_eden_personel_id && (
-              <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded">
-                Seçili
-              </span>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={() =>
-              setShowPersonelSearch?.(showPersonelSearch === 'talep_eden' ? null : 'talep_eden')
-            }
-            className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none text-slate-800 dark:text-slate-200 text-left font-semibold"
-          >
-            <span>
-              {formData.talep_eden_personel_id
-                ? personeller.find((p) => p.id === formData.talep_eden_personel_id)?.ad_soyad
-                : 'Talep Eden Personel Seçin...'}
-            </span>
-            <Search size={14} className="text-slate-400" />
-          </button>
-
-          {showPersonelSearch === 'talep_eden' && (
-            <div className="absolute left-0 mt-1.5 w-full bg-white dark:bg-slate-955 border border-slate-250 dark:border-slate-800 rounded-2xl shadow-xl p-2 z-50">
-              <input
-                type="text"
-                placeholder="Personel ara..."
-                value={personelSearchQuery}
-                onChange={(e) => setPersonelSearchQuery?.(e.target.value)}
-                className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 mb-2"
-                autoFocus
-              />
-              <div className="max-h-40 overflow-y-auto custom-scrollbar space-y-0.5">
-                {(filteredPersoneller ?? []).map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        talep_eden_personel_id: p.id
-                      }))
-                      setShowPersonelSearch?.(null)
-                      setPersonelSearchQuery?.('')
-                    }}
-                    className="w-full text-left p-2 text-xs rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors flex items-center justify-between border-none bg-transparent"
-                  >
-                    <span>{p.ad_soyad}</span>
-                    {p.unvan && <span className="text-[10px] text-slate-400">{p.unvan}</span>}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* HARCAMA YETKİLİSİ (ONAY VEREN) */}
-        <div className="relative">
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-bold text-slate-600 dark:text-slate-455">
-              Harcama Yetkilisi (Onaylayan)
-            </label>
-            {formData.onay_personel_id && (
-              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded">
-                ★ Onay Yetkilisi
-              </span>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowPersonelSearch?.(showPersonelSearch === 'onay' ? null : 'onay')}
-            className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none text-slate-800 dark:text-slate-200 text-left font-semibold"
-          >
-            <span>
-              {formData.onay_personel_id
-                ? personeller.find((p) => p.id === formData.onay_personel_id)?.ad_soyad
-                : 'Harcama Yetkilisi Seçin...'}
-            </span>
-            <Search size={14} className="text-slate-400" />
-          </button>
-
-          {showPersonelSearch === 'onay' && (
-            <div className="absolute left-0 mt-1.5 w-full bg-white dark:bg-slate-955 border border-slate-250 dark:border-slate-800 rounded-2xl shadow-xl p-2 z-50">
-              <input
-                type="text"
-                placeholder="Personel ara..."
-                value={personelSearchQuery}
-                onChange={(e) => setPersonelSearchQuery?.(e.target.value)}
-                className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 mb-2"
-                autoFocus
-              />
-              <div className="max-h-40 overflow-y-auto custom-scrollbar space-y-0.5">
-                {(filteredPersoneller ?? []).map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        onay_personel_id: p.id
-                      }))
-                      setShowPersonelSearch?.(null)
-                      setPersonelSearchQuery?.('')
-                    }}
-                    className="w-full text-left p-2 text-xs rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors flex items-center justify-between border-none bg-transparent"
-                  >
-                    <span>
-                      {p.ad_soyad}{' '}
-                      {p.harcama_yetkilisi_mi === 1 && (
-                        <span className="text-amber-500 font-bold ml-1">★ Harcama Yetkilisi</span>
-                      )}
-                    </span>
-                    {p.unvan && <span className="text-[10px] text-slate-400">{p.unvan}</span>}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        {/* HARCAMA YETKİLİSİ (ONAYLAYAN) */}
+        <PersonnelSelectField
+          label="Harcama Yetkilisi (Onaylayan)"
+          selectedPersonelId={formData.onay_personel_id}
+          onSelect={(id) => handleSelectField('onay_personel_id', id)}
+          isOpen={showPersonelSearch === 'onay'}
+          onToggleOpen={() => setShowPersonelSearch?.(showPersonelSearch === 'onay' ? null : 'onay')}
+          onClose={() => setShowPersonelSearch?.(null)}
+          searchQuery={personelSearchQuery}
+          onSearchChange={(q) => setPersonelSearchQuery?.(q)}
+          personeller={personeller}
+          filteredPersoneller={filteredPersoneller}
+          placeholder="Harcama Yetkilisi Seçin..."
+          badgeText="★ Onay Yetkilisi"
+          badgeClass="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400"
+          isHarcamaYetkilisiField
+        />
 
         {/* GERÇEKLEŞTİRME GÖREVLİSİ (SUNAN) */}
-        <div className="relative">
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-bold text-slate-600 dark:text-slate-455">
-              Gerçekleştirme Görevlisi (Sunan)
-            </label>
-            {formData.sunan_personel_id && (
-              <span className="text-[10px] text-purple-600 dark:text-purple-400 font-bold bg-purple-50 dark:bg-purple-900/30 px-1.5 py-0.5 rounded">
-                ★ Gerçekleştirme
-              </span>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowPersonelSearch?.(showPersonelSearch === 'sunan' ? null : 'sunan')}
-            className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none text-slate-800 dark:text-slate-200 text-left font-semibold"
-          >
-            <span>
-              {formData.sunan_personel_id
-                ? personeller.find((p) => p.id === formData.sunan_personel_id)?.ad_soyad
-                : 'Gerçekleştirme Görevlisi Seçin...'}
-            </span>
-            <Search size={14} className="text-slate-400" />
-          </button>
-
-          {showPersonelSearch === 'sunan' && (
-            <div className="absolute left-0 mt-1.5 w-full bg-white dark:bg-slate-955 border border-slate-250 dark:border-slate-800 rounded-2xl shadow-xl p-2 z-50">
-              <input
-                type="text"
-                placeholder="Personel ara..."
-                value={personelSearchQuery}
-                onChange={(e) => setPersonelSearchQuery?.(e.target.value)}
-                className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 mb-2"
-                autoFocus
-              />
-              <div className="max-h-40 overflow-y-auto custom-scrollbar space-y-0.5">
-                {(filteredPersoneller ?? []).map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        sunan_personel_id: p.id
-                      }))
-                      setShowPersonelSearch?.(null)
-                      setPersonelSearchQuery?.('')
-                    }}
-                    className="w-full text-left p-2 text-xs rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors flex items-center justify-between border-none bg-transparent"
-                  >
-                    <span>{p.ad_soyad}</span>
-                    {p.unvan && <span className="text-[10px] text-slate-400">{p.unvan}</span>}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        <PersonnelSelectField
+          label="Gerçekleştirme Görevlisi (Sunan)"
+          selectedPersonelId={formData.sunan_personel_id}
+          onSelect={(id) => handleSelectField('sunan_personel_id', id)}
+          isOpen={showPersonelSearch === 'sunan'}
+          onToggleOpen={() => setShowPersonelSearch?.(showPersonelSearch === 'sunan' ? null : 'sunan')}
+          onClose={() => setShowPersonelSearch?.(null)}
+          searchQuery={personelSearchQuery}
+          onSearchChange={(q) => setPersonelSearchQuery?.(q)}
+          personeller={personeller}
+          filteredPersoneller={filteredPersoneller}
+          placeholder="Gerçekleştirme Görevlisi Seçin..."
+          badgeText="★ Gerçekleştirme"
+          badgeClass="bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
+        />
 
         {/* İRTİBAT YETKİLİSİ */}
-        <div className="relative">
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-bold text-slate-600 dark:text-slate-455">
-              İrtibat Yetkilisi
-            </label>
-            {formData.irtibat_yetkilisi_id && (
-              <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded">
-                Seçili
-              </span>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={() =>
-              setShowPersonelSearch?.(showPersonelSearch === 'irtibat' ? null : 'irtibat')
-            }
-            className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none text-slate-800 dark:text-slate-200 text-left font-semibold"
-          >
-            <span>
-              {formData.irtibat_yetkilisi_id
-                ? personeller.find((p) => p.id === formData.irtibat_yetkilisi_id)?.ad_soyad
-                : 'İrtibat Yetkilisi Seçin...'}
-            </span>
-            <Search size={14} className="text-slate-400" />
-          </button>
-
-          {showPersonelSearch === 'irtibat' && (
-            <div className="absolute left-0 mt-1.5 w-full bg-white dark:bg-slate-955 border border-slate-250 dark:border-slate-800 rounded-2xl shadow-xl p-2 z-50">
-              <input
-                type="text"
-                placeholder="Personel ara..."
-                value={personelSearchQuery}
-                onChange={(e) => setPersonelSearchQuery?.(e.target.value)}
-                className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 mb-2"
-                autoFocus
-              />
-              <div className="max-h-40 overflow-y-auto custom-scrollbar space-y-0.5">
-                {(filteredPersoneller ?? []).map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        irtibat_yetkilisi_id: p.id
-                      }))
-                      setShowPersonelSearch?.(null)
-                      setPersonelSearchQuery?.('')
-                    }}
-                    className="w-full text-left p-2 text-xs rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors flex items-center justify-between border-none bg-transparent"
-                  >
-                    <span>{p.ad_soyad}</span>
-                    {p.unvan && <span className="text-[10px] text-slate-400">{p.unvan}</span>}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        <PersonnelSelectField
+          label="İrtibat Yetkilisi"
+          selectedPersonelId={formData.irtibat_yetkilisi_id}
+          onSelect={(id) => handleSelectField('irtibat_yetkilisi_id', id)}
+          isOpen={showPersonelSearch === 'irtibat'}
+          onToggleOpen={() => setShowPersonelSearch?.(showPersonelSearch === 'irtibat' ? null : 'irtibat')}
+          onClose={() => setShowPersonelSearch?.(null)}
+          searchQuery={personelSearchQuery}
+          onSearchChange={(q) => setPersonelSearchQuery?.(q)}
+          personeller={personeller}
+          filteredPersoneller={filteredPersoneller}
+          placeholder="İrtibat Yetkilisi Seçin..."
+        />
 
         {/* SON TEKLİF VERME TARİHİ */}
         <div>
-          <label className="block text-xs font-bold text-slate-600 dark:text-slate-455 mb-1.5">
+          <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             Son Teklif Verme Tarih &amp; Saati
           </label>
           <input
@@ -404,13 +186,13 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
                 son_teklif_verme_tarihi: e.target.value
               })
             }
-            className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 font-semibold"
+            className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 font-semibold"
           />
         </div>
 
         {/* TAHMİNİ TESLİM TARİHİ */}
         <div>
-          <label className="block text-xs font-bold text-slate-600 dark:text-slate-455 mb-1.5">
+          <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             Tahmini İşi Bitiş / Teslim Tarihi
           </label>
           <input
@@ -422,7 +204,7 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
                 teslim_tarihi: e.target.value
               })
             }
-            className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 font-semibold"
+            className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 font-semibold"
           />
         </div>
       </div>

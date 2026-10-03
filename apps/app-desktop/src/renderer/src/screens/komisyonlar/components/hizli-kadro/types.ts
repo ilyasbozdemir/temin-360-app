@@ -18,7 +18,8 @@ export interface MemberRow {
   personelId: number | null
   asilMi: number // 1: Asil, 0: Yedek
   belgedeGoster: boolean // Resmi belgede gösterilsin mi?
-  belgeKapsami: string // 'tumu' | 'piyasa_arastirma' | 'muayene_kabul' | 'olur_onay' | 'gizli'
+  belgeKapsami: string // 'tumu' | 'piyasa_arastirma' | 'muayene_kabul' | 'olur_onay' | 'ozel' | 'gizli'
+  hedefBelgeler?: string[]
 }
 
 export interface HizliKadroGuncelleModalProps {

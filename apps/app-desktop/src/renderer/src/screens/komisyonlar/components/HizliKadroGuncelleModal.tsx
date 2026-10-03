@@ -33,6 +33,7 @@ export function HizliKadroGuncelleModal({
     handleSelectGorev,
     handleToggleAsil,
     handleChangeBelgeKapsami,
+    handleChangeHedefBelgeler,
     handleLoadStandardTemplate,
     saveMutation
   } = useHizliKadro({
@@ -80,7 +81,7 @@ export function HizliKadroGuncelleModal({
         {/* Tablo Başlıkları */}
         <div
           className="grid gap-2 px-3.5 pb-2 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-800 mb-1"
-          style={{ gridTemplateColumns: '28px 180px 1fr 80px 185px 32px' }}
+          style={{ gridTemplateColumns: '28px 180px 1fr 80px 200px 32px' }}
         >
           <span>#</span>
           <span>Görevi / Rolü</span>
@@ -117,6 +118,7 @@ export function HizliKadroGuncelleModal({
                 onSelectPersonel={handleSelectPersonel}
                 onToggleAsil={handleToggleAsil}
                 onChangeBelgeKapsami={handleChangeBelgeKapsami}
+                onChangeHedefBelgeler={handleChangeHedefBelgeler}
                 onRemoveRow={handleRemoveRow}
               />
             ))

@@ -1155,11 +1155,16 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
   ipcMain.handle('workspace:check-changes', async () => {
     try {
       const isDirty = workspaceManager.isDirty()
+      const hasGdriveChanges = workspaceManager.hasChanges('gdrive')
+      const hasEmailChanges = workspaceManager.hasChanges('email')
+      const hasAnyChanges =
+        isDirty || hasGdriveChanges || hasEmailChanges || workspaceManager.hasChanges('any')
+
       return {
         success: true,
-        hasChanges: isDirty && workspaceManager.hasChanges('any'),
-        hasGdriveChanges: isDirty && workspaceManager.hasChanges('gdrive'),
-        hasEmailChanges: isDirty && workspaceManager.hasChanges('email'),
+        hasChanges: hasAnyChanges,
+        hasGdriveChanges,
+        hasEmailChanges,
         currentHash: workspaceManager.getCurrentHash(),
         isDirty
       }

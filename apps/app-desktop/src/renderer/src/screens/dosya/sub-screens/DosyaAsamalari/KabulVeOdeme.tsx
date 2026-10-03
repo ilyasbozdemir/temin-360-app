@@ -1,10 +1,10 @@
-import React from 'react'
-import { CreditCard, PackageCheck, Users } from 'lucide-react'
-import { SubScreen } from '../../SubScreens.screen'
-import { PrintDropdownButton } from '../../components/PrintDropdownButton'
-import { TifOlusturModal } from '../../../../components/ui/TifOlusturModal'
-import { Button } from '../../../../components/ui/Button'
-import { KomisyonAtamaModal } from '../components/MalzemeListesi/components/KomisyonAtamaModal'
+import React from "react";
+import { CreditCard, PackageCheck, Users } from "lucide-react";
+import { SubScreen } from "../../SubScreens.screen";
+import { PrintDropdownButton } from "../../components/PrintDropdownButton";
+import { TifOlusturModal } from "../../../../components/ui/TifOlusturModal";
+import { Button } from "../../../../components/ui/Button";
+import { KomisyonAtamaModal } from "../components/MalzemeListesi/components/KomisyonAtamaModal";
 import {
   KabulAsamalariTimeline,
   KabulFaturaHakedisCard,
@@ -12,8 +12,8 @@ import {
   KabulTutanaklariListCard,
   KabulTutanakModal,
   KabulYukleniciCard,
-  useKabulVeOdemeData
-} from './components/KabulVeOdeme'
+  useKabulVeOdemeData,
+} from "./components/KabulVeOdeme";
 
 export function KabulVeOdeme(): React.JSX.Element {
   const {
@@ -62,21 +62,25 @@ export function KabulVeOdeme(): React.JSX.Element {
     handleToggleApproveTutanak,
     handleBulkApproveTutanaklar,
     handleQuickPreview,
-    handleReloadKomisyon
-  } = useKabulVeOdemeData()
+    handleReloadKomisyon,
+  } = useKabulVeOdemeData();
 
   return (
     <SubScreen
       title="Muayene & Kabul & Ödeme İşlemleri"
       icon={CreditCard}
       description="Muayene kabul tutanağı, hakediş raporu, taşınır işlem fişi (TİF) ve ödeme emri belgesi gibi evrakları düzenleyebilir, kabul ve ödeme süreçlerinizi tamamlayabilirsiniz."
-      previewDocumentId={previewModalOpen && previewData?.dosyaAdi ? previewData.dosyaAdi : null}
+      previewDocumentId={previewModalOpen && previewData?.dosyaAdi
+        ? previewData.dosyaAdi
+        : null}
       onClosePreview={() => setPreviewModalOpen(false)}
     >
       {kazananFirmaId === undefined && (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex items-center justify-center">
           <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <span className="ml-3 text-sm text-slate-500">Kontrol ediliyor...</span>
+          <span className="ml-3 text-sm text-slate-500">
+            Kontrol ediliyor...
+          </span>
         </div>
       )}
 
@@ -87,15 +91,6 @@ export function KabulVeOdeme(): React.JSX.Element {
           {/* Header Row */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-5">
             <div className="flex items-center gap-2 flex-wrap">
-              <Button
-                onClick={() => setIsKomisyonModalOpen(true)}
-                variant="outline"
-                className="gap-2 border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-xs font-bold py-2.5 px-3.5 rounded-xl shrink-0"
-              >
-                <Users className="w-4 h-4" />
-                Muayene &amp; Kabul Komisyonu
-              </Button>
-
               {isMal && (
                 <Button
                   onClick={() => setIsTifModalOpen(true)}
@@ -121,10 +116,10 @@ export function KabulVeOdeme(): React.JSX.Element {
                   quickOpenExternal={quickOpenExternal}
                   isSablonDisabled={isSablonDisabled}
                   buttonHeightClass="h-10"
-                  variant={disableDocumentGuidance ? 'dark' : 'default'}
-                  label={
-                    disableDocumentGuidance ? 'Belge İşlemleri' : 'Belgeleri İncele ve Çıktı Al'
-                  }
+                  variant={disableDocumentGuidance ? "dark" : "default"}
+                  label={disableDocumentGuidance
+                    ? "Belge İşlemleri"
+                    : "Belgeleri İncele ve Çıktı Al"}
                 />
               </div>
             )}
@@ -168,8 +163,8 @@ export function KabulVeOdeme(): React.JSX.Element {
       <KomisyonAtamaModal
         isOpen={isKomisyonModalOpen}
         onClose={async () => {
-          setIsKomisyonModalOpen(false)
-          await handleReloadKomisyon()
+          setIsKomisyonModalOpen(false);
+          await handleReloadKomisyon();
         }}
         initialType="muayene_kabul"
         activeDosyaId={activeDosyaId}
@@ -180,8 +175,8 @@ export function KabulVeOdeme(): React.JSX.Element {
       <KabulTutanakModal
         isOpen={isTutanakModalOpen}
         onClose={() => {
-          setIsTutanakModalOpen(false)
-          setEditingTutanak(null)
+          setIsTutanakModalOpen(false);
+          setEditingTutanak(null);
         }}
         onSave={handleSaveTutanak}
         initialTutanak={editingTutanak}
@@ -192,10 +187,10 @@ export function KabulVeOdeme(): React.JSX.Element {
         defaultTeslimYeri={teslimYeri}
         defaultTeslimAlan={komisyonBaskani}
         alimTuru={alimTuru}
-        dosyaKalemler={
-          dosyaKalemler && dosyaKalemler.length > 0 ? dosyaKalemler : dosyaContext?.kalemler || []
-        }
+        dosyaKalemler={dosyaKalemler && dosyaKalemler.length > 0
+          ? dosyaKalemler
+          : dosyaContext?.kalemler || []}
       />
     </SubScreen>
-  )
+  );
 }

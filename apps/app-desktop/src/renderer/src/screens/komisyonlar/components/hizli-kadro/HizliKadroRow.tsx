@@ -1,7 +1,8 @@
-import React from 'react'
-import { Trash2 } from 'lucide-react'
+import React, { useState } from 'react'
+import { Settings2, Trash2 } from 'lucide-react'
 import { GorevItem, MemberRow, PersonelItem } from './types'
 import { HizliKadroPersonelSelect } from './HizliKadroPersonelSelect'
+import { HizliKadroBelgeSecimModal } from './HizliKadroBelgeSecimModal'
 
 interface HizliKadroRowProps {
   row: MemberRow
@@ -12,10 +13,15 @@ interface HizliKadroRowProps {
   onToggleDropdown: () => void
   searchTerm: string
   onSearchChange: (val: string) => void
-  onSelectGorev: (rowId: string | number, gorevAd: string, gorevId: number | null) => void
+  onSelectGorev: (
+    rowId: string | number,
+    gorevAd: string,
+    gorevId: number | null
+  ) => void
   onSelectPersonel: (rowId: string | number, pId: number | null) => void
   onToggleAsil: (rowId: string | number) => void
   onChangeBelgeKapsami: (rowId: string | number, kapsama: string) => void
+  onChangeHedefBelgeler: (rowId: string | number, docs: string[]) => void
   onRemoveRow: (rowId: string | number) => void
 }
 
@@ -32,17 +38,20 @@ export const HizliKadroRow: React.FC<HizliKadroRowProps> = ({
   onSelectPersonel,
   onToggleAsil,
   onChangeBelgeKapsami,
+  onChangeHedefBelgeler,
   onRemoveRow
 }) => {
+  const [isBelgeModalOpen, setIsBelgeModalOpen] = useState(false)
   const assignedPerson = personeller.find((p) => p.id === row.personelId)
   const isHidden = row.belgeKapsami === 'gizli' || !row.belgedeGoster
+  const selectedDocCount = Array.isArray(row.hedefBelgeler) ? row.hedefBelgeler.length : 0
 
   return (
     <div
       className={`grid gap-2 items-center px-3.5 py-2.5 hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors ${
         isHidden ? 'opacity-55' : ''
-      }`}
-      style={{ gridTemplateColumns: '28px 180px 1fr 80px 185px 32px' }}
+      } ${isDropdownOpen ? 'relative z-40' : 'relative z-0'}`}
+      style={{ gridTemplateColumns: '28px 180px 1fr 80px 200px 32px' }}
     >
       {/* # Sıra No */}
       <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-mono font-bold flex items-center justify-center">
@@ -57,7 +66,7 @@ export const HizliKadroRow: React.FC<HizliKadroRowProps> = ({
           const matched = gorevler.find((g) => g.ad === val)
           onSelectGorev(row.id, val, matched ? matched.id : null)
         }}
-        className="w-full bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none cursor-pointer"
+        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none cursor-pointer"
       >
         {gorevler.length > 0 ? (
           gorevler.map((g) => (
@@ -106,23 +115,47 @@ export const HizliKadroRow: React.FC<HizliKadroRowProps> = ({
         {row.asilMi === 1 ? '✓ Asil' : '⟳ Yedek'}
       </button>
 
-      {/* Belge Kapsamı Seçimi */}
-      <select
-        value={row.belgeKapsami || (row.belgedeGoster ? 'tumu' : 'gizli')}
-        onChange={(e) => onChangeBelgeKapsami(row.id, e.target.value)}
-        title="Bu personelin hangi belgelerde görüneceğini belirler"
-        className={`w-full text-xs font-semibold rounded-xl px-2 py-1.5 border outline-none cursor-pointer transition-all ${
-          isHidden
-            ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700'
-            : 'bg-blue-50/60 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 focus:ring-2 focus:ring-blue-500/20'
-        }`}
-      >
-        <option value="tumu">📄 Tüm Belgelerde</option>
-        <option value="piyasa_arastirma">🛒 Sadece Piyasa F. Araştırma</option>
-        <option value="muayene_kabul">🔬 Sadece Muayene & Kabul</option>
-        <option value="olur_onay">📑 Sadece Olur / Onay Yazıları</option>
-        <option value="gizli">🚫 Hiçbir Belgede (Gizli)</option>
-      </select>
+      {/* Belge Kapsamı Seçimi & Granüler Şablon Butonu */}
+      <div className="flex items-center gap-1.5 w-full">
+        <select
+          value={row.belgeKapsami || (row.belgedeGoster ? 'tumu' : 'gizli')}
+          onChange={(e) => {
+            const val = e.target.value
+            onChangeBelgeKapsami(row.id, val)
+            if (val === 'ozel') {
+              setIsBelgeModalOpen(true)
+            }
+          }}
+          title="Bu personelin hangi belgelerde görüneceğini belirler"
+          className={`w-full text-xs font-semibold rounded-xl px-2 py-1.5 border outline-none cursor-pointer transition-all ${
+            isHidden
+              ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700'
+              : row.belgeKapsami === 'ozel'
+                ? 'bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 focus:ring-2 focus:ring-indigo-500/20'
+                : 'bg-blue-50/60 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 focus:ring-2 focus:ring-blue-500/20'
+          }`}
+        >
+          <option value="tumu">📄 Tüm Belgelerde</option>
+          <option value="piyasa_arastirma">🛒 Sadece Fiyat Araştırma</option>
+          <option value="muayene_kabul">🔬 Sadece Muayene & Kabul</option>
+          <option value="olur_onay">📑 Sadece Olur / Onay</option>
+          <option value="ozel">
+            🎯 Özel Şablon Seçimi {selectedDocCount > 0 ? `(${selectedDocCount})` : ''}
+          </option>
+          <option value="gizli">🚫 Hiçbir Belgede (Gizli)</option>
+        </select>
+
+        {row.belgeKapsami === 'ozel' && (
+          <button
+            type="button"
+            onClick={() => setIsBelgeModalOpen(true)}
+            className="p-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-800/60 transition-colors shrink-0"
+            title="Şablonları Düzenle"
+          >
+            <Settings2 className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
 
       {/* Sil Butonu */}
       <button
@@ -133,6 +166,20 @@ export const HizliKadroRow: React.FC<HizliKadroRowProps> = ({
       >
         <Trash2 className="w-3.5 h-3.5" />
       </button>
+
+      {/* Granüler Şablon Seçim Modalı */}
+      {isBelgeModalOpen && (
+        <HizliKadroBelgeSecimModal
+          isOpen={isBelgeModalOpen}
+          onClose={() => setIsBelgeModalOpen(false)}
+          memberName={assignedPerson?.ad_soyad || ''}
+          memberGorev={row.gorevAd}
+          selectedDocs={row.hedefBelgeler || []}
+          onSave={(docs) => {
+            onChangeHedefBelgeler(row.id, docs)
+          }}
+        />
+      )}
     </div>
   )
 }
