@@ -3,6 +3,7 @@ import { useSettingsStore } from '../../../../../../store/settingsStore'
 import { useWorkspaceStore } from '../../../../../../store/workspaceStore'
 import { useDosyaAsamasiSablons } from '../../useDosyaAsamasiSablons'
 import { FirmaStats, KabulTutanakItem, KomisyonUye } from './types'
+import { formatCurrency, formatDate } from '@renderer/utils/formatters'
 
 interface KabulDataCacheEntry {
   kazananFirmaId: number | null
@@ -700,28 +701,6 @@ export function useKabulVeOdemeData() {
     }
   }, [activeDosyaId])
 
-  const formatCurrency = (val: number | null): string => {
-    if (val === null || val === undefined) return '—'
-    return new Intl.NumberFormat('tr-TR', {
-      style: 'currency',
-      currency: 'TRY',
-      minimumFractionDigits: 2
-    }).format(val)
-  }
-
-  const formatDate = (dateStr: string | null): string => {
-    if (!dateStr) return '—'
-    try {
-      const d = new Date(dateStr)
-      return new Intl.DateTimeFormat('tr-TR', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric'
-      }).format(d)
-    } catch {
-      return dateStr
-    }
-  }
 
   return {
     activeDosyaId,

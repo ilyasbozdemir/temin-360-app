@@ -63,18 +63,8 @@ export const getStatusBadgeLightClass = (status: string): string => {
   return 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-500/20'
 }
 
-export const normalizeForMatch = (str: string): string => {
-  return str
-    .toLocaleLowerCase('tr-TR')
-    .toLowerCase()
-    .replace(/ğ/g, 'g')
-    .replace(/ü/g, 'u')
-    .replace(/ş/g, 's')
-    .replace(/ı/g, 'i')
-    .replace(/ö/g, 'o')
-    .replace(/ç/g, 'c')
-    .replace(/[^a-z0-9]/g, '')
-}
+import { normalizeForMatch } from '@renderer/utils/formatters'
+export { normalizeForMatch }
 
 export const STAGES = [
   { key: '1. İhtiyaç Tespiti & Başlangıç', label: 'İhtiyaç Tespiti' },

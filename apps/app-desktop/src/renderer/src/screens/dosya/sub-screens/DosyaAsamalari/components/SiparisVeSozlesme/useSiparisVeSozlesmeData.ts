@@ -3,6 +3,7 @@ import { useWorkspaceStore } from '@renderer/store/workspaceStore'
 import { documentPreloadService } from '@renderer/services/documentPreloadService'
 import { FirmaStats, IslemlerData } from './types'
 import { fetchSiparisVeSozlesmeData, ResolvedSiparisData } from './siparisDataFetcher'
+import { formatCurrency } from '@renderer/utils/formatters'
 
 const siparisDataCache = new Map<number, ResolvedSiparisData>()
 
@@ -92,15 +93,6 @@ export function useSiparisVeSozlesmeData() {
       window.removeEventListener('bids:changed', handleDossierUpdated)
     }
   }, [activeDosyaId])
-
-  const formatCurrency = (val: number | null): string => {
-    if (val === null || val === undefined) return '—'
-    return new Intl.NumberFormat('tr-TR', {
-      style: 'currency',
-      currency: 'TRY',
-      maximumFractionDigits: 2
-    }).format(val)
-  }
 
   const handleUpdateTeslimGunu = async (gun: number): Promise<void> => {
     if (!activeDosyaId) return

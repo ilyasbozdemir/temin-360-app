@@ -16,6 +16,7 @@ import {
   XCircle
 } from 'lucide-react'
 import { cn } from '../../../utils/cn'
+import { formatCurrency } from '@renderer/utils/formatters'
 
 interface TeminRecord {
   dosya_id: number
@@ -201,13 +202,6 @@ export const FirmaGecmisTeminler: React.FC<FirmaGecmisTeminlerProps> = ({
     return turMap[tur] || tur || 'Mal Alımı'
   }
 
-  const formatCurrency = (val: number): string => {
-    if (!val || val === 0) return '-'
-    return val.toLocaleString('tr-TR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    })
-  }
 
   if (loading) {
     return (

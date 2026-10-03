@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { useSettingsStore } from '../../store/settingsStore'
+import { getInitials } from '@renderer/utils/formatters'
 import { useKurumHooks, KurumVerisi } from '../kurum/kurum.hooks'
 import {
   User,
@@ -196,16 +197,6 @@ export default function ProfilScreen(): React.JSX.Element {
     }
   }
 
-  const getInitials = (name: string): string => {
-    if (!name) return 'KP'
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .filter(Boolean)
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
-  }
 
   if (loading || isLoadingKurum) {
     return (

@@ -12,6 +12,7 @@ import { DosyalarFilterBar } from './components/DosyalarFilterBar'
 import { DosyalarList } from './components/DosyalarList'
 import { Sliders } from 'lucide-react'
 import { formatDosyaNo } from '../../utils/formatDosyaNo'
+import { formatDate } from '@renderer/utils/formatters'
 
 export default function DosyalarScreen(): React.ReactNode {
   const {
@@ -341,10 +342,6 @@ export default function DosyalarScreen(): React.ReactNode {
   const formatMoney = (val: number) =>
     val ? val.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) : '0.00'
 
-  const formatDate = (val: string | null | undefined) => {
-    if (!val) return '-'
-    return new Date(val).toLocaleDateString('tr-TR')
-  }
 
   const getDosyaNoLabel = (d: any) => formatDosyaNo(d)
 

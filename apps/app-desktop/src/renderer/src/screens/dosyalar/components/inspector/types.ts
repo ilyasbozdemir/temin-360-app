@@ -31,17 +31,5 @@ export const formatMoney = (val: any): string => {
   })
 }
 
-export const formatDate = (val: string | null | undefined): string => {
-  if (!val) return '-'
-  try {
-    const date = new Date(val)
-    if (isNaN(date.getTime())) return val
-    return date.toLocaleDateString('tr-TR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    })
-  } catch {
-    return val
-  }
-}
+import { formatDate } from '@renderer/utils/formatters'
+export { formatDate }

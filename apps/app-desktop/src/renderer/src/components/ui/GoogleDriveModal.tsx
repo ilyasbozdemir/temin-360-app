@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { Button } from './Button'
 import { Input } from './Input'
+import { formatDate } from '@renderer/utils/formatters'
 
 interface GoogleDriveModalProps {
   isOpen: boolean
@@ -519,17 +520,6 @@ export function GoogleDriveModal({ isOpen, onClose }: GoogleDriveModalProps): Re
     return `${(num / (1024 * 1024)).toFixed(2)} MB`
   }
 
-  const formatDate = (isoStr?: string) => {
-    if (!isoStr) return '—'
-    try {
-      return new Date(isoStr).toLocaleString('tr-TR', {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-      })
-    } catch {
-      return isoStr
-    }
-  }
 
   return (
     <Modal

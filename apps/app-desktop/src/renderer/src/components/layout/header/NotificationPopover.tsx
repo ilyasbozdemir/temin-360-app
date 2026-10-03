@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { Bell, X, Info, CheckCircle, AlertTriangle, AlertCircle } from 'lucide-react'
 import { useAnnouncements } from '../../../screens/dashboard/dashboard.hooks'
+import { formatDate } from '@renderer/utils/formatters'
 
 export const NotificationPopover = React.memo(function NotificationPopover(): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
@@ -43,19 +44,6 @@ export const NotificationPopover = React.memo(function NotificationPopover(): Re
       default:
         return 'border-l-[3px] border-l-blue-500'
     }
-  }
-
-  const formatDate = (dateVal: string): string => {
-    const d = new Date(dateVal)
-    return isNaN(d.getTime())
-      ? dateVal
-      : d.toLocaleString('tr-TR', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        })
   }
 
   return (

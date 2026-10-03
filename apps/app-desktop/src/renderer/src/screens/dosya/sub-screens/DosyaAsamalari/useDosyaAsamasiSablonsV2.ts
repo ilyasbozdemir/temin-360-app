@@ -32,17 +32,8 @@ export const CATEGORY_LABELS: Record<string, string> = {
   '5-klasor-ve-kapaklar': 'Klasör & Kapak'
 }
 
-export const normalizeForMatch = (str: string): string =>
-  str
-    .toLocaleLowerCase('tr-TR')
-    .toLowerCase()
-    .replace(/ğ/g, 'g')
-    .replace(/ü/g, 'u')
-    .replace(/ş/g, 's')
-    .replace(/ı/g, 'i')
-    .replace(/ö/g, 'o')
-    .replace(/ç/g, 'c')
-    .replace(/[^a-z0-9]/g, '')
+import { normalizeForMatch } from '@renderer/utils/formatters'
+export { normalizeForMatch }
 
 /**
  * SABLON_GRUPLARI — Ekranda hangi şablonlar tek kart + select ile gösterilir?

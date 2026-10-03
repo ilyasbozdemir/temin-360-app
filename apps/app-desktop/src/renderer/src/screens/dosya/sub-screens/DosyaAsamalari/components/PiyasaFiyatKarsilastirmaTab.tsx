@@ -5,6 +5,7 @@ import {
   KarsilastirmaStatCards,
   KarsilastirmaTable
 } from './PiyasaFiyatKarsilastirma'
+import { formatCurrency } from '@renderer/utils/formatters'
 
 export type { PiyasaFiyatKarsilastirmaTabProps }
 
@@ -77,11 +78,6 @@ export function PiyasaFiyatKarsilastirmaTab({
   const netSavings = totalBefore - totalAfter
   const overallSavingsRate = totalBefore > 0 ? (netSavings / totalBefore) * 100 : 0
 
-  const formatCurrency = (val: number): string => {
-    return (
-      val.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₺'
-    )
-  }
 
   if (items.length === 0) {
     return (

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { cn } from '../../utils/cn'
 import { useSettingsStore } from '../../store/settingsStore'
+import { getInitials } from '@renderer/utils/formatters'
 
 interface ShortcutItem {
   name: string
@@ -131,17 +132,6 @@ export function ActiveFileShortcuts(): React.JSX.Element {
         </div>
       </Link>
     )
-  }
-
-  const getInitials = (name: string): string => {
-    if (!name) return 'SY'
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .filter(Boolean)
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
   }
 
   const userInitials = getInitials(adminName || '')

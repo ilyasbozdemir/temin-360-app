@@ -7,6 +7,7 @@ import { useTabStore } from '../../../../store/tabStore'
 import { useDosyalarHooks } from '../../../dosyalar/dosyalar.hooks'
 import { logActivity } from '../../../../utils/logger'
 import { emitAppEvent, useAppEventListener } from '../../../../utils/appEvents'
+import { formatCurrency } from '@renderer/utils/formatters'
 import {
   AsamaItem,
   TeminBelgeItem,
@@ -306,14 +307,6 @@ export function useTakip(): UseTakipReturn {
 
   const currentAsamaSira = activeDosya?.durum_asama_id || 1
 
-  // Format Currency Helper
-  const formatCurrency = (value: number): string => {
-    return new Intl.NumberFormat('tr-TR', {
-      style: 'currency',
-      currency: 'TRY',
-      maximumFractionDigits: 0
-    }).format(value)
-  }
 
   // Handle toggle signed state (imzalandı ↔ imzalanmadı)
   const handleToggleSign = async (belgeId: number, currentState: number) => {

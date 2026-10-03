@@ -38,6 +38,7 @@ import { cn } from '../../utils/cn'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useWorkspaceStore } from '../../store/workspaceStore'
 import { useShallow } from 'zustand/react/shallow'
+import { getInitials } from '@renderer/utils/formatters'
 
 interface SubItem {
   name: string
@@ -135,16 +136,6 @@ export function Sidebar(): React.JSX.Element {
     loadSettings()
   }, [loadSettings])
 
-  const getInitials = (name: string): string => {
-    if (!name) return 'SY'
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .filter(Boolean)
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
-  }
 
   const toggleExpanded = (path: string) => {
     setExpandedItems((prev) => {

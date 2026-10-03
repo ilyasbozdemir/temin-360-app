@@ -66,17 +66,8 @@ export const SABLON_ALIAS_MAP: Record<string, string[]> = {
   ]
 }
 
-export const normalizeForMatch = (str: string): string =>
-  str
-    .toLocaleLowerCase('tr-TR')
-    .toLowerCase()
-    .replace(/ğ/g, 'g')
-    .replace(/ü/g, 'u')
-    .replace(/ş/g, 's')
-    .replace(/ı/g, 'i')
-    .replace(/ö/g, 'o')
-    .replace(/ç/g, 'c')
-    .replace(/[^a-z0-9]/g, '')
+import { normalizeForMatch } from '@renderer/utils/formatters'
+export { normalizeForMatch }
 
 export function findSablonByAlias(sablons: any[] | undefined | null, targetKey: string): any {
   if (!sablons || sablons.length === 0 || !targetKey) return null
