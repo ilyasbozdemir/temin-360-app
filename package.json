@@ -7,6 +7,7 @@
     "dev:web": "pnpm --filter app-web dev",
     "dev:website": "pnpm --filter app-landing dev",
     "dev": "pnpm dev:desktop",
+    "analyze": "node scripts/analyze-codebase.mjs",
     "db:up": "docker compose up -d db pocketbase",
     "db:down": "docker compose down",
     "pb:up": "node scripts/start-pocketbase.js",

@@ -1,6 +1,6 @@
 {
   "name": "app-desktop",
-  "version": "1.0.0-beta.224",
+  "version": "1.0.0-beta.225",
   "description": "TEMİN 360 - Kamu Alımları, Doğrudan Temin ve Hakediş Yönetim Sistemi",
   "main": "./out/main/index.js",
   "author": "ilyasbozdemir.dev",
@@ -8,6 +8,7 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "analyze": "node ../../scripts/analyze-codebase.mjs",
     "format": "prettier --write .",
     "lint": "eslint --cache .",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
