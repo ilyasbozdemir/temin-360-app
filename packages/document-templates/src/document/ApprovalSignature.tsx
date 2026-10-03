@@ -1,38 +1,9 @@
 import React from "react";
 import { EditableField, FIELD_SOURCE_INFO } from "./EditableField";
 import { useTemplateEdit } from "./TemplateEditContext";
+import { toIsoDate, toTrDate } from "../utils/textHelpers";
 
-export function toIsoDate(trDateStr?: string | null): string {
-  if (!trDateStr) return new Date().toISOString().split("T")[0];
-  const clean = String(trDateStr).trim();
-  if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
-    return clean.split(" ")[0];
-  }
-  if (/^\d{2}\.\d{2}\.\d{4}/.test(clean)) {
-    const [d, m, y] = clean.split(".");
-    return `${y}-${m}-${d}`;
-  }
-  try {
-    const dt = new Date(clean);
-    if (!isNaN(dt.getTime())) {
-      return dt.toISOString().split("T")[0];
-    }
-  } catch {}
-  return new Date().toISOString().split("T")[0];
-}
-
-export function toTrDate(isoOrStr?: string | null): string {
-  if (!isoOrStr) return "";
-  const clean = String(isoOrStr).trim();
-  if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
-    const [y, m, d] = clean.split(" ")[0].split("-");
-    return `${d}.${m}.${y}`;
-  }
-  if (/^\d{2}\.\d{2}\.\d{4}/.test(clean)) {
-    return clean;
-  }
-  return clean;
-}
+export { toIsoDate, toTrDate };
 
 export interface DateEditableFieldProps {
   name: string;

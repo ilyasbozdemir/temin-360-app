@@ -295,11 +295,12 @@ export default function KomisyonlarScreen({
 
       const membersRes = await window.electron.ipcRenderer.invoke(
         'db:query',
-        `SELECT k.id, k.temin_dosya_id, k.komisyon_turu, k.asil_mi, k.personel_id, k.gorev_id, k.updated_at,
-                p.ad_soyad, p.unvan, g.ad as gorev_adi
+        `SELECT k.id, k.temin_dosya_id, k.komisyon_turu, k.asli_yedek, k.personel_id, k.gorev, k.updated_at,
+                COALESCE(k.ad_soyad, p.ad_soyad) as ad_soyad, 
+                COALESCE(k.unvan, p.unvan) as unvan, 
+                COALESCE(k.gorev, 'Üye') as gorev_adi
          FROM DATA_TeminKomisyon k
          LEFT JOIN TANIM_Personel p ON k.personel_id = p.id
-         LEFT JOIN TANIM_KomisyonGorevi g ON k.gorev_id = g.id
          ORDER BY k.id ASC`
       )
       const members = membersRes.success ? membersRes.data || [] : []

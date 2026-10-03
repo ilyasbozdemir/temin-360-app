@@ -7,10 +7,11 @@ export * from "./document/DocumentHeader";
 export * from "./document/DocumentFooter";
 export * from "./document/DocumentTable";
 export * from "./document/ApprovalSignature";
-export * from "./document/DynamicPaginatedTable";
 export * from "./document/EditableField";
 export * from "./document/TemplateEditContext";
 export * from "./document/TableRowSplitDivider";
+export * from "./document/sayiyiYaziyaCevir";
+export * from "./utils";
 
 export * from "./templates/ihtiyac-listesi";
 export * from "./templates/ihtiyac-talep-formu";

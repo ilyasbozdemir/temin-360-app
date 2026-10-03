@@ -15,6 +15,12 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+        talep_eden: "optional",
+      },
     },
   },
   {
@@ -31,6 +37,12 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+        talep_eden: "optional",
+      },
     },
   },
   {
@@ -47,6 +59,12 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+        talep_eden: "optional",
+      },
     },
   },
   {
@@ -63,6 +81,11 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+      },
     },
   },
   {
@@ -79,6 +102,12 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+        talep_eden: "optional",
+      },
     },
   },
   {
@@ -95,6 +124,10 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+      },
     },
   },
   {
@@ -111,6 +144,11 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+      },
     },
   },
   {
@@ -127,6 +165,13 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
+      roleVisibility: {
+        harcama_yetkilisi: "show",
+        onaylayan: "show",
+        gerceklestirme_gorevlisi: "optional",
+        hazirlayan: "optional",
+        muhasebe: "optional",
+      },
     },
   },
   {
@@ -143,6 +188,15 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: false,
       supportsFirmaListesi: false,
+      roleVisibility: {
+        harcama_yetkilisi: "show",
+        onaylayan: "show",
+        hazirlayan: "optional",
+      },
+      commissionRoleVisibility: {
+        "Harcama Yetkilisi": "hide",
+        "Muhasebe Yetkilisi": "hide",
+      },
     },
   },
   {
@@ -159,6 +213,14 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: false,
       supportsFirmaListesi: false,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "hide",
+      },
+      commissionRoleVisibility: {
+        "Harcama Yetkilisi": "hide",
+        "Muhasebe Yetkilisi": "hide",
+      },
     },
   },
   {
@@ -175,6 +237,15 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: false,
       supportsFirmaListesi: false,
+      roleVisibility: {
+        harcama_yetkilisi: "show",
+        onaylayan: "show",
+        hazirlayan: "optional",
+      },
+      commissionRoleVisibility: {
+        "Harcama Yetkilisi": "hide",
+        "Muhasebe Yetkilisi": "hide",
+      },
     },
   },
   {
@@ -191,6 +262,11 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+      },
     },
   },
   {
@@ -207,6 +283,11 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+      },
     },
   },
   {
@@ -223,6 +304,11 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: false,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "hide",
+        hazirlayan: "hide",
+      },
     },
   },
   {
@@ -239,6 +325,11 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+      },
     },
   },
   {
@@ -255,6 +346,15 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+      },
+      commissionRoleVisibility: {
+        "Harcama Yetkilisi": "hide",
+        "Muhasebe Yetkilisi": "hide",
+      },
     },
   },
   {
@@ -271,6 +371,15 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+      },
+      commissionRoleVisibility: {
+        "Harcama Yetkilisi": "hide",
+        "Muhasebe Yetkilisi": "hide",
+      },
     },
   },
   {
@@ -287,6 +396,11 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+      },
     },
   },
   {
@@ -303,6 +417,13 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
+      roleVisibility: {
+        harcama_yetkilisi: "show",
+        onaylayan: "show",
+        gerceklestirme_gorevlisi: "optional",
+        hazirlayan: "optional",
+        talep_eden: "optional",
+      },
     },
   },
   {
@@ -319,6 +440,12 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+        muhasebe: "optional",
+      },
     },
   },
   {
@@ -335,6 +462,11 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+      },
     },
   },
   {
@@ -351,6 +483,11 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: false,
       supportsFirmaListesi: true,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+      },
     },
   },
   {
@@ -367,6 +504,15 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: true,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+      },
+      commissionRoleVisibility: {
+        "Harcama Yetkilisi": "hide",
+        "Muhasebe Yetkilisi": "hide",
+      },
     },
   },
   {
@@ -383,6 +529,15 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
+      roleVisibility: {
+        harcama_yetkilisi: "hide",
+        onaylayan: "optional",
+        hazirlayan: "optional",
+      },
+      commissionRoleVisibility: {
+        "Harcama Yetkilisi": "hide",
+        "Muhasebe Yetkilisi": "hide",
+      },
     },
   },
   {
@@ -399,6 +554,11 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: true,
       supportsFirmaListesi: false,
+      roleVisibility: {
+        harcama_yetkilisi: "show",
+        onaylayan: "show",
+        hazirlayan: "optional",
+      },
     },
   },
   {
@@ -415,6 +575,76 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsPersonnelList: true,
       supportsKalemListesi: false,
       supportsFirmaListesi: true,
+      roleVisibility: {
+        harcama_yetkilisi: "show",
+        onaylayan: "show",
+        gerceklestirme_gorevlisi: "optional",
+        muhasebe: "optional",
+      },
+    },
+  },
+  {
+    id: "dogrudan-temin-sonuc-onay-belgesi",
+    name: "DogrudanTeminSonucOnayBelgesi",
+    title: "Doğrudan Temin Sonuç Onay Belgesi",
+    category: "3-siparis-ve-sozlesme",
+    description: "Alım sonucunun yetkili makam onay belgesi",
+    supportsOlur: true,
+    capabilities: {
+      supportsOlur: true,
+      supportsCommission: false,
+      supportedCommissionTypes: ["none"],
+      supportsPersonnelList: true,
+      supportsKalemListesi: true,
+      supportsFirmaListesi: true,
+      roleVisibility: {
+        harcama_yetkilisi: "show",
+        onaylayan: "show",
+      },
+    },
+  },
+  {
+    id: "gorevlendirme-yazisi",
+    name: "GorevlendirmeYazisi",
+    title: "Görevlendirme Yazısı",
+    category: "2-piyasa-fiyat-arastirmasi",
+    description: "Piyasa fiyat araştırması görevlendirme yazısı",
+    supportsOlur: true,
+    capabilities: {
+      supportsOlur: true,
+      supportsCommission: true,
+      supportedCommissionTypes: ["piyasa_fiyat"],
+      supportsPersonnelList: true,
+      supportsKalemListesi: false,
+      supportsFirmaListesi: false,
+      roleVisibility: {
+        harcama_yetkilisi: "show",
+        onaylayan: "show",
+      },
+      commissionRoleVisibility: {
+        "Harcama Yetkilisi": "hide",
+        "Muhasebe Yetkilisi": "hide",
+      },
+    },
+  },
+  {
+    id: "idare-onay-belgesi",
+    name: "IdareOnayBelgesi",
+    title: "İdare Onay Belgesi",
+    category: "3-siparis-ve-sozlesme",
+    description: "İdare onay ve karar belgesi",
+    supportsOlur: true,
+    capabilities: {
+      supportsOlur: true,
+      supportsCommission: false,
+      supportedCommissionTypes: ["none"],
+      supportsPersonnelList: true,
+      supportsKalemListesi: true,
+      supportsFirmaListesi: true,
+      roleVisibility: {
+        harcama_yetkilisi: "show",
+        onaylayan: "show",
+      },
     },
   },
 ];
