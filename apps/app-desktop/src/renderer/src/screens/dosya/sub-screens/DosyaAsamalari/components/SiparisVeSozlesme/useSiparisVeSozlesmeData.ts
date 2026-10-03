@@ -2,15 +2,9 @@ import { useEffect, useState } from 'react'
 import { useWorkspaceStore } from '@renderer/store/workspaceStore'
 import { documentPreloadService } from '@renderer/services/documentPreloadService'
 import { FirmaStats, IslemlerData } from './types'
+import { fetchSiparisVeSozlesmeData, ResolvedSiparisData } from './siparisDataFetcher'
 
-interface SiparisDataCacheEntry {
-  kazananFirmaId: number | null
-  kazananFirmaUnvan: string
-  firmaStats: FirmaStats
-  islemlerData: IslemlerData
-  sonucOnayEkler: string[]
-}
-const siparisDataCache = new Map<number, SiparisDataCacheEntry>()
+const siparisDataCache = new Map<number, ResolvedSiparisData>()
 
 export function useSiparisVeSozlesmeData() {
   const { activeDosyaId } = useWorkspaceStore()
@@ -61,193 +55,42 @@ export function useSiparisVeSozlesmeData() {
   useEffect(() => {
     if (!activeDosyaId) return
 
-    const checkKazananFirma = async (): Promise<void> => {
+    const loadData = async (): Promise<void> => {
       try {
-        const res = await window.electron.ipcRenderer.invoke(
-          'db:query',
-          `SELECT d.firma_id, f.unvan, f.vergi_no,
-                  d.yaklasik_maliyet, d.teslim_tarihi, d.teslim_gun,
-                  d.teklif_sozlesme_turu, d.sozlesme_yapilacak_mi, d.sablon_tercihleri
-           FROM DATA_TeminDosyasi d
-           LEFT JOIN TANIM_Firma f ON d.firma_id = f.id
-           WHERE d.id = ?`,
-          [activeDosyaId]
-        )
-
-        if (res.success && res.data && res.data.length > 0) {
-          const row = res.data[0]
-          let effectiveFirmaId = row.firma_id || null
-          let effectiveUnvan = row.unvan || ''
-          let effectiveVergiNo = row.vergi_no || null
-
-          if (row.sablon_tercihleri) {
-            try {
-              const parsed = JSON.parse(row.sablon_tercihleri)
-              if (Array.isArray(parsed.sonucOnayEkler) && parsed.sonucOnayEkler.length > 0) {
-                setSonucOnayEkler(parsed.sonucOnayEkler)
-              }
-            } catch (e) {
-              console.warn('Failed to parse sablon_tercihleri:', e)
-            }
-          }
-
-          // Also check DATA_TeminFirma if row.firma_id is set but unvan was not found via TANIM_Firma
-          if (effectiveFirmaId && !effectiveUnvan) {
-            try {
-              const tfCheck = await window.electron.ipcRenderer.invoke(
-                'db:query',
-                `SELECT COALESCE(NULLIF(tf.unvan, ''), NULLIF(f.unvan, ''), 'İstekli Firma') as unvan,
-                        COALESCE(NULLIF(tf.vergi_no, ''), NULLIF(f.vergi_no, '')) as vergi_no
-                 FROM DATA_TeminFirma tf
-                 LEFT JOIN TANIM_Firma f ON tf.firma_id = f.id
-                 WHERE tf.temin_dosya_id = ? AND (tf.firma_id = ? OR tf.id = ?)
-                 LIMIT 1`,
-                [activeDosyaId, effectiveFirmaId, effectiveFirmaId]
-              )
-              if (tfCheck.success && tfCheck.data?.length > 0) {
-                effectiveUnvan = tfCheck.data[0].unvan || ''
-                effectiveVergiNo = tfCheck.data[0].vergi_no || effectiveVergiNo
-              }
-            } catch (err) {
-              console.warn('Failed to check DATA_TeminFirma fallback unvan:', err)
-            }
-          }
-
-          if (!effectiveFirmaId || !effectiveUnvan) {
-            const autoLowestRes = await window.electron.ipcRenderer.invoke(
-              'db:query',
-              `SELECT tf.firma_id, tf.id as temin_firma_id,
-                      COALESCE(NULLIF(tf.unvan, ''), NULLIF(f.unvan, ''), 'İstekli Firma') as unvan,
-                      COALESCE(NULLIF(tf.vergi_no, ''), NULLIF(f.vergi_no, '')) as vergi_no,
-                      COALESCE(
-                        NULLIF(tf.teklif_toplami, 0),
-                        (SELECT SUM(kt.birim_fiyat * k.miktar)
-                         FROM DATA_TeminKalemTeklif kt
-                         JOIN DATA_TeminKalem k ON kt.temin_kalem_id = k.id
-                         WHERE kt.temin_firma_id = tf.id AND kt.temin_dosya_id = ?)
-                      ) as effective_teklif,
-                      tf.yasaklilik_durumu
-               FROM DATA_TeminFirma tf
-               LEFT JOIN TANIM_Firma f ON tf.firma_id = f.id
-               WHERE tf.temin_dosya_id = ? AND (COALESCE(tf.aktif_mi, 1) = 1 OR tf.aktif_mi = '1' OR tf.aktif_mi = 'true')
-               ORDER BY (CASE WHEN tf.kazanan_mi = 1 THEN 0 ELSE 1 END),
-                        CASE WHEN effective_teklif > 0 THEN effective_teklif ELSE 999999999 END ASC
-               LIMIT 1`,
-              [activeDosyaId, activeDosyaId]
-            )
-            if (autoLowestRes.success && autoLowestRes.data && autoLowestRes.data.length > 0) {
-              const lowest = autoLowestRes.data[0]
-              effectiveFirmaId = lowest.firma_id || lowest.temin_firma_id
-              effectiveUnvan = lowest.unvan || 'İstekli Firma'
-              effectiveVergiNo = lowest.vergi_no || null
-
-              await window.electron.ipcRenderer.invoke(
-                'db:run',
-                'UPDATE DATA_TeminDosyasi SET firma_id = ? WHERE id = ?',
-                [effectiveFirmaId, activeDosyaId]
-              )
-              await window.electron.ipcRenderer.invoke(
-                'db:run',
-                'UPDATE DATA_TeminFirma SET kazanan_mi = (CASE WHEN firma_id = ? OR id = ? THEN 1 ELSE 0 END) WHERE temin_dosya_id = ?',
-                [effectiveFirmaId, effectiveFirmaId, activeDosyaId]
-              )
-            }
-          }
-
-          setKazananFirmaId(effectiveFirmaId)
-          setKazananFirmaUnvan(effectiveUnvan)
-
-          let teklifToplami = null
-          let yasaklilikDurumu = null
-          if (effectiveFirmaId) {
-            const tfRes = await window.electron.ipcRenderer.invoke(
-              'db:query',
-              `SELECT tf.teklif_toplami, tf.yasaklilik_durumu,
-                      (SELECT SUM(kt.birim_fiyat * k.miktar)
-                       FROM DATA_TeminKalemTeklif kt
-                       JOIN DATA_TeminKalem k ON kt.temin_kalem_id = k.id
-                       WHERE kt.temin_firma_id = tf.id AND kt.temin_dosya_id = ?) as calculated_teklif
-               FROM DATA_TeminFirma tf
-               WHERE tf.temin_dosya_id = ? AND (tf.firma_id = ? OR tf.id = ?)`,
-              [activeDosyaId, activeDosyaId, effectiveFirmaId, effectiveFirmaId]
-            )
-            if (tfRes.success && tfRes.data && tfRes.data.length > 0) {
-              teklifToplami =
-                tfRes.data[0].teklif_toplami || tfRes.data[0].calculated_teklif || null
-              yasaklilikDurumu = tfRes.data[0].yasaklilik_durumu
-            }
-          }
-
-          const firmCountRes = await window.electron.ipcRenderer.invoke(
-            'db:query',
-            `SELECT COUNT(*) as cnt FROM DATA_TeminFirma WHERE temin_dosya_id = ? AND (COALESCE(aktif_mi, 1) = 1 OR aktif_mi = '1' OR aktif_mi = 'true')`,
-            [activeDosyaId]
-          )
-          const istekliFirmaSayisi =
-            firmCountRes.success && firmCountRes.data && firmCountRes.data.length > 0
-              ? firmCountRes.data[0].cnt
-              : 0
-
-          let formattedDate = ''
-          let teslimGunu =
-            row.teslim_gun !== undefined && row.teslim_gun !== null ? row.teslim_gun : 10
-
-          if ((row.teslim_gun === undefined || row.teslim_gun === null) && row.teslim_tarihi) {
-            const tDate = new Date(row.teslim_tarihi)
-            const today = new Date()
-            const diffTime = tDate.getTime() - today.getTime()
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-            if (diffDays > 0) teslimGunu = diffDays
-          }
-
-          if (row.teslim_tarihi) {
-            const d = new Date(row.teslim_tarihi)
-            if (!isNaN(d.getTime())) {
-              formattedDate = d.toISOString().split('T')[0]
-            }
-          }
-
-          const nextStats: FirmaStats = {
-            teklifToplami,
-            yaklasikMaliyet: row.yaklasik_maliyet || null,
-            teslimTarihi: formattedDate || null,
-            yasaklilikDurumu,
-            vergiNo: effectiveVergiNo,
-            teklifSozlesmeTuru: row.teklif_sozlesme_turu || 'Mal Alımı',
-            sozlesmeYapilacakMi: row.sozlesme_yapilacak_mi ? 1 : 0,
-            istekliFirmaSayisi
-          }
-
-          const nextIslemler: IslemlerData = {
-            sozlesmeYapilacakMi: Boolean(row.sozlesme_yapilacak_mi),
-            siparisFormuGerekli: true,
-            teslimGunu: teslimGunu,
-            teslimTarihi: formattedDate || '',
-            teklifSozlesmeTuru: row.teklif_sozlesme_turu || 'Mal Alımı'
-          }
-
-          setFirmaStats(nextStats)
-          setIslemlerData(nextIslemler)
-
-          if (activeDosyaId) {
-            siparisDataCache.set(activeDosyaId, {
-              kazananFirmaId: effectiveFirmaId,
-              kazananFirmaUnvan: effectiveUnvan,
-              firmaStats: nextStats,
-              islemlerData: nextIslemler,
-              sonucOnayEkler
-            })
-          }
+        const resolved = await fetchSiparisVeSozlesmeData(activeDosyaId)
+        if (resolved) {
+          setKazananFirmaId(resolved.kazananFirmaId)
+          setKazananFirmaUnvan(resolved.kazananFirmaUnvan)
+          setFirmaStats(resolved.firmaStats)
+          setIslemlerData(resolved.islemlerData)
+          setSonucOnayEkler(resolved.sonucOnayEkler)
+          siparisDataCache.set(activeDosyaId, resolved)
         } else {
           setKazananFirmaId(null)
+          setKazananFirmaUnvan('')
+          siparisDataCache.delete(activeDosyaId)
         }
       } catch (err) {
-        console.error('Kazanan firma kontrol edilirken hata:', err)
+        console.error('Error loading siparis ve sozlesme data:', err)
         setKazananFirmaId(null)
+        setKazananFirmaUnvan('')
       }
     }
 
-    checkKazananFirma()
+    loadData()
+
+    const handleDossierUpdated = () => {
+      siparisDataCache.delete(activeDosyaId)
+      loadData()
+    }
+
+    window.addEventListener('dossier:updated', handleDossierUpdated)
+    window.addEventListener('bids:changed', handleDossierUpdated)
+
+    return () => {
+      window.removeEventListener('dossier:updated', handleDossierUpdated)
+      window.removeEventListener('bids:changed', handleDossierUpdated)
+    }
   }, [activeDosyaId])
 
   const formatCurrency = (val: number | null): string => {

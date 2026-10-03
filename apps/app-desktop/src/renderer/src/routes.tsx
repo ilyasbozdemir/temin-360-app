@@ -6,45 +6,91 @@ import {
 } from '@tanstack/react-router'
 import { PageWrapper } from './components/layout/PageWrapper'
 import { APP_ROUTES } from './constants/routeConstants'
-import DashboardScreen from './screens/dashboard/index2.screen'
-import HarcamaMerkeziScreen from './screens/dashboard/HarcamaMerkeziScreen'
-import DosyalarScreen from './screens/dosyalar/index.screen'
-import FirmalarScreen from './screens/firmalar/index.screen'
+import { lazyRoute } from './utils/lazyRoute'
 
-import { MevzuatScreen } from './screens/system/MevzuatScreen'
-import ChangelogScreen from './screens/system/ChangelogScreen'
-import ImportScreen from './screens/system/ImportScreen'
-import HizliDosyaEkleScreen from './screens/system/HizliDosyaEkle.screen'
-import YardimScreen from './screens/system/YardimScreen'
-import AyarlarScreen from './screens/ayarlar/index.screen'
-import TemaScreen from './screens/ayarlar/TemaScreen'
+// Lazy-loaded Screens
+const DashboardScreen = lazyRoute(() => import('./screens/dashboard/index2.screen'))
+const HarcamaMerkeziScreen = lazyRoute(() => import('./screens/dashboard/HarcamaMerkeziScreen'))
+const DosyalarScreen = lazyRoute(() => import('./screens/dosyalar/index.screen'))
+const FirmalarScreen = lazyRoute(() => import('./screens/firmalar/index.screen'))
+const MevzuatScreen = lazyRoute(() => import('./screens/system/MevzuatScreen'), 'MevzuatScreen')
+const ChangelogScreen = lazyRoute(() => import('./screens/system/ChangelogScreen'))
+const ImportScreen = lazyRoute(() => import('./screens/system/ImportScreen'))
+const HizliDosyaEkleScreen = lazyRoute(() => import('./screens/system/HizliDosyaEkle.screen'))
+const YardimScreen = lazyRoute(() => import('./screens/system/YardimScreen'))
+const AyarlarScreen = lazyRoute(() => import('./screens/ayarlar/index.screen'))
+const TemaScreen = lazyRoute(() => import('./screens/ayarlar/TemaScreen'))
+const AmbarScreen = lazyRoute(() => import('./screens/ambar/index.screen'))
+const MalzemelerScreen = lazyRoute(() => import('./screens/malzemeler/index.screen'))
+const TasinirKodScreen = lazyRoute(() => import('./screens/tasinirkod/index.screen'))
+const KurumScreen = lazyRoute(() => import('./screens/kurum/index.screen'))
+const ProfilScreen = lazyRoute(() => import('./screens/profil/index.screen'))
+const SablonlarScreen = lazyRoute(() => import('./screens/sablonlar/index.screen'))
+const FormBuilderScreen = lazyRoute(() => import('./screens/sablonlar/formBuilder.screen'))
+const DegiskenlerScreen = lazyRoute(() => import('./screens/sablonlar/degiskenler.screen'))
+const RaporlarScreen = lazyRoute(() => import('./screens/raporlar/index.screen'))
+const OkasKodScreen = lazyRoute(() => import('./screens/okaskod/index.screen'))
+const ButceKodScreen = lazyRoute(() => import('./screens/butcekod/index.screen'))
+const PozlarScreen = lazyRoute(() => import('./screens/pozlar/index.screen'))
+const YeniPozScreen = lazyRoute(() => import('./screens/pozlar/yeni.screen'))
+const PozDetayScreen = lazyRoute(() => import('./screens/pozlar/detay.screen'))
+const TopluPozEkleScreen = lazyRoute(() => import('./screens/pozlar/toplu.screen'))
+const OlcuBirimleriScreen = lazyRoute(() => import('./screens/olcubirimleri/index.screen'))
+const YeniMalzemeScreen = lazyRoute(() => import('./screens/malzemeler/yeni.screen'))
+const DosyaManageScreen = lazyRoute(
+  () => import('./screens/dosyalar/manage.screen'),
+  'DosyaManageScreen'
+)
+const KomisyonDetayScreen = lazyRoute(() => import('./screens/komisyonlar/detay.screen'))
+const DosyaDataInspectorScreen = lazyRoute(
+  () => import('./screens/dosyalar/DosyaDataInspectorScreen')
+)
+const NotlarVeGorevlerScreen = lazyRoute(() => import('./screens/notlar/index.screen'))
+const PlaygroundScreen = lazyRoute(() => import('./screens/playground/index.screen'))
+const ProjelerScreen = lazyRoute(() => import('./screens/projeler/index.screen'))
+const DevletIhale2886Screen = lazyRoute(() => import('./screens/devlet-ihale-2886/index.screen'))
+const HesaplamaAraclariScreen = lazyRoute(() => import('./screens/araclar/HesaplamaAraclariScreen'))
+const DTSurecAkisiScreen = lazyRoute(() => import('./screens/system/DTSurecAkisiScreen'))
+const TakipScreen = lazyRoute(() => import('./screens/system/TakipScreen'), 'TakipScreen')
+const TaslakYoneticisi = lazyRoute(() => import('./screens/system/TaslakYoneticisi'))
+const CiktiMerkeziScreen = lazyRoute(
+  () => import('./screens/dosya/CiktiMerkezi.screen'),
+  'CiktiMerkeziScreen'
+)
 
-import AmbarScreen from './screens/ambar/index.screen'
-import MalzemelerScreen from './screens/malzemeler/index.screen'
-import TasinirKodScreen from './screens/tasinirkod/index.screen'
-import KurumScreen from './screens/kurum/index.screen'
-import ProfilScreen from './screens/profil/index.screen'
-
-import SablonlarScreen from './screens/sablonlar/index.screen'
-import FormBuilderScreen from './screens/sablonlar/formBuilder.screen'
-import DegiskenlerScreen from './screens/sablonlar/degiskenler.screen'
-import RaporlarScreen from './screens/raporlar/index.screen'
-import OkasKodScreen from './screens/okaskod/index.screen'
-import ButceKodScreen from './screens/butcekod/index.screen'
-import PozlarScreen from './screens/pozlar/index.screen'
-import YeniPozScreen from './screens/pozlar/yeni.screen'
-import PozDetayScreen from './screens/pozlar/detay.screen'
-import TopluPozEkleScreen from './screens/pozlar/toplu.screen'
-import OlcuBirimleriScreen from './screens/olcubirimleri/index.screen'
-import YeniMalzemeScreen from './screens/malzemeler/yeni.screen'
-import YeniDosyaScreen, { DosyaManageScreen } from './screens/dosyalar/manage.screen'
-import KomisyonDetayScreen from './screens/komisyonlar/detay.screen'
-import DosyaDataInspectorScreen from './screens/dosyalar/DosyaDataInspectorScreen'
-import NotlarVeGorevlerScreen from './screens/notlar/index.screen'
-import PlaygroundScreen from './screens/playground/index.screen'
-import ProjelerScreen from './screens/projeler/index.screen'
-import DevletIhale2886Screen from './screens/devlet-ihale-2886/index.screen'
-import HesaplamaAraclariScreen from './screens/araclar/HesaplamaAraclariScreen'
+// SubScreens
+const HazirlikVeIhtiyac = lazyRoute(
+  () => import('./screens/dosya/SubScreens.screen'),
+  'HazirlikVeIhtiyac'
+)
+const PiyasaFiyatArastirmasi = lazyRoute(
+  () => import('./screens/dosya/SubScreens.screen'),
+  'PiyasaFiyatArastirmasi'
+)
+const SiparisVeSozlesme = lazyRoute(
+  () => import('./screens/dosya/SubScreens.screen'),
+  'SiparisVeSozlesme'
+)
+const KabulVeOdeme = lazyRoute(
+  () => import('./screens/dosya/SubScreens.screen'),
+  'KabulVeOdeme'
+)
+const KlasorVeKapaklar = lazyRoute(
+  () => import('./screens/dosya/SubScreens.screen'),
+  'KlasorVeKapaklar'
+)
+const YaklasikMaliyetCetveli = lazyRoute(
+  () => import('./screens/dosya/SubScreens.screen'),
+  'YaklasikMaliyetCetveli'
+)
+const FaturaVeIrsaliye = lazyRoute(
+  () => import('./screens/dosya/SubScreens.screen'),
+  'FaturaVeIrsaliye'
+)
+const ImzaliBelgeler = lazyRoute(
+  () => import('./screens/dosya/SubScreens.screen'),
+  'ImzaliBelgeler'
+)
 
 const rootRoute = createRootRoute({
   component: PageWrapper
@@ -146,17 +192,13 @@ const komisyonGorevleriRoute = createRoute({
   component: KurumScreen
 })
 
-import { TakipScreen } from './screens/system/TakipScreen'
-import { CiktiMerkeziScreen } from './screens/dosya/CiktiMerkezi.screen'
-import TaslakYoneticisi from './screens/system/TaslakYoneticisi'
-import DTSurecAkisiScreen from './screens/system/DTSurecAkisiScreen'
-
 // Dynamic routes
 const surecAkisiRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.SUREC_AKISI,
   component: DTSurecAkisiScreen
 })
+
 const takipRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: APP_ROUTES.TAKIP,
@@ -288,17 +330,6 @@ const kurumRoute = createRoute({
   path: APP_ROUTES.KURUM,
   component: KurumScreen
 })
-
-import {
-  FaturaVeIrsaliye,
-  HazirlikVeIhtiyac,
-  ImzaliBelgeler,
-  KabulVeOdeme,
-  KlasorVeKapaklar,
-  PiyasaFiyatArastirmasi,
-  SiparisVeSozlesme,
-  YaklasikMaliyetCetveli
-} from './screens/dosya/SubScreens.screen'
 
 const profilRoute = createRoute({
   getParentRoute: () => rootRoute,

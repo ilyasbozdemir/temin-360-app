@@ -4,7 +4,26 @@ schema_max: 36
 release_date: '2026-10-02'
 changes:
   - schema: 36
-    type: refactor
-    description: "Header & TeminSelector Modüler Refactor: useShallow, izole hook mimarisi, React.memo ve sıfır re-render performansı. 8 sekme İhale & Kamu Maliyesi Hesaplama Araçları entegrasyonu."
+    type: feature
+    description: "DATA_TeminKalem sira_no ve komisyon şablon hassasiyeti (belgede_goster, belge_kapsami, hedef_belgeler) veritabanı şema göçü."
     tables_added: []
-    columns_added: []
+    columns_added:
+      - table: DATA_TeminKalem
+        column: sira_no
+      - table: TANIM_Kalem
+        column: sira_no
+      - table: TANIM_KomisyonUye
+        column: belgede_goster
+      - table: TANIM_KomisyonUye
+        column: belge_kapsami
+      - table: TANIM_KomisyonUye
+        column: hedef_belgeler
+      - table: DATA_TeminKomisyon
+        column: belgede_goster
+      - table: DATA_TeminKomisyon
+        column: belge_kapsami
+      - table: DATA_TeminKomisyon
+        column: hedef_belgeler
+      - table: DATA_TeminKomisyon
+        column: asli_yedek
+

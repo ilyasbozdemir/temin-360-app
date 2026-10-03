@@ -58,41 +58,42 @@ export const DisclaimerModal: React.FC = () => {
 
         <div className="p-6 text-sm text-slate-600 dark:text-slate-300 leading-relaxed space-y-3.5 max-h-[60vh] overflow-y-auto">
           <div className="p-3.5 bg-blue-50 dark:bg-blue-950/30 rounded-xl border border-blue-200 dark:border-blue-900/50 text-blue-900 dark:text-blue-200 text-xs">
-            💡 <strong>Yardımcı ve Kolaylaştırıcı Araç:</strong> Bu program, kamu kurumları ve satın
-            alma birimlerinin 4734 doğrudan temin / ihale, 2886 devlet ihale (satış, kiralama, irtifak) ve evrak süreçlerini hızlandırmak, düzenlemek ve
-            dosya takibini kolaylaştırmak amacıyla geliştirilmiş{' '}
-            <strong>ücretsiz bir yardımcı yazılımdır</strong>.
+            💡 <strong>Ücretsiz Yardımcı Araç:</strong> Bu uygulama, satın alma birimleri ve kamu
+            görevlilerinin 4734 doğrudan temin / ihale ve 2886 devlet ihale süreçlerini kolaylaştırmak,
+            kendi veri ve şablonlarını düzenli yönetmelerini sağlamak amacıyla sunulmuş{' '}
+            <strong>ücretsiz bir masaüstü aracıdır</strong>.
           </div>
 
-          <p className="text-xs text-slate-600 dark:text-slate-300">
-            Kamu İhale Mevzuatı (4734 ve 4735 sayılı Kanunlar), 2886 Sayılı Devlet İhale Kanunu, KİK Genel Tebliğleri, parasal
-            limitler, vergi/SGK kesinti oranları ve Bakanlık birim fiyat pozları resmî makamlarca
-            periyodik olarak güncellenmektedir.
-          </p>
-
-          <div className="p-3.5 bg-amber-50 dark:bg-amber-950/30 rounded-xl border border-amber-200 dark:border-amber-900/50 text-amber-900 dark:text-amber-200 text-xs space-y-1.5">
+          <div className="p-3.5 bg-amber-50 dark:bg-amber-950/30 rounded-xl border border-amber-200 dark:border-amber-900/50 text-amber-900 dark:text-amber-200 text-xs space-y-2">
             <div className="font-bold flex items-center gap-1.5 text-amber-800 dark:text-amber-300">
-              ⚠️ <strong>Veri Doğrulama ve Sorumluluk Hatırlatması:</strong>
+              ⚠️ <strong>Veri Girişi, Güncelleme ve Sorumluluk Kapsamı:</strong>
             </div>
-            <ul className="list-disc list-inside space-y-1 text-[11px] text-amber-900/90 dark:text-amber-300/90">
+            <ul className="list-disc list-inside space-y-1.5 text-[11px] text-amber-900/90 dark:text-amber-300/90">
               <li>
-                Uygulama içerisindeki hazır şablonlar, hesaplamalar, pozlar ve mevzuat bilgileri
-                rehber niteliğindedir.
+                <strong>Veri ve Mevzuat Güncelleme Yükümlülüğü Yoktur:</strong> Yazılım geliştiricisinin
+                sürekli değişen kamu ihale mevzuatını (4734, 4735, 2886), parasal limitleri, vergi/SGK
+                oranlarını veya Bakanlık birim fiyat pozlarını takip etme, güncelleme veya sisteme
+                yükleme gibi hiçbir taahhüdü ve yükümlülüğü bulunmamaktadır.
               </li>
               <li>
-                Resmî iş ve işlemlerde kullanılan verilerin (limitler, oranlar, teklifler, onay
-                belgeleri) güncelliğini Resmî Gazete,{' '}
+                <strong>Veri Yönetimi Kullanıcıya Aittir:</strong> Kurum ayarları, birim fiyat pozları,
+                komisyon listeleri, teklifler ve şablonlar kullanıcı/idare tarafından girilir ve
+                yönetilir.
+              </li>
+              <li>
+                <strong>Resmî Doğrulama Sorumluluğu:</strong> Resmî iş ve işlemlerde kullanılan tüm evrak,
+                oran, limit ve hesaplamaların güncelliğini Resmî Gazete,{' '}
                 <span className="font-semibold">mevzuat.gov.tr</span> ve{' '}
                 <span className="font-semibold">ihale.gov.tr</span> üzerinden teyit etmek tamamen{' '}
-                <strong>kullanıcının (idarenin / kamu görevlisinin) sorumluluğundadır</strong>.
+                <strong>kullanıcının ve ilgili kamu idaresinin kendi sorumluluğundadır</strong>.
               </li>
             </ul>
           </div>
 
           <p className="p-3 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 italic">
-            Geliştirici ve katkıda bulunanlar; mevzuat değişiklikleri, veri uyumsuzlukları veya
-            hatalı kullanım sebebiyle oluşabilecek hukuki, idari veya mali sonuçlardan sorumlu
-            tutulamaz.
+            Geliştirici ve katkıda bulunanlar; veri girişi eksikliği, mevzuat değişiklikleri, hesaplama
+            farklılıkları veya hatalı kullanım sebebiyle oluşabilecek hiçbir hukuki, idari veya mali
+            sonuçtan hukuken sorumlu tutulamaz.
           </p>
         </div>
 

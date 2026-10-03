@@ -220,3 +220,33 @@ export const DEFAULT_MUAYENE_SABLONLAR = [
   'hizmet-isleri-kabul-tutanagi',
   'hizmet-isleri-kabul-teklif-belgesi'
 ] as const
+
+/**
+ * Olur / Onay ve Harcama Yetkilisi / Gerçekleştirme Görevlisine atanacak varsayılan şablon listesi.
+ */
+export const DEFAULT_OLUR_ONAY_SABLONLAR = [
+  'dogrudan-temin-onay-belgesi',
+  'idare-onay-belgesi',
+  'harcama-talimati',
+  'dogrudan-temin-sonuc-onay-belgesi',
+  'ihale-komisyon-karari',
+  'dogrudan-temin-sozlesmesi',
+  'dogrudan-temin-sozlesmesi-alternatif',
+  'dogrudan-temin-sozlesmesi-uzun',
+  'sozlesmeye-davet',
+  'kabul-edilen-teklif',
+  'kabul-edilen-teklif-alternatif',
+  'odeme-emri-belgesi',
+  'odeme-yazisi',
+  'butce-sorgusu'
+] as const
+
+/**
+ * Komisyon Belge Kapsamı (Scope) varsayılan şablon haritası.
+ */
+export const SCOPE_DEFAULT_TEMPLATES: Record<string, readonly string[]> = {
+  piyasa_arastirma: DEFAULT_YAKLASIK_SABLONLAR,
+  muayene_kabul: DEFAULT_MUAYENE_SABLONLAR,
+  olur_onay: DEFAULT_OLUR_ONAY_SABLONLAR
+}
+

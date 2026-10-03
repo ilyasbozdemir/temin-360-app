@@ -161,35 +161,58 @@ export function registerNetworkIpcHandlers(): void {
     }
   })
 
-  ipcMain.handle('sync:test-connection', async (_, { url, port, token }) => {
-    try {
-      if (!url) return { success: false, error: 'Sunucu adresi girilmedi.' }
-      let cleanUrl = String(url).trim().replace(/\/+$/, '')
-      if (port && !cleanUrl.includes(':' + port)) {
-        cleanUrl = `${cleanUrl}:${port}`
-      }
-      const fullUrl = `${cleanUrl}/api/health`
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json'
-      }
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`
-      }
+  ipcMain.handle(
+    'sync:test-connection',
+    async (_, args?: { url?: string; port?: number | string; token?: string }) => {
+      try {
+        let url = args?.url
+        let token = args?.token
+        const port = args?.port
 
-      const res = await fetch(fullUrl, {
-        method: 'GET',
-        headers
-      })
-      if (res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { message?: string }
-        return { success: true, message: data.message || 'Bağlantı Başarılı!' }
+        if (!url) {
+          try {
+            const db = workspaceManager.getDb()
+            const urlRow = db
+              .prepare("SELECT value FROM settings WHERE key = 'sync_server_url'")
+              .get() as { value?: string }
+            const tokenRow = db
+              .prepare("SELECT value FROM settings WHERE key = 'sync_server_token'")
+              .get() as { value?: string }
+            url = urlRow?.value
+            if (!token) token = tokenRow?.value
+          } catch {
+            // ignore
+          }
+        }
+
+        if (!url) return { success: false, error: 'Sunucu adresi girilmedi.' }
+        let cleanUrl = String(url).trim().replace(/\/+$/, '')
+        if (port && !cleanUrl.includes(':' + port)) {
+          cleanUrl = `${cleanUrl}:${port}`
+        }
+        const fullUrl = `${cleanUrl}/api/health`
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json'
+        }
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`
+        }
+
+        const res = await fetch(fullUrl, {
+          method: 'GET',
+          headers
+        })
+        if (res.ok) {
+          const data = (await res.json().catch(() => ({}))) as { message?: string }
+          return { success: true, message: data.message || 'Bağlantı Başarılı!' }
+        }
+        return { success: false, error: `Sunucu yanıt vermedi: HTTP ${res.status}` }
+      } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : 'Bağlantı hatası'
+        return { success: false, error: msg }
       }
-      return { success: false, error: `Sunucu yanıt vermedi: HTTP ${res.status}` }
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : 'Bağlantı hatası'
-      return { success: false, error: msg }
     }
-  })
+  )
 
   ipcMain.handle('sync:run-sync', async (_, args?: { url?: string; token?: string }) => {
     try {
@@ -263,117 +286,165 @@ export function registerNetworkIpcHandlers(): void {
     }
   })
 
-  ipcMain.handle('sync:push', async (_, { url, port, token }) => {
-    try {
-      if (!url) return { success: false, error: 'Sunucu adresi tanımlı değil.' }
-      let cleanUrl = String(url).trim().replace(/\/+$/, '')
-      if (port && !cleanUrl.includes(':' + port)) {
-        cleanUrl = `${cleanUrl}:${port}`
-      }
-      let dosyalar: unknown[] = []
+  ipcMain.handle(
+    'sync:push',
+    async (_, args?: { url?: string; port?: number | string; token?: string }) => {
       try {
-        const db = workspaceManager.getDb()
-        const dCheck = db
-          .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='dosyalar'")
-          .get()
-        if (dCheck) {
-          dosyalar = db.prepare('SELECT * FROM dosyalar LIMIT 100').all()
+        let url = args?.url
+        let token = args?.token
+        const port = args?.port
+
+        if (!url) {
+          try {
+            const db = workspaceManager.getDb()
+            const urlRow = db
+              .prepare("SELECT value FROM settings WHERE key = 'sync_server_url'")
+              .get() as { value?: string }
+            const tokenRow = db
+              .prepare("SELECT value FROM settings WHERE key = 'sync_server_token'")
+              .get() as { value?: string }
+            url = urlRow?.value
+            if (!token) token = tokenRow?.value
+          } catch {
+            // ignore
+          }
         }
-      } catch {
-        // fallback
-      }
 
-      const fullUrl = `${cleanUrl}/api/sync`
-
-      const res = await fetch(fullUrl, {
-        method: 'POST',
-        headers: {
-          Authorization: token ? `Bearer ${token}` : 'Bearer dta_desktop_client',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          action: 'push',
-          dosyalar,
-          syncedAt: new Date().toISOString()
-        })
-      })
-
-      if (res.ok) {
-        return { success: true, message: 'Veriler buluta başarıyla gönderildi.' }
-      }
-      return { success: false, error: `Sunucu hatası: HTTP ${res.status}` }
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : 'Push hatası'
-      return { success: false, error: msg }
-    }
-  })
-
-  ipcMain.handle('sync:pull', async (_, { url, port, token }) => {
-    try {
-      if (!url) return { success: false, error: 'Sunucu adresi tanımlı değil.' }
-      let cleanUrl = String(url).trim().replace(/\/+$/, '')
-      if (port && !cleanUrl.includes(':' + port)) {
-        cleanUrl = `${cleanUrl}:${port}`
-      }
-      const fullUrl = `${cleanUrl}/api/sync`
-
-      const res = await fetch(fullUrl, {
-        method: 'GET',
-        headers: {
-          Authorization: token ? `Bearer ${token}` : 'Bearer dta_desktop_client',
-          'Content-Type': 'application/json'
+        if (!url) return { success: false, error: 'Sunucu adresi tanımlı değil.' }
+        let cleanUrl = String(url).trim().replace(/\/+$/, '')
+        if (port && !cleanUrl.includes(':' + port)) {
+          cleanUrl = `${cleanUrl}:${port}`
         }
-      })
-
-      if (res.ok) {
-        const data = (await res.json().catch(() => ({}))) as {
-          dosyalar?: Array<{ id: string; title?: string; ad?: string; created_at?: string }>
-        }
-        const files = data.dosyalar || []
-        let imported = 0
+        let dosyalar: unknown[] = []
         try {
           const db = workspaceManager.getDb()
           const dCheck = db
             .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='dosyalar'")
             .get()
-          if (dCheck && files.length > 0) {
-            const insertStmt = db.prepare(`
-              INSERT OR REPLACE INTO dosyalar (id, title, created_at, updated_at)
-              VALUES (@id, @title, @created_at, @updated_at)
-            `)
-            const tx = db.transaction((arr) => {
-              for (const f of arr) {
-                insertStmt.run({
-                  id: f.id,
-                  title: f.title || f.ad || 'İhale/Temin Dosyası',
-                  created_at: f.created_at || new Date().toISOString(),
-                  updated_at: new Date().toISOString()
-                })
-                imported++
-              }
-            })
-            tx(files)
+          if (dCheck) {
+            dosyalar = db.prepare('SELECT * FROM dosyalar LIMIT 100').all()
           }
-        } catch (dbErr) {
-          console.error('Pull DB insert error:', dbErr)
+        } catch {
+          // fallback
         }
 
-        return {
-          success: true,
-          message: `${imported > 0 ? imported : files.length} kayıt buluttan başarıyla çekildi ve yerel veritabanına işlendi.`
+        const fullUrl = `${cleanUrl}/api/sync`
+
+        const res = await fetch(fullUrl, {
+          method: 'POST',
+          headers: {
+            Authorization: token ? `Bearer ${token}` : 'Bearer dta_desktop_client',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            action: 'push',
+            dosyalar,
+            syncedAt: new Date().toISOString()
+          })
+        })
+
+        if (res.ok) {
+          return { success: true, message: 'Veriler buluta başarıyla gönderildi.' }
         }
+        return { success: false, error: `Sunucu hatası: HTTP ${res.status}` }
+      } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : 'Push hatası'
+        return { success: false, error: msg }
       }
-      return { success: false, error: `Sunucu hatası: HTTP ${res.status}` }
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : 'Pull hatası'
-      return { success: false, error: msg }
     }
-  })
+  )
+
+  ipcMain.handle(
+    'sync:pull',
+    async (_, args?: { url?: string; port?: number | string; token?: string }) => {
+      try {
+        let url = args?.url
+        let token = args?.token
+        const port = args?.port
+
+        if (!url) {
+          try {
+            const db = workspaceManager.getDb()
+            const urlRow = db
+              .prepare("SELECT value FROM settings WHERE key = 'sync_server_url'")
+              .get() as { value?: string }
+            const tokenRow = db
+              .prepare("SELECT value FROM settings WHERE key = 'sync_server_token'")
+              .get() as { value?: string }
+            url = urlRow?.value
+            if (!token) token = tokenRow?.value
+          } catch {
+            // ignore
+          }
+        }
+
+        if (!url) return { success: false, error: 'Sunucu adresi tanımlı değil.' }
+        let cleanUrl = String(url).trim().replace(/\/+$/, '')
+        if (port && !cleanUrl.includes(':' + port)) {
+          cleanUrl = `${cleanUrl}:${port}`
+        }
+        const fullUrl = `${cleanUrl}/api/sync`
+
+        const res = await fetch(fullUrl, {
+          method: 'GET',
+          headers: {
+            Authorization: token ? `Bearer ${token}` : 'Bearer dta_desktop_client',
+            'Content-Type': 'application/json'
+          }
+        })
+
+        if (res.ok) {
+          const data = (await res.json().catch(() => ({}))) as {
+            dosyalar?: Array<{ id: string; title?: string; ad?: string; created_at?: string }>
+          }
+          const files = data.dosyalar || []
+          let imported = 0
+          try {
+            const db = workspaceManager.getDb()
+            const dCheck = db
+              .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='dosyalar'")
+              .get()
+            if (dCheck && files.length > 0) {
+              const insertStmt = db.prepare(`
+                INSERT OR REPLACE INTO dosyalar (id, title, created_at, updated_at)
+                VALUES (@id, @title, @created_at, @updated_at)
+              `)
+              const tx = db.transaction((arr) => {
+                for (const f of arr) {
+                  insertStmt.run({
+                    id: f.id,
+                    title: f.title || f.ad || 'İhale/Temin Dosyası',
+                    created_at: f.created_at || new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                  })
+                  imported++
+                }
+              })
+              tx(files)
+            }
+          } catch (dbErr) {
+            console.error('Pull DB insert error:', dbErr)
+          }
+
+          return {
+            success: true,
+            message: `${imported > 0 ? imported : files.length} kayıt buluttan başarıyla çekildi ve yerel veritabanına işlendi.`
+          }
+        }
+        return { success: false, error: `Sunucu hatası: HTTP ${res.status}` }
+      } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : 'Pull hatası'
+        return { success: false, error: msg }
+      }
+    }
+  )
 
   // ---------------- DETSİS DOĞRULAMA & CACHE MOTORU ----------------
   ipcMain.handle(
     'network:verify-detsis',
-    async (_, { detsisNo, force }: { detsisNo: string; force?: boolean }) => {
+    async (_, args?: { detsisNo?: string; force?: boolean }) => {
+      const detsisNo = args?.detsisNo
+      const force = args?.force
       if (!detsisNo || typeof detsisNo !== 'string') {
         return { success: false, verified: false, error: 'DETSİS numarası geçersiz.' }
       }

@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { useTabStore } from '../../store/tabStore'
 import { useWorkspaceStore } from '../../store/workspaceStore'
+import { useShallow } from 'zustand/react/shallow'
 import { cn } from '../../utils/cn'
 
 // Map of route paths to Lucide Icon components
@@ -47,8 +48,20 @@ const tabIcons: Record<string, LucideIcon> = {
 }
 
 export function TabsBar(): React.JSX.Element {
-  const { tabs, activeTabPath, closeTab, setActiveTab } = useTabStore()
-  const { activeFilePath, activeDosyaId } = useWorkspaceStore()
+  const { tabs, activeTabPath, closeTab, setActiveTab } = useTabStore(
+    useShallow((s) => ({
+      tabs: s.tabs,
+      activeTabPath: s.activeTabPath,
+      closeTab: s.closeTab,
+      setActiveTab: s.setActiveTab
+    }))
+  )
+  const { activeFilePath, activeDosyaId } = useWorkspaceStore(
+    useShallow((s) => ({
+      activeFilePath: s.activeFilePath,
+      activeDosyaId: s.activeDosyaId
+    }))
+  )
   const navigate = useNavigate()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 

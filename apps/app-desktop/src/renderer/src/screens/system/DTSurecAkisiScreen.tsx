@@ -62,7 +62,7 @@ export default function SurecAkisiScreen(): React.JSX.Element {
 
   return (
     <div className="w-full min-h-screen bg-slate-50 dark:bg-slate-900/60 p-6 animate-in fade-in duration-500 overflow-y-auto">
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="w-full space-y-6">
         {/* Header & Stats Banner */}
         <SurecAkisiHeader
           dosya={dosya}

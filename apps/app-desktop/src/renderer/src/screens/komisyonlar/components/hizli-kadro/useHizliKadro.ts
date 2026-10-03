@@ -79,6 +79,12 @@ export function useHizliKadro({
           )
           .catch(() => {})
         await window.electron.ipcRenderer
+          .invoke(
+            'db:run',
+            'ALTER TABLE TANIM_KomisyonUye ADD COLUMN hedef_belgeler TEXT DEFAULT \'["*"]\''
+          )
+          .catch(() => {})
+        await window.electron.ipcRenderer
           .invoke('db:run', 'ALTER TABLE DATA_TeminKomisyon ADD COLUMN komisyon_turu TEXT')
           .catch(() => {})
         await window.electron.ipcRenderer
@@ -93,6 +99,12 @@ export function useHizliKadro({
             "ALTER TABLE DATA_TeminKomisyon ADD COLUMN belge_kapsami TEXT DEFAULT 'tumu'"
           )
           .catch(() => {})
+        await window.electron.ipcRenderer
+          .invoke(
+            'db:run',
+            'ALTER TABLE DATA_TeminKomisyon ADD COLUMN hedef_belgeler TEXT DEFAULT \'["*"]\''
+          )
+          .catch(() => {})
       } catch {
         /* zaten mevcut */
       }
@@ -104,6 +116,7 @@ export function useHizliKadro({
           `SELECT u.id as db_id, u.komisyon_id, u.personel_id, u.gorev_id, u.asil_mi,
                   COALESCE(u.belgede_goster, 1) as belgede_goster,
                   COALESCE(u.belge_kapsami, 'tumu') as belge_kapsami,
+                  u.hedef_belgeler,
                   p.ad_soyad, p.unvan, g.ad as gorev_adi
            FROM TANIM_KomisyonUye u
            LEFT JOIN TANIM_Personel p ON u.personel_id = p.id
@@ -137,6 +150,17 @@ export function useHizliKadro({
           }
         }
 
+        const parseDocs = (raw: any): string[] => {
+          if (!raw) return []
+          if (Array.isArray(raw)) return raw
+          try {
+            const p = JSON.parse(raw)
+            return Array.isArray(p) ? p : []
+          } catch {
+            return []
+          }
+        }
+
         // 3. Birleştirme (Dosyaya özel veriler varsa onları, eksik kalan kadroları master'dan tamamla)
         let finalMembers: MemberRow[] = []
 
@@ -161,7 +185,8 @@ export function useHizliKadro({
               personelId: m.personel_id || null,
               asilMi: (m.rol || '').toLowerCase().includes('yedek') ? 0 : 1,
               belgedeGoster: scope !== 'gizli',
-              belgeKapsami: scope
+              belgeKapsami: scope,
+              hedefBelgeler: parseDocs(m.hedef_belgeler)
             }
           })
 
@@ -197,7 +222,8 @@ export function useHizliKadro({
               personelId: mPid,
               asilMi: m.asil_mi ?? 1,
               belgedeGoster: scope !== 'gizli',
-              belgeKapsami: scope
+              belgeKapsami: scope,
+              hedefBelgeler: parseDocs(m.hedef_belgeler)
             })
           }
           finalMembers = fileMapped
@@ -222,7 +248,8 @@ export function useHizliKadro({
               personelId: m.personel_id || null,
               asilMi: m.asil_mi ?? 1,
               belgedeGoster: scope !== 'gizli',
-              belgeKapsami: scope
+              belgeKapsami: scope,
+              hedefBelgeler: parseDocs(m.hedef_belgeler)
             }
           })
         } else {
@@ -237,7 +264,8 @@ export function useHizliKadro({
             personelId: null,
             asilMi: t.asil,
             belgedeGoster: t.belgedeGoster,
-            belgeKapsami: t.belgeKapsami || (t.belgedeGoster ? 'tumu' : 'gizli')
+            belgeKapsami: t.belgeKapsami || (t.belgedeGoster ? 'tumu' : 'gizli'),
+            hedefBelgeler: []
           }))
         }
 
@@ -306,6 +334,21 @@ export function useHizliKadro({
     )
   }
 
+  const handleChangeHedefBelgeler = (rowId: string | number, docs: string[]) => {
+    setRows((prev) =>
+      prev.map((r) =>
+        r.id === rowId
+          ? {
+              ...r,
+              belgeKapsami: 'ozel',
+              hedefBelgeler: docs,
+              belgedeGoster: docs.length > 0
+            }
+          : r
+      )
+    )
+  }
+
   const handleToggleBelgedeGoster = (rowId: string | number) => {
     setRows((prev) =>
       prev.map((r) => {
@@ -334,7 +377,8 @@ export function useHizliKadro({
         personelId: rows[idx]?.personelId || null,
         asilMi: t.asil,
         belgedeGoster: t.belgedeGoster,
-        belgeKapsami: t.belgeKapsami || (t.belgedeGoster ? 'tumu' : 'gizli')
+        belgeKapsami: t.belgeKapsami || (t.belgedeGoster ? 'tumu' : 'gizli'),
+        hedefBelgeler: []
       }
     })
     setRows(newRows)
@@ -352,6 +396,10 @@ export function useHizliKadro({
         await window.electron.ipcRenderer.invoke(
           'db:run',
           "ALTER TABLE TANIM_KomisyonUye ADD COLUMN belge_kapsami TEXT DEFAULT 'tumu'"
+        )
+        await window.electron.ipcRenderer.invoke(
+          'db:run',
+          'ALTER TABLE TANIM_KomisyonUye ADD COLUMN hedef_belgeler TEXT DEFAULT \'["*"]\''
         )
       } catch {
         /* zaten mevcut */
@@ -376,7 +424,7 @@ export function useHizliKadro({
         }
       }
 
-      // TANIM_KomisyonUye - belgede_goster & belge_kapsami dahil kaydet
+      // TANIM_KomisyonUye - belgede_goster, belge_kapsami & hedef_belgeler dahil kaydet
       await window.electron.ipcRenderer.invoke(
         'db:run',
         'DELETE FROM TANIM_KomisyonUye WHERE komisyon_id = ?',
@@ -386,9 +434,10 @@ export function useHizliKadro({
       for (let i = 0; i < rows.length; i++) {
         const r = rows[i]
         const isShow = r.belgeKapsami !== 'gizli' && r.belgedeGoster
+        const hedefJson = JSON.stringify(r.hedefBelgeler && r.hedefBelgeler.length > 0 ? r.hedefBelgeler : ['*'])
         await window.electron.ipcRenderer.invoke(
           'db:run',
-          'INSERT INTO TANIM_KomisyonUye (komisyon_id, gorev_id, personel_id, asil_mi, sira, belgede_goster, belge_kapsami) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          'INSERT INTO TANIM_KomisyonUye (komisyon_id, gorev_id, personel_id, asil_mi, sira, belgede_goster, belge_kapsami, hedef_belgeler) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
           [
             komisyonId,
             r.gorevId || 1,
@@ -396,12 +445,13 @@ export function useHizliKadro({
             r.asilMi,
             i + 1,
             isShow ? 1 : 0,
-            r.belgeKapsami || (isShow ? 'tumu' : 'gizli')
+            r.belgeKapsami || (isShow ? 'tumu' : 'gizli'),
+            hedefJson
           ]
         )
       }
 
-      // Aktif dosyaya senkronize et (belgede_goster & belge_kapsami dahil)
+      // Aktif dosyaya senkronize et (belgede_goster, belge_kapsami & hedef_belgeler dahil)
       if (syncToActiveFile && activeDosyaId) {
         const lower = komisyonAdi.toLowerCase()
         const isMaliyet = lower.includes('maliyet') || lower.includes('fiyat') || komisyonId === 1
@@ -420,6 +470,12 @@ export function useHizliKadro({
             .invoke(
               'db:run',
               "ALTER TABLE DATA_TeminKomisyon ADD COLUMN belge_kapsami TEXT DEFAULT 'tumu'"
+            )
+            .catch(() => {})
+          await window.electron.ipcRenderer
+            .invoke(
+              'db:run',
+              'ALTER TABLE DATA_TeminKomisyon ADD COLUMN hedef_belgeler TEXT DEFAULT \'["*"]\''
             )
             .catch(() => {})
         } catch {
@@ -447,11 +503,12 @@ export function useHizliKadro({
                     ? 'Başkan'
                     : 'Üye'
               const isShow = r.belgeKapsami !== 'gizli' && r.belgedeGoster
+              const hedefJson = JSON.stringify(r.hedefBelgeler && r.hedefBelgeler.length > 0 ? r.hedefBelgeler : ['*'])
               await window.electron.ipcRenderer.invoke(
                 'db:run',
                 `INSERT INTO DATA_TeminKomisyon 
-                 (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu, belgede_goster, belge_kapsami)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                 (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu, belgede_goster, belge_kapsami, hedef_belgeler)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                   activeDosyaId,
                   komisyonId,
@@ -462,7 +519,8 @@ export function useHizliKadro({
                   rol,
                   komisyonAdi,
                   isShow ? 1 : 0,
-                  r.belgeKapsami || (isShow ? 'tumu' : 'gizli')
+                  r.belgeKapsami || (isShow ? 'tumu' : 'gizli'),
+                  hedefJson
                 ]
               )
             }
@@ -510,6 +568,7 @@ export function useHizliKadro({
     handleSelectGorev,
     handleToggleAsil,
     handleChangeBelgeKapsami,
+    handleChangeHedefBelgeler,
     handleToggleBelgedeGoster,
     handleLoadStandardTemplate,
     saveMutation

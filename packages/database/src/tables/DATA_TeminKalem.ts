@@ -20,6 +20,7 @@ export const DATA_TeminKalem = {
       type: 'INTEGER',
       description: 'Geriye dönük uyumluluk için temin_dosya_id alias'
     },
+    { name: 'sira_no', type: 'INTEGER', description: 'Kalem Sıra No' },
     { name: 'barkod_id', type: 'TEXT', description: 'Barkod ID' },
     { name: 'tasinir_kodu', type: 'TEXT', description: 'Taşınır Kodu' },
     { name: 'okas_kodu', type: 'TEXT', description: 'OKAS Kodu' },

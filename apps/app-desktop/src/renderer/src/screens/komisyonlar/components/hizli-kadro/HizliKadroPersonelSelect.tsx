@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Check, ChevronDown, Search, UserPlus, X } from 'lucide-react'
 import { PersonelItem } from './types'
 
@@ -24,6 +24,19 @@ export const HizliKadroPersonelSelect: React.FC<HizliKadroPersonelSelectProps> =
   onSelectPersonel,
   personeller
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!isOpen) return
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        onToggleOpen()
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isOpen, onToggleOpen])
+
   const filteredPersoneller = personeller.filter(
     (p) =>
       p.ad_soyad.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -31,21 +44,21 @@ export const HizliKadroPersonelSelect: React.FC<HizliKadroPersonelSelectProps> =
   )
 
   return (
-    <div className="relative">
+    <div ref={containerRef} className={`relative ${isOpen ? 'z-50' : 'z-auto'}`}>
       <div
         onClick={onToggleOpen}
-        className={`flex items-center justify-between px-3 py-2 bg-slate-50 dark:bg-slate-955 border rounded-xl text-xs font-medium cursor-pointer transition-all ${
+        className={`flex items-center justify-between px-3 py-2 bg-white dark:bg-slate-900 border rounded-xl text-xs font-medium cursor-pointer transition-all shadow-sm ${
           isOpen
-            ? 'border-blue-500 ring-2 ring-blue-500/10'
+            ? 'border-blue-500 ring-2 ring-blue-500/20'
             : assignedPerson
-              ? 'border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100'
+              ? 'border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300'
               : 'border-dashed border-slate-300 dark:border-slate-700 text-slate-400 hover:border-blue-400'
         }`}
       >
         <div className="flex items-center gap-2 truncate">
           {assignedPerson ? (
             <>
-              <div className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 flex items-center justify-center text-[9px] font-bold shrink-0">
+              <div className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 flex items-center justify-center text-[9px] font-bold shrink-0">
                 {assignedPerson.ad_soyad.substring(0, 2).toUpperCase()}
               </div>
               <div className="truncate">
@@ -61,7 +74,7 @@ export const HizliKadroPersonelSelect: React.FC<HizliKadroPersonelSelectProps> =
             </>
           ) : (
             <span className="flex items-center gap-1.5 text-slate-400 italic">
-              <UserPlus className="w-3 h-3" /> Personel Seçiniz...
+              <UserPlus className="w-3.5 h-3.5 text-slate-400" /> Personel Seçiniz...
             </span>
           )}
         </div>
@@ -69,7 +82,7 @@ export const HizliKadroPersonelSelect: React.FC<HizliKadroPersonelSelectProps> =
       </div>
 
       {isOpen && (
-        <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-2 max-h-56 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl p-2.5 max-h-60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150 ring-1 ring-black/5">
           <div className="relative mb-2">
             <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
@@ -78,7 +91,7 @@ export const HizliKadroPersonelSelect: React.FC<HizliKadroPersonelSelectProps> =
               placeholder="Personel ara..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:border-blue-500 text-slate-800 dark:text-slate-200"
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200"
             />
           </div>
           <div className="overflow-y-auto flex-1 custom-scrollbar divide-y divide-slate-100 dark:divide-slate-800/50">

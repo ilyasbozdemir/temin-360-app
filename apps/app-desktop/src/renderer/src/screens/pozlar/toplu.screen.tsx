@@ -20,7 +20,6 @@ import {
   Upload
 } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
-import * as XLSX from 'xlsx'
 import { PozItem, usePozlarHooks } from './pozlar.hooks'
 import { APP_ROUTES } from '../../constants/routeConstants'
 import { Button } from '../../components/ui/Button'
@@ -196,7 +195,7 @@ export default function TopluPozEkleScreen(): React.JSX.Element {
   }
 
   // Excel Şablon İndirme
-  const handleDownloadExcelTemplate = () => {
+  const handleDownloadExcelTemplate = async () => {
     const templateData = [
       {
         'Poz No (*)': '15.110.1001',
@@ -231,6 +230,7 @@ export default function TopluPozEkleScreen(): React.JSX.Element {
       }
     ]
 
+    const XLSX = await import('xlsx')
     const ws = XLSX.utils.json_to_sheet(templateData)
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Birim_Fiyat_Pozlari')
@@ -244,8 +244,9 @@ export default function TopluPozEkleScreen(): React.JSX.Element {
     if (!file) return
 
     const reader = new FileReader()
-    reader.onload = (evt) => {
+    reader.onload = async (evt) => {
       try {
+        const XLSX = await import('xlsx')
         const bstr = evt.target?.result
         const wb = XLSX.read(bstr, { type: 'binary' })
         const wsname = wb.SheetNames[0]

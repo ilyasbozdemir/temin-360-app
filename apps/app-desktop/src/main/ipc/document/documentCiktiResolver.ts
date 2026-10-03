@@ -374,6 +374,31 @@ export function resolveAllCiktiData(
       activeDosya?.konu ||
       'HARCAMA BİRİMİ'
 
+    let parsedPref: any = {}
+    if (activeDosya?.sablon_tercihleri) {
+      try {
+        parsedPref =
+          typeof activeDosya.sablon_tercihleri === 'string'
+            ? JSON.parse(activeDosya.sablon_tercihleri)
+            : activeDosya.sablon_tercihleri
+      } catch {}
+    }
+    const firstTutanak =
+      Array.isArray(parsedPref?.kabulTutanaklari) && parsedPref.kabulTutanaklari.length > 0
+        ? parsedPref.kabulTutanaklari[0]
+        : null
+
+    const resolvedFaturaNo = activeDosya?.fatura_no || firstTutanak?.faturaNo || ''
+    const resolvedFaturaTarihi = activeDosya?.fatura_tarihi || firstTutanak?.faturaTarihi || ''
+    const resolvedIrsaliyeNo = firstTutanak?.irsaliyeNo || ''
+    const resolvedIrsaliyeTarihi = firstTutanak?.irsaliyeTarihi || ''
+    const resolvedTutanakNo = firstTutanak?.tutanakNo || activeDosya?.temin_no || ''
+    const resolvedTutanakTarihi =
+      firstTutanak?.tutanakTarihi ||
+      activeDosya?.teslim_tarihi ||
+      activeDosya?.temin_tarihi ||
+      ''
+
     const dosyaContext: any = {
       ...masterJson,
       kurumAdi,
@@ -403,10 +428,22 @@ export function resolveAllCiktiData(
       dosyaTarihi: activeDosya?.tarih || new Date().toLocaleDateString('tr-TR'),
       kararNo: activeDosya?.karar_no || '',
       karar_no: activeDosya?.karar_no || '',
-      faturaNo: activeDosya?.fatura_no || '',
-      fatura_no: activeDosya?.fatura_no || '',
-      faturaTarihi: activeDosya?.fatura_tarihi || '',
-      fatura_tarihi: activeDosya?.fatura_tarihi || '',
+      faturaNo: resolvedFaturaNo,
+      fatura_no: resolvedFaturaNo,
+      faturaTarihi: resolvedFaturaTarihi,
+      fatura_tarihi: resolvedFaturaTarihi,
+      irsaliyeNo: resolvedIrsaliyeNo,
+      irsaliye_no: resolvedIrsaliyeNo,
+      irsaliyeTarihi: resolvedIrsaliyeTarihi,
+      irsaliye_tarihi: resolvedIrsaliyeTarihi,
+      tutanakNo: resolvedTutanakNo,
+      tutanak_no: resolvedTutanakNo,
+      tutanakTarihi: resolvedTutanakTarihi,
+      tutanak_tarihi: resolvedTutanakTarihi,
+      kabulTarihi: resolvedTutanakTarihi,
+      kabul_tarihi: resolvedTutanakTarihi,
+      tutanakNotu: firstTutanak?.notlar || '',
+      tutanak_notu: firstTutanak?.notlar || '',
       yaklasikMaliyet: activeDosya?.yaklasik_maliyet
         ? Number(activeDosya.yaklasik_maliyet).toLocaleString('tr-TR', {
             minimumFractionDigits: 2,
