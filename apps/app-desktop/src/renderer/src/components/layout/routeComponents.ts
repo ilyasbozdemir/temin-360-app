@@ -1,113 +1,101 @@
 import React from 'react'
-import DashboardScreen from '../../screens/dashboard/index2.screen'
-import DosyalarScreen from '../../screens/dosyalar/index.screen'
-import FirmalarScreen from '../../screens/firmalar/index.screen'
-import PersonelScreen from '../../screens/personel/index.screen'
-import { MevzuatScreen } from '../../screens/system/MevzuatScreen'
-import ChangelogScreen from '../../screens/system/ChangelogScreen'
-import ImportScreen from '../../screens/system/ImportScreen'
-import HizliDosyaEkleScreen from '../../screens/system/HizliDosyaEkle.screen'
-import HarcamaMerkeziScreen from '../../screens/dashboard/HarcamaMerkeziScreen'
-import YardimScreen from '../../screens/system/YardimScreen'
-import AyarlarScreen from '../../screens/ayarlar/index.screen'
-import TemaScreen from '../../screens/ayarlar/TemaScreen'
-import BirimlerScreen from '../../screens/birimler/index.screen'
-import AmbarScreen from '../../screens/ambar/index.screen'
-import MalzemelerScreen from '../../screens/malzemeler/index.screen'
-import TasinirKodScreen from '../../screens/tasinirkod/index.screen'
-import KurumScreen from '../../screens/kurum/index.screen'
-import ProfilScreen from '../../screens/profil/index.screen'
+import { lazyRoute } from '../../utils/lazyRoute'
 
-import SablonlarScreen from '../../screens/sablonlar/index.screen'
-import FormBuilderScreen from '../../screens/sablonlar/formBuilder.screen'
-import DegiskenlerScreen from '../../screens/sablonlar/degiskenler.screen'
-import RaporlarScreen from '../../screens/raporlar/index.screen'
-import OkasKodScreen from '../../screens/okaskod/index.screen'
-import ButceKodScreen from '../../screens/butcekod/index.screen'
-import PozlarScreen from '../../screens/pozlar/index.screen'
-import YeniPozScreen from '../../screens/pozlar/yeni.screen'
-import PozDetayScreen from '../../screens/pozlar/detay.screen'
-import TopluPozEkleScreen from '../../screens/pozlar/toplu.screen'
-import OlcuBirimleriScreen from '../../screens/olcubirimleri/index.screen'
-import YeniMalzemeScreen from '../../screens/malzemeler/yeni.screen'
-import YeniDosyaScreen from '../../screens/dosyalar/yeni.screen'
-import DosyaDataInspectorScreen from '../../screens/dosyalar/DosyaDataInspectorScreen'
-import KomisyonlarScreen from '../../screens/komisyonlar/index.screen'
-import KomisyonDetayScreen from '../../screens/komisyonlar/detay.screen'
-import KomisyonGorevleriScreen from '../../screens/komisyon-gorevleri/index.screen'
-import { TakipScreen } from '../../screens/system/TakipScreen'
-import {
-  HazirlikVeIhtiyac,
-  PiyasaFiyatArastirmasi,
-  SiparisVeSozlesme,
-  KabulVeOdeme,
-  KlasorVeKapaklar,
-  YaklasikMaliyetCetveli,
-  CiktiMerkeziScreen,
-  DatabaseBrowserScreen
-} from '../../screens/dosya/SubScreens.screen'
-
-import TaslakYoneticisi from '../../screens/system/TaslakYoneticisi'
-import DTSurecAkisiScreen from '../../screens/system/DTSurecAkisiScreen'
-import NotlarVeGorevlerScreen from '../../screens/notlar/index.screen'
-import ProjelerScreen from '../../screens/projeler/index.screen'
-import DevletIhale2886Screen from '../../screens/devlet-ihale-2886/index.screen'
-import HesaplamaAraclariScreen from '../../screens/araclar/HesaplamaAraclariScreen'
-
-export const routeComponents: Record<string, React.ComponentType> = {
-  '/': DashboardScreen,
-  '/projeler': ProjelerScreen,
-  '/hesaplama-araclari': HesaplamaAraclariScreen,
-  '/dosyalar': DosyalarScreen,
-  '/dosyalar/yeni': YeniDosyaScreen,
-  '/dosyalar/manage': YeniDosyaScreen,
-  '/devlet-ihale-2886': DevletIhale2886Screen,
-  '/firmalar': FirmalarScreen,
-  '/personel': PersonelScreen,
-  '/sablonlar': SablonlarScreen,
-  '/form-builder': FormBuilderScreen,
-  '/degiskenler': DegiskenlerScreen,
-  '/komisyonlar': KomisyonlarScreen,
-  '/komisyonlar/detay': KomisyonDetayScreen,
-  '/komisyon-gorevleri': KomisyonGorevleriScreen,
-  '/takip': TakipScreen,
-  '/taslakyonetim': TaslakYoneticisi,
-  '/raporlar': RaporlarScreen,
-  '/okaskod': OkasKodScreen,
-  '/butcekod': ButceKodScreen,
-  '/pozlar': PozlarScreen,
-  '/pozlar/yeni': YeniPozScreen,
-  '/pozlar/detay': PozDetayScreen,
-  '/pozlar/toplu': TopluPozEkleScreen,
-  '/mevzuat': MevzuatScreen,
-  '/changelog': ChangelogScreen,
-  '/import': ImportScreen,
-  '/hizli-dosya-ekle': HizliDosyaEkleScreen,
-  '/ayarlar': AyarlarScreen,
-  '/tema': TemaScreen,
-  '/birimler': BirimlerScreen,
-  '/ambar': AmbarScreen,
-  '/malzemeler': MalzemelerScreen,
-  '/tasinirkod': TasinirKodScreen,
-  '/kurum': KurumScreen,
-  '/profil': ProfilScreen,
-  '/dosya/kunye': DosyaDataInspectorScreen,
-  '/dosya': TakipScreen,
-  '/dosya/hazirlik-ve-ihtiyac': HazirlikVeIhtiyac,
-  '/dosya/piyasa-fiyat-arastirmasi': PiyasaFiyatArastirmasi,
-  '/dosya/siparis-ve-sozlesme': SiparisVeSozlesme,
-  '/dosya/kabul-ve-odeme': KabulVeOdeme,
-  '/dosya/klasor-ve-kapaklar': KlasorVeKapaklar,
-  '/dosya/firmalar-maliyet/yaklasik': YaklasikMaliyetCetveli,
-  '/dosya/cikti-merkezi': CiktiMerkeziScreen,
-  '/dosya/veritabani': DatabaseBrowserScreen,
-  '/cikti-merkezi': CiktiMerkeziScreen,
-  '/olcubirimleri': OlcuBirimleriScreen,
-  '/malzemeler/yeni': YeniMalzemeScreen,
-  '/hakedis': HarcamaMerkeziScreen,
-  '/notlar': NotlarVeGorevlerScreen,
-  '/harcama-merkezi': HarcamaMerkeziScreen,
-  '/dt-surec-akisi': DTSurecAkisiScreen,
-  '/surec-akisi': DTSurecAkisiScreen,
-  '/yardim': YardimScreen
+export const routeComponents: Record<string, () => React.ReactElement> = {
+  '/': lazyRoute(() => import('../../screens/dashboard/index2.screen')),
+  '/projeler': lazyRoute(() => import('../../screens/projeler/index.screen')),
+  '/hesaplama-araclari': lazyRoute(() => import('../../screens/araclar/HesaplamaAraclariScreen')),
+  '/dosyalar': lazyRoute(() => import('../../screens/dosyalar/index.screen')),
+  '/dosyalar/yeni': lazyRoute(
+    () => import('../../screens/dosyalar/manage.screen'),
+    'DosyaManageScreen'
+  ),
+  '/dosyalar/manage': lazyRoute(
+    () => import('../../screens/dosyalar/manage.screen'),
+    'DosyaManageScreen'
+  ),
+  '/devlet-ihale-2886': lazyRoute(() => import('../../screens/devlet-ihale-2886/index.screen')),
+  '/firmalar': lazyRoute(() => import('../../screens/firmalar/index.screen')),
+  '/personel': lazyRoute(() => import('../../screens/kurum/index.screen')),
+  '/sablonlar': lazyRoute(() => import('../../screens/sablonlar/index.screen')),
+  '/form-builder': lazyRoute(() => import('../../screens/sablonlar/formBuilder.screen')),
+  '/degiskenler': lazyRoute(() => import('../../screens/sablonlar/degiskenler.screen')),
+  '/komisyonlar': lazyRoute(() => import('../../screens/kurum/index.screen')),
+  '/komisyonlar/detay': lazyRoute(() => import('../../screens/komisyonlar/detay.screen')),
+  '/komisyon-gorevleri': lazyRoute(() => import('../../screens/kurum/index.screen')),
+  '/takip': lazyRoute(() => import('../../screens/system/TakipScreen'), 'TakipScreen'),
+  '/taslakyonetim': lazyRoute(() => import('../../screens/system/TaslakYoneticisi')),
+  '/raporlar': lazyRoute(() => import('../../screens/raporlar/index.screen')),
+  '/okaskod': lazyRoute(() => import('../../screens/okaskod/index.screen')),
+  '/butcekod': lazyRoute(() => import('../../screens/butcekod/index.screen')),
+  '/pozlar': lazyRoute(() => import('../../screens/pozlar/index.screen')),
+  '/pozlar/yeni': lazyRoute(() => import('../../screens/pozlar/yeni.screen')),
+  '/pozlar/detay': lazyRoute(() => import('../../screens/pozlar/detay.screen')),
+  '/pozlar/toplu': lazyRoute(() => import('../../screens/pozlar/toplu.screen')),
+  '/mevzuat': lazyRoute(() => import('../../screens/system/MevzuatScreen'), 'MevzuatScreen'),
+  '/changelog': lazyRoute(() => import('../../screens/system/ChangelogScreen')),
+  '/import': lazyRoute(() => import('../../screens/system/ImportScreen')),
+  '/hizli-dosya-ekle': lazyRoute(() => import('../../screens/system/HizliDosyaEkle.screen')),
+  '/ayarlar': lazyRoute(() => import('../../screens/ayarlar/index.screen')),
+  '/tema': lazyRoute(() => import('../../screens/ayarlar/TemaScreen')),
+  '/birimler': lazyRoute(() => import('../../screens/kurum/index.screen')),
+  '/ambar': lazyRoute(() => import('../../screens/ambar/index.screen')),
+  '/malzemeler': lazyRoute(() => import('../../screens/malzemeler/index.screen')),
+  '/tasinirkod': lazyRoute(() => import('../../screens/tasinirkod/index.screen')),
+  '/kurum': lazyRoute(() => import('../../screens/kurum/index.screen')),
+  '/profil': lazyRoute(() => import('../../screens/profil/index.screen')),
+  '/dosya/kunye': lazyRoute(() => import('../../screens/dosyalar/DosyaDataInspectorScreen')),
+  '/dosya': lazyRoute(() => import('../../screens/system/TakipScreen'), 'TakipScreen'),
+  '/dosya/hazirlik-ve-ihtiyac': lazyRoute(
+    () => import('../../screens/dosya/SubScreens.screen'),
+    'HazirlikVeIhtiyac'
+  ),
+  '/dosya/piyasa-fiyat-arastirmasi': lazyRoute(
+    () => import('../../screens/dosya/SubScreens.screen'),
+    'PiyasaFiyatArastirmasi'
+  ),
+  '/dosya/siparis-ve-sozlesme': lazyRoute(
+    () => import('../../screens/dosya/SubScreens.screen'),
+    'SiparisVeSozlesme'
+  ),
+  '/dosya/kabul-ve-odeme': lazyRoute(
+    () => import('../../screens/dosya/SubScreens.screen'),
+    'KabulVeOdeme'
+  ),
+  '/dosya/klasor-ve-kapaklar': lazyRoute(
+    () => import('../../screens/dosya/SubScreens.screen'),
+    'KlasorVeKapaklar'
+  ),
+  '/dosya/firmalar-maliyet/yaklasik': lazyRoute(
+    () => import('../../screens/dosya/SubScreens.screen'),
+    'YaklasikMaliyetCetveli'
+  ),
+  '/dosya/cikti-merkezi': lazyRoute(
+    () => import('../../screens/dosya/CiktiMerkezi.screen'),
+    'CiktiMerkeziScreen'
+  ),
+  '/dosya/veritabani': lazyRoute(
+    () => import('../../screens/dosya/SubScreens.screen'),
+    'DatabaseBrowserScreen'
+  ),
+  '/cikti-merkezi': lazyRoute(
+    () => import('../../screens/dosya/CiktiMerkezi.screen'),
+    'CiktiMerkeziScreen'
+  ),
+  '/dosya/fatura-ve-irsaliye': lazyRoute(
+    () => import('../../screens/dosya/SubScreens.screen'),
+    'FaturaVeIrsaliye'
+  ),
+  '/dosya/imzali-belgeler': lazyRoute(
+    () => import('../../screens/dosya/SubScreens.screen'),
+    'ImzaliBelgeler'
+  ),
+  '/olcubirimleri': lazyRoute(() => import('../../screens/olcubirimleri/index.screen')),
+  '/malzemeler/yeni': lazyRoute(() => import('../../screens/malzemeler/yeni.screen')),
+  '/hakedis': lazyRoute(() => import('../../screens/dashboard/HarcamaMerkeziScreen')),
+  '/notlar': lazyRoute(() => import('../../screens/notlar/index.screen')),
+  '/harcama-merkezi': lazyRoute(() => import('../../screens/dashboard/HarcamaMerkeziScreen')),
+  '/dt-surec-akisi': lazyRoute(() => import('../../screens/system/DTSurecAkisiScreen')),
+  '/surec-akisi': lazyRoute(() => import('../../screens/system/DTSurecAkisiScreen')),
+  '/yardim': lazyRoute(() => import('../../screens/system/YardimScreen'))
 }

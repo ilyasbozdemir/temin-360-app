@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, Suspense, lazy } from 'react'
 import { Info, Wifi } from 'lucide-react'
 import packageJson from '../../../../../package.json'
-import { NetworkSyncModal } from '../network/NetworkSyncModal'
-import { AboutModal } from '../ui/AboutModal'
 import { useWorkspaceStore } from '../../store/workspaceStore'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useTabStore } from '../../store/tabStore'
 import { useShallow } from 'zustand/react/shallow'
 import { GoogleDriveFooterWidget } from './GoogleDriveFooterWidget'
 
-import locData from '../../generated-loc.json'
+const AboutModal = lazy(() => import('../ui/AboutModal').then((m) => ({ default: m.AboutModal })))
+const NetworkSyncModal = lazy(() =>
+  import('../network/NetworkSyncModal').then((m) => ({ default: m.NetworkSyncModal }))
+)
 
 export function Footer(): React.JSX.Element {
   const { activeMeta, activeDosyaId, fileName } = useWorkspaceStore(

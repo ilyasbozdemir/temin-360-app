@@ -11,15 +11,24 @@ import { useSettingsStore } from '../../store/settingsStore'
 import { normalizePath, useTabStore } from '../../store/tabStore'
 import LauncherScreen from '../../screens/launcher/index.screen'
 import LockScreen from './LockScreen'
-import { DisclaimerModal } from '../modals/DisclaimerModal'
 import { routeComponents } from './routeComponents'
 import { FindInPage } from './FindInPage'
 import { WorkspaceCloseModal } from './WorkspaceCloseModal'
 import { ShutdownOverlay } from './ShutdownOverlay'
-import { GoogleDriveModal } from '../ui/GoogleDriveModal'
 import { GlobalDocumentPreviewHost } from './GlobalDocumentPreviewHost'
-import { FormatUpgradeModal } from '../modals/FormatUpgradeModal'
-import { SayiyiYaziyaCevirModal } from '../modals/SayiyiYaziyaCevirModal'
+
+const DisclaimerModal = React.lazy(() =>
+  import('../modals/DisclaimerModal').then((m) => ({ default: m.DisclaimerModal }))
+)
+const GoogleDriveModal = React.lazy(() =>
+  import('../ui/GoogleDriveModal').then((m) => ({ default: m.GoogleDriveModal }))
+)
+const FormatUpgradeModal = React.lazy(() =>
+  import('../modals/FormatUpgradeModal').then((m) => ({ default: m.FormatUpgradeModal }))
+)
+const SayiyiYaziyaCevirModal = React.lazy(() =>
+  import('../modals/SayiyiYaziyaCevirModal').then((m) => ({ default: m.SayiyiYaziyaCevirModal }))
+)
 
 import { useDocumentTitle } from './hooks/useDocumentTitle'
 import { useGlobalInteractivityGuard } from './hooks/useGlobalInteractivityGuard'

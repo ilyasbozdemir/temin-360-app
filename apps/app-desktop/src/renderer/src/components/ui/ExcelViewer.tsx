@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import * as XLSX from 'xlsx'
 import { FileSpreadsheet, Loader2 } from 'lucide-react'
 
 interface ExcelViewerProps {
@@ -10,7 +9,7 @@ export function ExcelViewer({ fileUrl }: ExcelViewerProps): React.JSX.Element {
   const [data, setData] = useState<any[]>([])
   const [sheetNames, setSheetNames] = useState<string[]>([])
   const [activeSheet, setActiveSheet] = useState<string>('')
-  const [workbook, setWorkbook] = useState<XLSX.WorkBook | null>(null)
+  const [workbook, setWorkbook] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -20,7 +19,7 @@ export function ExcelViewer({ fileUrl }: ExcelViewerProps): React.JSX.Element {
       setLoading(true)
       setError('')
       try {
-        const res = await fetch(fileUrl)
+        const [res, XLSX] = await Promise.all([fetch(fileUrl), import('xlsx')])
         if (!res.ok) throw new Error('Dosya okunamadı.')
         const arrayBuffer = await res.arrayBuffer()
         const wb = XLSX.read(arrayBuffer, { type: 'array' })
@@ -49,9 +48,10 @@ export function ExcelViewer({ fileUrl }: ExcelViewerProps): React.JSX.Element {
     }
   }, [fileUrl])
 
-  const handleSheetChange = (name: string) => {
+  const handleSheetChange = async (name: string) => {
     if (!workbook) return
     setActiveSheet(name)
+    const XLSX = await import('xlsx')
     const rows = XLSX.utils.sheet_to_json(workbook.Sheets[name], { header: 1, defval: '' })
     setData(rows)
   }
@@ -80,7 +80,7 @@ export function ExcelViewer({ fileUrl }: ExcelViewerProps): React.JSX.Element {
   }
 
   return (
-    <div className="flex flex-col w-full h-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+    <div className="flex flex-col w-full h-full bg-white dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
       {/* Tabs */}
       {sheetNames.length > 1 && (
         <div className="flex flex-none overflow-x-auto border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 custom-scrollbar">
@@ -101,7 +101,7 @@ export function ExcelViewer({ fileUrl }: ExcelViewerProps): React.JSX.Element {
       )}
 
       {/* Grid */}
-      <div className="flex-1 overflow-auto custom-scrollbar bg-slate-50 dark:bg-slate-950">
+      <div className="flex-1 overflow-auto custom-scrollbar bg-slate-50 dark:bg-slate-955">
         {data.length > 0 ? (
           <table className="w-full text-left border-collapse min-w-max">
             <tbody>
