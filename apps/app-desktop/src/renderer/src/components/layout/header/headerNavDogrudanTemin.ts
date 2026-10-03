@@ -29,6 +29,10 @@ export function getDogrudanTeminMenus(
         {
           label: 'Süreç Akış Haritası (Beta)',
           onClick: (): Promise<void> => navigate({ to: '/surec-akisi' })
+        },
+        {
+          label: '📊 Harcama & Sayıştay Raporları',
+          onClick: (): Promise<void> => navigate({ to: '/raporlar' })
         }
       ]
     },
