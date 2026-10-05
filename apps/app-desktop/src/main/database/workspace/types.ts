@@ -12,6 +12,7 @@ export interface WorkspaceMeta {
   file_version: number
   active_db_file?: string
   updated_at?: string
+  last_user_mutation_at?: string
   integrity_hash?: string
   warnings?: string[]
 }
@@ -52,6 +53,7 @@ export function normalizeMeta(raw: any): WorkspaceMeta {
     file_version: raw.file_version || parseInt(raw.fileVersion || '1', 10) || 1,
     active_db_file: raw.active_db_file || 'database.sqlite',
     updated_at: raw.updated_at || raw.updatedAt || new Date().toISOString(),
+    last_user_mutation_at: raw.last_user_mutation_at || raw.lastUserMutationAt || raw.updated_at || new Date().toISOString(),
     integrity_hash: raw.integrity_hash,
     warnings: []
   }

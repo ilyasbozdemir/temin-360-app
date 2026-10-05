@@ -136,17 +136,24 @@ export class DtmWorkspace {
       if (!allowMigration) {
         const pendingUpdates = getPendingMigrations(fromVersion)
         if (pendingUpdates.length > 0) {
-          const payload = JSON.stringify({ requiresMigration: true, pendingUpdates })
+          const payload = JSON.stringify({
+            requiresMigration: true,
+            pendingUpdates,
+            last_user_mutation_at: meta.last_user_mutation_at
+          })
           throw new Error(`MIGRATION_REQUIRED|${payload}`)
         }
       }
       const dbFileName = meta.active_db_file || 'database.sqlite'
       const dbPath = path.join(this.tempDir, dbFileName)
       this.db = new Database(dbPath)
+      const previousUserMutationAt = meta.last_user_mutation_at
       runMigrations(this.db, fromVersion, null as any)
       ensureSchemaIntegrity(this.db)
       meta.schema_version = CURRENT_SCHEMA_VERSION
       meta.updated_at = new Date().toISOString()
+      // Schema migration does NOT alter user mutation timestamp!
+      meta.last_user_mutation_at = previousUserMutationAt
       meta.integrity_hash = calculateIntegrityHash(meta)
       fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2))
       this.saveWorkspace()
@@ -354,6 +361,10 @@ export class DtmWorkspace {
     }
     this.userMutationCount += count
     this.isDirty = true
+    const nowIso = new Date().toISOString()
+    if (this.meta) {
+      this.meta.last_user_mutation_at = nowIso
+    }
     this.lastMutationTime = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
     const act = (action as 'insert' | 'update' | 'delete' | 'other') || 'other'
     const key = `${table}_${act}`
