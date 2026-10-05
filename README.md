@@ -68,17 +68,15 @@ Sistemdeki tüm resmi evrak ve tutanak şablonları açık kaynaklı ve modüler
 
 ---
 
-## ⚖️ 4734 Sayılı Kanun Usul ve Bütçe Karar Matrisi
+## ⚖️ 4734 Sayılı Kanun Usul ve Bütçe Karar Matrisi (2026/1 Tebliği Dönemi: 01.02.2026 – 31.01.2027)
 
-| Bütçe / Alım Tutarı                  | Uygulanacak Yasal Yöntem         |          EKAP İlanı           |       Teminat        |   Komisyon   |
+| Bütçe / Alım Tutarı (Büyükşehir) | Uygulanacak Yasal Yöntem | EKAP İlanı | Teminat | Komisyon |
 | :----------------------------------- | :------------------------------- | :---------------------------: | :------------------: | :----------: |
-| **0 - 1.021.827 TL** _(22/d Limiti)_ | ⚡ **Doğrudan Temin (Md. 22/d)** |            Aranmaz            |       Aranmaz        | İsteğe Bağlı |
-| **1.021.827 - 2.043.684 TL**         | ⚖️ **Pazarlık Usulü (Md. 21/f)** | İlan Yapılmayabilir (3 Davet) |       %6 Kesin       |   Zorunlu    |
-| **2.043.684 TL ve Üzeri**            | 🏛️ **Açık İhale Usulü (Md. 19)** |  **Zorunlu** (EKAP / Gazete)  | %3 Geçici / %6 Kesin |   Zorunlu    |
+| **0 – 1.021.827 TL** _(Md. 22/d Limiti - Diğer İdareler: 340.391 TL)_ | ⚡ **Doğrudan Temin (Md. 22/d)** | Aranmaz | Aranmaz | İsteğe Bağlı |
+| **1.021.827 – 3.406.508 TL** _(Md. 21/f Limiti)_ | ⚖️ **Pazarlık Usulü (Md. 21/f)** | İlan Yapılmayabilir (En az 3 davet) | %6 Kesin | Zorunlu |
+| **3.406.508 TL ve Üzeri** | 🏛️ **Açık İhale Usulü (Md. 19)** | **Zorunlu** (EKAP / Gazete) | %3 Geçici / %6 Kesin | Zorunlu |
 
-> 🚨 **Kritik Kural (KİK Md. 5 & 62/ı):** Eşik değerlerin altında kalmak
-> amacıyla aynı iş parçalara bölünemez. İdarelerin doğrudan temin (22/d) ve
-> pazarlık (21/f) toplam harcaması, yıllık bütçelerinin **%10'unu aşamaz**.
+> 🚨 **Kritik Mevzuat Kuralı (KİK Md. 5 & 62/ı):** Eşik değerlerin altında kalmak amacıyla aynı iş parçalara bölünemez. İdare bütçelerine bu amaçla konulan ödeneklerin 22/d ve 21/f kapsamındaki yıllık toplam harcaması, **mal, hizmet ve yapım işleri kategorileri için ayrı ayrı hesaplanan %10 sınırını** Kamu İhale Kurulu uygun görüşü alınmaksızın aşamaz.
 
 ---
 

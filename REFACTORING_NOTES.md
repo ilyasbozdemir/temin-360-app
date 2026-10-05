@@ -1,83 +1,35 @@
-# TypeScript Type Refactoring & Code Smell Improvements
+# TypeScript Tip Temizliği ve Mimari Refactoring İlkeleri
 
-Bu belge,
-[MalzemeEkleModal.tsx](file:///d:/Github/ilyas-bozdemir/dt-desktop-app/apps/app-desktop/src/renderer/src/screens/dosya/sub-screens/components/MalzemeListesi/MalzemeEkleModal.tsx)
-ve ilişkili bileşenlerde tespit edilen `any` tip kullanımlarını ve refactoring
-(iyileştirme) adımlarını içermektedir.
+Bu belge, `MalzemeEkleModal.tsx` ve benzeri bileşenlerde tespit edilen `any` tip kullanımlarının kök nedenlerini, tip çıkarım (type inference) mekanizmalarını ve tip güvenliği mimarisini düzenleme ilkelerini içerir.
 
 ---
 
-## 📌 Öncelikli İyileştirme Listesi ([MalzemeEkleModal.tsx](file:///d:/Github/ilyas-bozdemir/dt-desktop-app/apps/app-desktop/src/renderer/src/screens/dosya/sub-screens/components/MalzemeListesi/MalzemeEkleModal.tsx))
+## 🎯 Temel Refactoring İlkeleri
 
-### 1. 300 - 350 Satırları Arası & Yakınındaki `any` Kullanımları
+### 1. Kök Tiplendirme ve Otomatik Tip Çıkarımı (Type Inference)
+- **Sorun:** Bileşen girişindeki prop tipi `{ state }: { state: any }` şeklinde bırakıldığında, bileşen içindeki `libraryItems`, `filteredLibraryItems` ve `filteredSuggestions` gibi tüm türetilmiş veriler otomatik olarak `any` olur. Bu durum geliştiricileri alt satırlarda `(item: any)` veya `(prev: any)` gibi gereksiz tip zorlamalarına iter.
+- **Çözüm:** Prop seviyesinde `state` doğru tiplendiğinde (örn. `UseMalzemeListesiReturn`), alt fonksiyonlardaki `libraryItems.filter(item => ...)` ve `filteredSuggestions.map(item => ...)` satırlarındaki `item` parametre tipi TypeScript tarafından **otomatik çıkarılır**.
+- **Kural:** Tip açıklamalarını (`: any` veya `: LibraryItem`) satır satır tekrarlamak yerine, root veriyi tiplendirip alt satırlardaki gereksiz tip eklerini silmek yeterlidir.
 
-- **[Satır 285](file:///d:/Github/ilyas-bozdemir/dt-desktop-app/apps/app-desktop/src/renderer/src/screens/dosya/sub-screens/components/MalzemeListesi/MalzemeEkleModal.tsx#L285),
-  [Satır 298](file:///d:/Github/ilyas-bozdemir/dt-desktop-app/apps/app-desktop/src/renderer/src/screens/dosya/sub-screens/components/MalzemeListesi/MalzemeEkleModal.tsx#L298)
-  &
-  [Satır 310](file:///d:/Github/ilyas-bozdemir/dt-desktop-app/apps/app-desktop/src/renderer/src/screens/dosya/sub-screens/components/MalzemeListesi/MalzemeEkleModal.tsx#L310)
-  (`setItemMiktarlar` State Updater):**
-  - **Mevcut:** `setItemMiktarlar((prev: any) => ...)`
-  - **Sorun:** State güncelleyici parametresi `prev` explicit `any` tipindedir.
-  - **Çözüm:** `(prev: Record<number, number>) => ...` olarak
-    tiplendirilmelidir.
+### 2. State Updater parametrelerini (`prev`) Çift Tiplendirmemek
+- **Sorun:** `setItemMiktarlar((prev: Record<number, number>) => ...)` yazmak tipi iki yerde tutmak demektir. Hook içindeki `useState<Record<number, number>>` tanımı zaten `prev` tipini belirler.
+- **Çözüm:** `setItemMiktarlar(prev => ...)` şeklinde bırakmak en güvenli yoldur. Tipi iki yerde tanımlamak, ileride state tipi değiştiğinde kodun sessizce uyumsuzlaşmasına yol açar.
 
----
+### 3. Katalog Verisi ile Dosya Kalemini Ayrıştırmak
+- **Sorun:** `LibraryItem` için opsiyonel alanlarla (`tipi?`, `birim?`, `kdv_orani?`) tahmin dayalı geçici arayüzler yazmak tip sistemini zayıflatır.
+- **Çözüm:**
+  - Kütüphane katalog kalemleri (`@temin360/database` üzerindeki veritabanı şemalarından türetilmiş tip) ile ihale/dosya sürecine eklenmiş kalemler (`TeminKalemi`) iki ayrı iş kavramıdır (domain concept).
+  - Tip tanımları `packages/database` veya `@temin360/domain` paketinden türetilmeli, ad-hoc opsiyonel `any` türevleri oluşturulmamalıdır.
 
-### 2. Bileşen Genelindeki Diğer Explicit `any` Kullanımları
+### 4. Bileşen Prop Yüzeyini Daraltmak (`Pick` & Decoupling)
+- **Sorun:** Hook'un döndürdüğü tüm state objesini (`UseMalzemeListesiReturn`) olduğu gibi modal bileşenine paslamak, modal bileşenini hook'un tüm iç detaylarına sıkı sıkıya bağlar (tight coupling).
+- **Çözüm:** Modalın sadece ihtiyaç duyduğu alanları `Pick<UseMalzemeListesiReturn, 'libraryItems' | 'handleAddItem' | ...>` ile daraltmak veya modal için özel sorumluluğu olan daha küçük alt hook'lara bölmek bileşen modülerliğini sağlar.
 
-- **[Satır 15](file:///d:/Github/ilyas-bozdemir/dt-desktop-app/apps/app-desktop/src/renderer/src/screens/dosya/sub-screens/components/MalzemeListesi/MalzemeEkleModal.tsx#L15)
-  (`MalzemeEkleModal` Prop Tipi):**
-  - **Mevcut:** `export function MalzemeEkleModal({ state }: { state: any })`
-  - **Sorun:** Component prop `state` tamamen `any` olarak tanımlanmış.
-  - **Çözüm:**
-    [useMalzemeListesi.ts](file:///d:/Github/ilyas-bozdemir/dt-desktop-app/apps/app-desktop/src/renderer/src/screens/dosya/sub-screens/components/MalzemeListesi/useMalzemeListesi.ts#L3)
-    içerisindeki `UseMalzemeListesiReturn` arabirimi (interface)
-    kullanılmalıdır.
+### 5. Tip İhlallerini Önlemek İçin Otomatik Kontroller
+- ESLint yapılandırmasında `@typescript-eslint/no-explicit-any` kuralı en azından `warning` olarak aktif tutulmalıdır.
+- `tsconfig.json` dosyasında `strict: true` ve `noImplicitAny: true` seçenekleri zorunlu tutulmalıdır.
+- Monorepo genelinde `pnpm typecheck` ve `pnpm lint` komutları CI pipeline süreçlerine bağlanmalıdır.
 
-- **[Satır 61](file:///d:/Github/ilyas-bozdemir/dt-desktop-app/apps/app-desktop/src/renderer/src/screens/dosya/sub-screens/components/MalzemeListesi/MalzemeEkleModal.tsx#L61)
-  (`filteredLibraryItems` Filtreleme):**
-  - **Mevcut:** `libraryItems.filter((item: any) => ...)`
-  - **Çözüm:** `LibraryItem` veya `TeminKalem` arayüzü tanımlanarak
-    `(item: LibraryItem)` olarak güncellenmelidir.
-
-- **[Satır 82](file:///d:/Github/ilyas-bozdemir/dt-desktop-app/apps/app-desktop/src/renderer/src/screens/dosya/sub-screens/components/MalzemeListesi/MalzemeEkleModal.tsx#L82)
-  (`handleSelectAllFiltered` Döngüsü):**
-  - **Mevcut:** `filteredLibraryItems.forEach((i: any) => ...)`
-  - **Çözüm:** `(i: LibraryItem)` olarak tanımlanmalıdır.
-
-- **[Satır 208](file:///d:/Github/ilyas-bozdemir/dt-desktop-app/apps/app-desktop/src/renderer/src/screens/dosya/sub-screens/components/MalzemeListesi/MalzemeEkleModal.tsx#L208)
-  (`filteredLibraryItems.map` Render Döngüsü):**
-  - **Mevcut:** `filteredLibraryItems.map((item: any) => ...)`
-  - **Çözüm:** `(item: LibraryItem)` şeklinde tiplendirilmelidir.
-
-- **[Satır 221](file:///d:/Github/ilyas-bozdemir/dt-desktop-app/apps/app-desktop/src/renderer/src/screens/dosya/sub-screens/components/MalzemeListesi/MalzemeEkleModal.tsx#L221)
-  (`setSelectedItemIds` State Updater):**
-  - **Mevcut:** `setSelectedItemIds((prev: any) => ...)`
-  - **Çözüm:** `(prev: Set<number>)` şeklinde tiplendirilmelidir.
-
-- **[Satır 387](file:///d:/Github/ilyas-bozdemir/dt-desktop-app/apps/app-desktop/src/renderer/src/screens/dosya/sub-screens/components/MalzemeListesi/MalzemeEkleModal.tsx#L387)
-  (`filteredSuggestions.map` Autocomplete Listesi):**
-  - **Mevcut:** `filteredSuggestions.map((item: any) => ...)`
-  - **Çözüm:** `(item: LibraryItem)` şeklinde tiplendirilmelidir.
-
----
-
-## 🛠️ Planlanan Çözüm Adımları
-
-1. [useMalzemeListesi.ts](file:///d:/Github/ilyas-bozdemir/dt-desktop-app/apps/app-desktop/src/renderer/src/screens/dosya/sub-screens/components/MalzemeListesi/useMalzemeListesi.ts)
-   veya ortak bir `types.ts` dosyasında `LibraryItem` interface'ini tanımlamak:
-   ```ts
-   export interface LibraryItem {
-     id: number;
-     kalem_adi: string;
-     tipi?: string;
-     birim?: string;
-     kdv_orani?: number;
-     tasinir_kodu?: string;
-     okas_kodu?: string;
-   }
-   ```
-2. `MalzemeEkleModal` prop tipini `{ state: UseMalzemeListesiReturn }` ile
-   değiştirmek.
-3. Tüm `(prev: any)` ve `(item: any)` ifadelerini ilgili somut tiplerle
-   güncellemek.
+### 6. Dokümantasyonda Göreli Yol (Relative Path) Kullanımı
+- Dokümantasyon belgelerinde `file:///d:/Github/...` veya eski depo isimleri (`dt-desktop-app`) gibi makineye özel mutlak yollar kullanılmamalıdır.
+- Göreli yollar (örn. `apps/app-desktop/src/renderer/src/screens/dosya/...`) veya sembolik referanslar kullanılmalıdır.
