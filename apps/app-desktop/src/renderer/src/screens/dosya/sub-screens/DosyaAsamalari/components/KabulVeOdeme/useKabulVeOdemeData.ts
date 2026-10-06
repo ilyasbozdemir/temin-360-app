@@ -526,7 +526,7 @@ export function useKabulVeOdemeData() {
                FROM DATA_TeminFirma tf
                LEFT JOIN TANIM_Firma f ON tf.firma_id = f.id
                WHERE tf.temin_dosya_id = ? AND (COALESCE(tf.aktif_mi, 1) = 1 OR tf.aktif_mi = '1' OR tf.aktif_mi = 'true')
-               ORDER BY (CASE WHEN tf.kazanan_mi = 1 THEN 0 ELSE 1 END),
+               ORDER BY (CASE WHEN tf.kazandi_mi = 1 THEN 0 ELSE 1 END),
                         CASE WHEN effective_teklif > 0 THEN effective_teklif ELSE 999999999 END ASC
                LIMIT 1`,
               [activeDosyaId, activeDosyaId]
@@ -543,7 +543,7 @@ export function useKabulVeOdemeData() {
               )
               window.electron.ipcRenderer.invoke(
                 'db:run',
-                'UPDATE DATA_TeminFirma SET kazanan_mi = (CASE WHEN firma_id = ? OR id = ? THEN 1 ELSE 0 END) WHERE temin_dosya_id = ?',
+                'UPDATE DATA_TeminFirma SET kazandi_mi = (CASE WHEN firma_id = ? OR id = ? THEN 1 ELSE 0 END) WHERE temin_dosya_id = ?',
                 [effectiveFirmaId, effectiveFirmaId, activeDosyaId]
               )
             }

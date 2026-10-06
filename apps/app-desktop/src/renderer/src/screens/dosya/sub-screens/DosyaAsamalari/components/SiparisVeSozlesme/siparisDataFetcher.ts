@@ -54,7 +54,7 @@ export async function fetchSiparisVeSozlesmeData(
        COALESCE(NULLIF(df.unvan, ''), NULLIF(f.unvan, ''), 'İstekli Firma') as unvan,
        COALESCE(NULLIF(df.vergi_no, ''), NULLIF(f.vergi_no, '')) as vergi_no,
        df.yasaklilik_durumu,
-       df.kazanan_mi,
+       df.kazandi_mi,
        df.teklif_toplami
      FROM DATA_TeminFirma df
      LEFT JOIN TANIM_Firma f ON df.firma_id = f.id
@@ -104,7 +104,13 @@ export async function fetchSiparisVeSozlesmeData(
   )
 
   if (!winner) {
-    winner = enhancedFirms.find((f: any) => Number(f.kazanan_mi) === 1 || f.kazanan_mi === '1')
+    winner = enhancedFirms.find(
+      (f: any) =>
+        Number(f.kazandi_mi) === 1 ||
+        f.kazandi_mi === '1' ||
+        Number(f.kazanan_mi) === 1 ||
+        f.kazanan_mi === '1'
+    )
   }
 
   if (!winner) {
@@ -127,7 +133,7 @@ export async function fetchSiparisVeSozlesmeData(
   const teklifToplami = winner.calculated_teklif > 0 ? winner.calculated_teklif : null
   const yasaklilikDurumu = winner.yasaklilik_durumu || null
 
-  if (Number(dosyaRow.firma_id) !== effectiveFirmaId || Number(winner.kazanan_mi) !== 1) {
+  if (Number(dosyaRow.firma_id) !== effectiveFirmaId || Number(winner.kazandi_mi) !== 1) {
     try {
       await window.electron.ipcRenderer.invoke(
         'db:run',
@@ -137,7 +143,7 @@ export async function fetchSiparisVeSozlesmeData(
       await window.electron.ipcRenderer.invoke(
         'db:run',
         `UPDATE DATA_TeminFirma 
-         SET kazanan_mi = (CASE WHEN firma_id = ? OR id = ? THEN 1 ELSE 0 END) 
+         SET kazandi_mi = (CASE WHEN firma_id = ? OR id = ? THEN 1 ELSE 0 END) 
          WHERE temin_dosya_id = ?`,
         [effectiveFirmaId, winner.temin_firma_id, activeDosyaId]
       )

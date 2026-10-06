@@ -121,14 +121,14 @@ export function usePiyasaFiyatCalculation(
           await window.electron.ipcRenderer.invoke(
             'db:run',
             `UPDATE DATA_TeminFirma 
-             SET kazanan_mi = CASE WHEN firma_id = ? OR id = ? THEN 1 ELSE 0 END 
+             SET kazandi_mi = CASE WHEN firma_id = ? OR id = ? THEN 1 ELSE 0 END 
              WHERE temin_dosya_id = ?`,
             [firmaMasterId, firmaMasterId, activeDosyaId]
           )
         } else {
           await window.electron.ipcRenderer.invoke(
             'db:run',
-            `UPDATE DATA_TeminFirma SET kazanan_mi = 0 WHERE temin_dosya_id = ?`,
+            `UPDATE DATA_TeminFirma SET kazandi_mi = 0 WHERE temin_dosya_id = ?`,
             [activeDosyaId]
           )
         }

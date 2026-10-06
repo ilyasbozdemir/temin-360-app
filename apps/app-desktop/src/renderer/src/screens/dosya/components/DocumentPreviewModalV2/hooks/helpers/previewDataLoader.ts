@@ -777,7 +777,7 @@ export async function loadDocumentPreviewData({
   const winnerFirmaId =
     payloadData.dosya?.firma_id ||
     dosyaRecord?.firma_id ||
-    fileFirms.find((f: any) => f.kazanan_mi === 1 || f.isWinner)?.id
+    fileFirms.find((f: any) => f.kazandi_mi === 1 || f.kazanan_mi === 1 || f.isWinner)?.id
 
   const winnerFirm =
     fileFirms.find(

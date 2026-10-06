@@ -103,7 +103,7 @@ export function usePiyasaFiyatDocuments(
           await window.electron.ipcRenderer.invoke(
             'db:run',
             `UPDATE DATA_TeminFirma 
-             SET kazanan_mi = CASE WHEN firma_id = ? OR id = ? THEN 1 ELSE 0 END 
+             SET kazandi_mi = CASE WHEN firma_id = ? OR id = ? THEN 1 ELSE 0 END 
              WHERE temin_dosya_id = ?`,
             [winnerToSet, winnerToSet, activeDosyaId]
           )
