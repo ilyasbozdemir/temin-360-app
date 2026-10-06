@@ -41,6 +41,7 @@ import { DATA_AmbarStok } from './tables/DATA_AmbarStok'
 import { TANIM_Proje } from './tables/TANIM_Proje'
 import { DATA_AmbarHareket } from './tables/DATA_AmbarHareket'
 import { DATA_DosyaSablonVeri } from './tables/DATA_DosyaSablonVeri'
+import { DATA_DosyaRevizyon } from './tables/DATA_DosyaRevizyon'
 import { DATA_NotVeGorev } from './tables/DATA_NotVeGorev'
 import { LOG_SystemLog } from './tables/LOG_SystemLog'
 import { runMigrations, CURRENT_SCHEMA_VERSION } from './migrate'
@@ -88,6 +89,7 @@ const rawTables = [
   DATA_AmbarStok,
   DATA_AmbarHareket,
   DATA_DosyaSablonVeri,
+  DATA_DosyaRevizyon,
   DATA_NotVeGorev,
   LOG_SystemLog
 ]

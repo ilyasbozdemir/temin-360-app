@@ -18,7 +18,9 @@ import {
   Heading1,
   Heading2,
   Heading3,
-  Code
+  Code,
+  FileText,
+  Sparkles
 } from 'lucide-react'
 
 interface A4EditorProps {
@@ -248,6 +250,65 @@ export function A4Editor({
               >
                 <TableIcon className="w-4 h-4" />
               </button>
+
+              <div className="w-px h-6 bg-slate-300 dark:bg-slate-700 mx-1 self-center" />
+
+              {/* WORD IMPORT */}
+              <button
+                onClick={async () => {
+                  try {
+                    if (window.electron?.ipcRenderer) {
+                      const res = await window.electron.ipcRenderer.invoke('document:import-docx')
+                      if (res.success && res.html) {
+                        editor.commands.setContent(res.html)
+                      }
+                    }
+                  } catch (err) {
+                    console.error('Word import error:', err)
+                  }
+                }}
+                className="p-1.5 rounded hover:bg-blue-50 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium text-xs flex items-center gap-1"
+                title="Word (.docx) İçe Aktar"
+              >
+                <FileText className="w-4 h-4" /> Word Yükle
+              </button>
+
+              {/* DEĞİŞKEN EKLE DROPDOWN */}
+              <div className="relative group">
+                <button
+                  className="p-1.5 rounded bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-semibold text-xs flex items-center gap-1 border border-emerald-200 dark:border-emerald-800/60"
+                  title="Dinamik Şablon Değişkeni Ekle"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> Değişken Ekle
+                </button>
+                <div className="absolute left-0 top-full mt-1 hidden group-hover:block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl py-1.5 min-w-[200px] z-50">
+                  <div className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase border-b border-slate-100 dark:border-slate-800">
+                    2886 & Temin Değişkenleri
+                  </div>
+                  {[
+                    { label: 'İstekli Firma Adı', var: '{{firma_adi}}' },
+                    { label: 'Vergi No / TCKN', var: '{{firma_vkn}}' },
+                    { label: 'Toplam Tutar (TL)', var: '{{toplam_tutar}}' },
+                    { label: 'Belge Tarihi', var: '{{tarih}}' },
+                    { label: 'Dosya Konusu', var: '{{dosyaKonusu}}' },
+                    { label: 'Makam Adı', var: '{{sunulacakMakamAdi}}' },
+                    { label: 'Hazırlayan Personel', var: '{{hazirlayanPersonelAdi}}' },
+                    { label: 'Onaylayan Personel', var: '{{onaylayanPersonelAdi}}' },
+                    { label: 'İhale Maddesi', var: '{{2886_madde_no}}' }
+                  ].map((item) => (
+                    <button
+                      key={item.var}
+                      onClick={() => editor.chain().focus().insertContent(` ${item.var} `).run()}
+                      className="w-full text-left px-3 py-1.5 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-xs text-slate-700 dark:text-slate-200 flex justify-between items-center transition-colors"
+                    >
+                      <span>{item.label}</span>
+                      <code className="text-[10px] bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-emerald-600 dark:text-emerald-400 font-mono">
+                        {item.var}
+                      </code>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </>
           )}
         </div>
