@@ -1,7 +1,5 @@
 /**
- * <summary>
- * Veri Tohumlama (Seed) Sonuç Arayüzü
- * </summary>
+ * Veri Tohumlama (Seed) Sonuç Arayüzü.
  */
 export interface SeedResult {
   success: boolean

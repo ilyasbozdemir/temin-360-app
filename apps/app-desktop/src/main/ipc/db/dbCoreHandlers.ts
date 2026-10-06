@@ -8,22 +8,16 @@ import { validateSqlQuery } from '../utils/sqlGuard'
 import { withSchemaRetry } from '../utils/schemaRetry'
 
 /**
- * <summary>
  * Veritabanı Temel SQL Çalıştırma ve Sorgulama IPC İşleyicileri
- * </summary>
- * <description>
  * SQLite veritabanı üzerinde SELECT, INSERT, UPDATE, DELETE ve TRANSACTION işlemlerini
  * şema kurtarma ve SQL güvenlik kontrolleri ile birlikte yürütür.
- * </description>
  */
 export function registerDbCoreHandlers(): void {
   /**
-   * <summary>
-   * SELECT Sorgusu Çalıştırma İşleyicisi
-   * </summary>
-   * <param name="sql">Çalıştırılacak SQL SELECT sorgusu</param>
-   * <param name="params">Sorgu parametreleri</param>
-   * <returns>İşlem sonucu ve veri satırları listesi</returns>
+   * SELECT Sorgusu Çalıştırma İşleyicisi (`db:query`)
+   * @param sql Çalıştırılacak SQL SELECT sorgusu
+   * @param params Sorgu parametreleri
+   * @returns İşlem sonucu ve veri satırları listesi
    */
   ipcMain.handle('db:query', async (_, sql: string, params: any[] = []) => {
     try {
@@ -49,12 +43,10 @@ export function registerDbCoreHandlers(): void {
   })
 
   /**
-   * <summary>
-   * INSERT, UPDATE, DELETE İşlem Çalıştırma İşleyicisi
-   * </summary>
-   * <param name="sql">Çalıştırılacak DML SQL ifadesi</param>
-   * <param name="params">Sorgu parametreleri</param>
-   * <returns>Son eklenen satır ID'si ve etkilenen satır sayısı</returns>
+   * INSERT, UPDATE, DELETE İşlem Çalıştırma İşleyicisi (`db:run`)
+   * @param sql Çalıştırılacak DML SQL ifadesi
+   * @param params Sorgu parametreleri
+   * @returns Son eklenen satır ID'si ve etkilenen satır sayısı
    */
   ipcMain.handle('db:run', async (_, sql: string, params: any[] = []) => {
     try {
@@ -85,11 +77,9 @@ export function registerDbCoreHandlers(): void {
   })
 
   /**
-   * <summary>
-   * Alternatif SQL İfadesi Çalıştırma İşleyicisi
-   * </summary>
-   * <param name="sql">Çalıştırılacak SQL ifadesi</param>
-   * <param name="params">Parametreler dizisi veya değişken argümanlar</param>
+   * Alternatif SQL İfadesi Çalıştırma İşleyicisi (`db:execute`)
+   * @param sql Çalıştırılacak SQL ifadesi
+   * @param params Parametreler dizisi veya değişken argümanlar
    */
   ipcMain.handle('db:execute', async (_, sql: string, ...params: any[]) => {
     try {
@@ -121,11 +111,9 @@ export function registerDbCoreHandlers(): void {
   })
 
   /**
-   * <summary>
-   * Çoklu Sorgu Tranzaksiyonu (Transaction) İşleyicisi
-   * </summary>
-   * <param name="queries">Çalıştırılacak SQL ve parametre nesneleri dizisi</param>
-   * <returns>Tranzaksiyon sonucu ve toplam değişen satır sayısı</returns>
+   * Çoklu Sorgu Tranzaksiyonu (Transaction) İşleyicisi (`db:transaction`)
+   * @param queries Çalıştırılacak SQL ve parametre nesneleri dizisi
+   * @returns Tranzaksiyon sonucu ve toplam değişen satır sayısı
    */
   ipcMain.handle('db:transaction', async (_, queries: { sql: string; params: any[] }[]) => {
     try {

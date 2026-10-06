@@ -1,3 +1,7 @@
+/**
+ * Veritabanı tabloları için standart denetim (audit) kolon tanımları listesi.
+ * Kaydı oluşturan/güncelleyen kullanıcı bilgileri ile zaman damgalarını ve aktiflik/silinme durumlarını tutar.
+ */
 export const auditColumns: any[] = [
   {
     name: 'created_by',
@@ -37,5 +41,9 @@ export const auditColumns: any[] = [
   }
 ]
 
+/**
+ * Referans kısıtlaması olmadan kullanılan standart audit kolon tanımları.
+ */
 export const auditColumnsNoRef = auditColumns
+
 

@@ -1,9 +1,6 @@
 /**
- * <summary>
- * SQL Çalıştırma ve Veri Temizleme Yardımcı Fonksiyonları
- * </summary>
+ * Seed servisi SQL çalıştırma yardımcı fonksiyonu.
  */
-
 export async function runSql(sql: string, params: unknown[] = []): Promise<void> {
   try {
     await window.electron.ipcRenderer.invoke('db:run', sql, params)
@@ -13,9 +10,7 @@ export async function runSql(sql: string, params: unknown[] = []): Promise<void>
 }
 
 /**
- * <summary>
  * Önceki test verilerini (hareketler, teklifler, kalemler, dosyalar ve tanımlar) tamamen temizler.
- * </summary>
  */
 export async function cleanExistingSeedData(): Promise<void> {
   // 1. DATA (Hareket / Süreç) tablolarını temizle

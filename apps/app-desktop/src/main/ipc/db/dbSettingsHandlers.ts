@@ -3,19 +3,13 @@ import fs from 'fs'
 import { workspaceManager } from '../../database/workspace'
 
 /**
- * <summary>
  * Sistem Ayarları ve SMTP Konfigürasyonu IPC İşleyicileri
- * </summary>
- * <description>
  * Sistem ayarlarını getirme, kaydetme, SMTP ayarlarını JSON olarak dışa/içe aktarma işleyicilerini içerir.
- * </description>
  */
 export function registerDbSettingsHandlers(): void {
   /**
-   * <summary>
-   * Sistem ve Kurum Ayarlarını Getirme İşleyicisi
-   * </summary>
-   * <returns>Kurum adı, logosu, yönetici ve tema ayarları</returns>
+   * Sistem ve Kurum Ayarlarını Getirme İşleyicisi (`db:get-settings`)
+   * @returns Kurum adı, logosu, yönetici ve tema ayarları
    */
   ipcMain.handle('db:get-settings', async () => {
     try {
@@ -100,10 +94,8 @@ export function registerDbSettingsHandlers(): void {
   })
 
   /**
-   * <summary>
-   * Sistem Ayarlarını Kaydetme İşleyicisi
-   * </summary>
-   * <param name="settingsMap">Anahtar-değer çiftlerinden oluşan ayarlar nesnesi</param>
+   * Sistem Ayarlarını Kaydetme İşleyicisi (`db:save-settings`)
+   * @param settingsMap Anahtar-değer çiftlerinden oluşan ayarlar nesnesi
    */
   ipcMain.handle('db:save-settings', async (_, settingsMap: Record<string, string>) => {
     try {
@@ -125,9 +117,7 @@ export function registerDbSettingsHandlers(): void {
   })
 
   /**
-   * <summary>
-   * SMTP Ayarlarını JSON Dosyasına Dışa Aktarma İşleyicisi
-   * </summary>
+   * SMTP Ayarlarını JSON Dosyasına Dışa Aktarma İşleyicisi (`db:export-smtp`)
    */
   ipcMain.handle('db:export-smtp', async () => {
     try {
@@ -187,9 +177,7 @@ export function registerDbSettingsHandlers(): void {
   })
 
   /**
-   * <summary>
-   * SMTP Ayarlarını JSON Dosyasından İçe Aktarma İşleyicisi
-   * </summary>
+   * SMTP Ayarlarını JSON Dosyasından İçe Aktarma İşleyicisi (`db:import-smtp`)
    */
   ipcMain.handle('db:import-smtp', async () => {
     try {

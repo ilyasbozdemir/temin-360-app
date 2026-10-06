@@ -1,9 +1,6 @@
 /**
- * <summary>
- * Kurum, Ayarlar, KİK Limitleri, Personeller, Birimler, Firmalar, Kalemler, Komisyonlar ve Ambarlar Tohumlama Fonksiyonları
- * </summary>
+ * Kurum bilgilerini (TANIM_Kurum) eksiksiz günceller veya yeni kayıt olarak ekler.
  */
-
 export async function seedKurum(): Promise<void> {
   const antetSatirlariJson = JSON.stringify([
     'T.C.',
@@ -168,13 +165,15 @@ export async function seedKurum(): Promise<void> {
         kurumData.telefon,
         kurumData.faks,
         kurumData.eposta,
-        kurumData.kep_adresi,
-        kurumData.web_sitesi
+        kurumData.kep_adresi
       ]
     )
   }
 }
 
+/**
+ * Genel Ayarlar (settings tablosu) parametrelerini gerçekçi verilerle doldurur.
+ */
 export async function seedSettings(): Promise<void> {
   const settingsList = [
     { key: 'institutionName', value: 'T.C. ANKARA VALİLİĞİ İL SAĞLIK MÜDÜRLÜĞÜ' },
@@ -209,6 +208,9 @@ export async function seedSettings(): Promise<void> {
   }
 }
 
+/**
+ * KİK Doğrudan Temin parasal limit dönemlerini (TANIM_KikLimitDonemleri) doldurur.
+ */
 export async function seedKikLimitleri(): Promise<void> {
   const periods = [
     {
@@ -263,6 +265,9 @@ export async function seedKikLimitleri(): Promise<void> {
   }
 }
 
+/**
+ * Personel havuzunu (TANIM_Personel) eksiksiz ekler ve rollere bağlar.
+ */
 export async function seedPersonel(): Promise<number[]> {
   const personelList = [
     {
@@ -435,6 +440,9 @@ export async function seedPersonel(): Promise<number[]> {
   return ids
 }
 
+/**
+ * Birimleri (TANIM_Birim) antet ve harcama yetkilisi eşleşmeleriyle ekler.
+ */
 export async function seedBirimler(personelIds: number[] = []): Promise<number[]> {
   const p1 = personelIds[1] || 1
   const p2 = personelIds[2] || 2
@@ -679,6 +687,9 @@ export async function seedBirimler(personelIds: number[] = []): Promise<number[]
   return ids
 }
 
+/**
+ * Tedarikçi / İstekli Firmaları (TANIM_Firma) eksiksiz ekler.
+ */
 export async function seedFirmalar(): Promise<number[]> {
   const firmaList = [
     {
@@ -850,6 +861,9 @@ export async function seedFirmalar(): Promise<number[]> {
   return ids
 }
 
+/**
+ * Malzeme, Hizmet ve Yapım Kalemleri Havuzunu (TANIM_Kalem) doldurur.
+ */
 export async function seedKalemler(): Promise<number[]> {
   const kalemList = [
     {
@@ -1008,6 +1022,9 @@ export async function seedKalemler(): Promise<number[]> {
   return ids
 }
 
+/**
+ * Komisyon (TANIM_Komisyon) ve Ambar (TANIM_Ambar) tanımlarını ekler.
+ */
 export async function seedKomisyonlarVeAmbarlar(): Promise<void> {
   const ambarlar = [
     {

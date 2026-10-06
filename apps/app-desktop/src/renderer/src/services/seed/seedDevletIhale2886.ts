@@ -1,9 +1,7 @@
 import { runSql } from './seedUtils'
 
 /**
- * <summary>
- * 2886 Sayılı Devlet İhale Kanunu Kapsamında Satış, Kiralama ve Hak Tesisi Tohumlama Fonksiyonu
- * </summary>
+ * 2886 Sayılı Devlet İhale Kanunu Kapsamında Satış, Kiralama ve Hak Tesisi Tohumlama Fonksiyonu.
  */
 export async function seedDevletIhale2886(): Promise<number> {
   // 1. Emlak ve İstimlak / Gelir Birimleri Ekle

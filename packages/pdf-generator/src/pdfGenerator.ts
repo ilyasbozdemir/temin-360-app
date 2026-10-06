@@ -1,16 +1,26 @@
 import puppeteer from 'puppeteer';
 import { pdfStore } from './pdfStore';
 
+/**
+ * PDF oluşturma fonksiyonu seçenekleri.
+ */
 export interface GeneratePdfOptions {
+  /** Şablon kimlik kiti / şablon adı. */
   templateId: string;
+  /** Şablona basılacak dinamik veri nesnesi. */
   data: any;
+  /** Sunucu ana adresi (Örn: "http://localhost:3000"). */
   baseUrl: string;
+  /** Sayfa boyutu ('A4' veya 'A3'). */
   pageSize?: 'A4' | 'A3';
+  /** Sayfa yönelimi (yatay için true, dikey için false). */
   isLandscape?: boolean;
 }
 
 /**
- * Generates a PDF buffer from a template rendering page using Puppeteer.
+ * Puppeteer kullanarak dinamik belgeden PDF verisi (Buffer) üretir.
+ * @param options - PDF oluşturma seçenekleri.
+ * @returns Oluşturulan PDF belgesinin Buffer nesnesi.
  */
 export async function generatePDF({
   templateId,

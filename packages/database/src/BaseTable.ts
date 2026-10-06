@@ -1,8 +1,9 @@
 import { auditColumns, auditColumnsNoRef } from './audit'
 
 /**
- * 🛡️ Kozmik Tablo Fabrikası (Base Table & Audit Inheritance)
- * Tablo tanımlarını alır, audit / denetim kolonlarını (istisnalar hariç) otomatik enjekte eder.
+ * Tablo tanımına standart audit (denetim) kolonlarını otomatik enjekte eden tablo fabrikası.
+ * @param schema - Ham tablo şeması tanımı.
+ * @returns Audit kolonları eklenmiş güncel tablo şeması.
  */
 export const defineTable = (schema: any): any => {
   if (!schema || !schema.columns) return schema
@@ -22,4 +23,5 @@ export const defineTable = (schema: any): any => {
     columns: [...schema.columns, ...columnsToAdd]
   }
 }
+
 

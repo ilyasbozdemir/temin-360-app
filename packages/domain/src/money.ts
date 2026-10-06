@@ -1,20 +1,33 @@
 /**
- * Kuruş tabanlı para tipi. Tüm tutarlar BigInt kuruş olarak tutulur;
- * float (number) ile para hesabı yapılmaz.
- *
- * Yuvarlama: kuruş altı kalan değerlerde varsayılan "yariYukari"
- * (sıfırdan uzağa). Belgeye özgü farklı bir yuvarlama kuralı gerekiyorsa
- * çağıran taraf bunu açıkça belirtmelidir.
+ * Kuruş altı hesaplamalarda kullanılacak yuvarlama yöntemi.
+ * 'yariYukari': 0.5 ve üzeri değerler sıfırdan uzağa yuvarlanır.
+ * 'asagi': Taban yuvarlama (floor) yapılır.
  */
 export type YuvarlamaKipi = 'yariYukari' | 'asagi';
 
 const TL_REGEX = /^-?\d+(\.\d{1,2})?$/;
 
+/**
+ * Kuruş tabanlı hassas para ve tutar nesnesi.
+ * Tüm finansal hesaplamalar BigInt kuruş cinsinden yürütülür;
+ * kayan noktalı sayı (float) hassasiyet kayıpları engellenir.
+ */
 export class Money {
+  /** Sıfır kuruş tutarında sabit Money nesnesi. */
   static readonly ZERO = new Money(0n);
 
+  /**
+   * Doğrudan BigInt kuruş değeri ile yeni bir Money nesnesi oluşturur.
+   * @param kurus - Kuruş cinsinden BigInt değeri.
+   */
   private constructor(readonly kurus: bigint) {}
 
+  /**
+   * Kuruş değerinden Money nesnesi türetir.
+   * @param kurus - Kuruş tutarı (bigint veya güvenli tamsayı number).
+   * @returns Kuruş değerini temsil eden Money nesnesi.
+   * @throws {RangeError} Number parametre güvenli tamsayı (`Number.isSafeInteger`) değilse fırlatılır.
+   */
   static fromKurus(kurus: bigint | number): Money {
     if (typeof kurus === 'number') {
       if (!Number.isSafeInteger(kurus)) {
@@ -26,9 +39,16 @@ export class Money {
   }
 
   /**
-   * TL'den oluşturur. Kesin sonuç için string önerilir ("1021827.50", nokta ondalık).
-   * number kabul edilir ancak en çok 2 ondalık basamağı olmalıdır;
-   * 0.1 + 0.2 gibi float artıkları hata fırlatır.
+   * TL değerinden Money nesnesi oluşturur.
+   * Hassasiyet kaybını önlemek için string formatı ("1021827.50", nokta ondalık) önerilir.
+   * @param tl - TL tutarı (string veya en fazla 2 ondalık basamaklı number).
+   * @returns Karşılık gelen Money nesnesi.
+   * @throws {RangeError} Geçersiz TL formatı veya 2 basamaktan fazla ondalık içeriyorsa fırlatılır.
+   * @example
+   * ```ts
+   * const m1 = Money.fromTL("1050.75");
+   * const m2 = Money.fromTL(100);
+   * ```
    */
   static fromTL(tl: string | number): Money {
     let s: string;
@@ -52,15 +72,32 @@ export class Money {
     return new Money(negatif ? -kurus : kurus);
   }
 
+  /**
+   * İki Money tutarını toplar.
+   * @param o - Eklenecek Money tutarı.
+   * @returns Toplam tutar.
+   */
   plus(o: Money): Money {
     return new Money(this.kurus + o.kurus);
   }
 
+  /**
+   * İki Money tutarını çıkarır.
+   * @param o - Çıkarılacak Money tutarı.
+   * @returns Fark tutarı.
+   */
   minus(o: Money): Money {
     return new Money(this.kurus - o.kurus);
   }
 
-  /** Tutarı pay/payda oranıyla çarpar. Örn. %5 → mulRate(5, 100); binde 9,48 → mulRate(948, 100000). */
+  /**
+   * Tutarı verilen pay/payda oranıyla çarpar ve yuvarlar.
+   * @param pay - Oran payı (örn. %5 için 5).
+   * @param payda - Oran paydası (örn. %5 için 100, binde 9.48 için 100000).
+   * @param kip - Yuvarlama yöntemi (varsayılan: 'yariYukari').
+   * @returns Hesaplanmış tutar.
+   * @throws {RangeError} Payda sıfır veya negatif ise fırlatılır.
+   */
   mulRate(pay: bigint | number, payda: bigint | number, kip: YuvarlamaKipi = 'yariYukari'): Money {
     const p = BigInt(pay);
     const d = BigInt(payda);
@@ -77,24 +114,54 @@ export class Money {
     return new Money(q);
   }
 
+  /**
+   * İki Money tutarını karşılaştırır.
+   * @param o - Karşılaştırılacak tutar.
+   * @returns Küçükse -1, eşitse 0, büyükse 1.
+   */
   compareTo(o: Money): -1 | 0 | 1 {
     return this.kurus < o.kurus ? -1 : this.kurus > o.kurus ? 1 : 0;
   }
+
+  /**
+   * İki Money tutarının kuruş bazında eşitliğini denetler.
+   * @param o - Karşılaştırılacak tutar.
+   * @returns Eşitse true.
+   */
   equals(o: Money): boolean {
     return this.kurus === o.kurus;
   }
+
+  /**
+   * Tutarın negatif olup olmadığını denetler.
+   * @returns Negatifse true.
+   */
   isNegative(): boolean {
     return this.kurus < 0n;
   }
+
+  /**
+   * Tutarın sıfır olup olmadığını denetler.
+   * @returns Sıfırsa true.
+   */
   isZero(): boolean {
     return this.kurus === 0n;
   }
-  /** Negatifse sıfır döner. */
+
+  /**
+   * Negatif tutarları sıfır değerine çeker (floor at zero).
+   * @returns Tutar negatifse Money.ZERO, değilse nesnenin kendisi.
+   */
   floorAtZero(): Money {
     return this.kurus < 0n ? Money.ZERO : this;
   }
 
-  /** this / payda oranı, baz puan (1 bp = %0,01) olarak, yarım yukarı yuvarlanır. */
+  /**
+   * Bu tutarın verilen payda tutarına oranını baz puan cinsinden hesaplar (1 bp = %0,01).
+   * @param payda - Oranlanacak payda Money tutarı.
+   * @returns Baz puan cinsinden oran.
+   * @throws {RangeError} Payda sıfır veya negatif ise fırlatılır.
+   */
   oranBasisPuan(payda: Money): bigint {
     if (payda.kurus <= 0n) throw new RangeError('Payda pozitif olmalı');
     const n = this.kurus * 10000n;
@@ -104,14 +171,21 @@ export class Money {
     return q;
   }
 
-  /** SQLite INTEGER alanı için. Güvenli tamsayı sınırını aşarsa hata verir. */
+  /**
+   * SQLite INTEGER alanlarında saklamak üzere kuruş tutarını güvenli tamsayı number olarak döner.
+   * @returns Kuruş değeri number cinsinden.
+   * @throws {RangeError} Güvenli tamsayı sınırı (`Number.MAX_SAFE_INTEGER`) aşılırsa fırlatılır.
+   */
   toKurusNumber(): number {
     const n = Number(this.kurus);
     if (!Number.isSafeInteger(n)) throw new RangeError('Tutar number olarak güvenle saklanamaz');
     return n;
   }
 
-  /** "1.021.827,00 TL" */
+  /**
+   * Tutarı Türkiye biçimlendirmesine uygun TL metni olarak döndürür (Örn: "1.021.827,00 TL").
+   * @returns Biçimlendirilmiş TL metni.
+   */
   toTLString(): string {
     const negatif = this.kurus < 0n;
     const mutlak = negatif ? -this.kurus : this.kurus;
@@ -120,3 +194,4 @@ export class Money {
     return `${negatif ? '-' : ''}${tam},${kurusKismi} TL`;
   }
 }
+

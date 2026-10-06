@@ -2,11 +2,8 @@ import { seedFirmalar, seedPersonel, seedBirimler } from './seedDefinitions'
 import { runSql } from './seedUtils'
 
 /**
- * <summary>
- * Doğrudan Temin ve Süreç Dosyaları Tohumlama Fonksiyonları
- * </summary>
+ * 5 Ayrı Alım Türü ve Birim için Doğrudan Temin Dosyalarını tüm kalem, teklif, firma ve komisyonlarıyla eksiksiz doldurur.
  */
-
 export async function enrichExistingDosyalar(
   firmaIds: number[] = [],
   personelIds: number[] = [],
@@ -507,9 +504,7 @@ export async function enrichExistingDosyalar(
 }
 
 /**
- * <summary>
  * Veritabanındaki Doğrudan Temin haricindeki tüm İhale Süreç dosyalarını ve ilişkili hareket kayıtlarını tek SQL mantığıyla tamamen siler.
- * </summary>
  */
 export async function deleteIhaleDosyalariFromDb(): Promise<{
   success: boolean

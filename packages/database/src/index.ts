@@ -92,12 +92,21 @@ const rawTables = [
   LOG_SystemLog
 ]
 
+/**
+ * Uygulamanın veritabanı şema ve tablo tanımları kataloğu.
+ */
 export const schema = {
   database: 'DOGRUDAN_TEMIN_DB',
   app_title: 'TEMİN 360',
   tables: rawTables.map(defineTable)
 }
 
+/**
+ * SQLite veritabanını oluşturur, varsayılan tabloları, ayarları, indeksleri ve ilk seed verilerini yükler.
+ * @param db - better-sqlite3 veritabanı bağlantı nesnesi.
+ * @param institutionName - Kurum adı (varsayılan ayarlara kaydedilir).
+ * @param currentAppVersion - Uygulama sürüm numarası.
+ */
 export function initializeDatabase(db: Database.Database, institutionName: string, currentAppVersion: string = '1.0.0'): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS settings (

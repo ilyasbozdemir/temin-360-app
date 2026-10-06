@@ -1,29 +1,32 @@
 import { Money } from '../money';
 
 /**
- * 4734 sayılı Kanun parasal limitleri. Limitler TAKVİM YILINA DEĞİL,
- * 1 Şubat – 31 Ocak dönemlerine göre geçerlidir (Kanun md. 67 uyarınca
- * her yıl Kamu İhale Tebliği ile güncellenir).
- *
- * KURAL: Bu dosyaya yalnızca Resmî Gazete'deki Tebliğden doğrulanmış
- * rakam girilir. Tahmini/öngörülen dönem eklenmez. Yeni Tebliğ yayımlanınca
- * yeni bir dönem satırı eklenir ve limits.test.ts içindeki kilitler güncellenir.
+ * 4734 sayılı Kamu İhale Kanunu uyarınca idare tipi.
+ * 'buyuksehir': Büyükşehir belediye sınırları içindeki idareler.
+ * 'diger': Büyükşehir belediye sınırları dışındaki idareler.
  */
-
 export type IdareTipi = 'buyuksehir' | 'diger';
 
+/**
+ * Kamu İhale Kurumu (KİK) Tebliği ile belirlenen yıllık parasal limit dönemi.
+ * Limitler takvim yılına değil, 1 Şubat – 31 Ocak dönemine göre geçerlidir (4734 Sayılı Kanun md. 67).
+ */
 export interface KikLimitDonemi {
-  /** ISO tarih (YYYY-MM-DD), dahil. */
+  /** Dönem başlangıç tarihi (ISO biçimi YYYY-MM-DD, dahil). */
   readonly baslangic: string;
-  /** ISO tarih (YYYY-MM-DD), dahil. */
+  /** Dönem bitiş tarihi (ISO biçimi YYYY-MM-DD, dahil). */
   readonly bitis: string;
+  /** Limit rakamının yayımlandığı Resmî Gazete Tebliğ referansı (RG tarih/sayı). */
   readonly kaynak: string;
-  /** Md. 22/d: büyükşehir belediye sınırları içindeki idareler / diğer idareler. */
+  /** 4734 Sayılı Kanun Md. 22/d doğrudan temin parasal limitleri. */
   readonly md22d: { readonly buyuksehir: Money; readonly diger: Money };
-  /** Md. 21/f pazarlık usulü limiti (mamul mal, malzeme ve hizmet alımları). */
+  /** 4734 Sayılı Kanun Md. 21/f pazarlık usulü parasal limiti. */
   readonly md21f: Money;
 }
 
+/**
+ * Resmî Gazete Tebliğleri ile doğrulanmış KİK parasal limit dönemleri listesi.
+ */
 export const KIK_LIMIT_DONEMLERI: readonly KikLimitDonemi[] = [
   {
     baslangic: '2025-02-01',
@@ -52,8 +55,11 @@ function gecerliIsoTarih(s: string): boolean {
 }
 
 /**
- * İşlem tarihine göre geçerli limit dönemini döner.
- * Tarih hiçbir dönemde yoksa SESSİZCE yakın bir dönemi kullanmaz, hata fırlatır.
+ * Verilen işlem tarihine karşılık gelen geçerli KİK parasal limit dönemini döndürür.
+ * @param isoTarih - İşlem tarihi (ISO formatında YYYY-MM-DD).
+ * @param donemler - Limit dönemleri dizisi (varsayılan: KIK_LIMIT_DONEMLERI).
+ * @returns Verilen tarihte geçerli KikLimitDonemi nesnesi.
+ * @throws {RangeError} Tarih biçimi geçersizse veya tanımlı bir limit dönemine düşmüyorsa fırlatılır.
  */
 export function getKikLimitForDate(
   isoTarih: string,
@@ -71,10 +77,22 @@ export function getKikLimitForDate(
   return bulunan;
 }
 
+/**
+ * Belirtilen tarih ve idare tipine ait 4734 Sayılı Kanun Md. 22/d doğrudan temin parasal limitini döndürür.
+ * @param isoTarih - İşlem tarihi (ISO formatında YYYY-MM-DD).
+ * @param idare - İdare tipi ('buyuksehir' veya 'diger').
+ * @returns İlgili dönem ve idare tipine ait doğrudan temin limiti.
+ */
 export function md22dLimiti(isoTarih: string, idare: IdareTipi): Money {
   return getKikLimitForDate(isoTarih).md22d[idare];
 }
 
+/**
+ * Belirtilen tarihe ait 4734 Sayılı Kanun Md. 21/f pazarlık usulü alım parasal limitini döndürür.
+ * @param isoTarih - İşlem tarihi (ISO formatında YYYY-MM-DD).
+ * @returns İlgili döneme ait pazarlık usulü alım limiti.
+ */
 export function md21fLimiti(isoTarih: string): Money {
   return getKikLimitForDate(isoTarih).md21f;
 }
+

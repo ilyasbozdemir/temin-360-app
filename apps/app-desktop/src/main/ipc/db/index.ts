@@ -5,12 +5,8 @@ import { registerDbExcelHandlers } from './dbExcelHandlers'
 import { registerDbSchemaHandlers } from './dbSchemaHandlers'
 
 /**
- * <summary>
  * Veritabanı IPC İşleyicileri Ana Kayıt Noktası
- * </summary>
- * <description>
  * Veritabanı ile ilgili tüm IPC dinleyicilerini (Core, Auth, Settings, Excel, Schema) modüler olarak kaydeder.
- * </description>
  */
 export function registerDbIpcHandlers(): void {
   registerDbCoreHandlers()
