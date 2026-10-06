@@ -23,6 +23,7 @@ import {
   persist2886ActiveDosya
 } from '../../../components/layout/temin-selector/teminSelector.storage'
 import { Dosya2886Item } from '../../../components/layout/temin-selector/teminSelector.types'
+import { Dosya2886EditorModal } from './Dosya2886EditorModal'
 
 export type { Dosya2886Item }
 
@@ -66,153 +67,29 @@ export function DosyaYonetimi2886Tab({
   const [editingDosya, setEditingDosya] = useState<Dosya2886Item | null>(null)
   const [deleteModalDosya, setDeleteModalDosya] = useState<Dosya2886Item | null>(null)
 
-  // Form State
-  const [formData, setFormData] = useState({
-    ihaleKayitNo: '',
-    ihaleAdi: '',
-    islemTuru: 'satis',
-    usul: 'acik_teklif_45',
-    muhammenBedel: 4500000,
-    ihaleTarihi: new Date().toISOString().split('T')[0],
-    ihaleSaati: '14:30',
-    ihaleYeri: 'Belediye Encümen Toplantı Salonu',
-    il: 'Ankara',
-    ilce: 'Çankaya',
-    mahalleKoy: 'Merkez Mah.',
-    ada: '104',
-    parsel: '12',
-    yuzolcumuM2: 1450,
-    cinsi: 'Ticari İmarlı Arsa',
-    adres: ''
-  })
-
   const openNewModal = (): void => {
     setEditingDosya(null)
-    setFormData({
-      ihaleKayitNo: `2026/2886-ST-0${dosyalar.length + 1}`,
-      ihaleAdi: '',
-      islemTuru: 'satis',
-      usul: 'acik_teklif_45',
-      muhammenBedel: 2500000,
-      ihaleTarihi: new Date().toISOString().split('T')[0],
-      ihaleSaati: '14:00',
-      ihaleYeri: 'Belediye Encümen Toplantı Salonu',
-      il: 'Ankara',
-      ilce: 'Çankaya',
-      mahalleKoy: 'Merkez Mah.',
-      ada: '101',
-      parsel: '1',
-      yuzolcumuM2: 500,
-      cinsi: 'Arsa Satışı',
-      adres: ''
-    })
     setShowNewModal(true)
   }
 
   const openEditModal = (dosya: Dosya2886Item): void => {
     setEditingDosya(dosya)
-    setFormData({
-      ihaleKayitNo: dosya.ihaleKayitNo,
-      ihaleAdi: dosya.ihaleAdi,
-      islemTuru: dosya.islemTuru,
-      usul: dosya.usul,
-      muhammenBedel:
-        dosya.muhammenBedel?.takdirEdilenMuhammenBedel ||
-        dosya.muhammenBedel?.hesaplananBedel ||
-        0,
-      ihaleTarihi: dosya.ihaleTarihi,
-      ihaleSaati: dosya.ihaleSaati || '14:00',
-      ihaleYeri: dosya.ihaleYeri || 'Encümen Salonu',
-      il: dosya.tasinmaz?.il || '',
-      ilce: dosya.tasinmaz?.ilce || '',
-      mahalleKoy: dosya.tasinmaz?.mahalleKoy || '',
-      ada: dosya.tasinmaz?.ada || '',
-      parsel: dosya.tasinmaz?.parsel || '',
-      yuzolcumuM2: dosya.tasinmaz?.yuzolcumuM2 || 0,
-      cinsi: dosya.tasinmaz?.cinsi || '',
-      adres: dosya.tasinmaz?.adres || ''
-    })
     setShowNewModal(true)
   }
 
-  const handleSaveDosya = (e: React.FormEvent): void => {
-    e.preventDefault()
-    if (!formData.ihaleAdi.trim()) return
-
-    const bedel = Number(formData.muhammenBedel) || 0
-    const geciciTeminat = Math.round(bedel * 0.03)
-
-    if (editingDosya) {
-      // Güncelleme
-      const updatedList = dosyalar.map((d) =>
-        d.id === editingDosya.id
-          ? {
-              ...d,
-              ihaleKayitNo: formData.ihaleKayitNo,
-              ihaleAdi: formData.ihaleAdi,
-              islemTuru: formData.islemTuru,
-              usul: formData.usul,
-              ihaleTarihi: formData.ihaleTarihi,
-              ihaleSaati: formData.ihaleSaati,
-              ihaleYeri: formData.ihaleYeri,
-              tasinmaz: {
-                ...d.tasinmaz,
-                il: formData.il,
-                ilce: formData.ilce,
-                mahalleKoy: formData.mahalleKoy,
-                ada: formData.ada,
-                parsel: formData.parsel,
-                yuzolcumuM2: Number(formData.yuzolcumuM2) || 0,
-                cinsi: formData.cinsi,
-                adres: formData.adres
-              },
-              muhammenBedel: {
-                ...d.muhammenBedel,
-                hesaplananBedel: bedel,
-                takdirEdilenMuhammenBedel: bedel,
-                geciciTeminatTutari: geciciTeminat
-              }
-            }
-          : d
-      )
-      saveAndBroadcast(updatedList)
+  const handleSaveModalResult = (savedDosya: Dosya2886Item): void => {
+    const exists = dosyalar.some((d) => d.id === savedDosya.id)
+    let updatedList: Dosya2886Item[]
+    if (exists) {
+      updatedList = dosyalar.map((d) => (d.id === savedDosya.id ? savedDosya : d))
     } else {
-      // Yeni Ekleme
-      const newItem: Dosya2886Item = {
-        id: `2886-${Date.now()}`,
-        ihaleKayitNo: formData.ihaleKayitNo,
-        ihaleAdi: formData.ihaleAdi,
-        islemTuru: formData.islemTuru,
-        usul: formData.usul,
-        ihaleTarihi: formData.ihaleTarihi,
-        ihaleSaati: formData.ihaleSaati,
-        ihaleYeri: formData.ihaleYeri,
-        tasinmaz: {
-          il: formData.il,
-          ilce: formData.ilce,
-          mahalleKoy: formData.mahalleKoy,
-          ada: formData.ada,
-          parsel: formData.parsel,
-          yuzolcumuM2: Number(formData.yuzolcumuM2) || 0,
-          cinsi: formData.cinsi,
-          hisseOrani: '1/1',
-          mevcutDurumu: 'Boş',
-          adres: formData.adres
-        },
-        muhammenBedel: {
-          hesaplananBedel: bedel,
-          takdirEdilenMuhammenBedel: bedel,
-          geciciTeminatTutari: geciciTeminat,
-          kdvOrani: 20
-        }
-      }
-      const updatedList = [newItem, ...dosyalar]
-      saveAndBroadcast(updatedList)
-      persist2886ActiveDosya(newItem)
-      if (onSelectDosya) onSelectDosya(newItem)
+      updatedList = [savedDosya, ...dosyalar]
+      persist2886ActiveDosya(savedDosya)
+      if (onSelectDosya) onSelectDosya(savedDosya)
     }
-
+    saveAndBroadcast(updatedList)
     setShowNewModal(false)
+    setEditingDosya(null)
   }
 
   // Kesin ve Kalıcı Silme Fonksiyonu
@@ -700,185 +577,17 @@ export function DosyaYonetimi2886Tab({
         </div>
       )}
 
-      {/* 4. YENİ / DÜZENLEME MODALI */}
-      {showNewModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <form
-            onSubmit={handleSaveDosya}
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
-          >
-            <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
-              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                <FolderPlus className="w-4 h-4 text-purple-500" />
-                {editingDosya ? '2886 İhale Dosyasını Düzenle' : 'Yeni 2886 İhale Dosyası Aç'}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setShowNewModal(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm font-bold cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                  İhale Kayıt No
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.ihaleKayitNo}
-                  onChange={(e) => setFormData({ ...formData, ihaleKayitNo: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                  İşlem Türü
-                </label>
-                <select
-                  value={formData.islemTuru}
-                  onChange={(e) => setFormData({ ...formData, islemTuru: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl text-xs"
-                >
-                  <option value="satis">🏷️ Mülkiyet Satışı</option>
-                  <option value="kiralama">🏢 Taşınmaz Kiralama</option>
-                  <option value="irtifak_hakki">📜 Sınırlı Ayni Hak / İrtifak</option>
-                  <option value="trampa">🔄 Trampa (Takas)</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="text-xs">
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                İhale Konusu & Taşınmaz Adı
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="Örn: Merkez Mah. 104 Ada 12 Parsel Arsa Satışı"
-                value={formData.ihaleAdi}
-                onChange={(e) => setFormData({ ...formData, ihaleAdi: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl text-xs"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                  İhale Usulü
-                </label>
-                <select
-                  value={formData.usul}
-                  onChange={(e) => setFormData({ ...formData, usul: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl text-xs"
-                >
-                  <option value="acik_teklif_45">Madde 45 (Açık Teklif Usulü)</option>
-                  <option value="kapali_teklif_36">Madde 36 (Kapalı Teklif Usulü)</option>
-                  <option value="pazarlik_51">Madde 51 (Pazarlık Usulü)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                  Muhammen Bedel (₺)
-                </label>
-                <input
-                  type="number"
-                  required
-                  value={formData.muhammenBedel}
-                  onChange={(e) =>
-                    setFormData({ ...formData, muhammenBedel: parseFloat(e.target.value) || 0 })
-                  }
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono font-bold"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                  İhale Tarihi
-                </label>
-                <input
-                  type="date"
-                  value={formData.ihaleTarihi}
-                  onChange={(e) => setFormData({ ...formData, ihaleTarihi: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                  İhale Saati
-                </label>
-                <input
-                  type="time"
-                  value={formData.ihaleSaati}
-                  onChange={(e) => setFormData({ ...formData, ihaleSaati: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                  Ada / Parsel
-                </label>
-                <input
-                  type="text"
-                  placeholder="104 / 12"
-                  value={formData.ada && formData.parsel ? `${formData.ada} / ${formData.parsel}` : formData.ada}
-                  onChange={(e) => {
-                    const parts = e.target.value.split('/')
-                    setFormData({
-                      ...formData,
-                      ada: parts[0]?.trim() || '',
-                      parsel: parts[1]?.trim() || ''
-                    })
-                  }}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                  Yüzölçümü (m²)
-                </label>
-                <input
-                  type="number"
-                  placeholder="1450"
-                  value={formData.yuzolcumuM2 || ''}
-                  onChange={(e) =>
-                    setFormData({ ...formData, yuzolcumuM2: parseFloat(e.target.value) || 0 })
-                  }
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono"
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
-              <button
-                type="button"
-                onClick={() => setShowNewModal(false)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold cursor-pointer"
-              >
-                Vazgeç
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
-              >
-                {editingDosya ? 'Değişiklikleri Kaydet' : 'İhale Dosyasını Oluştur'}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      {/* 4. YENİ / DÜZENLEME MODALI (A4 TIPTAP & PLACEHOLDER STUDIOSU) */}
+      <Dosya2886EditorModal
+        isOpen={showNewModal}
+        editingDosya={editingDosya}
+        onClose={() => {
+          setShowNewModal(false)
+          setEditingDosya(null)
+        }}
+        onSave={handleSaveModalResult}
+        totalCount={dosyalar.length}
+      />
 
       {/* 5. SİLME ONAY MODALI (KESİN SİLME & SENKRON) */}
       {deleteModalDosya && (

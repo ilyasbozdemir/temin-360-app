@@ -59,4 +59,12 @@ export interface Dosya2886Item {
     geciciTeminatTutari?: number
     kdvOrani?: number
   }
+  belgeIcerikHtml?: string
+  aktifSablonKodu?: string
+  surumler?: {
+    id: number
+    baslik: string
+    tarih: string
+    html: string
+  }[]
 }
