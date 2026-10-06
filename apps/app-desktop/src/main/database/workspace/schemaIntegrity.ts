@@ -161,6 +161,19 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     db.exec(`ALTER TABLE DATA_DosyaSablonVeri ADD COLUMN "sablon_kodu" TEXT;`)
   } catch {}
 
+  try {
+    db.exec(`ALTER TABLE DATA_TeminFirma ADD COLUMN "kazanan_mi" INTEGER DEFAULT 0;`)
+  } catch {}
+  try {
+    db.exec(`ALTER TABLE DATA_TeminFirma ADD COLUMN "kazandi_mi" INTEGER DEFAULT 0;`)
+  } catch {}
+  try {
+    db.exec(`
+      UPDATE DATA_TeminFirma SET kazanan_mi = kazandi_mi WHERE (kazanan_mi IS NULL OR kazanan_mi = 0) AND kazandi_mi = 1;
+      UPDATE DATA_TeminFirma SET kazandi_mi = kazanan_mi WHERE (kazandi_mi IS NULL OR kazandi_mi = 0) AND kazanan_mi = 1;
+    `)
+  } catch {}
+
   // Child tables dosya_id sync & triggers
   const dosyaChildTables = [
     'DATA_TeminKalem',

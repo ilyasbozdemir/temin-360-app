@@ -30,6 +30,7 @@ export const DATA_TeminFirma = {
     { name: 'teklif_verdi_mi', type: 'INTEGER', default: 0, description: 'Teklif Verdi mi?' },
     { name: 'teklif_toplami', type: 'REAL', description: 'Firmanın Toplam Teklif Tutarı' },
     { name: 'kazandi_mi', type: 'INTEGER', default: 0, description: 'İhale Bu Firmada mı Kaldı?' },
+    { name: 'kazanan_mi', type: 'INTEGER', default: 0, description: 'Geriye dönük uyumluluk için kazandi_mi alias' },
     {
       name: 'teklif_durumu',
       type: 'TEXT',
