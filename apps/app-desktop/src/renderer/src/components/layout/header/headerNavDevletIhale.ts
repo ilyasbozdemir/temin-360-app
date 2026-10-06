@@ -8,6 +8,14 @@ export function getDevletIhale2886Menus(navigate: NavigateFn): HeaderMenu[] {
       onClick: (): Promise<void> => navigate({ to: '/devlet-ihale-2886' }),
       items: [
         {
+          label: '📁 2886 İhale Dosyaları Yönetimi (Liste / Ekle / Sil)',
+          onClick: (): Promise<void> =>
+            navigate({
+              to: '/devlet-ihale-2886',
+              search: { tab: 'dosyalar' } as Record<string, string>
+            })
+        },
+        {
           label: '🏛️ 2886 Satış & Kiralama Çalışma Masası',
           onClick: (): Promise<void> => navigate({ to: '/devlet-ihale-2886' })
         },

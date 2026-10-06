@@ -154,6 +154,12 @@ export function Sidebar(): React.JSX.Element {
           items: [
             { name: 'Gösterge Paneli', path: '/', icon: Home },
             {
+              name: '2886 İhale Dosyaları Yönetimi',
+              path: '/devlet-ihale-2886?tab=dosyalar',
+              icon: FolderOpen,
+              badge: 'DOSYALAR'
+            },
+            {
               name: '2886 Satış & Kiralama Masası',
               path: '/devlet-ihale-2886',
               icon: Landmark,
@@ -165,6 +171,12 @@ export function Sidebar(): React.JSX.Element {
           title: '2886 Süreç İşlemleri',
           items: [
             {
+              name: '📁 İhale Dosyaları Yönetimi',
+              path: '/devlet-ihale-2886?tab=dosyalar',
+              icon: FolderOpen,
+              badge: 'YÖNETİM'
+            },
+            {
               name: '🏛️ Satış & Kiralama Masası',
               path: '/devlet-ihale-2886',
               icon: Landmark,
@@ -172,27 +184,27 @@ export function Sidebar(): React.JSX.Element {
             },
             {
               name: '📊 Muhammen Bedel & Takdir',
-              path: '/devlet-ihale-2886',
+              path: '/devlet-ihale-2886?tab=takdir',
               icon: Calculator
             },
             {
               name: '⚖️ Usul & Karar Matrisi (Md. 45/36/51)',
-              path: '/devlet-ihale-2886',
+              path: '/devlet-ihale-2886?tab=usul',
               icon: Scale
             },
             {
               name: '🔨 İhale Günü & Teklifler',
-              path: '/devlet-ihale-2886',
+              path: '/devlet-ihale-2886?tab=ihale_gunu',
               icon: Hammer
             },
             {
               name: '📑 Süreç & İlan Evrakları (16 Evrak)',
-              path: '/devlet-ihale-2886',
+              path: '/devlet-ihale-2886?tab=evraklar',
               icon: FileText
             },
             {
               name: '💰 Kira Artış & Tahsilat Takibi',
-              path: '/devlet-ihale-2886',
+              path: '/devlet-ihale-2886?tab=tahsilat',
               icon: Coins,
               badge: '5018'
             }

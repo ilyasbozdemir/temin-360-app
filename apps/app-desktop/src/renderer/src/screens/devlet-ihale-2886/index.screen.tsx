@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Calculator,
   CheckCircle2,
@@ -24,6 +24,26 @@ export default function DevletIhale2886Screen(): React.JSX.Element {
     'dosyalar' | 'takdir' | 'usul' | 'evraklar' | 'ihale_gunu' | 'tahsilat'
   >('dosyalar')
   const [selectedDosya, setSelectedDosya] = useState<Dosya2886Item | null>(null)
+
+  // URL'deki ?tab= parametresini dinle
+  useEffect(() => {
+    const handleUrlTab = (): void => {
+      const searchParams = new URLSearchParams(window.location.search)
+      const tabParam = searchParams.get('tab')
+      if (
+        tabParam &&
+        ['dosyalar', 'takdir', 'usul', 'evraklar', 'ihale_gunu', 'tahsilat'].includes(tabParam)
+      ) {
+        setActiveTab(
+          tabParam as 'dosyalar' | 'takdir' | 'usul' | 'evraklar' | 'ihale_gunu' | 'tahsilat'
+        )
+      }
+    }
+
+    handleUrlTab()
+    window.addEventListener('popstate', handleUrlTab)
+    return () => window.removeEventListener('popstate', handleUrlTab)
+  }, [])
 
   const tabs: {
     id: typeof activeTab
@@ -154,9 +174,9 @@ export default function DevletIhale2886Screen(): React.JSX.Element {
             }}
           />
         )}
-        {activeTab === 'takdir' && <MuhammenBedelVeTakdirTab />}
+        {activeTab === 'takdir' && <MuhammenBedelVeTakdirTab islemTuru={islemTuru} />}
         {activeTab === 'usul' && <UsulVeKararMatrisiTab />}
-        {activeTab === 'evraklar' && <SurecEvraklariTab />}
+        {activeTab === 'evraklar' && <SurecEvraklariTab selectedDosya={selectedDosya} />}
         {activeTab === 'ihale_gunu' && <IhaleGunuVeTekliflerTab />}
         {activeTab === 'tahsilat' && <KiraVeTahsilatTakipTab islemTuru={islemTuru} />}
       </div>
