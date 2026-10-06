@@ -1,4 +1,4 @@
-export type IslemTuru2886 = 'satis' | 'kiralama' | 'irtifak_intifa' | 'trampa'
+export type IslemTuru2886 = 'satis' | 'kiralama' | 'irtifak' | 'irtifak_intifa' | 'trampa'
 
 export type Usul2886 =
   | 'acik_teklif_45' // Md. 45 Açık Teklif Usulü (Açık Artırma)

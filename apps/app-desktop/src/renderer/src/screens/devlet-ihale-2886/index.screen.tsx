@@ -6,7 +6,8 @@ import {
   FileText,
   Gavel,
   Landmark,
-  Layers
+  Layers,
+  FolderOpen
 } from 'lucide-react'
 import { IslemTuru2886 } from './types/devletIhale2886.types'
 import { IslemTuruSecici } from './components/IslemTuruSecici'
@@ -15,12 +16,14 @@ import { UsulVeKararMatrisiTab } from './components/UsulVeKararMatrisiTab'
 import { SurecEvraklariTab } from './components/SurecEvraklariTab'
 import { IhaleGunuVeTekliflerTab } from './components/IhaleGunuVeTekliflerTab'
 import { KiraVeTahsilatTakipTab } from './components/KiraVeTahsilatTakipTab'
+import { DosyaYonetimi2886Tab, Dosya2886Item } from './components/DosyaYonetimi2886Tab'
 
 export default function DevletIhale2886Screen(): React.JSX.Element {
   const [islemTuru, setIslemTuru] = useState<IslemTuru2886>('satis')
   const [activeTab, setActiveTab] = useState<
-    'takdir' | 'usul' | 'evraklar' | 'ihale_gunu' | 'tahsilat'
-  >('takdir')
+    'dosyalar' | 'takdir' | 'usul' | 'evraklar' | 'ihale_gunu' | 'tahsilat'
+  >('dosyalar')
+  const [selectedDosya, setSelectedDosya] = useState<Dosya2886Item | null>(null)
 
   const tabs: {
     id: typeof activeTab
@@ -28,6 +31,12 @@ export default function DevletIhale2886Screen(): React.JSX.Element {
     icon: React.ComponentType<{ className?: string }>
     badge?: string
   }[] = [
+    {
+      id: 'dosyalar',
+      label: '0. 2886 İhale Dosyaları Yönetimi',
+      icon: FolderOpen,
+      badge: 'Liste & Ekle/Sil'
+    },
     {
       id: 'takdir',
       label: '1. Taşınmaz & Muhammen Bedel',
@@ -83,11 +92,11 @@ export default function DevletIhale2886Screen(): React.JSX.Element {
           <div className="flex items-center gap-3 self-start md:self-auto shrink-0 font-mono">
             <div className="px-3.5 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/10 text-right">
               <span className="text-[10px] text-slate-300 uppercase block font-sans">
-                Dosya Durumu
+                Aktif İhale Dosyası
               </span>
               <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                İhale Aşamasında (2026/01)
+                {selectedDosya ? `${selectedDosya.dosyaNo}` : '2886-2026/001'}
               </span>
             </div>
           </div>
@@ -135,6 +144,16 @@ export default function DevletIhale2886Screen(): React.JSX.Element {
 
       {/* 4. Aktif Sekme İçeriği */}
       <div className="w-full pb-8 space-y-4">
+        {activeTab === 'dosyalar' && (
+          <DosyaYonetimi2886Tab
+            activeDosyaId={selectedDosya?.id}
+            onSelectDosya={(dosya) => {
+              setSelectedDosya(dosya)
+              setIslemTuru(dosya.islemTuru)
+              setActiveTab('takdir')
+            }}
+          />
+        )}
         {activeTab === 'takdir' && <MuhammenBedelVeTakdirTab />}
         {activeTab === 'usul' && <UsulVeKararMatrisiTab />}
         {activeTab === 'evraklar' && <SurecEvraklariTab />}
