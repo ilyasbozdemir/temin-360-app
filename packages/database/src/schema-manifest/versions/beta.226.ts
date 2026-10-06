@@ -1,0 +1,18 @@
+/* eslint-disable */
+export default {
+  app: "1.0.0-beta.226",
+  schema_min: 1,
+  schema_max: 39,
+  release_date: "2026-10-06",
+  changes: [
+    {
+      schema: 39,
+      type: "update",
+      description: "2886 Devlet İhale ve doğrudan temin şablon snapshot (DATA_DosyaSablonVeri/DATA_DosyaRevizyon), taşınabilir veritabanı (client) ve merkezi tanımlar (sunucu) veri tutarlılığı",
+      raw_sql: [
+        "CREATE TABLE IF NOT EXISTS DATA_DosyaSablonVeri (id INTEGER PRIMARY KEY AUTOINCREMENT, temin_dosya_id INTEGER NOT NULL, dosya_id INTEGER, sablon_id INTEGER, sablon_kodu TEXT, veri_json TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP);",
+        "CREATE TABLE IF NOT EXISTS DATA_DosyaRevizyon (id INTEGER PRIMARY KEY AUTOINCREMENT, temin_dosya_id INTEGER NOT NULL, revizyon_no INTEGER NOT NULL, baslik TEXT NOT NULL, degisiklik_ozeti TEXT, degisiklik_turu TEXT DEFAULT 'Guncelleme', kullanici TEXT, snapshot_data TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);"
+      ]
+    }
+  ]
+};
