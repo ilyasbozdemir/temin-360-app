@@ -1,14 +1,10 @@
 import React, { useState } from 'react'
 import {
   FileText,
-  Printer,
   Edit3,
   Download,
   Eye,
-  Sparkles,
-  Layers,
   CheckCircle2,
-  Copy,
   FolderOpen
 } from 'lucide-react'
 import Mustache from 'mustache'
@@ -200,27 +196,40 @@ export function SurecEvraklariTab({ selectedDosya }: SurecEvraklariTabProps): Re
 
   // Aktif Dosya verileriyle birleştirilmiş dinamik değişken haritası (Mustache Placeholders)
   const templateVariables = React.useMemo(() => {
-    const d = selectedDosya
-    const bedel = d?.muhammenBedel || 2500000
-    const geciciTeminat = Math.round(bedel * 0.03)
+    const d = selectedDosya as any
+    const bedel =
+      d?.muhammenBedel?.takdirEdilenMuhammenBedel ||
+      d?.muhammenBedel?.hesaplananBedel ||
+      (typeof d?.muhammenBedel === 'number' ? d?.muhammenBedel : 4500000)
+    const geciciTeminat = d?.muhammenBedel?.geciciTeminatTutari || Math.round(bedel * 0.03)
 
     return {
       kurum_adi: 'ÖRNEK BELEDİYE BAŞKANLIĞI',
       sayi_no: d ? `E-2886-${d.id}` : 'E-2886-2026/001',
       tarih: new Date().toLocaleDateString('tr-TR'),
-      dosya_no: d?.dosyaNo || '2886-2026/001',
-      tasinmaz_adi: d?.tasinmazAdi || 'Merkez Mah. 104 Ada 12 Parsel Arsa',
+      dosya_no: d?.ihaleKayitNo || d?.dosyaNo || '2026/2886-ST-01',
+      tasinmaz_adi: d?.ihaleAdi || d?.tasinmazAdi || 'Merkez Mah. 104 Ada 12 Parsel 1.450 m² Ticari İmarlı Arsa Satışı İhalesi',
       islem_turu_adi:
         d?.islemTuru === 'satis'
           ? 'Mülkiyet Satışı'
           : d?.islemTuru === 'kiralama'
             ? 'Taşınmaz Kiralama'
-            : d?.islemTuru === 'irtifak'
-              ? 'İrtifak / Üst Hakkı Tesisi'
+            : d?.islemTuru === 'irtifak_hakki' || d?.islemTuru === 'irtifak'
+              ? 'Sınırlı Ayni Hak / İrtifak'
               : 'Taşınmaz Trampası',
-      ihale_usulu: d?.usul || 'Madde 35/a (Kapalı Teklif Usulü)',
-      ada_parsel: d?.adaParsel || '104 / 12',
-      yuzolcumu: d?.yuzolcumuM2 || 450,
+      ihale_usulu:
+        d?.usul === 'acik_teklif_45'
+          ? 'Madde 45 (Açık Teklif Usulü)'
+          : d?.usul === 'kapali_teklif_36'
+            ? 'Madde 36 (Kapalı Teklif Usulü)'
+            : d?.usul === 'pazarlik_51'
+              ? 'Madde 51 (Pazarlık Usulü)'
+              : d?.usul || 'Madde 45 (Açık Teklif Usulü)',
+      ada_parsel:
+        d?.tasinmaz?.ada && d?.tasinmaz?.parsel
+          ? `${d.tasinmaz.ada} / ${d.tasinmaz.parsel}`
+          : d?.adaParsel || '104 / 12',
+      yuzolcumu: d?.tasinmaz?.yuzolcumuM2 || d?.yuzolcumuM2 || 1450,
       muhammen_bedel: bedel.toLocaleString('tr-TR', { minimumFractionDigits: 2 }),
       muhammen_bedel_yaziyla: sayiyiYaziyaCevir(bedel) + ' Türk Lirası',
       gecici_teminat: geciciTeminat.toLocaleString('tr-TR', { minimumFractionDigits: 2 }),
@@ -302,9 +311,9 @@ export function SurecEvraklariTab({ selectedDosya }: SurecEvraklariTabProps): Re
               Aktif 2886 Dosyası & Dinamik Şablon Motoru
             </span>
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <span>{selectedDosya ? selectedDosya.dosyaNo : 'Varsayılan Demo Dosyası'}</span>
+              <span>{selectedDosya ? selectedDosya.ihaleKayitNo : '2026/2886-ST-01'}</span>
               <span className="text-xs font-normal text-slate-500">
-                — {selectedDosya ? selectedDosya.tasinmazAdi : 'Merkez Mah. Arsa Satışı'}
+                — {selectedDosya ? selectedDosya.ihaleAdi : 'Merkez Mah. 104 Ada 12 Parsel 1.450 m² Ticari İmarlı Arsa Satışı İhalesi'}
               </span>
             </h3>
           </div>

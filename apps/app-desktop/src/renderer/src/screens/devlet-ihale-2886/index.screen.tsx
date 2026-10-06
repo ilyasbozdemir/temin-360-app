@@ -116,7 +116,7 @@ export default function DevletIhale2886Screen(): React.JSX.Element {
               </span>
               <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                {selectedDosya ? `${selectedDosya.dosyaNo}` : '2886-2026/001'}
+                {selectedDosya ? `${selectedDosya.ihaleKayitNo}` : '2026/2886-ST-01'}
               </span>
             </div>
           </div>
@@ -169,7 +169,11 @@ export default function DevletIhale2886Screen(): React.JSX.Element {
             activeDosyaId={selectedDosya?.id}
             onSelectDosya={(dosya) => {
               setSelectedDosya(dosya)
-              setIslemTuru(dosya.islemTuru)
+              setIslemTuru(
+                dosya.islemTuru === 'irtifak_hakki'
+                  ? 'irtifak'
+                  : (dosya.islemTuru as IslemTuru2886)
+              )
               setActiveTab('takdir')
             }}
           />

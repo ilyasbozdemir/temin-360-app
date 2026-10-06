@@ -286,7 +286,7 @@ export function DatabaseBrowserScreen(): React.JSX.Element {
     const sql = `INSERT INTO ${selectedTable} (${colsToInsert.join(', ')}) VALUES (${placeholders})`
 
     try {
-      const res = await window.electron.ipcRenderer.invoke('db:query', sql, values)
+      const res = await window.electron.ipcRenderer.invoke('db:run', sql, values)
       if (res.success) {
         setStatusMessage({
           type: 'success',
@@ -332,7 +332,7 @@ export function DatabaseBrowserScreen(): React.JSX.Element {
         sql = `DELETE FROM ${selectedTable} WHERE ${whereClauses}`
       }
 
-      const res = await window.electron.ipcRenderer.invoke('db:query', sql, params)
+      const res = await window.electron.ipcRenderer.invoke('db:run', sql, params)
       if (res.success) {
         setStatusMessage({
           type: 'success',
@@ -384,14 +384,33 @@ export function DatabaseBrowserScreen(): React.JSX.Element {
 
   // Run SQL Console query
   const handleRunQuery = async (): Promise<void> => {
-    if (!consoleQuery.trim()) return
+    const rawSql = consoleQuery.trim()
+    if (!rawSql) return
     setConsoleLoading(true)
     setConsoleError(null)
     setConsoleResults([])
+
     try {
-      const res = await window.electron.ipcRenderer.invoke('db:query', consoleQuery.trim())
+      const isMutation = /^(DELETE|INSERT|UPDATE|DROP|ALTER|CREATE|REPLACE|PRAGMA|VACUUM)/i.test(
+        rawSql
+      )
+      const channel = isMutation ? 'db:run' : 'db:query'
+      const res = await window.electron.ipcRenderer.invoke(channel, rawSql)
+
       if (res.success) {
-        setConsoleResults(res.data || [])
+        if (isMutation) {
+          setConsoleResults([
+            {
+              durum: 'Başarılı',
+              etkilenen_satir: res.changes ?? 1,
+              mesaj: 'SQL komutu başarıyla yürütüldü.'
+            }
+          ])
+          await loadTableDetails()
+          await loadTables()
+        } else {
+          setConsoleResults(res.data || [])
+        }
       } else {
         setConsoleError(res.error || 'Sorgu çalıştırılırken bilinmeyen bir hata oluştu.')
       }
