@@ -45,6 +45,14 @@ export const SonAlimFiyatCetveliSchema = z.object({
   firstPageLimit: z.any().optional(),
   middlePageLimit: z.any().optional(),
   lastPageLimit: z.any().optional(),
+  // EK-1: TÜİK Yİ-ÜFE ile güncel fiyat eki
+  yiUfeEndeksleri: z
+    .array(z.object({ yil: z.number(), ay: z.number(), endeks: z.number() }))
+    .optional(),
+  yiUfeEkiGoster: z.any().optional(),
+  yiUfeHedefYil: z.any().optional(),
+  yiUfeHedefAy: z.any().optional(),
+  yiUfeEkiAciklama: z.any().optional(),
 }).catchall(z.any());
 
 export type SonAlimFiyatCetveliType = z.infer<typeof SonAlimFiyatCetveliSchema>;

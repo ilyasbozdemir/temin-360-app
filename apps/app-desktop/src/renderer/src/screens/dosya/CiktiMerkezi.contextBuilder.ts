@@ -469,5 +469,12 @@ export function buildDocumentContext(
     context.ihtiyacKalemleri = needItems
   }
 
+  // TÜİK Yİ-ÜFE aylık endeksleri (Son Alım Fiyat Cetveli EK-1 güncel fiyat hesabı için)
+  if (!Array.isArray(context.yiUfeEndeksleri)) {
+    context.yiUfeEndeksleri = yiUfeService
+      .getMonthlyList()
+      .map(({ yil, ay, endeks }) => ({ yil: Number(yil), ay: Number(ay), endeks: Number(endeks) }))
+  }
+
   return context
 }
