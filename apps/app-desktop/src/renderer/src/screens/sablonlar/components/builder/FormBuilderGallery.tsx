@@ -9,6 +9,7 @@ import {
   Columns,
   Sparkles,
   Users,
+  SearchX,
   LucideIcon
 } from 'lucide-react'
 import { FormFieldType, PresetController } from '../../types/formBuilder.types'
@@ -48,9 +49,14 @@ const PaletteItem: React.FC<{
       type="button"
       draggable
       onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = 'copy'
         e.dataTransfer.setData(
           'application/json',
-          JSON.stringify({ isPaletteItem: true, fieldType: tool.type })
+          JSON.stringify({
+            kind: 'field',
+            fieldType: tool.type,
+            isPaletteItem: true // Geriye uyumluluk fallback
+          })
         )
       }}
       onClick={() => onAdd(tool.type)}
@@ -130,22 +136,12 @@ export const FormBuilderGallery: React.FC<FormBuilderGalleryProps> = ({
     [filteredLayout, filteredInput, filteredOfficial]
   )
 
-  const categories = useMemo(
-    () => [
-      {
-        id: 'all' as GalleryCategory,
-        label: 'Tümü',
-        count:
-          filteredLayout.length +
-          filteredInput.length +
-          filteredOfficial.length +
-          filteredPresets.length
-      },
-      { id: 'layout' as GalleryCategory, label: 'Düzen', count: filteredLayout.length },
-      { id: 'input' as GalleryCategory, label: 'Girişler', count: filteredInput.length },
-      { id: 'official' as GalleryCategory, label: 'İdari', count: filteredOfficial.length },
-      { id: 'preset' as GalleryCategory, label: 'Hazır Blok', count: filteredPresets.length }
-    ],
+  const totalFilteredCount = useMemo(
+    () =>
+      filteredLayout.length +
+      filteredInput.length +
+      filteredOfficial.length +
+      filteredPresets.length,
     [
       filteredLayout.length,
       filteredInput.length,
@@ -153,6 +149,43 @@ export const FormBuilderGallery: React.FC<FormBuilderGalleryProps> = ({
       filteredPresets.length
     ]
   )
+
+  const categories = useMemo(
+    () => [
+      {
+        id: 'all' as GalleryCategory,
+        label: 'Tümü',
+        count: totalFilteredCount
+      },
+      { id: 'layout' as GalleryCategory, label: 'Düzen', count: filteredLayout.length },
+      { id: 'input' as GalleryCategory, label: 'Girişler', count: filteredInput.length },
+      { id: 'official' as GalleryCategory, label: 'İdari', count: filteredOfficial.length },
+      { id: 'preset' as GalleryCategory, label: 'Hazır Blok', count: filteredPresets.length }
+    ],
+    [
+      totalFilteredCount,
+      filteredLayout.length,
+      filteredInput.length,
+      filteredOfficial.length,
+      filteredPresets.length
+    ]
+  )
+
+  const currentCategoryHasItems = useMemo(() => {
+    if (selectedCategory === 'all') return totalFilteredCount > 0
+    if (selectedCategory === 'layout') return filteredLayout.length > 0
+    if (selectedCategory === 'input') return filteredInput.length > 0
+    if (selectedCategory === 'official') return filteredOfficial.length > 0
+    if (selectedCategory === 'preset') return filteredPresets.length > 0
+    return false
+  }, [
+    selectedCategory,
+    totalFilteredCount,
+    filteredLayout.length,
+    filteredInput.length,
+    filteredOfficial.length,
+    filteredPresets.length
+  ])
 
   return (
     <div className="w-80 bg-slate-50/90 dark:bg-slate-950/90 border-r border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden transition-all shrink-0 select-none">
@@ -213,6 +246,23 @@ export const FormBuilderGallery: React.FC<FormBuilderGalleryProps> = ({
 
       {/* Bileşen Listesi */}
       <div className="flex-1 p-3 overflow-y-auto space-y-4 font-sans text-xs">
+        {/* Boş Durum (Empty State) Mesajı */}
+        {!currentCategoryHasItems && (
+          <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+            <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
+              <SearchX className="w-5 h-5 text-slate-400 dark:text-slate-500" />
+            </div>
+            <p className="font-semibold text-xs text-slate-700 dark:text-slate-300 mb-1">
+              Sonuç Bulunamadı
+            </p>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 max-w-[200px]">
+              {toolboxSearch
+                ? `"${toolboxSearch}" ile eşleşen bileşen veya şablon bulunamadı.`
+                : 'Bu kategoride henüz bileşen bulunmuyor.'}
+            </p>
+          </div>
+        )}
+
         {/* Standart Araç Grupları (DRY Loop) */}
         {SECTIONS.map((sec) => {
           if (
@@ -259,9 +309,14 @@ export const FormBuilderGallery: React.FC<FormBuilderGalleryProps> = ({
                     type="button"
                     draggable
                     onDragStart={(e) => {
+                      e.dataTransfer.effectAllowed = 'copy'
                       e.dataTransfer.setData(
                         'application/json',
-                        JSON.stringify({ isPreset: true, presetId: preset.id })
+                        JSON.stringify({
+                          kind: 'preset',
+                          presetId: preset.id,
+                          isPreset: true // Geriye uyumluluk fallback
+                        })
                       )
                     }}
                     onClick={() => onAddPreset(preset)}

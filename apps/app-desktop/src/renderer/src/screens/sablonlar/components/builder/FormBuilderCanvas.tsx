@@ -258,11 +258,13 @@ export const FormBuilderCanvas: React.FC<FormBuilderCanvasProps> = ({
           if (!rawData) return
           try {
             const parsed = JSON.parse(rawData)
-            if (parsed.isPreset && parsed.presetId) {
-              const preset = allPresets.find((p) => p.id === parsed.presetId)
+            if (parsed.kind === 'preset' || parsed.isPreset) {
+              const presetId = parsed.presetId
+              const preset = allPresets.find((p) => p.id === presetId)
               if (preset) onAddPreset(preset)
-            } else if (parsed.isPaletteItem && parsed.fieldType) {
-              onAddField(parsed.fieldType)
+            } else if (parsed.kind === 'field' || (parsed.isPaletteItem && parsed.fieldType)) {
+              const fieldType = parsed.fieldType
+              if (fieldType) onAddField(fieldType)
             }
           } catch {
             // ignore
@@ -329,11 +331,13 @@ export const FormBuilderCanvas: React.FC<FormBuilderCanvasProps> = ({
                     if (!rawData) return
                     try {
                       const parsed = JSON.parse(rawData)
-                      if (parsed.isPreset && parsed.presetId) {
-                        const preset = allPresets.find((p) => p.id === parsed.presetId)
+                      if (parsed.kind === 'preset' || parsed.isPreset) {
+                        const presetId = parsed.presetId
+                        const preset = allPresets.find((p) => p.id === presetId)
                         if (preset) onAddPreset(preset, globalIdx + 1)
-                      } else if (parsed.isPaletteItem && parsed.fieldType) {
-                        onAddField(parsed.fieldType, globalIdx + 1)
+                      } else if (parsed.kind === 'field' || (parsed.isPaletteItem && parsed.fieldType)) {
+                        const fieldType = parsed.fieldType
+                        if (fieldType) onAddField(fieldType, globalIdx + 1)
                       } else if (typeof parsed.index === 'number') {
                         onMoveField(parsed.index, globalIdx)
                       }

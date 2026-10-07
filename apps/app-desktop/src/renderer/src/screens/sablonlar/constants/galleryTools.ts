@@ -3,7 +3,7 @@ import {
   Grid,
   Building,
   Minus,
-  FileSpreadsheet,
+  SeparatorHorizontal,
   Type,
   AlignLeft,
   DollarSign,
@@ -58,7 +58,7 @@ export const LAYOUT_TOOLS: readonly GalleryToolItem[] = [
     type: 'page_break',
     label: 'Sayfa Sonu (Kesme)',
     desc: 'Baskıda sonraki sayfaya geçiş noktası',
-    icon: FileSpreadsheet,
+    icon: SeparatorHorizontal,
     color: 'text-rose-500 dark:text-rose-400'
   }
 ]
