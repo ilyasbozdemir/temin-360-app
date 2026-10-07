@@ -65,7 +65,7 @@ export interface DashboardStats {
   kikLimitStat: KikLimitStat | null
 }
 
-export function useDashboardStats(filterMode: 'dogrudan_temin' | 'ihale' | 'all' = 'all') {
+export function useDashboardStats(filterMode: 'dogrudan_temin' | 'ihale' | 'devlet_ihale_2886' | 'all' = 'all') {
   const [stats, setStats] = useState<DashboardStats>({
     ihaleDosyaSayisi: 0,
     kayitliFirmaSayisi: 0,

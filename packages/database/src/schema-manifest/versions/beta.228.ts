@@ -1,0 +1,24 @@
+/* eslint-disable */
+export default {
+  app: "1.0.0-beta.228",
+  schema_min: 1,
+  schema_max: 39,
+  release_date: "2026-10-07",
+  changes: [
+    {
+      schema: 39,
+      type: "update",
+      description: "2886 Devlet İhale ve doğrudan temin dinamik belge & form stüdyosu, gösterge paneli mod entegrasyonu ve kararlı derleme",
+      columns_added: [
+        { table: "DATA_TeminFirma", column: "kazanan_mi" }
+      ],
+      raw_sql: [
+        "ALTER TABLE DATA_TeminFirma ADD COLUMN kazanan_mi INTEGER DEFAULT 0;",
+        "UPDATE DATA_TeminFirma SET kazanan_mi = COALESCE(kazandi_mi, 0) WHERE (kazanan_mi IS NULL OR kazanan_mi = 0) AND kazandi_mi = 1;",
+        "UPDATE DATA_TeminFirma SET kazandi_mi = COALESCE(kazanan_mi, 0) WHERE (kazandi_mi IS NULL OR kazandi_mi = 0) AND kazanan_mi = 1;",
+        "CREATE TABLE IF NOT EXISTS DATA_DosyaSablonVeri (id INTEGER PRIMARY KEY AUTOINCREMENT, temin_dosya_id INTEGER NOT NULL, dosya_id INTEGER, sablon_id INTEGER, sablon_kodu TEXT, veri_json TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP);",
+        "CREATE TABLE IF NOT EXISTS DATA_DosyaRevizyon (id INTEGER PRIMARY KEY AUTOINCREMENT, temin_dosya_id INTEGER NOT NULL, revizyon_no INTEGER NOT NULL, baslik TEXT NOT NULL, degisiklik_ozeti TEXT, degisiklik_turu TEXT DEFAULT 'Guncelleme', kullanici TEXT, snapshot_data TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);"
+      ]
+    }
+  ]
+};

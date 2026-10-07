@@ -31,6 +31,7 @@ import { AiAdvisorCard } from "./components/AiAdvisorCard";
 import { AnnouncementsCardV2 } from "./components/AnnouncementsCardV2";
 import { AiMissingModal } from "./components/AiMissingModal";
 import { KikLimitVeBirimAnalizSection } from "./components/KikLimitVeBirimAnalizSection";
+import DevletIhale2886Screen from "../devlet-ihale-2886/index.screen";
 
 export default function DashboardScreenV2(): React.JSX.Element {
   const navigate = useNavigate();
@@ -49,14 +50,15 @@ export default function DashboardScreenV2(): React.JSX.Element {
 
   const { activeDosyaId, setActiveDosyaId } = useWorkspaceStore();
 
-  // Mod Seçici Durumu: 'dogrudan_temin' (KİK 22), 'ihale' (KİK 19/21) veya 'all'
+  // Mod Seçici Durumu: 'dogrudan_temin' (KİK 22), 'ihale' (KİK 19/21), 'devlet_ihale_2886' veya 'all'
   const [procurementMode, setProcurementMode] = useState<
-    "dogrudan_temin" | "ihale" | "all"
+    "dogrudan_temin" | "ihale" | "devlet_ihale_2886" | "all"
   >(() => {
     return (
       (localStorage.getItem("temin_procurement_mode") as
         | "dogrudan_temin"
-        | "ihale") ||
+        | "ihale"
+        | "devlet_ihale_2886") ||
       "dogrudan_temin"
     );
   });
@@ -77,7 +79,7 @@ export default function DashboardScreenV2(): React.JSX.Element {
   }, []);
 
   const switchProcurementMode = (
-    mode: "dogrudan_temin" | "ihale" | "all",
+    mode: "dogrudan_temin" | "ihale" | "devlet_ihale_2886" | "all",
   ): void => {
     setProcurementMode(mode);
     if (mode !== "all") {
@@ -424,6 +426,10 @@ export default function DashboardScreenV2(): React.JSX.Element {
       return "text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200/80 dark:border-emerald-800/60";
     }
     return "text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700";
+  }
+
+  if (procurementMode === "devlet_ihale_2886") {
+    return <DevletIhale2886Screen />;
   }
 
   return (
