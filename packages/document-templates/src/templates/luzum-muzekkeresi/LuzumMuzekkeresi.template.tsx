@@ -178,7 +178,14 @@ export function LuzumMuzekkeresi({
                     name="ihtiyacYeri"
                     value={
                       data.ihtiyacYeri ||
-                      toPossessiveSuffix((data as any).altKurumBizim || (data as any).kurumumuz || "")
+                      (data as any).ihtiyac_yeri ||
+                      (data as any).ihtiyac_yeri_eki ||
+                      toPossessiveSuffix(
+                        (data as any).altKurumBizim ||
+                          (data as any).kurumumuz ||
+                          (data as any).mudurluk ||
+                          ""
+                      )
                     }
                     placeholder="İhtiyaç Yeri"
                   />{" "}

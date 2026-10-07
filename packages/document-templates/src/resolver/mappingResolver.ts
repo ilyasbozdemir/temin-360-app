@@ -701,18 +701,20 @@ export async function resolveTemplateData(
           try {
             let foundIhtiyacYeri = '';
 
-            // 1. Check if the active file has a specific birim with ihtiyac_yeri_eki
+            // 1. Check if the active file has a specific ihtiyac_yeri or birim with ihtiyac_yeri_eki
             if (activeDosyaId) {
               const bRes = await queryExecutor(
-                `SELECT b.ihtiyac_yeri_eki, b.birim_adi 
+                `SELECT d.ihtiyac_yeri, b.ihtiyac_yeri_eki, b.birim_adi 
                  FROM DATA_TeminDosyasi d 
-                 JOIN TANIM_Birim b ON d.birim_id = b.id 
+                 LEFT JOIN TANIM_Birim b ON d.birim_id = b.id 
                  WHERE d.id = ? LIMIT 1`,
                 [activeDosyaId]
               );
               if (bRes?.[0]) {
                 const bRow = bRes[0];
-                if (bRow.ihtiyac_yeri_eki && String(bRow.ihtiyac_yeri_eki).trim()) {
+                if (bRow.ihtiyac_yeri && String(bRow.ihtiyac_yeri).trim()) {
+                  foundIhtiyacYeri = String(bRow.ihtiyac_yeri).trim();
+                } else if (bRow.ihtiyac_yeri_eki && String(bRow.ihtiyac_yeri_eki).trim()) {
                   let parsed = String(bRow.ihtiyac_yeri_eki).trim();
                   if (parsed.startsWith('[') && parsed.endsWith(']')) {
                     try {

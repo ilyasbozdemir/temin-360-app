@@ -274,9 +274,12 @@ export async function loadDocumentPreviewData({
     formatDateString(dosyaObj.onay_tarihi) || baseData.onayTarihi || formattedAcilisTarihi
 
   baseData.kurumumuz = baseData.kurumumuz || ctx.kurumumuz || ctx.altKurumBizim || 'Belediyemiz'
-  baseData.altKurumBizim =
-    baseData.altKurumBizim || ctx.altKurumBizim || ctx.kurumumuz || 'Belediyemiz'
-  baseData.ihtiyacYeri = baseData.ihtiyacYeri || ctx.ihtiyacYeri || 'Belediyemizin'
+  baseData.ihtiyacYeri =
+    dosyaObj.ihtiyac_yeri ||
+    baseData.ihtiyacYeri ||
+    ctx.ihtiyacYeri ||
+    dosyaObj.ihtiyac_yeri_eki ||
+    'Belediyemizin'
 
   const targetDocTemplateId = String(resolvedId || selectedDocId || '')
   const targetDocIds = [String(resolvedId || ''), String(selectedDocId || '')].filter(Boolean)
