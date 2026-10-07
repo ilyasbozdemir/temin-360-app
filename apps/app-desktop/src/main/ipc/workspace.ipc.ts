@@ -993,6 +993,21 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
         closeAllSecondaryWindows()
         const meta = workspaceManager.open(targetPath, true)
 
+        try {
+          const newDb = workspaceManager.getDb()
+          newDb.prepare(
+            `INSERT OR REPLACE INTO settings (key, value) VALUES ('lastBackupFileId', ?)`
+          ).run(args.fileId)
+          newDb.prepare(
+            `INSERT OR REPLACE INTO settings (key, value) VALUES ('lastBackupFileName', ?)`
+          ).run(args.fileName)
+          newDb.prepare(
+            `INSERT OR REPLACE INTO settings (key, value) VALUES ('lastGdriveSync', ?)`
+          ).run(new Date().toISOString())
+        } catch (dbErr) {
+          console.warn('Could not update last backup file info in downloaded DB:', dbErr)
+        }
+
         return {
           success: true,
           message: args.overwriteActive

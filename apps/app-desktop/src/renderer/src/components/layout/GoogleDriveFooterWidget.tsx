@@ -50,6 +50,7 @@ export function GoogleDriveFooterWidget(): React.JSX.Element | null {
 
       setLastSyncTime(settings?.lastGdriveSync || null)
       const lastFileId = settings?.lastBackupFileId
+      const lastFileName = settings?.lastBackupFileName
 
       const res = await window.electron.ipcRenderer.invoke('workspace:list-gdrive-files')
       if (!res?.success) {
@@ -95,9 +96,11 @@ export function GoogleDriveFooterWidget(): React.JSX.Element | null {
       }
 
       // Aktif dosya ismine göre eşleşen yedekleri filtrele
+      const currentFileNameClean = (fileName || '').trim().toLowerCase()
       const rawBase = (fileName || '')
         .replace(/\.(temin|dtal|hkmp)$/i, '')
         .replace(/_\d{4}[-_.]\d{2}[-_.]\d{2}(?:[-_.]\d{2}[-_.]\d{2})?$/, '')
+        .replace(/_surum\s*#?\d+/i, '')
         .trim()
 
       let matching = validBackups.filter((f) =>
@@ -116,6 +119,15 @@ export function GoogleDriveFooterWidget(): React.JSX.Element | null {
         return
       }
 
+      const latestNameClean = latestCloudFile.name.trim().toLowerCase()
+      const lastBackupNameClean = (lastFileName || '').trim().toLowerCase()
+
+      // 1. Dosya kimliği veya adı yereldekiyle birebir aynıysa bu dosya zaten yerelde aktiftir
+      const isSameFileAsActive =
+        latestCloudFile.id === lastFileId ||
+        latestNameClean === currentFileNameClean ||
+        (lastBackupNameClean && latestNameClean === lastBackupNameClean)
+
       const cloudTime = new Date(
         latestCloudFile.createdTime || latestCloudFile.modifiedTime || 0
       ).getTime()
@@ -123,8 +135,10 @@ export function GoogleDriveFooterWidget(): React.JSX.Element | null {
       const localFileTime = new Date(activeMeta?.updated_at || 0).getTime()
       const localTime = Math.max(localSyncTime, localFileTime)
 
-      // Buluttaki dosya ID'si son yüklediğimizden farklı ve zamanı yerelden en az 30 saniye yeniyse
-      const isCloudNewer = latestCloudFile.id !== lastFileId && cloudTime > localTime + 30000
+      // 2. Buluttaki dosya yereldekinden farklı bir ID ve dosya adı taşıyorsa VE yerel senkronizasyon zamanından en az 60 saniye yeniyse
+      const isCloudNewer =
+        !isSameFileAsActive &&
+        cloudTime > localTime + 60000
 
       if (isCloudNewer) {
         setHasNewerVersion(true)
