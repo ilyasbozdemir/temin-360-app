@@ -15,7 +15,7 @@ export interface PillarItem {
 }
 
 interface TeminPillarsMatrixProps {
-  procurementMode: 'dogrudan_temin' | 'ihale' | 'all'
+  procurementMode: 'dogrudan_temin' | 'ihale' | 'devlet_ihale_2886' | 'all'
   activePillar: 'T' | 'E' | 'M' | 'I' | 'N'
   setActivePillar: (pillar: 'T' | 'E' | 'M' | 'I' | 'N') => void
   teminPillars: PillarItem[]

@@ -5,8 +5,10 @@ import { cn } from '../../../utils/cn'
 import type { DashboardStats } from '../dashboard.hooks'
 
 interface ProcurementMethodsSummaryProps {
-  procurementMode: 'dogrudan_temin' | 'ihale' | 'all'
-  switchProcurementMode: (mode: 'dogrudan_temin' | 'ihale' | 'all') => void
+  procurementMode: 'dogrudan_temin' | 'ihale' | 'devlet_ihale_2886' | 'all'
+  switchProcurementMode: (
+    mode: 'dogrudan_temin' | 'ihale' | 'devlet_ihale_2886' | 'all'
+  ) => void
   stats: DashboardStats
   isLoading: boolean
   formatCurrency: (value: number) => string
