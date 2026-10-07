@@ -88,6 +88,20 @@ export class TemplateRegistryService {
   }
 
   /**
+   * Get template capabilities by ID or alias
+   */
+  static getCapabilities(id: string): TemplateCapabilities | undefined {
+    return this.getTemplateById(id)?.capabilities;
+  }
+
+  /**
+   * Check if a template supports 'Olur' approval block
+   */
+  static supportsOlur(id: string): boolean {
+    return Boolean(this.getCapabilities(id)?.supportsOlur);
+  }
+
+  /**
    * Filter templates that possess a specific capability (e.g. 'supportsCommission', 'supportsOlur')
    */
   static getTemplatesByCapability(capability: keyof TemplateCapabilities): TemplateType[] {
