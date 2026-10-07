@@ -153,7 +153,14 @@ pnpm dev:desktop  # Masaüstü uygulamasını Electron ile açar
 
 ---
 
-## 📄 Lisans
+## 📄 Lisanslama Modeli (Dual Licensing / Çift Lisans)
 
-Bu proje kamu kurumları ve harcama birimlerinin kullanımına yönelik geliştirilmiş kurumsal bir yazılımdır.
+Bu proje **Çift Lisanslama (Dual Licensing)** modeliyle korunmaktadır:
+
+1. **Topluluk ve Açık Kaynak Sürümü (GNU AGPLv3):**
+   - Bireysel geliştiriciler, akademik çalışmalar ve açık kaynak topluluğu için GNU Affero General Public License v3 (AGPLv3) şartları geçerlidir.
+2. **Kurumsal ve Kamu İdaresi Lisansı (Enterprise / Commercial License):**
+   - Kamu kurumları, yerel yönetimler (belediyeler), bakanlıklar ve özel entegratörler için; AGPLv3 kısıtlamalarından (kaynak kod açma zorunluluğu vb.) tamamen muaf, kurum içi kapalı ağ (intranet) dağıtımına, özel entegrasyonlara ve kurumsal teknik desteğe (SLA) olanak tanıyan ticari/kurumsal lisanslama sağlanmaktadır.
+
+> 💼 Kurumsal lisanslama, kamu tedarik süreçleri ve özel dağıtım talepleri için: **[iletisim@ilyasbozdemir.dev](mailto:iletisim@ilyasbozdemir.dev)** veya **[temin360.ilyasbozdemir.dev](https://temin360.ilyasbozdemir.dev)** üzerinden iletişime geçebilirsiniz.
 
