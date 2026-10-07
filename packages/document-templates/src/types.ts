@@ -40,7 +40,6 @@ export type TemplateType = {
   group?: TemplateGroup;
   description?: string;
   capabilities: TemplateCapabilities;
-  supportsOlur?: boolean; // Legacy fallback
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

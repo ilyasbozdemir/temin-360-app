@@ -7,7 +7,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     title: "İhtiyaç Listesi",
     category: "1-ihtiyac-tespiti-ve-baslangic",
     description: "Alımı yapılacak mal/hizmet kalemlerinin detaylı ihtiyaç tablosu",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: false,
@@ -23,7 +22,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     title: "İhtiyaç Talep Formu",
     category: "1-ihtiyac-tespiti-ve-baslangic",
     description: "Birimlerin mal/hizmet taleplerini yetkili makama ilettiği resmi form",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: false,
@@ -39,7 +37,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     title: "Taşınır Kayıt Yetkilisi Görüşü",
     category: "1-ihtiyac-tespiti-ve-baslangic",
     description: "Stokta malzeme bulunup bulunmadığına ilişkin ambar yetkilisi görüşü",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: false,
@@ -55,7 +52,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     title: "Teknik Şartname",
     category: "1-ihtiyac-tespiti-ve-baslangic",
     description: "İşin ve malzemelerin teknik kriterlerini belirleyen doküman",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: false,
@@ -71,7 +67,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     title: "Lüzum Müzekkeresi",
     category: "1-ihtiyac-tespiti-ve-baslangic",
     description: "Harcama biriminin alım gerekliliğini onaylatan başlangıç müzekkeresi",
-    supportsOlur: true,
     capabilities: {
       supportsOlur: true,
       supportsCommission: false,
@@ -87,7 +82,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     title: "Lüzum Müzekkeresi Onay Eki",
     category: "1-ihtiyac-tespiti-ve-baslangic",
     description: "Lüzum müzekkeresine eklenen kalem ve açıklama listesi",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: false,
@@ -104,7 +98,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "1-ihtiyac-tespiti-ve-baslangic",
     group: "muayene_kabul",
     description: "Lüzum müzekkeresi teslim alma ve evrak devir tutanağı",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: false,
@@ -121,7 +114,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "1-ihtiyac-tespiti-ve-baslangic",
     group: "olur_onay",
     description: "Harcama Yetkilisi tarafından imzalanan alım ve ihale başlatma oluru",
-    supportsOlur: true,
     capabilities: {
       supportsOlur: true,
       supportsCommission: false,
@@ -138,7 +130,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "1-ihtiyac-tespiti-ve-baslangic",
     group: "piyasa_arastirma",
     description: "Piyasa Araştırma veya Muayene Kabul Komisyon üyelerinin görevlendirme oluru",
-    supportsOlur: true,
     capabilities: {
       supportsOlur: true,
       supportsCommission: true,
@@ -160,7 +151,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "1-ihtiyac-tespiti-ve-baslangic",
     group: "piyasa_arastirma",
     description: "Görevlendirilen komisyon üyelerinin detaylı görev dağılım listesi",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: true,
@@ -182,7 +172,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "1-ihtiyac-tespiti-ve-baslangic",
     group: "piyasa_arastirma",
     description: "Piyasa fiyat araştırmasını yapmak üzere görevlendirilen personelin olur belgesi",
-    supportsOlur: true,
     capabilities: {
       supportsOlur: true,
       supportsCommission: true,
@@ -204,7 +193,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "1-ihtiyac-tespiti-ve-baslangic",
     group: "piyasa_arastirma",
     description: "Geçmiş alımlara ait birim fiyat ve fatura karşılaştırma cetveli",
-    supportsOlur: true,
     capabilities: {
       supportsOlur: true,
       supportsCommission: false,
@@ -221,7 +209,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "2-piyasa-fiyat-arastirmasi",
     group: "piyasa_arastirma",
     description: "Firmalara teklif sunmaları için gönderilen resmi davet yazısı",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: false,
@@ -238,7 +225,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "2-piyasa-fiyat-arastirmasi",
     group: "piyasa_arastirma",
     description: "Firmaların birim fiyatlarını doldurarak imzaladığı teklif mektubu",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: false,
@@ -260,7 +246,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "2-piyasa-fiyat-arastirmasi",
     group: "piyasa_arastirma",
     description: "İsteklilerin kalem bazlı birim fiyatlarını sunduğu detaylı cetvel",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: false,
@@ -282,7 +267,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "2-piyasa-fiyat-arastirmasi",
     group: "piyasa_arastirma",
     description: "Piyasa araştırması kapsamında gönderilen bilgi ve teklif toplama yazısı",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: false,
@@ -299,7 +283,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "2-piyasa-fiyat-arastirmasi",
     group: "piyasa_arastirma",
     description: "Toplanan tekliflerden alımın yaklaşık maliyetinin hesaplandığı cetvel",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: true,
@@ -316,7 +299,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "2-piyasa-fiyat-arastirmasi",
     group: "piyasa_arastirma",
     description: "Piyasa fiyat araştırması görevlilerinin teklifleri değerlendirdiği ana tutanak",
-    supportsOlur: true,
     capabilities: {
       supportsOlur: true,
       supportsCommission: true,
@@ -333,7 +315,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "3-siparis-ve-sozlesme",
     group: "olur_onay",
     description: "En avantajlı teklifi veren firmaya yapılan alım kabul bildirimi",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: false,
@@ -350,7 +331,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "3-siparis-ve-sozlesme",
     group: "olur_onay",
     description: "Karara bağlanan alımın yetkili makam onay belgesi",
-    supportsOlur: true,
     capabilities: {
       supportsOlur: true,
       supportsCommission: false,
@@ -367,7 +347,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "3-siparis-ve-sozlesme",
     group: "olur_onay",
     description: "Alım tutarının ilgili bütçe tertibinden karşılanabilirliğini gösteren form",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: false,
@@ -384,7 +363,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "3-siparis-ve-sozlesme",
     group: "olur_onay",
     description: "Yüklenici firma ile İdare arasında imzalanan matbu alım sözleşmesi",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: false,
@@ -401,7 +379,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "3-siparis-ve-sozlesme",
     group: "olur_onay",
     description: "Kazanan yükleniciye sözleşme imzalaması için iletilen davet yazısı",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: false,
@@ -418,7 +395,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "4-kabul-ve-odeme-islemleri",
     group: "muayene_kabul",
     description: "Teslim alınan mal veya hizmetin muayene ve kabul tutanağı cetveli",
-    supportsOlur: true,
     capabilities: {
       supportsOlur: true,
       supportsCommission: true,
@@ -435,7 +411,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "4-kabul-ve-odeme-islemleri",
     group: "muayene_kabul",
     description: "Teslim alınan mal veya hizmetin muayene kabul komisyonunca onaylanma kararı",
-    supportsOlur: true,
     capabilities: {
       supportsOlur: true,
       supportsCommission: true,
@@ -452,7 +427,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "4-kabul-ve-odeme-islemleri",
     group: "muayene_kabul",
     description: "Fatura kesme yükümlülüğü olmayan gerçek kişilerden yapılan alımların tutanağı",
-    supportsOlur: false,
     capabilities: {
       supportsOlur: false,
       supportsCommission: false,
@@ -474,7 +448,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "4-kabul-ve-odeme-islemleri",
     group: "olur_onay",
     description: "Mali hizmetler / muhasebe müdürlüğüne yazılan ödeme üst yazısı",
-    supportsOlur: true,
     capabilities: {
       supportsOlur: true,
       supportsCommission: false,
@@ -491,7 +464,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "3-siparis-ve-sozlesme",
     group: "olur_onay",
     description: "Alım sonucunun yetkili makam onay belgesi",
-    supportsOlur: true,
     capabilities: {
       supportsOlur: true,
       supportsCommission: false,
@@ -508,7 +480,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "2-piyasa-fiyat-arastirmasi",
     group: "piyasa_arastirma",
     description: "Piyasa fiyat araştırması görevlendirme yazısı",
-    supportsOlur: true,
     capabilities: {
       supportsOlur: true,
       supportsCommission: true,
@@ -530,7 +501,6 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     category: "3-siparis-ve-sozlesme",
     group: "olur_onay",
     description: "İdare onay ve karar belgesi",
-    supportsOlur: true,
     capabilities: {
       supportsOlur: true,
       supportsCommission: false,
