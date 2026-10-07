@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Sparkles, X, Loader2, Check, RefreshCw } from 'lucide-react'
 import { cn } from '../../utils/cn'
+import { sanitizeHtml } from '../../utils/sanitize'
 import { AIPrivacyModal } from './AIPrivacyModal'
 
 interface AITextGeneratorModalProps {
@@ -473,32 +474,34 @@ export function AITextGeneratorModal({
                         <div
                           className="space-y-1.5 [&>p]:mb-2 last:[&>p]:mb-0 [&_strong]:font-extrabold [&_strong]:text-slate-900 dark:[&_strong]:text-white [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4 [&_li]:mb-1"
                           dangerouslySetInnerHTML={{
-                            __html: result
-                              // Header
-                              .replace(
-                                /### (.*?)\n/g,
-                                '<h3 class="text-sm font-bold mt-3 mb-1 text-purple-600 dark:text-purple-400">$1</h3>'
-                              )
-                              .replace(
-                                /## (.*?)\n/g,
-                                '<h2 class="text-base font-extrabold mt-4 mb-2 text-slate-900 dark:text-white">$1</h2>'
-                              )
-                              // Bold
-                              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                              // Italic
-                              .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                              // Lists
-                              .replace(/^- (.*)/gm, '<li>$1</li>')
-                              // New lines (only if not wrapped in tags to avoid <br> between list items, simple logic: just newline)
-                              // First wrap consecutive list items in <ul>
-                              .replace(
-                                /(<li>.*<\/li>\n?)+/g,
-                                (match) => `<ul class="my-2">${match}</ul>`
-                              )
-                              // Then convert remaining \n to <br/>
-                              .replace(/\n/g, '<br/>')
-                              .replace(/<br\/><\/ul>/g, '</ul>')
-                              .replace(/<br\/><li/g, '<li')
+                            __html: sanitizeHtml(
+                              result
+                                // Header
+                                .replace(
+                                  /### (.*?)\n/g,
+                                  '<h3 class="text-sm font-bold mt-3 mb-1 text-purple-600 dark:text-purple-400">$1</h3>'
+                                )
+                                .replace(
+                                  /## (.*?)\n/g,
+                                  '<h2 class="text-base font-extrabold mt-4 mb-2 text-slate-900 dark:text-white">$1</h2>'
+                                )
+                                // Bold
+                                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                // Italic
+                                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                                // Lists
+                                .replace(/^- (.*)/gm, '<li>$1</li>')
+                                // New lines (only if not wrapped in tags to avoid <br> between list items, simple logic: just newline)
+                                // First wrap consecutive list items in <ul>
+                                .replace(
+                                  /(<li>.*<\/li>\n?)+/g,
+                                  (match) => `<ul class="my-2">${match}</ul>`
+                                )
+                                // Then convert remaining \n to <br/>
+                                .replace(/\n/g, '<br/>')
+                                .replace(/<br\/><\/ul>/g, '</ul>')
+                                .replace(/<br\/><li/g, '<li')
+                            )
                           }}
                         />
                       )}

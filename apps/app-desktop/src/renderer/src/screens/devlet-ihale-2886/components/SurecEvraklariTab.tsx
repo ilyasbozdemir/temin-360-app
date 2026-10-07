@@ -13,6 +13,7 @@ import { DEFAULT_2886_EVRAKLAR } from './surecEvraklari.data'
 import { Dosya2886Item } from './DosyaYonetimi2886Tab'
 import { A4Editor } from '../../../components/editor/A4Editor'
 import { sayiyiYaziyaCevir } from '../../../constants/sayiEslesmeleri'
+import { sanitizeHtml } from '../../../utils/sanitize'
 
 interface SurecEvraklariTabProps {
   selectedDosya?: Dosya2886Item | null
@@ -495,7 +496,7 @@ export function SurecEvraklariTab({ selectedDosya }: SurecEvraklariTabProps): Re
               ) : (
                 <div
                   className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl shadow-sm text-slate-900 dark:text-slate-100"
-                  dangerouslySetInnerHTML={{ __html: compiledHtml }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(compiledHtml) }}
                 />
               )}
             </div>
