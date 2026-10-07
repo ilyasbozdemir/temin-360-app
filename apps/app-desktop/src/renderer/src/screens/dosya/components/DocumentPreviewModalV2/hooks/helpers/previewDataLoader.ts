@@ -553,54 +553,61 @@ export async function loadDocumentPreviewData({
       }
     }
 
-    if (!hasHarcamaRowInFile && (!baseData.onaylayanPersonelAdi || !baseData.harcamaYetkilisiAdi)) {
-      if (dosyaObj.onay_personel_id) {
-        const op = (personelList || []).find((p: any) => p.id === dosyaObj.onay_personel_id)
-        if (op) {
-          baseData.onaylayanPersonelAdi = op.ad_soyad
-          baseData.onaylayanPersonelUnvan = op.unvan || 'Harcama Yetkilisi'
-          baseData.harcamaYetkilisiAdi = op.ad_soyad
-          baseData.harcamaYetkilisiUnvan = op.unvan || 'Harcama Yetkilisi'
-        }
-      } else {
-        const hRow = globalKomisyonlar.find((k: any) =>
-          (k.gorev || '').toLowerCase().includes('harcama yetkili')
-        )
-        if (hRow && TemplateRegistryService.isMemberVisibleInDocument(hRow, targetDocIds) && hRow.ad_soyad) {
-          baseData.onaylayanPersonelAdi = baseData.onaylayanPersonelAdi || hRow.ad_soyad
-          baseData.onaylayanPersonelUnvan =
-            baseData.onaylayanPersonelUnvan || hRow.unvan || 'Harcama Yetkilisi'
-          baseData.harcamaYetkilisiAdi = baseData.harcamaYetkilisiAdi || hRow.ad_soyad
-          baseData.harcamaYetkilisiUnvan =
-            baseData.harcamaYetkilisiUnvan || hRow.unvan || 'Harcama Yetkilisi'
-        }
+    if (dosyaObj.onay_personel_id) {
+      const op = (personelList || []).find((p: any) => p.id === dosyaObj.onay_personel_id)
+      if (op) {
+        baseData.onaylayanPersonelAdi = op.ad_soyad
+        baseData.onaylayanPersonelUnvan = op.unvan || 'Harcama Yetkilisi'
+        baseData.harcamaYetkilisiAdi = op.ad_soyad
+        baseData.harcamaYetkilisiUnvan = op.unvan || 'Harcama Yetkilisi'
+        baseData.baskanAdi = op.ad_soyad
+        baseData.baskanUnvan = op.unvan || 'Harcama Yetkilisi'
+      }
+    } else if (!hasHarcamaRowInFile && (!baseData.onaylayanPersonelAdi || !baseData.harcamaYetkilisiAdi)) {
+      const hRow = globalKomisyonlar.find((k: any) =>
+        (k.gorev || '').toLowerCase().includes('harcama yetkili')
+      )
+      if (hRow && TemplateRegistryService.isMemberVisibleInDocument(hRow, targetDocIds) && hRow.ad_soyad) {
+        baseData.onaylayanPersonelAdi = baseData.onaylayanPersonelAdi || hRow.ad_soyad
+        baseData.onaylayanPersonelUnvan =
+          baseData.onaylayanPersonelUnvan || hRow.unvan || 'Harcama Yetkilisi'
+        baseData.harcamaYetkilisiAdi = baseData.harcamaYetkilisiAdi || hRow.ad_soyad
+        baseData.harcamaYetkilisiUnvan =
+          baseData.harcamaYetkilisiUnvan || hRow.unvan || 'Harcama Yetkilisi'
       }
     }
 
-    if (!hasGerceklestirmeRowInFile && (!baseData.hazirlayanPersonelAdi || !baseData.gerceklestirmeGorevlisiAdi)) {
-      if (dosyaObj.hazirlayan_personel_id) {
-        const hp = (personelList || []).find((p: any) => p.id === dosyaObj.hazirlayan_personel_id)
-        if (hp) {
-          baseData.hazirlayanPersonelAdi = hp.ad_soyad
-          baseData.hazirlayanPersonelUnvan = hp.unvan || 'Gerçekleştirme Görevlisi'
-          baseData.gerceklestirmeGorevlisiAdi = hp.ad_soyad
-          baseData.gerceklestirmeGorevlisiUnvan = hp.unvan || 'Gerçekleştirme Görevlisi'
-        }
-      } else {
-        const gRow = globalKomisyonlar.find((k: any) => {
-          const g = (k.gorev || '').toLowerCase()
-          return (
-            g.includes('gerçekleştirme') || g.includes('gerceklestirme') || g.includes('hazırlayan')
-          )
-        })
-        if (gRow && TemplateRegistryService.isMemberVisibleInDocument(gRow, targetDocIds) && gRow.ad_soyad) {
-          baseData.hazirlayanPersonelAdi = baseData.hazirlayanPersonelAdi || gRow.ad_soyad
-          baseData.hazirlayanPersonelUnvan =
-            baseData.hazirlayanPersonelUnvan || gRow.unvan || 'Gerçekleştirme Görevlisi'
-          baseData.gerceklestirmeGorevlisiAdi = baseData.gerceklestirmeGorevlisiAdi || gRow.ad_soyad
-          baseData.gerceklestirmeGorevlisiUnvan =
-            baseData.gerceklestirmeGorevlisiUnvan || gRow.unvan || 'Gerçekleştirme Görevlisi'
-        }
+    if (dosyaObj.hazirlayan_personel_id || dosyaObj.sunan_personel_id) {
+      const targetHazId = dosyaObj.hazirlayan_personel_id || dosyaObj.sunan_personel_id
+      const hp = (personelList || []).find((p: any) => p.id === targetHazId)
+      if (hp) {
+        baseData.hazirlayanPersonelAdi = hp.ad_soyad
+        baseData.hazirlayanPersonelUnvan = hp.unvan || 'Gerçekleştirme Görevlisi'
+        baseData.gerceklestirmeGorevlisiAdi = hp.ad_soyad
+        baseData.gerceklestirmeGorevlisiUnvan = hp.unvan || 'Gerçekleştirme Görevlisi'
+      }
+    } else if (!hasGerceklestirmeRowInFile && (!baseData.hazirlayanPersonelAdi || !baseData.gerceklestirmeGorevlisiAdi)) {
+      const gRow = globalKomisyonlar.find((k: any) => {
+        const g = (k.gorev || '').toLowerCase()
+        return (
+          g.includes('gerçekleştirme') || g.includes('gerceklestirme') || g.includes('hazırlayan')
+        )
+      })
+      if (gRow && TemplateRegistryService.isMemberVisibleInDocument(gRow, targetDocIds) && gRow.ad_soyad) {
+        baseData.hazirlayanPersonelAdi = baseData.hazirlayanPersonelAdi || gRow.ad_soyad
+        baseData.hazirlayanPersonelUnvan =
+          baseData.hazirlayanPersonelUnvan || gRow.unvan || 'Gerçekleştirme Görevlisi'
+        baseData.gerceklestirmeGorevlisiAdi = baseData.gerceklestirmeGorevlisiAdi || gRow.ad_soyad
+        baseData.gerceklestirmeGorevlisiUnvan =
+          baseData.gerceklestirmeGorevlisiUnvan || gRow.unvan || 'Gerçekleştirme Görevlisi'
+      }
+    }
+
+    if (dosyaObj.talep_eden_personel_id) {
+      const tp = (personelList || []).find((p: any) => p.id === dosyaObj.talep_eden_personel_id)
+      if (tp) {
+        baseData.talepEdenPersonelAdi = tp.ad_soyad
+        baseData.talepEdenPersonelUnvan = tp.unvan || 'Talep Eden'
       }
     }
 

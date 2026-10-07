@@ -28,15 +28,17 @@ interface IhtiyacTalepFormuProps {
 function getDynamicAltNotlar(data: any): string {
   if (data?.altNotlar) return data.altNotlar;
 
-  const birimAdi =
-    data?.mudurluk ||
+  const birimAdi = data?.mudurluk ||
     data?.birim_adi ||
     data?.harcamaBirimAdi ||
     "Destek Hizmetleri Başkanlığı";
 
   let birimYonelme = birimAdi;
   if (!birimAdi.endsWith("na") && !birimAdi.endsWith("ne")) {
-    if (/[ıi]$/i.test(birimAdi) || /[uü]$/i.test(birimAdi) || /ğ[ıi]$/i.test(birimAdi)) {
+    if (
+      /[ıi]$/i.test(birimAdi) || /[uü]$/i.test(birimAdi) ||
+      /ğ[ıi]$/i.test(birimAdi)
+    ) {
       birimYonelme = `${birimAdi}na`;
     } else if (/[aeoö]$/i.test(birimAdi)) {
       birimYonelme = `${birimAdi}ne`;
@@ -106,8 +108,14 @@ export function IhtiyacTalepFormu({
     "";
   const talepEdenUnvan = data.talepEdenPersonelUnvan ||
     data.hazirlayanPersonelUnvan || "";
-  const onaylayanAd = data.onaylayanPersonelAdi || "";
-  const onaylayanUnvan = data.onaylayanPersonelUnvan || "";
+  const onaylayanAd = data.onaylayanPersonelAdi ||
+    data.harcamaYetkilisiAdi ||
+    data.baskanAdi ||
+    "";
+  const onaylayanUnvan = data.onaylayanPersonelUnvan ||
+    data.harcamaYetkilisiUnvan ||
+    data.baskanUnvan ||
+    "Harcama Yetkilisi";
   const tarihVal = data.tarih || data.onayaSunulanTarih || data.dosyaTarihi ||
     defaultToday;
   const dosyaTarihiVal = data.dosyaTarihi || data.onayTarihi || tarihVal ||
@@ -116,16 +124,22 @@ export function IhtiyacTalepFormu({
   const talepEdenMatched = personelList.find(
     (p: any) =>
       p.ad_soyad &&
-      String(p.ad_soyad).trim().toLowerCase() === String(talepEdenAd || "").trim().toLowerCase()
+      String(p.ad_soyad).trim().toLowerCase() ===
+        String(talepEdenAd || "").trim().toLowerCase(),
   );
-  const talepEdenSelectedId = talepEdenMatched ? String(talepEdenMatched.id) : "";
+  const talepEdenSelectedId = talepEdenMatched
+    ? String(talepEdenMatched.id)
+    : "";
 
   const onaylayanMatched = personelList.find(
     (p: any) =>
       p.ad_soyad &&
-      String(p.ad_soyad).trim().toLowerCase() === String(onaylayanAd || "").trim().toLowerCase()
+      String(p.ad_soyad).trim().toLowerCase() ===
+        String(onaylayanAd || "").trim().toLowerCase(),
   );
-  const onaylayanSelectedId = onaylayanMatched ? String(onaylayanMatched.id) : "";
+  const onaylayanSelectedId = onaylayanMatched
+    ? String(onaylayanMatched.id)
+    : "";
 
   const cellStyle: React.CSSProperties = {
     border: "1px solid #000",
@@ -184,17 +198,18 @@ export function IhtiyacTalepFormu({
                   TALEP EDEN BİRİM:{" "}
                   <EditableField
                     name="ihtiyacYeri"
-                    value={
-                      (data as any).mudurluk ||
+                    value={(data as any).talepEdenBirim ||
                       (data as any).birimAdi ||
+                      (data as any).birim_adi ||
+                      (data as any).mudurluk ||
                       (data as any).harcamaBirimi ||
-                      (data as any).talepEdenBirim ||
+                      (data as any).harcama_birimi ||
+                      (data as any).ihalesiYapilacakBirim ||
                       data.ihtiyacYeri ||
                       (data as any).idareAdi ||
                       (data as any).kurum_adi ||
-                      ""
-                    }
-                    placeholder="Birim Adı"
+                      ""}
+                    placeholder="Talep Eden Birim / Müdürlük"
                   />
                 </div>
               </>
@@ -205,10 +220,11 @@ export function IhtiyacTalepFormu({
               data={pageItems}
               emptyMessage="Kalem bulunamadı"
               striped={false}
-              startIndex={pageIdx === 0 ? 0 : limits.firstPage + (pageIdx - 1) * limits.middle}
+              startIndex={pageIdx === 0
+                ? 0
+                : limits.firstPage + (pageIdx - 1) * limits.middle}
               currentSplitIndex={fLimit ? Number(fLimit) : null}
             />
-
 
             {isLastPage && (
               <div style={{ marginTop: "16px" }}>

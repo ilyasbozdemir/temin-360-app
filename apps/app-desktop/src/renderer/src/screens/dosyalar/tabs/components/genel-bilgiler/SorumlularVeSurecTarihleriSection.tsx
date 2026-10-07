@@ -1,10 +1,12 @@
-import React, { useState } from 'react'
-import { Check, Info, Sparkles, User } from 'lucide-react'
-import { YeniDosyaTabProps } from '../../../types'
-import { resolveDefaultPersonnel } from '../../../yeni.config'
-import { PersonnelSelectField } from './PersonnelSelectField'
+import React, { useState } from "react";
+import { Check, Info, Sparkles, User } from "lucide-react";
+import { YeniDosyaTabProps } from "../../../types";
+import { resolveDefaultPersonnel } from "../../../yeni.config";
+import { PersonnelSelectField } from "./PersonnelSelectField";
 
-export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): React.JSX.Element {
+export function SorumlularVeSurecTarihleriSection(
+  props: YeniDosyaTabProps,
+): React.JSX.Element {
   const {
     formData,
     setFormData,
@@ -13,34 +15,41 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
     roller = [],
     showPersonelSearch,
     setShowPersonelSearch,
-    personelSearchQuery = '',
+    personelSearchQuery = "",
     setPersonelSearchQuery,
-    filteredPersoneller = []
-  } = props
+    filteredPersoneller = [],
+  } = props;
 
-  const [assignMessage, setAssignMessage] = useState('')
+  const [assignMessage, setAssignMessage] = useState("");
 
   const handleAutoAssignDefaults = () => {
-    if (!personeller || personeller.length === 0) return
+    if (!personeller || personeller.length === 0) return;
 
-    const selectedBirim = birimler.find((b) => b.id === formData.birim_id) || birimler[0] || null
-    const defaults = resolveDefaultPersonnel(personeller, selectedBirim, roller)
+    const selectedBirim = birimler.find((b) => b.id === formData.birim_id) ||
+      birimler[0] || null;
+    const defaults = resolveDefaultPersonnel(
+      personeller,
+      selectedBirim,
+      roller,
+    );
 
     setFormData((prev) => ({
       ...prev,
-      ...defaults
-    }))
+      ...defaults,
+    }));
 
-    setAssignMessage('Kurum ve birim varsayılan yetkilileri dosyaya aktarıldı.')
-    setTimeout(() => setAssignMessage(''), 4000)
-  }
+    setAssignMessage(
+      "Kurum ve birim varsayılan yetkilileri dosyaya aktarıldı.",
+    );
+    setTimeout(() => setAssignMessage(""), 4000);
+  };
 
   const handleSelectField = (field: string, id: number | null) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: id
-    }))
-  }
+      [field]: id,
+    }));
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -73,10 +82,13 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
       <div className="flex items-start gap-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 p-4 rounded-xl text-xs text-blue-700 dark:text-blue-300">
         <Info className="w-5 h-5 shrink-0 text-blue-500 dark:text-blue-400 mt-0.5" />
         <div className="space-y-1">
-          <p className="font-bold">Yetkili Personel &amp; Tarih Bilgilendirmesi</p>
+          <p className="font-bold">
+            Yetkili Personel &amp; Tarih Bilgilendirmesi
+          </p>
           <p className="leading-relaxed opacity-90">
-            Doğrudan temin evraklarının alt bilgileri, onay ve imza alanlarında yer alacak
-            personelleri buradan belirleyebilir veya dilediğiniz personeli boş bırakabilirsiniz.
+            Doğrudan temin evraklarının alt bilgileri, onay ve imza alanlarında
+            yer alacak personelleri buradan belirleyebilir veya dilediğiniz
+            personeli boş bırakabilirsiniz.
           </p>
         </div>
       </div>
@@ -86,11 +98,12 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
         <PersonnelSelectField
           label="Dosyayı Hazırlayan Personel"
           selectedPersonelId={formData.hazirlayan_personel_id}
-          onSelect={(id) => handleSelectField('hazirlayan_personel_id', id)}
-          isOpen={showPersonelSearch === 'hazirlayan'}
+          onSelect={(id) => handleSelectField("hazirlayan_personel_id", id)}
+          isOpen={showPersonelSearch === "hazirlayan"}
           onToggleOpen={() =>
-            setShowPersonelSearch?.(showPersonelSearch === 'hazirlayan' ? null : 'hazirlayan')
-          }
+            setShowPersonelSearch?.(
+              showPersonelSearch === "hazirlayan" ? null : "hazirlayan",
+            )}
           onClose={() => setShowPersonelSearch?.(null)}
           searchQuery={personelSearchQuery}
           onSearchChange={(q) => setPersonelSearchQuery?.(q)}
@@ -103,11 +116,12 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
         <PersonnelSelectField
           label="Talep Eden Personel"
           selectedPersonelId={formData.talep_eden_personel_id}
-          onSelect={(id) => handleSelectField('talep_eden_personel_id', id)}
-          isOpen={showPersonelSearch === 'talep_eden'}
+          onSelect={(id) => handleSelectField("talep_eden_personel_id", id)}
+          isOpen={showPersonelSearch === "talep_eden"}
           onToggleOpen={() =>
-            setShowPersonelSearch?.(showPersonelSearch === 'talep_eden' ? null : 'talep_eden')
-          }
+            setShowPersonelSearch?.(
+              showPersonelSearch === "talep_eden" ? null : "talep_eden",
+            )}
           onClose={() => setShowPersonelSearch?.(null)}
           searchQuery={personelSearchQuery}
           onSearchChange={(q) => setPersonelSearchQuery?.(q)}
@@ -120,9 +134,12 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
         <PersonnelSelectField
           label="Harcama Yetkilisi (Onaylayan)"
           selectedPersonelId={formData.onay_personel_id}
-          onSelect={(id) => handleSelectField('onay_personel_id', id)}
-          isOpen={showPersonelSearch === 'onay'}
-          onToggleOpen={() => setShowPersonelSearch?.(showPersonelSearch === 'onay' ? null : 'onay')}
+          onSelect={(id) => handleSelectField("onay_personel_id", id)}
+          isOpen={showPersonelSearch === "onay"}
+          onToggleOpen={() =>
+            setShowPersonelSearch?.(
+              showPersonelSearch === "onay" ? null : "onay",
+            )}
           onClose={() => setShowPersonelSearch?.(null)}
           searchQuery={personelSearchQuery}
           onSearchChange={(q) => setPersonelSearchQuery?.(q)}
@@ -138,9 +155,12 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
         <PersonnelSelectField
           label="Gerçekleştirme Görevlisi (Sunan)"
           selectedPersonelId={formData.sunan_personel_id}
-          onSelect={(id) => handleSelectField('sunan_personel_id', id)}
-          isOpen={showPersonelSearch === 'sunan'}
-          onToggleOpen={() => setShowPersonelSearch?.(showPersonelSearch === 'sunan' ? null : 'sunan')}
+          onSelect={(id) => handleSelectField("sunan_personel_id", id)}
+          isOpen={showPersonelSearch === "sunan"}
+          onToggleOpen={() =>
+            setShowPersonelSearch?.(
+              showPersonelSearch === "sunan" ? null : "sunan",
+            )}
           onClose={() => setShowPersonelSearch?.(null)}
           searchQuery={personelSearchQuery}
           onSearchChange={(q) => setPersonelSearchQuery?.(q)}
@@ -155,9 +175,12 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
         <PersonnelSelectField
           label="İrtibat Yetkilisi"
           selectedPersonelId={formData.irtibat_yetkilisi_id}
-          onSelect={(id) => handleSelectField('irtibat_yetkilisi_id', id)}
-          isOpen={showPersonelSearch === 'irtibat'}
-          onToggleOpen={() => setShowPersonelSearch?.(showPersonelSearch === 'irtibat' ? null : 'irtibat')}
+          onSelect={(id) => handleSelectField("irtibat_yetkilisi_id", id)}
+          isOpen={showPersonelSearch === "irtibat"}
+          onToggleOpen={() =>
+            setShowPersonelSearch?.(
+              showPersonelSearch === "irtibat" ? null : "irtibat",
+            )}
           onClose={() => setShowPersonelSearch?.(null)}
           searchQuery={personelSearchQuery}
           onSearchChange={(q) => setPersonelSearchQuery?.(q)}
@@ -173,19 +196,19 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
           </label>
           <input
             type="datetime-local"
-            value={
-              formData.son_teklif_verme_tarihi
-                ? /^\d{4}-\d{2}-\d{2}$/.test(String(formData.son_teklif_verme_tarihi).trim())
-                  ? `${String(formData.son_teklif_verme_tarihi).trim()}T10:00`
-                  : String(formData.son_teklif_verme_tarihi).replace(' ', 'T').slice(0, 16)
-                : ''
-            }
+            value={formData.son_teklif_verme_tarihi
+              ? /^\d{4}-\d{2}-\d{2}$/.test(
+                  String(formData.son_teklif_verme_tarihi).trim(),
+                )
+                ? `${String(formData.son_teklif_verme_tarihi).trim()}T10:00`
+                : String(formData.son_teklif_verme_tarihi).replace(" ", "T")
+                  .slice(0, 16)
+              : ""}
             onChange={(e) =>
               setFormData({
                 ...formData,
-                son_teklif_verme_tarihi: e.target.value
-              })
-            }
+                son_teklif_verme_tarihi: e.target.value,
+              })}
             className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 font-semibold"
           />
         </div>
@@ -197,17 +220,16 @@ export function SorumlularVeSurecTarihleriSection(props: YeniDosyaTabProps): Rea
           </label>
           <input
             type="date"
-            value={formData.teslim_tarihi || ''}
+            value={formData.teslim_tarihi || ""}
             onChange={(e) =>
               setFormData({
                 ...formData,
-                teslim_tarihi: e.target.value
-              })
-            }
+                teslim_tarihi: e.target.value,
+              })}
             className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 font-semibold"
           />
         </div>
       </div>
     </div>
-  )
+  );
 }
