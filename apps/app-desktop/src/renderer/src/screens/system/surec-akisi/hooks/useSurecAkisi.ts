@@ -13,6 +13,10 @@ import {
   UseSurecAkisiReturn
 } from '../types'
 import { dosyaBoyutFormatla, belgeSonrakiDurum } from '../utils/helpers'
+import {
+  buildInitialSurecStages,
+  buildInitialSurecBelgeler
+} from '../constants/surecAsamalariConfig'
 
 export function useSurecAkisi(): UseSurecAkisiReturn {
   const { activeDosyaId } = useWorkspaceStore()
@@ -234,27 +238,7 @@ export function useSurecAkisi(): UseSurecAkisiReturn {
     return []
   }, [dosyaContext])
 
-  const [belgeler, setBelgeler] = useState<Belge[]>([
-    { id: 1, ad: 'Malzeme Talep Formu', asama: 'İhtiyaç Tespiti', durum: 'oluşturulmadı' },
-    {
-      id: 2,
-      ad: 'Komisyon Görevlendirme Yazısı',
-      asama: 'İhtiyaç Tespiti',
-      durum: 'oluşturulmadı'
-    },
-    {
-      id: 3,
-      ad: 'Piyasa Araştırması Tutanağı',
-      asama: 'Piyasa Araştırması',
-      durum: 'oluşturulmadı'
-    },
-    { id: 4, ad: 'Yaklaşık Maliyet Cetveli', asama: 'Onay Süreci', durum: 'oluşturulmadı' },
-    { id: 5, ad: 'Doğrudan Temin Onay Belgesi', asama: 'Onay Süreci', durum: 'oluşturulmadı' },
-    { id: 6, ad: 'Sipariş Mektubu', asama: 'Onay Süreci', durum: 'oluşturulmadı' },
-    { id: 7, ad: 'Muayene Kabul Tutanağı', asama: 'Teslim ve Kabul', durum: 'oluşturulmadı' },
-    { id: 8, ad: 'Taşınır İşlem Fişi', asama: 'Teslim ve Kabul', durum: 'oluşturulmadı' },
-    { id: 9, ad: 'Ödeme Emri Belgesi', asama: 'Ödeme İşlemleri', durum: 'oluşturulmadı' }
-  ])
+  const [belgeler, setBelgeler] = useState<Belge[]>(() => buildInitialSurecBelgeler())
 
   const [selectedBelge, setSelectedBelge] = useState<Belge | null>(null)
   const [menuAcikId, setMenuAcikId] = useState<number | null>(null)
@@ -318,70 +302,37 @@ export function useSurecAkisi(): UseSurecAkisiReturn {
 
   const [expandedKomisyon, setExpandedKomisyon] = useState<number | null>(1)
 
-  const [stages, setStages] = useState<Stage[]>([
-    {
-      id: 1,
-      title: 'İhtiyaç Tespiti',
-      tasks: [
-        { name: 'Malzeme Talep Formu', done: kalemler.length > 0, tab: 'malzeme' },
-        { name: 'Komisyonu Yönet', done: komisyonlar.length > 0, tab: 'komisyon' },
-        { name: 'Görevlendirme Yazısı', done: false, tab: 'belgeler' }
-      ]
-    },
-    {
-      id: 2,
-      title: 'Piyasa Araştırması',
-      tasks: [
-        { name: 'İstekli Firmaları Yönet', done: firmalar.length > 0, tab: 'firmalar' },
-        { name: 'Fiyat Araştırma Mektubu Gönder', done: false, tab: 'belgeler' },
-        {
-          name: 'Fiyat Teklifi Al',
-          done: firmalar.some((f) => f.durumu === 'teklif' || f.durumu === 'seçildi'),
-          tab: 'firmalar'
-        },
-        { name: 'Karşılaştır', done: firmalar.some((f) => f.durumu === 'seçildi'), tab: 'firmalar' }
-      ]
-    },
-    {
-      id: 3,
-      title: 'Onay Süreci',
-      tasks: [
-        { name: 'Yaklaşık Maliyet Cetveli', done: false, tab: 'belgeler' },
-        { name: 'Doğrudan Temin Onay Belgesi', done: false, tab: 'belgeler' },
-        { name: 'Sipariş Ver', done: false, tab: 'belgeler' }
-      ]
-    },
-    {
-      id: 4,
-      title: 'Teslim ve Kabul',
-      tasks: [
-        { name: 'Malı Al (T.İF)', done: false, tab: 'belgeler' },
-        { name: 'Muayene-Kabul', done: false, tab: 'komisyon' },
-        { name: 'Ambar Kaydı', done: false, tab: 'belgeler' }
-      ]
-    },
-    {
-      id: 5,
-      title: 'Ödeme İşlemleri',
-      tasks: [
-        { name: 'Ödeme Yazısı', done: false, tab: 'belgeler' },
-        { name: 'Ödeme Emri', done: false, tab: 'belgeler' },
-        { name: 'Muhasebe Kaydı', done: false, tab: 'belgeler' }
-      ]
-    }
-  ])
+  const [taskOverrides, setTaskOverrides] = useState<Record<string, boolean>>({})
+
+  const stages: Stage[] = useMemo(() => {
+    const base = buildInitialSurecStages({
+      kalemler,
+      firmalar,
+      komisyonlar,
+      activeDosya,
+      dosyaContext
+    })
+    return base.map((s) => ({
+      ...s,
+      tasks: s.tasks.map((t, idx) => {
+        const key = `${s.id}_${idx}`
+        return {
+          ...t,
+          done: taskOverrides[key] !== undefined ? taskOverrides[key] : t.done
+        }
+      })
+    }))
+  }, [kalemler, firmalar, komisyonlar, activeDosya, dosyaContext, taskOverrides])
 
   const toggleTask = (stageId: number, taskIndex: number): void => {
-    setStages((prev) =>
-      prev.map((s) =>
-        s.id !== stageId
-          ? s
-          : {
-              ...s,
-              tasks: s.tasks.map((t, i) => (i === taskIndex ? { ...t, done: !t.done } : t))
-            }
-      )
-    )
+    const key = `${stageId}_${taskIndex}`
+    setTaskOverrides((prev) => {
+      const currentVal = stages.find((s) => s.id === stageId)?.tasks[taskIndex]?.done
+      return {
+        ...prev,
+        [key]: !currentVal
+      }
+    })
   }
 
   const belgeOlustur = (id: number): void => {

@@ -21,6 +21,7 @@ import {
   resolveSurecBelgeKod
 } from '../../utils/helpers'
 import { useGlobalDocumentPreviewStore } from '../../../../../store/globalDocumentPreviewStore'
+import { SUREC_STAGE_DEFINITIONS } from '../../constants/surecAsamalariConfig'
 
 interface SurecTabProps {
   stagesWithStatus: Array<{
@@ -35,7 +36,7 @@ interface SurecTabProps {
   setSelectedAsamaFilter: (asama: string) => void
   onToggleTask: (stageId: number, taskIndex: number) => void
   onSelectTab: (tab: string) => void
-  onPreview: (belge: Belge) => void
+  onPreview?: (belge: Belge) => void
   onDosyalariEkle: (files: FileList | null, targetId: number) => void
   onNavigateCiktiMerkezi: () => void
 }
@@ -47,7 +48,6 @@ export const SurecTab: React.FC<SurecTabProps> = ({
   setSelectedAsamaFilter,
   onToggleTask,
   onSelectTab,
-  onPreview,
   onDosyalariEkle,
   onNavigateCiktiMerkezi
 }) => {
@@ -182,14 +182,7 @@ export const SurecTab: React.FC<SurecTabProps> = ({
           {/* Aşama Filtresi */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
             <Filter size={14} className="text-slate-400 shrink-0 mr-1" />
-            {[
-              'Tümü',
-              'İhtiyaç Tespiti',
-              'Piyasa Araştırması',
-              'Onay Süreci',
-              'Teslim ve Kabul',
-              'Ödeme İşlemleri'
-            ].map((asama) => (
+            {['Tümü', ...SUREC_STAGE_DEFINITIONS.map((s) => s.title)].map((asama) => (
               <button
                 key={asama}
                 onClick={() => setSelectedAsamaFilter(asama)}
