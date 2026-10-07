@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { BelgeVeSablonStudyoTab } from './components/BelgeVeSablonStudyoTab'
 import {
   Calculator,
   CheckCircle2,
@@ -7,7 +8,8 @@ import {
   Gavel,
   Landmark,
   Layers,
-  FolderOpen
+  FolderOpen,
+  Sparkles
 } from 'lucide-react'
 import { IslemTuru2886 } from './types/devletIhale2886.types'
 import { IslemTuruSecici } from './components/IslemTuruSecici'
@@ -21,7 +23,7 @@ import { DosyaYonetimi2886Tab, Dosya2886Item } from './components/DosyaYonetimi2
 export default function DevletIhale2886Screen(): React.JSX.Element {
   const [islemTuru, setIslemTuru] = useState<IslemTuru2886>('satis')
   const [activeTab, setActiveTab] = useState<
-    'dosyalar' | 'takdir' | 'usul' | 'evraklar' | 'ihale_gunu' | 'tahsilat'
+    'dosyalar' | 'studyo' | 'takdir' | 'usul' | 'evraklar' | 'ihale_gunu' | 'tahsilat'
   >('dosyalar')
   const [selectedDosya, setSelectedDosya] = useState<Dosya2886Item | null>(null)
 
@@ -32,10 +34,10 @@ export default function DevletIhale2886Screen(): React.JSX.Element {
       const tabParam = searchParams.get('tab')
       if (
         tabParam &&
-        ['dosyalar', 'takdir', 'usul', 'evraklar', 'ihale_gunu', 'tahsilat'].includes(tabParam)
+        ['dosyalar', 'studyo', 'takdir', 'usul', 'evraklar', 'ihale_gunu', 'tahsilat'].includes(tabParam)
       ) {
         setActiveTab(
-          tabParam as 'dosyalar' | 'takdir' | 'usul' | 'evraklar' | 'ihale_gunu' | 'tahsilat'
+          tabParam as 'dosyalar' | 'studyo' | 'takdir' | 'usul' | 'evraklar' | 'ihale_gunu' | 'tahsilat'
         )
       }
     }
@@ -55,35 +57,41 @@ export default function DevletIhale2886Screen(): React.JSX.Element {
       id: 'dosyalar',
       label: '0. 2886 İhale Dosyaları Yönetimi',
       icon: FolderOpen,
-      badge: 'Liste & Ekle/Sil'
+      badge: 'Liste & Yönetim'
+    },
+    {
+      id: 'studyo',
+      label: '1. Dinamik Belge & Form Builder Stüdyosu',
+      icon: Sparkles,
+      badge: 'TipTap + Değişkenler'
     },
     {
       id: 'takdir',
-      label: '1. Taşınmaz & Muhammen Bedel',
+      label: '2. Taşınmaz & Muhammen Bedel',
       icon: Calculator,
       badge: 'Takdir Komisyonu'
     },
     {
       id: 'usul',
-      label: '2. İhale Usulü & Karar Matrisi',
+      label: '3. İhale Usulü & Karar Matrisi',
       icon: Gavel,
       badge: 'Md. 45 / 36'
     },
     {
       id: 'evraklar',
-      label: '3. Süreç Evrakları & İlanlar',
+      label: '4. Süreç Evrakları & İlanlar',
       icon: FileText,
       badge: '16 Evrak'
     },
     {
       id: 'ihale_gunu',
-      label: '4. İhale Günü & Teklifler',
+      label: '5. İhale Günü & Teklifler',
       icon: Layers,
       badge: 'Pey Sürme'
     },
     {
       id: 'tahsilat',
-      label: islemTuru === 'kiralama' ? '5. Kira & Artış Takibi' : '5. Tahsilat & Taksit Planı',
+      label: islemTuru === 'kiralama' ? '6. Kira & Artış Takibi' : '6. Tahsilat & Taksit Planı',
       icon: CreditCard,
       badge: '5018 Gelir'
     }
@@ -174,10 +182,11 @@ export default function DevletIhale2886Screen(): React.JSX.Element {
                   ? 'irtifak'
                   : (dosya.islemTuru as IslemTuru2886)
               )
-              setActiveTab('takdir')
+              setActiveTab('studyo')
             }}
           />
         )}
+        {activeTab === 'studyo' && <BelgeVeSablonStudyoTab initialDosyaId={selectedDosya?.id} />}
         {activeTab === 'takdir' && <MuhammenBedelVeTakdirTab islemTuru={islemTuru} />}
         {activeTab === 'usul' && <UsulVeKararMatrisiTab />}
         {activeTab === 'evraklar' && <SurecEvraklariTab selectedDosya={selectedDosya} />}

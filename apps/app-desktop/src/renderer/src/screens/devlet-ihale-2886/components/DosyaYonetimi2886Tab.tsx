@@ -7,14 +7,14 @@ import {
   LayoutGrid,
   Table as TableIcon,
   Calendar,
-  ArrowRight,
   TrendingUp,
   Copy,
   Edit3,
   Landmark,
   Gavel,
   ShieldCheck,
-  AlertTriangle
+  AlertTriangle,
+  Sparkles
 } from 'lucide-react'
 import { DEFAULT_2886_DOSYALAR } from '../../../components/layout/temin-selector/teminSelector.constants'
 import {
@@ -29,11 +29,13 @@ export type { Dosya2886Item }
 
 interface DosyaYonetimi2886TabProps {
   onSelectDosya?: (dosya: Dosya2886Item) => void
+  onOpenStudyo?: () => void
   activeDosyaId?: string
 }
 
 export function DosyaYonetimi2886Tab({
   onSelectDosya,
+  onOpenStudyo,
   activeDosyaId
 }: DosyaYonetimi2886TabProps): React.JSX.Element {
   const [dosyalar, setDosyalar] = useState<Dosya2886Item[]>(() => getInitial2886Dosyalar())
@@ -344,11 +346,20 @@ export function DosyaYonetimi2886Tab({
 
           <button
             type="button"
+            onClick={onOpenStudyo || openNewModal}
+            className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Dinamik Belge & Form Stüdyosu</span>
+          </button>
+
+          <button
+            type="button"
             onClick={openNewModal}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+            className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
           >
             <FolderPlus className="w-4 h-4" />
-            <span>Yeni 2886 İhalesi Aç</span>
+            <span>+ Hızlı Dosya Ekle</span>
           </button>
         </div>
       </div>
@@ -482,8 +493,8 @@ export function DosyaYonetimi2886Tab({
                     }}
                     className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all active:scale-95 cursor-pointer"
                   >
-                    <span>Masada Aç</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Stüdyoda Aç</span>
                   </button>
                 </div>
               </div>
@@ -545,10 +556,11 @@ export function DosyaYonetimi2886Tab({
                               persist2886ActiveDosya(d)
                               onSelectDosya?.(d)
                             }}
-                            className="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900 text-purple-600 dark:text-purple-300 transition-colors cursor-pointer text-xs font-bold"
-                            title="Masada Aç"
+                            className="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900 text-purple-600 dark:text-purple-300 transition-colors cursor-pointer text-xs font-bold flex items-center gap-1"
+                            title="Dinamik Belge & Form Stüdyosunda Aç"
                           >
-                            Aç
+                            <Sparkles className="w-3 h-3" />
+                            <span>Stüdyo</span>
                           </button>
                           <button
                             type="button"

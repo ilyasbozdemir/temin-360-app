@@ -67,4 +67,12 @@ export interface Dosya2886Item {
     tarih: string
     html: string
   }[]
+  ozelAlanlar?: {
+    id: string
+    key: string
+    label: string
+    tip: 'metin' | 'sayi' | 'para' | 'tarih' | 'secim' | 'cok_satirli'
+    deger: string
+    secenekler?: string[]
+  }[]
 }
