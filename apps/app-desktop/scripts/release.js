@@ -138,7 +138,7 @@ function finalizeCurrentSchemaManifest(version, dryRun) {
 
   const cleanNum = version.replace(/^1\.0\.0-/, '').replace(/^beta\./, '')
   const newTsName = `beta.${cleanNum}.ts`
-  const newYamlName = `1.0.0-${version.startsWith('1.') ? version : 'beta.' + cleanNum}.yaml`
+  const newYamlName = `${version}.yaml`
 
   const targetTsPath = path.join(GIT_ROOT, `packages/database/src/schema-manifest/versions/${newTsName}`)
   const targetYamlPath = path.join(GIT_ROOT, `packages/database/src/schema-manifest/${newYamlName}`)
