@@ -99,3 +99,24 @@ export const belgeSonrakiDurum = (durum: string): Belge['durum'] =>
     imza_bekliyor: 'imzalandı' as const,
     imzalandı: 'imzalandı' as const
   })[durum] || 'taslak'
+
+export const resolveSurecBelgeKod = (belge: Belge | string): string => {
+  const name = typeof belge === 'string' ? belge : (belge.kod || belge.ad || '')
+  const n = name.toLowerCase().trim()
+  if (n.includes('malzeme talep') || n.includes('ihtiyaç talep') || n.includes('ihtiyac talep') || n.includes('talep formu')) return 'ihtiyac-talep-formu'
+  if (n.includes('komisyon görevlendirme') || n.includes('komisyon gorevlendirme')) return 'komisyon-gorevlendirme-onayi'
+  if (n.includes('piyasa') && (n.includes('tutanak') || n.includes('araştırma') || n.includes('arastirma'))) return 'piyasa-fiyat-arastirma-tutanagi'
+  if (n.includes('yaklaşık maliyet') || n.includes('yaklasik maliyet')) return 'yaklasik-maliyet-cetveli'
+  if (n.includes('onay belgesi') || n.includes('doğrudan temin onay') || n.includes('dogrudan temin onay')) return 'dogrudan-temin-onay-belgesi'
+  if (n.includes('sipariş') || n.includes('siparis') || n.includes('sözleşmeye davet') || n.includes('sozlesmeye davet')) return 'sozlesmeye-davet'
+  if (n.includes('sözleşme') || n.includes('sozlesme')) return 'dogrudan-temin-sozlesmesi'
+  if (n.includes('muayene') || n.includes('kabul')) return 'muayene-kabul-tutanagi'
+  if (n.includes('taşınır') || n.includes('tasinir') || n.includes('kayıt yetkilisi') || n.includes('islem fisi')) return 'tasinir-kayit-yetkilisi-gorusu'
+  if (n.includes('ödeme') || n.includes('odeme')) return 'odeme-yazisi'
+  if (n.includes('lüzum') || n.includes('luzum')) return 'luzum-muzekkeresi'
+  if (n.includes('harcama talimat')) return 'harcama-talimati'
+  if (n.includes('harcama pusula')) return 'harcama-pusulasi'
+  if (n.includes('fiyat araştırma mektubu') || n.includes('teklif mektubu')) return 'birim-fiyat-teklif-mektubu'
+  return n.replace(/\s+/g, '-')
+}
+

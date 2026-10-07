@@ -2,6 +2,8 @@ import React from 'react'
 import { Eye, HelpCircle, Package, Plus, Printer, Trash2 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { Belge, Kalem } from '../../types'
+import { resolveSurecBelgeKod } from '../../utils/helpers'
+import { useGlobalDocumentPreviewStore } from '../../../../../store/globalDocumentPreviewStore'
 import { IlgiliBelgeCubugu } from '../IlgiliBelgeCubugu'
 import { useWorkspaceStore } from '../../../../../store/workspaceStore'
 import { useMalzemeListesi } from '../../../../dosya/sub-screens/components/MalzemeListesi/useMalzemeListesi'
@@ -68,17 +70,26 @@ export const MalzemeTab: React.FC<MalzemeTabProps> = ({
           <button
             onClick={() => {
               const b = belgeler.find((x) => x.ad === 'Yaklaşık Maliyet Cetveli')
-              if (b) onPreview(b)
+              useGlobalDocumentPreviewStore.getState().openDocument({
+                documentId: b?.kod || resolveSurecBelgeKod(b || 'Yaklaşık Maliyet Cetveli'),
+                documentTitle: 'Yaklaşık Maliyet Cetveli'
+              })
             }}
             className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl px-3.5 py-2 cursor-pointer transition-colors"
           >
-            <Eye size={14} className="text-blue-500" /> Önizle
+            <Eye size={14} className="text-blue-500" /> Önizle & Düzenle
           </button>
           <button
-            onClick={() => window.print()}
+            onClick={() => {
+              const b = belgeler.find((x) => x.ad === 'Yaklaşık Maliyet Cetveli')
+              useGlobalDocumentPreviewStore.getState().openDocument({
+                documentId: b?.kod || resolveSurecBelgeKod(b || 'Yaklaşık Maliyet Cetveli'),
+                documentTitle: 'Yaklaşık Maliyet Cetveli'
+              })
+            }}
             className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl px-3.5 py-2 cursor-pointer transition-colors"
           >
-            <Printer size={14} /> Yazdır
+            <Printer size={14} /> Yazdır & Dışa Aktar
           </button>
         </div>
       </div>

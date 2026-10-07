@@ -1,9 +1,9 @@
 import React from 'react'
-import { useNavigate } from '@tanstack/react-router'
 import { Modal } from '../../../../components/ui/Modal'
 import { FileCheck2, FileText, Printer, Upload } from 'lucide-react'
 import { Belge, FirmaItem, Kalem, Komisyon } from '../types'
-import { getBelgeDurumBadge, getBelgeDurumLabel } from '../utils/helpers'
+import { getBelgeDurumBadge, getBelgeDurumLabel, resolveSurecBelgeKod } from '../utils/helpers'
+import { useGlobalDocumentPreviewStore } from '../../../../store/globalDocumentPreviewStore'
 
 interface BelgeOnizlemeModalProps {
   previewBelge: Belge | null
@@ -29,7 +29,6 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
   dosyaContext,
   onDosyalariEkle
 }) => {
-  const navigate = useNavigate()
 
   if (!previewBelge) return null
 
@@ -376,35 +375,14 @@ export const BelgeOnizlemeModal: React.FC<BelgeOnizlemeModalProps> = ({
     )
   }
 
-  const handleOpenOfficialTemplate = () => {
-    onClose()
-    const adLower = (previewBelge.ad || '').toLowerCase()
-    if (adLower.includes('talep') || adLower.includes('ihtiyaç') || adLower.includes('onay')) {
-      navigate({ to: '/dosya/hazirlik-ve-ihtiyac' as any })
-    } else if (
-      adLower.includes('piyasa') ||
-      adLower.includes('fiyat') ||
-      adLower.includes('teklif')
-    ) {
-      navigate({ to: '/dosya/piyasa-fiyat-arastirmasi' as any })
-    } else if (adLower.includes('maliyet')) {
-      navigate({ to: '/dosya/firmalar-maliyet/yaklasik' as any })
-    } else if (
-      adLower.includes('siparis') ||
-      adLower.includes('sözleşme') ||
-      adLower.includes('sozlesme')
-    ) {
-      navigate({ to: '/dosya/siparis-ve-sozlesme' as any })
-    } else if (
-      adLower.includes('muayene') ||
-      adLower.includes('kabul') ||
-      adLower.includes('ödeme') ||
-      adLower.includes('odeme')
-    ) {
-      navigate({ to: '/dosya/kabul-ve-odeme' as any })
-    } else {
-      navigate({ to: '/cikti-merkezi' as any })
+  const handleOpenOfficialTemplate = (): void => {
+    if (previewBelge) {
+      useGlobalDocumentPreviewStore.getState().openDocument({
+        documentId: previewBelge.kod || resolveSurecBelgeKod(previewBelge.ad),
+        documentTitle: previewBelge.ad
+      })
     }
+    onClose()
   }
 
   return (

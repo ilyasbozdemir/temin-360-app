@@ -1,12 +1,14 @@
-import React from 'react'
-import { ClipboardList, Edit } from 'lucide-react'
+import React from "react";
+import { ClipboardList, Edit } from "lucide-react";
 
 interface TakipHeaderProps {
-  activeDosya?: any
-  onEditClick: () => void
+  activeDosya?: any;
+  onEditClick: () => void;
 }
 
-export function TakipHeader({ activeDosya, onEditClick }: TakipHeaderProps): React.JSX.Element {
+export function TakipHeader(
+  { activeDosya, onEditClick }: TakipHeaderProps,
+): React.JSX.Element {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
       <div>
@@ -15,8 +17,8 @@ export function TakipHeader({ activeDosya, onEditClick }: TakipHeaderProps): Rea
           Süreç Takip & Durum Paneli
         </h1>
         <p className="text-sm text-slate-500 mt-1">
-          Doğrudan temin dosyalarınızın yasal işlem adımlarını ve belge tamamlama durumlarını
-          buradan izleyebilirsiniz.
+          Doğrudan temin dosyalarınızın yasal işlem adımlarını ve belge
+          tamamlama durumlarını buradan izleyebilirsiniz.
         </p>
       </div>
       {activeDosya && (
@@ -29,5 +31,5 @@ export function TakipHeader({ activeDosya, onEditClick }: TakipHeaderProps): Rea
         </button>
       )}
     </div>
-  )
+  );
 }

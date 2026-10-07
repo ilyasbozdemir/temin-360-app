@@ -1,13 +1,14 @@
 import React from 'react'
 import { Eye, PlusCircle, Building2, ArrowRight } from 'lucide-react'
 import { FirmaItem, Belge } from '../../types'
-import { getFirmaStatusBadge, getFirmaStatusLabel } from '../../utils/helpers'
+import { getFirmaStatusBadge, getFirmaStatusLabel, resolveSurecBelgeKod } from '../../utils/helpers'
+import { useGlobalDocumentPreviewStore } from '../../../../../store/globalDocumentPreviewStore'
 import { IlgiliBelgeCubugu } from '../IlgiliBelgeCubugu'
 
 interface FirmalarTabProps {
   firmalar: FirmaItem[]
   belgeler: Belge[]
-  onPreview: (belge: Belge) => void
+  onPreview?: (belge: Belge) => void
   onDosyalariEkle: (files: FileList | null, targetId: number) => void
   onNavigateFirmalar: () => void
   onNavigateCiktiMerkezi: () => void
@@ -17,7 +18,6 @@ interface FirmalarTabProps {
 export const FirmalarTab: React.FC<FirmalarTabProps> = ({
   firmalar,
   belgeler,
-  onPreview,
   onDosyalariEkle,
   onNavigateFirmalar,
   onNavigateCiktiMerkezi,
@@ -39,11 +39,14 @@ export const FirmalarTab: React.FC<FirmalarTabProps> = ({
           <button
             onClick={() => {
               const b = belgeler.find((x) => x.ad === 'Piyasa Araştırması Tutanağı')
-              if (b) onPreview(b)
+              useGlobalDocumentPreviewStore.getState().openDocument({
+                documentId: b?.kod || resolveSurecBelgeKod(b || 'Piyasa Araştırması Tutanağı'),
+                documentTitle: 'Piyasa Fiyat Araştırması Tutanağı'
+              })
             }}
             className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl px-3.5 py-2 cursor-pointer transition-colors"
           >
-            <Eye size={14} className="text-blue-500" /> Tutanağı Önizle
+            <Eye size={14} className="text-blue-500" /> Tutanağı Önizle & Düzenle
           </button>
           <button
             onClick={onNavigateFirmalar}
@@ -57,7 +60,6 @@ export const FirmalarTab: React.FC<FirmalarTabProps> = ({
       <IlgiliBelgeCubugu
         belgeAdi="Piyasa Araştırması Tutanağı"
         belgeler={belgeler}
-        onPreview={onPreview}
         onDosyalariEkle={onDosyalariEkle}
         onNavigateCiktiMerkezi={onNavigateCiktiMerkezi}
         onSelectTab={onSelectTab}

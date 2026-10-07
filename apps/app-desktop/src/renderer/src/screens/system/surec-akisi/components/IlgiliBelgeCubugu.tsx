@@ -1,12 +1,13 @@
 import React from 'react'
 import { FileText, Eye, Upload, Printer, ExternalLink, ArrowUpRight } from 'lucide-react'
 import { Belge } from '../types'
-import { getBelgeDurumBadge, getBelgeDurumLabel } from '../utils/helpers'
+import { getBelgeDurumBadge, getBelgeDurumLabel, resolveSurecBelgeKod } from '../utils/helpers'
+import { useGlobalDocumentPreviewStore } from '../../../../store/globalDocumentPreviewStore'
 
 interface IlgiliBelgeCubuguProps {
   belgeAdi: string
   belgeler: Belge[]
-  onPreview: (belge: Belge) => void
+  onPreview?: (belge: Belge) => void
   onDosyalariEkle: (files: FileList | null, targetId: number) => void
   onNavigateCiktiMerkezi: () => void
   onSelectTab: (tab: string) => void
@@ -15,13 +16,19 @@ interface IlgiliBelgeCubuguProps {
 export const IlgiliBelgeCubugu: React.FC<IlgiliBelgeCubuguProps> = ({
   belgeAdi,
   belgeler,
-  onPreview,
   onDosyalariEkle,
   onNavigateCiktiMerkezi,
   onSelectTab
 }) => {
   const belge = belgeler.find((b) => b.ad === belgeAdi)
   if (!belge) return null
+
+  const handleOpenDoc = () => {
+    useGlobalDocumentPreviewStore.getState().openDocument({
+      documentId: belge.kod || resolveSurecBelgeKod(belge),
+      documentTitle: belge.ad
+    })
+  }
 
   return (
     <div className="flex items-center justify-between gap-3 bg-white dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 mb-4 shadow-xs">
@@ -43,9 +50,9 @@ export const IlgiliBelgeCubugu: React.FC<IlgiliBelgeCubuguProps> = ({
       </div>
       <div className="flex items-center gap-1 shrink-0">
         <button
-          onClick={() => onPreview(belge)}
+          onClick={handleOpenDoc}
           className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
-          title="Önizle"
+          title="Önizle & Düzenle"
         >
           <Eye size={16} />
         </button>
@@ -64,12 +71,9 @@ export const IlgiliBelgeCubugu: React.FC<IlgiliBelgeCubuguProps> = ({
         </label>
 
         <button
-          onClick={() => {
-            onPreview(belge)
-            setTimeout(() => window.print(), 300)
-          }}
+          onClick={handleOpenDoc}
           className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-          title="Yazdır"
+          title="Resmi Şablonu Yazdır / Dışa Aktar"
         >
           <Printer size={16} />
         </button>

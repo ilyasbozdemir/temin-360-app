@@ -5,6 +5,7 @@ export interface Belge {
   ad: string
   asama: string
   durum: 'imzalandı' | 'imza_bekliyor' | 'oluşturuldu' | 'taslak' | 'oluşturulmadı'
+  kod?: string
   pdfDosyaAdi?: string
   pdfYuklenmeTarihi?: string
   pdfBoyut?: string

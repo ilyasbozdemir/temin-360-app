@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Link } from '@tanstack/react-router'
+import React, { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import {
   BookOpen,
   Calculator,
@@ -15,18 +15,18 @@ import {
   Layers,
   MoreVertical,
   Printer,
-  Trash2
-} from 'lucide-react'
+  Trash2,
+} from "lucide-react";
 
 interface TakipActiveDosyaSummaryProps {
-  activeDosya: any
-  kalemler: any[]
-  firmalar: any[]
-  formatCurrency: (val: number) => string
-  onEditClick: () => void
-  onSurecAkisiClick: () => void
-  onOpenNewWindowClick: () => void
-  onDeleteClick: () => void
+  activeDosya: any;
+  kalemler: any[];
+  firmalar: any[];
+  formatCurrency: (val: number) => string;
+  onEditClick: () => void;
+  onSurecAkisiClick: () => void;
+  onOpenNewWindowClick: () => void;
+  onDeleteClick: () => void;
 }
 
 export function TakipActiveDosyaSummary({
@@ -37,9 +37,9 @@ export function TakipActiveDosyaSummary({
   onEditClick,
   onSurecAkisiClick,
   onOpenNewWindowClick,
-  onDeleteClick
+  onDeleteClick,
 }: TakipActiveDosyaSummaryProps): React.JSX.Element {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xs space-y-6">
@@ -48,35 +48,35 @@ export function TakipActiveDosyaSummary({
         <div className="space-y-1.5 flex-1 min-w-[260px]">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[10px] font-bold text-blue-600 dark:text-blue-450 uppercase tracking-widest bg-blue-100/40 dark:bg-blue-955/40 px-2.5 py-1 rounded-full border border-blue-500/15">
-              {activeDosya.temin_no || 'Dosya No Belirtilmedi'}
+              {activeDosya.temin_no || "Dosya No Belirtilmedi"}
             </span>
             <span
               className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border ${
-                activeDosya.status === 'tamamlandi'
-                  ? 'bg-emerald-100/40 text-emerald-600 border-emerald-500/15'
-                  : activeDosya.status === 'iptal'
-                    ? 'bg-rose-100/40 text-rose-600 border-rose-500/15'
-                    : 'bg-amber-100/40 text-amber-600 border-amber-500/15'
+                activeDosya.status === "tamamlandi"
+                  ? "bg-emerald-100/40 text-emerald-600 border-emerald-500/15"
+                  : activeDosya.status === "iptal"
+                  ? "bg-rose-100/40 text-rose-600 border-rose-500/15"
+                  : "bg-amber-100/40 text-amber-600 border-amber-500/15"
               }`}
             >
-              {activeDosya.status === 'tamamlandi'
-                ? 'Tamamlandı'
-                : activeDosya.status === 'iptal'
-                  ? 'İptal Edildi'
-                  : 'Devam Ediyor'}
+              {activeDosya.status === "tamamlandi"
+                ? "Tamamlandı"
+                : activeDosya.status === "iptal"
+                ? "İptal Edildi"
+                : "Devam Ediyor"}
             </span>
           </div>
           <h2 className="text-lg font-bold text-slate-850 dark:text-slate-100">
             {activeDosya.konu}
           </h2>
           <p className="text-xs text-slate-550 dark:text-slate-400 capitalize">
-            Tür:{' '}
+            Tür:{" "}
             <span className="font-semibold text-slate-700 dark:text-slate-350">
               {activeDosya.tur} Alımı
-            </span>{' '}
-            | Birim:{' '}
+            </span>{" "}
+            | Birim:{" "}
             <span className="font-semibold text-slate-700 dark:text-slate-350">
-              {activeDosya.birim_adi || 'Birim Belirtilmedi'}
+              {activeDosya.birim_adi || "Birim Belirtilmedi"}
             </span>
           </p>
         </div>
@@ -106,14 +106,14 @@ export function TakipActiveDosyaSummary({
             title="Süreç Akış Haritasını Aç (Beta Tablar)"
           >
             <Layers size={14} />
-            Süreç Akışı (Beta)
+            Süreç Akışı (Beta 2)
           </button>
 
           <div className="relative dosya-menu-container">
             <button
               onClick={(e) => {
-                e.stopPropagation()
-                setIsMenuOpen(!isMenuOpen)
+                e.stopPropagation();
+                setIsMenuOpen(!isMenuOpen);
               }}
               className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-205 hover:bg-slate-55 dark:hover:bg-slate-800 transition-colors cursor-pointer border border-slate-200 dark:border-slate-800 h-10 w-10 flex items-center justify-center"
               title="Dosya İşlemleri"
@@ -125,8 +125,8 @@ export function TakipActiveDosyaSummary({
               <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 py-2 flex flex-col text-xs font-semibold animate-in fade-in slide-in-from-top-2 duration-200">
                 <button
                   onClick={() => {
-                    setIsMenuOpen(false)
-                    onEditClick()
+                    setIsMenuOpen(false);
+                    onEditClick();
                   }}
                   className="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-200 flex items-center gap-2 transition-colors cursor-pointer border-0 bg-transparent font-semibold"
                 >
@@ -136,8 +136,8 @@ export function TakipActiveDosyaSummary({
 
                 <button
                   onClick={() => {
-                    setIsMenuOpen(false)
-                    onOpenNewWindowClick()
+                    setIsMenuOpen(false);
+                    onOpenNewWindowClick();
                   }}
                   className="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-200 flex items-center gap-2 transition-colors cursor-pointer border-0 bg-transparent font-semibold"
                 >
@@ -147,8 +147,8 @@ export function TakipActiveDosyaSummary({
 
                 <button
                   onClick={() => {
-                    setIsMenuOpen(false)
-                    onSurecAkisiClick()
+                    setIsMenuOpen(false);
+                    onSurecAkisiClick();
                   }}
                   className="w-full text-left px-4 py-2.5 hover:bg-purple-50 dark:hover:bg-purple-950/20 text-purple-700 dark:text-purple-300 flex items-center gap-2 transition-colors cursor-pointer border-0 bg-transparent font-semibold"
                 >
@@ -160,12 +160,15 @@ export function TakipActiveDosyaSummary({
 
                 <button
                   onClick={() => {
-                    setIsMenuOpen(false)
-                    onDeleteClick()
+                    setIsMenuOpen(false);
+                    onDeleteClick();
                   }}
                   className="w-full text-left px-4 py-2.5 hover:bg-red-50 dark:hover:bg-red-955/20 text-red-600 dark:text-red-400 flex items-center gap-2 transition-colors cursor-pointer border-0 bg-transparent font-semibold"
                 >
-                  <Trash2 size={14} className="text-red-400 dark:text-red-500" />
+                  <Trash2
+                    size={14}
+                    className="text-red-400 dark:text-red-500"
+                  />
                   Dosyayı İptal Et (Sil)
                 </button>
               </div>
@@ -211,11 +214,13 @@ export function TakipActiveDosyaSummary({
                 <span
                   className={`text-[9.5px] font-bold px-2 py-0.5 rounded-md border ${
                     kalemler.length > 0
-                      ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-900/50'
-                      : 'bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+                      ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-900/50"
+                      : "bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
                   }`}
                 >
-                  📦 {kalemler.length > 0 ? `${kalemler.length} Kalem Eklendi` : 'Kalem Eklenmedi'}
+                  📦 {kalemler.length > 0
+                    ? `${kalemler.length} Kalem Eklendi`
+                    : "Kalem Eklenmedi"}
                 </span>
               </div>
             </div>
@@ -249,12 +254,13 @@ export function TakipActiveDosyaSummary({
                 <span
                   className={`text-[9.5px] font-bold px-2 py-0.5 rounded-md border ${
                     firmalar.length > 0
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-900/50'
-                      : 'bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-900/50"
+                      : "bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
                   }`}
                 >
-                  💼{' '}
-                  {firmalar.length > 0 ? `${firmalar.length} Firma Teklifi` : 'Teklif Bekleniyor'}
+                  💼 {firmalar.length > 0
+                    ? `${firmalar.length} Firma Teklifi`
+                    : "Teklif Bekleniyor"}
                 </span>
               </div>
             </div>
@@ -288,11 +294,13 @@ export function TakipActiveDosyaSummary({
                 <span
                   className={`text-[9.5px] font-bold px-2 py-0.5 rounded-md border ${
                     activeDosya.firma_id
-                      ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-900/50'
-                      : 'bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+                      ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-900/50"
+                      : "bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
                   }`}
                 >
-                  📝 {activeDosya.firma_id ? 'Yüklenici Belirlendi' : 'Karar / Sözleşme'}
+                  📝 {activeDosya.firma_id
+                    ? "Yüklenici Belirlendi"
+                    : "Karar / Sözleşme"}
                 </span>
               </div>
             </div>
@@ -325,12 +333,14 @@ export function TakipActiveDosyaSummary({
               <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
                 <span
                   className={`text-[9.5px] font-bold px-2 py-0.5 rounded-md border ${
-                    activeDosya.status === 'tamamlandi'
-                      ? 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-900/50'
-                      : 'bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+                    activeDosya.status === "tamamlandi"
+                      ? "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-900/50"
+                      : "bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
                   }`}
                 >
-                  🏁 {activeDosya.status === 'tamamlandi' ? 'Süreç Tamamlandı' : 'Kabul & Ödeme'}
+                  🏁 {activeDosya.status === "tamamlandi"
+                    ? "Süreç Tamamlandı"
+                    : "Kabul & Ödeme"}
                 </span>
               </div>
             </div>
@@ -391,5 +401,5 @@ export function TakipActiveDosyaSummary({
         </div>
       </div>
     </div>
-  )
+  );
 }
