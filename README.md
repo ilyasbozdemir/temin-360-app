@@ -68,9 +68,11 @@ Sistemdeki tüm resmi evrak ve tutanak şablonları açık kaynaklı ve modüler
 
 ---
 
-## ⚖️ 4734 Sayılı Kanun Usul ve Bütçe Karar Matrisi (2026/1 Tebliği Dönemi: 01.02.2026 – 31.01.2027)
+## ⚖️ 4734 Sayılı Kanun Usul ve Bütçe Karar Matrisi (Örnek Tebliğ Dönemi)
 
-| Bütçe / Alım Tutarı (Büyükşehir) | Uygulanacak Yasal Yöntem | EKAP İlanı | Teminat | Komisyon |
+> ⚠️ **Hukuki Sorumluluk ve Mevzuat Uyarısı:** Aşağıdaki limitler ve eşik değerler örnek/bilgilendirme amaçlıdır. Kamu İhale Kurumu (KİK) tarafından her yıl Resmî Gazete'de yayımlanan güncel tebliğ rakamları esas alınmalıdır. Uygulama içerisindeki **Sistem Ayarları > KİK Limitleri** tablosundan güncel dönem limitleri kullanıcı/idare tarafından güncellenebilir. Belgelerin yürürlükteki mevzuata uygunluğunun nihai kontrolü ilgili idare ve kullanıcının sorumluluğundadır.
+
+| Bütçe / Alım Tutarı (Büyükşehir Örnek) | Uygulanacak Yasal Yöntem | EKAP İlanı | Teminat | Komisyon |
 | :----------------------------------- | :------------------------------- | :---------------------------: | :------------------: | :----------: |
 | **0 – 1.021.827 TL** _(Md. 22/d Limiti - Diğer İdareler: 340.391 TL)_ | ⚡ **Doğrudan Temin (Md. 22/d)** | Aranmaz | Aranmaz | İsteğe Bağlı |
 | **1.021.827 – 3.406.508 TL** _(Md. 21/f Limiti)_ | ⚖️ **Pazarlık Usulü (Md. 21/f)** | İlan Yapılmayabilir (En az 3 davet) | %6 Kesin | Zorunlu |
