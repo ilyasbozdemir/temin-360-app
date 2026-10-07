@@ -21,10 +21,12 @@ import {
   SayiyiYaziyaCevirTab,
   BirimDonusumTab,
   ExcelPanoTab,
-  FormulMotoruTab
+  FormulMotoruTab,
+  BelgeDonusturucuTab
 } from './components'
 
 type TabType =
+  | 'belge'
   | 'usul'
   | 'vergi'
   | 'fiyatFarki'
@@ -36,7 +38,8 @@ type TabType =
   | 'pano'
   | 'formul'
 
-const TABS: { id: TabType; label: string; icon: React.ComponentType<{ size?: number }> }[] = [
+const TABS: { id: TabType; label: string; icon: React.ComponentType<{ size?: number }>; badge?: string }[] = [
+  { id: 'belge', label: '📄 Belge & Medya Dönüştürücü (Word/PDF/Görsel)', icon: ArrowLeftRight, badge: 'YENİ' },
   { id: 'usul', label: 'Alım Usulü Belirleyici', icon: Scale },
   { id: 'vergi', label: 'Vergi & Tevkifat (Brüt ↔ Net)', icon: Coins },
   { id: 'fiyatFarki', label: 'TÜİK Fiyat Farkı', icon: TrendingUp },
@@ -50,7 +53,7 @@ const TABS: { id: TabType; label: string; icon: React.ComponentType<{ size?: num
 ]
 
 export default function HesaplamaAraclariScreen(): React.JSX.Element {
-  const [activeTab, setActiveTab] = useState<TabType>('usul')
+  const [activeTab, setActiveTab] = useState<TabType>('belge')
 
   return (
     <div className="p-4 md:p-6 w-full space-y-6 animate-in fade-in duration-200">
@@ -63,14 +66,14 @@ export default function HesaplamaAraclariScreen(): React.JSX.Element {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl md:text-2xl font-black tracking-tight text-white">
-                İhale & Kamu Maliyesi Hesaplama Araçları
+                İhale, Belge & Hesaplama Araçları
               </h1>
               <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                4734 & 2886 Uyumlu
+                4734, 2886 & Ofis Araçları
               </span>
             </div>
             <p className="text-xs text-blue-200/80 mt-1">
-              Mevzuat limitleri, vergi/tevkifat, Yİ-ÜFE fiyat farkı, sayı-yazı çevirici, birim dönüştürücü ve tatil motoru
+              Word/Görsel/PDF dönüştürücüler, mevzuat limitleri, vergi/tevkifat, Yİ-ÜFE fiyat farkı, sayı-yazı çevirici ve formül motoru
             </p>
           </div>
         </div>
@@ -93,12 +96,18 @@ export default function HesaplamaAraclariScreen(): React.JSX.Element {
             >
               <Icon size={15} />
               <span>{tab.label}</span>
+              {tab.badge && (
+                <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-blue-600 text-white font-extrabold">
+                  {tab.badge}
+                </span>
+              )}
             </button>
           )
         })}
       </div>
 
       {/* Aktif Sekme İçeriği */}
+      {activeTab === 'belge' && <BelgeDonusturucuTab />}
       {activeTab === 'usul' && <UsulBelirleyiciTab />}
       {activeTab === 'vergi' && <VergiVeKesintiTab />}
       {activeTab === 'fiyatFarki' && <FiyatFarkiTab />}
@@ -112,3 +121,4 @@ export default function HesaplamaAraclariScreen(): React.JSX.Element {
     </div>
   )
 }
+

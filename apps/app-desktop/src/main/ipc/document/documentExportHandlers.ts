@@ -376,3 +376,303 @@ export async function openExcelHandler(): Promise<{
     return { success: false, error: err.message }
   }
 }
+
+export async function convertDocxToPdfHandler(payload?: {
+  filePath?: string
+  base64?: string
+  fileName?: string
+  fontFamily?: string
+  fontSize?: string
+  margins?: string
+  lineHeight?: string
+  saveImmediately?: boolean
+}): Promise<{
+  success: boolean
+  data?: string
+  filePath?: string
+  html?: string
+  fileName?: string
+  error?: string
+}> {
+  try {
+    let inputPath = payload?.filePath
+    let originalName = payload?.fileName || 'Dokuman'
+
+    if (!inputPath && !payload?.base64) {
+      const { canceled, filePaths } = await dialog.showOpenDialog({
+        title: 'Word (.docx) Dosyası Seçin',
+        filters: [{ name: 'Word Dokümanı (*.docx)', extensions: ['docx'] }],
+        properties: ['openFile']
+      })
+      if (canceled || !filePaths || filePaths.length === 0) {
+        return { success: false, error: 'Dosya seçimi iptal edildi' }
+      }
+      inputPath = filePaths[0]
+      originalName = inputPath.split(/[/\\]/).pop() || 'Dokuman.docx'
+    }
+
+    const mammoth = require('mammoth')
+    let conversionResult: { value: string; messages: any[] }
+
+    if (payload?.base64) {
+      const buffer = Buffer.from(payload.base64.replace(/^data:.*?;base64,/, ''), 'base64')
+      conversionResult = await mammoth.convertToHtml({ buffer })
+    } else if (inputPath) {
+      conversionResult = await mammoth.convertToHtml({ path: inputPath })
+    } else {
+      return { success: false, error: 'Geçerli Word verisi sağlanamadı' }
+    }
+
+    const rawHtml = conversionResult.value || '<p>(Boş Doküman)</p>'
+    const font = payload?.fontFamily || "'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+    const size = payload?.fontSize || '11pt'
+    const margin = payload?.margins || '20mm'
+    const lineH = payload?.lineHeight || '1.6'
+
+    const fullHtml = `<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>${originalName.replace(/\.docx$/i, '')}</title>
+  <style>
+    @page { 
+      size: A4; 
+      margin: ${margin}; 
+    }
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: ${font};
+      font-size: ${size};
+      line-height: ${lineH};
+      color: #1e293b;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      word-wrap: break-word;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 14px 0;
+      page-break-inside: auto;
+    }
+    tr {
+      page-break-inside: avoid;
+      page-break-after: auto;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 6px 10px;
+      font-size: 10pt;
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      background-color: #f8fafc;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    h1 { font-size: 16pt; font-weight: 800; color: #0f172a; margin: 18px 0 8px 0; }
+    h2 { font-size: 14pt; font-weight: 700; color: #1e293b; margin: 16px 0 6px 0; }
+    h3 { font-size: 12pt; font-weight: 700; color: #334155; margin: 14px 0 4px 0; }
+    p { margin: 0 0 10px 0; }
+    ul, ol { margin: 0 0 12px 0; padding-left: 24px; }
+    li { margin-bottom: 4px; }
+    img { max-width: 100%; height: auto; display: block; margin: 12px 0; }
+    blockquote {
+      margin: 12px 0;
+      padding-left: 14px;
+      border-left: 4px solid #94a3b8;
+      color: #475569;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="docx-rendered-content">
+    ${rawHtml}
+  </div>
+</body>
+</html>`
+
+    const pdfBuffer = await renderPdfBuffer(fullHtml)
+    const base64Data = pdfBuffer.toString('base64')
+    const suggestedPdfName = originalName.replace(/\.docx$/i, '') + '.pdf'
+
+    if (payload?.saveImmediately) {
+      const { canceled, filePath } = await dialog.showSaveDialog({
+        title: 'Dönüştürülen PDF Dosyasını Kaydet',
+        defaultPath: suggestedPdfName,
+        filters: [{ name: 'PDF Dokümanı (*.pdf)', extensions: ['pdf'] }]
+      })
+      if (!canceled && filePath) {
+        fs.writeFileSync(filePath, pdfBuffer)
+        return {
+          success: true,
+          filePath,
+          data: base64Data,
+          html: rawHtml,
+          fileName: suggestedPdfName
+        }
+      }
+    }
+
+    return {
+      success: true,
+      data: base64Data,
+      html: rawHtml,
+      fileName: suggestedPdfName
+    }
+  } catch (err: any) {
+    console.error('convertDocxToPdf error:', err)
+    return { success: false, error: err.message || 'Word to PDF dönüştürme hatası' }
+  }
+}
+
+export async function convertImagesToPdfHandler(payload: {
+  images: Array<{
+    name?: string
+    dataUrl: string
+    orientation?: 'portrait' | 'landscape'
+  }>
+  fit?: 'contain' | 'cover' | 'fill'
+  margins?: string
+  title?: string
+  saveImmediately?: boolean
+}): Promise<{
+  success: boolean
+  data?: string
+  filePath?: string
+  error?: string
+}> {
+  try {
+    const images = payload.images || []
+    if (images.length === 0) {
+      return { success: false, error: 'En az bir görsel eklenmelidir.' }
+    }
+
+    const docTitle = payload.title || 'Gorseller_Birlestirilmis'
+    const fitMode = payload.fit || 'contain'
+    const margin = payload.margins || '0mm'
+
+    const pagesHtml = images
+      .map((img, idx) => {
+        const isLandscape = img.orientation === 'landscape'
+        return `
+        <div class="image-page ${isLandscape ? 'page-landscape' : 'page-portrait'}" style="page-break-after: ${
+          idx === images.length - 1 ? 'auto' : 'always'
+        };">
+          <img src="${img.dataUrl}" alt="${img.name || `Sayfa ${idx + 1}`}" class="fitted-image" />
+        </div>
+      `
+      })
+      .join('\n')
+
+    const fullHtml = `<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>${docTitle}</title>
+  <style>
+    @page {
+      size: A4;
+      margin: ${margin};
+    }
+    @page landscape-section {
+      size: A4 landscape;
+      margin: ${margin};
+    }
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    .image-page {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #ffffff;
+      page-break-inside: avoid;
+    }
+    .page-landscape {
+      page: landscape-section;
+    }
+    .fitted-image {
+      max-width: 98%;
+      max-height: 98%;
+      object-fit: ${fitMode};
+      display: block;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+  ${pagesHtml}
+</body>
+</html>`
+
+    const pdfBuffer = await renderPdfBuffer(fullHtml)
+    const base64Data = pdfBuffer.toString('base64')
+    const suggestedPdfName = `${docTitle.replace(/\.pdf$/i, '')}.pdf`
+
+    if (payload?.saveImmediately) {
+      const { canceled, filePath } = await dialog.showSaveDialog({
+        title: 'Görsellerden Oluşturulan PDF Dosyasını Kaydet',
+        defaultPath: suggestedPdfName,
+        filters: [{ name: 'PDF Dokümanı (*.pdf)', extensions: ['pdf'] }]
+      })
+      if (!canceled && filePath) {
+        fs.writeFileSync(filePath, pdfBuffer)
+        return { success: true, filePath, data: base64Data }
+      }
+    }
+
+    return {
+      success: true,
+      data: base64Data
+    }
+  } catch (err: any) {
+    console.error('convertImagesToPdf error:', err)
+    return { success: false, error: err.message || 'Görselleri PDF yapma hatası' }
+  }
+}
+
+export async function saveBase64FileHandler(payload: {
+  dataBase64: string
+  defaultFilename: string
+  filterName?: string
+  extensions?: string[]
+}): Promise<{ success: boolean; filePath?: string; error?: string }> {
+  try {
+    const rawData = (payload.dataBase64 || '').replace(/^data:.*?;base64,/, '')
+    const buffer = Buffer.from(rawData, 'base64')
+    const filterName = payload.filterName || 'Dosya'
+    const extensions = payload.extensions || ['pdf']
+
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      title: 'Dosyayı Kaydet',
+      defaultPath: payload.defaultFilename,
+      filters: [{ name: filterName, extensions }]
+    })
+
+    if (canceled || !filePath) return { success: false, error: 'Kaydetme iptal edildi' }
+
+    fs.writeFileSync(filePath, buffer)
+    return { success: true, filePath }
+  } catch (err: any) {
+    console.error('saveBase64File error:', err)
+    return { success: false, error: err.message || 'Dosya kaydedilemedi' }
+  }
+}
+

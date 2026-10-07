@@ -207,6 +207,12 @@ export function Sidebar(): React.JSX.Element {
               path: '/devlet-ihale-2886?tab=tahsilat',
               icon: Coins,
               badge: '5018'
+            },
+            {
+              name: '🧮 İhale, Belge & Ofis Araçları',
+              path: '/hesaplama-araclari',
+              icon: Calculator,
+              badge: 'ARAÇLAR'
             }
           ]
         },
