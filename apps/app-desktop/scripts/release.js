@@ -167,7 +167,10 @@ function finalizeCurrentSchemaManifest(version, dryRun) {
       fs.writeFileSync(manifestsTsPath, manifestsContent, 'utf-8')
     }
 
-    const freshCurrentTs = `/* eslint-disable */\n/**\n * AKTİF GELİŞTİRME ŞEMA MANİFESTİ (1.0.0-beta.current)\n */\nexport default {\n  app: "1.0.0-beta.current",\n  schema_min: 1,\n  schema_max: 40,\n  release_date: "${new Date().toISOString().split('T')[0]}",\n  changes: []\n};\n`
+    const schemaMaxMatch = tsContent.match(/schema_max:\s*(\d+)/)
+    const currentMaxSchema = schemaMaxMatch ? parseInt(schemaMaxMatch[1], 10) : 40
+
+    const freshCurrentTs = `/* eslint-disable */\n/**\n * AKTİF GELİŞTİRME ŞEMA MANİFESTİ (1.0.0-beta.current)\n */\nexport default {\n  app: "1.0.0-beta.current",\n  schema_min: 1,\n  schema_max: ${currentMaxSchema},\n  release_date: "${new Date().toISOString().split('T')[0]}",\n  changes: []\n};\n`
     fs.writeFileSync(currentTsPath, freshCurrentTs, 'utf-8')
   }
 }
@@ -188,6 +191,21 @@ function main() {
     if (!flags.dryRun) {
       pkg.version = version
       writeJSON('package.json', pkg)
+
+      const monorepoPkgs = [
+        path.join(GIT_ROOT, 'package.json'),
+        path.join(GIT_ROOT, 'packages/database/package.json'),
+        path.join(GIT_ROOT, 'packages/document-templates/package.json')
+      ]
+      for (const pPath of monorepoPkgs) {
+        if (fs.existsSync(pPath)) {
+          try {
+            const pData = JSON.parse(fs.readFileSync(pPath, 'utf-8'))
+            pData.version = version
+            fs.writeFileSync(pPath, JSON.stringify(pData, null, 2) + '\n', 'utf-8')
+          } catch {}
+        }
+      }
     }
   }
 

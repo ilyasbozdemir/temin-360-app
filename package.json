@@ -1,6 +1,6 @@
 {
   "name": "temin360-monorepo",
-  "version": "1.0.0",
+  "version": "1.0.0-beta.229",
   "private": true,
   "scripts": {
     "dev:desktop": "pnpm --filter app-desktop dev",
@@ -30,7 +30,14 @@
     "test:watch": "pnpm --filter app-desktop test:watch",
     "format": "pnpm --filter app-desktop format",
     "lint": "pnpm --filter app-desktop lint && pnpm --filter app-web lint",
-    "rebuild:electron": "npx @electron/rebuild -v 39.8.10 -f -w better-sqlite3"
+    "rebuild:electron": "npx @electron/rebuild -v 39.8.10 -f -w better-sqlite3",
+    "release": "node apps/app-desktop/scripts/release.js",
+    "release:patch": "node apps/app-desktop/scripts/release.js --patch",
+    "release:local": "node apps/app-desktop/scripts/release.js --no-push",
+    "release:patch:local": "node apps/app-desktop/scripts/release.js --patch --no-push",
+    "release:publish": "node apps/app-desktop/scripts/release.js --patch && pnpm --filter app-desktop build:win",
+    "release:exe": "pnpm release:publish",
+    "release:dry": "node apps/app-desktop/scripts/release.js --dry-run"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
