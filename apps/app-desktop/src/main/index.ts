@@ -340,7 +340,23 @@ function createWindow(): void {
   })
 
   ipcMain.on('open-external-url', (_event, url) => {
-    shell.openExternal(url)
+    if (url && typeof url === 'string') {
+      shell.openExternal(url)
+    }
+  })
+
+  ipcMain.handle('shell:openExternal', async (_event, url: string) => {
+    if (url && typeof url === 'string') {
+      return shell.openExternal(url)
+    }
+    return Promise.resolve()
+  })
+
+  ipcMain.handle('shell:openPath', async (_event, targetPath: string) => {
+    if (targetPath && typeof targetPath === 'string') {
+      return shell.openPath(targetPath)
+    }
+    return Promise.resolve('')
   })
 
   ipcMain.on('find-in-page:start', (event, text, options = {}) => {

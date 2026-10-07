@@ -157,6 +157,16 @@ const allowedChannels = new Set([
   'app:cancel-quit-timeout',
   // Dev & Testing
   'dev:run-tests',
+  // Shell
+  'shell:openExternal',
+  'shell:openPath',
+  'open-external-url',
+  // MinIO / Storage
+  'workspace:minio-test',
+  'workspace:minio-push',
+  'workspace:minio-list',
+  'workspace:minio-download',
+  'workspace:minio-delete',
   // Logs
   'logs:get-path',
   'logs:open-file',
