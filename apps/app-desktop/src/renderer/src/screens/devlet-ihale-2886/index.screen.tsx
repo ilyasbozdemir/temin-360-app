@@ -55,19 +55,19 @@ export default function DevletIhale2886Screen(): React.JSX.Element {
   }[] = [
     {
       id: 'dosyalar',
-      label: '0. 2886 İhale Dosyaları Yönetimi',
+      label: '0. 2886 İhale Dosyaları (Liste & Yönetim)',
       icon: FolderOpen,
-      badge: 'Liste & Yönetim'
+      badge: 'Genel Bakış'
     },
     {
       id: 'studyo',
-      label: '1. Dinamik Belge & Form Builder Stüdyosu',
+      label: '1. Belge & Şablon Tanımlama (Form Stüdyosu)',
       icon: Sparkles,
-      badge: 'TipTap + Değişkenler'
+      badge: 'Form Builder + TipTap'
     },
     {
       id: 'takdir',
-      label: '2. Taşınmaz & Muhammen Bedel',
+      label: '2. Taşınmaz Bilgileri & Muhammen Bedel',
       icon: Calculator,
       badge: 'Takdir Komisyonu'
     },
@@ -75,17 +75,17 @@ export default function DevletIhale2886Screen(): React.JSX.Element {
       id: 'usul',
       label: '3. İhale Usulü & Karar Matrisi',
       icon: Gavel,
-      badge: 'Md. 45 / 36'
+      badge: 'Md. 45 / 36 / 51'
     },
     {
       id: 'evraklar',
       label: '4. Süreç Evrakları & İlanlar',
       icon: FileText,
-      badge: '16 Evrak'
+      badge: '16 Resmi Evrak'
     },
     {
       id: 'ihale_gunu',
-      label: '5. İhale Günü & Teklifler',
+      label: '5. İhale Günü & Teklifler (Açık Artırma)',
       icon: Layers,
       badge: 'Pey Sürme'
     },
@@ -184,6 +184,7 @@ export default function DevletIhale2886Screen(): React.JSX.Element {
               )
               setActiveTab('studyo')
             }}
+            onOpenStudyo={() => setActiveTab('studyo')}
           />
         )}
         {activeTab === 'studyo' && <BelgeVeSablonStudyoTab initialDosyaId={selectedDosya?.id} />}
