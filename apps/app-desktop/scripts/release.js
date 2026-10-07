@@ -129,6 +129,49 @@ function bumpPatch(version) {
   return `${match[1]}${parseInt(match[2], 10) + 1}`
 }
 
+function finalizeCurrentSchemaManifest(version, dryRun) {
+  const currentTsPath = path.join(GIT_ROOT, 'packages/database/src/schema-manifest/versions/beta.current.ts')
+  const currentYamlPath = path.join(GIT_ROOT, 'packages/database/src/schema-manifest/1.0.0-beta.current.yaml')
+  const manifestsTsPath = path.join(GIT_ROOT, 'packages/database/src/schema-manifest/manifests.ts')
+
+  if (!fs.existsSync(currentTsPath)) return
+
+  const cleanNum = version.replace(/^1\.0\.0-/, '').replace(/^beta\./, '')
+  const newTsName = `beta.${cleanNum}.ts`
+  const newYamlName = `1.0.0-${version.startsWith('1.') ? version : 'beta.' + cleanNum}.yaml`
+
+  const targetTsPath = path.join(GIT_ROOT, `packages/database/src/schema-manifest/versions/${newTsName}`)
+  const targetYamlPath = path.join(GIT_ROOT, `packages/database/src/schema-manifest/${newYamlName}`)
+
+  console.log(c.green(`✅ Şema manifesti finalize ediliyor: beta.current → ${newTsName}`))
+
+  if (!dryRun) {
+    let tsContent = fs.readFileSync(currentTsPath, 'utf-8')
+    tsContent = tsContent.replace(/app:\s*"1\.0\.0-beta\.current"/, `app: "${version}"`)
+    fs.writeFileSync(targetTsPath, tsContent, 'utf-8')
+    fs.unlinkSync(currentTsPath)
+
+    if (fs.existsSync(currentYamlPath)) {
+      let yamlContent = fs.readFileSync(currentYamlPath, 'utf-8')
+      yamlContent = yamlContent.replace(/app:\s*1\.0\.0-beta\.current/, `app: ${version}`)
+      fs.writeFileSync(targetYamlPath, yamlContent, 'utf-8')
+      fs.unlinkSync(currentYamlPath)
+    }
+
+    let manifestsContent = fs.readFileSync(manifestsTsPath, 'utf-8')
+    const varName = `beta${cleanNum}`
+    if (!manifestsContent.includes(`import ${varName} `)) {
+      manifestsContent = manifestsContent
+        .replace(/import betaCurrent from "\.\/versions\/beta\.current";?/, `import ${varName} from "./versions/${newTsName.replace(/\.ts$/, '')}";\nimport betaCurrent from "./versions/beta.current";`)
+        .replace(/betaCurrent\n\];?/, `${varName},\n  betaCurrent\n];`)
+      fs.writeFileSync(manifestsTsPath, manifestsContent, 'utf-8')
+    }
+
+    const freshCurrentTs = `/* eslint-disable */\n/**\n * AKTİF GELİŞTİRME ŞEMA MANİFESTİ (1.0.0-beta.current)\n */\nexport default {\n  app: "1.0.0-beta.current",\n  schema_min: 1,\n  schema_max: 40,\n  release_date: "${new Date().toISOString().split('T')[0]}",\n  changes: []\n};\n`
+    fs.writeFileSync(currentTsPath, freshCurrentTs, 'utf-8')
+  }
+}
+
 // ─── Ana Akış ─────────────────────────────────────────────
 function main() {
   console.log(`\n${c.bold('📦 TEMİN 360 - Release Script')}\n`)
@@ -165,7 +208,7 @@ function main() {
     process.exit(1)
   }
 
-  // 3. versions.json güncelle
+  // 3. versions.json güncelle ve şema manifestini dondur
   if (!flags.skipVersions) {
     const versionsPath = path.join(GIT_ROOT, 'packages/database/versions.json')
     let versions = []
@@ -184,6 +227,8 @@ function main() {
     } else {
       console.log(c.dim(`ℹ️  "${version}" zaten versions.json'da mevcut`))
     }
+
+    finalizeCurrentSchemaManifest(version, flags.dryRun)
   } else {
     console.log(c.dim('ℹ️  versions.json güncellemesi atlandı (--skip-versions)'))
   }

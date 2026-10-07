@@ -28,14 +28,35 @@ function ImzaKutusu({ adSoyad, unvan, nameField, unvanField, rol }: ImzaKutusuPr
 
 /** Hazırlayan / (Kontrol Eden) / Onaylayan imza satırı */
 export function SonAlimImzaAlani({ data }: { data: Record<string, any> }) {
+  const hasOlur = data.olurYazisi !== false;
+
   const hazirlayanAd = data.hazirlayanPersonelAdi || data.hazirlayanAdi || data.personelAdi;
   const hazirlayanUnvan = data.hazirlayanPersonelUnvan || data.hazirlayanUnvan || data.personelUnvan;
 
   const kontrolAd = data.kontrolEdenPersonelAdi || data.kontrolEdenAdi;
   const kontrolUnvan = data.kontrolEdenPersonelUnvan || data.kontrolEdenUnvan;
 
-  const onaylayanAd = data.onaylayanPersonelAdi || data.harcamaYetkilisiAdi || data.baskanAdi;
-  const onaylayanUnvan = data.onaylayanPersonelUnvan || data.harcamaYetkilisiUnvan || data.baskanUnvan;
+  // Altta OLUR (Harcama Yetkilisi) bloğu olduğunda, üst sağdaki imza Harcama Yetkilisini mükerrer göstermemeli.
+  // Birim Amiri / Kontrol Eden / Talep Eden personeli varsayılan olmalıdır.
+  const sagAd = hasOlur
+    ? (kontrolAd || data.talepEdenPersonelAdi || data.sunanPersonelAdi || data.birimAmiriAdi || '')
+    : (data.onaylayanPersonelAdi || data.harcamaYetkilisiAdi || data.baskanAdi);
+
+  const sagUnvan = hasOlur
+    ? (kontrolUnvan || data.talepEdenPersonelUnvan || data.sunanPersonelUnvan || data.birimAmiriUnvan || '')
+    : (data.onaylayanPersonelUnvan || data.harcamaYetkilisiUnvan || data.baskanUnvan);
+
+  const sagRol = hasOlur
+    ? (kontrolAd ? 'Kontrol Eden' : 'Birim Amiri')
+    : 'Onaylayan';
+
+  const sagNameField = hasOlur
+    ? (kontrolAd ? 'kontrolEdenPersonelAdi' : 'talepEdenPersonelAdi')
+    : 'onaylayanPersonelAdi';
+
+  const sagUnvanField = hasOlur
+    ? (kontrolUnvan ? 'kontrolEdenPersonelUnvan' : 'talepEdenPersonelUnvan')
+    : 'onaylayanPersonelUnvan';
 
   return (
     <div style={{ marginTop: '30px', pageBreakInside: 'avoid' }}>
@@ -54,7 +75,7 @@ export function SonAlimImzaAlani({ data }: { data: Record<string, any> }) {
           unvanField="hazirlayanPersonelUnvan"
           rol="Hazırlayan"
         />
-        {(kontrolAd || data.kontrolEdenPersonelAdi) && (
+        {kontrolAd && (
           <ImzaKutusu
             adSoyad={kontrolAd}
             unvan={kontrolUnvan}
@@ -64,11 +85,11 @@ export function SonAlimImzaAlani({ data }: { data: Record<string, any> }) {
           />
         )}
         <ImzaKutusu
-          adSoyad={onaylayanAd}
-          unvan={onaylayanUnvan}
-          nameField="onaylayanPersonelAdi"
-          unvanField="onaylayanPersonelUnvan"
-          rol="Onaylayan"
+          adSoyad={sagAd}
+          unvan={sagUnvan}
+          nameField={sagNameField}
+          unvanField={sagUnvanField}
+          rol={sagRol}
         />
       </div>
     </div>

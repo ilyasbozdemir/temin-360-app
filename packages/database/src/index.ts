@@ -18,6 +18,7 @@ import { TANIM_AlimTuru_Sablon } from './tables/TANIM_AlimTuru_Sablon'
 import { TANIM_SurecTaslak } from './tables/TANIM_SurecTaslak'
 import { SABLON_Placeholder } from './tables/SABLON_Placeholder'
 import { TANIM_Kalem } from './tables/TANIM_Kalem'
+import { TANIM_Poz } from './tables/TANIM_Poz'
 import { TANIM_TasinirKod } from './tables/TANIM_TasinirKod'
 import { TANIM_OkasKod } from './tables/TANIM_OkasKod'
 import { TANIM_ButceKod } from './tables/TANIM_ButceKod'
@@ -64,6 +65,7 @@ const rawTables = [
   TANIM_ButceKod,
   TANIM_ButceOdenek,
   TANIM_Kalem,
+  TANIM_Poz,
   TANIM_OlcuBirimi,
   TANIM_BirimDonusum,
   TANIM_AlimTuru,
