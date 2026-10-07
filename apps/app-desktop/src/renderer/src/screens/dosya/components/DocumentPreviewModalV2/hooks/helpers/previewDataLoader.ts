@@ -828,10 +828,10 @@ export async function loadDocumentPreviewData({
   }
 
   // Seçilen veya hedeflenen istekli firma bilgileri (Mektup ve Teklif formları için)
-  const globalStoreState = useGlobalDocumentPreviewStore.getState()
+  const activeTab = useGlobalDocumentPreviewStore.getState().getActiveTab()
   const explicitFirm =
-    globalStoreState.selectedFirma ||
-    globalStoreState.initialData?.selectedFirma ||
+    (activeTab?.selectedFirma as any) ||
+    ((activeTab?.initialData as any)?.selectedFirma) ||
     (propInvitedFirms && propInvitedFirms.length === 1 ? propInvitedFirms[0] : null)
 
   if (explicitFirm) {
@@ -908,8 +908,8 @@ export async function loadDocumentPreviewData({
     baseData.sozlesmeYapilacakMi = Boolean(dosyaObj.sozlesme_yapilacak_mi)
   }
 
-  if (globalStoreState.initialData) {
-    Object.assign(baseData, globalStoreState.initialData)
+  if (activeTab?.initialData) {
+    Object.assign(baseData, activeTab.initialData)
   }
 
   if (!baseData.teslimGun) {
@@ -1260,8 +1260,8 @@ export async function loadDocumentPreviewData({
   }
 
   // Explicit initial data overrides (e.g. from sub-screens or direct openers)
-  if (globalStoreState.initialData && typeof globalStoreState.initialData === 'object') {
-    Object.assign(finalData, globalStoreState.initialData)
+  if (activeTab?.initialData && typeof activeTab.initialData === 'object') {
+    Object.assign(finalData, activeTab.initialData)
   }
 
   // Always sync live dossier delivery days if not overridden
@@ -1271,14 +1271,16 @@ export async function loadDocumentPreviewData({
     String(dosyaObj.teslim_gun).trim() !== ''
   ) {
     const liveGun = String(dosyaObj.teslim_gun)
-    if (!globalStoreState.initialData?.teslimGun && !globalStoreState.initialData?.teslimGunu) {
+    const tabInit = activeTab?.initialData as Record<string, any> | undefined
+    if (!tabInit?.teslimGun && !tabInit?.teslimGunu) {
       finalData.teslimGun = liveGun
       finalData.teslimGunu = liveGun
       finalData.teslimSuresi = liveGun
     }
   }
 
-  if (dosyaObj.teslim_tarihi && !globalStoreState.initialData?.teslimTarihi) {
+  const tabInit = activeTab?.initialData as Record<string, any> | undefined
+  if (dosyaObj.teslim_tarihi && !tabInit?.teslimTarihi) {
     finalData.teslimTarihi = dosyaObj.teslim_tarihi
   }
 

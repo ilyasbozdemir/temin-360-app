@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { DocumentPreviewModalV2Props } from './types'
 import { useDocumentPreviewData } from './hooks/useDocumentPreviewData'
 import { DocumentPreviewHeader } from './components/DocumentPreviewHeader'
+import { DocumentPreviewTabBar } from './components/DocumentPreviewTabBar'
 import { DocumentPreviewSidebar } from './components/DocumentPreviewSidebar'
 import { DocumentPreviewCanvas } from './components/DocumentPreviewCanvas'
 import { FloatingDocumentBubble } from './components/FloatingDocumentBubble'
@@ -12,7 +13,12 @@ export function DocumentPreviewModalV2({
   dosyaId: propDosyaId,
   invitedFirms: propInvitedFirms,
   onClose,
-  isModal = false
+  isModal = false,
+  tabs,
+  activeTabId,
+  onSwitchTab,
+  onCloseTab,
+  onAddTab
 }: DocumentPreviewModalV2Props): React.JSX.Element | null {
   const [isBalloon, setIsBalloon] = useState(false)
   const [prevDocKey, setPrevDocKey] = useState<string | null>(documentId)
@@ -106,7 +112,7 @@ export function DocumentPreviewModalV2({
     <div
       className={
         isFullScreen
-          ? 'fixed inset-0 z-[200] w-screen h-screen max-w-none max-h-none rounded-none border-none shadow-none flex flex-col bg-white dark:bg-slate-900 overflow-hidden animate-in fade-in duration-150'
+          ? 'fixed inset-0 z-200 w-screen h-screen max-w-none max-h-none rounded-none border-none shadow-none flex flex-col bg-white dark:bg-slate-900 overflow-hidden animate-in fade-in duration-150'
           : isModal
             ? 'bg-white dark:bg-slate-900 w-full max-w-[95vw] h-[95vh] rounded-2xl shadow-2xl flex flex-col border border-slate-200 dark:border-slate-800 overflow-hidden'
             : 'bg-white dark:bg-slate-900 w-full h-full min-h-[85vh] rounded-2xl flex flex-col border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm'
@@ -144,6 +150,19 @@ export function DocumentPreviewModalV2({
         docKey={selectedDocId}
         orientation={orientation}
       />
+
+      {/* Çoklu Sekme Çubuğu (Multi-Tab Document Workspace) */}
+      {tabs && tabs.length > 0 && onSwitchTab && onCloseTab && (
+        <DocumentPreviewTabBar
+          tabs={tabs}
+          activeTabId={activeTabId || null}
+          onSwitchTab={onSwitchTab}
+          onCloseTab={onCloseTab}
+          onAddTab={onAddTab}
+          templateOptions={templateOptions}
+          currentDosyaId={propDosyaId}
+        />
+      )}
 
       {/* Main Area: Sidebar + Canvas */}
       <div className="flex-1 flex overflow-hidden min-h-0 relative">
@@ -191,7 +210,7 @@ export function DocumentPreviewModalV2({
   if (isModal) {
     return (
       <div
-        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200"
+        className="fixed inset-0 z-200 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200"
         style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
       >
         {mainContent}

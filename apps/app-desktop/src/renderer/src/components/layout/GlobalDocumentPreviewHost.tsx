@@ -3,27 +3,30 @@ import { useGlobalDocumentPreviewStore } from '../../store/globalDocumentPreview
 import { DocumentPreviewModalV2 } from '../../screens/dosya/components/DocumentPreviewModalV2'
 
 export function GlobalDocumentPreviewHost(): React.JSX.Element | null {
-  const { isOpen, documentId, dosyaId, invitedFirms, selectedFirma, closeDocument } =
+  const { isOpen, tabs, activeTabId, switchTab, closeTab, openDocument, closeDocument } =
     useGlobalDocumentPreviewStore()
 
-  if (!isOpen || !documentId) return null
+  if (!isOpen || tabs.length === 0) return null
 
-  const firmKey =
-    selectedFirma?.id ||
-    selectedFirma?.firma_id ||
-    selectedFirma?.temin_firma_id ||
-    selectedFirma?.unvan ||
-    'none'
+  const activeTab = tabs.find((t) => t.tabId === activeTabId) || tabs[0]
+  if (!activeTab) return null
 
   return (
     <DocumentPreviewModalV2
-      key={`${documentId}-${dosyaId || 'default'}-${firmKey}`}
+      key={activeTab.tabId}
       isOpen={isOpen}
-      documentId={documentId}
-      dosyaId={dosyaId}
-      invitedFirms={invitedFirms}
+      documentId={activeTab.documentId}
+      dosyaId={activeTab.dosyaId}
+      invitedFirms={activeTab.invitedFirms}
+      selectedFirma={activeTab.selectedFirma}
+      initialData={activeTab.initialData || undefined}
       onClose={closeDocument}
       isModal={true}
+      tabs={tabs}
+      activeTabId={activeTab.tabId}
+      onSwitchTab={switchTab}
+      onCloseTab={closeTab}
+      onAddTab={openDocument}
     />
   )
 }
