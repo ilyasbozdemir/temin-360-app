@@ -28,6 +28,15 @@ function ImzaKutusu({ adSoyad, unvan, nameField, unvanField, rol }: ImzaKutusuPr
 
 /** Hazırlayan / (Kontrol Eden) / Onaylayan imza satırı */
 export function SonAlimImzaAlani({ data }: { data: Record<string, any> }) {
+  const hazirlayanAd = data.hazirlayanPersonelAdi || data.hazirlayanAdi || data.personelAdi;
+  const hazirlayanUnvan = data.hazirlayanPersonelUnvan || data.hazirlayanUnvan || data.personelUnvan;
+
+  const kontrolAd = data.kontrolEdenPersonelAdi || data.kontrolEdenAdi;
+  const kontrolUnvan = data.kontrolEdenPersonelUnvan || data.kontrolEdenUnvan;
+
+  const onaylayanAd = data.onaylayanPersonelAdi || data.harcamaYetkilisiAdi || data.baskanAdi;
+  const onaylayanUnvan = data.onaylayanPersonelUnvan || data.harcamaYetkilisiUnvan || data.baskanUnvan;
+
   return (
     <div style={{ marginTop: '30px', pageBreakInside: 'avoid' }}>
       <div
@@ -39,24 +48,24 @@ export function SonAlimImzaAlani({ data }: { data: Record<string, any> }) {
         }}
       >
         <ImzaKutusu
-          adSoyad={data.hazirlayanPersonelAdi}
-          unvan={data.hazirlayanPersonelUnvan}
+          adSoyad={hazirlayanAd}
+          unvan={hazirlayanUnvan}
           nameField="hazirlayanPersonelAdi"
           unvanField="hazirlayanPersonelUnvan"
           rol="Hazırlayan"
         />
-        {data.kontrolEdenPersonelAdi && (
+        {(kontrolAd || data.kontrolEdenPersonelAdi) && (
           <ImzaKutusu
-            adSoyad={data.kontrolEdenPersonelAdi}
-            unvan={data.kontrolEdenPersonelUnvan}
+            adSoyad={kontrolAd}
+            unvan={kontrolUnvan}
             nameField="kontrolEdenPersonelAdi"
             unvanField="kontrolEdenPersonelUnvan"
             rol="Kontrol Eden"
           />
         )}
         <ImzaKutusu
-          adSoyad={data.onaylayanPersonelAdi}
-          unvan={data.onaylayanPersonelUnvan}
+          adSoyad={onaylayanAd}
+          unvan={onaylayanUnvan}
           nameField="onaylayanPersonelAdi"
           unvanField="onaylayanPersonelUnvan"
           rol="Onaylayan"

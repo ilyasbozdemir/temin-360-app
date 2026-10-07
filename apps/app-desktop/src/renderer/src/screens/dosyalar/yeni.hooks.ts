@@ -558,6 +558,8 @@ export function useYeniDosyaScreen(): UseYeniDosyaScreenReturn {
     setFormData((prev) => ({
       ...prev,
       birim_id: birim.id,
+      birim: birim.birim_adi,
+      harcama_birimi: prev.harcama_birimi || birim.birim_adi,
       antet_ek_satir: birim.antet_ek_satir || '',
       sunulacak_makam: birim.sunum_makami || '',
       ihtiyac_yeri: birim.ihtiyac_yeri_eki || '',

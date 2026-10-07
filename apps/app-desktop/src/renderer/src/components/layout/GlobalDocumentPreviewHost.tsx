@@ -21,7 +21,7 @@ export function GlobalDocumentPreviewHost(): React.JSX.Element | null {
       selectedFirma={activeTab.selectedFirma}
       initialData={activeTab.initialData || undefined}
       onClose={closeDocument}
-      isModal={true}
+      isModal={false}
       tabs={tabs}
       activeTabId={activeTab.tabId}
       onSwitchTab={switchTab}

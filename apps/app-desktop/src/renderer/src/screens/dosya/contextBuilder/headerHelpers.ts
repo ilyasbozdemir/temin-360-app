@@ -16,6 +16,7 @@ export function buildAntetSatirlari(kurum: any, dosyaResData: any, settings: any
   const birimAntet = (
     dosyaResData?.antet_ek_satir ||
     dosyaResData?.birim_antet_ek_satir ||
+    dosyaResData?.birim ||
     dosyaResData?.birim_adi ||
     dosyaResData?.harcama_birimi ||
     settings?.harcamaBirimAdi ||

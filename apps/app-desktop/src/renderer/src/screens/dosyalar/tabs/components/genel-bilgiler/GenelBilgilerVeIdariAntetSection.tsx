@@ -506,7 +506,6 @@ export function GenelBilgilerVeIdariAntetSection(
         </div>
 
         <div className="relative">
-          d
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-450 mb-1.5">
             İhalesi Yapılacak Birim / Müdürlük
           </label>
@@ -593,9 +592,7 @@ export function GenelBilgilerVeIdariAntetSection(
               new Set(
                 [
                   kurum?.makam_adi,
-                  ...(birimler
-                    ? birimler.map((b) => b.sunum_makami)
-                    : []),
+                  ...(birimler ? birimler.map((b) => b.sunum_makami) : []),
                 ].filter(
                   Boolean,
                 ),

@@ -5,10 +5,10 @@ import { calculateFirmaTeklifleri } from './contextBuilder/bidsHelpers'
 import { calculateNeedItems } from './contextBuilder/itemsHelpers'
 import { buildKapakDetaylari, parseAciklamaMaddeleri } from './contextBuilder/kapakHelpers'
 import { buildFormattedEvrakSayisi } from './contextBuilder/evrakHelpers'
-import { getKurumIhtiyacYeriDefault } from '../../utils/kurumHelper'
+import { calculatePriceDifferenceFields } from './contextBuilder/priceDifferenceHelpers'
+import { buildPersonnelAndUnitContext } from './contextBuilder/personnelAndUnitHelpers'
 import { hesaplaKesinti, getAyarVergiOrani } from '../../utils/hesaplamalar'
 import { yiUfeService } from '../../services/yiUfeService'
-import { calculatePriceDifference } from '../../utils/priceDifference'
 
 export { formatDateString, getFileDate }
 
@@ -31,7 +31,6 @@ export function buildDocumentContext(
   const kalemSayisi = kalemlerData?.length || 0
   const kalemSayisiYazi = sayiyiYaziyaCevir(kalemSayisi)
 
-  // Para birimi formatlayıcı
   const formatTR = (val: number) => {
     return new Intl.NumberFormat('tr-TR', {
       minimumFractionDigits: 2,
@@ -39,7 +38,7 @@ export function buildDocumentContext(
     }).format(val)
   }
 
-  // Firma teklifleri & sıralamaları
+  // 1. Firma teklifleri & sıralamaları
   const {
     firmaToplamlari,
     calculatedTeklifler,
@@ -49,11 +48,10 @@ export function buildDocumentContext(
     ikinciAvantajliTeklifBedeli
   } = calculateFirmaTeklifleri(firms, kalemlerData, bidsMap, formatTR)
 
-  // Hesaplama esası (ortalama vs. en düşük)
   const isAverageBasis = dosyaResData?.hesaplama_esasi?.toLowerCase().includes('ortalama')
   const isLowestBasis = !isAverageBasis
 
-  // İhtiyaç kalemleri & toplam bedel hesaplaması
+  // 2. İhtiyaç kalemleri & toplam bedel hesaplaması
   const { needItems, grandTotal, totalKdv } = calculateNeedItems(
     kalemlerData,
     firms,
@@ -63,15 +61,15 @@ export function buildDocumentContext(
   )
 
   const genelToplam = formatTR(grandTotal)
-
+  const parentInstitutionName = settings?.parentInstitution || ''
+  const institutionName = settings?.institutionName || ''
   const rawHarcamaBirimi =
+    dosyaResData?.birim ||
     dosyaResData?.birim_tablo_adi ||
     dosyaResData?.birim_adi ||
     dosyaResData?.harcama_birimi ||
     settings?.harcamaBirimAdi ||
     ''
-  const parentInstitutionName = settings?.parentInstitution || ''
-  const institutionName = settings?.institutionName || ''
   const idareAdi = rawHarcamaBirimi ? `${institutionName} - ${rawHarcamaBirimi}` : institutionName
 
   const rawTur = dosyaResData?.tur || 'mal'
@@ -91,11 +89,8 @@ export function buildDocumentContext(
     .filter((item: string) => item.length > 0)
     .map((item: string) => {
       let cleanItem = item
-      if (cleanItem.startsWith('630.')) {
-        cleanItem = cleanItem.substring(4)
-      } else if (cleanItem.startsWith('630')) {
-        cleanItem = cleanItem.substring(3)
-      }
+      if (cleanItem.startsWith('630.')) cleanItem = cleanItem.substring(4)
+      else if (cleanItem.startsWith('630')) cleanItem = cleanItem.substring(3)
       return cleanItem
     })
 
@@ -105,6 +100,7 @@ export function buildDocumentContext(
   const teminSekliText =
     dosyaResData?.ihale_sekli || "4734 sayılı Kanun'un 22/d maddesi gereğince Doğrudan Temin"
 
+  // 3. Kapak, Evrak ve Personel/Birim bağlama
   const kapakDetaylari = buildKapakDetaylari(
     dosyaResData,
     alimTuruText,
@@ -125,10 +121,29 @@ export function buildDocumentContext(
     dosyaResData?.butce_yili ||
     (dosyaResData?.tarih ? dosyaResData.tarih.split('.')[2] : new Date().getFullYear())
 
+  const personnelAndUnitCtx = buildPersonnelAndUnitContext(
+    dosyaResData,
+    commission,
+    muayeneKomisyonu,
+    kurum,
+    settings,
+    antetSatirlari,
+    idareAdi
+  )
+
+  const priceDiffCtx = calculatePriceDifferenceFields(
+    dosyaResData,
+    grandTotal,
+    totalKdv,
+    settings,
+    formatTR
+  )
+
+  // 4. Ana Veri Motoru Context Nesnesi
   const context: any = {
     aciklamaMaddeleri,
     hasAciklamaMaddeleri: aciklamaMaddeleri.length > 0,
-    dosyaYili: dosyaYili,
+    dosyaYili,
     kapakDetaylari,
     tarih: fileDate,
     dosyaTarihi: fileDate,
@@ -180,7 +195,6 @@ export function buildDocumentContext(
     sayi: dosyaResData?.temin_no || formattedEvrakSayisi || '',
     sayisi: dosyaResData?.temin_no || formattedEvrakSayisi || '',
     dosyaSayisi: dosyaResData?.temin_no || '',
-    dosyaKonusu: undefined,
     isAdi: dosyaResData?.konu || '',
     isinAdi: dosyaResData?.konu || '',
     sayiYazıyla: SAYI_YAZI_MAP,
@@ -194,18 +208,6 @@ export function buildDocumentContext(
     sagLogo: settings?.logoRight || null,
     kurumUst: parentInstitutionName,
     kurumAdi: institutionName,
-    mudurluk: rawHarcamaBirimi,
-    ihtiyacYeri:
-      dosyaResData?.ihtiyac_yeri ||
-      dosyaResData?.ihtiyac_yeri_eki ||
-      getKurumIhtiyacYeriDefault(kurum),
-    idareAdi: idareAdi,
-    sunulacakMakam:
-      dosyaResData?.sunulacak_makam ||
-      dosyaResData?.makam ||
-      (antetSatirlari.length > 0 ? antetSatirlari.join(' ') : idareAdi),
-    baskanAdi: dosyaResData?.onaylayan_ad_soyad || '',
-    baskanUnvan: dosyaResData?.onaylayan_unvan || 'Harcama Yetkilisi',
     teminNo: dosyaResData?.temin_no || '',
     maddeNo: dosyaResData?.ihale_sekli || '22/d',
     yaklasikMaliyet: yaklasikMaliyetText,
@@ -230,54 +232,6 @@ export function buildDocumentContext(
       dosyaResData?.komisyon_takdiri || 'Sadece araştırma fiyatları dikkate alınacak',
     dokumanHazirlik: 'Hazırlanmayacaktır.',
     isinAciklamasi: dosyaResData?.isin_aciklamasi || dosyaResData?.konu || '',
-    onaylayanPersonelAdi: dosyaResData?.onaylayan_ad_soyad || '',
-    onaylayanPersonelUnvan: dosyaResData?.onaylayan_unvan || '',
-    onaylayanlar: [
-      {
-        onaylayanPersonelAdi: dosyaResData?.onaylayan_ad_soyad || '',
-        onaylayanPersonelUnvan: dosyaResData?.onaylayan_unvan || ''
-      }
-    ],
-    komisyon: commission.map((c: any) => ({
-      adSoyad: c.ad_soyad,
-      unvan: c.unvan,
-      gorevi: c.gorevi
-    })),
-    komisyonUyeleri: commission.map((c: any) => ({
-      adSoyad: c.ad_soyad,
-      unvan: c.unvan,
-      gorevi: c.gorevi
-    })),
-    gorevlendirilenler: commission.map((c: any, index: number, arr: any[]) => ({
-      adSoyad: c.ad_soyad,
-      unvan: c.unvan,
-      gorevi: c.gorevi,
-      hasMore: index < arr.length - 1
-    })),
-    fiyatKomisyonu: commission.map((c: any) => ({
-      adSoyad: c.ad_soyad,
-      unvan: c.unvan,
-      gorevi: c.gorevi
-    })),
-    muayeneKomisyonu: muayeneKomisyonu.map((c: any) => ({
-      adSoyad: c.ad_soyad,
-      unvan: c.unvan,
-      gorevi: c.gorevi
-    })),
-    hazirlayanPersonelAdi: dosyaResData?.hazirlayan_ad_soyad || '',
-    hazirlayanTelefon: dosyaResData?.hazirlayan_telefon || '',
-    hazirlayanEposta: dosyaResData?.hazirlayan_eposta || '',
-    hazirlayanPersonelUnvan: dosyaResData?.hazirlayan_unvan || '',
-    talepEdenPersonelAdi: dosyaResData?.talep_eden_ad_soyad || '',
-    talepEdenPersonelUnvan: dosyaResData?.talep_eden_unvan || '',
-    talepEdenTelefon: dosyaResData?.talep_eden_telefon || '',
-    sunanPersonelAdi: dosyaResData?.sunan_ad_soyad || '',
-    sunanPersonelUnvan: dosyaResData?.sunan_unvan || '',
-    sunanTelefon: dosyaResData?.sunan_telefon || '',
-    ilgiliPersonelAdi: dosyaResData?.irtibat_ad_soyad || '',
-    ilgiliPersonelUnvan: dosyaResData?.irtibat_unvan || '',
-    ilgiliTelefon: dosyaResData?.irtibat_telefon || '',
-    irtibatTelefon: dosyaResData?.irtibat_telefon || '',
     firmalar: firms.map((f: any) => ({ unvan: f.unvan })),
     firmalarColspan: firms.length + 2,
     firmaToplamlari,
@@ -289,10 +243,6 @@ export function buildDocumentContext(
     kdvTutari: formatTR(totalKdv),
     kdvOrani: kalemlerData?.[0]?.kdv_orani ? `%${kalemlerData[0].kdv_orani}` : '%20',
     harcamaKalemi: rawButceKodu || 'Bütçe Harcama Kalemi',
-    makamAdi:
-      dosyaResData?.sunulacak_makam ||
-      dosyaResData?.makam ||
-      (antetSatirlari.length > 0 ? antetSatirlari.join(' ') : idareAdi),
     neyimizin: dosyaResData?.birim_adi ? `${dosyaResData.birim_adi}'mizce` : 'İdaremizce',
     olurGoster: true,
     sozlesmeBedeli: genelToplam,
@@ -306,125 +256,21 @@ export function buildDocumentContext(
     enAvantajliTeklifBedeli,
     ikinciAvantajliTeklifSahibi,
     ikinciAvantajliTeklifBedeli,
-    ihaleKomisyonu: commission.map((c: any) => ({
-      adSoyad: c.ad_soyad,
-      unvan: c.unvan,
-      gorevi: c.gorevi
-    })),
     teslimGun: dosyaResData?.teslim_gun
       ? String(dosyaResData.teslim_gun)
       : dosyaResData?.teslim_suresi
         ? String(dosyaResData.teslim_suresi)
-        : dosyaResData?.teslim_tarihi
-          ? (() => {
-              const tDate = new Date(dosyaResData.teslim_tarihi)
-              const bDate = dosyaResData.tarih ? new Date(dosyaResData.tarih) : new Date()
-              const diff = Math.ceil((tDate.getTime() - bDate.getTime()) / (1000 * 60 * 60 * 24))
-              return diff > 0 ? String(diff) : '7'
-            })()
-          : '7',
+        : '7',
     teslimGunu: dosyaResData?.teslim_gun
       ? String(dosyaResData.teslim_gun)
       : dosyaResData?.teslim_suresi
         ? String(dosyaResData.teslim_suresi)
-        : dosyaResData?.teslim_tarihi
-          ? (() => {
-              const tDate = new Date(dosyaResData.teslim_tarihi)
-              const bDate = dosyaResData?.dosya_acilis_tarihi
-                ? new Date(dosyaResData.dosya_acilis_tarihi)
-                : dosyaResData?.tarih
-                  ? new Date(dosyaResData.tarih)
-                  : new Date()
-              const diff = Math.ceil((tDate.getTime() - bDate.getTime()) / (1000 * 60 * 60 * 24))
-              return diff > 0 ? String(diff) : '7'
-            })()
-          : '7',
-    gunSayisi: dosyaResData?.gun_sayisi
-      ? String(dosyaResData.gun_sayisi)
-      : dosyaResData?.teslim_gun
-        ? String(dosyaResData.teslim_gun)
-        : dosyaResData?.son_teklif_tarihi
-          ? (() => {
-              const sDate = new Date(dosyaResData.son_teklif_tarihi)
-              const bDate = dosyaResData?.dosya_acilis_tarihi
-                ? new Date(dosyaResData.dosya_acilis_tarihi)
-                : dosyaResData?.tarih
-                  ? new Date(dosyaResData.tarih)
-                  : new Date()
-              const diff = Math.ceil((sDate.getTime() - bDate.getTime()) / (1000 * 60 * 60 * 24))
-              return diff > 0 ? String(diff) : undefined
-            })()
-          : undefined,
-    gunSayisiYazi: dosyaResData?.gun_sayisi_yazi
-      ? dosyaResData.gun_sayisi_yazi
-      : dosyaResData?.gun_sayisi || dosyaResData?.teslim_gun
-        ? sayiyiYaziyaCevir(Number(dosyaResData?.gun_sayisi || dosyaResData?.teslim_gun))
-        : undefined,
-    // TÜİK Yİ-ÜFE ve Fiyat Farkı Hesabı Alanları
-    ...(() => {
-      const fiyatFarkiDayanagi = dosyaResData?.fiyat_farki_dayanagi || 'Fiyat Farkı Ödenmeyecek'
-      const isFiyatFarkiVar =
-        fiyatFarkiDayanagi &&
-        fiyatFarkiDayanagi !== 'Fiyat Farkı Ödenmeyecek' &&
-        (fiyatFarkiDayanagi.includes('5215') || fiyatFarkiDayanagi.includes('5216'))
-
-      let temelEndeks = 0
-      let guncelEndeks = 0
-      let fiyatFarkiPn = 1
-      let fiyatFarkiTutari = 0
-      let fiyatFarkiKdv = 0
-      let fiyatFarkiDahilToplam = grandTotal
-
-      if (isFiyatFarkiVar) {
-        const rawTemelTarih =
-          dosyaResData?.temin_tarihi || dosyaResData?.dosya_acilis_tarihi || dosyaResData?.tarih
-        const rawGuncelTarih = dosyaResData?.teslim_tarihi || new Date().toISOString()
-
-        const d0 = rawTemelTarih ? new Date(rawTemelTarih) : new Date()
-        const dn = rawGuncelTarih ? new Date(rawGuncelTarih) : new Date()
-
-        const y0 = !isNaN(d0.getFullYear()) ? d0.getFullYear() : new Date().getFullYear()
-        const m0 = !isNaN(d0.getMonth()) ? d0.getMonth() + 1 : 1
-
-        const yn = !isNaN(dn.getFullYear()) ? dn.getFullYear() : new Date().getFullYear()
-        const mn = !isNaN(dn.getMonth()) ? dn.getMonth() + 1 : new Date().getMonth() + 1
-
-        temelEndeks = yiUfeService.getIndex(y0, m0) || 0
-        guncelEndeks = yiUfeService.getIndex(yn, mn) || 0
-
-        if (temelEndeks > 0 && guncelEndeks > 0) {
-          const calc = calculatePriceDifference(fiyatFarkiDayanagi, {
-            workAmount: grandTotal,
-            baseIndexes: { b1: temelEndeks },
-            currentIndexes: { b1: guncelEndeks }
-          })
-          fiyatFarkiPn = calc.pn
-          fiyatFarkiTutari = calc.difference
-          const kdvRate = getAyarVergiOrani(settings, 'kdv_20', '20', 'yuzde')
-          fiyatFarkiKdv = hesaplaKesinti(fiyatFarkiTutari, kdvRate.oran, kdvRate.tur)
-          fiyatFarkiDahilToplam = grandTotal + fiyatFarkiTutari
-        }
-      }
-
-      return {
-        fiyatFarkiDayanagi,
-        fiyatFarkiUygulanacakMi: isFiyatFarkiVar ? 'Evet' : 'Hayır',
-        fiyatFarkiTemelEndeks: formatTR(temelEndeks),
-        fiyatFarkiGuncelEndeks: formatTR(guncelEndeks),
-        fiyatFarkiPn: fiyatFarkiPn.toFixed(4),
-        fiyatFarkiTutari: formatTR(fiyatFarkiTutari),
-        fiyatFarkiTutariYazi: paraYaziyaCevir(fiyatFarkiTutari),
-        fiyatFarkiDahilHakedis: formatTR(fiyatFarkiDahilToplam),
-        fiyatFarkiDahilHakedisYazi: paraYaziyaCevir(fiyatFarkiDahilToplam),
-        fiyatFarkiKdv: formatTR(fiyatFarkiKdv),
-        fiyatFarkiDahilGenelToplam: formatTR(
-          fiyatFarkiDahilToplam + (isFiyatFarkiVar ? fiyatFarkiKdv + totalKdv : totalKdv)
-        )
-      }
-    })()
+        : '7',
+    ...personnelAndUnitCtx,
+    ...priceDiffCtx
   }
 
-  // Güvenli birleştirme (Safe Merge)
+  // 5. Güvenli Birleştirme (Safe Merge with Resolved Mappings)
   for (const [key, val] of Object.entries(resolvedMappings || {})) {
     if (val !== undefined && val !== null) {
       const isPlaceholder = typeof val === 'string' && val.startsWith('[Belirtilmedi')
@@ -469,7 +315,6 @@ export function buildDocumentContext(
     context.ihtiyacKalemleri = needItems
   }
 
-  // TÜİK Yİ-ÜFE aylık endeksleri (Son Alım Fiyat Cetveli EK-1 güncel fiyat hesabı için)
   if (!Array.isArray(context.yiUfeEndeksleri)) {
     context.yiUfeEndeksleri = yiUfeService
       .getMonthlyList()

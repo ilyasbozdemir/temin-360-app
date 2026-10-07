@@ -392,12 +392,20 @@ export function resolveDocumentPayload(
       antetSatirlari = ['T.C.', String(kurumAdiText).toUpperCase()]
     }
 
-    const birimAntet = (
-      (dosya as any)?.antet_ek_satir ||
-      (dosya as any)?.birim_antet_ek_satir ||
+    const effectiveBirim = (
+      (dosya as any)?.birim ||
       (dosya as any)?.birim_tablo_adi ||
       (dosya as any)?.birim_adi ||
       (dosya as any)?.harcama_birimi ||
+      (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)?.birim_adi ||
+      (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)?.ad ||
+      ''
+    ).trim()
+
+    const birimAntet = (
+      (dosya as any)?.antet_ek_satir ||
+      (dosya as any)?.birim_antet_ek_satir ||
+      effectiveBirim ||
       settingsMap.spendingUnit ||
       ''
     ).trim()
@@ -415,8 +423,9 @@ export function resolveDocumentPayload(
       settingsMap.institutionName ||
       'T.C. KAMU KURUMU'
     const harcamaBirimi =
-      birimAntet ||
       (dosya as any)?.harcama_birimi ||
+      effectiveBirim ||
+      birimAntet ||
       settingsMap.spendingUnit ||
       (dosya as any)?.konu ||
       'HARCAMA BİRİMİ'
@@ -482,12 +491,43 @@ export function resolveDocumentPayload(
       tutanak_notu: firstTutanak?.notlar || '',
       kurumAdi,
       harcamaBirimi,
+      harcama_birimi: harcamaBirimi,
+      birim: effectiveBirim || birimAntet,
+      birimAdi: effectiveBirim || birimAntet,
+      birim_adi: effectiveBirim || birimAntet,
+      talepEdenBirim: (dosya as any)?.ihtiyac_yeri || effectiveBirim || birimAntet,
+      ihalesiYapilacakBirim: effectiveBirim || birimAntet,
+      mudurluk: effectiveBirim || harcamaBirimi,
       kurumumuz: ipcKurumBizim,
       altKurumBizim: ipcKurumBizim,
       ihtiyacYeri: ipcIhtiyacYeri,
-      birimAdi: birimAntet,
       birimAnteti: birimAntet,
-      antetEkSatir: birimAntet,
+      antetEkSatir: (dosya as any)?.antet_ek_satir || (dosya as any)?.birim_antet_ek_satir || birimAntet,
+      sunulacakMakam:
+        (dosya as any)?.sunulacak_makam ||
+        (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)?.sunum_makami ||
+        (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)?.birim_adi ||
+        'STRATEJİ GELİŞTİRME DAİRE BAŞKANLIĞINA',
+      sunulacak_makam:
+        (dosya as any)?.sunulacak_makam ||
+        (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)?.sunum_makami ||
+        (birimListesi as any[]).find((b: any) => b.id === (dosya as any)?.birim_id)?.birim_adi ||
+        'STRATEJİ GELİŞTİRME DAİRE BAŞKANLIĞINA',
+      eButce: (dosya as any)?.e_butce || (kurum as any)?.ebutce_kodu || settingsMap.eButceKodu || '',
+      e_butce: (dosya as any)?.e_butce || (kurum as any)?.ebutce_kodu || settingsMap.eButceKodu || '',
+      say2000i: (dosya as any)?.say2000i || (kurum as any)?.say2000i_kodu || settingsMap.say2000iKodu || '',
+      fonksiyonelKod: (dosya as any)?.fonksiyonel_kod || (kurum as any)?.fonksiyonel_kod || settingsMap.fonksiyonelKod || '',
+      fonksiyonel_kod: (dosya as any)?.fonksiyonel_kod || (kurum as any)?.fonksiyonel_kod || settingsMap.fonksiyonelKod || '',
+      muhasebeBirimi: (dosya as any)?.muhasebe_birimi || (kurum as any)?.muhasebe_birim_adi || settingsMap.muhasebeBirimAdi || '',
+      muhasebe_birimi: (dosya as any)?.muhasebe_birimi || (kurum as any)?.muhasebe_birim_adi || settingsMap.muhasebeBirimAdi || '',
+      finansmanKodu: (dosya as any)?.finansman_kodu || (kurum as any)?.finansman_kodu || settingsMap.finansmanKodu || '5',
+      finansman_kodu: (dosya as any)?.finansman_kodu || (kurum as any)?.finansman_kodu || settingsMap.finansmanKodu || '5',
+      ekonomikKod: (dosya as any)?.ekonomik_kod || '',
+      ekonomik_kod: (dosya as any)?.ekonomik_kod || '',
+      ekapNo: (dosya as any)?.ekap_no || '',
+      ekap_no: (dosya as any)?.ekap_no || '',
+      projeAdi: (dosya as any)?.proje_adi || '',
+      proje_adi: (dosya as any)?.proje_adi || '',
       antetSatirlari,
       hazirlayanPersonelAdi: hazirlayanPersonel?.ad_soyad || '',
       hazirlayanPersonelUnvan: hazirlayanPersonel?.unvan || '',
@@ -527,9 +567,8 @@ export function resolveDocumentPayload(
       ustKurumAdi: (kurum as any)?.ust_kurum_adi || '',
       detsisKodu:
         (kurum as any)?.detsis_kodu || (kurum as any)?.dtvt_kodu || settingsMap.detsisKodu || '',
-      eButceKodu: (kurum as any)?.ebutce_kodu || settingsMap.eButceKodu || '',
-      say2000iKodu: (kurum as any)?.say2000i_kodu || settingsMap.say2000iKodu || '',
-      fonksiyonelKod: (kurum as any)?.fonksiyonel_kod || settingsMap.fonksiyonelKod || '',
+      eButceKodu: (dosya as any)?.e_butce || (kurum as any)?.ebutce_kodu || settingsMap.eButceKodu || '',
+      say2000iKodu: (dosya as any)?.say2000i || (kurum as any)?.say2000i_kodu || settingsMap.say2000iKodu || '',
       muhasebeBirimKodu:
         (kurum as any)?.muhasebe_birim_kodu ||
         (dosya as any)?.muhasebe_kodu ||
@@ -549,7 +588,6 @@ export function resolveDocumentPayload(
       kurumEposta: (kurum as any)?.eposta || settingsMap.email || '',
       kurumWeb: (kurum as any)?.web_sitesi || settingsMap.website || '',
       limitType: (kurum as any)?.limit_tipi || settingsMap.limitType || 'diger',
-      finansmanKodu: (kurum as any)?.finansman_kodu || settingsMap.finansmanKodu || '5',
       odenekTertibi: (dosya as any)?.odenek_tertibi || '',
       butceTertibi: (dosya as any)?.odenek_tertibi || '',
       kullanilabilirOdenek: (dosya as any)?.kullanilabilir_odenek

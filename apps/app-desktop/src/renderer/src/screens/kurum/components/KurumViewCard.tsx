@@ -65,11 +65,33 @@ export const KurumViewCard: React.FC<KurumViewCardProps> = ({
 
   const [copiedField, setCopiedField] = useState<string | null>(null)
 
-  const handleCopy = (text: string | undefined, fieldKey: string): void => {
+  const handleCopy = async (text: string | undefined, fieldKey: string): Promise<void> => {
     if (!text || text === '—') return
-    navigator.clipboard.writeText(text)
-    setCopiedField(fieldKey)
-    setTimeout(() => setCopiedField(null), 1800)
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text)
+      } else {
+        throw new Error('Clipboard API unavailable')
+      }
+      setCopiedField(fieldKey)
+      setTimeout(() => setCopiedField(null), 1800)
+    } catch {
+      try {
+        const textarea = document.createElement('textarea')
+        textarea.value = text
+        textarea.style.position = 'fixed'
+        textarea.style.opacity = '0'
+        document.body.appendChild(textarea)
+        textarea.focus()
+        textarea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textarea)
+        setCopiedField(fieldKey)
+        setTimeout(() => setCopiedField(null), 1800)
+      } catch (err) {
+        console.warn('Clipboard copy failed:', err)
+      }
+    }
   }
 
   // Primary avatar logo for profile header

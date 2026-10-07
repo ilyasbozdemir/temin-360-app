@@ -46,7 +46,7 @@ export function DocumentPreviewTabBar({
   if (tabs.length === 0) return null
 
   return (
-    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-slate-100/90 dark:bg-slate-950/90 px-3 py-1 gap-2 shrink-0 select-none overflow-x-auto custom-scrollbar">
+    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-slate-100/90 dark:bg-slate-950/90 px-3 py-1 gap-2 shrink-0 select-none relative z-30">
       {/* Sekmeler Listesi */}
       <div className="flex items-center gap-1.5 min-w-0 flex-1 overflow-x-auto custom-scrollbar py-0.5">
         {tabs.map((tab) => {
@@ -104,7 +104,7 @@ export function DocumentPreviewTabBar({
 
       {/* Yeni Belge Aç Dropdown Butonu */}
       {onAddTab && templateOptions.length > 0 && (
-        <div className="relative shrink-0" ref={menuRef}>
+        <div className="relative shrink-0 z-40" ref={menuRef}>
           <button
             type="button"
             onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -117,7 +117,7 @@ export function DocumentPreviewTabBar({
           </button>
 
           {dropdownOpen && (
-            <div className="absolute right-0 mt-1 w-64 max-h-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-2 z-50 overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-1 duration-150">
+            <div className="absolute right-0 top-full mt-1.5 w-64 max-h-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-2 z-50 overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 px-2 py-1 uppercase tracking-wider">
                 Yeni Sekmede Açılacak Belge
               </div>

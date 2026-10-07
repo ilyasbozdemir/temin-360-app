@@ -281,6 +281,51 @@ export async function loadDocumentPreviewData({
     dosyaObj.ihtiyac_yeri_eki ||
     'Belediyemizin'
 
+  // DATA_TeminDosyasi record & TANIM_Birim table automatic unit resolution
+  let matchedBirimName =
+    dosyaObj.birim ||
+    dosyaObj.birim_adi ||
+    dosyaObj.harcama_birimi ||
+    ctx.birimAdi ||
+    ctx.mudurluk ||
+    ''
+  if (!matchedBirimName && dosyaObj.birim_id && Array.isArray(birimList) && birimList.length > 0) {
+    const foundBirim = birimList.find((b: any) => Number(b.id) === Number(dosyaObj.birim_id))
+    if (foundBirim) {
+      matchedBirimName = foundBirim.birim_adi || foundBirim.ad || foundBirim.kisa_ad || ''
+    }
+  }
+  if (matchedBirimName) {
+    baseData.birim = baseData.birim || matchedBirimName
+    baseData.birimAdi = baseData.birimAdi || matchedBirimName
+    baseData.birim_adi = baseData.birim_adi || matchedBirimName
+    baseData.talepEdenBirim = baseData.talepEdenBirim || matchedBirimName
+    baseData.ihalesiYapilacakBirim = baseData.ihalesiYapilacakBirim || matchedBirimName
+    baseData.harcamaBirimi = baseData.harcamaBirimi || matchedBirimName
+    baseData.harcama_birimi = baseData.harcama_birimi || matchedBirimName
+    baseData.mudurluk = baseData.mudurluk || matchedBirimName
+  }
+
+  // Automatic personnel resolution from IDs
+  if (!baseData.hazirlayanPersonelAdi && dosyaObj.hazirlayan_personel_id && Array.isArray(personelList)) {
+    const hp = personelList.find((p: any) => Number(p.id) === Number(dosyaObj.hazirlayan_personel_id))
+    if (hp) {
+      baseData.hazirlayanPersonelAdi = hp.ad_soyad
+      baseData.hazirlayanPersonelUnvan = hp.unvan || ''
+    }
+  }
+  if (!baseData.onaylayanPersonelAdi && dosyaObj.onay_personel_id && Array.isArray(personelList)) {
+    const op = personelList.find((p: any) => Number(p.id) === Number(dosyaObj.onay_personel_id))
+    if (op) {
+      baseData.onaylayanPersonelAdi = op.ad_soyad
+      baseData.onaylayanPersonelUnvan = op.unvan || ''
+      baseData.harcamaYetkilisiAdi = op.ad_soyad
+      baseData.harcamaYetkilisiUnvan = op.unvan || 'Harcama Yetkilisi'
+      baseData.baskanAdi = op.ad_soyad
+      baseData.baskanUnvan = op.unvan || 'Harcama Yetkilisi'
+    }
+  }
+
   const targetDocTemplateId = String(resolvedId || selectedDocId || '')
   const targetDocIds = [String(resolvedId || ''), String(selectedDocId || '')].filter(Boolean)
 
