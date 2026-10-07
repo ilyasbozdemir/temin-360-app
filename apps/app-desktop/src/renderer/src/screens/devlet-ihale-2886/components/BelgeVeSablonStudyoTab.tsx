@@ -1,18 +1,14 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import {
-  FolderPlus,
   FileText,
   Save,
   Download,
   History,
   Sparkles,
-  Layers,
   Building2,
-  Calendar,
   DollarSign,
   MapPin,
   CheckCircle2,
-  ChevronRight,
   Printer,
   Plus,
   Trash2,
@@ -20,9 +16,7 @@ import {
   Code2,
   Copy,
   Check,
-  RotateCcw,
-  BookOpen,
-  FolderOpen
+  RotateCcw
 } from 'lucide-react'
 import Mustache from 'mustache'
 import { Dosya2886Item } from '../../../components/layout/temin-selector/teminSelector.types'
@@ -311,11 +305,116 @@ interface CustomField {
   secenekler?: string[]
 }
 
+interface FormDataType {
+  ihaleKayitNo: string
+  ihaleAdi: string
+  islemTuru: string
+  usul: string
+  muhammenBedel: number
+  ihaleTarihi: string
+  ihaleSaati: string
+  ihaleYeri: string
+  kurumAdi: string
+  sayiNo: string
+  kararNo: string
+  il: string
+  ilce: string
+  mahalleKoy: string
+  ada: string
+  parsel: string
+  yuzolcumuM2: number
+  cinsi: string
+  adres: string
+}
+
+function getFormDataForDosya(d: Dosya2886Item | null, totalDosyalar = 0): FormDataType {
+  const todayStr = new Date().toISOString().split('T')[0]
+  if (d) {
+    return {
+      ihaleKayitNo: d.ihaleKayitNo || '',
+      ihaleAdi: d.ihaleAdi || '',
+      islemTuru: d.islemTuru || 'satis',
+      usul: d.usul || 'acik_teklif_45',
+      muhammenBedel:
+        d.muhammenBedel?.takdirEdilenMuhammenBedel ||
+        d.muhammenBedel?.hesaplananBedel ||
+        2500000,
+      ihaleTarihi: d.ihaleTarihi || todayStr,
+      ihaleSaati: d.ihaleSaati || '14:00',
+      ihaleYeri: d.ihaleYeri || 'Belediye Encümen Toplantı Salonu',
+      kurumAdi: 'ÇANKAYA BELEDİYESİ',
+      sayiNo: 'E-84729103-755',
+      kararNo: '2026/89',
+      il: d.tasinmaz?.il || 'Ankara',
+      ilce: d.tasinmaz?.ilce || 'Çankaya',
+      mahalleKoy: d.tasinmaz?.mahalleKoy || 'Merkez Mah.',
+      ada: d.tasinmaz?.ada || '101',
+      parsel: d.tasinmaz?.parsel || '1',
+      yuzolcumuM2: d.tasinmaz?.yuzolcumuM2 || 500,
+      cinsi: d.tasinmaz?.cinsi || 'Ticari İmarlı Arsa',
+      adres: d.tasinmaz?.adres || ''
+    }
+  }
+  return {
+    ihaleKayitNo: `2026/2886-ST-0${totalDosyalar + 1}`,
+    ihaleAdi: 'Yeni 2886 Taşınmaz İhalesi',
+    islemTuru: 'satis',
+    usul: 'acik_teklif_45',
+    muhammenBedel: 3000000,
+    ihaleTarihi: todayStr,
+    ihaleSaati: '14:00',
+    ihaleYeri: 'Belediye Encümen Toplantı Salonu',
+    kurumAdi: 'ÇANKAYA BELEDİYESİ',
+    sayiNo: 'E-991823-01',
+    kararNo: '2026/102',
+    il: 'Ankara',
+    ilce: 'Çankaya',
+    mahalleKoy: 'Merkez Mah.',
+    ada: '105',
+    parsel: '4',
+    yuzolcumuM2: 750,
+    cinsi: 'Ticari İmarlı Arsa',
+    adres: ''
+  }
+}
+
+function getCustomFieldsForDosya(d: Dosya2886Item | null): CustomField[] {
+  if (d?.ozelAlanlar && d.ozelAlanlar.length > 0) {
+    return d.ozelAlanlar
+  }
+  return [
+    {
+      id: 'cf-1',
+      key: 'imar_durumu',
+      label: 'İmar Durumu & Emsal',
+      tip: 'metin',
+      deger: 'Emsal: 1.50, Hmax: Serbest, Ticaret + Konut Alanı'
+    },
+    {
+      id: 'cf-2',
+      key: 'ozel_sartlar',
+      label: 'Özel Şartlar & Notlar',
+      tip: 'cok_satirli',
+      deger: 'İhale bedeli 15 gün içerisinde defaten ödenecektir. Tapu harç ve masrafları alıcıya aittir.'
+    }
+  ]
+}
+
+function getEditorContentForDosya(d: Dosya2886Item | null): string {
+  if (d?.belgeIcerikHtml) {
+    return d.belgeIcerikHtml
+  }
+  const found = STANDARD_2886_TEMPLATES.find((t) => t.kod === (d?.aktifSablonKodu || '2886-EVR-01'))
+  return found ? found.templateHtml : STANDARD_2886_TEMPLATES[0].templateHtml
+}
+
 interface BelgeVeSablonStudyoTabProps {
   initialDosyaId?: string
 }
 
-export function BelgeVeSablonStudyoTab({ initialDosyaId }: BelgeVeSablonStudyoTabProps): React.JSX.Element {
+export function BelgeVeSablonStudyoTab({
+  initialDosyaId
+}: BelgeVeSablonStudyoTabProps): React.JSX.Element {
   const [dosyalar, setDosyalar] = useState<Dosya2886Item[]>(() => getInitial2886Dosyalar())
   const [selectedDosyaId, setSelectedDosyaId] = useState<string>(() => {
     if (initialDosyaId) return initialDosyaId
@@ -350,127 +449,51 @@ export function BelgeVeSablonStudyoTab({ initialDosyaId }: BelgeVeSablonStudyoTa
   }, [dosyalar, selectedDosyaId])
 
   // Form Değerleri
-  const [formData, setFormData] = useState({
-    ihaleKayitNo: '',
-    ihaleAdi: '',
-    islemTuru: 'satis',
-    usul: 'acik_teklif_45',
-    muhammenBedel: 2500000,
-    ihaleTarihi: new Date().toISOString().split('T')[0],
-    ihaleSaati: '14:00',
-    ihaleYeri: 'Belediye Encümen Toplantı Salonu',
-    kurumAdi: 'ÇANKAYA BELEDİYESİ',
-    sayiNo: 'E-84729103-755',
-    kararNo: '2026/89',
-    il: 'Ankara',
-    ilce: 'Çankaya',
-    mahalleKoy: 'Merkez Mah.',
-    ada: '101',
-    parsel: '1',
-    yuzolcumuM2: 500,
-    cinsi: 'Ticari İmarlı Arsa',
-    adres: ''
+  const [formData, setFormData] = useState<FormDataType>(() => {
+    const initialList = getInitial2886Dosyalar()
+    const target = initialDosyaId ? initialList.find((d) => d.id === initialDosyaId) : initialList[0]
+    return getFormDataForDosya(target || null, initialList.length)
   })
 
   // Özel Dinamik Form Builder Alanları
-  const [customFields, setCustomFields] = useState<CustomField[]>([
-    {
-      id: 'cf-1',
-      key: 'imar_durumu',
-      label: 'İmar Durumu & Emsal',
-      tip: 'metin',
-      deger: 'Emsal: 1.50, Hmax: Serbest, Ticaret + Konut Alanı'
-    },
-    {
-      id: 'cf-2',
-      key: 'ozel_sartlar',
-      label: 'Özel Şartlar & Notlar',
-      tip: 'cok_satirli',
-      deger: 'İhale bedeli 15 gün içerisinde defaten ödenecektir. Tapu harç ve masrafları alıcıya aittir.'
-    }
-  ])
+  const [customFields, setCustomFields] = useState<CustomField[]>(() => {
+    const initialList = getInitial2886Dosyalar()
+    const target = initialDosyaId ? initialList.find((d) => d.id === initialDosyaId) : initialList[0]
+    return getCustomFieldsForDosya(target || null)
+  })
 
   // Yeni Alan Ekleme Popover / Modal state
   const [newFieldKey, setNewFieldKey] = useState('')
   const [newFieldLabel, setNewFieldLabel] = useState('')
-  const [newFieldTip, setNewFieldTip] = useState<'metin' | 'sayi' | 'para' | 'tarih' | 'secim' | 'cok_satirli'>('metin')
+  const [newFieldTip, setNewFieldTip] = useState<
+    'metin' | 'sayi' | 'para' | 'tarih' | 'secim' | 'cok_satirli'
+  >('metin')
   const [newFieldVal, setNewFieldVal] = useState('')
   const [showAddField, setShowAddField] = useState(false)
 
   // Aktif Şablon ve TipTap HTML İçeriği
   const [selectedTemplateKod, setSelectedTemplateKod] = useState<string>('2886-EVR-01')
-  const [editorContent, setEditorContent] = useState<string>('')
+  const [editorContent, setEditorContent] = useState<string>(() => {
+    const initialList = getInitial2886Dosyalar()
+    const target = initialDosyaId ? initialList.find((d) => d.id === initialDosyaId) : initialList[0]
+    return getEditorContentForDosya(target || null)
+  })
   const [savedSuccess, setSavedSuccess] = useState(false)
   const [copiedVar, setCopiedVar] = useState<string | null>(null)
 
   // Sol Panel Sekmesi
   const [leftTab, setLeftTab] = useState<'form' | 'builder' | 'vars' | 'revisions'>('form')
 
-  // Dosya değiştiğinde form ve editörü senkronize et
-  useEffect(() => {
-    if (currentDosya) {
-      setFormData({
-        ihaleKayitNo: currentDosya.ihaleKayitNo || '',
-        ihaleAdi: currentDosya.ihaleAdi || '',
-        islemTuru: currentDosya.islemTuru || 'satis',
-        usul: currentDosya.usul || 'acik_teklif_45',
-        muhammenBedel:
-          currentDosya.muhammenBedel?.takdirEdilenMuhammenBedel ||
-          currentDosya.muhammenBedel?.hesaplananBedel ||
-          2500000,
-        ihaleTarihi: currentDosya.ihaleTarihi || new Date().toISOString().split('T')[0],
-        ihaleSaati: currentDosya.ihaleSaati || '14:00',
-        ihaleYeri: currentDosya.ihaleYeri || 'Belediye Encümen Toplantı Salonu',
-        kurumAdi: 'ÇANKAYA BELEDİYESİ',
-        sayiNo: 'E-84729103-755',
-        kararNo: '2026/89',
-        il: currentDosya.tasinmaz?.il || 'Ankara',
-        ilce: currentDosya.tasinmaz?.ilce || 'Çankaya',
-        mahalleKoy: currentDosya.tasinmaz?.mahalleKoy || 'Merkez Mah.',
-        ada: currentDosya.tasinmaz?.ada || '101',
-        parsel: currentDosya.tasinmaz?.parsel || '1',
-        yuzolcumuM2: currentDosya.tasinmaz?.yuzolcumuM2 || 500,
-        cinsi: currentDosya.tasinmaz?.cinsi || 'Ticari İmarlı Arsa',
-        adres: currentDosya.tasinmaz?.adres || ''
-      })
-
-      if (currentDosya.ozelAlanlar && currentDosya.ozelAlanlar.length > 0) {
-        setCustomFields(currentDosya.ozelAlanlar)
-      }
-
-      if (currentDosya.belgeIcerikHtml) {
-        setEditorContent(currentDosya.belgeIcerikHtml)
-      } else {
-        const found = STANDARD_2886_TEMPLATES.find((t) => t.kod === (currentDosya.aktifSablonKodu || '2886-EVR-01'))
-        setEditorContent(found ? found.templateHtml : STANDARD_2886_TEMPLATES[0].templateHtml)
-      }
-    } else {
-      // Yeni dosya modu
-      const nextNo = `2026/2886-ST-0${dosyalar.length + 1}`
-      setFormData({
-        ihaleKayitNo: nextNo,
-        ihaleAdi: 'Yeni 2886 Taşınmaz İhalesi',
-        islemTuru: 'satis',
-        usul: 'acik_teklif_45',
-        muhammenBedel: 3000000,
-        ihaleTarihi: new Date().toISOString().split('T')[0],
-        ihaleSaati: '14:00',
-        ihaleYeri: 'Belediye Encümen Toplantı Salonu',
-        kurumAdi: 'ÇANKAYA BELEDİYESİ',
-        sayiNo: 'E-991823-01',
-        kararNo: '2026/102',
-        il: 'Ankara',
-        ilce: 'Çankaya',
-        mahalleKoy: 'Merkez Mah.',
-        ada: '105',
-        parsel: '4',
-        yuzolcumuM2: 750,
-        cinsi: 'Ticari İmarlı Arsa',
-        adres: ''
-      })
-      setEditorContent(STANDARD_2886_TEMPLATES[0].templateHtml)
+  const handleSelectDosyaId = (dosyaId: string): void => {
+    setSelectedDosyaId(dosyaId)
+    const target = dosyalar.find((d) => d.id === dosyaId) || null
+    setFormData(getFormDataForDosya(target, dosyalar.length))
+    setCustomFields(getCustomFieldsForDosya(target))
+    setEditorContent(getEditorContentForDosya(target))
+    if (target?.aktifSablonKodu) {
+      setSelectedTemplateKod(target.aktifSablonKodu)
     }
-  }, [currentDosya, selectedDosyaId, dosyalar.length])
+  }
 
   // Şablon Değiştirildiğinde
   const handleSelectTemplate = (kod: string): void => {
@@ -584,10 +607,12 @@ export function BelgeVeSablonStudyoTab({ initialDosyaId }: BelgeVeSablonStudyoTa
   const handleSaveRevision = (): void => {
     if (!currentDosya) return
     const currentRevisions = currentDosya.surumler || []
+    const now = new Date()
+    const timestamp = now.getTime()
     const newRev = {
-      id: Date.now(),
-      baslik: `Sürüm ${currentRevisions.length + 1} (${new Date().toLocaleTimeString('tr-TR')})`,
-      tarih: new Date().toLocaleString('tr-TR'),
+      id: timestamp,
+      baslik: `Sürüm ${currentRevisions.length + 1} (${now.toLocaleTimeString('tr-TR')})`,
+      tarih: now.toLocaleString('tr-TR'),
       html: editorContent
     }
     const updatedDosya: Dosya2886Item = {
@@ -601,9 +626,11 @@ export function BelgeVeSablonStudyoTab({ initialDosyaId }: BelgeVeSablonStudyoTa
   const handleSaveDosya = (): void => {
     const bedel = Number(formData.muhammenBedel) || 0
     const geciciTeminat = Math.round(bedel * 0.03)
+    const now = new Date()
+    const autoId = `2886-${now.getTime()}`
 
     const dosyaToSave: Dosya2886Item = {
-      id: currentDosya ? currentDosya.id : `2886-${Date.now()}`,
+      id: currentDosya ? currentDosya.id : autoId,
       ihaleKayitNo: formData.ihaleKayitNo,
       ihaleAdi: formData.ihaleAdi,
       islemTuru: formData.islemTuru,
@@ -749,11 +776,13 @@ export function BelgeVeSablonStudyoTab({ initialDosyaId }: BelgeVeSablonStudyoTa
 
           {/* Aktif Dosya Seçimi */}
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 whitespace-nowrap">İhale Dosyası:</span>
+            <span className="text-xs font-semibold text-slate-500 whitespace-nowrap">
+              İhale Dosyası:
+            </span>
             <select
               value={selectedDosyaId}
-              onChange={(e) => setSelectedDosyaId(e.target.value)}
-              className="px-3 py-1.5 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer max-w-[240px]"
+              onChange={(e) => handleSelectDosyaId(e.target.value)}
+              className="px-3 py-1.5 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer max-w-60"
             >
               <option value="new">+ Yeni 2886 Dosyası Başlat</option>
               {dosyalar.map((d) => (
@@ -766,11 +795,13 @@ export function BelgeVeSablonStudyoTab({ initialDosyaId }: BelgeVeSablonStudyoTa
 
           {/* Şablon Seçimi */}
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 whitespace-nowrap">Hazır Şablon:</span>
+            <span className="text-xs font-semibold text-slate-500 whitespace-nowrap">
+              Hazır Şablon:
+            </span>
             <select
               value={selectedTemplateKod}
               onChange={(e) => handleSelectTemplate(e.target.value)}
-              className="px-3 py-1.5 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 rounded-xl text-xs font-bold text-purple-900 dark:text-purple-200 cursor-pointer max-w-[260px]"
+              className="px-3 py-1.5 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 rounded-xl text-xs font-bold text-purple-900 dark:text-purple-200 cursor-pointer max-w-65"
             >
               {STANDARD_2886_TEMPLATES.map((t) => (
                 <option key={t.kod} value={t.kod}>
@@ -844,7 +875,7 @@ export function BelgeVeSablonStudyoTab({ initialDosyaId }: BelgeVeSablonStudyoTa
       {/* 2. ANA ÇALIŞMA ALANI: SOL PANEL (FORM BUILDER) & SAĞ PANEL (A4 TIPTAP) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* SOL PANEL (5 Kolon) - FORM BUILDER & DEĞİŞKENLER */}
-        <div className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col h-[820px] overflow-hidden">
+        <div className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col h-205 overflow-hidden">
           {/* Sol Panel Sekme Başlıkları */}
           <div className="shrink-0 flex items-center border-b border-slate-200 dark:border-slate-800 p-2 bg-slate-50/70 dark:bg-slate-850/50 gap-1 overflow-x-auto custom-scrollbar">
             <button
@@ -1291,7 +1322,7 @@ export function BelgeVeSablonStudyoTab({ initialDosyaId }: BelgeVeSablonStudyoTa
                             {`{{${cf.key}}}`}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-500 truncate max-w-[280px] mt-0.5">
+                        <p className="text-[11px] text-slate-500 truncate max-w-70 mt-0.5">
                           Tip: {cf.tip} • Değer: {cf.deger || '(Boş)'}
                         </p>
                       </div>
@@ -1423,7 +1454,7 @@ export function BelgeVeSablonStudyoTab({ initialDosyaId }: BelgeVeSablonStudyoTa
         </div>
 
         {/* SAĞ PANEL (7 Kolon) - A4 TIPTAP RESMİ BELGE EDİTÖRÜ */}
-        <div className="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col h-[820px] overflow-hidden">
+        <div className="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col h-205 overflow-hidden">
           {/* Editör Üst Barı */}
           <div className="shrink-0 p-3 bg-slate-50/80 dark:bg-slate-850/80 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -1454,7 +1485,7 @@ export function BelgeVeSablonStudyoTab({ initialDosyaId }: BelgeVeSablonStudyoTa
 
           {/* A4 Editör Konteynırı */}
           <div className="flex-1 p-4 bg-slate-100/60 dark:bg-slate-950/60 overflow-y-auto custom-scrollbar flex justify-center">
-            <div className="w-full max-w-3xl bg-white text-slate-900 shadow-xl rounded-lg p-6 min-h-[700px] border border-slate-200">
+            <div className="w-full max-w-3xl bg-white text-slate-900 shadow-xl rounded-lg p-6 min-h-175 border border-slate-200">
               <A4Editor content={editorContent} onChange={(html) => setEditorContent(html)} />
             </div>
           </div>

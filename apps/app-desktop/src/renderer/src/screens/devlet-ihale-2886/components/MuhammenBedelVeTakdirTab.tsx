@@ -637,7 +637,7 @@ Yukarıda vasıfları belirtilen taşınmazın 2886 sayılı Devlet İhale Kanun
               </p>
             </div>
           ) : (
-            <div className="space-y-2 max-h-[220px] overflow-y-auto custom-scrollbar pr-1">
+            <div className="space-y-2 max-h-55 overflow-y-auto custom-scrollbar pr-1">
               {emsaller.map((e, idx) => (
                 <div
                   key={e.id}
@@ -698,7 +698,7 @@ Yukarıda vasıfları belirtilen taşınmazın 2886 sayılı Devlet İhale Kanun
       </div>
 
       {/* 3. Muhammen Bedel ve Geçici Teminat Hesap Özeti */}
-      <div className="bg-gradient-to-r from-blue-50/70 via-indigo-50/50 to-purple-50/70 dark:from-blue-950/30 dark:via-indigo-950/20 dark:to-purple-950/30 border border-blue-200/80 dark:border-blue-800/60 rounded-xl p-4 shadow-2xs">
+      <div className="bg-linear-to-r from-blue-50/70 via-indigo-50/50 to-purple-50/70 dark:from-blue-950/30 dark:via-indigo-950/20 dark:to-purple-950/30 border border-blue-200/80 dark:border-blue-800/60 rounded-xl p-4 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
             <Calculator className="w-5 h-5 text-blue-600 dark:text-blue-400" />

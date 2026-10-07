@@ -430,7 +430,7 @@ export function DatabaseBrowserScreen(): React.JSX.Element {
       hideStepper
       requireActiveDosya={false}
     >
-      <div className="flex gap-6 h-[calc(100vh-240px)] min-h-[500px] mt-4 relative font-sans">
+      <div className="flex gap-6 h-[calc(100vh-240px)] min-h-125 mt-4 relative font-sans">
         {/* Sidebar: Tables List */}
         <div className="w-1/4 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col gap-4 h-full bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
           <div className="relative">
@@ -924,7 +924,7 @@ export function DatabaseBrowserScreen(): React.JSX.Element {
                                 return (
                                   <td
                                     key={key}
-                                    className="p-2 border-r border-slate-150 dark:border-slate-850 truncate max-w-[200px] text-slate-650 dark:text-slate-400"
+                                    className="p-2 border-r border-slate-150 dark:border-slate-850 truncate max-w-50 text-slate-650 dark:text-slate-400"
                                     title={
                                       val !== null && typeof val === 'object'
                                         ? JSON.stringify(val)

@@ -14,8 +14,7 @@ import {
   Gavel,
   ShieldCheck,
   AlertTriangle,
-  Sparkles,
-  CheckCircle2
+  Sparkles
 } from 'lucide-react'
 import { DEFAULT_2886_DOSYALAR } from '../../../components/layout/temin-selector/teminSelector.constants'
 import {
@@ -401,7 +400,7 @@ export function DosyaYonetimi2886Tab({
         </div>
 
         {/* Toplam Muhammen Bedel Hacmi */}
-        <div className="bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 text-white p-3.5 rounded-2xl shadow-md col-span-2 sm:col-span-2 lg:col-span-1">
+        <div className="bg-linear-to-br from-indigo-950 via-slate-900 to-purple-950 text-white p-3.5 rounded-2xl shadow-md col-span-2 sm:col-span-2 lg:col-span-1">
           <div className="flex items-center justify-between text-indigo-200">
             <span className="text-[11px] font-bold uppercase">Toplam Muhammen Bedel</span>
             <TrendingUp className="w-4 h-4 text-emerald-400" />
@@ -414,9 +413,9 @@ export function DosyaYonetimi2886Tab({
 
       {/* 2. ARAMA, FİLTRE VE AKSİYON ÇUBUĞU */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
-        <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-[280px]">
+        <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-70">
           {/* Arama Input */}
-          <div className="relative flex-1 min-w-[220px]">
+          <div className="relative flex-1 min-w-55">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"

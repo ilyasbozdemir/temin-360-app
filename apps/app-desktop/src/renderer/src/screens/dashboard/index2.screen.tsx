@@ -456,7 +456,7 @@ export default function DashboardScreenV2(): React.JSX.Element {
   }
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-[1650px] mx-auto pb-12 animate-in fade-in slide-in-from-bottom-3 duration-500 text-slate-800 dark:text-slate-100">
+    <div className="flex flex-col gap-6 w-full max-w-412.5 mx-auto pb-12 animate-in fade-in slide-in-from-bottom-3 duration-500 text-slate-800 dark:text-slate-100">
       {/* 1. AKTİF ÇALIŞILAN DOĞRUDAN TEMİN / İHALE / 2886 DOSYASI ÖZEL ODAK KARTI */}
       {activeDosya && (
         <ActiveDosyaCard

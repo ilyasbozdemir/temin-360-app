@@ -369,7 +369,7 @@ export const SyncTab: React.FC = () => {
                   onChange={(e) => setIsOnlineMode(e.target.checked)}
                   className="sr-only peer cursor-pointer"
                 />
-                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-emerald-600"></div>
+                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-emerald-600"></div>
               </label>
             </div>
 
@@ -704,7 +704,7 @@ export const SyncTab: React.FC = () => {
                   onChange={(e) => setMinioUseSSL(e.target.checked)}
                   className="sr-only peer cursor-pointer"
                 />
-                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-rose-600"></div>
+                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-rose-600"></div>
               </label>
             </div>
 
@@ -770,7 +770,7 @@ export const SyncTab: React.FC = () => {
       {activeProvider === 'gdrive' && (
         <div className="space-y-5">
           {/* Google Drive Bulut Depo Paneli */}
-          <div className="bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-blue-500/10 dark:from-emerald-950/40 dark:via-teal-950/40 dark:to-blue-950/40 rounded-2xl p-6 border border-emerald-200/60 dark:border-emerald-800/40 space-y-4">
+          <div className="bg-linear-to-br from-emerald-500/10 via-teal-500/10 to-blue-500/10 dark:from-emerald-950/40 dark:via-teal-950/40 dark:to-blue-950/40 rounded-2xl p-6 border border-emerald-200/60 dark:border-emerald-800/40 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
@@ -1011,7 +1011,7 @@ export const SyncTab: React.FC = () => {
                             : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800'
                         }`}
                       >
-                        {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                        {isChecked && <Check className="w-3 h-3 stroke-3" />}
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
