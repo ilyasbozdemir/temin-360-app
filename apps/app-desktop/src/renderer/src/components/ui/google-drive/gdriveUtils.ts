@@ -3,6 +3,14 @@ export interface GDriveFile {
   name: string
   size?: string
   modifiedTime?: string
+  createdTime?: string
+  description?: string
+  appProperties?: {
+    deviceName?: string
+    userName?: string
+    deviceLabel?: string
+    appVersion?: string
+  }
 }
 
 export type StatusType = 'success' | 'error' | 'info'

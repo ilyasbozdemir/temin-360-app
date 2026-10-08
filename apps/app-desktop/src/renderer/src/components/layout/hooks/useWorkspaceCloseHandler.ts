@@ -165,7 +165,12 @@ export function useWorkspaceCloseHandler(
     autoSyncTimerRef.current = setTimeout(async () => {
       try {
         const s = await window.electron?.ipcRenderer?.invoke('db:get-settings')
-        if (s?.gdriveAccessToken) {
+        const isDriveConfigured =
+          !!s?.gdriveAccessToken ||
+          !!s?.gdriveRefreshToken ||
+          (!!s?.gdriveClientId && !!s?.gdriveClientSecret)
+
+        if (isDriveConfigured) {
           console.log(
             '[Auto-Sync] Veri değişikliği algılandı, Google Drive bulutuna arka planda eşitleniyor...'
           )

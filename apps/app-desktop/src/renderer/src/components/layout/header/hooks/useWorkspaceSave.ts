@@ -16,7 +16,12 @@ export function useWorkspaceSave(): UseWorkspaceSaveReturn {
       if (!saveRes?.success) throw new Error(saveRes?.error || 'Dosya kaydedilemedi.')
 
       const s = await window.electron?.ipcRenderer.invoke('db:get-settings')
-      if (s?.gdriveAccessToken) {
+      const isGDriveConfigured =
+        !!s?.gdriveAccessToken ||
+        !!s?.gdriveRefreshToken ||
+        (!!s?.gdriveClientId && !!s?.gdriveClientSecret)
+
+      if (isGDriveConfigured) {
         setSaveFeedback('☁️ Google Drive bulutuna yedekleniyor...')
         const gdriveRes = await window.electron?.ipcRenderer.invoke('workspace:backup-gdrive', {
           force: true

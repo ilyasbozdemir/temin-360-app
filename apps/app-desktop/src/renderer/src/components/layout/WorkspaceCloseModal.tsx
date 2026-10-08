@@ -29,7 +29,10 @@ export function WorkspaceCloseModal({
 }: WorkspaceCloseModalProps): React.JSX.Element {
   const [settings, setSettings] = useState<Record<string, string>>({})
   const isMailConfigured = !!settings.smtp_host
-  const isGDriveConfigured = !!settings.gdriveAccessToken
+  const isGDriveConfigured =
+    !!settings.gdriveAccessToken ||
+    !!settings.gdriveRefreshToken ||
+    (!!settings.gdriveClientId && !!settings.gdriveClientSecret)
   const isServerConfigured = !!settings.sync_server_url
 
   const [selectedActions, setSelectedActions] = useState<CloseActionType[]>([])
@@ -84,7 +87,9 @@ export function WorkspaceCloseModal({
             }
 
             const hasGDrive =
-              !!s.gdriveAccessToken || (!!s.gdriveClientId && !!s.gdriveClientSecret)
+              !!s.gdriveAccessToken ||
+              !!s.gdriveRefreshToken ||
+              (!!s.gdriveClientId && !!s.gdriveClientSecret)
             let chosen: CloseActionType[] = []
 
             // Sadece dosyada gerçek bir değişiklik varsa yedekleri varsayılan olarak seç

@@ -46,6 +46,20 @@ export function DriveFileRow({
             <span className="text-[9px] font-medium px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0">
               Sürüm #{total - index}
             </span>
+            {(file.appProperties?.deviceLabel ||
+              file.description?.match(/\[Cihaz:\s*([^\]]+)\]/)?.[1]) && (
+              <span
+                className="text-[9px] font-semibold px-1.5 py-0.2 rounded bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 shrink-0"
+                title={`Yedekleme yapılan bilgisayar: ${
+                  file.appProperties?.deviceLabel ||
+                  file.description?.match(/\[Cihaz:\s*([^\]]+)\]/)?.[1]
+                }`}
+              >
+                💻{' '}
+                {file.appProperties?.deviceLabel ||
+                  file.description?.match(/\[Cihaz:\s*([^\]]+)\]/)?.[1]}
+              </span>
+            )}
             <span className="text-slate-300 dark:text-slate-700">•</span>
             <span className="flex items-center gap-1 font-medium text-slate-600 dark:text-slate-300">
               <Clock size={11} className="text-slate-400" />

@@ -949,7 +949,10 @@ export const SyncTab: React.FC = () => {
                   icon: '☁️',
                   title: 'Google Drive Bulutuna Yedekle',
                   desc: 'TEMIN_360_YEDEKLER klasörüne yükler ve son 7 sürümü saklar.',
-                  configured: !!settingsData.gdriveAccessToken
+                  configured:
+                    !!settingsData.gdriveAccessToken ||
+                    !!settingsData.gdriveRefreshToken ||
+                    (!!settingsData.gdriveClientId && !!settingsData.gdriveClientSecret)
                 },
                 {
                   id: 'server',

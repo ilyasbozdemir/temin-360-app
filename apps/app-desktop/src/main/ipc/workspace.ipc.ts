@@ -2,6 +2,7 @@ import { ipcMain, BrowserWindow, dialog } from 'electron'
 import { basename } from 'path'
 import fs from 'fs'
 import nodemailer from 'nodemailer'
+import os from 'os'
 import { workspaceManager } from '../database/workspace'
 import {
   allExtensions,
@@ -13,7 +14,15 @@ import { recentFilesStore } from '../store/recentFiles'
 import { pocketBaseSyncService, PocketBaseConfig } from '../services/pocketbaseSyncService'
 import { minioSyncService, MinIOConfig } from '../services/minioSyncService'
 
+export function getDeviceInfo() {
+  const hostname = os.hostname() || process.env.COMPUTERNAME || process.env.HOSTNAME || 'Bilinmeyen PC'
+  const username = os.userInfo?.()?.username || process.env.USERNAME || process.env.USER || 'Kullanıcı'
+  const deviceLabel = `${username}@${hostname}`
+  return { hostname, username, deviceLabel }
+}
+
 export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => void): void {
+  ipcMain.handle('workspace:get-device-info', () => getDeviceInfo())
   ipcMain.handle('workspace:create', async (_, filePath: string, institutionName: string) => {
     try {
       const meta = workspaceManager.create(filePath, institutionName)
@@ -501,6 +510,9 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
           } catch {
             // Table/setting check fallback
           }
+          if (!token) {
+            token = (await tryRefreshToken(db)) || undefined
+          }
         }
 
         const fileName = basename(filePath)
@@ -536,6 +548,92 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
             }
           }
 
+          // Cihaz / PC Kimlik Bilgileri
+          const devInfo = getDeviceInfo()
+          let pulledRemote = false
+          let remoteDeviceLabel: string | null = null
+
+          // 1. Önce uzaktaki en güncel yedek kontrol edilsin ("Pull Remote First")
+          try {
+            const listQuery = encodeURIComponent(`'${folderId}' in parents and trashed = false`)
+            const listRes = await fetchWithRetry(
+              `https://www.googleapis.com/drive/v3/files?q=${listQuery}&fields=files(id,name,modifiedTime,createdTime,description,appProperties)&orderBy=modifiedTime%20desc&pageSize=1`,
+              { headers: { Authorization: `Bearer ${cleanToken}` } }
+            )
+            if (listRes.ok) {
+              const listData = (await listRes.json()) as { files?: any[] }
+              const latestRemote = listData.files?.[0]
+              if (latestRemote) {
+                let lastSyncIso: string | undefined
+                try {
+                  const row = db
+                    .prepare("SELECT value FROM settings WHERE key = 'lastGdriveSync'")
+                    .get() as { value?: string }
+                  lastSyncIso = row?.value
+                } catch {
+                  // Fallback
+                }
+
+                const remoteTime = new Date(
+                  latestRemote.modifiedTime || latestRemote.createdTime
+                ).getTime()
+                const localSyncTime = lastSyncIso ? new Date(lastSyncIso).getTime() : 0
+                const remoteDevice =
+                  latestRemote.appProperties?.deviceLabel ||
+                  latestRemote.description?.match(/\[Cihaz:\s*([^\]]+)\]/)?.[1] ||
+                  null
+
+                // Uzaktaki dosya local sync zamanından yeniyse (> 3 saniye) ve başka cihazdan geldiyse (veya local sync yoksa)
+                if (
+                  remoteTime > localSyncTime + 3000 &&
+                  (!remoteDevice || remoteDevice !== devInfo.deviceLabel)
+                ) {
+                  console.log(
+                    `[Google Drive Sync] Uzakta daha güncel yedek tespit edildi (${latestRemote.name} - ${remoteDevice || 'Uzak Cihaz'}). İlk olarak güncel uzaktan alınıyor...`
+                  )
+                  const dlRes = await fetchWithRetry(
+                    `https://www.googleapis.com/drive/v3/files/${latestRemote.id}?alt=media`,
+                    { headers: { Authorization: `Bearer ${cleanToken}` } }
+                  )
+                  if (dlRes.ok) {
+                    const arrayBuffer = await dlRes.arrayBuffer()
+                    const remoteBuf = Buffer.from(arrayBuffer)
+                    const tempRemotePath = require('path').join(
+                      os.tmpdir(),
+                      `remote_sync_${Date.now()}.temin`
+                    )
+                    fs.writeFileSync(tempRemotePath, remoteBuf)
+
+                    if (!workspaceManager.isDirty()) {
+                      try {
+                        workspaceManager.replaceDatabase(tempRemotePath)
+                        console.log(
+                          '[Google Drive Sync] Yerel veritabanı uzaktaki güncel veri ile başarıyla yenilendi.'
+                        )
+                      } catch (rErr) {
+                        console.warn('[Google Drive Sync] Database replace warning:', rErr)
+                      }
+                    }
+                    try {
+                      fs.unlinkSync(tempRemotePath)
+                    } catch {}
+                    pulledRemote = true
+                    remoteDeviceLabel = remoteDevice
+                  }
+                }
+              }
+            }
+          } catch (checkErr) {
+            console.warn(
+              '[Google Drive Sync] Remote check hatası (Yerel yedekleme ile devam ediliyor):',
+              checkErr
+            )
+          }
+
+          // Güncel yerel veriyi kaydet
+          workspaceManager.save()
+          const currentData = fs.readFileSync(filePath)
+
           // Versioned timestamped filename: e.g. Acme_2026-09-06_17-46.dtal
           const now = new Date()
           const pad = (n: number) => String(n).padStart(2, '0')
@@ -546,12 +644,18 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
             .replace(/_\d{4}[-_.]\d{2}[-_.]\d{2}(?:[-_.]\d{2}[-_.]\d{2})?$/, '')
           const backupFileName = `${rawBase}_${dateStr}_${timeStr}.temin`
 
-          // Construct multipart boundary for metadata + binary payload
+          // Construct multipart boundary for metadata + binary payload with appProperties (Cihaz/PC bilgisi)
           const boundary = '--------------------------' + Date.now().toString(16)
           const metadata = JSON.stringify({
             name: backupFileName,
-            description: `TEMİN 360 Çalışma Dosyası Yedeği (${dateStr} ${timeStr.replace('-', ':')})`,
-            parents: [folderId]
+            description: `TEMİN 360 Yedeği [Cihaz: ${devInfo.deviceLabel}] (${dateStr} ${timeStr.replace('-', ':')})`,
+            parents: [folderId],
+            appProperties: {
+              deviceName: devInfo.hostname,
+              userName: devInfo.username,
+              deviceLabel: devInfo.deviceLabel,
+              appVersion: '1.0.0-beta.92'
+            }
           })
 
           const metadataPart = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n`
@@ -565,7 +669,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
           const multipartBody = Buffer.concat([
             metadataBuffer,
             fileHeaderBuffer,
-            fileData,
+            currentData,
             closingBuffer
           ])
 
@@ -616,13 +720,16 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
                 'gdrive',
                 backupFileName,
                 uploadedFile.id,
-                fileData.length,
+                currentData.length,
                 '1.0.0-beta.92',
-                'Google Drive Bulut Yedeği (TEMIN_360_YEDEKLER)'
+                `Google Drive Bulut Yedeği (${devInfo.deviceLabel})`
               )
               db.prepare(
                 `INSERT OR REPLACE INTO settings (key, value) VALUES ('lastGdriveSync', ?)`
               ).run(new Date().toISOString())
+              db.prepare(
+                `INSERT OR REPLACE INTO settings (key, value) VALUES ('lastGdriveSyncDevice', ?)`
+              ).run(devInfo.deviceLabel)
               db.prepare(
                 `INSERT OR REPLACE INTO settings (key, value) VALUES ('lastBackupFileName', ?)`
               ).run(backupFileName)
@@ -639,10 +746,16 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
 
           workspaceManager.markSynced('gdrive')
 
+          const successMsg = pulledRemote
+            ? `${backupFileName} başarıyla yüklendi. (Uzaktaki güncel veriler [${remoteDeviceLabel || 'Diğer PC'}] önce yerel dosyaya aktarıldı, ardından değişiklikleriniz eklenip yedeklendi.)`
+            : `${backupFileName} başarıyla Google Drive 'TEMIN_360_YEDEKLER' klasörüne yüklendi (${devInfo.deviceLabel}).`
+
           return {
             success: true,
-            message: `${backupFileName} başarıyla Google Drive 'TEMIN_360_YEDEKLER' klasörüne yüklendi (Son 7 sürüm muhafaza ediliyor).`,
-            fileId: uploadedFile.id
+            message: successMsg,
+            fileId: uploadedFile.id,
+            pulledRemote,
+            remoteDevice: remoteDeviceLabel
           }
         }
 
@@ -838,7 +951,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
 
       const query = encodeURIComponent(`'${folderId}' in parents and trashed = false`)
       let res = await fetchWithRetry(
-        `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,size,mimeType,modifiedTime,createdTime)&orderBy=modifiedTime%20desc`,
+        `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,size,mimeType,modifiedTime,createdTime,description,appProperties)&orderBy=modifiedTime%20desc`,
         {
           headers: {
             Authorization: `Bearer ${cleanToken}`
@@ -851,7 +964,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
         if (newToken) {
           cleanToken = newToken
           res = await fetchWithRetry(
-            `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,size,mimeType,modifiedTime,createdTime)&orderBy=modifiedTime%20desc`,
+            `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,size,mimeType,modifiedTime,createdTime,description,appProperties)&orderBy=modifiedTime%20desc`,
             {
               headers: {
                 Authorization: `Bearer ${cleanToken}`
@@ -892,8 +1005,8 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
     ) => {
       try {
         let token = args.token
+        const db = workspaceManager.getDb()
         if (!token) {
-          const db = workspaceManager.getDb()
           try {
             const row = db
               .prepare("SELECT value FROM settings WHERE key = 'gdriveAccessToken'")
@@ -901,6 +1014,9 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
             token = row?.value
           } catch {
             // Fallback
+          }
+          if (!token) {
+            token = (await tryRefreshToken(db)) || undefined
           }
         }
 
@@ -912,7 +1028,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
           }
         }
 
-        const cleanToken = String(token)
+        let cleanToken = String(token)
           .trim()
           .replace(/^["']|["']$/g, '')
           .replace(/^Bearer\s+/i, '')
@@ -926,8 +1042,24 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
         }
 
         // Verify file belongs strictly to TEMIN_360_YEDEKLER folder
-        const folderId = await getOrCreateAppFolder(cleanToken)
-        const metaRes = await fetchWithRetry(
+        let folderId: string
+        try {
+          folderId = await getOrCreateAppFolder(cleanToken)
+        } catch (err: any) {
+          if (err.message?.includes('GDRIVE_TOKEN_EXPIRED') || err.message?.includes('401')) {
+            const newToken = await tryRefreshToken(db)
+            if (newToken) {
+              cleanToken = newToken
+              folderId = await getOrCreateAppFolder(cleanToken)
+            } else {
+              throw err
+            }
+          } else {
+            throw err
+          }
+        }
+
+        let metaRes = await fetchWithRetry(
           `https://www.googleapis.com/drive/v3/files/${args.fileId}?fields=id,name,parents,mimeType`,
           {
             headers: {
@@ -935,6 +1067,21 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
             }
           }
         )
+
+        if (metaRes.status === 401) {
+          const newToken = await tryRefreshToken(db)
+          if (newToken) {
+            cleanToken = newToken
+            metaRes = await fetchWithRetry(
+              `https://www.googleapis.com/drive/v3/files/${args.fileId}?fields=id,name,parents,mimeType`,
+              {
+                headers: {
+                  Authorization: `Bearer ${cleanToken}`
+                }
+              }
+            )
+          }
+        }
 
         if (metaRes.ok) {
           const metaData = (await metaRes.json()) as { parents?: string[]; mimeType?: string }
@@ -946,7 +1093,7 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
           }
         }
 
-        const res = await fetchWithRetry(
+        let res = await fetchWithRetry(
           `https://www.googleapis.com/drive/v3/files/${args.fileId}?alt=media`,
           {
             headers: {
@@ -954,6 +1101,21 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
             }
           }
         )
+
+        if (res.status === 401) {
+          const newToken = await tryRefreshToken(db)
+          if (newToken) {
+            cleanToken = newToken
+            res = await fetchWithRetry(
+              `https://www.googleapis.com/drive/v3/files/${args.fileId}?alt=media`,
+              {
+                headers: {
+                  Authorization: `Bearer ${cleanToken}`
+                }
+              }
+            )
+          }
+        }
 
         if (!res.ok) {
           const errText = await res.text()

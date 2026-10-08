@@ -40,6 +40,7 @@ export function GoogleDriveFooterWidget(): React.JSX.Element | null {
       const settings = await window.electron.ipcRenderer.invoke('db:get-settings')
       const hasDrive =
         !!settings?.gdriveAccessToken ||
+        !!settings?.gdriveRefreshToken ||
         (!!settings?.gdriveClientId && !!settings?.gdriveClientSecret)
       setIsConfigured(hasDrive)
 

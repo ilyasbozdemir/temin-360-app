@@ -61,6 +61,7 @@ const allowedChannels = new Set([
   'workspace:list-gdrive-files',
   'workspace:download-gdrive-file',
   'workspace:delete-gdrive-file',
+  'workspace:get-device-info',
   'workspace:upload-file',
   'workspace:open-file',
   'workspace:verify-detsis',

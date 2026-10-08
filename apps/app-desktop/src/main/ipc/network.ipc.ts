@@ -1080,7 +1080,43 @@ export async function performAutoCloudSync(): Promise<void> {
         const gdriveRow = db
           .prepare("SELECT value FROM settings WHERE key = 'gdriveAccessToken'")
           .get() as { value?: string } | undefined
-        const token = gdriveRow?.value
+        let token = gdriveRow?.value
+        if (!token) {
+          try {
+            const refreshRow = db
+              .prepare("SELECT value FROM settings WHERE key = 'gdriveRefreshToken'")
+              .get() as { value?: string } | undefined
+            const clientIdRow = db
+              .prepare("SELECT value FROM settings WHERE key = 'gdriveClientId'")
+              .get() as { value?: string } | undefined
+            const clientSecretRow = db
+              .prepare("SELECT value FROM settings WHERE key = 'gdriveClientSecret'")
+              .get() as { value?: string } | undefined
+            if (refreshRow?.value && clientIdRow?.value && clientSecretRow?.value) {
+              const res = await fetch('https://oauth2.googleapis.com/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                  client_id: clientIdRow.value.trim(),
+                  client_secret: clientSecretRow.value.trim(),
+                  refresh_token: refreshRow.value.trim(),
+                  grant_type: 'refresh_token'
+                }).toString()
+              })
+              if (res.ok) {
+                const data = (await res.json()) as { access_token?: string }
+                if (data.access_token) {
+                  token = data.access_token
+                  db.prepare(
+                    "INSERT OR REPLACE INTO settings (key, value) VALUES ('gdriveAccessToken', ?)"
+                  ).run(token)
+                }
+              }
+            }
+          } catch (tErr) {
+            console.warn('[AutoCloudSync] Token refresh error:', tErr)
+          }
+        }
         const curFile = workspaceManager.getCurrentFilePath()
         if (token && curFile && fs.existsSync(curFile)) {
           const cleanToken = String(token)
