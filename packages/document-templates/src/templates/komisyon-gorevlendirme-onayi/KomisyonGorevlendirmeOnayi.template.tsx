@@ -118,8 +118,8 @@ export function KomisyonGorevlendirmeOnayi({
         >
           <EditableField
             name="kurumumuz"
-            value={data.kurumumuz || data.kurumAdi || "Kurumumuz"}
-            placeholder="Kurumumuz"
+            value={data.kurumumuz || data.altKurumBizim || data.kurumBizim || "Belediyemiz"}
+            placeholder="Belediyemiz / İdaremiz"
           />{" "}
           bünyesindeki{" "}
           <strong><EditableField name="isAdi" value={data.isAdi || data.isinAdi} placeholder="İşin Adı" /></strong> işine ait fiyat araştırması ile

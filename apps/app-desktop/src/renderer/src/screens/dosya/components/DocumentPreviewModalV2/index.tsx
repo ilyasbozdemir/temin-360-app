@@ -112,10 +112,10 @@ export function DocumentPreviewModalV2({
     <div
       className={
         isFullScreen
-          ? 'fixed inset-0 z-200 w-screen h-screen max-w-none max-h-none rounded-none border-none shadow-none flex flex-col bg-white dark:bg-slate-900 overflow-hidden animate-in fade-in duration-150'
+          ? 'fixed inset-0 z-[200] w-screen h-screen max-w-none max-h-none rounded-none border-none shadow-none flex flex-col bg-white dark:bg-slate-900 overflow-hidden animate-in fade-in duration-150'
           : isModal
             ? 'bg-white dark:bg-slate-900 w-full max-w-[95vw] h-[95vh] rounded-2xl shadow-2xl flex flex-col border border-slate-200 dark:border-slate-800 overflow-hidden'
-            : 'bg-white dark:bg-slate-900 w-full h-full min-h-[85vh] rounded-2xl flex flex-col border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm'
+            : 'fixed inset-0 z-[100] w-screen h-screen max-w-none max-h-none rounded-none border-none shadow-none flex flex-col bg-slate-100 dark:bg-slate-950 overflow-hidden'
       }
       onClick={(e) => (isModal || isFullScreen) && e.stopPropagation()}
     >

@@ -134,14 +134,17 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
         });
       }
     }
-    return gorevlendirilenler;
+    return [];
   })();
 
-  // Evrak sayısı oluşturma
-  const evrakNo = data.evrakSayisi ||
-    `${data.detsisNo || "........"}-${data.yili || "...."}/${
-      data.sayisi || "...."
-    }`;
+  // Evrak sayısı oluşturma (EBYS Standart Formatı: E-DETSİS-SDP-NO)
+  const evrakNo =
+    data.evrakSayisi && !data.evrakSayisi.includes('/')
+      ? data.evrakSayisi
+      : data.evrakSayisi ||
+        `${data.detsisNo || "........"}-${data.yili || "...."}/${
+          data.sayisi || "...."
+        }`;
 
   const konuMetni = data.dosyaKonusu ??
     "Piyasa Fiyat Araştırması Görevlendirmesi";
@@ -234,7 +237,8 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
         >
           <EditableField
             name="kurumumuz"
-            value={data.kurumumuz || data.kurumAdi || "Kurumumuz"}
+            value={data.kurumumuz || data.altKurumBizim || data.kurumBizim || "Belediyemiz"}
+            placeholder="Belediyemiz / İdaremiz"
           />
           ,{" "}
           <EditableField

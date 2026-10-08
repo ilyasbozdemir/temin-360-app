@@ -227,7 +227,7 @@ export function KikLimitleriSection(): React.JSX.Element {
 
             <div>
               <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                Büyükşehir Limiti (₺){" "}
+                22/d* (Tek Yıldız) - Büyükşehir Limiti (₺){" "}
                 {limitType === "buyuksehir" && (
                   <span className="text-red-500">*</span>
                 )}
@@ -236,13 +236,13 @@ export function KikLimitleriSection(): React.JSX.Element {
                 type="text"
                 value={newBuyuksehir}
                 onChange={(e) => setNewBuyuksehir(e.target.value)}
-                placeholder="0,00"
+                placeholder="1.021.827,00"
                 className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-medium"
               />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                Diğer İdareler Limiti (₺){" "}
+                22/d** (Çift Yıldız) - Diğer İdareler Limiti (₺){" "}
                 {limitType === "diger" && (
                   <span className="text-red-500">*</span>
                 )}
@@ -251,7 +251,7 @@ export function KikLimitleriSection(): React.JSX.Element {
                 type="text"
                 value={newDiger}
                 onChange={(e) => setNewDiger(e.target.value)}
-                placeholder="0,00"
+                placeholder="340.391,00"
                 className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-medium"
               />
             </div>
@@ -279,8 +279,8 @@ export function KikLimitleriSection(): React.JSX.Element {
                     <tr>
                       <th className="px-4 py-3">Dönem</th>
                       <th className="px-4 py-3">Geçerlilik Aralığı</th>
-                      <th className="px-4 py-3">Büyükşehir Limit</th>
-                      <th className="px-4 py-3">Diğer İdare Limit</th>
+                      <th className="px-4 py-3">22/d* (Tek Yıldız - Büyükşehir)</th>
+                      <th className="px-4 py-3">22/d** (Çift Yıldız - Diğer)</th>
                       <th className="px-4 py-3 w-10">İşlem</th>
                     </tr>
                   </thead>

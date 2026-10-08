@@ -536,7 +536,6 @@ export async function resolveTemplateData(
 
         if (sablonDegiskeni === 'fiyatKomisyonu' || sablonDegiskeni === 'gorevlendirilenler') {
           resolvedPayload.gorevlendirilenler = resolvedPayload[sablonDegiskeni];
-          resolvedPayload.dagitimListesi = resolvedPayload.gorevlendirilenler;
         }
         continue;
       } catch (err) {
@@ -845,13 +844,20 @@ export async function resolveTemplateData(
       (!val || String(val).trim() === '' || String(val).startsWith('[Belirtilmedi'))
     ) {
       val = defaultFileDate || formatDateTR(new Date());
-      resolvedPayload[key] = val;
     } else if (
       typeof val === 'string' &&
       (/^\d{4}-\d{2}-\d{2}/.test(val) || key.toLowerCase().includes('tarih'))
     ) {
       resolvedPayload[key] = formatDateTR(val);
     }
+  }
+
+  // Ensure official EBYS / E-DETSİS evrakSayisi format (E-10234521-934.01-0001) is populated for all templates
+  if (!resolvedPayload['evrakSayisi'] || String(resolvedPayload['evrakSayisi']).trim() === '' || String(resolvedPayload['evrakSayisi']).includes('/')) {
+    resolvedPayload['evrakSayisi'] = await resolveEvrakSayisi(activeDosyaId, queryExecutor);
+  }
+  if (!resolvedPayload['evrakNo']) {
+    resolvedPayload['evrakNo'] = resolvedPayload['evrakSayisi'];
   }
 
   return resolvedPayload;

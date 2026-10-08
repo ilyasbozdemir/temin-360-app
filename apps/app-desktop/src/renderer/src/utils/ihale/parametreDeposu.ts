@@ -147,9 +147,9 @@ export const MEVZUAT_PARAMETRELERI_TABLOSU: Record<number, ParametreYili> = {
     yil: 2026,
     esikDegerler: {
       yil: 2026,
-      dogrudanTeminBuyuksehir: 1420000,
-      dogrudanTeminDiger: 475000,
-      pazarlik21f: 1420000,
+      dogrudanTeminBuyuksehir: 1021827, // 22/d* (Tek Yıldız: Büyükşehir Sınırları Dahilinde)
+      dogrudanTeminDiger: 340391, // 22/d** (Çift Yıldız: Büyükşehir Sınırları Dışında)
+      pazarlik21f: 3406508,
       ilanEsikDegeriMalHizmet: 18500000,
       ilanEsikDegeriYapim: 405000000,
       kikPayiEsikTutari: 1150000,
@@ -179,9 +179,9 @@ export const MEVZUAT_PARAMETRELERI_TABLOSU: Record<number, ParametreYili> = {
     yil: 2025,
     esikDegerler: {
       yil: 2025,
-      dogrudanTeminBuyuksehir: 1021827,
-      dogrudanTeminDiger: 340550,
-      pazarlik21f: 1021827,
+      dogrudanTeminBuyuksehir: 800366,
+      dogrudanTeminDiger: 266618,
+      pazarlik21f: 2668214,
       ilanEsikDegeriMalHizmet: 13350000,
       ilanEsikDegeriYapim: 292000000,
       kikPayiEsikTutari: 850000,

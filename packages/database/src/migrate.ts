@@ -106,7 +106,9 @@ export function runMigrations(db: Database.Database, fromVersion: number, dbSche
           for (const tableName of change.tables_added) {
             const tableDef = dbSchemaDef?.tables?.find((t: any) => t.name === tableName)
             if (!tableDef) {
-              console.warn(`Tablo tanımı bulunamadı: ${tableName}`)
+              if (!change.raw_sql || change.raw_sql.length === 0) {
+                console.warn(`Tablo tanımı bulunamadı: ${tableName}`)
+              }
               continue
             }
 

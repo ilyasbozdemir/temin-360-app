@@ -101,12 +101,17 @@ export function belirleIhaleUsulu(input: UsulBelirlemeInput): UsulOnerisi {
 
   // 4734 SAYILI KAMU İHALE KANUNU (Gider/Alım İşleri)
 
-  // 1. Durum: 4734 Madde 22/d Doğrudan Temin Limiti Altı
+  // 1. Durum: 4734 Madde 22/d Doğrudan Temin Limiti Altı (22/d* Tek Yıldız vs 22/d** Çift Yıldız)
   if (tutar <= dogrudanTeminLimiti && input.alimTuru !== 'YAPIM') {
+    const maddeKodu = isBuyuksehir ? '22/d* (Tek Yıldız)' : '22/d** (Çift Yıldız)'
+    const kapsayiciMetin = isBuyuksehir
+      ? 'Büyükşehir Belediyesi Sınırları Dahilindeki İdareler (Tek Yıldız - 22/d*)'
+      : 'Büyükşehir Belediyesi Sınırları Dışındaki / Diğer İdareler (Çift Yıldız - 22/d**)'
+
     return {
       oncelikliUsulKodu: '4734_22_D',
-      usulAdi: '4734 Sayılı Kanun Madde 22/d - Doğrudan Temin',
-      mevzuatDayanagi: `4734 Sayılı Kanun Madde 22/d (${yil} yılı limiti: ${formatTL(dogrudanTeminLimiti)})`,
+      usulAdi: `4734 Sayılı Kanun Madde ${maddeKodu} - Doğrudan Temin`,
+      mevzuatDayanagi: `4734 Sayılı Kanun Madde ${maddeKodu} [EKAP ${kapsayiciMetin} - ${yil} Yılı Limiti: ${formatTL(dogrudanTeminLimiti)}]`,
       komisyonGerekliMi: false, // Komisyon kurma zorunluluğu yok, tek piyasa araştırma görevlisi yeterli
       ilanGerekliMi: false, // İlan zorunluluğu yok
       geciciTeminatGerekliMi: false, // Teminat alma zorunluluğu yok
@@ -116,7 +121,7 @@ export function belirleIhaleUsulu(input: UsulBelirlemeInput): UsulOnerisi {
       sozlesmeZorunluMu: false, // Sözleşme yapılması idarenin takdirinde
       kikPayiZorunluMu: tutar >= esik.kikPayiEsikTutari,
       uyariVeTavsiyeler: [
-        `Bu tutar (${formatTL(tutar)}), ${yil} yılı ${isBuyuksehir ? 'Büyükşehir' : 'Diğer İdareler'} doğrudan temin limitinin (${formatTL(dogrudanTeminLimiti)}) altındadır.`,
+        `Bu tutar (${formatTL(tutar)}), ${yil} yılı EKAP ${kapsayiciMetin} doğrudan temin limitinin (${formatTL(dogrudanTeminLimiti)}) altındadır.`,
         'İhale komisyonu kurma, ilan yapma ve teminat alma zorunluluğu yoktur.',
         'Piyasa Fiyat Araştırma Tutanağı ve Harcama / İhale Yetkilisi Onayı ile doğrudan alım yapılabilir.',
         '4734 Madde 62/ı uyarınca bütçedeki yıllık ödeneğin %10 sınırına dikkat edilmelidir.'

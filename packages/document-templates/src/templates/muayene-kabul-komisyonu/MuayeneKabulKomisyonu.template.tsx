@@ -88,9 +88,6 @@ export const MuayeneKabulKomisyonu: React.FC<Props> = ({
         return true;
       });
     }
-    if (gorevlendirilenler.length > 0) {
-      return gorevlendirilenler;
-    }
     return [];
   })();
 
@@ -103,11 +100,14 @@ export const MuayeneKabulKomisyonu: React.FC<Props> = ({
     return `(${trimmed})`;
   };
 
-  // Evrak sayısı oluşturma
-  const evrakNo = data.evrakSayisi ||
-    `${data.detsisNo || "........"}-${data.yili || "...."}/${
-      data.sayisi || "...."
-    }`;
+  // Evrak sayısı oluşturma (EBYS Standart Formatı: E-DETSİS-SDP-NO)
+  const evrakNo =
+    data.evrakSayisi && !data.evrakSayisi.includes('/')
+      ? data.evrakSayisi
+      : data.evrakSayisi ||
+        `${data.detsisNo || "........"}-${data.yili || "...."}/${
+          data.sayisi || "...."
+        }`;
 
   const konuMetni = data.dosyaKonusu ??
     "Muayene ve Kabul Komisyonu";
@@ -205,7 +205,10 @@ export const MuayeneKabulKomisyonu: React.FC<Props> = ({
           {" tarih ve "}
           <EditableField
             name="onayBelgesiSayisi"
-            value={String(data.onayBelgesiSayisi || data.onayBelgesiNo || evrakNo)}
+            value={String(
+              data.onayBelgesiSayisi ||
+              (data.onayBelgesiNo && !String(data.onayBelgesiNo).includes('/') ? data.onayBelgesiNo : evrakNo)
+            )}
           />
           {" sayılı Onay Belgesine istinaden 4734 Sayılı Kanunun "}
           <EditableField
