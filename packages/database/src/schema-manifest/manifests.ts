@@ -69,6 +69,7 @@ import beta228 from "./versions/beta.228";
 import beta229 from "./versions/beta.229";
 import beta230 from "./versions/beta.230";
 import beta231 from "./versions/beta.231";
+import beta232 from "./versions/beta.232";
 import betaCurrent from "./versions/beta.current";
 
 export const manifests: any[] = [

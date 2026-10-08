@@ -1,6 +1,6 @@
 {
   "name": "@temin360/document-templates",
-  "version": "1.0.0-beta.231",
+  "version": "1.0.0-beta.232",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "private": true,
