@@ -188,21 +188,20 @@ export function IhaleVeTeklifFinansalSection(props: YeniDosyaTabProps): React.JS
             }
             className="w-full px-3.5 py-2.5 bg-slate-55 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200"
           >
-            {limitType === 'buyuksehir' ? (
-              <option value="22/d*">22/d* (Büyükşehir)</option>
-            ) : (
-              <option value="22/d**">22/d** (Diğer İdareler)</option>
-            )}
+            <option value="22/d*">
+              22/d* (Tek Yıldız - Büyükşehir Belediyesi Sınırları İçinde)
+            </option>
+            <option value="22/d**">
+              22/d** (Çift Yıldız - Büyükşehir Dışındaki İdareler / İl ve İlçeler)
+            </option>
             <option value="22/a">22/a (Tek Yetkili)</option>
             <option value="22/b">22/b (Özel Hak)</option>
             <option value="22/c">22/c (Uyum Alımı)</option>
           </select>
           {formData.ihale_sekli?.startsWith('22/d') && (
-            <p className="text-[10px] text-blue-600 dark:text-blue-400 mt-1 font-medium bg-blue-50 dark:bg-blue-900/20 p-1.5 rounded-lg border border-blue-100 dark:border-blue-800/50">
+            <p className="text-[10px] text-blue-600 dark:text-blue-400 mt-1 font-medium bg-blue-50 dark:bg-blue-900/20 p-1.5 rounded-lg border border-blue-100 dark:border-blue-800/50 leading-relaxed">
               <Info className="w-3 h-3 inline-block mr-1 mb-0.5" />
-              22/d limiti, kurum ayarlarındaki "Kamu İhale Mevzuatı Limit Tipi" (
-              {limitType === 'buyuksehir' ? 'Büyükşehir' : 'Diğer İdareler'}) ayarına göre otomatik
-              seçilmiştir.
+              EKAP Standardı: <strong>22/d* (Tek Yıldız)</strong> Büyükşehir belediyesi sınırlarındaki idarelerin limitini (1.021.827 TL), <strong>22/d** (Çift Yıldız)</strong> ise diğer il ve ilçe idarelerinin limitini (340.391 TL) ifade eder.
             </p>
           )}
           {!formData.ihale_sekli?.startsWith('22/d') && (

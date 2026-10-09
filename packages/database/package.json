@@ -1,6 +1,6 @@
 {
   "name": "@dt/database",
-  "version": "1.0.0-beta.232",
+  "version": "1.0.0-beta.233",
   "description": "Shared database models, schemas, and migrations for TEMİN 360 App",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -29,10 +29,14 @@ const FormatUpgradeModal = React.lazy(() =>
 const SayiyiYaziyaCevirModal = React.lazy(() =>
   import('../modals/SayiyiYaziyaCevirModal').then((m) => ({ default: m.SayiyiYaziyaCevirModal }))
 )
+const HesapAraclariModal = React.lazy(() =>
+  import('../modals/HesapAraclariModal').then((m) => ({ default: m.HesapAraclariModal }))
+)
 
 import { useDocumentTitle } from './hooks/useDocumentTitle'
 import { useGlobalInteractivityGuard } from './hooks/useGlobalInteractivityGuard'
 import { useSayiyiYaziyaCevirModal } from './hooks/useSayiyiYaziyaCevirModal'
+import { useHesapAraclariModal } from './hooks/useHesapAraclariModal'
 import { useInactiveTabCleaner } from './hooks/useInactiveTabCleaner'
 import { useWorkspaceCloseHandler } from './hooks/useWorkspaceCloseHandler'
 import { useWorkspaceLifecycle } from './hooks/useWorkspaceLifecycle'
@@ -51,6 +55,7 @@ export function PageWrapper(): React.ReactNode {
   const isAnyWindowMode = isWindowMode || isDosyaWindowMode
 
   const { isSayiModalOpen, sayiInitialVal, setIsSayiModalOpen } = useSayiyiYaziyaCevirModal()
+  const { isHesapModalOpen, setIsHesapModalOpen } = useHesapAraclariModal()
 
   const {
     activeFilePath,
@@ -145,6 +150,11 @@ export function PageWrapper(): React.ReactNode {
         isOpen={isSayiModalOpen}
         onClose={() => setIsSayiModalOpen(false)}
         initialValue={sayiInitialVal}
+      />
+      <HesapAraclariModal
+        isOpen={isHesapModalOpen}
+        onClose={() => setIsHesapModalOpen(false)}
+        onOpenSayiYaziModal={() => setIsSayiModalOpen(true)}
       />
       <FindInPage />
       <div className="flex flex-col flex-1 min-w-0">
