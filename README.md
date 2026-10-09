@@ -1,13 +1,23 @@
-# ⚖️ TEMİN 360 (Kamu Harcama, İhale, Doğrudan Temin ve Hakediş Yönetim Sistemi)
+# ⚖️ TEMİN 360 (Kamu Harcama, İhale, Doğrudan Temin, 2886 DİK ve Hakediş Yönetim Sistemi)
 
-> **"Kamu Harcamalarına, İhale, Doğrudan Temin ve Hakediş Süreçlerine Tam
-> Hâkimiyet."**
+> **"Kamu Harcamalarına, İhale, Doğrudan Temin, 2886 Satış/Kiralama ve Hakediş
+> Süreçlerine Tam Hâkimiyet."**
 
 **TEMİN 360**, kamu kurumları (Belediyeler, Bakanlıklar, Üniversiteler, İller
-Bankası ve Özel Bütçeli İdareler) için **4734 Sayılı Kamu İhale Kanunu**, **4735
-Sayılı Kamu İhale Sözleşmeleri Kanunu** ve **5018 Sayılı Kamu Malî Yönetimi ve
-Kontrol Kanunu** standartlarına tam uyumlu, **tamamen açık kaynak kodlu** bir
-kurumsal otomasyon süitidir.
+Bankası ve Özel Bütçeli İdareler) için **4734 Sayılı Kamu İhale Kanunu**, **2886
+Sayılı Devlet İhale Kanunu**, **4735 Sayılı Kamu İhale Sözleşmeleri Kanunu** ve
+**5018 Sayılı Kamu Malî Yönetimi ve Kontrol Kanunu** standartlarına tam uyumlu,
+**tamamen açık kaynak kodlu** bir kurumsal otomasyon ve karar destek süitidir.
+
+🛡️ **Hata Yapmayı En Aza İndiren Akıllı Yardımcı Araç:** TEMİN 360, karmaşık
+kamu mevzuatı, tutanak ve hesaplama süreçlerinde idare personeli ve ihale
+görevlilerinin insani hata yapma riskini en aza indirmek üzere tasarlanmış güçlü
+bir **yardımcı asistandır**.
+
+⚡ **Tam Dinamiklik ve Esneklik Esastır:** Sabit veya esnemez kalıplar yerine;
+idarelerin değişen mevzuata, dönemsel KİK limitlerine ve kuruma özel
+yönerge/süreç ihtiyaçlarına %100 dinamik şekilde adapte olan modüler bir
+mimariye sahiptir.
 
 💡 **Mevzuata Uygun Esnek & Özelleştirilebilir Şablonlar:** Sistemdeki tüm resmi
 evrak ve tutanak şablonları açık kaynaklı ve modülerdir. Değişen kamu ihale
@@ -19,10 +29,10 @@ hazır, barkodlu ve resmi formatta **PDF / Belge** çıktıları üretebilirsini
 
 ## 📌 TEMİN 360 Ne Demektir? (Kurumsal İsim Açılımı)
 
-| Kelime / Kavram | Kapsam ve Açıklama                                                                                                                                                       |
-| :-------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **TEMİN**       | Kamu kurumlarının mal, hizmet ve yapım işleri temin süreçlerinin tamamını kapsar: Doğrudan Temin (Md. 22/a-d), Pazarlık Usulü (Md. 21/b-f) ve Açık İhale Usulü (Md. 19). |
-| **360°**        | Sürecin başından (İhtiyaç & Lüzum Müzekkeresi) sonuna kadar (Muayene & Kabul, Ödeme Emri, Hakediş, Arşiv) **tam 360 derece** kesintisiz dijital kapsam.                  |
+| Kelime / Kavram | Kapsam ve Açıklama                                                                                                                                                                                                   |
+| :-------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **TEMİN**       | Kamu kurumlarının tüm alım, satım, kiralama ve ihale süreçlerini kapsar: Doğrudan Temin (4734 Md. 22/a-d), Pazarlık Usulü (Md. 21/b-f), Açık İhale (Md. 19) ve 2886 Sayılı DİK (Kiralama, Satış, Ecrimisil, Trampa). |
+| **360°**        | Sürecin başından (İhtiyaç & Lüzum Müzekkeresi / Şartname) sonuna kadar (Muayene & Kabul, Ödeme Emri, Hakediş, Taşınır, Arşiv) **tam 360 derece** kesintisiz dijital kapsam.                                          |
 
 ### 360° Kapsam Detayları
 
@@ -72,6 +82,13 @@ hazır, barkodlu ve resmi formatta **PDF / Belge** çıktıları üretebilirsini
 - Personel Çalışma Puantaj Çizelgeleri ve Araç/İş Makinesi Saat Takibi.
 - Barkodlu SGK Prim Hizmet Listesi ve SGK/Vergi Borcu Yoktur Doğrulaması.
 - Aylık Hizmet Kabul Tutanağı ve Vezne Ödeme Emri Müzekkeresi.
+
+### 5. 🏛️ 2886 Sayılı Devlet İhale Kanunu Süreçleri (Kiralama, Satış, Trampa & Ecrimisil)
+
+- **Taşınmaz Satışı & Kiralama:** İdareye ait taşınmazların satış, kiralama, trampa ve irtifak hakkı ihale dosyalarının hazırlanması.
+- **İhale Usulleri:** Kapalı Teklif Usulü (Md. 35/a), Açık Teklif Usulü (Md. 45) ve Pazarlık Usulü (Md. 51) ihale onay belgeleri, şartnameler ve sözleşme taslakları.
+- **Ecrimisil & Fuzuli İşgal Takibi:** Haksız işgal ecrimisil ihbarnamesi, düzeltme ihbarnamesi ve ecrimisil komisyon kararları.
+- **Hata Riskini Sıfırlayan Asistan:** Süreç adımlarını adım adım yönlendirerek usul ve evrak eksikliklerini önleyen karar destek yapısı.
 
 ---
 
