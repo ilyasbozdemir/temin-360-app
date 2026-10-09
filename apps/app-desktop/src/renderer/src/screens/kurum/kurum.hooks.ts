@@ -7,6 +7,9 @@ export interface KurumVerisi {
   kurum_adi?: string
   kurum_anteti?: string
   makam_adi?: string
+  sunulacak_makam_secimi?: 'kurum' | 'makam'
+  sunulacak_kurum_adi?: string
+  makam_adi_custom?: string
   ust_kurum_adi?: string
   logo_sol?: string
   logo_sag?: string
@@ -110,7 +113,48 @@ export function useKurumHooks() {
     async (data: KurumVerisi, targetId?: number) => {
       try {
         const idToUpdate = targetId || data.id || activeKurumId || 1
-        const keys = Object.keys(data).filter((k) => k !== 'id')
+        const validColumns = new Set([
+          'kurum_adi',
+          'kurum_anteti',
+          'makam_adi',
+          'ust_kurum_adi',
+          'logo_sol',
+          'logo_sag',
+          'logo_kurum',
+          'limit_tipi',
+          'finansman_kodu',
+          'kurum_tipi',
+          'alt_kurum_tipi',
+          'alt_kurum_ozel_tanim',
+          'alt_kurum_bizim',
+          'alt_kurum_sizin',
+          'alt_kurum_onun',
+          'alt_kurum_onlarin',
+          'ebutce_kodu',
+          'say2000i_kodu',
+          'fonksiyonel_kod',
+          'muhasebe_birim_kodu',
+          'muhasebe_birim_adi',
+          'harcama_birim_kodu',
+          'harcama_birim_adi',
+          'dtvt_kodu',
+          'detsis_kodu',
+          'konu_ortalama_siniri',
+          'adres',
+          'ilce',
+          'posta_kodu',
+          'il',
+          'telefon',
+          'faks',
+          'eposta',
+          'kep_adresi',
+          'web_sitesi',
+          'kurum_baskani',
+          'baskan_unvani',
+          'harcama_yetkilisi'
+        ])
+
+        const keys = Object.keys(data).filter((k) => k !== 'id' && validColumns.has(k))
         const setClause = keys.map((k) => `${k} = ?`).join(', ')
         const values = keys.map((k) => data[k as keyof KurumVerisi])
 

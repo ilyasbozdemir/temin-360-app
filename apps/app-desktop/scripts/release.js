@@ -129,6 +129,15 @@ function bumpPatch(version) {
   return `${match[1]}${parseInt(match[2], 10) + 1}`
 }
 
+function getRangeFolder(num) {
+  if (num <= 100) return 'beta-001-100'
+  if (num <= 200) return 'beta-101-200'
+  if (num <= 300) return 'beta-201-300'
+  const lower = Math.floor((num - 1) / 100) * 100 + 1
+  const upper = lower + 99
+  return `beta-${String(lower).padStart(3, '0')}-${upper}`
+}
+
 function finalizeCurrentSchemaManifest(version, dryRun) {
   const currentTsPath = path.join(GIT_ROOT, 'packages/database/src/schema-manifest/versions/beta.current.ts')
   const currentYamlPath = path.join(GIT_ROOT, 'packages/database/src/schema-manifest/1.0.0-beta.current.yaml')
@@ -137,15 +146,22 @@ function finalizeCurrentSchemaManifest(version, dryRun) {
   if (!fs.existsSync(currentTsPath)) return
 
   const cleanNum = version.replace(/^1\.0\.0-/, '').replace(/^beta\./, '')
+  const numVal = parseInt(cleanNum, 10) || 1
+  const subFolder = getRangeFolder(numVal)
   const newTsName = `beta.${cleanNum}.ts`
   const newYamlName = `${version}.yaml`
 
-  const targetTsPath = path.join(GIT_ROOT, `packages/database/src/schema-manifest/versions/${newTsName}`)
-  const targetYamlPath = path.join(GIT_ROOT, `packages/database/src/schema-manifest/${newYamlName}`)
+  const targetTsDir = path.join(GIT_ROOT, `packages/database/src/schema-manifest/versions/${subFolder}`)
+  const targetYamlDir = path.join(GIT_ROOT, `packages/database/src/schema-manifest/yaml/${subFolder}`)
+  const targetTsPath = path.join(targetTsDir, newTsName)
+  const targetYamlPath = path.join(targetYamlDir, newYamlName)
 
-  console.log(c.green(`✅ Şema manifesti finalize ediliyor: beta.current → ${newTsName}`))
+  console.log(c.green(`✅ Şema manifesti finalize ediliyor: beta.current → ${subFolder}/${newTsName}`))
 
   if (!dryRun) {
+    fs.mkdirSync(targetTsDir, { recursive: true })
+    fs.mkdirSync(targetYamlDir, { recursive: true })
+
     let tsContent = fs.readFileSync(currentTsPath, 'utf-8')
     tsContent = tsContent.replace(/app:\s*"1\.0\.0-beta\.current"/, `app: "${version}"`)
     fs.writeFileSync(targetTsPath, tsContent, 'utf-8')
@@ -157,7 +173,6 @@ function finalizeCurrentSchemaManifest(version, dryRun) {
       fs.writeFileSync(targetYamlPath, yamlContent, 'utf-8')
       fs.unlinkSync(currentYamlPath)
     } else {
-      // Yaml mevcut değilse ts manifestinden otomatik oluştur
       const schemaMaxMatch = tsContent.match(/schema_max:\s*(\d+)/)
       const currentMaxSchema = schemaMaxMatch ? parseInt(schemaMaxMatch[1], 10) : 40
       const todayStr = new Date().toISOString().split('T')[0]
@@ -177,7 +192,7 @@ function finalizeCurrentSchemaManifest(version, dryRun) {
     const varName = `beta${cleanNum}`
     if (!manifestsContent.includes(`import ${varName} `)) {
       manifestsContent = manifestsContent
-        .replace(/import betaCurrent from "\.\/versions\/beta\.current";?/, `import ${varName} from "./versions/${newTsName.replace(/\.ts$/, '')}";\nimport betaCurrent from "./versions/beta.current";`)
+        .replace(/import betaCurrent from "\.\/versions\/beta\.current";?/, `import ${varName} from "./versions/${subFolder}/${newTsName.replace(/\.ts$/, '')}";\nimport betaCurrent from "./versions/beta.current";`)
         .replace(/betaCurrent\n\];?/, `${varName},\n  betaCurrent\n];`)
       fs.writeFileSync(manifestsTsPath, manifestsContent, 'utf-8')
     }

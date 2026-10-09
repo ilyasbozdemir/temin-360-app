@@ -283,6 +283,8 @@ export async function loadDocumentPreviewData({
 
   // DATA_TeminDosyasi record & TANIM_Birim table automatic unit resolution
   let matchedBirimName =
+    dosyaObj.islem_yapan_birim ||
+    dosyaObj.islemYapanBirim ||
     dosyaObj.birim ||
     dosyaObj.birim_adi ||
     dosyaObj.harcama_birimi ||
@@ -304,6 +306,25 @@ export async function loadDocumentPreviewData({
     baseData.harcamaBirimi = baseData.harcamaBirimi || matchedBirimName
     baseData.harcama_birimi = baseData.harcama_birimi || matchedBirimName
     baseData.mudurluk = baseData.mudurluk || matchedBirimName
+
+    if (typeof baseData.antetSatirlari === 'string') {
+      try {
+        baseData.antetSatirlari = JSON.parse(baseData.antetSatirlari)
+      } catch {
+        baseData.antetSatirlari = [baseData.antetSatirlari]
+      }
+    }
+
+    if (Array.isArray(baseData.antetSatirlari) && baseData.antetSatirlari.length > 0) {
+      const exists = baseData.antetSatirlari.some(
+        (s: string) => s && String(s).trim().toUpperCase() === matchedBirimName.toUpperCase()
+      )
+      if (!exists) {
+        baseData.antetSatirlari.push(matchedBirimName)
+      }
+    } else {
+      baseData.antetSatirlari = ['T.C.', baseData.kurumAdi || 'BELEDİYE BAŞKANLIĞI', matchedBirimName]
+    }
   }
 
   // Automatic personnel resolution from IDs

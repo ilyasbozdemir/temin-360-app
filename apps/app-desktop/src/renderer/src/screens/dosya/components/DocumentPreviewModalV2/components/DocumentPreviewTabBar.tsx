@@ -157,9 +157,10 @@ export function DocumentPreviewTabBar({
               </div>
               <div className="space-y-0.5 mt-1">
                 {templateOptions.map((opt) => (
-                  <button
+                  <div
                     key={opt.id}
-                    type="button"
+                    role="button"
+                    tabIndex={0}
                     onClick={() => {
                       onAddTab({
                         documentId: opt.id,
@@ -167,6 +168,16 @@ export function DocumentPreviewTabBar({
                         documentTitle: opt.title,
                       });
                       setDropdownOpen(false);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        onAddTab({
+                          documentId: opt.id,
+                          dosyaId: currentDosyaId,
+                          documentTitle: opt.title,
+                        });
+                        setDropdownOpen(false);
+                      }
                     }}
                     className="w-full text-left flex items-center gap-2 p-2 rounded-xl text-xs hover:bg-blue-50 dark:hover:bg-blue-950/60 text-slate-700 dark:text-slate-200 font-semibold transition-colors cursor-pointer"
                   >
@@ -190,7 +201,7 @@ export function DocumentPreviewTabBar({
                         </>
                       )}
                     </button>
-                  </button>
+                  </div>
                 ))}
               </div>
             </div>

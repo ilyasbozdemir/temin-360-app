@@ -11,6 +11,9 @@ export const TANIM_Kurum = {
       description: 'Kurum Anteti (JSON Dizi)'
     },
     { name: 'makam_adi', type: 'TEXT', default: '""', description: 'Sunulacak Makam Adı' },
+    { name: 'sunulacak_makam_secimi', type: 'TEXT', default: '"makam"', description: 'Sunulacak Makam Seçimi (kurum | makam)' },
+    { name: 'sunulacak_kurum_adi', type: 'TEXT', default: '""', description: 'Sunulacak Kurum Adı' },
+    { name: 'makam_adi_custom', type: 'TEXT', default: '""', description: 'Sunulacak Makam Adı (Özel)' },
     { name: 'ust_kurum_adi', type: 'TEXT', default: '""', description: 'Bağlı Olduğu Kurum' },
     { name: 'logo_sol', type: 'TEXT', default: '""' },
     { name: 'logo_sag', type: 'TEXT', default: '""' },

@@ -152,12 +152,16 @@ export function runMigrations(db: Database.Database, fromVersion: number, dbSche
           for (const colAdd of change.columns_added) {
             const tableDef = dbSchemaDef?.tables?.find((t: any) => t.name === colAdd.table)
             if (!tableDef) {
-              console.warn(`Tablo tanımı bulunamadı: ${colAdd.table}`)
+              if (!change.raw_sql || change.raw_sql.length === 0) {
+                console.warn(`Tablo tanımı bulunamadı: ${colAdd.table}`)
+              }
               continue
             }
             const colDef = tableDef.columns?.find((c: any) => c.name === colAdd.column)
             if (!colDef) {
-              console.warn(`Kolon tanımı bulunamadı: ${colAdd.table}.${colAdd.column}`)
+              if (!change.raw_sql || change.raw_sql.length === 0) {
+                console.warn(`Kolon tanımı bulunamadı: ${colAdd.table}.${colAdd.column}`)
+              }
               continue
             }
 

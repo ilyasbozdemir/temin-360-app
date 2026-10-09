@@ -1,37 +1,40 @@
-# Veritabanı Şema Değişiklikleri, Migration Manifest (.yaml/.ts) ve Release Kuralları
+# Veritabanı Şema Değişiklikleri, Aktif Geliştirme (beta.current) ve Release Kuralları
 
-Bu kural, TEMİN 360 projesinde veritabanı şemasında yapılan her değişiklik ve her yeni sürüm/release için **ZORUNLUDUR**.
-
----
-
-## 📌 1. Yeni Sütun, Yeni Tablo veya Şema Değişikliği Kuralları
-
-Veritabanında herhangi bir tabloya yeni sütun (`ALTER TABLE ADD COLUMN`), yeni bir tablo (`CREATE TABLE`) veya yapısal değişiklik eklendiğinde:
-
-1. **Manifest YAML Dosyası Oluşturulması / Güncellenmesi**:
-   - `packages/database/src/schema-manifest/<versiyon>.yaml` dosyası oluşturulmalıdır.
-   - Eğer yeni sütunlar varsa `columns_added` dizisine `{ table: "TABLO_ADI", column: "SUTUN_ADI" }` şeklinde eksiksiz eklenmelidir.
-   - Eğer yeni tablolar varsa `tables_added` dizisine `["YENI_TABLO_1", "YENI_TABLO_2"]` şeklinde eklenmelidir.
-   - Schema versiyon numarası (`schema_max`) artırılmalıdır.
-
-2. **TypeScript Manifest Dosyası**:
-   - `packages/database/src/schema-manifest/versions/<surum_kisa_adi>.ts` dosyası oluşturulmalıdır.
-   - `packages/database/src/schema-manifest/manifests.ts` dosyasına `import` edilerek `manifests` dizisine eklenmelidir.
-
-3. **Versions JSON Kaydı**:
-   - `packages/database/versions.json` dosyasına yeni sürüm numarası (`1.0.0-beta.XYZ`) eklenmelidir.
-
-4. **Derleme & Senkronizasyon (@dt/database)**:
-   - `pnpm --filter @dt/database build` komutu mutlaka çalıştırılmalıdır (manifest yaml'larının `dist/schema-manifest` klasörüne kopyalanması ve tsc derlemesi için).
+Bu kural, TEMİN 360 projesinde veritabanı şemasında yapılan her değişiklik, migration yönetimi ve sürüm yayınlama (release) süreçleri için **ZORUNLUDUR**.
 
 ---
 
-## 🏷️ 2. Release, Tag ve Versiyon Bump Kuralları
+## 📌 1. Aktif Geliştirme Süreci (Geliştirme Modu - DEV)
 
-Yeni bir sürüm yayınlanırken veya tag alınırken:
+Geliştirme sırasında veritabanında herhangi bir tabloya yeni sütun (`ALTER TABLE ADD COLUMN`), yeni bir tablo (`CREATE TABLE`) veya şema değişikliği eklendiğinde:
 
-1. `apps/app-desktop/package.json` içindeki `"version"` alanı yeni versiyona yükseltilir.
-2. `packages/database/versions.json` kontrol edilir.
-3. `pnpm --filter app-desktop typecheck` çalıştırılarak sıfır hata olduğu doğrulanır.
-4. `apps/app-desktop/scripts/release.js` çalıştırılarak otomatik tag ve changelog oluşturulur ya da `git tag -a vX.Y.Z -m "Release vX.Y.Z"` ile tag oluşturulur.
-5. Migration çalıştırıcıları (`runMigrations` in `migrate.ts`) yeni şemayı otomatik olarak algılayıp uygulayacaktır.
+⚠️ **MANUEL OLARAK YENİ NUMARALI SÜRÜM DOSYASI (`beta.235.ts`, `1.0.0-beta.235.yaml` VB.) OLUŞTURULMAZ!**
+
+1. **Aktif Geliştirme Manifestlerine Yazma**:
+   - Tüm yeni kolon, tablo ve raw SQL göç komutları **DOĞRUDAN** aşağıdaki iki active-dev dosyasına eklenir:
+     - [`packages/database/src/schema-manifest/versions/beta.current.ts`](file:///d:/Github/ilyas-bozdemir/temin-360-app/packages/database/src/schema-manifest/versions/beta.current.ts)
+     - [`packages/database/src/schema-manifest/1.0.0-beta.current.yaml`](file:///d:/Github/ilyas-bozdemir/temin-360-app/packages/database/src/schema-manifest/1.0.0-beta.current.yaml)
+   - `schema_max` değeri güncellenir ve değişiklikler `columns_added`, `tables_added` veya `raw_sql` dizilerine eklenir.
+
+2. **Klasörleme Yapısı**:
+   - Sürüm `.ts` dosyaları `packages/database/src/schema-manifest/versions/` altında (`alpha/`, `beta-001-100/`, `beta-101-200/`, `beta-201-300/` vb.) klasörlenmiştir.
+   - Sürüm `.yaml` dosyaları `packages/database/src/schema-manifest/yaml/` altında klasörlenmiştir.
+   - `beta.current.ts` dosyası `versions/` kökünde, `1.0.0-beta.current.yaml` ise `schema-manifest/` kökünde durur.
+
+3. **`manifests.ts` Kaydı**:
+   - [`packages/database/src/schema-manifest/manifests.ts`](file:///d:/Github/ilyas-bozdemir/temin-360-app/packages/database/src/schema-manifest/manifests.ts) dosyasında `betaCurrent` en sonda yer alır. Dev sürecinde veritabanı göçleri `betaCurrent` üzerinden otomatik çalışır.
+
+4. **Derleme & Doğrulama**:
+   - Değişiklik sonrası `pnpm --filter @dt/database build` komutu çalıştırılarak paket derlenir.
+
+---
+
+## 🏷️ 2. Release & Sürüm Alma Süreci (RELEASE)
+
+Kullanıcı "sürüm al", "release yap" dediginde veya `release.js` çalıştırıldığında:
+
+1. [`apps/app-desktop/scripts/release.js`](file:///d:/Github/ilyas-bozdemir/temin-360-app/apps/app-desktop/scripts/release.js) otomatik olarak:
+   - `beta.current.ts` ve `1.0.0-beta.current.yaml` içerisindeki değişiklikleri okur.
+   - Yeni sürüm numarasına göre (örn. `beta.235`) ilgili 100'lük klasöre (`versions/beta-201-300/beta.235.ts` ve `yaml/beta-201-300/1.0.0-beta.235.yaml`) dondurup kaydeder.
+   - `manifests.ts` dosyasına yeni sürümü import edip `manifests` dizisine ekler.
+   - `beta.current.ts` ve `1.0.0-beta.current.yaml` dosyalarını sıfırlayarak yeni geliştirme döngüsü için temizler (`changes: []`).

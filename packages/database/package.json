@@ -1,6 +1,6 @@
 {
   "name": "@dt/database",
-  "version": "1.0.0-beta.234",
+  "version": "1.0.0-beta.235",
   "description": "Shared database models, schemas, and migrations for TEMİN 360 App",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,7 +8,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc && node -e \"const fs = require('fs'); fs.mkdirSync('dist/schema-manifest', { recursive: true }); fs.readdirSync('src/schema-manifest').forEach(f => { if (f.endsWith('.yaml')) fs.copyFileSync('src/schema-manifest/' + f, 'dist/schema-manifest/' + f) })\"",
+    "build": "tsc && node -e \"const fs = require('fs'); const path = require('path'); function copyYaml(src, dist) { fs.mkdirSync(dist, { recursive: true }); fs.readdirSync(src, { withFileTypes: true }).forEach(entry => { const sPath = path.join(src, entry.name); const dPath = path.join(dist, entry.name); if (entry.isDirectory()) { copyYaml(sPath, dPath); } else if (entry.name.endsWith('.yaml')) { fs.copyFileSync(sPath, dPath); } }); } copyYaml('src/schema-manifest', 'dist/schema-manifest');\"",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {

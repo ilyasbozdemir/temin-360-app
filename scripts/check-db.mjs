@@ -87,13 +87,28 @@ function loadAllManifestChanges() {
     return { manifests, maxSchemaVersion: 1, columnManifestMap: {}, tableManifestMap: {} }
   }
 
-  const files = fs.readdirSync(manifestVersionsDir).filter((f) => f.endsWith('.ts') && !f.endsWith('.d.ts'))
+  function getTsFiles(dir) {
+    let results = []
+    if (!fs.existsSync(dir)) return results
+    const list = fs.readdirSync(dir, { withFileTypes: true })
+    for (const entry of list) {
+      const full = path.join(dir, entry.name)
+      if (entry.isDirectory()) {
+        results = results.concat(getTsFiles(full))
+      } else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.d.ts')) {
+        results.push(full)
+      }
+    }
+    return results
+  }
+  const files = getTsFiles(manifestVersionsDir)
   const columnManifestMap = {} // "TableName.colName" -> manifest string
   const tableManifestMap = {} // "TableName" -> manifest string
   let maxSchema = 1
 
-  for (const file of files) {
-    const content = fs.readFileSync(path.join(manifestVersionsDir, file), 'utf8')
+  for (const filePath of files) {
+    const file = path.basename(filePath)
+    const content = fs.readFileSync(filePath, 'utf8')
     const appMatch = content.match(/app:\s*['"]([^'"]+)['"]/)
     const schemaMaxMatch = content.match(/schema_max:\s*(\d+)/)
     const appVersion = appMatch ? appMatch[1] : file

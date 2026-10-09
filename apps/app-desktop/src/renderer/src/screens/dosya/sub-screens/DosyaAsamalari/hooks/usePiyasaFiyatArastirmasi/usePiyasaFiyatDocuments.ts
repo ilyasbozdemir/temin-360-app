@@ -421,12 +421,6 @@ export function usePiyasaFiyatDocuments(
       emitAppEvent('bids:changed', { dosyaId: activeDosyaId })
 
       setIsFormOpen(false)
-
-      if (sablon) {
-        setTimeout(() => {
-          handleOpenPreviewForSablon(sablon, sablon.ad)
-        }, 300)
-      }
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : String(err))
     }

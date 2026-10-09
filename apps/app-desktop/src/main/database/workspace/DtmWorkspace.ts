@@ -5,7 +5,7 @@ import fs from 'fs'
 import path from 'path'
 import crypto from 'crypto'
 import { initializeDatabase } from '../index'
-import { runMigrations, CURRENT_SCHEMA_VERSION, getPendingMigrations } from '@dt/database'
+import { runMigrations, CURRENT_SCHEMA_VERSION, getPendingMigrations, schema } from '@dt/database'
 import tasinirKodlariSeed from '../seed/tasinir_kodlari.json'
 import { allExtensions, defaultFormat } from '../../config/fileFormats'
 import {
@@ -148,7 +148,7 @@ export class DtmWorkspace {
       const dbPath = path.join(this.tempDir, dbFileName)
       this.db = new Database(dbPath)
       const previousUserMutationAt = meta.last_user_mutation_at
-      runMigrations(this.db, fromVersion, null as any)
+      runMigrations(this.db, fromVersion, schema)
       ensureSchemaIntegrity(this.db)
       meta.schema_version = CURRENT_SCHEMA_VERSION
       meta.updated_at = new Date().toISOString()
