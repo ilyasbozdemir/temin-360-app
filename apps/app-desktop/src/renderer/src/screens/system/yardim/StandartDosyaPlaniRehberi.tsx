@@ -45,19 +45,26 @@ export const StandartDosyaPlaniRehberi: React.FC = () => {
           </p>
 
           <div className="bg-slate-900 dark:bg-slate-950 p-4 rounded-xl text-white font-mono text-xs overflow-x-auto space-y-3 shadow-inner">
-            <div className="text-blue-400 font-extrabold text-sm">ŞEMA: E-DETSİS-SDP-SIRA</div>
-            <div className="text-slate-300">
-              Örnek: <span className="text-emerald-400 font-extrabold">E-10234521-934.01-0001</span>
+            <div className="text-blue-400 font-extrabold text-sm">ŞEMA: [E-]DETSİS-SDP-SIRA</div>
+            <div className="space-y-1 text-slate-300">
+              <div>
+                • E-imzalı yazı:{' '}
+                <span className="text-emerald-400 font-extrabold">E-56383307-934.01-0001</span>
+              </div>
+              <div>
+                • Islak imzalı yazı:{' '}
+                <span className="text-amber-300 font-extrabold">56383307-934.01-0001</span>{' '}
+                <span className="text-slate-400 text-[11px]">(başında E- olmaz)</span>
+              </div>
             </div>
             <div className="border-t border-slate-800 pt-2 space-y-1 text-slate-400 text-[11px]">
               <div>
-                • <strong className="text-slate-250">E:</strong> Belgenin hazırlanma sürecini
-                (Evrak) ifade eder. (Olağanüstü haller için{' '}
-                <span className="text-amber-500">O</span>, zorunlu haller için{' '}
-                <span className="text-red-500">Z</span> harfleri kullanılır)
+                • <strong className="text-slate-250">E-:</strong> Sayının asli bir parçası olmayıp
+                belgenin elektronik ortamda (EBYS’de, e-imzayla) düzenlendiğini gösteren sistem ön
+                ekidir.
               </div>
               <div>
-                • <strong className="text-slate-250">10234521:</strong> Birim/Kurum DETSİS Kodu
+                • <strong className="text-slate-250">56383307:</strong> Birim/Kurum DETSİS Kodu
               </div>
               <div>
                 • <strong className="text-slate-250">934.01:</strong> Standart Dosya Planı (SDP)

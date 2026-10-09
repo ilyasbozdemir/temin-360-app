@@ -2,13 +2,15 @@ import React, { useState, useMemo } from 'react'
 import Decimal from 'decimal.js'
 import {
   Calculator,
-  Coins,
   Search,
   X,
   Copy,
   Check,
   RotateCcw
 } from 'lucide-react'
+import { copyToClipboard } from '../../utils/copyToClipboard'
+import { amountToWordsTL } from '../../utils/sayiyiYaziyaCevir'
+import { yaziyiSayiyaCevir, formatTL } from '../../utils/ihale/paraVeYuvarlamaUtils'
 
 // decimal.js ayarları
 Decimal.set({ precision: 50, toExpNeg: -40, toExpPos: 40 })
@@ -641,6 +643,34 @@ const TOOLS: ToolGroup[] = [
     }
   },
   {
+    id: 'sayiyazi',
+    grp: 'Mevzuat & İhale',
+    name: 'Çift Yönlü Sayı ↔ Yazı (Mevzuat)',
+    hint: 'Rakamı mevzuat standart yazısına veya okunuşu tekrar rakama dönüştürün.',
+    in: [
+      { k: 'n', l: 'Rakam ile Tutar (örn. 282.112,00 veya 1500000)', ph: '282.112,00', text: true },
+      { k: 'txt', l: 'veya Metin ile Tutar (örn. İKİYÜZSEKSENİKİBİN YÜZONİKİ TL)', ph: 'İKİYÜZSEKSENİKİBİN YÜZONİKİ TL', text: true }
+    ],
+    calc: (v) => {
+      const res: [string, string | null][] = []
+      if (v.n && typeof v.n === 'string' && v.n.trim()) {
+        const words = amountToWordsTL(v.n.trim(), { paraBirimi: 'TL', altBirim: 'KURUŞ', harfTipi: 'buyuk' })
+        res.push(['BÜYÜK HARF (Resmi Evrak Standart)', words])
+        const wordsBaslik = amountToWordsTL(v.n.trim(), { paraBirimi: 'TL', altBirim: 'KURUŞ', harfTipi: 'baslik' })
+        res.push(['Baş Harfler Büyük', wordsBaslik])
+        const wordsKucuk = amountToWordsTL(v.n.trim(), { paraBirimi: 'TL', altBirim: 'KURUŞ', harfTipi: 'kucuk' })
+        res.push(['Küçük Harfler', wordsKucuk])
+      }
+      if (v.txt && typeof v.txt === 'string' && v.txt.trim()) {
+        const parsed = yaziyiSayiyaCevir(v.txt.trim())
+        if (parsed !== null) {
+          res.push(['Ayrıştırılan Rakam Tutarı', formatTL(parsed)], ['Düz Sayısal Değer', String(parsed)])
+        }
+      }
+      return res.length ? { g: [{ t: 'Sayı ↔ Yazı Dönüştürme Sonuçları', s: '4734 & Muhasebat Standartı', r: res }] } : null
+    }
+  },
+  {
     id: 'kdv',
     grp: 'Ticaret',
     name: 'KDV Hariç / Dahil Hesaplayıcı',
@@ -1157,7 +1187,7 @@ export function HesapAraclariView({
 
   const calculationResult = activeTool.calc(parsedValues, precision)
 
-  const handleCopyResults = () => {
+  const handleCopyResults = async () => {
     if (!calculationResult) return
     const lines: string[] = [`=== ${activeTool.name} ===`]
     calculationResult.g.forEach((group: any) => {
@@ -1166,7 +1196,7 @@ export function HesapAraclariView({
         if (val !== null) lines.push(`${label}: ${val}`)
       })
     })
-    navigator.clipboard.writeText(lines.join('\n'))
+    await copyToClipboard(lines.join('\n'))
     setCopiedText(activeTool.id)
     setTimeout(() => setCopiedText(null), 2000)
   }
@@ -1200,25 +1230,6 @@ export function HesapAraclariView({
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => {
-              if (onClose) onClose()
-              if (onOpenSayiYaziModal) onOpenSayiYaziModal()
-              else {
-                window.dispatchEvent(
-                  new CustomEvent('open:sayiyi-yaziya-cevir', {
-                    detail: { value: '282.112,00' }
-                  })
-                )
-              }
-            }}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 text-xs font-bold transition-all cursor-pointer"
-            title="Sayıyı Yazıya Çevirici Modünü Aç"
-          >
-            <Coins className="w-3.5 h-3.5 text-amber-500" />
-            <span>Sayıyı Yazıya Çevir</span>
-          </button>
-
           <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 font-semibold bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-xl">
             <span>Hassasiyet:</span>
             <select

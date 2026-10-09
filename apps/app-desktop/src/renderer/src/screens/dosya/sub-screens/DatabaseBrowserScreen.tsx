@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { SubScreen } from '../SubScreen'
 import {
   AlertTriangle,
@@ -12,6 +12,7 @@ import {
   X
 } from 'lucide-react'
 import { Modal } from '../../../components/ui/Modal'
+import { useWorkspaceStore } from '../../../store/workspaceStore'
 
 interface TableInfo {
   name: string
@@ -34,6 +35,7 @@ interface EditingCell {
 }
 
 export function DatabaseBrowserScreen(): React.JSX.Element {
+  const { activeFilePath, openWorkspace } = useWorkspaceStore()
   const [tables, setTables] = useState<TableInfo[]>([])
   const [selectedTable, setSelectedTable] = useState<string>('')
   const [tableSearch, setTableSearch] = useState<string>('')
@@ -41,6 +43,7 @@ export function DatabaseBrowserScreen(): React.JSX.Element {
   const [rows, setRows] = useState<Record<string, unknown>[]>([])
   const [dataSearch, setDataSearch] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
+  const [dbError, setDbError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'data' | 'schema' | 'console'>('data')
   const [statusMessage, setStatusMessage] = useState<{
     type: 'success' | 'error'
@@ -69,12 +72,26 @@ export function DatabaseBrowserScreen(): React.JSX.Element {
     return columns.find((c) => c.pk > 0) || columns[0]
   }, [columns])
 
-  const loadTables = async (): Promise<void> => {
+  const loadTables = useCallback(async (): Promise<void> => {
+    setLoading(true)
+    setDbError(null)
     try {
-      const res = await window.electron.ipcRenderer.invoke(
+      let res = await window.electron.ipcRenderer.invoke(
         'db:query',
         "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
       )
+
+      // Eğer ana süreçte aktif veritabanı yoksa ama renderer tarafında dosya yolu kayıtlıysa tekrar açmayı dene
+      if (!res.success && activeFilePath) {
+        const openRes = await openWorkspace(activeFilePath)
+        if (openRes.success) {
+          res = await window.electron.ipcRenderer.invoke(
+            'db:query',
+            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+          )
+        }
+      }
+
       if (res.success && res.data) {
         const list: TableInfo[] = []
         for (const t of res.data) {
@@ -89,40 +106,29 @@ export function DatabaseBrowserScreen(): React.JSX.Element {
         }
         setTables(list)
         setSelectedTable((prev) => prev || (list.length > 0 ? list[0].name : ''))
+      } else {
+        setDbError(res.error || 'Açık bir çalışma veritabanı (.temin / .dtm) bulunamadı.')
       }
     } catch (e) {
       console.error('Failed to load sqlite tables:', e)
+      const err = e as { message?: string }
+      setDbError(err?.message || 'Veritabanına erişilemedi.')
+    } finally {
+      setLoading(false)
     }
-  }
+  }, [activeFilePath, openWorkspace])
 
   useEffect(() => {
-    let isMounted = true
-    const fetchInitTables = async (): Promise<void> => {
-      const res = await window.electron.ipcRenderer.invoke(
-        'db:query',
-        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
-      )
-      if (res.success && res.data && isMounted) {
-        const list: TableInfo[] = []
-        for (const t of res.data) {
-          const countRes = await window.electron.ipcRenderer.invoke(
-            'db:query',
-            `SELECT COUNT(*) as row_count FROM ${t.name}`
-          )
-          list.push({
-            name: t.name,
-            count: countRes.success && countRes.data[0] ? countRes.data[0].row_count : 0
-          })
-        }
-        setTables(list)
-        setSelectedTable((prev) => prev || (list.length > 0 ? list[0].name : ''))
-      }
+    void loadTables()
+
+    const handleWorkspaceSaved = (): void => {
+      void loadTables()
     }
-    void fetchInitTables()
+    window.addEventListener('workspace-saved', handleWorkspaceSaved)
     return () => {
-      isMounted = false
+      window.removeEventListener('workspace-saved', handleWorkspaceSaved)
     }
-  }, [])
+  }, [loadTables])
 
   // Load table details (schema + rows)
   const loadTableDetails = async (): Promise<void> => {
@@ -475,8 +481,16 @@ export function DatabaseBrowserScreen(): React.JSX.Element {
               </button>
             ))}
             {filteredTables.length === 0 && (
-              <div className="text-center py-8 text-xs text-slate-400 italic">
-                Tablo bulunamadı.
+              <div className="text-center py-6 px-2 text-xs text-slate-500 dark:text-slate-400 flex flex-col items-center gap-2">
+                <span className="leading-relaxed">{dbError || 'Tablo bulunamadı veya veri dosyası açık değil.'}</span>
+                <button
+                  onClick={() => void loadTables()}
+                  disabled={loading}
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm text-xs border-0 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+                  {loading ? 'Yükleniyor...' : 'Yeniden Bağlan / Tabloları Yükle'}
+                </button>
               </div>
             )}
           </div>

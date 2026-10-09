@@ -3,6 +3,8 @@ import { ChevronDown, FileText, Layers, Plus, X, Copy, Check } from "lucide-reac
 import { DocumentPreviewTab } from "../../../../../store/globalDocumentPreviewStore";
 import { TemplateOptionItem } from "../templateResolver";
 
+import { copyToClipboard } from "../../../../../utils/copyToClipboard";
+
 interface DocumentPreviewTabBarProps {
   tabs: DocumentPreviewTab[];
   activeTabId: string | null;
@@ -30,9 +32,9 @@ export function DocumentPreviewTabBar({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const handleCopyId = (e: React.MouseEvent, id: string): void => {
+  const handleCopyId = async (e: React.MouseEvent, id: string): Promise<void> => {
     e.stopPropagation();
-    navigator.clipboard.writeText(id);
+    await copyToClipboard(id);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 1500);
   };
