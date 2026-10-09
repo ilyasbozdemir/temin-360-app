@@ -156,7 +156,22 @@ function finalizeCurrentSchemaManifest(version, dryRun) {
       yamlContent = yamlContent.replace(/app:\s*1\.0\.0-beta\.current/, `app: ${version}`)
       fs.writeFileSync(targetYamlPath, yamlContent, 'utf-8')
       fs.unlinkSync(currentYamlPath)
+    } else {
+      // Yaml mevcut değilse ts manifestinden otomatik oluştur
+      const schemaMaxMatch = tsContent.match(/schema_max:\s*(\d+)/)
+      const currentMaxSchema = schemaMaxMatch ? parseInt(schemaMaxMatch[1], 10) : 40
+      const todayStr = new Date().toISOString().split('T')[0]
+      const defaultYaml = `app: ${version}\nschema_min: 1\nschema_max: ${currentMaxSchema}\nrelease_date: "${todayStr}"\nchanges: []\n`
+      fs.writeFileSync(targetYamlPath, defaultYaml, 'utf-8')
     }
+
+    const schemaMaxMatch = tsContent.match(/schema_max:\s*(\d+)/)
+    const currentMaxSchema = schemaMaxMatch ? parseInt(schemaMaxMatch[1], 10) : 40
+    const todayStr = new Date().toISOString().split('T')[0]
+
+    // Taze beta.current.yaml oluştur
+    const freshCurrentYaml = `app: 1.0.0-beta.current\nschema_min: 1\nschema_max: ${currentMaxSchema}\nrelease_date: "${todayStr}"\nchanges: []\n`
+    fs.writeFileSync(currentYamlPath, freshCurrentYaml, 'utf-8')
 
     let manifestsContent = fs.readFileSync(manifestsTsPath, 'utf-8')
     const varName = `beta${cleanNum}`
@@ -167,10 +182,7 @@ function finalizeCurrentSchemaManifest(version, dryRun) {
       fs.writeFileSync(manifestsTsPath, manifestsContent, 'utf-8')
     }
 
-    const schemaMaxMatch = tsContent.match(/schema_max:\s*(\d+)/)
-    const currentMaxSchema = schemaMaxMatch ? parseInt(schemaMaxMatch[1], 10) : 40
-
-    const freshCurrentTs = `/* eslint-disable */\n/**\n * AKTİF GELİŞTİRME ŞEMA MANİFESTİ (1.0.0-beta.current)\n */\nexport default {\n  app: "1.0.0-beta.current",\n  schema_min: 1,\n  schema_max: ${currentMaxSchema},\n  release_date: "${new Date().toISOString().split('T')[0]}",\n  changes: []\n};\n`
+    const freshCurrentTs = `/* eslint-disable */\n/**\n * AKTİF GELİŞTİRME ŞEMA MANİFESTİ (1.0.0-beta.current)\n */\nexport default {\n  app: "1.0.0-beta.current",\n  schema_min: 1,\n  schema_max: ${currentMaxSchema},\n  release_date: "${todayStr}",\n  changes: []\n};\n`
     fs.writeFileSync(currentTsPath, freshCurrentTs, 'utf-8')
   }
 }
