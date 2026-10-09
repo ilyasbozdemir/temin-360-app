@@ -1,5 +1,5 @@
-import React from "react";
-import { Calculator, CheckSquare, Coins, DownloadCloud, Moon, Sun } from 'lucide-react'
+import React from 'react'
+import { Calculator, CheckSquare, DownloadCloud, Moon, Sun } from 'lucide-react'
 import { SyncPopover } from './SyncPopover'
 import { NotificationPopover } from './NotificationPopover'
 
@@ -25,29 +25,12 @@ export const HeaderActions = React.memo(function HeaderActions({
     >
       {/* Yüzde & Muhasebe Hesap Araçları Süiti */}
       <button
-        onClick={(): boolean =>
-          window.dispatchEvent(new CustomEvent('open:hesap-araclari'))
-        }
+        onClick={(): void => navigate({ to: '/hesaplama-araclari' })}
         className="flex items-center gap-1 px-2 py-1 text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-200 dark:border-blue-800/60 transition-all rounded-xl cursor-pointer shadow-2xs"
         title="Hesap & Yüzde Araçları Süiti (KDV, İndirim, Kâr Marjı, Tarih Farkı)"
       >
         <Calculator className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
         <span className="hidden lg:inline text-[11px]">Hesap Araçları</span>
-      </button>
-
-      {/* Sayıyı Yazıya Çevirici Hızlı Araç */}
-      <button
-        onClick={(): boolean =>
-          window.dispatchEvent(
-            new CustomEvent('open:sayiyi-yaziya-cevir', {
-              detail: { value: '282.112,00' }
-            })
-          )
-        }
-        className="p-1 text-slate-500 hover:text-amber-600 dark:text-slate-400 dark:hover:text-amber-400 transition-all rounded hover:bg-slate-200/50 dark:hover:bg-slate-800/50 cursor-pointer"
-        title="Sayıyı Yazıya Çevirici (TL)"
-      >
-        <Coins className="w-3.5 h-3.5" />
       </button>
 
       {/* Notlar & Yapılacaklar (To-Do) Hızlı Erişim Butonu */}

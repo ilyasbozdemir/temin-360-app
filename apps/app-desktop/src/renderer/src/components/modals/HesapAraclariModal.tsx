@@ -430,6 +430,217 @@ const TOOLS: ToolGroup[] = [
     }
   },
   {
+    id: 'damga',
+    grp: 'Mevzuat & İhale',
+    name: 'Damga Vergisi & KİK Payı',
+    hint: 'Sözleşme (%0,948), Karar (%0,569) Damga Vergisi ve KİK Payı (%0,05) hesabı.',
+    in: [
+      { k: 't', l: 'İhale / Sözleşme Bedeli (KDV Hariç ₺)', ph: '1000000' }
+    ],
+    calc: (v, prec) => {
+      if (!isOk(v.t)) return null
+      const t = v.t as Decimal
+
+      const sozlesmeDamga = t.times(D('0.00948'))
+      const kararDamga = t.times(D('0.00569'))
+      const kikPayi = t.times(D('0.0005'))
+      const toplamKesinti = sozlesmeDamga.plus(kararDamga).plus(kikPayi)
+      const netOdenecek = t.minus(toplamKesinti)
+
+      return {
+        g: [
+          {
+            t: 'Kamu İhale Yasal Kesinti Detayı',
+            s: `${formatNum(t, prec)} ₺ matrah üzerinden`,
+            r: [
+              ['Sözleşme Damga Vergisi (‰ 9,48)', formatNum(sozlesmeDamga, prec) + ' ₺'],
+              ['İhale Karar Damga Vergisi (‰ 5,69)', formatNum(kararDamga, prec) + ' ₺'],
+              ['Kamu İhale Kurumu Payı (‱ 5)', formatNum(kikPayi, prec) + ' ₺'],
+              ['Toplam Yasal Kesinti', formatNum(toplamKesinti, prec) + ' ₺'],
+              ['Kesintiler Sonrası Net Ödenecek Bedel', formatNum(netOdenecek, prec) + ' ₺']
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    id: 'teminat',
+    grp: 'Mevzuat & İhale',
+    name: 'Geçici & Kesin Teminat Miktarları',
+    hint: 'Kamu ihalelerinde asgari %3 geçici ve %6 kesin teminat mektubu tutarlarını hesaplayın.',
+    in: [
+      { k: 't', l: 'Teklif Bedeli / Sözleşme Bedeli (₺)', ph: '500000' }
+    ],
+    calc: (v, prec) => {
+      if (!isOk(v.t)) return null
+      const t = v.t as Decimal
+
+      const gecici = t.times(3).div(100)
+      const kesin = t.times(6).div(100)
+
+      return {
+        g: [
+          {
+            t: 'Teminat Mektubu Tutar Analizi',
+            s: `${formatNum(t, prec)} ₺ bedel üzerinden`,
+            r: [
+              ['Asgari Geçici Teminat Miktarı (En az %3)', formatNum(gecici, prec) + ' ₺'],
+              ['Kesin Teminat Miktarı (%6)', formatNum(kesin, prec) + ' ₺']
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    id: 'ekap22d',
+    grp: 'Mevzuat & İhale',
+    name: 'EKAP 22/d Doğrudan Temin Limit Kontrolü',
+    hint: '22/d* (Büyükşehir 1.021.827 TL) ve 22/d** (Diğer 340.391 TL) limit ve tavan takibi.',
+    in: [
+      { k: 'm', l: 'İdare Türü', sel: ['Büyükşehir İdaresi (22/d*) - 1.021.827 TL', 'Diğer İdareler (22/d**) - 340.391 TL'] },
+      { k: 't', l: 'Alım Bedeli (KDV Hariç ₺)', ph: '250000' }
+    ],
+    calc: (v, prec) => {
+      if (!isOk(v.t)) return null
+      const t = v.t as Decimal
+      const isBs = (v.m || '').includes('Büyükşehir')
+      const limit = isBs ? D('1021827') : D('340391')
+      const kalan = limit.minus(t)
+      const oran = t.div(limit).times(100)
+
+      return {
+        g: [
+          {
+            t: '22/d Doğrudan Temin Limit Durumu',
+            s: `Yasal Limit: ${formatNum(limit, prec)} ₺`,
+            r: [
+              ['Girilen Alım Bedeli', formatNum(t, prec) + ' ₺'],
+              ['Yasal Limit Kullanım Oranı', formatPct(oran, prec)],
+              [
+                kalan.gte(0) ? 'Limitten Kalan Kullanılabilir Tutar' : 'YASAL LİMİT AŞILDI! (Fark)',
+                formatNum(kalan.abs(), prec) + ' ₺'
+              ],
+              [
+                'Mevzuat Uygunluk Durumu',
+                kalan.gte(0) ? '✅ 22/d Doğrudan Temin Usulüne Uygun' : '❌ YASAL LİMİT AŞILMIŞTIR! İhale usulü gereklidir.'
+              ]
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    id: 'tevkifat',
+    grp: 'Mevzuat & İhale',
+    name: 'KDV Tevkifat Hesaplayıcı',
+    hint: 'Faturada uygulanacak KDV tevkifat oranına göre alıcı ve satıcı paylarını ayırt edin.',
+    in: [
+      { k: 't', l: 'Net Matrah (KDV Hariç ₺)', ph: '100000' },
+      { k: 'r', l: 'KDV Oranı (%)', ph: '20', chips: [10, 20] },
+      { k: 'or', l: 'Tevkifat Oranı', sel: ['2/10', '3/10', '4/10', '5/10', '7/10', '9/10', '10/10 (Tam Tevkifat)'] }
+    ],
+    calc: (v, prec) => {
+      if (!isOk(v.t, v.r)) return null
+      const t = v.t as Decimal
+      const r = v.r as Decimal
+      const kdv = t.times(r).div(100)
+
+      const parts = (v.or || '5/10').split('/')
+      const pay = D(parts[0] || '5')
+      const payda = D(parts[1] || '10')
+
+      const tevkifatKdv = kdv.times(pay).div(payda)
+      const beyanKdv = kdv.minus(tevkifatKdv)
+      const saticiyaOdenecek = t.plus(beyanKdv)
+
+      return {
+        g: [
+          {
+            t: 'Tevkifatlı Fatura Özeti',
+            s: `${formatNum(t, prec)} ₺ matrah / %${formatNum(r, prec)} KDV / ${v.or} Tevkifat`,
+            r: [
+              ['Hesaplanan Toplam KDV', formatNum(kdv, prec) + ' ₺'],
+              [`Alıcı Tarafından Tevkif Edilecek KDV (${v.or})`, formatNum(tevkifatKdv, prec) + ' ₺'],
+              ['Satıcıya Ödenecek KDV', formatNum(beyanKdv, prec) + ' ₺'],
+              ['Satıcıya Ödenecek Toplam Tutar', formatNum(saticiyaOdenecek, prec) + ' ₺']
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    id: 'tenzilat',
+    grp: 'Mevzuat & İhale',
+    name: 'İhale Tenzilat & Katsayı K',
+    hint: 'Yaklaşık maliyet ile teklif fiyatı arasındaki indirim (tenzilat) oranını ve Katsayı K değerini bulun.',
+    in: [
+      { k: 'ym', l: 'Yaklaşık Maliyet (₺)', ph: '1500000' },
+      { k: 'tf', l: 'Teklif Bedeli (₺)', ph: '1275000' }
+    ],
+    calc: (v, prec) => {
+      if (!isOk(v.ym, v.tf) || (v.ym as Decimal).isZero()) return null
+      const ym = v.ym as Decimal
+      const tf = v.tf as Decimal
+
+      const indirimTutar = ym.minus(tf)
+      const tenzilatPct = indirimTutar.div(ym).times(100)
+      const katsayiK = tf.div(ym)
+
+      return {
+        g: [
+          {
+            t: 'İhale İndirim & K Katsayısı Analizi',
+            s: `${formatNum(ym, prec)} ₺ yaklaşık maliyet üzerinden`,
+            r: [
+              ['Net İndirim Tutarı', formatNum(indirimTutar, prec) + ' ₺'],
+              ['Tenzilat / İndirim Oranı', formatPct(tenzilatPct, prec)],
+              ['Katsayı K (Teklif / YM)', formatNum(katsayiK, '4')]
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    id: 'ihale2886',
+    grp: 'Mevzuat & İhale',
+    name: '2886 Devlet İhale & Ecrimisil',
+    hint: '2886 Sayılı Kanun kiralama, satış teminatı ve fuzuli şagil ecrimisil artış hesabı.',
+    in: [
+      { k: 't', l: 'Muhammen Bedel / Ecrimisil Tutarı (₺)', ph: '200000' },
+      { k: 'g', l: 'Gecikme / İşgal Süresi (Ay Sayısı)', ph: '6' }
+    ],
+    calc: (v, prec) => {
+      if (!isOk(v.t)) return null
+      const t = v.t as Decimal
+      const ay = isOk(v.g) ? (v.g as Decimal) : D(1)
+
+      const gecici2886 = t.times(3).div(100)
+      const kesin2886 = t.times(6).div(100)
+      const kararDamga = t.times(D('0.00569'))
+      const ecrimisilZam = t.times(D('0.025')).times(ay)
+
+      return {
+        g: [
+          {
+            t: '2886 İhale ve Ecrimisil Hesaplama',
+            s: `${formatNum(t, prec)} ₺ muhammen bedel`,
+            r: [
+              ['Geçici Teminat (%3)', formatNum(gecici2886, prec) + ' ₺'],
+              ['Kesin Teminat (%6)', formatNum(kesin2886, prec) + ' ₺'],
+              ['İhale Karar Damga Vergisi (‰ 5,69)', formatNum(kararDamga, prec) + ' ₺'],
+              [`${formatNum(ay, '0')} Aylık Tahmini Ecrimisil Fuzuli Şagil Zammı (%2,5/ay)`, formatNum(ecrimisilZam, prec) + ' ₺']
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
     id: 'kdv',
     grp: 'Ticaret',
     name: 'KDV Hariç / Dahil Hesaplayıcı',
@@ -899,18 +1110,16 @@ const TOOLS: ToolGroup[] = [
   }
 ]
 
-interface HesapAraclariModalProps {
-  isOpen: boolean
-  onClose: () => void
+export interface HesapAraclariViewProps {
   onOpenSayiYaziModal?: () => void
+  onClose?: () => void
 }
 
-export function HesapAraclariModal({
-  isOpen,
-  onClose,
-  onOpenSayiYaziModal
-}: HesapAraclariModalProps): React.JSX.Element | null {
-  const [selectedToolId, setSelectedToolId] = useState<string>('kdv')
+export function HesapAraclariView({
+  onOpenSayiYaziModal,
+  onClose
+}: HesapAraclariViewProps): React.JSX.Element {
+  const [selectedToolId, setSelectedToolId] = useState<string>('temel')
   const [precision, setPrecision] = useState<string>('2')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [inputsState, setInputsState] = useState<Record<string, Record<string, string>>>({})
@@ -927,8 +1136,6 @@ export function HesapAraclariModal({
       (t) => t.name.toLocaleLowerCase('tr-TR').includes(q) || t.hint.toLocaleLowerCase('tr-TR').includes(q)
     )
   }, [searchQuery])
-
-  if (!isOpen) return null
 
   const currentToolInputs = inputsState[activeTool.id] || {}
 
@@ -972,280 +1179,300 @@ export function HesapAraclariModal({
   }
 
   return (
-    <div className="fixed inset-0 z-200 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden font-sans">
-        
-        {/* MODAL BAŞLIĞI */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-900/70 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
-              <Calculator className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                Hesap & Yüzde Araçları Süiti
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                  Decimal Precision
-                </span>
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Kamu ihale, KDV, indirim, kâr marjı, tarih farkı ve finansal hesaplama araçları.
-              </p>
-            </div>
+    <div className="w-full flex flex-col bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-200/80 dark:border-slate-800 overflow-hidden font-sans">
+      {/* ÜST BAŞLIK BAR */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-900/70 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
+            <Calculator className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-base font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              Hesap & Yüzde Araçları Süiti
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                Decimal.js High Precision
+              </span>
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Kamu ihale, KDV, indirim, kâr marjı, tarih farkı ve %100 hassas finansal hesaplama araçları.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => {
+              if (onClose) onClose()
+              if (onOpenSayiYaziModal) onOpenSayiYaziModal()
+              else {
+                window.dispatchEvent(
+                  new CustomEvent('open:sayiyi-yaziya-cevir', {
+                    detail: { value: '282.112,00' }
+                  })
+                )
+              }
+            }}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 text-xs font-bold transition-all cursor-pointer"
+            title="Sayıyı Yazıya Çevirici Modünü Aç"
+          >
+            <Coins className="w-3.5 h-3.5 text-amber-500" />
+            <span>Sayıyı Yazıya Çevir</span>
+          </button>
+
+          <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 font-semibold bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-xl">
+            <span>Hassasiyet:</span>
+            <select
+              value={precision}
+              onChange={(e) => setPrecision(e.target.value)}
+              className="bg-transparent font-bold text-blue-600 dark:text-blue-400 focus:outline-none cursor-pointer"
+            >
+              <option value="auto">Otomatik</option>
+              <option value="0">0</option>
+              <option value="2">2 (Kuruş)</option>
+              <option value="4">4 (Hassas)</option>
+            </select>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Hızlı Yazı/Sayı Çevirici Butonu */}
-            <button
-              onClick={() => {
-                onClose()
-                if (onOpenSayiYaziModal) onOpenSayiYaziModal()
-                else {
-                  window.dispatchEvent(
-                    new CustomEvent('open:sayiyi-yaziya-cevir', {
-                      detail: { value: '282.112,00' }
-                    })
-                  )
-                }
-              }}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 text-xs font-bold transition-all cursor-pointer"
-              title="Sayıyı Yazıya Çevirici Modünü Aç"
-            >
-              <Coins className="w-3.5 h-3.5 text-amber-500" />
-              <span>Sayıyı Yazıya Çevir</span>
-            </button>
-
-            {/* Hassasiyet Seçimi */}
-            <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 font-semibold bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-xl">
-              <span>Basamak:</span>
-              <select
-                value={precision}
-                onChange={(e) => setPrecision(e.target.value)}
-                className="bg-transparent font-bold text-blue-600 dark:text-blue-400 focus:outline-none cursor-pointer"
-              >
-                <option value="auto">Otomatik</option>
-                <option value="0">0</option>
-                <option value="2">2 (Kuruş)</option>
-                <option value="4">4 (Hassas)</option>
-              </select>
-            </div>
-
+          {onClose && (
             <button
               onClick={onClose}
               className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
+          )}
+        </div>
+      </div>
+
+      {/* GÖVDE: SOL MENÜ + SAĞ HESAPLAMA ALANI */}
+      <div className="flex-1 flex flex-col md:flex-row min-h-[500px] divide-y md:divide-y-0 md:divide-x divide-slate-200/60 dark:divide-slate-800">
+        {/* SOL ARAÇ SEÇİM MENÜSÜ */}
+        <div className="w-full md:w-72 bg-slate-50/50 dark:bg-slate-950/40 p-3 flex flex-col shrink-0 overflow-y-auto max-h-[600px]">
+          <div className="relative mb-2 shrink-0">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Araçlarda ara..."
+              className="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200"
+            />
+          </div>
+
+          <div className="space-y-1">
+            {filteredTools.map((t) => {
+              const isActive = t.id === activeTool.id
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setSelectedToolId(t.id)}
+                  className={`w-full text-left p-2.5 rounded-2xl transition-all cursor-pointer flex flex-col gap-0.5 ${
+                    isActive
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 font-bold'
+                      : 'hover:bg-slate-200/50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-xs">
+                    <span>{t.name}</span>
+                    <span
+                      className={`text-[9px] px-1.5 py-0.2 rounded-md ${
+                        isActive
+                          ? 'bg-white/20 text-white'
+                          : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
+                      }`}
+                    >
+                      {t.grp}
+                    </span>
+                  </div>
+                  <span
+                    className={`text-[10px] line-clamp-1 ${
+                      isActive ? 'text-blue-100' : 'text-slate-400 dark:text-slate-500'
+                    }`}
+                  >
+                    {t.hint}
+                  </span>
+                </button>
+              )
+            })}
           </div>
         </div>
 
-        {/* GÖVDE: SOL MENÜ + SAĞ HESAPLAMA ALANI */}
-        <div className="flex-1 flex flex-col md:flex-row min-h-0 divide-y md:divide-y-0 md:divide-x divide-slate-200/60 dark:divide-slate-800">
-          
-          {/* SOL ARAÇ SEÇİM MENÜSÜ */}
-          <div className="w-full md:w-72 bg-slate-50/50 dark:bg-slate-950/40 p-3 flex flex-col shrink-0 overflow-y-auto">
-            <div className="relative mb-2 shrink-0">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Araçlarda ara..."
-                className="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200"
-              />
+        {/* SAĞ HESAPLAMA VE SONUÇ EKRANI */}
+        <div className="flex-1 p-5 overflow-y-auto flex flex-col justify-between space-y-5 max-h-[600px]">
+          <div>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800/60">
+              <div>
+                <h3 className="text-lg font-extrabold text-slate-900 dark:text-slate-100">
+                  {activeTool.name}
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  {activeTool.hint}
+                </p>
+              </div>
+              <button
+                onClick={handleResetTool}
+                className="px-2.5 py-1 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center gap-1 cursor-pointer shrink-0"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Temizle</span>
+              </button>
             </div>
 
-            <div className="space-y-1">
-              {filteredTools.map((t) => {
-                const isActive = t.id === activeTool.id
+            {/* GİRDİ ALANLARI */}
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {activeTool.in.map((input) => {
+                const val = currentToolInputs[input.k] ?? ''
                 return (
-                  <button
-                    key={t.id}
-                    onClick={() => setSelectedToolId(t.id)}
-                    className={`w-full text-left p-2.5 rounded-2xl transition-all cursor-pointer flex flex-col gap-0.5 ${
-                      isActive
-                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 font-bold'
-                        : 'hover:bg-slate-200/50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between text-xs">
-                      <span>{t.name}</span>
-                      <span
-                        className={`text-[9px] px-1.5 py-0.2 rounded-md ${
-                          isActive
-                            ? 'bg-white/20 text-white'
-                            : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
-                        }`}
+                  <div key={input.k} className={input.text ? 'sm:col-span-2' : ''}>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      {input.l}
+                    </label>
+                    {input.sel ? (
+                      <select
+                        value={val || input.sel[input.def || 0]}
+                        onChange={(e) => handleInputChange(input.k, e.target.value)}
+                        className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        {t.grp}
-                      </span>
-                    </div>
-                    <span
-                      className={`text-[10px] line-clamp-1 ${
-                        isActive ? 'text-blue-100' : 'text-slate-400 dark:text-slate-500'
-                      }`}
-                    >
-                      {t.hint}
-                    </span>
-                  </button>
+                        {input.sel.map((opt) => (
+                          <option key={opt} value={opt}>
+                            {opt}
+                          </option>
+                        ))}
+                      </select>
+                    ) : input.date ? (
+                      <input
+                        type="date"
+                        value={val}
+                        onChange={(e) => handleInputChange(input.k, e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    ) : (
+                      <input
+                        type={input.text ? 'text' : 'number'}
+                        step="any"
+                        value={val}
+                        onChange={(e) => handleInputChange(input.k, e.target.value)}
+                        placeholder={input.ph}
+                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    )}
+
+                    {/* Hızlı Yüzde Chips */}
+                    {input.chips && (
+                      <div className="flex gap-1.5 mt-1.5">
+                        {input.chips.map((chip) => (
+                          <button
+                            key={chip}
+                            type="button"
+                            onClick={() => handleInputChange(input.k, String(chip))}
+                            className="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-[10px] font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-colors cursor-pointer"
+                          >
+                            %{chip}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 )
               })}
             </div>
+
+            {/* SONUÇ KARTLARI */}
+            <div className="mt-5">
+              {!calculationResult ? (
+                <div className="p-8 text-center bg-slate-50/60 dark:bg-slate-950/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 text-xs">
+                  Sonuçları görmek için yukarıdaki alanları doldurun.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {calculationResult.g.map((group: any, idx: number) => (
+                    <div
+                      key={idx}
+                      className="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-950"
+                    >
+                      <div className="px-4 py-2.5 bg-blue-600 text-white flex items-center justify-between">
+                        <span className="text-xs font-bold">{group.t}</span>
+                        <span className="text-[10px] text-blue-100 font-medium">{group.s}</span>
+                      </div>
+                      <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                        {group.r.map(([label, val]: [string, string | null], rIdx: number) => (
+                          <div
+                            key={rIdx}
+                            className="flex items-center justify-between px-4 py-2.5 gap-3"
+                          >
+                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                              {label}
+                            </span>
+                            <span
+                              className={`text-sm font-extrabold text-right break-all ${
+                                val === null ? 'text-slate-400 text-xs font-normal' : 'text-slate-900 dark:text-slate-100'
+                              }`}
+                            >
+                              {val === null ? 'hesaplanamaz' : val}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* SAĞ HESAPLAMA VE SONUÇ EKRANI */}
-          <div className="flex-1 p-5 overflow-y-auto flex flex-col justify-between space-y-5">
-            <div>
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800/60">
-                <div>
-                  <h3 className="text-lg font-extrabold text-slate-900 dark:text-slate-100">
-                    {activeTool.name}
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    {activeTool.hint}
-                  </p>
-                </div>
-                <button
-                  onClick={handleResetTool}
-                  className="px-2.5 py-1 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center gap-1 cursor-pointer shrink-0"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Temizle</span>
-                </button>
-              </div>
-
-              {/* GİRDİ ALANLARI */}
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {activeTool.in.map((input) => {
-                  const val = currentToolInputs[input.k] ?? ''
-                  return (
-                    <div key={input.k} className={input.text ? 'sm:col-span-2' : ''}>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                        {input.l}
-                      </label>
-                      {input.sel ? (
-                        <select
-                          value={val || input.sel[input.def || 0]}
-                          onChange={(e) => handleInputChange(input.k, e.target.value)}
-                          className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          {input.sel.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt}
-                            </option>
-                          ))}
-                        </select>
-                      ) : input.date ? (
-                        <input
-                          type="date"
-                          value={val}
-                          onChange={(e) => handleInputChange(input.k, e.target.value)}
-                          className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      ) : (
-                        <input
-                          type={input.text ? 'text' : 'number'}
-                          step="any"
-                          value={val}
-                          onChange={(e) => handleInputChange(input.k, e.target.value)}
-                          placeholder={input.ph}
-                          className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      )}
-
-                      {/* Hızlı Yüzde Chips */}
-                      {input.chips && (
-                        <div className="flex gap-1.5 mt-1.5">
-                          {input.chips.map((chip) => (
-                            <button
-                              key={chip}
-                              type="button"
-                              onClick={() => handleInputChange(input.k, String(chip))}
-                              className="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-[10px] font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-colors cursor-pointer"
-                            >
-                              %{chip}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-
-              {/* SONUÇ KARTLARI */}
-              <div className="mt-5">
-                {!calculationResult ? (
-                  <div className="p-8 text-center bg-slate-50/60 dark:bg-slate-950/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 text-xs">
-                    Sonuçları görmek için yukarıdaki alanları doldurun.
-                  </div>
+          {/* ALT BUTONLAR */}
+          {calculationResult && (
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+              <button
+                onClick={handleCopyResults}
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20 flex items-center gap-2 cursor-pointer"
+              >
+                {copiedText === activeTool.id ? (
+                  <>
+                    <Check className="w-4 h-4 text-emerald-300" />
+                    <span>Kopyalandı!</span>
+                  </>
                 ) : (
-                  <div className="space-y-3">
-                    {calculationResult.g.map((group: any, idx: number) => (
-                      <div
-                        key={idx}
-                        className="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-950"
-                      >
-                        <div className="px-4 py-2.5 bg-blue-600 text-white flex items-center justify-between">
-                          <span className="text-xs font-bold">{group.t}</span>
-                          <span className="text-[10px] text-blue-100 font-medium">{group.s}</span>
-                        </div>
-                        <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
-                          {group.r.map(([label, val]: [string, string | null], rIdx: number) => (
-                            <div
-                              key={rIdx}
-                              className="flex items-center justify-between px-4 py-2.5 gap-3"
-                            >
-                              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                                {label}
-                              </span>
-                              <span
-                                className={`text-sm font-extrabold text-right break-all ${
-                                  val === null ? 'text-slate-400 text-xs font-normal' : 'text-slate-900 dark:text-slate-100'
-                                }`}
-                              >
-                                {val === null ? 'hesaplanamaz' : val}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <>
+                    <Copy className="w-4 h-4" />
+                    <span>Sonuçları Kopyala</span>
+                  </>
                 )}
-              </div>
-            </div>
+              </button>
 
-            {/* ALT BUTONLAR */}
-            {calculationResult && (
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
-                <button
-                  onClick={handleCopyResults}
-                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20 flex items-center gap-2 cursor-pointer"
-                >
-                  {copiedText === activeTool.id ? (
-                    <>
-                      <Check className="w-4 h-4 text-emerald-300" />
-                      <span>Kopyalandı!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" />
-                      <span>Sonuçları Kopyala</span>
-                    </>
-                  )}
-                </button>
-
+              {onClose && (
                 <button
                   onClick={onClose}
                   className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors cursor-pointer"
                 >
                   Kapat
                 </button>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
+      </div>
+    </div>
+  )
+}
+
+interface HesapAraclariModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onOpenSayiYaziModal?: () => void
+}
+
+export function HesapAraclariModal({
+  isOpen,
+  onClose,
+  onOpenSayiYaziModal
+}: HesapAraclariModalProps): React.JSX.Element | null {
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 z-200 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="relative w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+        <HesapAraclariView onClose={onClose} onOpenSayiYaziModal={onOpenSayiYaziModal} />
       </div>
     </div>
   )

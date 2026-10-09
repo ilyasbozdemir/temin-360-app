@@ -1,0 +1,508 @@
+# TEMİN 360 - Tüm Belge ve Şablonlar Listesi (YAML Formatı)
+# approved: true/false veya status/notes alanlarını düzenleyebilirsiniz.
+
+- id: ihtiyac-listesi
+  kod: 4734-DT-01
+  title: İhtiyaç Listesi
+  regime: 4734-dogrudan-temin
+  category: 1-ihtiyac-tespiti-ve-baslangic
+  category_title: 1. İhtiyaç Tespiti ve Başlangıç
+  description: Alımı yapılacak mal/hizmet kalemlerinin detaylı ihtiyaç tablosu
+  approved: true
+  status: tamam
+  notes: "tamam gibi hocam bu"
+
+- id: ihtiyac-talep-formu
+  kod: 4734-DT-02
+  title: İhtiyaç Talep Formu
+  regime: 4734-dogrudan-temin
+  category: 1-ihtiyac-tespiti-ve-baslangic
+  category_title: 1. İhtiyaç Tespiti ve Başlangıç
+  description: Birimlerin mal/hizmet taleplerini yetkili makama ilettiği resmi form
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: tasinir-kayit-yetkilisi-gorusu
+  kod: 4734-DT-03
+  title: Taşınır Kayıt Yetkilisi Görüşü
+  regime: 4734-dogrudan-temin
+  category: 1-ihtiyac-tespiti-ve-baslangic
+  category_title: 1. İhtiyaç Tespiti ve Başlangıç
+  description: Stokta malzeme bulunup bulunmadığına ilişkin ambar yetkilisi görüşü
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: teknik-sartname
+  kod: 4734-DT-04
+  title: Teknik Şartname
+  regime: 4734-dogrudan-temin
+  category: 1-ihtiyac-tespiti-ve-baslangic
+  category_title: 1. İhtiyaç Tespiti ve Başlangıç
+  description: İşin ve malzemelerin teknik kriterlerini belirleyen doküman
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: luzum-muzekkeresi
+  kod: 4734-DT-05
+  title: Lüzum Müzekkeresi
+  regime: 4734-dogrudan-temin
+  category: 1-ihtiyac-tespiti-ve-baslangic
+  category_title: 1. İhtiyaç Tespiti ve Başlangıç
+  description: Harcama biriminin alım gerekliliğini onaylatan başlangıç müzekkeresi
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: luzum-muzekkeresi-onay-eki
+  kod: 4734-DT-06
+  title: Lüzum Müzekkeresi Onay Eki
+  regime: 4734-dogrudan-temin
+  category: 1-ihtiyac-tespiti-ve-baslangic
+  category_title: 1. İhtiyaç Tespiti ve Başlangıç
+  description: Lüzum müzekkeresine eklenen kalem ve açıklama listesi
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: luzum-muzekkeresi-teslim-tesellum
+  kod: 4734-DT-07
+  title: Lüzum Müzekkeresi Teslim Tesellüm
+  regime: 4734-dogrudan-temin
+  category: 1-ihtiyac-tespiti-ve-baslangic
+  category_title: 1. İhtiyaç Tespiti ve Başlangıç
+  description: Lüzum müzekkeresi teslim alma ve evrak devir tutanağı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: harcama-talimati
+  kod: 4734-DT-08
+  title: Harcama Talimatı
+  regime: 4734-dogrudan-temin
+  category: 1-ihtiyac-tespiti-ve-baslangic
+  category_title: 1. İhtiyaç Tespiti ve Başlangıç
+  description: Harcama Yetkilisi tarafından imzalanan alım ve ihale başlatma oluru
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: komisyon-gorevlendirme-onayi
+  kod: 4734-DT-09
+  title: Komisyon Görevlendirme Onayı
+  regime: 4734-dogrudan-temin
+  category: 1-ihtiyac-tespiti-ve-baslangic
+  category_title: 1. İhtiyaç Tespiti ve Başlangıç
+  description: Piyasa Araştırma veya Muayene Kabul Komisyon üyelerinin görevlendirme oluru
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: komisyon-gorevlendirme-onayi-eki
+  kod: 4734-DT-10
+  title: Komisyon Görevlendirme Onayı Eki
+  regime: 4734-dogrudan-temin
+  category: 1-ihtiyac-tespiti-ve-baslangic
+  category_title: 1. İhtiyaç Tespiti ve Başlangıç
+  description: Görevlendirilen komisyon üyelerinin detaylı görev dağılım listesi
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: piyasa-fiyat-arastirma-gorevlendirmesi
+  kod: 4734-DT-11
+  title: Piyasa Fiyat Araştırma Görevlendirmesi
+  regime: 4734-dogrudan-temin
+  category: 1-ihtiyac-tespiti-ve-baslangic
+  category_title: 1. İhtiyaç Tespiti ve Başlangıç
+  description: Piyasa fiyat araştırmasını yapmak üzere görevlendirilen personelin olur belgesi
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: son-alim-fiyat-cetveli
+  kod: 4734-DT-12
+  title: Son Alım Fiyat Cetveli
+  regime: 4734-dogrudan-temin
+  category: 1-ihtiyac-tespiti-ve-baslangic
+  category_title: 1. İhtiyaç Tespiti ve Başlangıç
+  description: Geçmiş alımlara ait birim fiyat ve fatura karşılaştırma cetveli
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: fiyat-arastirma-mektubu
+  kod: 4734-DT-13
+  title: Fiyat Araştırma Mektubu
+  regime: 4734-dogrudan-temin
+  category: 2-piyasa-fiyat-arastirmasi
+  category_title: 2. Piyasa Fiyat Araştırması
+  description: Firmalara teklif sunmaları için gönderilen resmi davet yazısı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: birim-fiyat-teklif-mektubu
+  kod: 4734-DT-14
+  title: Birim Fiyat Teklif Mektubu
+  regime: 4734-dogrudan-temin
+  category: 2-piyasa-fiyat-arastirmasi
+  category_title: 2. Piyasa Fiyat Araştırması
+  description: Firmaların birim fiyatlarını doldurarak imzaladığı teklif mektubu
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: birim-fiyat-teklif-cetveli
+  kod: 4734-DT-15
+  title: Birim Fiyat Teklif Cetveli
+  regime: 4734-dogrudan-temin
+  category: 2-piyasa-fiyat-arastirmasi
+  category_title: 2. Piyasa Fiyat Araştırması
+  description: İsteklilerin kalem bazlı birim fiyatlarını sunduğu detaylı cetvel
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: arastirma-mektubu
+  kod: 4734-DT-16
+  title: Araştırma Mektubu
+  regime: 4734-dogrudan-temin
+  category: 2-piyasa-fiyat-arastirmasi
+  category_title: 2. Piyasa Fiyat Araştırması
+  description: Piyasa araştırması kapsamında gönderilen bilgi ve teklif toplama yazısı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: yaklasik-maliyet-cetveli
+  kod: 4734-DT-17
+  title: Yaklaşık Maliyet Cetveli
+  regime: 4734-dogrudan-temin
+  category: 2-piyasa-fiyat-arastirmasi
+  category_title: 2. Piyasa Fiyat Araştırması
+  description: Toplanan tekliflerden alımın yaklaşık maliyetinin hesaplandığı cetvel
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: piyasa-fiyat-arastirma-tutanagi
+  kod: 4734-DT-18
+  title: Piyasa Fiyat Araştırma Tutanağı
+  regime: 4734-dogrudan-temin
+  category: 2-piyasa-fiyat-arastirmasi
+  category_title: 2. Piyasa Fiyat Araştırması
+  description: Piyasa fiyat araştırması görevlilerinin teklifleri değerlendirdiği ana tutanak
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: gorevlendirme-yazisi
+  kod: 4734-DT-19
+  title: Görevlendirme Yazısı
+  regime: 4734-dogrudan-temin
+  category: 2-piyasa-fiyat-arastirmasi
+  category_title: 2. Piyasa Fiyat Araştırması
+  description: Piyasa fiyat araştırması görevlendirme yazısı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: kabul-edilen-teklif
+  kod: 4734-DT-20
+  title: Kabul Edilen Teklif Bildirimi
+  regime: 4734-dogrudan-temin
+  category: 3-siparis-ve-sozlesme
+  category_title: 3. Sipariş ve Sözleşme İşlemleri
+  description: En avantajlı teklifi veren firmaya yapılan alım kabul bildirimi
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: dogrudan-temin-onay-belgesi
+  kod: 4734-DT-21
+  title: Doğrudan Temin Onay Belgesi
+  regime: 4734-dogrudan-temin
+  category: 3-siparis-ve-sozlesme
+  category_title: 3. Sipariş ve Sözleşme İşlemleri
+  description: Karara bağlanan alımın yetkili makam onay belgesi
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: dogrudan-temin-sonuc-onay-belgesi
+  kod: 4734-DT-22
+  title: Doğrudan Temin Sonuç Onay Belgesi
+  regime: 4734-dogrudan-temin
+  category: 3-siparis-ve-sozlesme
+  category_title: 3. Sipariş ve Sözleşme İşlemleri
+  description: Alım sonucunun yetkili makam onay belgesi
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: idare-onay-belgesi
+  kod: 4734-DT-23
+  title: İdare Onay Belgesi
+  regime: 4734-dogrudan-temin
+  category: 3-siparis-ve-sozlesme
+  category_title: 3. Sipariş ve Sözleşme İşlemleri
+  description: İdare onay ve karar belgesi
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: butce-sorgusu
+  kod: 4734-DT-24
+  title: Bütçe Sorgusu ve Ödenek Belgesi
+  regime: 4734-dogrudan-temin
+  category: 3-siparis-ve-sozlesme
+  category_title: 3. Sipariş ve Sözleşme İşlemleri
+  description: Alım tutarının ilgili bütçe tertibinden karşılanabilirliğini gösteren form
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: dogrudan-temin-sozlesmesi
+  kod: 4734-DT-25
+  title: Doğrudan Temin Sözleşmesi
+  regime: 4734-dogrudan-temin
+  category: 3-siparis-ve-sozlesme
+  category_title: 3. Sipariş ve Sözleşme İşlemleri
+  description: Yüklenici firma ile İdare arasında imzalanan matbu alım sözleşmesi
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: sozlesmeye-davet
+  kod: 4734-DT-26
+  title: Sözleşmeye Davet Yazısı
+  regime: 4734-dogrudan-temin
+  category: 3-siparis-ve-sozlesme
+  category_title: 3. Sipariş ve Sözleşme İşlemleri
+  description: Kazanan yükleniciye sözleşme imzalaması için iletilen davet yazısı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: muayene-kabul-tutanagi
+  kod: 4734-DT-27
+  title: Muayene ve Kabul Tutanağı
+  regime: 4734-dogrudan-temin
+  category: 4-kabul-ve-odeme-islemleri
+  category_title: 4. Kabul ve Ödeme İşlemleri
+  description: Teslim alınan mal veya hizmetin muayene ve kabul tutanağı cetveli
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: muayene-kabul-komisyonu
+  kod: 4734-DT-28
+  title: Muayene ve Kabul Komisyon Kararı
+  regime: 4734-dogrudan-temin
+  category: 4-kabul-ve-odeme-islemleri
+  category_title: 4. Kabul ve Ödeme İşlemleri
+  description: Teslim alınan mal veya hizmetin muayene kabul komisyonunca onaylanma kararı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: harcama-pusulasi
+  kod: 4734-DT-29
+  title: Harcama Pusulası
+  regime: 4734-dogrudan-temin
+  category: 4-kabul-ve-odeme-islemleri
+  category_title: 4. Kabul ve Ödeme İşlemleri
+  description: Fatura kesme yükümlülüğü olmayan gerçek kişilerden yapılan alımların tutanağı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: odeme-yazisi
+  kod: 4734-DT-30
+  title: Ödeme Yazısı
+  regime: 4734-dogrudan-temin
+  category: 4-kabul-ve-odeme-islemleri
+  category_title: 4. Kabul ve Ödeme İşlemleri
+  description: Mali hizmetler / muhasebe müdürlüğüne yazılan ödeme üst yazısı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: 2886-EVR-01
+  kod: 2886-EVR-01
+  title: Başkanlık Oluru / İhale Başlatma Onay Belgesi
+  regime: devlet-ihale-2886
+  category: 2886-1-baslangic-ve-yetki
+  category_title: "2886 - 1. Aşama: Başlangıç ve Yetki Evrakları"
+  description: Mülkiyeti idareye ait taşınmazın 2886 ihalesine çıkarılması için Başkanlık Makamı olur belgesi
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: 2886-EVR-02
+  kod: 2886-EVR-02
+  title: Belediye Encümeni Satış / Kiralama Yetki Kararı
+  regime: devlet-ihale-2886
+  category: 2886-1-baslangic-ve-yetki
+  category_title: "2886 - 1. Aşama: Başlangıç ve Yetki Evrakları"
+  description: Belediye Encümeni yetki ve ihale açma kararı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: 2886-EVR-03
+  kod: 2886-EVR-03
+  title: Kıymet Takdir Komisyonu Görevlendirme Yazısı
+  regime: devlet-ihale-2886
+  category: 2886-2-kiymet-takdiri
+  category_title: "2886 - 2. Aşama: Kıymet Takdiri & Muhammen Bedel"
+  description: Kıymet Takdir Komisyonu üyelerinin görevlendirilmesine dair resmi yazı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: 2886-EVR-04
+  kod: 2886-EVR-04
+  title: Emsal Fiyat Araştırma Yazıları (Oda / Muhtarlık vb.)
+  regime: devlet-ihale-2886
+  category: 2886-2-kiymet-takdiri
+  category_title: "2886 - 2. Aşama: Kıymet Takdiri & Muhammen Bedel"
+  description: Ticaret/Sanayi Odası, Emlakçılar Odası veya Muhtarlıklara yazılan emsal rayiç araştırma yazısı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: 2886-EVR-05
+  kod: 2886-EVR-05
+  title: Kıymet Takdir Komisyonu Kararı & Muhammen Bedel Cetveli
+  regime: devlet-ihale-2886
+  category: 2886-2-kiymet-takdiri
+  category_title: "2886 - 2. Aşama: Kıymet Takdiri & Muhammen Bedel"
+  description: 2886 Madde 13 gereğince muhammen bedelin ve %3 geçici teminatın belirlendiği karar tutanağı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: 2886-EVR-06
+  kod: 2886-EVR-06
+  title: İdari Şartname ve Tip Sözleşme Taslağı (Genel & Özel Şartlar)
+  regime: devlet-ihale-2886
+  category: 2886-3-sartname-ve-ilan
+  category_title: "2886 - 3. Aşama: Şartname, İhale Kararı & İlan Süreci"
+  description: Taşınmaz satış/kira ihalelerine ait idari şartname ve tip sözleşme taslağı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: 2886-EVR-07
+  kod: 2886-EVR-07
+  title: Encümen İhale Kararı (İlan Onayı ve Tarih Tespiti)
+  regime: devlet-ihale-2886
+  category: 2886-3-sartname-ve-ilan
+  category_title: "2886 - 3. Aşama: Şartname, İhale Kararı & İlan Süreci"
+  description: İhale şartnamesinin ve ilan metninin onaylanarak ihale tarihinin kesinleştirildiği Encümen Kararı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: 2886-EVR-08
+  kod: 2886-EVR-08
+  title: Belediye / Kaymakamlık / Web İlan Metinleri
+  regime: devlet-ihale-2886
+  category: 2886-3-sartname-ve-ilan
+  category_title: "2886 - 3. Aşama: Şartname, İhale Kararı & İlan Süreci"
+  description: Resmi Gazete, Yerel Gazete, İlan Tahtası ve Kurum Web sitesi ilan metinleri
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: 2886-EVR-09
+  kod: 2886-EVR-09
+  title: Askıya Çıkarma ve Askıdan İndirme Tutanakları
+  regime: devlet-ihale-2886
+  category: 2886-3-sartname-ve-ilan
+  category_title: "2886 - 3. Aşama: Şartname, İhale Kararı & İlan Süreci"
+  description: İlan panosuna asılan ve süresi dolunca askıdan indirilen ilan belgelendirme tutanağı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: 2886-EVR-10
+  kod: 2886-EVR-10
+  title: Şartname Satın Alma / Alınma Belgesi Kaydı
+  regime: devlet-ihale-2886
+  category: 2886-4-ihale-gunu
+  category_title: "2886 - 4. Aşama: İhale Günü & Encümen Kararı"
+  description: İhaleye katılmak üzere şartname bedelini yatırıp şartname alan isteklilerin kayıt listesi
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: 2886-EVR-11
+  kod: 2886-EVR-11
+  title: İhale Cetveli (Açık Artırma & Teklif Zarfı Açma Tutanağı)
+  regime: devlet-ihale-2886
+  category: 2886-4-ihale-gunu
+  category_title: "2886 - 4. Aşama: İhale Günü & Encümen Kararı"
+  description: İhale salonunda isteklilerin açık artırma tekliflerinin veya kapalı zarflarının yazıldığı ihale cetveli tutanağı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: 2886-EVR-12
+  kod: 2886-EVR-12
+  title: İhale Komisyonu (Encümen) İhale Kararı
+  regime: devlet-ihale-2886
+  category: 2886-4-ihale-gunu
+  category_title: "2886 - 4. Aşama: İhale Günü & Encümen Kararı"
+  description: İhalenin kimin üzerinde kaldığını belirten Encümen (İhale Komisyonu) kararı
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: 2886-EVR-13
+  kod: 2886-EVR-13
+  title: İta Amiri (Belediye Başkanı) İhale Onay Belgesi
+  regime: devlet-ihale-2886
+  category: 2886-5-onay-ve-sozlesme
+  category_title: "2886 - 5. Aşama: İta Amiri Onayı, Tebligat & Sözleşme"
+  description: 2886 Madde 31 gereğince İta Amiri (Belediye Başkanı) onay belgesi
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: 2886-EVR-14
+  kod: 2886-EVR-14
+  title: Kesinleşen İhale Kararı Tebligat Yazısı
+  regime: devlet-ihale-2886
+  category: 2886-5-onay-ve-sozlesme
+  category_title: "2886 - 5. Aşama: İta Amiri Onayı, Tebligat & Sözleşme"
+  description: İhale üzerinde kalan istekliye tebliğ edilen kesinleşen ihale kararı bildirim yazısı
+  approved: true,
+  status: tamam
+  notes: ""
+
+- id: 2886-EVR-15
+  kod: 2886-EVR-15
+  title: Taşınmaz Satış / Kira Sözleşmesi & Ödeme Planı
+  regime: devlet-ihale-2886
+  category: 2886-5-onay-ve-sozlesme
+  category_title: "2886 - 5. Aşama: İta Amiri Onayı, Tebligat & Sözleşme"
+  description: Yüklenici ile imzalanan resmi kira/satış sözleşmesi ve taksitli ödeme tablosu
+  approved: true
+  status: tamam
+  notes: ""
+
+- id: 2886-EVR-16
+  kod: 2886-EVR-16
+  title: Taşınmaz / İşyeri Yer Teslim Tutanağı
+  regime: devlet-ihale-2886
+  category: 2886-5-onay-ve-sozlesme
+  category_title: "2886 - 5. Aşama: İta Amiri Onayı, Tebligat & Sözleşme"
+  description: İhalesi yapılan taşınmazın veya işyerinin anahtar teslim ve alan teslim tutanağı
+  approved: true
+  status: tamam
+  notes: ""

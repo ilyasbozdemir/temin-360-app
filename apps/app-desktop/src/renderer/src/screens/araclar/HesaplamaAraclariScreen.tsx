@@ -9,7 +9,8 @@ import {
   FileSpreadsheet,
   Cpu,
   ArrowLeftRight,
-  Ruler
+  Ruler,
+  Calculator
 } from 'lucide-react'
 import {
   UsulBelirleyiciTab,
@@ -24,8 +25,10 @@ import {
   FormulMotoruTab,
   BelgeDonusturucuTab
 } from './components'
+import { HesapAraclariView } from '../../components/modals/HesapAraclariModal'
 
 type TabType =
+  | 'hesap'
   | 'belge'
   | 'usul'
   | 'vergi'
@@ -39,6 +42,7 @@ type TabType =
   | 'formul'
 
 const TABS: { id: TabType; label: string; icon: React.ComponentType<{ size?: number }>; badge?: string }[] = [
+  { id: 'hesap', label: '🧮 Yüzde & Muhasebe Hesabı (Decimal.js)', icon: Calculator, badge: 'SÜİT' },
   { id: 'belge', label: '📄 Belge & Medya Dönüştürücü (Word/PDF/Görsel)', icon: ArrowLeftRight, badge: 'YENİ' },
   { id: 'usul', label: 'Alım Usulü Belirleyici', icon: Scale },
   { id: 'vergi', label: 'Vergi & Tevkifat (Brüt ↔ Net)', icon: Coins },
@@ -53,7 +57,7 @@ const TABS: { id: TabType; label: string; icon: React.ComponentType<{ size?: num
 ]
 
 export default function HesaplamaAraclariScreen(): React.JSX.Element {
-  const [activeTab, setActiveTab] = useState<TabType>('belge')
+  const [activeTab, setActiveTab] = useState<TabType>('hesap')
 
   return (
     <div className="p-4 md:p-6 w-full space-y-6 animate-in fade-in duration-200">
@@ -73,7 +77,7 @@ export default function HesaplamaAraclariScreen(): React.JSX.Element {
               </span>
             </div>
             <p className="text-xs text-blue-200/80 mt-1">
-              Word/Görsel/PDF dönüştürücüler, mevzuat limitleri, vergi/tevkifat, Yİ-ÜFE fiyat farkı, sayı-yazı çevirici ve formül motoru
+              Decimal.js hassas yüzde & finans süiti, Word/Görsel/PDF dönüştürücüler, mevzuat limitleri, vergi/tevkifat, Yİ-ÜFE fiyat farkı ve formül motoru
             </p>
           </div>
         </div>
@@ -107,6 +111,7 @@ export default function HesaplamaAraclariScreen(): React.JSX.Element {
       </div>
 
       {/* Aktif Sekme İçeriği */}
+      {activeTab === 'hesap' && <HesapAraclariView />}
       {activeTab === 'belge' && <BelgeDonusturucuTab />}
       {activeTab === 'usul' && <UsulBelirleyiciTab />}
       {activeTab === 'vergi' && <VergiVeKesintiTab />}

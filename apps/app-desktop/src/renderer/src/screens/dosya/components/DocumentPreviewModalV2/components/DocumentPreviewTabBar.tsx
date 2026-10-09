@@ -1,20 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { FileText, Plus, X, Layers, ChevronDown } from 'lucide-react'
-import { DocumentPreviewTab } from '../../../../../store/globalDocumentPreviewStore'
-import { TemplateOptionItem } from '../templateResolver'
+import React, { useEffect, useRef, useState } from "react";
+import { ChevronDown, FileText, Layers, Plus, X, Copy, Check } from "lucide-react";
+import { DocumentPreviewTab } from "../../../../../store/globalDocumentPreviewStore";
+import { TemplateOptionItem } from "../templateResolver";
 
 interface DocumentPreviewTabBarProps {
-  tabs: DocumentPreviewTab[]
-  activeTabId: string | null
-  onSwitchTab: (tabId: string) => void
-  onCloseTab: (tabId: string) => void
+  tabs: DocumentPreviewTab[];
+  activeTabId: string | null;
+  onSwitchTab: (tabId: string) => void;
+  onCloseTab: (tabId: string) => void;
   onAddTab?: (params: {
-    documentId: string
-    dosyaId?: number | null
-    documentTitle?: string
-  }) => void
-  templateOptions?: TemplateOptionItem[]
-  currentDosyaId?: number | null
+    documentId: string;
+    dosyaId?: number | null;
+    documentTitle?: string;
+  }) => void;
+  templateOptions?: TemplateOptionItem[];
+  currentDosyaId?: number | null;
 }
 
 export function DocumentPreviewTabBar({
@@ -24,42 +24,53 @@ export function DocumentPreviewTabBar({
   onCloseTab,
   onAddTab,
   templateOptions = [],
-  currentDosyaId
+  currentDosyaId,
 }: DocumentPreviewTabBarProps): React.JSX.Element | null {
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const handleCopyId = (e: React.MouseEvent, id: string): void => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(id);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 1500);
+  };
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent): void => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false)
+        setDropdownOpen(false);
       }
-    }
+    };
     if (dropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [dropdownOpen])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
-  if (tabs.length === 0) return null
+  if (tabs.length === 0) return null;
 
   return (
     <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-slate-100/90 dark:bg-slate-950/90 px-3 py-1 gap-2 shrink-0 select-none relative z-30">
       {/* Sekmeler Listesi */}
       <div className="flex items-center gap-1.5 min-w-0 flex-1 overflow-x-auto custom-scrollbar py-0.5">
         {tabs.map((tab) => {
-          const isActive = tab.tabId === activeTabId
-          const firmUnvan =
-            typeof tab.selectedFirma?.unvan === 'string' ? (tab.selectedFirma.unvan as string) : ''
-          const firmText = firmUnvan ? ` (${firmUnvan.substring(0, 18)}...)` : ''
-          const titleText = tab.documentTitle || tab.documentId
+          const isActive = tab.tabId === activeTabId;
+          const firmUnvan = typeof tab.selectedFirma?.unvan === "string"
+            ? (tab.selectedFirma.unvan as string)
+            : "";
+          const firmText = firmUnvan
+            ? ` (${firmUnvan.substring(0, 18)}...)`
+            : "";
+          const titleText = tab.documentTitle || tab.documentId;
           const dosyaText = tab.dosyaNo
             ? `${tab.dosyaNo} • `
             : tab.dosyaId
-              ? `#${tab.dosyaId} • `
-              : ''
+            ? `#${tab.dosyaId} • `
+            : "";
 
           return (
             <div
@@ -67,14 +78,16 @@ export function DocumentPreviewTabBar({
               onClick={() => onSwitchTab(tab.tabId)}
               className={`group flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border shrink-0 max-w-65 ${
                 isActive
-                  ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800/80 shadow-xs'
-                  : 'bg-slate-50/70 dark:bg-slate-900/40 text-slate-600 dark:text-slate-400 border-transparent hover:bg-white/60 dark:hover:bg-slate-900/70 hover:text-slate-900 dark:hover:text-slate-200'
+                  ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800/80 shadow-xs"
+                  : "bg-slate-50/70 dark:bg-slate-900/40 text-slate-600 dark:text-slate-400 border-transparent hover:bg-white/60 dark:hover:bg-slate-900/70 hover:text-slate-900 dark:hover:text-slate-200"
               }`}
               title={`${dosyaText}${titleText}${firmText}`}
             >
               <FileText
                 className={`w-3.5 h-3.5 shrink-0 ${
-                  isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 opacity-70'
+                  isActive
+                    ? "text-blue-600 dark:text-blue-400"
+                    : "text-slate-400 opacity-70"
                 }`}
               />
 
@@ -83,13 +96,31 @@ export function DocumentPreviewTabBar({
                 {titleText}
                 {firmText}
               </span>
+              <button
+                type="button"
+                onClick={(e) => handleCopyId(e, tab.documentId)}
+                className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-800 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900 dark:hover:text-blue-200 text-slate-600 dark:text-slate-300 shrink-0 transition-all cursor-pointer"
+                title="ID'yi panoya kopyala"
+              >
+                {copiedId === tab.documentId ? (
+                  <>
+                    <Check className="w-2.5 h-2.5 text-emerald-500" />
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">Kopyalandı!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-2.5 h-2.5 opacity-60" />
+                    <span>{tab.documentId}</span>
+                  </>
+                )}
+              </button>
 
               {tabs.length > 1 && (
                 <button
                   type="button"
                   onClick={(e) => {
-                    e.stopPropagation()
-                    onCloseTab(tab.tabId)
+                    e.stopPropagation();
+                    onCloseTab(tab.tabId);
                   }}
                   className="p-0.5 rounded-md hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-red-500 opacity-60 group-hover:opacity-100 transition-opacity ml-1 shrink-0 cursor-pointer"
                   title="Sekmeyi Kapat"
@@ -98,7 +129,7 @@ export function DocumentPreviewTabBar({
                 </button>
               )}
             </div>
-          )
+          );
         })}
       </div>
 
@@ -107,7 +138,8 @@ export function DocumentPreviewTabBar({
         <div className="relative shrink-0 z-40" ref={menuRef}>
           <button
             type="button"
-            onClick={() => setDropdownOpen(!dropdownOpen)}
+            onClick={() =>
+              setDropdownOpen(!dropdownOpen)}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-200/80 dark:border-blue-800/60 text-blue-700 dark:text-blue-300 text-xs font-bold transition-all cursor-pointer shadow-2xs"
             title="Yeni belgeyi sekmede aç"
           >
@@ -130,14 +162,32 @@ export function DocumentPreviewTabBar({
                       onAddTab({
                         documentId: opt.id,
                         dosyaId: currentDosyaId,
-                        documentTitle: opt.title
-                      })
-                      setDropdownOpen(false)
+                        documentTitle: opt.title,
+                      });
+                      setDropdownOpen(false);
                     }}
                     className="w-full text-left flex items-center gap-2 p-2 rounded-xl text-xs hover:bg-blue-50 dark:hover:bg-blue-950/60 text-slate-700 dark:text-slate-200 font-semibold transition-colors cursor-pointer"
                   >
                     <Layers className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                    <span className="truncate">{opt.title}</span>
+                    <span className="truncate flex-1">{opt.title}</span>
+                    <button
+                      type="button"
+                      onClick={(e) => handleCopyId(e, opt.id)}
+                      className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900 dark:hover:text-blue-200 text-slate-500 dark:text-slate-400 shrink-0 transition-all cursor-pointer z-10"
+                      title="ID'yi panoya kopyala"
+                    >
+                      {copiedId === opt.id ? (
+                        <>
+                          <Check className="w-2.5 h-2.5 text-emerald-500" />
+                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">Kopyalandı!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-2.5 h-2.5 opacity-60" />
+                          <span>[{opt.id}]</span>
+                        </>
+                      )}
+                    </button>
                   </button>
                 ))}
               </div>
@@ -146,5 +196,5 @@ export function DocumentPreviewTabBar({
         </div>
       )}
     </div>
-  )
+  );
 }
