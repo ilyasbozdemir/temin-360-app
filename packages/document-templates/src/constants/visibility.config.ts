@@ -14,11 +14,13 @@ import {
   toCanonicalDocId,
 } from './template-constants'
 
-// ───────────────────────── 1) Tipler ─────────────────────────
+import type { Scope } from './roles'
+export type { Scope }
 export type DocGroup = 'piyasa_arastirma' | 'muayene_kabul' | 'olur_onay'
-export type Scope = DocGroup | 'tumu' | 'ozel' | 'gizli'
 
 export interface MemberScopeInput {
+  belgeSablonIds?: string[] | null
+  belge_sablon_ids?: string[] | string | null
   belge_kapsami?: string | null
   belgeKapsami?: string | null
   hedef_belgeler?: string | string[] | null
@@ -26,41 +28,30 @@ export interface MemberScopeInput {
   [key: string]: any
 }
 
+import { TEMPLATE_REGISTRY } from './template-registry'
+
 // ───────────────────────── 2) VERİ: belge grupları ─────────────────────────
-// Yeni şablon eklenince yalnızca ilgili listeye ID'sini ekle.
-// Hiçbir gruba yazılmayan şablon "grupsuz"dur: sadece 'tumu' ve 'ozel' kapsamlı kişiler görünür.
-// KARAR BEKLİYOR (grupsuz): ihtiyac-listesi, ihtiyac-talep-formu, tasinir-kayit-yetkilisi-gorusu,
-//   teknik-sartname, luzum-muzekkeresi, luzum-muzekkeresi-onay-eki, gorevlendirme-yazisi
-export const DOC_GROUPS: Record<DocGroup, readonly string[]> = {
-  piyasa_arastirma: [
-    'komisyon-gorevlendirme-onayi',
-    'komisyon-gorevlendirme-onayi-eki',
-    'piyasa-fiyat-arastirma-gorevlendirmesi',
-    'son-alim-fiyat-cetveli',
-    'fiyat-arastirma-mektubu',
-    'birim-fiyat-teklif-mektubu',
-    'arastirma-mektubu',
-    'yaklasik-maliyet-cetveli',
-    'piyasa-fiyat-arastirma-tutanagi'
-  ],
-  muayene_kabul: [
-    'muayene-kabul-komisyonu',
-    'muayene-kabul-tutanagi',
-    'harcama-pusulasi',
-    'luzum-muzekkeresi-teslim-tesellum'
-  ],
-  olur_onay: [
-    'dogrudan-temin-onay-belgesi',
-    'dogrudan-temin-sonuc-onay-belgesi',
-    'idare-onay-belgesi',
-    'harcama-talimati',
-    'kabul-edilen-teklif',
-    'butce-sorgusu',
-    'dogrudan-temin-sozlesmesi',
-    'sozlesmeye-davet',
-    'odeme-yazisi'
-  ]
-}
+// TEMPLATE_REGISTRY ana kaynak olarak kabul edilerek dinamik olarak türetilir.
+export const DOC_GROUPS: Record<DocGroup, readonly string[]> = (() => {
+  const map: Record<DocGroup, string[]> = {
+    piyasa_arastirma: [],
+    muayene_kabul: [],
+    olur_onay: []
+  }
+  for (const t of TEMPLATE_REGISTRY) {
+    const grps = Array.isArray(t.groups) && t.groups.length > 0
+      ? t.groups
+      : t.group
+        ? [t.group]
+        : []
+    for (const g of grps) {
+      if (map[g as DocGroup] && !map[g as DocGroup].includes(t.id)) {
+        map[g as DocGroup].push(t.id)
+      }
+    }
+  }
+  return map
+})()
 
 // ───────────────────────── 3) VERİ: göreve göre varsayılan kapsam ─────────────────────────
 // SIRA ÖNEMLİ: ilk eşleşen kural kazanır. Anahtar kelimeler Türkçe karakterden bağımsızdır
@@ -137,34 +128,12 @@ const SCOPE_CHECKS: Record<Scope, (c: Ctx) => boolean> = {
   olur_onay: ({ docIds }) => inGroup('olur_onay', docIds)
 }
 
+import { resolveMemberVisibility } from '../services/memberVisibilityResolver'
+
 /**
  * Kişi katmanı: bu komisyon üyesi bu belgede görünür mü?
- * docInput = belgenin ID'si veya ID listesi (ham + alias çözülmüş kanonik ID).
- * Boş kapsam = 'tumu'. Tanınmayan kapsam = güvenli taraf (gizli).
- * Şablon politikası ('hide') bu fonksiyonun DIŞINDA, çağıranda VE ile birleştirilir.
+ * Layered priority resolution model kullanarak kararı üretir.
  */
 export function isMemberVisibleInDocument(member: MemberScopeInput, docInput: string | string[]): boolean {
-  if (!member) return false
-  const rawScope = (member.belge_kapsami ?? member.belgeKapsami ?? 'tumu')
-  const scope = (rawScope ? String(rawScope).trim().toLowerCase() : 'tumu') as Scope
-  const check = SCOPE_CHECKS[scope]
-  if (!check) return false
-
-  const rawIds = Array.isArray(docInput) ? docInput : [docInput]
-  const docIds = rawIds.flatMap((id) => {
-    if (!id) return []
-    const clean = normalizeTemplateKey(id)
-    const canonical = toCanonicalDocId(id)
-    return Array.from(new Set([id, clean, canonical]))
-  })
-
-  const rawTargets = parseTargets(member.hedef_belgeler ?? member.hedefBelgeler)
-  const targets = rawTargets.flatMap((t) => {
-    if (t === '*' || t === 'all') return [t]
-    const clean = normalizeTemplateKey(t)
-    const canonical = toCanonicalDocId(t)
-    return Array.from(new Set([t, clean, canonical]))
-  })
-
-  return check({ docIds, targets })
+  return resolveMemberVisibility(member, docInput).gorunur
 }

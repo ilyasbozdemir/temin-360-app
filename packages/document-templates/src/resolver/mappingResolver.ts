@@ -445,7 +445,8 @@ export async function resolveTemplateData(
         const fileKomQuery = `SELECT tk.*, 
                                      COALESCE(NULLIF(tk.ad_soyad, ''), NULLIF(p.ad_soyad, ''), '') as resolved_ad_soyad,
                                      COALESCE(NULLIF(tk.unvan, ''), NULLIF(p.unvan, ''), '') as resolved_unvan,
-                                     COALESCE(k.ad, '') as komisyon_turu_adi
+                                     COALESCE(k.ad, '') as komisyon_turu_adi,
+                                     COALESCE(k.tur, '') as komisyon_tur_kodu
                               FROM DATA_TeminKomisyon tk 
                               LEFT JOIN TANIM_Personel p ON tk.personel_id = p.id 
                               LEFT JOIN TANIM_Komisyon k ON tk.komisyon_id = k.id
@@ -465,12 +466,18 @@ export async function resolveTemplateData(
             sablonDegiskeni === 'gorevlendirilenler'
           ) {
             const filtered = pool.filter((r: any) => {
+              const code = String(r.komisyon_tur_kodu || '').toLowerCase();
+              if (code === 'yaklasik_maliyet' || code === 'piyasa_fiyat' || code === 'piyasa_arastirma') return true;
+              if (code === 'muayene_kabul') return false;
               const kt = String(r.komisyon_turu_adi || r.komisyon_turu || '').toLowerCase();
               return !kt || kt.includes('fiyat') || kt.includes('piyasa') || kt.includes('araştırma') || kt.includes('arastirma');
             });
             members = filtered;
           } else if (sablonDegiskeni === 'muayeneKomisyonu') {
             const filtered = pool.filter((r: any) => {
+              const code = String(r.komisyon_tur_kodu || '').toLowerCase();
+              if (code === 'muayene_kabul') return true;
+              if (code === 'yaklasik_maliyet' || code === 'piyasa_fiyat') return false;
               const kt = String(r.komisyon_turu_adi || r.komisyon_turu || '').toLowerCase();
               return kt.includes('muayene') || kt.includes('kabul');
             });
@@ -482,7 +489,7 @@ export async function resolveTemplateData(
 
         // 2. Fallback: Query TANIM_Komisyon & TANIM_KomisyonUye (Komisyon Yönetimi)
         if (members.length === 0) {
-          const tanimQuery = `SELECT u.*, k.ad as komisyon_adi, p.ad_soyad, p.unvan, g.ad as gorev_adi
+          const tanimQuery = `SELECT u.*, k.ad as komisyon_adi, k.tur as komisyon_tur_kodu, p.ad_soyad, p.unvan, g.ad as gorev_adi
                               FROM TANIM_KomisyonUye u
                               JOIN TANIM_Komisyon k ON u.komisyon_id = k.id
                               LEFT JOIN TANIM_Personel p ON u.personel_id = p.id
@@ -499,12 +506,18 @@ export async function resolveTemplateData(
               sablonDegiskeni === 'gorevlendirilenler'
             ) {
               const filtered = pool.filter((r: any) => {
+                const code = String(r.komisyon_tur_kodu || '').toLowerCase();
+                if (code === 'yaklasik_maliyet' || code === 'piyasa_fiyat' || code === 'piyasa_arastirma') return true;
+                if (code === 'muayene_kabul') return false;
                 const ka = String(r.komisyon_adi || '').toLowerCase();
                 return ka.includes('fiyat') || ka.includes('piyasa') || ka.includes('araştırma') || ka.includes('arastirma');
               });
               members = filtered;
             } else if (sablonDegiskeni === 'muayeneKomisyonu') {
               const filtered = pool.filter((r: any) => {
+                const code = String(r.komisyon_tur_kodu || '').toLowerCase();
+                if (code === 'muayene_kabul') return true;
+                if (code === 'yaklasik_maliyet' || code === 'piyasa_fiyat') return false;
                 const ka = String(r.komisyon_adi || '').toLowerCase();
                 return ka.includes('muayene') || ka.includes('kabul');
               });

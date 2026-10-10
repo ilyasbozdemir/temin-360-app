@@ -5,6 +5,7 @@ import Image from "next/image";
 import {
   Activity,
   ArrowRight,
+  Building,
   CheckCircle,
   CheckCircle2,
   Code,
@@ -590,7 +591,7 @@ export default function Home() {
 
           {/* TAB 1: FEATURES */}
           {activeTab === "features" && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 animate-in fade-in duration-300">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 animate-in fade-in duration-300">
               <div className="p-5 sm:p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-3 sm:space-y-4 hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
                 <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                   <Zap className="w-5 h-5" />
@@ -610,12 +611,22 @@ export default function Home() {
                   <FileText className="w-5 h-5" />
                 </div>
                 <h3 className="font-bold text-base text-slate-900 dark:text-white">
-                  4734, 4735 ve 2886 Mevzuat Uyumu
+                  4734 KİK & Doğrudan Temin
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Piyasa fiyat araştırma tutanakları, onay belgeleri, 2886 taşınmaz
-                  satış ve kiralama şartnameleri, sözleşme ve muayene-kabul
-                  tutanakları gibi tüm resmi şablonlar kamu mevzuatına %100 uyumludur.
+                  Piyasa fiyat araştırma tutanakları, harcama yetkilisi onay belgeleri, ihale kararları, sipariş mektupları ve muayene-kabul tutanakları kamu mevzuatına %100 uyumludur.
+                </p>
+              </div>
+
+              <div className="p-5 sm:p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-3 sm:space-y-4 hover:border-teal-500/50 dark:hover:border-teal-700 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+                  <Building className="w-5 h-5" />
+                </div>
+                <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                  2886 Sayılı Devlet İhale Kanunu
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Taşınmaz satış, kiralama, ecrimisil, irtifak hakkı ve trampa ihale şartnameleri, Md. 45 Açık Teklif / Md. 35 Kapalı Teklif / Md. 51 Pazarlık süreçleri ve %3/%6 teminat motoru.
                 </p>
               </div>
 
@@ -624,11 +635,10 @@ export default function Home() {
                   <Wifi className="w-5 h-5" />
                 </div>
                 <h3 className="font-bold text-base text-slate-900 dark:text-white">
-                  Akıllı Çift Yönlü Eşitleme
+                  Hakediş & Çift Yönlü Eşitleme
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Çevrimdışı yapılan değişiklikler ağa bağlanıldığı anda merkezi
-                  Docker/Web sunucusuna veya Google Drive&apos;a otomatik aktarılır.
+                  5018 Mali Yönetim standartlarında damga vergisi, KDV tevkifatı ve hakediş hesaplamaları ile çevrimdışı verilerin merkezi sunucu ve bulut ile eşitlemesi.
                 </p>
               </div>
             </div>

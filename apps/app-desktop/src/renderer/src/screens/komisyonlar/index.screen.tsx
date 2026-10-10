@@ -21,7 +21,7 @@ import { TemplateRegistryService } from '@temin360/document-templates'
 import { GenelSablonKadrolariTab } from './components/GenelSablonKadrolariTab'
 import { DosyaKomisyonlariTab } from './components/DosyaKomisyonlariTab'
 import { AtamaGecmisiModal } from './components/AtamaGecmisiModal'
-import { KomisyonBelgeleriYonetModal } from './components/KomisyonBelgeleriYonetModal'
+
 
 const isBaseKomisyon = (ad?: string, id?: number): boolean => {
   if (id === 1 || id === 2) return true
@@ -66,12 +66,7 @@ export default function KomisyonlarScreen({
     null
   )
 
-  // Üretilebilir Belgeleri Yönet Modalı
-  const [manageBelgelerOpen, setManageBelgelerOpen] = useState(false)
-  const [manageBelgelerKomisyon, setManageBelgelerKomisyon] = useState<{
-    id: number
-    ad: string
-  } | null>(null)
+
 
   // Dosya İçi Komisyon Atama Modalı
   const [editingDosyaId, setEditingDosyaId] = useState<number | null>(null)
@@ -543,10 +538,7 @@ export default function KomisyonlarScreen({
           onOpenDetails={(id) => {
             addTab('/komisyonlar/detay?id=' + id)
           }}
-          onManageBelgeler={(komisyon) => {
-            setManageBelgelerKomisyon(komisyon)
-            setManageBelgelerOpen(true)
-          }}
+
           activeDosyaId={activeDosyaId}
         />
       )}
@@ -627,16 +619,7 @@ export default function KomisyonlarScreen({
         komisyonId={ataKomisyonId}
       />
 
-      {/* Üretilebilir Belgeleri Yönet Modalı */}
-      <KomisyonBelgeleriYonetModal
-        isOpen={manageBelgelerOpen}
-        onClose={() => {
-          setManageBelgelerOpen(false)
-          setManageBelgelerKomisyon(null)
-        }}
-        komisyonId={manageBelgelerKomisyon?.id || null}
-        komisyonAdi={manageBelgelerKomisyon?.ad}
-      />
+
 
       {previewData && previewModalOpen && (
         <DocumentPreviewModal

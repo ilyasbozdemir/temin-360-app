@@ -1,171 +1,139 @@
-import { TemplateType } from "../types";
+import { TemplateCapabilities, TemplateGroup, TemplateType } from "../types";
+
+const DEFAULT_CAPABILITIES: TemplateCapabilities = {
+  supportsOlur: false,
+  supportsCommission: false,
+  supportedCommissionTypes: ["none"],
+  supportsPersonnelList: true,
+  supportsKalemListesi: true,
+  supportsFirmaListesi: false,
+};
+
+export type TemplateInput = {
+  id: string;
+  name: string;
+  title: string;
+  category: string;
+  description?: string;
+  group?: TemplateGroup;
+  groups?: TemplateGroup[];
+  capabilities?: Partial<TemplateCapabilities>;
+};
+
+export function defineTemplate(input: TemplateInput): TemplateType {
+  const groups = input.groups ?? (input.group ? [input.group] : []);
+  return {
+    id: input.id,
+    name: input.name,
+    title: input.title,
+    category: input.category,
+    description: input.description,
+    group: input.group ?? (groups.length > 0 ? groups[0] : undefined),
+    groups,
+    capabilities: {
+      ...DEFAULT_CAPABILITIES,
+      ...input.capabilities,
+    },
+  };
+}
 
 export const TEMPLATE_REGISTRY: TemplateType[] = [
-  {
+  defineTemplate({
     id: "ihtiyac-listesi",
     name: "IhtiyacListesi",
     title: "İhtiyaç Listesi",
     category: "1-ihtiyac-tespiti-ve-baslangic",
     description: "Alımı yapılacak mal/hizmet kalemlerinin detaylı ihtiyaç tablosu",
-    capabilities: {
-      supportsOlur: false,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
-      supportsFirmaListesi: false,
-    },
-  },
-  {
+  }),
+  defineTemplate({
     id: "ihtiyac-talep-formu",
     name: "IhtiyacTalepFormu",
     title: "İhtiyaç Talep Formu",
     category: "1-ihtiyac-tespiti-ve-baslangic",
     description: "Birimlerin mal/hizmet taleplerini yetkili makama ilettiği resmi form",
-    capabilities: {
-      supportsOlur: false,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
-      supportsFirmaListesi: false,
-    },
-  },
-  {
+  }),
+  defineTemplate({
     id: "tasinir-kayit-yetkilisi-gorusu",
     name: "TasinirKayitYetkilisiGorusu",
     title: "Taşınır Kayıt Yetkilisi Görüşü",
     category: "1-ihtiyac-tespiti-ve-baslangic",
     description: "Stokta malzeme bulunup bulunmadığına ilişkin ambar yetkilisi görüşü",
-    capabilities: {
-      supportsOlur: false,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
-      supportsFirmaListesi: false,
-    },
-  },
-  {
+  }),
+  defineTemplate({
     id: "teknik-sartname",
     name: "TeknikSartname",
     title: "Teknik Şartname",
     category: "1-ihtiyac-tespiti-ve-baslangic",
     description: "İşin ve malzemelerin teknik kriterlerini belirleyen doküman",
-    capabilities: {
-      supportsOlur: false,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
-      supportsFirmaListesi: false,
-    },
-  },
-  {
+  }),
+  defineTemplate({
     id: "luzum-muzekkeresi",
     name: "LuzumMuzekkeresi",
     title: "Lüzum Müzekkeresi",
     category: "1-ihtiyac-tespiti-ve-baslangic",
     description: "Harcama biriminin alım gerekliliğini onaylatan başlangıç müzekkeresi",
-    capabilities: {
-      supportsOlur: true,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
-      supportsFirmaListesi: false,
-    },
-  },
-  {
+    capabilities: { supportsOlur: true },
+  }),
+  defineTemplate({
     id: "luzum-muzekkeresi-onay-eki",
     name: "LuzumMuzekkeresiOnayEki",
     title: "Lüzum Müzekkeresi Onay Eki",
     category: "1-ihtiyac-tespiti-ve-baslangic",
     description: "Lüzum müzekkeresine eklenen kalem ve açıklama listesi",
-    capabilities: {
-      supportsOlur: false,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
-      supportsFirmaListesi: false,
-    },
-  },
-  {
+  }),
+  defineTemplate({
     id: "luzum-muzekkeresi-teslim-tesellum",
     name: "LuzumMuzekkeresiTeslimTesellum",
     title: "Lüzum Müzekkeresi Teslim Tesellüm",
     category: "1-ihtiyac-tespiti-ve-baslangic",
     group: "muayene_kabul",
     description: "Lüzum müzekkeresi teslim alma ve evrak devir tutanağı",
-    capabilities: {
-      supportsOlur: false,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
-      supportsFirmaListesi: false,
-    },
-  },
-  {
+  }),
+  defineTemplate({
     id: "harcama-talimati",
     name: "HarcamaTalimati",
     title: "Harcama Talimatı",
     category: "1-ihtiyac-tespiti-ve-baslangic",
     group: "olur_onay",
     description: "Harcama Yetkilisi tarafından imzalanan alım ve ihale başlatma oluru",
-    capabilities: {
-      supportsOlur: true,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
-      supportsFirmaListesi: false,
-    },
-  },
-  {
+    capabilities: { supportsOlur: true },
+  }),
+  defineTemplate({
     id: "komisyon-gorevlendirme-onayi",
     name: "KomisyonGorevlendirmeOnayi",
     title: "Komisyon Görevlendirme Onayı",
     category: "1-ihtiyac-tespiti-ve-baslangic",
-    group: "piyasa_arastirma",
+    groups: ["piyasa_arastirma", "muayene_kabul", "olur_onay"],
     description: "Piyasa Araştırma veya Muayene Kabul Komisyon üyelerinin görevlendirme oluru",
     capabilities: {
       supportsOlur: true,
       supportsCommission: true,
       supportedCommissionTypes: ["piyasa_fiyat", "muayene_kabul", "yaklasik_maliyet", "ihale_komisyonu", "all"],
-      supportsPersonnelList: true,
       supportsKalemListesi: false,
-      supportsFirmaListesi: false,
-      // Exception: Olur içeren görevlendirme belgesinde Harcama Yetkilisi görünür
       roleVisibility: {
         harcama_yetkilisi: "show",
         onaylayan: "show",
       },
     },
-  },
-  {
+  }),
+  defineTemplate({
     id: "komisyon-gorevlendirme-onayi-eki",
     name: "KomisyonGorevlendirmeOnayiEki",
     title: "Komisyon Görevlendirme Onayı Eki",
     category: "1-ihtiyac-tespiti-ve-baslangic",
-    group: "piyasa_arastirma",
+    groups: ["piyasa_arastirma", "muayene_kabul", "olur_onay"],
     description: "Görevlendirilen komisyon üyelerinin detaylı görev dağılım listesi",
     capabilities: {
-      supportsOlur: false,
       supportsCommission: true,
       supportedCommissionTypes: ["piyasa_fiyat", "muayene_kabul", "yaklasik_maliyet", "ihale_komisyonu", "all"],
-      supportsPersonnelList: true,
       supportsKalemListesi: false,
-      supportsFirmaListesi: false,
-      // Exception: Ek listesinde onaylayan gizlenir
       roleVisibility: {
         harcama_yetkilisi: "hide",
         onaylayan: "hide",
       },
     },
-  },
-  {
+  }),
+  defineTemplate({
     id: "piyasa-fiyat-arastirma-gorevlendirmesi",
     name: "PiyasaFiyatArastirmaGorevlendirmesi",
     title: "Piyasa Fiyat Araştırma Görevlendirmesi",
@@ -176,49 +144,32 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsOlur: true,
       supportsCommission: true,
       supportedCommissionTypes: ["piyasa_fiyat", "yaklasik_maliyet"],
-      supportsPersonnelList: true,
       supportsKalemListesi: false,
-      supportsFirmaListesi: false,
-      // Exception: Görevlendirme olurunda Harcama Yetkilisi görünür
       roleVisibility: {
         harcama_yetkilisi: "show",
         onaylayan: "show",
       },
     },
-  },
-  {
+  }),
+  defineTemplate({
     id: "son-alim-fiyat-cetveli",
     name: "SonAlimFiyatCetveli",
     title: "Son Alım Fiyat Cetveli",
     category: "1-ihtiyac-tespiti-ve-baslangic",
     group: "piyasa_arastirma",
     description: "Geçmiş alımlara ait birim fiyat ve fatura karşılaştırma cetveli",
-    capabilities: {
-      supportsOlur: true,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
-      supportsFirmaListesi: false,
-    },
-  },
-  {
+    capabilities: { supportsOlur: true },
+  }),
+  defineTemplate({
     id: "fiyat-arastirma-mektubu",
     name: "FiyatArastirmaMektubu",
     title: "Fiyat Araştırma Mektubu",
     category: "2-piyasa-fiyat-arastirmasi",
     group: "piyasa_arastirma",
     description: "Firmalara teklif sunmaları için gönderilen resmi davet yazısı",
-    capabilities: {
-      supportsOlur: false,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
-      supportsFirmaListesi: true,
-    },
-  },
-  {
+    capabilities: { supportsFirmaListesi: true },
+  }),
+  defineTemplate({
     id: "birim-fiyat-teklif-mektubu",
     name: "BirimFiyatTeklifMektubu",
     title: "Birim Fiyat Teklif Mektubu",
@@ -226,11 +177,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     group: "piyasa_arastirma",
     description: "Firmaların birim fiyatlarını doldurarak imzaladığı teklif mektubu",
     capabilities: {
-      supportsOlur: false,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
       supportsPersonnelList: false,
-      supportsKalemListesi: true,
       supportsFirmaListesi: true,
       roleVisibility: {
         harcama_yetkilisi: "hide",
@@ -238,8 +185,8 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
         hazirlayan: "hide",
       },
     },
-  },
-  {
+  }),
+  defineTemplate({
     id: "birim-fiyat-teklif-cetveli",
     name: "BirimFiyatTeklifCetveli",
     title: "Birim Fiyat Teklif Cetveli",
@@ -247,11 +194,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     group: "piyasa_arastirma",
     description: "İsteklilerin kalem bazlı birim fiyatlarını sunduğu detaylı cetvel",
     capabilities: {
-      supportsOlur: false,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
       supportsPersonnelList: false,
-      supportsKalemListesi: true,
       supportsFirmaListesi: true,
       roleVisibility: {
         harcama_yetkilisi: "hide",
@@ -259,24 +202,17 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
         hazirlayan: "hide",
       },
     },
-  },
-  {
+  }),
+  defineTemplate({
     id: "arastirma-mektubu",
     name: "ArastirmaMektubu",
     title: "Araştırma Mektubu",
     category: "2-piyasa-fiyat-arastirmasi",
     group: "piyasa_arastirma",
     description: "Piyasa araştırması kapsamında gönderilen bilgi ve teklif toplama yazısı",
-    capabilities: {
-      supportsOlur: false,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
-      supportsFirmaListesi: true,
-    },
-  },
-  {
+    capabilities: { supportsFirmaListesi: true },
+  }),
+  defineTemplate({
     id: "yaklasik-maliyet-cetveli",
     name: "YaklasikMaliyetCetveli",
     title: "Yaklaşık Maliyet Cetveli",
@@ -284,15 +220,12 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     group: "piyasa_arastirma",
     description: "Toplanan tekliflerden alımın yaklaşık maliyetinin hesaplandığı cetvel",
     capabilities: {
-      supportsOlur: false,
       supportsCommission: true,
       supportedCommissionTypes: ["piyasa_fiyat", "yaklasik_maliyet"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
       supportsFirmaListesi: true,
     },
-  },
-  {
+  }),
+  defineTemplate({
     id: "piyasa-fiyat-arastirma-tutanagi",
     name: "PiyasaFiyatArastirmaTutanagi",
     title: "Piyasa Fiyat Araştırma Tutanağı",
@@ -303,28 +236,19 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsOlur: true,
       supportsCommission: true,
       supportedCommissionTypes: ["piyasa_fiyat", "yaklasik_maliyet"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
       supportsFirmaListesi: true,
     },
-  },
-  {
+  }),
+  defineTemplate({
     id: "kabul-edilen-teklif",
     name: "KabulEdilenTeklif",
     title: "Kabul Edilen Teklif Bildirimi",
     category: "3-siparis-ve-sozlesme",
     group: "olur_onay",
     description: "En avantajlı teklifi veren firmaya yapılan alım kabul bildirimi",
-    capabilities: {
-      supportsOlur: false,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
-      supportsFirmaListesi: true,
-    },
-  },
-  {
+    capabilities: { supportsFirmaListesi: true },
+  }),
+  defineTemplate({
     id: "dogrudan-temin-onay-belgesi",
     name: "DogrudanTeminOnayBelgesi",
     title: "Doğrudan Temin Onay Belgesi",
@@ -333,46 +257,27 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     description: "Karara bağlanan alımın yetkili makam onay belgesi",
     capabilities: {
       supportsOlur: true,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
       supportsFirmaListesi: true,
     },
-  },
-  {
+  }),
+  defineTemplate({
     id: "butce-sorgusu",
     name: "ButceSorgusu",
     title: "Bütçe Sorgusu ve Ödenek Belgesi",
     category: "3-siparis-ve-sozlesme",
     group: "olur_onay",
     description: "Alım tutarının ilgili bütçe tertibinden karşılanabilirliğini gösteren form",
-    capabilities: {
-      supportsOlur: false,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
-      supportsFirmaListesi: false,
-    },
-  },
-  {
+  }),
+  defineTemplate({
     id: "dogrudan-temin-sozlesmesi",
     name: "DogrudanTeminSozlesmesi",
     title: "Doğrudan Temin Sözleşmesi",
     category: "3-siparis-ve-sozlesme",
     group: "olur_onay",
     description: "Yüklenici firma ile İdare arasında imzalanan matbu alım sözleşmesi",
-    capabilities: {
-      supportsOlur: false,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
-      supportsFirmaListesi: true,
-    },
-  },
-  {
+    capabilities: { supportsFirmaListesi: true },
+  }),
+  defineTemplate({
     id: "sozlesmeye-davet",
     name: "SozlesmeyeDavet",
     title: "Sözleşmeye Davet Yazısı",
@@ -380,15 +285,11 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     group: "olur_onay",
     description: "Kazanan yükleniciye sözleşme imzalaması için iletilen davet yazısı",
     capabilities: {
-      supportsOlur: false,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
       supportsKalemListesi: false,
       supportsFirmaListesi: true,
     },
-  },
-  {
+  }),
+  defineTemplate({
     id: "muayene-kabul-tutanagi",
     name: "MuayeneKabulTutanagi",
     title: "Muayene ve Kabul Tutanağı",
@@ -399,12 +300,10 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsOlur: true,
       supportsCommission: true,
       supportedCommissionTypes: ["muayene_kabul"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
       supportsFirmaListesi: true,
     },
-  },
-  {
+  }),
+  defineTemplate({
     id: "muayene-kabul-komisyonu",
     name: "MuayeneKabulKomisyonu",
     title: "Muayene ve Kabul Komisyon Kararı",
@@ -415,12 +314,9 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsOlur: true,
       supportsCommission: true,
       supportedCommissionTypes: ["muayene_kabul"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
-      supportsFirmaListesi: false,
     },
-  },
-  {
+  }),
+  defineTemplate({
     id: "harcama-pusulasi",
     name: "HarcamaPusulasi",
     title: "Harcama Pusulası",
@@ -428,20 +324,13 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     group: "muayene_kabul",
     description: "Fatura kesme yükümlülüğü olmayan gerçek kişilerden yapılan alımların tutanağı",
     capabilities: {
-      supportsOlur: false,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
-      supportsFirmaListesi: false,
-      // Exception: Harcama Pusulası Harcama Yetkilisi imzası içerir
       roleVisibility: {
         harcama_yetkilisi: "show",
         onaylayan: "show",
       },
     },
-  },
-  {
+  }),
+  defineTemplate({
     id: "odeme-yazisi",
     name: "OdemeYazisi",
     title: "Ödeme Yazısı",
@@ -450,14 +339,11 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     description: "Mali hizmetler / muhasebe müdürlüğüne yazılan ödeme üst yazısı",
     capabilities: {
       supportsOlur: true,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
       supportsKalemListesi: false,
       supportsFirmaListesi: true,
     },
-  },
-  {
+  }),
+  defineTemplate({
     id: "dogrudan-temin-sonuc-onay-belgesi",
     name: "DogrudanTeminSonucOnayBelgesi",
     title: "Doğrudan Temin Sonuç Onay Belgesi",
@@ -466,14 +352,10 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     description: "Alım sonucunun yetkili makam onay belgesi",
     capabilities: {
       supportsOlur: true,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
       supportsFirmaListesi: true,
     },
-  },
-  {
+  }),
+  defineTemplate({
     id: "gorevlendirme-yazisi",
     name: "GorevlendirmeYazisi",
     title: "Görevlendirme Yazısı",
@@ -484,17 +366,14 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
       supportsOlur: true,
       supportsCommission: true,
       supportedCommissionTypes: ["piyasa_fiyat"],
-      supportsPersonnelList: true,
       supportsKalemListesi: false,
-      supportsFirmaListesi: false,
-      // Exception: Görevlendirme olurunda Harcama Yetkilisi görünür
       roleVisibility: {
         harcama_yetkilisi: "show",
         onaylayan: "show",
       },
     },
-  },
-  {
+  }),
+  defineTemplate({
     id: "idare-onay-belgesi",
     name: "IdareOnayBelgesi",
     title: "İdare Onay Belgesi",
@@ -503,11 +382,7 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     description: "İdare onay ve karar belgesi",
     capabilities: {
       supportsOlur: true,
-      supportsCommission: false,
-      supportedCommissionTypes: ["none"],
-      supportsPersonnelList: true,
-      supportsKalemListesi: true,
       supportsFirmaListesi: true,
     },
-  },
+  }),
 ];

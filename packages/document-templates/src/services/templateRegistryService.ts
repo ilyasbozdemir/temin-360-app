@@ -1,236 +1,148 @@
-import { TEMPLATE_REGISTRY } from "../constants/template-registry";
+import { TEMPLATE_REGISTRY } from '../constants/template-registry'
 import {
   CANONICAL_TEMPLATE_ALIASES,
   normalizeTemplateKey,
-  toCanonicalDocId,
-} from "../constants/template-constants";
+  toCanonicalDocId
+} from '../constants/template-constants'
+import { TemplateCapabilities, TemplateType } from '../types'
+import { RoleCode, toRoleCode } from '../constants/roles'
 import {
-  TemplateType,
-  TemplateGroup,
-  TemplateCapabilities,
-  RoleCode,
-  RoleVisibility,
-} from "../types";
-
-/**
- * Grup bazlı varsayılan rol görünürlük politikaları.
- * Şablon düzeyindeki roleVisibility tanımları yalnızca istisnai override içindir.
- */
-export const GROUP_DEFAULT_ROLE_VISIBILITY: Record<
-  TemplateGroup,
-  Partial<Record<RoleCode, RoleVisibility>>
-> = {
-  olur_onay: {
-    harcama_yetkilisi: "show",
-    onaylayan: "show",
-    gerceklestirme_gorevlisi: "optional",
-    hazirlayan: "optional",
-    talep_eden: "optional",
-    muhasebe: "optional",
-  },
-  piyasa_arastirma: {
-    harcama_yetkilisi: "hide",
-    onaylayan: "optional",
-    gerceklestirme_gorevlisi: "optional",
-    hazirlayan: "optional",
-    talep_eden: "optional",
-    muhasebe: "hide",
-  },
-  muayene_kabul: {
-    harcama_yetkilisi: "hide",
-    onaylayan: "optional",
-    gerceklestirme_gorevlisi: "optional",
-    hazirlayan: "optional",
-    talep_eden: "optional",
-    muhasebe: "hide",
-  },
-};
-
-export const UNGROUPED_DEFAULT_ROLE_VISIBILITY: Partial<Record<RoleCode, RoleVisibility>> = {
-  harcama_yetkilisi: "hide",
-  onaylayan: "optional",
-  gerceklestirme_gorevlisi: "optional",
-  hazirlayan: "optional",
-  talep_eden: "optional",
-  muhasebe: "hide",
-};
-
-import { isMemberVisibleInDocument } from "../constants/visibility.config";
+  GROUP_DEFAULT_ROLE_VISIBILITY,
+  resolveRoleVisibility
+} from '../constants/roleVisibility'
+import { isMemberVisibleInDocument } from '../constants/visibility.config'
 
 export class TemplateRegistryService {
-  private static templatesMap: Map<string, TemplateType> = new Map();
+  private static templatesMap: Map<string, TemplateType> = new Map()
 
   static {
     TEMPLATE_REGISTRY.forEach((t) => {
-      this.templatesMap.set(t.id, t);
-    });
+      this.templatesMap.set(t.id, t)
+    })
   }
 
   /**
    * Get all registered document templates with complete metadata and capabilities
    */
   static getAllTemplates(): TemplateType[] {
-    return Array.from(this.templatesMap.values());
+    return Array.from(this.templatesMap.values())
   }
 
   /**
    * Get specific template metadata by ID or alias
    */
   static getTemplateById(id: string): TemplateType | undefined {
-    if (!id) return undefined;
-    const clean = normalizeTemplateKey(id);
-    const canonical = CANONICAL_TEMPLATE_ALIASES[clean] || clean;
+    if (!id) return undefined
+    const clean = normalizeTemplateKey(id)
+    const canonical = CANONICAL_TEMPLATE_ALIASES[clean] || clean
     return (
       this.templatesMap.get(id) ||
       this.templatesMap.get(clean) ||
       this.templatesMap.get(canonical)
-    );
+    )
   }
 
   /**
    * Get template capabilities by ID or alias
    */
   static getCapabilities(id: string): TemplateCapabilities | undefined {
-    return this.getTemplateById(id)?.capabilities;
+    return this.getTemplateById(id)?.capabilities
   }
 
   /**
    * Check if a template supports 'Olur' approval block
    */
   static supportsOlur(id: string): boolean {
-    return Boolean(this.getCapabilities(id)?.supportsOlur);
+    return Boolean(this.getCapabilities(id)?.supportsOlur)
   }
 
   /**
    * Filter templates that possess a specific capability (e.g. 'supportsCommission', 'supportsOlur')
    */
   static getTemplatesByCapability(capability: keyof TemplateCapabilities): TemplateType[] {
-    return this.getAllTemplates().filter((t) => Boolean(t.capabilities[capability]));
+    return this.getAllTemplates().filter((t) => Boolean(t.capabilities[capability]))
   }
 
   /**
    * Resolve role visibility policy for a template ('show' | 'hide' | 'optional')
-   * Uses template-specific override if present, else falls back to group default.
+   * Delegate to central roleVisibility.ts which supports multi-group merging.
    */
-  static resolveRoleVisibility(templateId: string, roleCode: RoleCode): RoleVisibility {
-    const template = this.getTemplateById(templateId);
-    if (!template) {
-      return "hide";
-    }
-
-    // 1. Template-specific override
-    if (template.capabilities?.roleVisibility?.[roleCode]) {
-      return template.capabilities.roleVisibility[roleCode]!;
-    }
-
-    // 2. Group default
-    if (template.group && GROUP_DEFAULT_ROLE_VISIBILITY[template.group]?.[roleCode]) {
-      return GROUP_DEFAULT_ROLE_VISIBILITY[template.group]![roleCode]!;
-    }
-
-    // 3. Ungrouped default
-    return UNGROUPED_DEFAULT_ROLE_VISIBILITY[roleCode] ?? "hide";
+  static resolveRoleVisibility(templateId: string, roleCode: RoleCode) {
+    return resolveRoleVisibility(templateId, roleCode)
   }
 
   /**
    * Resolve commission role visibility policy for a template
    */
-  static resolveCommissionRoleVisibility(templateId: string, commissionRoleName: string): RoleVisibility {
-    const template = this.getTemplateById(templateId);
-    if (!template) return "show";
-
-    // 1. Template-specific override
-    const customVis = template.capabilities?.commissionRoleVisibility;
-    if (customVis) {
-      const matchKey = Object.keys(customVis).find(
-        (k) => k.toLowerCase().trim() === commissionRoleName.toLowerCase().trim()
-      );
-      if (matchKey) {
-        return customVis[matchKey];
-      }
-    }
-
-    // 2. Group default
-    const normRole = commissionRoleName.toLowerCase().trim();
-    if (template.group === "piyasa_arastirma" || template.group === "muayene_kabul") {
-      if (normRole.includes("harcama yetkili") || normRole.includes("muhasebe yetkili")) {
-        return "hide";
-      }
-    }
-
-    return "show";
+  static resolveCommissionRoleVisibility(templateId: string, commissionRoleName: string) {
+    const roleCode = this.mapCommissionRoleNameToRoleCode(commissionRoleName)
+    if (!roleCode) return 'show'
+    return this.resolveRoleVisibility(templateId, roleCode)
   }
 
   /**
-   * Map commission role name to RoleCode enum
+   * Map commission role name or task title to RoleCode enum
    */
-  static mapCommissionRoleNameToRoleCode(roleName: string): RoleCode | null {
-    const norm = roleName.toLowerCase().trim();
-    if (norm.includes("harcama yetkili")) return "harcama_yetkilisi";
-    if (norm.includes("ihale yetkili")) return "ihale_yetkilisi";
-    if (norm.includes("gerçekleştirme") || norm.includes("gerceklestirme")) return "gerceklestirme_gorevlisi";
-    if (norm.includes("muhasebe")) return "muhasebe";
-    if (norm.includes("hazırlayan") || norm.includes("hazirlayan")) return "hazirlayan";
-    if (norm.includes("talep eden") || norm.includes("talep_eden")) return "talep_eden";
-    if (norm.includes("onaylayan") || norm.includes("başkan") || norm.includes("baskan")) return "onaylayan";
-    return null;
+  static mapCommissionRoleNameToRoleCode(roleName: string): RoleCode {
+    return toRoleCode(roleName)
   }
 
   /**
-   * Get document templates compatible with a commission type (e.g. 'piyasa_fiyat', 'muayene_kabul')
+   * Get document templates compatible with a commission type (e.g. 'piyasa_fiyat', 'muayene_kabul', 'yaklasik_maliyet')
    */
   static getTemplatesForCommissionType(commissionType?: string): TemplateType[] {
-    const norm = (commissionType || "").toLowerCase();
+    const raw = (commissionType || '').trim().toLowerCase()
     return this.getAllTemplates().filter((t) => {
-      if (!t.capabilities.supportsCommission) return false;
-      const types = t.capabilities.supportedCommissionTypes;
-      if (types.includes("all")) return true;
+      if (!t.capabilities.supportsCommission) return false
+      const types = t.capabilities.supportedCommissionTypes
+      if (types.includes('all')) return true
+
+      if (raw === 'yaklasik_maliyet' || raw === 'piyasa_fiyat') {
+        return types.includes('piyasa_fiyat') || types.includes('yaklasik_maliyet')
+      }
+      if (raw === 'muayene_kabul') {
+        return types.includes('muayene_kabul')
+      }
+      if (raw === 'ihale_komisyonu') {
+        return types.includes('ihale_komisyonu')
+      }
+
       if (
-        norm.includes("fiyat") ||
-        norm.includes("piyasa") ||
-        norm.includes("araştırma") ||
-        norm.includes("arastirma")
+        raw.includes('fiyat') ||
+        raw.includes('piyasa') ||
+        raw.includes('maliyet')
       ) {
-        return types.includes("piyasa_fiyat") || types.includes("yaklasik_maliyet");
+        return types.includes('piyasa_fiyat') || types.includes('yaklasik_maliyet')
       }
-      if (norm.includes("muayene") || norm.includes("kabul")) {
-        return types.includes("muayene_kabul");
+      if (raw.includes('muayene') || raw.includes('kabul')) {
+        return types.includes('muayene_kabul')
       }
-      if (norm.includes("ihale")) {
-        return types.includes("ihale_komisyonu");
+      if (raw.includes('ihale')) {
+        return types.includes('ihale_komisyonu')
       }
-      return types.length > 0;
-    });
+      return types.length > 0
+    })
   }
 
   /**
    * Komisyon üyesinin / kişinin hedef belgede görünür olup olmadığını belirler.
    */
-  static isMemberVisibleInDocument(
-    member: any,
-    docIds: string | string[]
-  ): boolean {
-    return isMemberVisibleInDocument(member, docIds);
+  static isMemberVisibleInDocument(member: any, docIds: string | string[]): boolean {
+    return isMemberVisibleInDocument(member, docIds)
   }
 
   /**
    * Geriye uyumluluk için templateId bazlı görünürlük fonksiyonu.
    */
-  static isMemberVisibleInTemplate(
-    member: any,
-    templateId: string
-  ): boolean {
-    return isMemberVisibleInDocument(member, [templateId]);
+  static isMemberVisibleInTemplate(member: any, templateId: string): boolean {
+    return isMemberVisibleInDocument(member, [templateId])
   }
 
   /**
    * Filter commission member list for rendering in a target document template
    */
-  static filterMembersForTemplate<T extends Record<string, any>>(
-    members: T[],
-    templateId: string
-  ): T[] {
-    return members.filter((m) => isMemberVisibleInDocument(m, [templateId]));
+  static filterMembersForTemplate<T extends Record<string, any>>(members: T[], templateId: string): T[] {
+    return members.filter((m) => isMemberVisibleInDocument(m, [templateId]))
   }
 }
 
@@ -238,4 +150,5 @@ export {
   CANONICAL_TEMPLATE_ALIASES,
   normalizeTemplateKey,
   toCanonicalDocId,
-};
+  GROUP_DEFAULT_ROLE_VISIBILITY
+}

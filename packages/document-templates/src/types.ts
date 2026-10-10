@@ -1,4 +1,7 @@
 import React from 'react';
+import type { RoleCode, Scope } from './constants/roles';
+
+export type { RoleCode, Scope };
 
 export type CommissionTypeCategory =
   | 'piyasa_fiyat'
@@ -8,16 +11,13 @@ export type CommissionTypeCategory =
   | 'all'
   | 'none';
 
+/**
+ * Belge/Rol Görünürlük Kuralı:
+ * - 'show': Görünür (İmza / slot listesinde gösterilir)
+ * - 'hide': Gizli (Görünmez)
+ * - 'optional': İsteğe bağlı / Koşullu (Komisyonda/belgede atanmış üye/kişi varsa gösterilir)
+ */
 export type RoleVisibility = 'show' | 'hide' | 'optional';
-
-export type RoleCode =
-  | 'harcama_yetkilisi'
-  | 'ihale_yetkilisi'
-  | 'muhasebe'
-  | 'hazirlayan'
-  | 'talep_eden'
-  | 'onaylayan'
-  | 'gerceklestirme_gorevlisi';
 
 export interface TemplateCapabilities {
   supportsOlur: boolean;
@@ -38,6 +38,7 @@ export type TemplateType = {
   title: string;
   category: string;
   group?: TemplateGroup;
+  groups?: TemplateGroup[];
   description?: string;
   capabilities: TemplateCapabilities;
 };

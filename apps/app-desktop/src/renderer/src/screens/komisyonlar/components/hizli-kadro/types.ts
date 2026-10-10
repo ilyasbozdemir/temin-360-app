@@ -1,3 +1,5 @@
+import { DOC_GROUPS } from '@temin360/document-templates'
+
 export interface PersonelItem {
   id: number
   ad_soyad: string
@@ -19,8 +21,7 @@ export interface MemberRow {
   personelId: number | null
   asilMi: number // 1: Asil, 0: Yedek
   belgedeGoster: boolean // Resmi belgede gösterilsin mi?
-  belgeKapsami: string // 'tumu' | 'piyasa_arastirma' | 'muayene_kabul' | 'olur_onay' | 'ozel' | 'gizli'
-  hedefBelgeler?: string[]
+  belgeSablonIds: string[] | null // null => Tüm belgeler (varsayılan), [] => Hiçbir belge (gizli), [...] => Belirtilen şablonlar
 }
 
 export interface HizliKadroGuncelleModalProps {
@@ -32,45 +33,45 @@ export interface HizliKadroGuncelleModalProps {
 }
 
 export const DEFAULT_YAKLASIK_ROLES = [
-  { ad: 'Harcama Yetkilisi', asil: 1, belgedeGoster: true, belgeKapsami: 'olur_onay' },
-  { ad: 'Satın Alma Harcama Yetkilisi', asil: 1, belgedeGoster: true, belgeKapsami: 'olur_onay' },
-  { ad: 'Gerçekleştirme Görevlisi', asil: 1, belgedeGoster: true, belgeKapsami: 'olur_onay' },
-  { ad: 'Muhasebe Yetkilisi', asil: 1, belgedeGoster: false, belgeKapsami: 'gizli' },
+  { ad: 'Harcama Yetkilisi', asil: 1, belgedeGoster: true, belgeSablonIds: [...DOC_GROUPS.olur_onay] },
+  { ad: 'Satın Alma Harcama Yetkilisi', asil: 1, belgedeGoster: true, belgeSablonIds: [...DOC_GROUPS.olur_onay] },
+  { ad: 'Gerçekleştirme Görevlisi', asil: 1, belgedeGoster: true, belgeSablonIds: [...DOC_GROUPS.olur_onay] },
+  { ad: 'Muhasebe Yetkilisi', asil: 1, belgedeGoster: false, belgeSablonIds: [] },
   {
     ad: 'Fiyat Araştırma Görevlisi',
     asil: 1,
     belgedeGoster: true,
-    belgeKapsami: 'piyasa_arastirma'
+    belgeSablonIds: [...DOC_GROUPS.piyasa_arastirma]
   },
   {
     ad: 'Fiyat Araştırma Görevlisi',
     asil: 1,
     belgedeGoster: true,
-    belgeKapsami: 'piyasa_arastirma'
+    belgeSablonIds: [...DOC_GROUPS.piyasa_arastirma]
   },
   {
     ad: 'Fiyat Araştırma Görevlisi',
     asil: 1,
     belgedeGoster: true,
-    belgeKapsami: 'piyasa_arastirma'
+    belgeSablonIds: [...DOC_GROUPS.piyasa_arastirma]
   }
 ]
 
 export const DEFAULT_MUAYENE_ROLES = [
-  { ad: 'Komisyon Başkanı', asil: 1, belgedeGoster: true, belgeKapsami: 'muayene_kabul' },
-  { ad: 'Üye', asil: 1, belgedeGoster: true, belgeKapsami: 'muayene_kabul' },
-  { ad: 'Üye', asil: 1, belgedeGoster: true, belgeKapsami: 'muayene_kabul' },
-  { ad: 'Üye', asil: 0, belgedeGoster: true, belgeKapsami: 'muayene_kabul' },
-  { ad: 'Üye', asil: 0, belgedeGoster: true, belgeKapsami: 'muayene_kabul' }
+  { ad: 'Komisyon Başkanı', asil: 1, belgedeGoster: true, belgeSablonIds: [...DOC_GROUPS.muayene_kabul] },
+  { ad: 'Üye', asil: 1, belgedeGoster: true, belgeSablonIds: [...DOC_GROUPS.muayene_kabul] },
+  { ad: 'Üye', asil: 1, belgedeGoster: true, belgeSablonIds: [...DOC_GROUPS.muayene_kabul] },
+  { ad: 'Üye', asil: 0, belgedeGoster: true, belgeSablonIds: [...DOC_GROUPS.muayene_kabul] },
+  { ad: 'Üye', asil: 0, belgedeGoster: true, belgeSablonIds: [...DOC_GROUPS.muayene_kabul] }
 ]
 
 export function getDefaultScopeForRole(gorevAd: string): {
-  belgeKapsami: string
+  belgeSablonIds: string[] | null
   belgedeGoster: boolean
 } {
   const lower = (gorevAd || '').toLowerCase().trim()
   if (lower.includes('muhasebe')) {
-    return { belgeKapsami: 'gizli', belgedeGoster: false }
+    return { belgeSablonIds: [], belgedeGoster: false }
   }
   if (
     lower.includes('harcama') ||
@@ -79,7 +80,7 @@ export function getDefaultScopeForRole(gorevAd: string): {
     lower.includes('onay') ||
     lower.includes('olur')
   ) {
-    return { belgeKapsami: 'olur_onay', belgedeGoster: true }
+    return { belgeSablonIds: [...DOC_GROUPS.olur_onay], belgedeGoster: true }
   }
   if (
     lower.includes('fiyat') ||
@@ -87,11 +88,11 @@ export function getDefaultScopeForRole(gorevAd: string): {
     lower.includes('yaklaşık') ||
     lower.includes('yaklasik')
   ) {
-    return { belgeKapsami: 'piyasa_arastirma', belgedeGoster: true }
+    return { belgeSablonIds: [...DOC_GROUPS.piyasa_arastirma], belgedeGoster: true }
   }
   if (lower.includes('muayene') || lower.includes('kabul')) {
-    return { belgeKapsami: 'muayene_kabul', belgedeGoster: true }
+    return { belgeSablonIds: [...DOC_GROUPS.muayene_kabul], belgedeGoster: true }
   }
-  return { belgeKapsami: 'tumu', belgedeGoster: true }
+  return { belgeSablonIds: null, belgedeGoster: true }
 }
 

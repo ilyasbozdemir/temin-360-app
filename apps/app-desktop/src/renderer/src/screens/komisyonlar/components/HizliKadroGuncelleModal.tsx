@@ -32,8 +32,7 @@ export function HizliKadroGuncelleModal({
     handleSelectPersonel,
     handleSelectGorev,
     handleToggleAsil,
-    handleChangeBelgeKapsami,
-    handleChangeHedefBelgeler,
+    handleChangeBelgeSablonIds,
     handleLoadStandardTemplate,
     saveMutation
   } = useHizliKadro({
@@ -117,8 +116,7 @@ export function HizliKadroGuncelleModal({
                 onSelectGorev={handleSelectGorev}
                 onSelectPersonel={handleSelectPersonel}
                 onToggleAsil={handleToggleAsil}
-                onChangeBelgeKapsami={handleChangeBelgeKapsami}
-                onChangeHedefBelgeler={handleChangeHedefBelgeler}
+                onChangeBelgeSablonIds={handleChangeBelgeSablonIds}
                 onRemoveRow={handleRemoveRow}
               />
             ))

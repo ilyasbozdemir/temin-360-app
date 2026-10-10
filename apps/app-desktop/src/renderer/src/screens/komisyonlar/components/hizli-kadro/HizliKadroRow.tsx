@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Settings2, Trash2 } from 'lucide-react'
+import { DOC_GROUPS } from '@temin360/document-templates'
 import { GorevItem, MemberRow, PersonelItem } from './types'
 import { HizliKadroPersonelSelect } from './HizliKadroPersonelSelect'
 import { HizliKadroBelgeSecimModal } from './HizliKadroBelgeSecimModal'
@@ -20,8 +21,7 @@ interface HizliKadroRowProps {
   ) => void
   onSelectPersonel: (rowId: string | number, pId: number | null) => void
   onToggleAsil: (rowId: string | number) => void
-  onChangeBelgeKapsami: (rowId: string | number, kapsama: string) => void
-  onChangeHedefBelgeler: (rowId: string | number, docs: string[]) => void
+  onChangeBelgeSablonIds: (rowId: string | number, sablonIds: string[] | null) => void
   onRemoveRow: (rowId: string | number) => void
 }
 
@@ -37,14 +37,32 @@ export const HizliKadroRow: React.FC<HizliKadroRowProps> = ({
   onSelectGorev,
   onSelectPersonel,
   onToggleAsil,
-  onChangeBelgeKapsami,
-  onChangeHedefBelgeler,
+  onChangeBelgeSablonIds,
   onRemoveRow
 }) => {
   const [isBelgeModalOpen, setIsBelgeModalOpen] = useState(false)
   const assignedPerson = personeller.find((p) => p.id === row.personelId)
-  const isHidden = row.belgeKapsami === 'gizli' || !row.belgedeGoster
-  const selectedDocCount = Array.isArray(row.hedefBelgeler) ? row.hedefBelgeler.length : 0
+  const isHidden = Array.isArray(row.belgeSablonIds) && row.belgeSablonIds.length === 0
+
+  const getPresetKey = (sablonIds: string[] | null): string => {
+    if (sablonIds === null) return 'tumu'
+    if (sablonIds.length === 0) return 'gizli'
+
+    const equalsGroup = (groupKey: keyof typeof DOC_GROUPS) => {
+      const group = DOC_GROUPS[groupKey]
+      if (sablonIds.length !== group.length) return false
+      return group.every((id) => sablonIds.includes(id))
+    }
+
+    if (equalsGroup('piyasa_arastirma')) return 'piyasa_arastirma'
+    if (equalsGroup('muayene_kabul')) return 'muayene_kabul'
+    if (equalsGroup('olur_onay')) return 'olur_onay'
+
+    return 'ozel'
+  }
+
+  const currentPreset = getPresetKey(row.belgeSablonIds)
+  const selectedDocCount = Array.isArray(row.belgeSablonIds) ? row.belgeSablonIds.length : 0
 
   return (
     <div
@@ -118,11 +136,20 @@ export const HizliKadroRow: React.FC<HizliKadroRowProps> = ({
       {/* Belge Kapsamı Seçimi & Granüler Şablon Butonu */}
       <div className="flex items-center gap-1.5 w-full">
         <select
-          value={row.belgeKapsami || (row.belgedeGoster ? 'tumu' : 'gizli')}
+          value={currentPreset}
           onChange={(e) => {
             const val = e.target.value
-            onChangeBelgeKapsami(row.id, val)
-            if (val === 'ozel') {
+            if (val === 'tumu') {
+              onChangeBelgeSablonIds(row.id, null)
+            } else if (val === 'gizli') {
+              onChangeBelgeSablonIds(row.id, [])
+            } else if (val === 'piyasa_arastirma') {
+              onChangeBelgeSablonIds(row.id, [...DOC_GROUPS.piyasa_arastirma])
+            } else if (val === 'muayene_kabul') {
+              onChangeBelgeSablonIds(row.id, [...DOC_GROUPS.muayene_kabul])
+            } else if (val === 'olur_onay') {
+              onChangeBelgeSablonIds(row.id, [...DOC_GROUPS.olur_onay])
+            } else if (val === 'ozel') {
               setIsBelgeModalOpen(true)
             }
           }}
@@ -130,7 +157,7 @@ export const HizliKadroRow: React.FC<HizliKadroRowProps> = ({
           className={`w-full text-xs font-semibold rounded-xl px-2 py-1.5 border outline-none cursor-pointer transition-all ${
             isHidden
               ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700'
-              : row.belgeKapsami === 'ozel'
+              : currentPreset === 'ozel'
                 ? 'bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 focus:ring-2 focus:ring-indigo-500/20'
                 : 'bg-blue-50/60 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 focus:ring-2 focus:ring-blue-500/20'
           }`}
@@ -140,17 +167,17 @@ export const HizliKadroRow: React.FC<HizliKadroRowProps> = ({
           <option value="muayene_kabul">🔬 Sadece Muayene & Kabul</option>
           <option value="olur_onay">📑 Sadece Olur / Onay</option>
           <option value="ozel">
-            🎯 Özel Şablon Seçimi {selectedDocCount > 0 ? `(${selectedDocCount})` : ''}
+            🎯 Özel Şablon Seçimi {currentPreset === 'ozel' && selectedDocCount > 0 ? `(${selectedDocCount})` : ''}
           </option>
           <option value="gizli">🚫 Hiçbir Belgede (Gizli)</option>
         </select>
 
-        {row.belgeKapsami === 'ozel' && (
+        {row.belgeSablonIds !== null && (
           <button
             type="button"
             onClick={() => setIsBelgeModalOpen(true)}
             className="p-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-800/60 transition-colors shrink-0"
-            title="Şablonları Düzenle"
+            title="Şablonları Düzenle / İnce Ayar"
           >
             <Settings2 className="w-3.5 h-3.5" />
           </button>
@@ -174,9 +201,9 @@ export const HizliKadroRow: React.FC<HizliKadroRowProps> = ({
           onClose={() => setIsBelgeModalOpen(false)}
           memberName={assignedPerson?.ad_soyad || ''}
           memberGorev={row.gorevAd}
-          selectedDocs={row.hedefBelgeler || []}
+          selectedDocs={row.belgeSablonIds || []}
           onSave={(docs) => {
-            onChangeHedefBelgeler(row.id, docs)
+            onChangeBelgeSablonIds(row.id, docs)
           }}
         />
       )}

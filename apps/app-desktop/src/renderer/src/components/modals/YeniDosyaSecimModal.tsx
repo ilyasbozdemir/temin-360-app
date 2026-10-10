@@ -1,23 +1,12 @@
 import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from '@tanstack/react-router'
-import {
-  Package,
-  Wrench,
-  Hammer,
-  GraduationCap,
-  Building,
-  Copy,
-  FileSpreadsheet,
-  X,
-  ArrowRight,
-  Sparkles,
-  Zap
-} from 'lucide-react'
+import { ArrowRight, Building, Copy, FileSpreadsheet, Sparkles, X, Zap } from 'lucide-react'
 import { cn } from '../../utils/cn'
-import { useDosyalarHooks, TeminDosyasi } from '../../screens/dosyalar/dosyalar.hooks'
+import { TeminDosyasi, useDosyalarHooks } from '../../screens/dosyalar/dosyalar.hooks'
 import { EskiDosyaKopyalaModal } from '../../screens/dosyalar/components/EskiDosyaKopyalaModal'
 import { cloneDosyaWithItems } from '../../utils/cloneDosya'
+import { TEMIN_TURLERI, teminMeta, type TeminTuruId } from '../../constants/teminTurleri'
 
 export interface YeniDosyaSecimModalProps {
   isOpen: boolean
@@ -35,7 +24,7 @@ export function YeniDosyaSecimModal({
 
   if (!isOpen) return null
 
-  const handleSelectTeminTur = (tur: 'mal' | 'hizmet' | 'yapim_isi' | 'danismanlik') => {
+  const handleSelectTeminTur = (tur: TeminTuruId) => {
     onClose()
     navigate({
       to: '/dosyalar/yeni',
@@ -80,57 +69,12 @@ export function YeniDosyaSecimModal({
     navigate({ to: '/import' })
   }
 
-  const teminTurleri = [
-    {
-      id: 'mal',
-      title: 'Mal Alımı',
-      badge: '4734 / 22-d & 22-a',
-      badgeColor:
-        'bg-blue-100 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300 border-blue-200 dark:border-blue-800',
-      desc: 'Tüketim malzemesi, kırtasiye, donanım, makine, tıbbi cihaz ve sarf alımları.',
-      icon: Package,
-      iconColor: 'text-blue-600 dark:text-blue-400 bg-blue-500/10 dark:bg-blue-500/20',
-      borderHover: 'hover:border-blue-500/50 hover:bg-blue-50/40 dark:hover:bg-blue-950/20'
-    },
-    {
-      id: 'hizmet',
-      title: 'Hizmet Alımı',
-      badge: '4734 / 22-d',
-      badgeColor:
-        'bg-violet-100 text-violet-700 dark:bg-violet-950/80 dark:text-violet-300 border-violet-200 dark:border-violet-800',
-      desc: 'Bakım-onarım, araç kiralama, temizlik, yemek, organizasyon ve servis hizmetleri.',
-      icon: Wrench,
-      iconColor: 'text-violet-600 dark:text-violet-400 bg-violet-500/10 dark:bg-violet-500/20',
-      borderHover: 'hover:border-violet-500/50 hover:bg-violet-50/40 dark:hover:bg-violet-950/20'
-    },
-    {
-      id: 'yapim_isi',
-      title: 'Yapım İşi / Onarım',
-      badge: '4734 / 22-d',
-      badgeColor:
-        'bg-amber-100 text-amber-700 dark:bg-amber-950/80 dark:text-amber-300 border-amber-200 dark:border-amber-800',
-      desc: 'Bina tadilatı, tesisat/elektrik yenileme, küçük inşaat ve bakım-onarım işleri.',
-      icon: Hammer,
-      iconColor: 'text-amber-600 dark:text-amber-400 bg-amber-500/10 dark:bg-amber-500/20',
-      borderHover: 'hover:border-amber-500/50 hover:bg-amber-50/40 dark:hover:bg-amber-950/20'
-    },
-    {
-      id: 'danismanlik',
-      title: 'Danışmanlık Hizmeti',
-      badge: 'Teknik & Müşavirlik',
-      badgeColor:
-        'bg-pink-100 text-pink-700 dark:bg-pink-950/80 dark:text-pink-300 border-pink-200 dark:border-pink-800',
-      desc: 'Proje hazırlama, mimari etüt, harita, kontrollük ve müşavirlik hizmet alımları.',
-      icon: GraduationCap,
-      iconColor: 'text-pink-600 dark:text-pink-400 bg-pink-500/10 dark:bg-pink-500/20',
-      borderHover: 'hover:border-pink-500/50 hover:bg-pink-50/40 dark:hover:bg-pink-950/20'
-    }
-  ]
+  const teminTurleriList = TEMIN_TURLERI.map((t) => teminMeta(t.id)!).filter(Boolean)
 
   return createPortal(
     <div
       className="fixed inset-0 z-[99999] overflow-y-auto p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs flex min-h-full items-center justify-center animate-in fade-in duration-200"
-      style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+      style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
       onClick={onClose}
     >
       <div
@@ -175,13 +119,13 @@ export function YeniDosyaSecimModal({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {teminTurleri.map((item) => {
+              {teminTurleriList.map((item) => {
                 const Icon = item.icon
                 return (
                   <button
                     key={item.id}
                     type="button"
-                    onClick={() => handleSelectTeminTur(item.id as any)}
+                    onClick={() => handleSelectTeminTur(item.id)}
                     className={cn(
                       'group flex items-start gap-3.5 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 text-left transition-all duration-200 cursor-pointer bg-white dark:bg-slate-900/60 shadow-xs hover:shadow-md',
                       item.borderHover
@@ -198,7 +142,7 @@ export function YeniDosyaSecimModal({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-1.5 mb-1">
                         <span className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                          {item.title}
+                          {item.label}
                         </span>
                         <span
                           className={cn(
@@ -206,7 +150,7 @@ export function YeniDosyaSecimModal({
                             item.badgeColor
                           )}
                         >
-                          {item.badge}
+                          {item.mevzuatAtfi}
                         </span>
                       </div>
                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
@@ -219,12 +163,70 @@ export function YeniDosyaSecimModal({
             </div>
           </div>
 
-          {/* Bölüm 2: Hakediş & İhale Süreç Yönetimi */}
+          {/* Bölüm 2: 2886 Sayılı Devlet İhale Kanunu Süreçleri */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Building className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                2. 2886 Sayılı Devlet İhale Kanunu (Taşınmaz Satış & Kiralama)
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => handleSelectTeminTur('kira_2886')}
+                className="group flex items-start gap-3.5 p-4 rounded-2xl border border-teal-200/80 dark:border-teal-800/40 bg-teal-50/40 dark:bg-teal-950/20 text-left transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md hover:border-teal-400"
+              >
+                <div className="p-2.5 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 shrink-0 group-hover:scale-105 transition-transform">
+                  <Building className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-1.5 mb-1">
+                    <span className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-600 transition-colors">
+                      Taşınmaz Kiralama (2886)
+                    </span>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300 border-teal-200 dark:border-teal-800">
+                      Md. 45 & 51/g
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
+                    Kamu taşınmazlarının kiraya verilmesi, ecrimisil ve irtifak hakkı ihale şartnameleri.
+                  </p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectTeminTur('satis_2886')}
+                className="group flex items-start gap-3.5 p-4 rounded-2xl border border-rose-200/80 dark:border-rose-800/40 bg-rose-50/40 dark:bg-rose-950/20 text-left transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md hover:border-rose-400"
+              >
+                <div className="p-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 shrink-0 group-hover:scale-105 transition-transform">
+                  <Building className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-1.5 mb-1">
+                    <span className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-rose-600 transition-colors">
+                      Taşınmaz / Taşınır Satışı (2886)
+                    </span>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border-rose-200 dark:border-rose-800">
+                      Md. 45 & 35/a
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
+                    Devlet ve belediye taşınmazı/taşınırının ihale ile satışı ve mülkiyet devri.
+                  </p>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Bölüm 3: Hakediş & Sözleşmeli Süreç Yönetimi */}
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Building className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                2. Hakediş & Sözleşmeli Süreç Yönetimi
+                3. Hakediş & Sözleşmeli Süreç Yönetimi
               </h3>
             </div>
 
@@ -247,8 +249,7 @@ export function YeniDosyaSecimModal({
                     </span>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    İhale veya sözleşmeye bağlı işlerde ara/kesin hakediş raporu, metraj ve kesinti
-                    takibi.
+                    İhale veya sözleşmeye bağlı işlerde ara/kesin hakediş raporu, metraj ve kesinti takibi.
                   </p>
                 </div>
               </div>
@@ -256,12 +257,12 @@ export function YeniDosyaSecimModal({
             </button>
           </div>
 
-          {/* Bölüm 3: Hızlı Seçenekler / Kopyalama & Excel */}
+          {/* Bölüm 4: Hızlı Seçenekler / Kopyalama & Excel */}
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Copy className="w-4 h-4 text-slate-500" />
               <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                3. Hızlı Başlangıç & İçe Aktarma
+                4. Hızlı Başlangıç & İçe Aktarma
               </h3>
             </div>
 
@@ -279,7 +280,8 @@ export function YeniDosyaSecimModal({
                     Mevcut Dosyadan Kopyala
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">
-                    Kayıtlı eski dosyalardan kalemleri ve kurum bilgilerini klonlayarak başlatır.
+                    Kayıtlı eski dosyalardan kalemleri ve kurum bilgilerini
+                    klonlayarak başlatır.
                   </p>
                 </div>
               </button>
@@ -297,7 +299,8 @@ export function YeniDosyaSecimModal({
                     Excel / .DTE İçe Aktar
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">
-                    Excel tablosundan veya dış veri dosyasından toplu dosya ve malzeme aktarımı.
+                    Excel tablosundan veya dış veri dosyasından toplu dosya ve
+                    malzeme aktarımı.
                   </p>
                 </div>
               </button>
@@ -325,6 +328,6 @@ export function YeniDosyaSecimModal({
         onSelect={handleExecuteClone}
       />
     </div>,
-    document.body
-  )
+    document.body,
+  );
 }

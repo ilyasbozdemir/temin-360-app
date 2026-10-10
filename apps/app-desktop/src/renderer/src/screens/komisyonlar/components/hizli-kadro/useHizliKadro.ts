@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { DOC_GROUPS } from '@temin360/document-templates'
 import {
   DEFAULT_MUAYENE_ROLES,
   DEFAULT_YAKLASIK_ROLES,
@@ -162,22 +163,37 @@ export function useHizliKadro({
           }
         }
 
+        const extractBelgeSablonIds = (m: any): string[] | null => {
+          const isShow =
+            m.belgede_goster !== 0 &&
+            m.belgede_goster !== false &&
+            m.belgede_goster !== '0' &&
+            m.belgede_goster !== 'false'
+
+          const scope = m.belge_kapsami ? String(m.belge_kapsami).trim().toLowerCase() : ''
+          const parsedDocs = parseDocs(m.hedef_belgeler)
+
+          if (scope === 'gizli' || !isShow) {
+            return []
+          }
+          if (scope === 'tumu' || parsedDocs.includes('*') || parsedDocs.includes('all')) {
+            return null
+          }
+          if (parsedDocs.length > 0) {
+            return parsedDocs
+          }
+          if (scope && DOC_GROUPS[scope as keyof typeof DOC_GROUPS]) {
+            return [...DOC_GROUPS[scope as keyof typeof DOC_GROUPS]]
+          }
+          return null
+        }
+
         // 3. Birleştirme (Dosyaya özel veriler varsa onları, eksik kalan kadroları master'dan tamamla)
         let finalMembers: MemberRow[] = []
 
         if (fileData.length > 0) {
           const fileMapped: MemberRow[] = fileData.map((m: any) => {
-            const isShow =
-              m.belgede_goster !== 0 &&
-              m.belgede_goster !== false &&
-              m.belgede_goster !== '0' &&
-              m.belgede_goster !== 'false'
-            const scope =
-              m.belge_kapsami && m.belge_kapsami !== ''
-                ? m.belge_kapsami
-                : isShow
-                  ? 'tumu'
-                  : 'gizli'
+            const sablonIds = extractBelgeSablonIds(m)
             return {
               id: m.id,
               dbUyeId: m.id,
@@ -185,9 +201,8 @@ export function useHizliKadro({
               gorevAd: m.gorev || 'Üye',
               personelId: m.personel_id || null,
               asilMi: (m.rol || '').toLowerCase().includes('yedek') ? 0 : 1,
-              belgedeGoster: scope !== 'gizli',
-              belgeKapsami: scope,
-              hedefBelgeler: parseDocs(m.hedef_belgeler)
+              belgedeGoster: sablonIds === null || sablonIds.length > 0,
+              belgeSablonIds: sablonIds
             }
           })
 
@@ -204,17 +219,7 @@ export function useHizliKadro({
             ) {
               continue
             }
-            const isShow =
-              m.belgede_goster !== 0 &&
-              m.belgede_goster !== false &&
-              m.belgede_goster !== '0' &&
-              m.belgede_goster !== 'false'
-            const scope =
-              m.belge_kapsami && m.belge_kapsami !== ''
-                ? m.belge_kapsami
-                : isShow
-                  ? 'tumu'
-                  : 'gizli'
+            const sablonIds = extractBelgeSablonIds(m)
             fileMapped.push({
               id: `master_extra_${m.db_id}`,
               dbUyeId: m.db_id,
@@ -222,25 +227,14 @@ export function useHizliKadro({
               gorevAd: m.gorev_adi || 'Üye',
               personelId: mPid,
               asilMi: m.asil_mi ?? 1,
-              belgedeGoster: scope !== 'gizli',
-              belgeKapsami: scope,
-              hedefBelgeler: parseDocs(m.hedef_belgeler)
+              belgedeGoster: sablonIds === null || sablonIds.length > 0,
+              belgeSablonIds: sablonIds
             })
           }
           finalMembers = fileMapped
         } else if (masterData.length > 0) {
           finalMembers = masterData.map((m: any) => {
-            const isShow =
-              m.belgede_goster !== 0 &&
-              m.belgede_goster !== false &&
-              m.belgede_goster !== '0' &&
-              m.belgede_goster !== 'false'
-            const scope =
-              m.belge_kapsami && m.belge_kapsami !== ''
-                ? m.belge_kapsami
-                : isShow
-                  ? 'tumu'
-                  : 'gizli'
+            const sablonIds = extractBelgeSablonIds(m)
             return {
               id: m.db_id,
               dbUyeId: m.db_id,
@@ -248,9 +242,8 @@ export function useHizliKadro({
               gorevAd: m.gorev_adi || 'Üye',
               personelId: m.personel_id || null,
               asilMi: m.asil_mi ?? 1,
-              belgedeGoster: scope !== 'gizli',
-              belgeKapsami: scope,
-              hedefBelgeler: parseDocs(m.hedef_belgeler)
+              belgedeGoster: sablonIds === null || sablonIds.length > 0,
+              belgeSablonIds: sablonIds
             }
           })
         } else {
@@ -265,8 +258,7 @@ export function useHizliKadro({
             personelId: null,
             asilMi: t.asil,
             belgedeGoster: t.belgedeGoster,
-            belgeKapsami: t.belgeKapsami || (t.belgedeGoster ? 'tumu' : 'gizli'),
-            hedefBelgeler: []
+            belgeSablonIds: t.belgeSablonIds
           }))
         }
 
@@ -286,7 +278,7 @@ export function useHizliKadro({
 
   const handleAddRow = (gorevAd = 'Üye', asil = 1) => {
     const matchedGorev = gorevler.find((g) => g.ad.toLowerCase() === gorevAd.toLowerCase())
-    const { belgeKapsami, belgedeGoster } = getDefaultScopeForRole(gorevAd)
+    const { belgeSablonIds, belgedeGoster } = getDefaultScopeForRole(gorevAd)
     setRows((prev) => [
       ...prev,
       {
@@ -297,7 +289,7 @@ export function useHizliKadro({
         personelId: null,
         asilMi: asil,
         belgedeGoster,
-        belgeKapsami
+        belgeSablonIds
       }
     ])
   }
@@ -313,7 +305,7 @@ export function useHizliKadro({
   }
 
   const handleSelectGorev = (rowId: string | number, gorevAd: string, gorevId: number | null) => {
-    const { belgeKapsami, belgedeGoster } = getDefaultScopeForRole(gorevAd)
+    const { belgeSablonIds, belgedeGoster } = getDefaultScopeForRole(gorevAd)
     setRows((prev) =>
       prev.map((r) =>
         r.id === rowId
@@ -321,7 +313,7 @@ export function useHizliKadro({
               ...r,
               gorevAd,
               gorevId,
-              belgeKapsami,
+              belgeSablonIds,
               belgedeGoster
             }
           : r
@@ -335,29 +327,14 @@ export function useHizliKadro({
     )
   }
 
-  const handleChangeBelgeKapsami = (rowId: string | number, kapsama: string) => {
+  const handleChangeBelgeSablonIds = (rowId: string | number, sablonIds: string[] | null) => {
     setRows((prev) =>
       prev.map((r) =>
         r.id === rowId
           ? {
               ...r,
-              belgeKapsami: kapsama,
-              belgedeGoster: kapsama !== 'gizli'
-            }
-          : r
-      )
-    )
-  }
-
-  const handleChangeHedefBelgeler = (rowId: string | number, docs: string[]) => {
-    setRows((prev) =>
-      prev.map((r) =>
-        r.id === rowId
-          ? {
-              ...r,
-              belgeKapsami: 'ozel',
-              hedefBelgeler: docs,
-              belgedeGoster: docs.length > 0
+              belgeSablonIds: sablonIds,
+              belgedeGoster: sablonIds === null || sablonIds.length > 0
             }
           : r
       )
@@ -368,11 +345,11 @@ export function useHizliKadro({
     setRows((prev) =>
       prev.map((r) => {
         if (r.id !== rowId) return r
-        const newGoster = !r.belgedeGoster
+        const isCurrentlyHidden = Array.isArray(r.belgeSablonIds) && r.belgeSablonIds.length === 0
         return {
           ...r,
-          belgedeGoster: newGoster,
-          belgeKapsami: newGoster ? 'tumu' : 'gizli'
+          belgedeGoster: isCurrentlyHidden,
+          belgeSablonIds: isCurrentlyHidden ? null : []
         }
       })
     )
@@ -392,8 +369,7 @@ export function useHizliKadro({
         personelId: rows[idx]?.personelId || null,
         asilMi: t.asil,
         belgedeGoster: t.belgedeGoster,
-        belgeKapsami: t.belgeKapsami || (t.belgedeGoster ? 'tumu' : 'gizli'),
-        hedefBelgeler: []
+        belgeSablonIds: t.belgeSablonIds
       }
     })
     setRows(newRows)
@@ -439,71 +415,46 @@ export function useHizliKadro({
         }
       }
 
-      // TANIM_KomisyonUye - belgede_goster, belge_kapsami & hedef_belgeler dahil kaydet
-      await window.electron.ipcRenderer.invoke(
-        'db:run',
-        'DELETE FROM TANIM_KomisyonUye WHERE komisyon_id = ?',
-        [komisyonId]
-      )
+      // Atomic Transaction hazırlanıyor
+      const txStatements: { sql: string; params: any[] }[] = []
+
+      // 1. TANIM_KomisyonUye temizleme ve toplu ekleme
+      txStatements.push({
+        sql: 'DELETE FROM TANIM_KomisyonUye WHERE komisyon_id = ?',
+        params: [komisyonId]
+      })
 
       for (let i = 0; i < rows.length; i++) {
         const r = rows[i]
-        const isShow = r.belgeKapsami !== 'gizli'
-        const hedefJson = JSON.stringify(r.hedefBelgeler && r.hedefBelgeler.length > 0 ? r.hedefBelgeler : ['*'])
-        await window.electron.ipcRenderer.invoke(
-          'db:run',
-          'INSERT INTO TANIM_KomisyonUye (komisyon_id, gorev_id, personel_id, asil_mi, sira, belgede_goster, belge_kapsami, hedef_belgeler) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-          [
+        const isShow = r.belgeSablonIds === null || r.belgeSablonIds.length > 0
+        const scope = r.belgeSablonIds === null ? 'tumu' : r.belgeSablonIds.length === 0 ? 'gizli' : 'ozel'
+        const hedefJson = JSON.stringify(r.belgeSablonIds === null ? ['*'] : r.belgeSablonIds)
+        txStatements.push({
+          sql: 'INSERT INTO TANIM_KomisyonUye (komisyon_id, gorev_id, personel_id, asil_mi, sira, belgede_goster, belge_kapsami, hedef_belgeler) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          params: [
             komisyonId,
             r.gorevId || 1,
             r.personelId || null,
             r.asilMi,
             i + 1,
             isShow ? 1 : 0,
-            r.belgeKapsami || (isShow ? 'tumu' : 'gizli'),
+            scope,
             hedefJson
           ]
-        )
+        })
       }
 
-      // Aktif dosyaya senkronize et (belgede_goster, belge_kapsami & hedef_belgeler dahil)
+      // 2. Aktif dosyaya senkronize et
       if (syncToActiveFile && activeDosyaId) {
         const lower = komisyonAdi.toLowerCase()
         const isMaliyet = lower.includes('maliyet') || lower.includes('fiyat') || komisyonId === 1
 
-        try {
-          await window.electron.ipcRenderer
-            .invoke('db:run', 'ALTER TABLE DATA_TeminKomisyon ADD COLUMN komisyon_turu TEXT')
-            .catch(() => {})
-          await window.electron.ipcRenderer
-            .invoke(
-              'db:run',
-              'ALTER TABLE DATA_TeminKomisyon ADD COLUMN belgede_goster INTEGER DEFAULT 1'
-            )
-            .catch(() => {})
-          await window.electron.ipcRenderer
-            .invoke(
-              'db:run',
-              "ALTER TABLE DATA_TeminKomisyon ADD COLUMN belge_kapsami TEXT DEFAULT 'tumu'"
-            )
-            .catch(() => {})
-          await window.electron.ipcRenderer
-            .invoke(
-              'db:run',
-              'ALTER TABLE DATA_TeminKomisyon ADD COLUMN hedef_belgeler TEXT DEFAULT \'["*"]\''
-            )
-            .catch(() => {})
-        } catch {
-          /* zaten mevcut */
-        }
-
-        await window.electron.ipcRenderer.invoke(
-          'db:run',
-          isMaliyet
+        txStatements.push({
+          sql: isMaliyet
             ? `DELETE FROM DATA_TeminKomisyon WHERE temin_dosya_id = ? AND (komisyon_id = ? OR komisyon_id = 1 OR LOWER(COALESCE(komisyon_turu, '')) LIKE '%maliyet%' OR LOWER(COALESCE(komisyon_turu, '')) LIKE '%fiyat%')`
             : `DELETE FROM DATA_TeminKomisyon WHERE temin_dosya_id = ? AND (komisyon_id = ? OR komisyon_id = 2 OR LOWER(COALESCE(komisyon_turu, '')) LIKE '%muayene%' OR LOWER(COALESCE(komisyon_turu, '')) LIKE '%kabul%')`,
-          [activeDosyaId, komisyonId]
-        )
+          params: [activeDosyaId, komisyonId]
+        })
 
         const insertedPids = new Set<number>()
         for (const r of rows) {
@@ -517,14 +468,14 @@ export function useHizliKadro({
                   : r.gorevAd.toLowerCase().includes('başkan')
                     ? 'Başkan'
                     : 'Üye'
-              const isShow = r.belgeKapsami !== 'gizli'
-              const hedefJson = JSON.stringify(r.hedefBelgeler && r.hedefBelgeler.length > 0 ? r.hedefBelgeler : ['*'])
-              await window.electron.ipcRenderer.invoke(
-                'db:run',
-                `INSERT INTO DATA_TeminKomisyon 
-                 (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu, belgede_goster, belge_kapsami, hedef_belgeler)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
+              const isShow = r.belgeSablonIds === null || r.belgeSablonIds.length > 0
+              const scope = r.belgeSablonIds === null ? 'tumu' : r.belgeSablonIds.length === 0 ? 'gizli' : 'ozel'
+              const hedefJson = JSON.stringify(r.belgeSablonIds === null ? ['*'] : r.belgeSablonIds)
+              txStatements.push({
+                sql: `INSERT INTO DATA_TeminKomisyon 
+                      (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu, belgede_goster, belge_kapsami, hedef_belgeler)
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                params: [
                   activeDosyaId,
                   komisyonId,
                   p.id,
@@ -534,13 +485,19 @@ export function useHizliKadro({
                   rol,
                   komisyonAdi,
                   isShow ? 1 : 0,
-                  r.belgeKapsami || (isShow ? 'tumu' : 'gizli'),
+                  scope,
                   hedefJson
                 ]
-              )
+              })
             }
           }
         }
+      }
+
+      // Tekil atomic transaction çalıştır
+      const txRes = await window.electron.ipcRenderer.invoke('db:transaction', txStatements)
+      if (txRes && txRes.success === false) {
+        throw new Error(txRes.error || 'Veritabanı transaction kaydedilemedi.')
       }
 
       return true
@@ -582,8 +539,7 @@ export function useHizliKadro({
     handleSelectPersonel,
     handleSelectGorev,
     handleToggleAsil,
-    handleChangeBelgeKapsami,
-    handleChangeHedefBelgeler,
+    handleChangeBelgeSablonIds,
     handleToggleBelgedeGoster,
     handleLoadStandardTemplate,
     saveMutation

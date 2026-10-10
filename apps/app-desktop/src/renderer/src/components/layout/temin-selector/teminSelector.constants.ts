@@ -116,25 +116,20 @@ export const DEFAULT_2886_DOSYALAR: Dosya2886Item[] = [
   }
 ]
 
-export const TUR_LABEL: Record<string, string> = {
-  mal: 'Mal Alımı',
-  hizmet: 'Hizmet',
-  yapim_isi: 'Yapım İşi',
-  danismanlik: 'Danışmanlık',
-  hakedis: 'Hakediş',
-  ihale: 'İhale'
-}
+import { teminKisaLabel, teminMeta } from '../../../constants/teminTurleri'
 
-export const TUR_COLOR: Record<string, string> = {
-  mal: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 border-blue-200 dark:border-blue-800',
-  hizmet:
-    'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 border-purple-200 dark:border-purple-800',
-  yapim_isi:
-    'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 border-amber-200 dark:border-amber-800',
-  danismanlik:
-    'bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300 border-pink-200 dark:border-pink-800',
-  hakedis:
-    'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
-  ihale:
-    'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800'
-}
+export const TUR_LABEL: Record<string, string> = new Proxy(
+  {},
+  {
+    get: (_, prop: string) => teminKisaLabel(prop)
+  }
+)
+
+export const TUR_COLOR: Record<string, string> = new Proxy(
+  {},
+  {
+    get: (_, prop: string) =>
+      teminMeta(prop)?.badgeColor ??
+      'bg-slate-100 text-slate-600 border-slate-200'
+  }
+)

@@ -5,7 +5,6 @@ import {
   Edit2,
   FileText,
   Printer,
-  Settings,
   ShieldCheck,
   Trash2,
   Users,
@@ -24,7 +23,6 @@ interface KomisyonCardProps {
   onDeleteKomisyon: (id: number) => void
   onOpenPreview: (sablon: any, title: string) => void
   onOpenDetails: (id: number) => void
-  onManageBelgeler?: (komisyon: { id: number; ad: string }) => void
   activeDosyaId?: number | null
 }
 
@@ -39,7 +37,6 @@ export const KomisyonCard: React.FC<KomisyonCardProps> = ({
   onDeleteKomisyon,
   onOpenPreview,
   onOpenDetails,
-  onManageBelgeler,
   activeDosyaId
 }) => {
   const assignedMembers = komisyon.uyeler?.filter((m: any) => m.personel_id || m.ad_soyad) || []
@@ -190,17 +187,6 @@ export const KomisyonCard: React.FC<KomisyonCardProps> = ({
               <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             )}
           </button>
-
-          {onManageBelgeler && (
-            <button
-              type="button"
-              onClick={() => onManageBelgeler({ id: komisyon.id, ad: komisyon.ad })}
-              className="p-2 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 border border-slate-200 dark:border-slate-800 rounded-xl transition-all flex items-center justify-center shrink-0 cursor-pointer"
-              title="Üretilebilir Belgeleri Yönet"
-            >
-              <Settings className="w-3.5 h-3.5" />
-            </button>
-          )}
         </div>
 
         {expanded && (

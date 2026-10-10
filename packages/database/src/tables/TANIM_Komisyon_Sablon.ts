@@ -4,7 +4,7 @@ export const TANIM_Komisyon_Sablon = {
   columns: [
     { name: 'id', type: 'INTEGER', primaryKey: true, autoIncrement: true },
     { name: 'komisyon_id', type: 'INTEGER', notNull: true, description: 'Komisyon ID' },
-    { name: 'sablon_id', type: 'INTEGER', notNull: true, description: 'Sablon ID' },
+    { name: 'sablon_id', type: 'TEXT', notNull: true, description: 'Sablon Kodu / ID (Örn: piyasa-fiyat-arastirma-tutanagi)' },
     { name: 'belge_turu', type: 'TEXT', description: 'Belge Turu' },
     {
       name: 'created_at',
@@ -20,8 +20,7 @@ export const TANIM_Komisyon_Sablon = {
     }
   ],
   constraints: [
-    'FOREIGN KEY(komisyon_id) REFERENCES TANIM_Komisyon(id) ON DELETE CASCADE',
-    'FOREIGN KEY(sablon_id) REFERENCES TANIM_Sablon(id) ON DELETE CASCADE'
+    'FOREIGN KEY(komisyon_id) REFERENCES TANIM_Komisyon(id) ON DELETE CASCADE'
   ],
   initialData: []
 }
