@@ -151,6 +151,18 @@ export const DocumentLayout = React.forwardRef<
           }}
           className="document-content"
         >
+          {/* EKSTRA BOŞLUK (KAYDIRMA / MARGIN PUSH) */}
+          {(pageNumber === undefined || pageNumber === 1) &&
+            Number((data as any)?.ekstraBosluk || 0) > 0 && (
+              <div
+                style={{
+                  height: `${Number((data as any).ekstraBosluk)}px`,
+                  width: "100%",
+                  transition: "height 0.2s ease",
+                }}
+                aria-hidden="true"
+              />
+            )}
           {children}
         </div>
 

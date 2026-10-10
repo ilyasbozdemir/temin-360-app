@@ -167,14 +167,7 @@ export function IhtiyacListesi({
               </>
             )}
 
-            {isFirstPage && Number((data as any).ekstraBosluk || 0) > 0 && (
-              <div
-                style={{
-                  height: `${Number((data as any).ekstraBosluk)}px`,
-                  transition: "height 0.2s ease",
-                }}
-              />
-            )}
+
 
             <DocumentTable
               columns={columns}

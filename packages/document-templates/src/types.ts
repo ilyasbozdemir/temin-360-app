@@ -32,6 +32,58 @@ export interface TemplateCapabilities {
 
 export type TemplateGroup = 'piyasa_arastirma' | 'muayene_kabul' | 'olur_onay';
 
+/**
+ * Belgenin sunulacağı makam yönlendirme modu (Katman A)
+ */
+export type RecipientMode = 'role' | 'commission' | 'unit' | 'none';
+
+/**
+ * İmza zorunluluğunun dayanak kaynağı
+ */
+export type RequirementSource =
+  | 'statutory'            // Hukuken / Mevzuaten Zorunlu (Örn: 5018 S.K. Harcama Yetkilisi Oluru)
+  | 'administrative'       // İdari Usul / Yönetmelik Gereği (Örn: Muayene Kabul Tutanak Onayı)
+  | 'optional_custom'      // Kurum Tercihine Bağlı / İsteğe Bağlı
+  | 'unspecified';         // Dayanağı henüz belirtilmemiş / nötr durum
+
+/**
+ * Metadata tanımlanma durumu (Eksik metadata ile bilinçli yokluğu ayırt eder)
+ */
+export type ExplicitState =
+  | 'explicit_defined'      // Tanımları bilinçli ve doğrulanmış olarak yapılmış
+  | 'explicit_none'         // Makam/İmza olmadığı bilinçli olarak belirtilmiş
+  | 'unspecified_fallback'; // Henüz tanımlanmamış / varsayılan fallback durumu
+
+/**
+ * Sunulacak Makam Yönlendirme Metadata'sı (Katman A)
+ */
+export interface TemplateRouting {
+  mode: RecipientMode;
+  targetRole?: RoleCode;
+  usesDynamicInstitutionalHeading?: boolean;
+  fallbackHeading?: string;
+}
+
+/**
+ * İmza ve Onay Rolü Detayı (Katman B)
+ */
+export interface TemplateSignatureRule {
+  role: RoleCode;
+  slotType: 'prepared_by' | 'checked_by' | 'approved_by' | 'member' | 'president';
+  requirementSource: RequirementSource;
+  labelOverride?: string;
+}
+
+/**
+ * Belge İş Akışı ve Yönetim Metadata'sı (Workflow Metadata)
+ */
+export interface TemplateWorkflow {
+  routing?: TemplateRouting;
+  signatures?: TemplateSignatureRule[];
+  approvalRole?: RoleCode;
+  explicitState?: ExplicitState;
+}
+
 export type TemplateType = {
   id: string;
   name: string;
@@ -41,6 +93,7 @@ export type TemplateType = {
   groups?: TemplateGroup[];
   description?: string;
   capabilities: TemplateCapabilities;
+  workflow?: TemplateWorkflow;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

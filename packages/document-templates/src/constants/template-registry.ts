@@ -1,4 +1,4 @@
-import { TemplateCapabilities, TemplateGroup, TemplateType } from "../types";
+import { TemplateCapabilities, TemplateGroup, TemplateType, TemplateWorkflow } from "../types";
 
 const DEFAULT_CAPABILITIES: TemplateCapabilities = {
   supportsOlur: false,
@@ -18,6 +18,7 @@ export type TemplateInput = {
   group?: TemplateGroup;
   groups?: TemplateGroup[];
   capabilities?: Partial<TemplateCapabilities>;
+  workflow?: TemplateWorkflow;
 };
 
 export function defineTemplate(input: TemplateInput): TemplateType {
@@ -34,6 +35,7 @@ export function defineTemplate(input: TemplateInput): TemplateType {
       ...DEFAULT_CAPABILITIES,
       ...input.capabilities,
     },
+    workflow: input.workflow,
   };
 }
 
@@ -97,6 +99,20 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
     group: "olur_onay",
     description: "Harcama Yetkilisi tarafından imzalanan alım ve ihale başlatma oluru",
     capabilities: { supportsOlur: true },
+    workflow: {
+      routing: {
+        mode: "role",
+        targetRole: "harcama_yetkilisi",
+        usesDynamicInstitutionalHeading: true,
+        fallbackHeading: "HARCAMA YETKİLİLİĞİNE",
+      },
+      signatures: [
+        { role: "gerceklestirme_gorevlisi", slotType: "checked_by", requirementSource: "statutory" },
+        { role: "harcama_yetkilisi", slotType: "approved_by", requirementSource: "statutory" },
+      ],
+      approvalRole: "harcama_yetkilisi",
+      explicitState: "explicit_defined",
+    },
   }),
   defineTemplate({
     id: "komisyon-gorevlendirme-onayi",
@@ -115,6 +131,19 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
         onaylayan: "show",
       },
     },
+    workflow: {
+      routing: {
+        mode: "role",
+        targetRole: "harcama_yetkilisi",
+        usesDynamicInstitutionalHeading: true,
+        fallbackHeading: "HARCAMA YETKİLİLİĞİNE",
+      },
+      signatures: [
+        { role: "harcama_yetkilisi", slotType: "approved_by", requirementSource: "administrative" },
+      ],
+      approvalRole: "harcama_yetkilisi",
+      explicitState: "explicit_defined",
+    },
   }),
   defineTemplate({
     id: "komisyon-gorevlendirme-onayi-eki",
@@ -131,6 +160,14 @@ export const TEMPLATE_REGISTRY: TemplateType[] = [
         harcama_yetkilisi: "hide",
         onaylayan: "hide",
       },
+    },
+    workflow: {
+      routing: { mode: "none" },
+      signatures: [
+        { role: "komisyon_baskani", slotType: "president", requirementSource: "administrative" },
+        { role: "komisyon_uyesi", slotType: "member", requirementSource: "administrative" },
+      ],
+      explicitState: "explicit_defined",
     },
   }),
   defineTemplate({

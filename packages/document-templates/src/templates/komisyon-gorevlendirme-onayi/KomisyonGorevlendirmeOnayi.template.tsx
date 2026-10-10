@@ -300,77 +300,75 @@ export function KomisyonGorevlendirmeOnayi({
           </tbody>
         </table>
 
-        {/* Table 2: MUAYENE KABUL VE TESLİM ALMA KOMİSYONU */}
-        <div
-          style={{
-            textAlign: "center",
-            fontWeight: "bold",
-            backgroundColor: "#f2f2f2",
-            border: "1px solid #000",
-            padding: "3px 5px",
-            fontSize: "9.5pt",
-            textTransform: "uppercase",
-          }}
-        >
-          MUAYENE KABUL VE TESLİM ALMA KOMİSYONU
-        </div>
-        <table
-          style={{
-            width: "100%",
-            tableLayout: "fixed",
-            borderCollapse: "collapse",
-            marginBottom: "10px",
-            fontSize: "9pt",
-          }}
-        >
-          <thead>
-            <tr>
-              <th
-                style={{
-                  border: "1px solid #000",
-                  padding: "3px 6px",
-                  fontWeight: "bold",
-                  backgroundColor: "#f9f9f9",
-                  width: "35%",
-                  textAlign: "left",
-                }}
-              >
-                Komisyondaki Sıfatı/Ünvanı
-              </th>
-              <th
-                style={{
-                  border: "1px solid #000",
-                  padding: "3px 6px",
-                  fontWeight: "bold",
-                  backgroundColor: "#f9f9f9",
-                  width: "40%",
-                  textAlign: "left",
-                }}
-              >
-                Adı, Soyadı
-              </th>
-              <th
-                style={{
-                  border: "1px solid #000",
-                  padding: "3px 6px",
-                  fontWeight: "bold",
-                  backgroundColor: "#f9f9f9",
-                  width: "25%",
-                  textAlign: "left",
-                }}
-              >
-                Pozisyonu
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {muayeneUyeleri.length > 0
-              ? (
-                muayeneUyeleri.map((u: any, idx: number) => (
+        {/* Table 2: MUAYENE KABUL VE TESLİM ALMA KOMİSYONU (Yalnızca üye varsa gösterilir) */}
+        {muayeneUyeleri.length > 0 && (
+          <>
+            <div
+              style={{
+                textAlign: "center",
+                fontWeight: "bold",
+                backgroundColor: "#f2f2f2",
+                border: "1px solid #000",
+                padding: "3px 5px",
+                fontSize: "9.5pt",
+                textTransform: "uppercase",
+              }}
+            >
+              MUAYENE KABUL VE TESLİM ALMA KOMİSYONU
+            </div>
+            <table
+              style={{
+                width: "100%",
+                tableLayout: "fixed",
+                borderCollapse: "collapse",
+                marginBottom: "10px",
+                fontSize: "9pt",
+              }}
+            >
+              <thead>
+                <tr>
+                  <th
+                    style={{
+                      border: "1px solid #000",
+                      padding: "3px 6px",
+                      fontWeight: "bold",
+                      backgroundColor: "#f9f9f9",
+                      width: "35%",
+                      textAlign: "left",
+                    }}
+                  >
+                    Komisyondaki Sıfatı/Ünvanı
+                  </th>
+                  <th
+                    style={{
+                      border: "1px solid #000",
+                      padding: "3px 6px",
+                      fontWeight: "bold",
+                      backgroundColor: "#f9f9f9",
+                      width: "40%",
+                      textAlign: "left",
+                    }}
+                  >
+                    Adı, Soyadı
+                  </th>
+                  <th
+                    style={{
+                      border: "1px solid #000",
+                      padding: "3px 6px",
+                      fontWeight: "bold",
+                      backgroundColor: "#f9f9f9",
+                      width: "25%",
+                      textAlign: "left",
+                    }}
+                  >
+                    Pozisyonu
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {muayeneUyeleri.map((u: any, idx: number) => (
                   <tr key={idx}>
-                    <td
-                      style={{ border: "1px solid #000", padding: "3px 6px" }}
-                    >
+                    <td style={{ border: "1px solid #000", padding: "3px 6px" }}>
                       {u.gorevi || "Üye"}
                     </td>
                     <td
@@ -382,31 +380,15 @@ export function KomisyonGorevlendirmeOnayi({
                     >
                       {u.adSoyad || u.adi}
                     </td>
-                    <td
-                      style={{ border: "1px solid #000", padding: "3px 6px" }}
-                    >
+                    <td style={{ border: "1px solid #000", padding: "3px 6px" }}>
                       {u.unvan || u.unvani}
                     </td>
                   </tr>
-                ))
-              )
-              : (
-                <tr>
-                  <td
-                    colSpan={3}
-                    style={{
-                      border: "1px solid #000",
-                      padding: "4px 6px",
-                      textAlign: "center",
-                      fontStyle: "italic",
-                    }}
-                  >
-                    Komisyon üyesi bulunmamaktadır.
-                  </td>
-                </tr>
-              )}
-          </tbody>
-        </table>
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
 
         {/* Approval / OLUR Section */}
         {data.olurYazisi !== false

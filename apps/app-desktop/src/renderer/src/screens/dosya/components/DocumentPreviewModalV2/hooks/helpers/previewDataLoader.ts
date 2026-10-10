@@ -520,23 +520,40 @@ export async function loadDocumentPreviewData({
         // 4. Komisyon listeleri (isMemberVisibleInDocument ile filtrelenmiş)
         const maliyetMembers = dbKomisyonlar.filter((k: any) => {
           if (!TemplateRegistryService.isMemberVisibleInDocument(k, targetDocIds)) return false
+          const scope = String(k.belge_kapsami || k.belgeKapsami || '').toLowerCase()
+          if (scope === 'muayene_kabul') return false
+          const komTur = String(k.komisyon_turu || '').toLowerCase()
+          if (komTur.includes('muayene') || komTur.includes('kabul')) return false
+
           const isMaliyet =
             k.komisyon_id === 1 ||
-            (k.komisyon_turu &&
-              (k.komisyon_turu.toLowerCase().includes('maliyet') ||
-                k.komisyon_turu.toLowerCase().includes('fiyat') ||
-                k.komisyon_turu.toLowerCase().includes('araştırma') ||
-                k.komisyon_turu.toLowerCase().includes('arastirma')))
+            scope === 'piyasa_arastirma' ||
+            komTur.includes('maliyet') ||
+            komTur.includes('fiyat') ||
+            komTur.includes('araştırma') ||
+            komTur.includes('arastirma')
           return isMaliyet
         })
 
         const muayeneMembers = dbKomisyonlar.filter((k: any) => {
           if (!TemplateRegistryService.isMemberVisibleInDocument(k, targetDocIds)) return false
+          const scope = String(k.belge_kapsami || k.belgeKapsami || '').toLowerCase()
+          if (scope === 'piyasa_arastirma') return false
+          const komTur = String(k.komisyon_turu || '').toLowerCase()
+          if (
+            komTur.includes('piyasa') ||
+            komTur.includes('fiyat') ||
+            komTur.includes('maliyet') ||
+            komTur.includes('araştırma') ||
+            komTur.includes('arastirma')
+          )
+            return false
+
           const isMuayene =
             k.komisyon_id === 2 ||
-            (k.komisyon_turu &&
-              (k.komisyon_turu.toLowerCase().includes('muayene') ||
-                k.komisyon_turu.toLowerCase().includes('kabul')))
+            scope === 'muayene_kabul' ||
+            komTur.includes('muayene') ||
+            komTur.includes('kabul')
           return isMuayene
         })
 
