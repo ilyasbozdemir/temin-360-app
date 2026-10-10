@@ -1,11 +1,26 @@
 /* eslint-disable */
 /**
  * AKTİF GELİŞTİRME ŞEMA MANİFESTİ (1.0.0-beta.current)
+ * DATA_TeminDosyasi tablosuna komisyon_seed_edildi kolonu ve DATA_TeminKomisyon tablosuna kaynak kolonu eklendi.
  */
 export default {
   app: "1.0.0-beta.current",
   schema_min: 1,
   schema_max: 43,
   release_date: "2026-10-10",
-  changes: []
+  changes: [
+    {
+      schema: 43,
+      type: "update",
+      description: "DATA_TeminDosyasi tablosuna komisyon_seed_edildi kolonu ve DATA_TeminKomisyon tablosuna kaynak kolonu eklendi.",
+      columns_added: [
+        { table: "DATA_TeminDosyasi", column: "komisyon_seed_edildi" },
+        { table: "DATA_TeminKomisyon", column: "kaynak" }
+      ],
+      raw_sql: [
+        "ALTER TABLE DATA_TeminDosyasi ADD COLUMN komisyon_seed_edildi INTEGER;",
+        "ALTER TABLE DATA_TeminKomisyon ADD COLUMN kaynak TEXT DEFAULT 'kurumsal';"
+      ]
+    }
+  ]
 };
