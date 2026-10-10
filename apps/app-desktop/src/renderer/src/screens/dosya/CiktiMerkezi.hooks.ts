@@ -11,6 +11,7 @@ import { filterContextForTemplate } from './CiktiMerkezi.mediator'
 import { defaultTemplatesByPath } from '../sablonlar/components/defaultTemplates'
 import { useAppEventListener } from '../../utils/appEvents'
 import { getKurumIhtiyacYeriDefault } from '../../utils/kurumHelper'
+import { resolveCommissionCategory } from '@temin360/document-templates'
 export interface UseCiktiMerkeziDataResult {
   sablons: Sablon[]
   loading: boolean
@@ -199,24 +200,12 @@ export function useCiktiMerkeziData(activeDosyaId: number | null): UseCiktiMerke
           }
         }
 
-        let commission = allCommission.filter(
-          (c: any) =>
-            c.komisyon_id === 1 ||
-            c.komisyon_turu?.toLowerCase().includes('maliyet') ||
-            c.komisyon_turu?.toLowerCase().includes('fiyat') ||
-            c.komisyon_turu?.toLowerCase().includes('piyasa') ||
-            c.komisyon_turu?.toLowerCase().includes('araştırma')
-        )
+        let commission = allCommission.filter((c: any) => resolveCommissionCategory(c) === 'maliyet')
         if (commission.length === 0) {
           commission = allCommission
         }
 
-        let muayeneKomisyonu = allCommission.filter(
-          (c: any) =>
-            c.komisyon_id === 2 ||
-            c.komisyon_turu?.toLowerCase().includes('muayene') ||
-            c.komisyon_turu?.toLowerCase().includes('kabul')
-        )
+        let muayeneKomisyonu = allCommission.filter((c: any) => resolveCommissionCategory(c) === 'muayene')
         if (muayeneKomisyonu.length === 0) {
           muayeneKomisyonu = allCommission
         }

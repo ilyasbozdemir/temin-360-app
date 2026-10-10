@@ -50,6 +50,34 @@ export class TemplateRegistryService {
   }
 
   /**
+   * Get TemplateWorkflow metadata by ID or alias
+   */
+  static getWorkflow(id: string) {
+    return this.getTemplateById(id)?.workflow
+  }
+
+  /**
+   * Get TemplateRouting metadata (Katman A) by ID or alias
+   */
+  static getRouting(id: string) {
+    return this.getWorkflow(id)?.routing
+  }
+
+  /**
+   * Get TemplateSignatureRule list (Katman B) by ID or alias
+   */
+  static getSignatureRules(id: string) {
+    return this.getWorkflow(id)?.signatures
+  }
+
+  /**
+   * Get approvalRole by ID or alias
+   */
+  static getApprovalRole(id: string) {
+    return this.getWorkflow(id)?.approvalRole
+  }
+
+  /**
    * Check if a template supports 'Olur' approval block
    */
   static supportsOlur(id: string): boolean {

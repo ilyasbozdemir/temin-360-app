@@ -1,4 +1,4 @@
-import { TemplateResolver, TemplateRegistryService } from '@temin360/document-templates'
+import { TemplateResolver, TemplateRegistryService, resolveCommissionCategory } from '@temin360/document-templates'
 import { getDefaultMappingForProcess } from '../../../../../../constants/mappings'
 import { useSettingsStore } from '../../../../../../store/settingsStore'
 import { useGlobalDocumentPreviewStore } from '../../../../../../store/globalDocumentPreviewStore'
