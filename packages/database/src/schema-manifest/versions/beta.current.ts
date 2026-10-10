@@ -5,7 +5,7 @@
 export default {
   app: "1.0.0-beta.current",
   schema_min: 1,
-  schema_max: 42,
+  schema_max: 43,
   release_date: "2026-10-10",
   changes: []
 };

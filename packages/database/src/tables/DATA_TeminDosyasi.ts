@@ -69,6 +69,11 @@ export const DATA_TeminDosyasi = {
       description: 'Sözleşme Yapılacak mı?'
     },
     {
+      name: 'komisyon_seed_edildi',
+      type: 'INTEGER',
+      description: 'Komisyon varsayılan aktarım durumu (NULL: Eski dosya, 0: Bekliyor, 1: Aktarıldı, 2: Bilinçli Boş)'
+    },
+    {
       name: 'isin_aciklama_maddeleri',
       type: 'TEXT',
       description: 'İşin Açıklama Maddeleri (JSON Array)'

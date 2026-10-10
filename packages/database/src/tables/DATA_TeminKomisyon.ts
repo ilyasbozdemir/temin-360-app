@@ -34,6 +34,7 @@ export const DATA_TeminKomisyon = {
     { name: 'belge_kapsami', type: 'TEXT', default: "'tumu'", description: 'Belge Kapsamı' },
     { name: 'hedef_belgeler', type: 'TEXT', default: "'[\"*\"]'", description: 'Hedef Belgeler' },
     { name: 'asli_yedek', type: 'TEXT', default: "'Asil'", description: 'Asil / Yedek' },
+    { name: 'kaynak', type: 'TEXT', default: "'kurumsal'", description: 'Atama kaynağı (kurumsal, manuel, senkronizasyon, klonlama)' },
     {
       name: 'created_at',
       type: 'DATETIME',

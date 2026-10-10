@@ -28,6 +28,7 @@ import { PrintDropdownButtonV2 } from "@renderer/screens/dosya/components/PrintD
 import { findSablonByAlias } from "../../DosyaAsamalari/constants/sablonAliases";
 import { exportDogrudanTeminMasterExcel } from "../../../../../services/excelExportService";
 import { useGlobalDocumentPreviewStore } from "../../../../../store/globalDocumentPreviewStore";
+import { seedDossierCommission } from "../../../../../services/commission/commissionSeedService";
 
 export function MalzemeTablosu({
   state,
@@ -398,72 +399,9 @@ export function MalzemeTablosu({
       ); // Veritabanında DATA_TeminKomisyon kayıtlarını otomatik doldur (tüm komisyonlar varsayılan aktif)
       (async () => {
         try {
-          await (window as any).electron.ipcRenderer
-            .invoke(
-              "db:run",
-              "ALTER TABLE DATA_TeminKomisyon ADD COLUMN komisyon_turu TEXT",
-            )
-            .catch(() => {});
-          await (window as any).electron.ipcRenderer
-            .invoke(
-              "db:run",
-              "ALTER TABLE DATA_TeminKomisyon ADD COLUMN belgede_goster INTEGER DEFAULT 1",
-            )
-            .catch(() => {});
-
-          const checkRes = await (window as any).electron.ipcRenderer.invoke(
-            "db:query",
-            "SELECT COUNT(*) as cnt FROM DATA_TeminKomisyon WHERE temin_dosya_id = ?",
-            [activeDosyaId],
-          );
-          const count = checkRes.data?.[0]?.cnt || 0;
-          if (count === 0) {
-            for (const komisyonData of dbKomisyonlar) {
-              const res = await (window as any).electron.ipcRenderer.invoke(
-                "db:query",
-                `SELECT u.*, p.ad_soyad, p.unvan, g.ad as gorev_adi 
-                 FROM TANIM_KomisyonUye u 
-                 JOIN TANIM_Personel p ON u.personel_id = p.id 
-                 JOIN TANIM_KomisyonGorevi g ON u.gorev_id = g.id 
-                 WHERE u.komisyon_id = ?`,
-                [komisyonData.id],
-              );
-              if (res.success && res.data) {
-                for (const member of res.data) {
-                  if (!member.personel_id) continue;
-                  const existsRes = await (window as any).electron.ipcRenderer
-                    .invoke(
-                      "db:query",
-                      "SELECT id FROM DATA_TeminKomisyon WHERE temin_dosya_id = ? AND komisyon_id = ? AND personel_id = ? LIMIT 1",
-                      [activeDosyaId, komisyonData.id, member.personel_id],
-                    );
-                  if (existsRes.data && existsRes.data.length > 0) continue;
-
-                  await (window as any).electron.ipcRenderer.invoke(
-                    "db:run",
-                    `INSERT INTO DATA_TeminKomisyon 
-                     (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu, belgede_goster) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [
-                      activeDosyaId,
-                      komisyonData.id,
-                      member.personel_id,
-                      member.ad_soyad,
-                      member.unvan || null,
-                      member.gorev_adi === "Komisyon Başkanı"
-                        ? "Başkan"
-                        : "Üye",
-                      member.asil_mi === 1 ? "Asil" : "Yedek",
-                      komisyonData.ad,
-                      member.belgede_goster ?? 1,
-                    ],
-                  );
-                }
-              }
-            }
-          }
+          await seedDossierCommission(activeDosyaId, { mode: 'initial' });
         } catch (e) {
-          console.error("Komisyon otomatik senkronizasyon hatası:", e);
+          console.error("Komisyon ilk tohumlama kontrolü hatası:", e);
         }
       })();
     }

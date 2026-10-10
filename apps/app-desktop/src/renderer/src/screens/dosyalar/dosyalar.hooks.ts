@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { emitAppEvent, useAppEventListener } from '../../utils/appEvents'
+import { seedDossierCommission } from '../../services/commission/commissionSeedService'
 
 export interface TeminDosyasi {
   id: number
@@ -39,6 +40,7 @@ export interface TeminDosyasi {
   avans_verilecek_mi: number
   yillara_yaygin: number
   sozlesme_yapilacak_mi: number
+  komisyon_seed_edildi?: number | null
   isin_aciklama_maddeleri: string | null
 
   yaklasik_maliyet_hesaplamasi: string | null
@@ -151,14 +153,20 @@ export function useDosyalarHooks() {
         console.warn('Pragma table info failed', e)
       }
 
-      const columns = Object.keys(dosya).filter(
+      const dosyaToInsert: Partial<TeminDosyasi> = {
+        ...dosya,
+        komisyon_seed_edildi:
+          dosya.komisyon_seed_edildi !== undefined ? dosya.komisyon_seed_edildi : 0
+      }
+
+      const columns = Object.keys(dosyaToInsert).filter(
         (k) =>
           k !== 'id' &&
-          dosya[k as keyof TeminDosyasi] !== undefined &&
+          dosyaToInsert[k as keyof TeminDosyasi] !== undefined &&
           (validColumns.length === 0 || validColumns.includes(k))
       )
       const placeholders = columns.map(() => '?').join(', ')
-      const values = columns.map((k) => dosya[k as keyof TeminDosyasi])
+      const values = columns.map((k) => dosyaToInsert[k as keyof TeminDosyasi])
 
       const res = await window.electron.ipcRenderer.invoke(
         'db:run',
@@ -168,9 +176,16 @@ export function useDosyalarHooks() {
       if (!res.success) throw new Error(res.error)
       return res
     },
-    onSuccess: (data) => {
+    onSuccess: async (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['temin_dosyalari'] })
       const insertedId = (data as { lastInsertRowid?: number })?.lastInsertRowid
+      if (insertedId && (variables.komisyon_seed_edildi === undefined || variables.komisyon_seed_edildi === 0)) {
+        try {
+          await seedDossierCommission(insertedId, { mode: 'initial' })
+        } catch (seedErr) {
+          console.error('Yeni dosya komisyon tohumlama hatası:', seedErr)
+        }
+      }
       emitAppEvent('dossier:created', { dosyaId: insertedId })
     }
   })

@@ -38,6 +38,7 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
     handleAddRow,
     handleRemoveRow,
     handleSyncFromKomisyonYonetimi,
+    handleSeedDefaultCommissions,
     handleSave,
     handleOpenDoc
   } = useKomisyonAtama({
@@ -56,6 +57,7 @@ export const KomisyonAtamaModal: React.FC<KomisyonAtamaModalProps> = ({
       saveSuccess={saveSuccess}
       onOpenDoc={handleOpenDoc}
       onSyncFromKomisyonYonetimi={handleSyncFromKomisyonYonetimi}
+      onSeedDefaultCommissions={handleSeedDefaultCommissions}
       onSave={() => handleSave(activeTab)}
     />
   )

@@ -4,6 +4,10 @@ import { documentPreloadService } from '@renderer/services/documentPreloadServic
 import { DEFAULT_MALIYET_ROLES, DEFAULT_MUAYENE_ROLES, getRoleDefaults } from './constants'
 import type { KomisyonRow, KomisyonType, KurumInfo, PersonelItem } from './types'
 import { resolveCommissionCategory, isTaskEligibleForMuayene } from '@temin360/document-templates'
+import {
+  seedDossierCommission,
+  markDossierAsDeliberatelyCleared
+} from '@renderer/services/commission/commissionSeedService'
 
 interface UseKomisyonAtamaParams {
   isOpen: boolean
@@ -293,35 +297,6 @@ export function useKomisyonAtama({
         : 'Muayene Kabul ve Tespit Komisyonu'
       const rows = isMaliyet ? maliyetRows : muayeneRows
 
-      try {
-        await (window as any).electron.ipcRenderer.invoke(
-          'db:run',
-          'ALTER TABLE DATA_TeminKomisyon ADD COLUMN belgede_goster INTEGER DEFAULT 1'
-        )
-        await (window as any).electron.ipcRenderer.invoke(
-          'db:run',
-          'ALTER TABLE DATA_TeminKomisyon ADD COLUMN vekalet_unvani TEXT'
-        )
-        await (window as any).electron.ipcRenderer.invoke(
-          'db:run',
-          'ALTER TABLE DATA_TeminKomisyon ADD COLUMN baslangic_tarihi TEXT'
-        )
-        await (window as any).electron.ipcRenderer.invoke(
-          'db:run',
-          'ALTER TABLE DATA_TeminKomisyon ADD COLUMN bitis_tarihi TEXT'
-        )
-        await (window as any).electron.ipcRenderer.invoke(
-          'db:run',
-          "ALTER TABLE DATA_TeminKomisyon ADD COLUMN belge_kapsami TEXT DEFAULT 'tumu'"
-        )
-        await (window as any).electron.ipcRenderer.invoke(
-          'db:run',
-          "ALTER TABLE DATA_TeminKomisyon ADD COLUMN hedef_belgeler TEXT DEFAULT '[\"*\"]'"
-        )
-      } catch {
-        // Zaten mevcut
-      }
-
       if (isMaliyet) {
         await (window as any).electron.ipcRenderer.invoke(
           'db:run',
@@ -497,8 +472,22 @@ export function useKomisyonAtama({
         documentPreloadService.invalidateCache(activeDosyaId)
       }
       queryClient.invalidateQueries({ queryKey: ['document_preview'] })
-      queryClient.invalidateQueries({ queryKey: ['komisyonlar'] })
-      queryClient.invalidateQueries({ queryKey: ['komisyon_detay'] })
+      // Komisyon yaşam döngüsü durumunu güncelle
+      const countRes = await (window as any).electron.ipcRenderer.invoke(
+        'db:query',
+        'SELECT COUNT(*) as cnt FROM DATA_TeminKomisyon WHERE temin_dosya_id = ?',
+        [activeDosyaId]
+      )
+      const totalRemaining = countRes?.data?.[0]?.cnt || 0
+      if (totalRemaining === 0) {
+        await markDossierAsDeliberatelyCleared(activeDosyaId)
+      } else {
+        await (window as any).electron.ipcRenderer.invoke(
+          'db:run',
+          'UPDATE DATA_TeminDosyasi SET komisyon_seed_edildi = 1 WHERE id = ?',
+          [activeDosyaId]
+        )
+      }
 
       setSaveSuccess(true)
       setTimeout(() => setSaveSuccess(false), 2500)
@@ -641,6 +630,105 @@ export function useKomisyonAtama({
     }
   }
 
+  // Açık kullanıcı işlemi: "Varsayılan Komisyonları Aktar"
+  const handleSeedDefaultCommissions = async () => {
+    if (!activeDosyaId) return
+    try {
+      const existingRes = await (window as any).electron.ipcRenderer.invoke(
+        'db:query',
+        'SELECT COUNT(*) as cnt FROM DATA_TeminKomisyon WHERE temin_dosya_id = ?',
+        [activeDosyaId]
+      )
+      const existingCount = existingRes?.data?.[0]?.cnt || 0
+
+      let selectedMode: 'missing_only' | 'replace' = 'missing_only'
+
+      if (existingCount > 0) {
+        const ok = confirm(
+          `Bu dosyada halihazırda ${existingCount} adet komisyon kaydı bulunmaktadır.\n\n` +
+            `• TAMAM: Mevcut atamaları korur, sadece eksik olan kurumsal varsayılan üyeleri ekler (Önerilen).\n` +
+            `• İPTAL: İşlemi iptal eder.`
+        )
+        if (!ok) return
+        selectedMode = 'missing_only'
+      }
+
+      setLoading(true)
+      const result = await seedDossierCommission(activeDosyaId, {
+        mode: selectedMode,
+        force: true
+      })
+
+      if (result.success) {
+        alert(
+          result.seededCount !== undefined && result.seededCount > 0
+            ? `Kurumsal varsayılan komisyonlardan ${result.seededCount} üye başarıyla aktarıldı.`
+            : 'Tüm kurumsal varsayılan üyeler zaten dosyada mevcut veya eklenecek yeni üye bulunamadı.'
+        )
+        // Verileri tekrar yükle
+        const kRes = await (window as any).electron.ipcRenderer.invoke(
+          'db:query',
+          'SELECT * FROM DATA_TeminKomisyon WHERE temin_dosya_id = ? ORDER BY id ASC',
+          [activeDosyaId]
+        )
+        if (kRes.success && Array.isArray(kRes.data)) {
+          const allK = kRes.data
+          const mList = allK.filter((k: any) => resolveCommissionCategory(k) === 'maliyet')
+          const muList = allK.filter(
+            (k: any) => resolveCommissionCategory(k) === 'muayene' && isTaskEligibleForMuayene(k)
+          )
+          if (mList.length > 0) {
+            setMaliyetRows(
+              mList.map((matched: any, idx: number) => ({
+                sira: idx + 1,
+                gorev: matched?.gorev || 'Fiyat Araştırma Görevlisi',
+                personelId: matched?.personel_id || null,
+                belgedeGoster: matched?.belgede_goster !== 0,
+                vekaletUnvani: matched?.vekalet_unvani || '',
+                baslangicTarihi: matched?.baslangic_tarihi || '',
+                bitisTarihi: matched?.bitis_tarihi || '',
+                belgeKapsami: matched?.belge_kapsami || 'tumu',
+                hedefBelgeler: matched?.hedef_belgeler
+                  ? typeof matched.hedef_belgeler === 'string'
+                    ? JSON.parse(matched.hedef_belgeler)
+                    : matched.hedef_belgeler
+                  : []
+              }))
+            )
+          }
+          if (muList.length > 0) {
+            setMuayeneRows(
+              muList.map((matched: any, idx: number) => ({
+                sira: idx + 1,
+                gorev: matched?.gorev || (idx === 0 ? 'Komisyon Başkanı' : 'Üye'),
+                personelId: matched?.personel_id || null,
+                belgedeGoster: matched?.belgede_goster !== 0,
+                vekaletUnvani: matched?.vekalet_unvani || '',
+                baslangicTarihi: matched?.baslangic_tarihi || '',
+                bitisTarihi: matched?.bitis_tarihi || '',
+                belgeKapsami: matched?.belge_kapsami || 'tumu',
+                hedefBelgeler: matched?.hedef_belgeler
+                  ? typeof matched.hedef_belgeler === 'string'
+                    ? JSON.parse(matched.hedef_belgeler)
+                    : matched.hedef_belgeler
+                  : []
+              }))
+            )
+          }
+        }
+        queryClient.invalidateQueries({ queryKey: ['temin_dosyalari'] })
+        queryClient.invalidateQueries({ queryKey: ['komisyonlar'] })
+        queryClient.invalidateQueries({ queryKey: ['komisyon_detay'] })
+      } else {
+        alert('Varsayılan komisyon aktarımı başarısız oldu: ' + (result.error || 'Bilinmeyen hata'))
+      }
+    } catch (err: any) {
+      alert('Varsayılan aktarımı hatası: ' + err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return {
     activeTab,
     setActiveTab,
@@ -660,6 +748,7 @@ export function useKomisyonAtama({
     handleAddRow,
     handleRemoveRow,
     handleSyncFromKomisyonYonetimi,
+    handleSeedDefaultCommissions,
     handleSave,
     handleOpenDoc
   }

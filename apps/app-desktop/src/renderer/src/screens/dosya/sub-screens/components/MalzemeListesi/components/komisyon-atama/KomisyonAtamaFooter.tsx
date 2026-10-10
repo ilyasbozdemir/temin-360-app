@@ -1,5 +1,5 @@
 import React from 'react'
-import { Check, FileText, RefreshCw, Save } from 'lucide-react'
+import { Check, FileText, RefreshCw, Save, Users } from 'lucide-react'
 import type { KomisyonType } from './types'
 
 interface KomisyonAtamaFooterProps {
@@ -9,6 +9,7 @@ interface KomisyonAtamaFooterProps {
   saveSuccess: boolean
   onOpenDoc: (targetDoc?: string) => void
   onSyncFromKomisyonYonetimi: () => void
+  onSeedDefaultCommissions: () => void
   onSave: () => void
 }
 
@@ -19,6 +20,7 @@ export const KomisyonAtamaFooter: React.FC<KomisyonAtamaFooterProps> = ({
   saveSuccess,
   onOpenDoc,
   onSyncFromKomisyonYonetimi,
+  onSeedDefaultCommissions,
   onSave
 }) => {
   return (
@@ -84,6 +86,17 @@ export const KomisyonAtamaFooter: React.FC<KomisyonAtamaFooterProps> = ({
       </div>
 
       <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onSeedDefaultCommissions}
+          disabled={loading || saving}
+          className="flex items-center gap-1.5 px-3 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-lg text-xs font-semibold transition-all cursor-pointer"
+          title="Kurumsal varsayılan komisyon üyelerini bu dosyaya aktar"
+        >
+          <Users className="w-3.5 h-3.5" />
+          Varsayılanları Aktar
+        </button>
+
         <button
           type="button"
           onClick={onSyncFromKomisyonYonetimi}

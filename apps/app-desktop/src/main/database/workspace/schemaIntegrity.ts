@@ -95,7 +95,8 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
     { name: 'dosya_adi', def: 'TEXT' },
     { name: 'is_tanimi', def: 'TEXT' },
     { name: 'is_adi', def: 'TEXT' },
-    { name: 'konu', def: 'TEXT' }
+    { name: 'konu', def: 'TEXT' },
+    { name: 'komisyon_seed_edildi', def: 'INTEGER' }
   ]
   for (const c of teminDosyasiColumns) {
     try {
@@ -106,6 +107,7 @@ export function ensureSchemaIntegrity(db: Database.Database): void {
   // Explicit columns for DATA_TeminKomisyon & TANIM_KomisyonUye
   const komisyonExtendedColumns = [
     { name: 'asli_yedek', def: "TEXT DEFAULT 'Asil'" },
+    { name: 'kaynak', def: "TEXT DEFAULT 'kurumsal'" },
     { name: 'rol', def: "TEXT DEFAULT 'Asil'" },
     { name: 'komisyon_turu', def: 'TEXT' },
     { name: 'belgede_goster', def: 'INTEGER DEFAULT 1' },

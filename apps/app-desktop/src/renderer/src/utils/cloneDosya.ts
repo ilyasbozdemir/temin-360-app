@@ -202,6 +202,7 @@ export async function cloneDosyaWithItems(
       son_teklif_verme_tarihi: finalSonTeklifTarihi,
       teslim_tarihi: finalTeslimTarihi,
       status: 'devam_ediyor',
+      komisyon_seed_edildi: shouldCloneCommissions ? 1 : 2,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }
@@ -285,16 +286,24 @@ export async function cloneDosyaWithItems(
           await window.electron.ipcRenderer.invoke(
             'db:run',
             `INSERT INTO DATA_TeminKomisyon 
-             (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorevi, komisyon_turu)
-             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+             (temin_dosya_id, komisyon_id, personel_id, ad_soyad, unvan, gorev, rol, komisyon_turu, belgede_goster, vekalet_unvani, baslangic_tarihi, bitis_tarihi, belge_kapsami, hedef_belgeler, asli_yedek, kaynak)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'klon')`,
             [
               newId,
               c.komisyon_id || null,
               c.personel_id || null,
               c.ad_soyad || '',
               c.unvan || '',
-              c.gorevi || 'Üye',
-              c.komisyon_turu || ''
+              c.gorev || c.gorevi || 'Üye',
+              c.rol || 'Üye',
+              c.komisyon_turu || '',
+              c.belgede_goster ?? 1,
+              c.vekalet_unvani || null,
+              c.baslangic_tarihi || null,
+              c.bitis_tarihi || null,
+              c.belge_kapsami || 'tumu',
+              c.hedef_belgeler || '["*"]',
+              c.asli_yedek || (c.asil_mi === 0 ? 'Yedek' : 'Asil')
             ]
           )
         }
