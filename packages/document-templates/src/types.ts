@@ -105,3 +105,75 @@ export interface TemplateComponentProps<T = any> {
 }
 
 export type TemplateComponentType = React.ComponentType<TemplateComponentProps>;
+
+/**
+ * Doğrulama sorununun önem seviyesi:
+ * - 'error': Hata / Kritik eksiklik veya veri bozukluğu
+ * - 'warning': Uyarı / İdari usul eksikliği (kullanıcı onayı gerektirebilir)
+ * - 'info': Bilgilendirme / Format veya görsel iyileştirme tavsiyesi
+ */
+export type ValidationSeverity = 'error' | 'warning' | 'info';
+
+/**
+ * Belge doğrulama bulgusu / sorunu
+ */
+export interface ValidationIssue {
+  code: string;
+  field?: string;
+  message: string;
+  severity: ValidationSeverity;
+  source: RequirementSource;
+  detail?: string;
+}
+
+/**
+ * Doğrulama çalışma bağlamı
+ */
+export interface ValidationContext {
+  templateId: string;
+  procurementType?: string;
+  capabilities?: TemplateCapabilities;
+  workflow?: TemplateWorkflow;
+  options?: Record<string, any>;
+}
+
+/**
+ * Doğrulama kuralı yürütme işlevi
+ */
+export type ValidationRuleFn = (
+  payload: Record<string, any>,
+  context: ValidationContext
+) => ValidationIssue | ValidationIssue[] | null | undefined;
+
+/**
+ * Şablon doğrulama kural tanımı
+ */
+export interface TemplateValidationRule {
+  id: string;
+  description: string;
+  source?: RequirementSource;
+  severity?: ValidationSeverity;
+  validate: ValidationRuleFn;
+}
+
+/**
+ * Çıktı öncesi doğrulama raporu
+ */
+export interface ValidationReport {
+  templateId: string;
+  procurementType?: string;
+  isValid: boolean;
+  hasErrors: boolean;
+  hasWarnings: boolean;
+  hasInfos: boolean;
+  errors: ValidationIssue[];
+  warnings: ValidationIssue[];
+  infos: ValidationIssue[];
+  issues: ValidationIssue[];
+  summary: {
+    total: number;
+    errorCount: number;
+    warningCount: number;
+    infoCount: number;
+  };
+}

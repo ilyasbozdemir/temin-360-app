@@ -56,4 +56,5 @@ export * from "./constants/templateIds";
 export * from "./services/templateRegistryService";
 export * from "./services/memberVisibilityResolver";
 export * from "./services/commissionResolver";
+export * from "./services/documentValidationService";
 export * from "./types";
