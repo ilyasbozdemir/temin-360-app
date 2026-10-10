@@ -622,50 +622,6 @@ export async function loadDocumentPreviewData({
       }
     }
 
-    // Fiyat komisyonu fallback'i (TANIM_KomisyonUye global tablosundan, eğer dosyada hiç komisyon yoksa)
-    if (
-      !baseData.fiyatKomisyonu ||
-      (Array.isArray(baseData.fiyatKomisyonu) && baseData.fiyatKomisyonu.length === 0)
-    ) {
-      const globalFiyatKom = globalKomisyonlar.filter((k: any) => {
-        if (!TemplateRegistryService.isMemberVisibleInDocument(k, targetDocIds)) return false
-        return resolveCommissionCategory(k) === 'maliyet'
-      })
-      if (globalFiyatKom.length > 0) {
-        const mapped = globalFiyatKom.map((m: any) => ({
-          adSoyad: m.ad_soyad || '',
-          unvan: m.unvan || '',
-          gorev: m.gorev || 'Fiyat Araştırma Görevlisi',
-          gorevi: m.gorev || 'Fiyat Araştırma Görevlisi',
-          komisyonGorevi: m.gorev || 'Fiyat Araştırma Görevlisi',
-          rol: m.rol || 'Üye'
-        }))
-        baseData.fiyatKomisyonu = mapped
-        baseData.gorevlendirilenler = mapped
-        baseData.gorevliler = mapped
-        baseData.dagitimListesi = mapped
-        baseData.komisyon = mapped
-      }
-    }
-
-    // Muayene komisyonu fallback'i (TANIM_KomisyonUye global tablosundan)
-    if (
-      !baseData.muayeneKomisyonu ||
-      (Array.isArray(baseData.muayeneKomisyonu) && baseData.muayeneKomisyonu.length === 0)
-    ) {
-      const globalMuayeneKom = globalKomisyonlar.filter((k: any) => {
-        if (!TemplateRegistryService.isMemberVisibleInDocument(k, targetDocIds)) return false
-        return resolveCommissionCategory(k) === 'muayene'
-      })
-      if (globalMuayeneKom.length > 0) {
-        baseData.muayeneKomisyonu = globalMuayeneKom.map((m: any) => ({
-          adSoyad: m.ad_soyad || '',
-          unvan: m.unvan || '',
-          gorev: m.gorev || 'Üye',
-          rol: m.rol || 'Üye'
-        }))
-      }
-    }
   }
 
   if (
@@ -732,16 +688,24 @@ export async function loadDocumentPreviewData({
   }
 
   // Deduplicate all commission member lists in baseData
-  if (Array.isArray(baseData.fiyatKomisyonu))
-    baseData.fiyatKomisyonu = dedupeMembers(baseData.fiyatKomisyonu)
-  if (Array.isArray(baseData.gorevlendirilenler))
-    baseData.gorevlendirilenler = dedupeMembers(baseData.gorevlendirilenler)
-  if (Array.isArray(baseData.gorevliler)) baseData.gorevliler = dedupeMembers(baseData.gorevliler)
-  if (Array.isArray(baseData.dagitimListesi))
-    baseData.dagitimListesi = dedupeMembers(baseData.dagitimListesi)
-  if (Array.isArray(baseData.muayeneKomisyonu))
-    baseData.muayeneKomisyonu = dedupeMembers(baseData.muayeneKomisyonu)
-  if (Array.isArray(baseData.komisyon)) baseData.komisyon = dedupeMembers(baseData.komisyon)
+  baseData.fiyatKomisyonu = Array.isArray(baseData.fiyatKomisyonu)
+    ? dedupeMembers(baseData.fiyatKomisyonu)
+    : []
+  baseData.gorevlendirilenler = Array.isArray(baseData.gorevlendirilenler)
+    ? dedupeMembers(baseData.gorevlendirilenler)
+    : []
+  baseData.gorevliler = Array.isArray(baseData.gorevliler)
+    ? dedupeMembers(baseData.gorevliler)
+    : []
+  baseData.dagitimListesi = Array.isArray(baseData.dagitimListesi)
+    ? dedupeMembers(baseData.dagitimListesi)
+    : []
+  baseData.muayeneKomisyonu = Array.isArray(baseData.muayeneKomisyonu)
+    ? dedupeMembers(baseData.muayeneKomisyonu)
+    : []
+  baseData.komisyon = Array.isArray(baseData.komisyon)
+    ? dedupeMembers(baseData.komisyon)
+    : []
 
   const activeFirms =
     fileFirms.length > 0

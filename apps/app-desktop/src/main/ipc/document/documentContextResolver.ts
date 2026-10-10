@@ -1,4 +1,4 @@
-import { isMemberVisibleInDocument } from '@temin360/document-templates'
+import { isMemberVisibleInDocument, resolveCommissionCategory } from '@temin360/document-templates'
 import { formatTurkishDate, getIpcKurumBizimText, getIpcKurumIhtiyacYeri } from './documentUtils'
 
 export function resolveDocumentPayload(
@@ -130,28 +130,8 @@ export function resolveDocumentPayload(
           .all(dosyaId)
       : []
 
-    // Otomatik Fallback: Eğer dosyaya özel komisyon onaylanmamışsa, genel Komisyon Ayarlarından (TANIM_Komisyon) aktif üyeleri getir
-    if (!komisyonlar || komisyonlar.length === 0) {
-      try {
-        komisyonlar = db
-          .prepare(
-            `
-        SELECT u.*, 
-               COALESCE(NULLIF(p.ad_soyad, ''), '') as resolved_ad_soyad,
-               COALESCE(NULLIF(p.unvan, ''), '') as resolved_unvan,
-               COALESCE(k.ad, '') as komisyon_turu_adi,
-               COALESCE(g.ad, 'Üye') as gorev
-        FROM TANIM_KomisyonUye u
-        JOIN TANIM_Komisyon k ON u.komisyon_id = k.id
-        LEFT JOIN TANIM_Personel p ON u.personel_id = p.id
-        LEFT JOIN TANIM_KomisyonGorevi g ON u.gorev_id = g.id
-        WHERE (k.aktif_mi = 1 OR k.aktif_mi IS NULL)
-      `
-          )
-          .all()
-      } catch (komErr) {
-        console.error('[Document IPC] TANIM_Komisyon fallback error:', komErr)
-      }
+    if (!Array.isArray(komisyonlar)) {
+      komisyonlar = []
     }
 
     // 9. Fetch saved snapshot if exists
@@ -674,7 +654,9 @@ export function resolveDocumentPayload(
         })
       })(),
       fiyatKomisyonu: (() => {
-        const eligible = komisyonlar.filter((k: any) => isMemberVisibleInDocument(k, documentId))
+        const eligible = komisyonlar.filter(
+          (k: any) => resolveCommissionCategory(k) === 'maliyet' && isMemberVisibleInDocument(k, documentId)
+        )
         const mapped = eligible.map((k: any) => ({
           adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
           unvan: k.resolved_unvan || k.unvan || '',
@@ -690,7 +672,9 @@ export function resolveDocumentPayload(
         })
       })(),
       muayeneKomisyonu: (() => {
-        const eligible = komisyonlar.filter((k: any) => isMemberVisibleInDocument(k, documentId))
+        const eligible = komisyonlar.filter(
+          (k: any) => resolveCommissionCategory(k) === 'muayene' && isMemberVisibleInDocument(k, documentId)
+        )
         const mapped = eligible.map((k: any) => ({
           adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
           unvan: k.resolved_unvan || k.unvan || '',

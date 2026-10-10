@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { documentPreloadService } from '@renderer/services/documentPreloadService'
 import { DEFAULT_MALIYET_ROLES, DEFAULT_MUAYENE_ROLES, getRoleDefaults } from './constants'
 import type { KomisyonRow, KomisyonType, KurumInfo, PersonelItem } from './types'
-import { resolveCommissionCategory } from '@temin360/document-templates'
+import { resolveCommissionCategory, isTaskEligibleForMuayene } from '@temin360/document-templates'
 
 interface UseKomisyonAtamaParams {
   isOpen: boolean
@@ -118,8 +118,11 @@ export function useKomisyonAtama({
             // Maliyet komisyonu üyeleri
             const mList = allK.filter((k: any) => resolveCommissionCategory(k) === 'maliyet')
 
-            // Muayene komisyonu üyeleri
-            const muList = allK.filter((k: any) => resolveCommissionCategory(k) === 'muayene')
+            // Muayene komisyonu üyeleri: Merkezi resolveCommissionCategory ile kategori,
+            // ayrı merkezi isTaskEligibleForMuayene politikası ile görev uygunluğu denetlenir.
+            const muList = allK.filter(
+              (k: any) => resolveCommissionCategory(k) === 'muayene' && isTaskEligibleForMuayene(k)
+            )
 
             if (isMounted) {
               if (mList.length > 0) {

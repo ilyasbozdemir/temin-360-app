@@ -1,4 +1,5 @@
 import Mustache from 'mustache'
+import { resolveCommissionCategory } from '@temin360/document-templates'
 import { numberToTurkishWords, readSystemTemplate } from './documentUtils'
 
 export function resolveAllCiktiData(
@@ -148,26 +149,8 @@ export function resolveAllCiktiData(
         )
         .all(dosyaId)
     }
-
-    if (!komisyonlar || komisyonlar.length === 0) {
-      try {
-        komisyonlar = db
-          .prepare(
-            `
-        SELECT u.*, 
-               p.ad_soyad as resolved_ad_soyad, 
-               p.unvan as resolved_unvan, 
-               COALESCE(g.ad, 'Üye') as gorevi,
-               k.ad as komisyon_turu_adi
-        FROM TANIM_KomisyonUye u
-        JOIN TANIM_Komisyon k ON u.komisyon_id = k.id
-        LEFT JOIN TANIM_Personel p ON u.personel_id = p.id
-        LEFT JOIN TANIM_KomisyonGorevi g ON u.gorev_id = g.id
-        WHERE (k.aktif_mi = 1 OR k.aktif_mi IS NULL)
-      `
-          )
-          .all()
-      } catch {}
+    if (!Array.isArray(komisyonlar)) {
+      komisyonlar = []
     }
 
     // Build Bids Map
@@ -482,7 +465,23 @@ export function resolveAllCiktiData(
         unvan: k.resolved_unvan || k.unvan || '',
         gorevi: k.gorevi || 'Üye',
         komisyonTuru: k.komisyon_turu_adi || ''
-      }))
+      })),
+      fiyatKomisyonu: komisyonlar
+        .filter((k: any) => resolveCommissionCategory(k) === 'maliyet')
+        .map((k: any) => ({
+          adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
+          unvan: k.resolved_unvan || k.unvan || '',
+          gorevi: k.gorevi || 'Üye',
+          komisyonTuru: k.komisyon_turu_adi || ''
+        })),
+      muayeneKomisyonu: komisyonlar
+        .filter((k: any) => resolveCommissionCategory(k) === 'muayene')
+        .map((k: any) => ({
+          adSoyad: k.resolved_ad_soyad || k.ad_soyad || '',
+          unvan: k.resolved_unvan || k.unvan || '',
+          gorevi: k.gorevi || 'Üye',
+          komisyonTuru: k.komisyon_turu_adi || ''
+        }))
     }
 
     // Pre-render HTML map using Mustache on server side for every active template

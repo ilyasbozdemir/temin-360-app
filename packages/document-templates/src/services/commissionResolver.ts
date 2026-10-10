@@ -72,3 +72,46 @@ export function resolveCommissionCategory(
 
   return 'unmapped';
 }
+
+/**
+ * Incompatible duty / task keywords for Muayene ve Kabul Komisyonu.
+ * In Turkish public procurement (4734 sayılı KİK ve ilgili mevzuat), officials with approval,
+ * payment realization, accounting, or initial price research duties cannot serve as inspection/acceptance members.
+ */
+export const INCOMPATIBLE_MUAYENE_TASKS = [
+  'fiyat araştırma',
+  'fiyat arastirma',
+  'harcama yetkili',
+  'muhasebe yetkili',
+  'gerçekleştirme',
+  'gerceklestirme'
+] as const;
+
+/**
+ * Checks whether a specific task/duty (or commission member record) is legally and operationally
+ * eligible to serve on the Muayene ve Kabul Komisyonu.
+ *
+ * NOTE: This is an independent task suitability policy. It must NOT be merged into
+ * commission category resolution (resolveCommissionCategory), which solely determines
+ * the type of committee.
+ */
+export function isTaskEligibleForMuayene(
+  taskOrMember: string | CommissionResolutionInput | null | undefined
+): boolean {
+  if (!taskOrMember) return true;
+
+  const duty =
+    typeof taskOrMember === 'string'
+      ? taskOrMember
+      : String(taskOrMember.gorev || taskOrMember.gorevi || taskOrMember.komisyonGorevi || '');
+
+  if (!duty.trim()) return true;
+
+  const normalized = duty.toLowerCase();
+  for (const incompatible of INCOMPATIBLE_MUAYENE_TASKS) {
+    if (normalized.includes(incompatible)) {
+      return false;
+    }
+  }
+  return true;
+}

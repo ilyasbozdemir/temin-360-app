@@ -178,27 +178,7 @@ export function useCiktiMerkeziData(activeDosyaId: number | null): UseCiktiMerke
            WHERE tk.temin_dosya_id = ?`,
           [activeDosyaId]
         )
-        let allCommission = komsRes.success ? komsRes.data : []
-
-        if (!allCommission || allCommission.length === 0) {
-          const fallbackRes = await window.electron.ipcRenderer.invoke(
-            'db:query',
-            `SELECT u.*, 
-                    u.komisyon_id,
-                    k.ad as komisyon_turu,
-                    p.ad_soyad as ad_soyad, 
-                    p.unvan as unvan, 
-                    COALESCE(g.ad, 'Üye') as gorevi
-             FROM TANIM_KomisyonUye u
-             JOIN TANIM_Komisyon k ON u.komisyon_id = k.id
-             LEFT JOIN TANIM_Personel p ON u.personel_id = p.id
-             LEFT JOIN TANIM_KomisyonGorevi g ON u.gorev_id = g.id
-             WHERE (k.aktif_mi = 1 OR k.aktif_mi IS NULL)`
-          )
-          if (fallbackRes.success && fallbackRes.data) {
-            allCommission = fallbackRes.data
-          }
-        }
+        const allCommission = komsRes.success && Array.isArray(komsRes.data) ? komsRes.data : []
 
         const commission = allCommission.filter((c: any) => resolveCommissionCategory(c) === 'maliyet')
         const muayeneKomisyonu = allCommission.filter((c: any) => resolveCommissionCategory(c) === 'muayene')
