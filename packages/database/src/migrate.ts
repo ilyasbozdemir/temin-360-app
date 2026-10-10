@@ -203,6 +203,13 @@ export function runMigrations(db: Database.Database, fromVersion: number, dbSche
             try {
               db.exec(sql)
             } catch (err: any) {
+              if (
+                err.message &&
+                (err.message.includes('duplicate column') ||
+                  err.message.includes('already exists'))
+              ) {
+                continue
+              }
               console.warn(`Raw SQL error in migration v${change.schema}:`, err.message)
             }
           }

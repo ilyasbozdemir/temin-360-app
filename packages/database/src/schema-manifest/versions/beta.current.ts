@@ -16,10 +16,6 @@ export default {
       columns_added: [
         { table: "DATA_TeminDosyasi", column: "komisyon_seed_edildi" },
         { table: "DATA_TeminKomisyon", column: "kaynak" }
-      ],
-      raw_sql: [
-        "ALTER TABLE DATA_TeminDosyasi ADD COLUMN komisyon_seed_edildi INTEGER;",
-        "ALTER TABLE DATA_TeminKomisyon ADD COLUMN kaynak TEXT DEFAULT 'kurumsal';"
       ]
     }
   ]
