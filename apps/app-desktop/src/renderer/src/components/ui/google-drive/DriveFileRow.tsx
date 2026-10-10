@@ -1,5 +1,5 @@
 import React from 'react'
-import { Clock, Download, FileSpreadsheet, FolderDown, RefreshCw, Trash2 } from 'lucide-react'
+import { Clock, Download, FileSpreadsheet, FolderDown, Laptop, RefreshCw, Trash2, User } from 'lucide-react'
 import { Button } from '../Button'
 import { formatDate } from '@renderer/utils/formatters'
 import { GDriveFile, formatFileSize } from './gdriveUtils'
@@ -24,6 +24,24 @@ export function DriveFileRow({
   onDelete
 }: DriveFileRowProps): React.JSX.Element {
   const busy = isDownloading || isDeleting
+
+  const rawDeviceLabel =
+    file.appProperties?.deviceLabel ||
+    file.description?.match(/\[Cihaz:\s*([^\]]+)\]/)?.[1] ||
+    ''
+
+  const deviceName =
+    file.appProperties?.deviceName ||
+    (rawDeviceLabel.includes('@') ? rawDeviceLabel.split('@')[1] : rawDeviceLabel)
+
+  const userName =
+    file.appProperties?.userName ||
+    file.description?.match(/\[Kullanıcı:\s*([^\]]+)\]/)?.[1] ||
+    (rawDeviceLabel.includes('@') ? rawDeviceLabel.split('@')[0] : '')
+
+  const userFullName = file.appProperties?.userFullName || ''
+  const displayUser = userFullName || userName
+
   return (
     <div className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50 dark:hover:bg-slate-900/60 transition-colors">
       <div className="flex items-start gap-3 min-w-0 flex-1">
@@ -37,29 +55,36 @@ export function DriveFileRow({
           >
             {file.name}
           </span>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-2">
+          <div className="text-[11px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-1.5">
             {index === 0 && (
-              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shrink-0">
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shrink-0">
                 En Güncel Sürüm
               </span>
             )}
-            <span className="text-[9px] font-medium px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0">
+            <span className="text-[9px] font-medium px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0">
               Sürüm #{total - index}
             </span>
-            {(file.appProperties?.deviceLabel ||
-              file.description?.match(/\[Cihaz:\s*([^\]]+)\]/)?.[1]) && (
+
+            {deviceName && (
               <span
-                className="text-[9px] font-semibold px-1.5 py-0.2 rounded bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 shrink-0"
-                title={`Yedekleme yapılan bilgisayar: ${
-                  file.appProperties?.deviceLabel ||
-                  file.description?.match(/\[Cihaz:\s*([^\]]+)\]/)?.[1]
-                }`}
+                className="inline-flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/60 shrink-0"
+                title={`Yedekleme Yapılan Bilgisayar: ${deviceName}${rawDeviceLabel ? ` (${rawDeviceLabel})` : ''}`}
               >
-                💻{' '}
-                {file.appProperties?.deviceLabel ||
-                  file.description?.match(/\[Cihaz:\s*([^\]]+)\]/)?.[1]}
+                <Laptop size={10} className="text-indigo-500 shrink-0" />
+                <span>{deviceName}</span>
               </span>
             )}
+
+            {displayUser && (
+              <span
+                className="inline-flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded bg-purple-50 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200/80 dark:border-purple-800/60 shrink-0"
+                title={`Yedekleyen Oturum Kullanıcısı: ${displayUser}${userName && userFullName ? ` (Sistem Kullanıcısı: ${userName})` : ''}`}
+              >
+                <User size={10} className="text-purple-500 shrink-0" />
+                <span>{displayUser}</span>
+              </span>
+            )}
+
             <span className="text-slate-300 dark:text-slate-700">•</span>
             <span className="flex items-center gap-1 font-medium text-slate-600 dark:text-slate-300">
               <Clock size={11} className="text-slate-400" />

@@ -17,8 +17,14 @@ import { minioSyncService, MinIOConfig } from '../services/minioSyncService'
 export function getDeviceInfo() {
   const hostname = os.hostname() || process.env.COMPUTERNAME || process.env.HOSTNAME || 'Bilinmeyen PC'
   const username = os.userInfo?.()?.username || process.env.USERNAME || process.env.USER || 'Kullanıcı'
+  let userFullName = ''
+  try {
+    const db = workspaceManager.getDb()
+    const row = db.prepare("SELECT value FROM settings WHERE key = 'adminName'").get() as { value?: string }
+    if (row?.value) userFullName = row.value
+  } catch {}
   const deviceLabel = `${username}@${hostname}`
-  return { hostname, username, deviceLabel }
+  return { hostname, username, userFullName, deviceLabel }
 }
 
 export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => void): void {
@@ -648,13 +654,14 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
           const boundary = '--------------------------' + Date.now().toString(16)
           const metadata = JSON.stringify({
             name: backupFileName,
-            description: `TEMİN 360 Yedeği [Cihaz: ${devInfo.deviceLabel}] (${dateStr} ${timeStr.replace('-', ':')})`,
+            description: `TEMİN 360 Yedeği [Cihaz: ${devInfo.deviceLabel}]${devInfo.userFullName ? ` [Kullanıcı: ${devInfo.userFullName}]` : ''} (${dateStr} ${timeStr.replace('-', ':')})`,
             parents: [folderId],
             appProperties: {
               deviceName: devInfo.hostname,
               userName: devInfo.username,
+              userFullName: devInfo.userFullName || devInfo.username,
               deviceLabel: devInfo.deviceLabel,
-              appVersion: '1.0.0-beta.92'
+              appVersion: '1.0.0-beta.235'
             }
           })
 

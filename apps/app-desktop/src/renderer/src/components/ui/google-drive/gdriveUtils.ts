@@ -8,6 +8,7 @@ export interface GDriveFile {
   appProperties?: {
     deviceName?: string
     userName?: string
+    userFullName?: string
     deviceLabel?: string
     appVersion?: string
   }
