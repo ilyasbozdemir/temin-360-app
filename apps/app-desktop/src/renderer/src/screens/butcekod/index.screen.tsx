@@ -16,6 +16,7 @@ import { Modal } from '../../components/ui/Modal'
 import { ExcelActions } from '../../components/ui/ExcelActions'
 import { useButceKodHooks, parseButceKod, ButceKod } from './butcekod.hooks'
 import { cn } from '../../utils/cn'
+import { copyToClipboard } from '../../utils/copyToClipboard'
 
 // Düzey Rozetleri & Renkleri
 function ButceDuzeyRozeti({ duzey }: { duzey: number }): React.JSX.Element {
@@ -182,8 +183,8 @@ export default function ButceKodScreen(): React.JSX.Element {
 
   const [copiedKod, setCopiedKod] = useState<string | null>(null)
 
-  const copyToClipboard = (text: string): void => {
-    navigator.clipboard.writeText(text)
+  const handleCopy = async (text: string): Promise<void> => {
+    await copyToClipboard(text)
     setCopiedKod(text)
     setTimeout(() => setCopiedKod(null), 2000)
   }
@@ -478,7 +479,7 @@ export default function ButceKodScreen(): React.JSX.Element {
                         <span className="text-amber-600 dark:text-amber-400">{item.kod}</span>
                         <button
                           type="button"
-                          onClick={() => copyToClipboard(item.kod)}
+                          onClick={() => handleCopy(item.kod)}
                           className="opacity-0 group-hover:opacity-100 p-1 rounded-md text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-all cursor-pointer"
                           title="Kodu Kopyala"
                         >

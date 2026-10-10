@@ -359,3 +359,6 @@ export function PrintDropdownButton({
     </div>
   )
 }
+
+export { PrintDropdownButton as PrintDropdownButtonV2 }
+export type { PrintDropdownButtonProps as PrintDropdownButtonV2Props }

@@ -24,7 +24,7 @@ import {
   KatalogSenkronizasyonModal,
 } from "./components/KatalogSenkronizasyonModal";
 import { useSettingsStore } from "../../../../../store/settingsStore";
-import { PrintDropdownButtonV2 } from "@renderer/screens/dosya/components/PrintDropdownButtonV2";
+import { PrintDropdownButton } from "@renderer/screens/dosya/components/PrintDropdownButton";
 import { findSablonByAlias } from "../../DosyaAsamalari/constants/sablonAliases";
 import { exportDogrudanTeminMasterExcel } from "../../../../../services/excelExportService";
 import { useGlobalDocumentPreviewStore } from "../../../../../store/globalDocumentPreviewStore";
@@ -603,7 +603,7 @@ export function MalzemeTablosu({
           {!disableDocumentGuidance && combinedSablons.length > 0 &&
             onSablonClick && (
             <>
-              <PrintDropdownButtonV2
+              <PrintDropdownButton
                 kategori="1-ihtiyac-tespiti-ve-baslangic"
                 sablons={sablons}
                 overrideSablons={combinedSablons}

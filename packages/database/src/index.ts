@@ -228,6 +228,8 @@ export { TANIM_Placeholder } from './tables/TANIM_Placeholder'
 export { TANIM_OlcuBirimi } from './tables/TANIM_OlcuBirimi'
 export { TANIM_BirimDonusum } from './tables/TANIM_BirimDonusum'
 export { manifests } from './schema-manifest/index'
+export { defineTable } from './BaseTable'
+export { auditColumns, auditColumnsNoRef } from './audit'
 export * from './migrate'
 
 
