@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { documentPreloadService } from '@renderer/services/documentPreloadService'
 import { DEFAULT_MALIYET_ROLES, DEFAULT_MUAYENE_ROLES, getRoleDefaults } from './constants'
 import type { KomisyonRow, KomisyonType, KurumInfo, PersonelItem } from './types'
+import { resolveCommissionCategory } from '@temin360/document-templates'
 
 interface UseKomisyonAtamaParams {
   isOpen: boolean

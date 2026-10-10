@@ -200,15 +200,8 @@ export function useCiktiMerkeziData(activeDosyaId: number | null): UseCiktiMerke
           }
         }
 
-        let commission = allCommission.filter((c: any) => resolveCommissionCategory(c) === 'maliyet')
-        if (commission.length === 0) {
-          commission = allCommission
-        }
-
-        let muayeneKomisyonu = allCommission.filter((c: any) => resolveCommissionCategory(c) === 'muayene')
-        if (muayeneKomisyonu.length === 0) {
-          muayeneKomisyonu = allCommission
-        }
+        const commission = allCommission.filter((c: any) => resolveCommissionCategory(c) === 'maliyet')
+        const muayeneKomisyonu = allCommission.filter((c: any) => resolveCommissionCategory(c) === 'muayene')
 
         const settings = await window.electron.ipcRenderer.invoke('db:get-settings')
         setSettings(settings)

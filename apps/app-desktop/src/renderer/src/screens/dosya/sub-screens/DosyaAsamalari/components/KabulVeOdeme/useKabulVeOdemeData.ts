@@ -4,6 +4,7 @@ import { useWorkspaceStore } from '../../../../../../store/workspaceStore'
 import { useDosyaAsamasiSablons } from '../../useDosyaAsamasiSablons'
 import { FirmaStats, KabulTutanakItem, KomisyonUye } from './types'
 import { formatCurrency, formatDate } from '@renderer/utils/formatters'
+import { resolveCommissionCategory } from '@temin360/document-templates'
 
 interface KabulDataCacheEntry {
   kazananFirmaId: number | null
@@ -406,25 +407,7 @@ export function useKabulVeOdemeData() {
         [activeDosyaId]
       )
       if (allKomRes.success && Array.isArray(allKomRes.data)) {
-        const muayeneMembers = allKomRes.data.filter((k: any) => {
-          if (!k) return false
-          if (k.komisyon_id === 2) return true
-          if (k.komisyon_id === 1) return false
-          const tur = (k.komisyon_turu || '').toLowerCase()
-          if (tur.includes('muayene') || tur.includes('kabul')) return true
-          if (tur.includes('maliyet') || tur.includes('fiyat')) return false
-          const gorev = (k.gorev || '').toLowerCase()
-          if (
-            gorev.includes('fiyat araştırma') ||
-            gorev.includes('harcama yetkili') ||
-            gorev.includes('muhasebe yetkili') ||
-            gorev.includes('gerçekleştirme') ||
-            gorev.includes('gerceklestirme')
-          ) {
-            return false
-          }
-          return true
-        })
+        const muayeneMembers = allKomRes.data.filter((k: any) => resolveCommissionCategory(k) === 'muayene')
         setKomisyonUyeleri(muayeneMembers)
         const baskan = muayeneMembers.find(
           (k: any) =>
@@ -573,25 +556,7 @@ export function useKabulVeOdemeData() {
           let fetchedKomUyeleri: KomisyonUye[] = []
           let fetchedBaskan = ''
 
-          const isMuayeneMember = (k: any): boolean => {
-            if (!k) return false
-            if (k.komisyon_id === 2) return true
-            if (k.komisyon_id === 1) return false
-            const tur = (k.komisyon_turu || '').toLowerCase()
-            if (tur.includes('muayene') || tur.includes('kabul')) return true
-            if (tur.includes('maliyet') || tur.includes('fiyat')) return false
-            const gorev = (k.gorev || '').toLowerCase()
-            if (
-              gorev.includes('fiyat araştırma') ||
-              gorev.includes('harcama yetkili') ||
-              gorev.includes('muhasebe yetkili') ||
-              gorev.includes('gerçekleştirme') ||
-              gorev.includes('gerceklestirme')
-            ) {
-              return false
-            }
-            return true
-          }
+          const isMuayeneMember = (k: any): boolean => resolveCommissionCategory(k) === 'muayene'
 
           if (komRes.success && Array.isArray(komRes.data) && komRes.data.length > 0) {
             const muayeneMembers = komRes.data.filter(isMuayeneMember)

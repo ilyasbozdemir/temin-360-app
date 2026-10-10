@@ -16,25 +16,38 @@ export function applyRolePolicy(baseData: any, templateId: string, _komisyonSati
   if (harcamaPolicy === 'hide') {
     baseData.harcamaYetkilisiAdi = ''
     baseData.harcamaYetkilisiUnvan = ''
+    baseData.harcamaYetkilisi = ''
+    baseData.harcama_yetkilisi = ''
   }
 
   if (onaylayanPolicy === 'hide') {
     baseData.onaylayanPersonelAdi = ''
     baseData.onaylayanPersonelUnvan = ''
+    baseData.onaylayanPersonel = ''
+    baseData.onaylayan = ''
     baseData.baskanAdi = ''
     baseData.baskanUnvan = ''
   }
 
-  if (hazirlayanPolicy === 'hide' && gerceklestirmePolicy === 'hide') {
+  if (hazirlayanPolicy === 'hide') {
     baseData.hazirlayanPersonelAdi = ''
     baseData.hazirlayanPersonelUnvan = ''
+    baseData.hazirlayanPersonel = ''
+    baseData.hazirlayan = ''
+  }
+
+  if (gerceklestirmePolicy === 'hide') {
     baseData.gerceklestirmeGorevlisiAdi = ''
     baseData.gerceklestirmeGorevlisiUnvan = ''
+    baseData.gerceklestirmeGorevlisi = ''
+    baseData.gerceklestirme_gorevlisi = ''
   }
 
   if (talepEdenPolicy === 'hide') {
     baseData.talepEdenPersonelAdi = ''
     baseData.talepEdenPersonelUnvan = ''
+    baseData.talepEdenPersonel = ''
+    baseData.talepEden = ''
   }
 
   if (muhasebePolicy === 'hide') {
@@ -67,31 +80,6 @@ function dedupeMembers(members: any[]) {
     seen.add(key)
     return true
   })
-}
-
-function resolveCommissionCategory(k: any): 'maliyet' | 'muayene' | 'unmapped' {
-  if (!k) return 'unmapped'
-  const scope = String(k.belge_kapsami || k.belgeKapsami || '').trim().toLowerCase()
-  if (scope === 'piyasa_arastirma' || scope === 'yaklasik_maliyet') return 'maliyet'
-  if (scope === 'muayene_kabul') return 'muayene'
-
-  const kId = Number(k.komisyon_id)
-  if (kId === 1) return 'maliyet'
-  if (kId === 2) return 'muayene'
-
-  const komTur = String(k.komisyon_turu || k.komisyon_adi || k.gorev || '').toLowerCase()
-  if (
-    komTur.includes('fiyat') ||
-    komTur.includes('maliyet') ||
-    komTur.includes('araştırma') ||
-    komTur.includes('arastirma')
-  ) {
-    return 'maliyet'
-  }
-  if (komTur.includes('muayene') || komTur.includes('kabul')) {
-    return 'muayene'
-  }
-  return 'unmapped'
 }
 
 export async function loadDocumentPreviewData({
@@ -693,22 +681,14 @@ export async function loadDocumentPreviewData({
       }
     }
 
-    // Fiyat komisyonu fallback'i
+    // Fiyat komisyonu fallback'i (TANIM_KomisyonUye global tablosundan, eğer dosyada hiç komisyon yoksa)
     if (
       !baseData.fiyatKomisyonu ||
       (Array.isArray(baseData.fiyatKomisyonu) && baseData.fiyatKomisyonu.length === 0)
     ) {
       const globalFiyatKom = globalKomisyonlar.filter((k: any) => {
         if (!TemplateRegistryService.isMemberVisibleInDocument(k, targetDocIds)) return false
-        const kId = k.komisyon_id
-        const kAd = (k.komisyon_adi || '').toLowerCase()
-        return (
-          kId === 1 ||
-          kAd.includes('fiyat') ||
-          kAd.includes('maliyet') ||
-          kAd.includes('araştırma') ||
-          kAd.includes('arastirma')
-        )
+        return resolveCommissionCategory(k) === 'maliyet'
       })
       if (globalFiyatKom.length > 0) {
         const mapped = globalFiyatKom.map((m: any) => ({
@@ -727,16 +707,14 @@ export async function loadDocumentPreviewData({
       }
     }
 
-    // Muayene komisyonu fallback'i
+    // Muayene komisyonu fallback'i (TANIM_KomisyonUye global tablosundan)
     if (
       !baseData.muayeneKomisyonu ||
       (Array.isArray(baseData.muayeneKomisyonu) && baseData.muayeneKomisyonu.length === 0)
     ) {
       const globalMuayeneKom = globalKomisyonlar.filter((k: any) => {
         if (!TemplateRegistryService.isMemberVisibleInDocument(k, targetDocIds)) return false
-        const kId = k.komisyon_id
-        const kAd = (k.komisyon_adi || '').toLowerCase()
-        return kId === 2 || kAd.includes('muayene') || kAd.includes('kabul')
+        return resolveCommissionCategory(k) === 'muayene'
       })
       if (globalMuayeneKom.length > 0) {
         baseData.muayeneKomisyonu = globalMuayeneKom.map((m: any) => ({
@@ -793,27 +771,6 @@ export async function loadDocumentPreviewData({
       baseData.gorevlendirilenler = activeFromCtx.length > 0 ? activeFromCtx : ctx.fiyatKomisyonu
       baseData.gorevliler = baseData.gorevlendirilenler
       baseData.dagitimListesi = baseData.gorevlendirilenler
-    } else {
-      const defaultPersonnel = (personelList || [])
-        .filter((p: any) => {
-          const u = `${p.unvan || ''} ${p.ad_soyad || ''}`.toLowerCase()
-          return !u.includes('harcama yetkili') && !u.includes('belediye başkanı')
-        })
-        .slice(0, 2)
-        .map((p: any) => ({
-          adSoyad: p.ad_soyad || '',
-          unvan: p.unvan || 'Memur',
-          gorev: 'Fiyat Araştırma Görevlisi',
-          gorevi: 'Fiyat Araştırma Görevlisi',
-          rol: 'Üye'
-        }))
-      if (defaultPersonnel.length > 0) {
-        baseData.fiyatKomisyonu = defaultPersonnel
-        baseData.gorevlendirilenler = defaultPersonnel
-        baseData.gorevliler = defaultPersonnel
-        baseData.dagitimListesi = defaultPersonnel
-        baseData.komisyon = defaultPersonnel
-      }
     }
   }
 

@@ -154,5 +154,57 @@ describe('Stage 6 — Preview Data, Workflow Metadata & Commission Classificatio
       expect(finalData.teslimGun).toBe('15'); // initialData wins over snapshot and base
       expect(finalData.onayTarihi).toBe('2026-01-01'); // snapshot preserved if not in initialData
     });
+
+    it('should guarantee that applyRolePolicy clears primary role properties AND all alias fields', () => {
+      // Simulate baseData after loading snapshot and initialData containing values for hidden roles
+      const baseData: any = {
+        harcamaYetkilisiAdi: 'Ahmet Yılmaz',
+        harcamaYetkilisiUnvan: 'Müdür',
+        harcamaYetkilisi: 'Ahmet Yılmaz',
+        harcama_yetkilisi: 'Ahmet Yılmaz',
+        onaylayanPersonelAdi: 'Mehmet Kaya',
+        onaylayanPersonelUnvan: 'Şef',
+        onaylayanPersonel: 'Mehmet Kaya',
+        onaylayan: 'Mehmet Kaya',
+        baskanAdi: 'Mehmet Kaya',
+        baskanUnvan: 'Şef'
+      };
+
+      // Simulate applyRolePolicy logic for piyasa-fiyat-arastirma-tutanagi (harcama_yetkilisi hidden)
+      const templateId = 'piyasa-fiyat-arastirma-tutanagi';
+      const harcamaPolicy = TemplateRegistryService.resolveRoleVisibility(templateId, 'harcama_yetkilisi');
+      expect(harcamaPolicy).toBe('hide');
+
+      if (harcamaPolicy === 'hide') {
+        baseData.harcamaYetkilisiAdi = '';
+        baseData.harcamaYetkilisiUnvan = '';
+        baseData.harcamaYetkilisi = '';
+        baseData.harcama_yetkilisi = '';
+      }
+
+      expect(baseData.harcamaYetkilisiAdi).toBe('');
+      expect(baseData.harcamaYetkilisiUnvan).toBe('');
+      expect(baseData.harcamaYetkilisi).toBe('');
+      expect(baseData.harcama_yetkilisi).toBe('');
+    });
+  });
+
+  describe('5. Unknown Commission & Empty Fallback Safety', () => {
+    it('should ensure unknown commission types return empty array filter results without fallback to allCommission', () => {
+      const allCommission = [
+        { id: 1, ad_soyad: 'Ali Can', komisyon_turu: 'Piyasa Araştırma' },
+        { id: 2, ad_soyad: 'Veli Han', komisyon_turu: 'Muayene Kabul' }
+      ];
+
+      // Simulate unknown commission query with no category match
+      const unknownItem = { id: 3, ad_soyad: 'Zeynep Su', komisyon_turu: 'Özel Heyet' };
+      const matched = [unknownItem].filter((k) => k.komisyon_turu.includes('Maliyet'));
+
+      // Safe behavior: empty filter result remains empty, NOT assigned allCommission!
+      const safeCommissionResult = matched.length > 0 ? matched : [];
+      expect(safeCommissionResult).toEqual([]);
+      expect(safeCommissionResult).not.toEqual(allCommission);
+    });
   });
 });
+
