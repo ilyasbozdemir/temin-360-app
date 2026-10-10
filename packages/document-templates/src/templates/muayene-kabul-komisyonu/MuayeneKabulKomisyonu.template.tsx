@@ -112,6 +112,12 @@ export const MuayeneKabulKomisyonu: React.FC<Props> = ({
   const konuMetni = data.dosyaKonusu ??
     "Muayene ve Kabul Komisyonu";
 
+  const kurumumuzMetni =
+    data.kurumumuz ?? (data.kurumAdi || "Kurumumuz");
+
+  const isinAdiMetni =
+    data.isinAdi ?? "Alımı yapılacak";
+
   return (
     <DocumentLayout
       data={data as any}
@@ -218,12 +224,12 @@ export const MuayeneKabulKomisyonu: React.FC<Props> = ({
           {" maddesine göre alımı gerçekleştirilen "}
           <EditableField
             name="kurumumuz"
-            value={data.kurumumuz || data.kurumAdi || "Kurumumuz"}
+            value={kurumumuzMetni}
           />
           {" "}
           <EditableField
             name="isinAdi"
-            value={data.isinAdi || "Alımı yapılacak"}
+            value={isinAdiMetni}
           />{" "}
           işine ait muayene ve kabulünü yapmak üzere{" "}
           {gorevlendirilenler.length > 0

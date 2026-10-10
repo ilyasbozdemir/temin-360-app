@@ -231,7 +231,7 @@ export function TasinirKayitYetkilisiGorusu({
                     pageBreakInside: "avoid",
                   }}
                 >
-                  Kurumumuz / Belediyemiz <strong>{birimAdi}</strong> tarafından talep edilen aşağıda belirtilen taşınır malzemelerin mevcut ambar kayıtları ve stok durumu incelenmiştir.
+                  {data.altKurumBizim || data.kurumBizim || data.kurumumuz || "İdaremiz"} <strong>{birimAdi}</strong> tarafından talep edilen aşağıda belirtilen taşınır malzemelerin mevcut ambar kayıtları ve stok durumu incelenmiştir.
                 </p>
               </>
             )}

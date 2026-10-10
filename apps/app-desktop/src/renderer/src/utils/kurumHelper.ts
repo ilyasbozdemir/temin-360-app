@@ -55,7 +55,7 @@ export const INSTITUTION_MAP: Record<string, InstitutionSuffixes> = {
     kurumlari: 'Belediyeleri'
   },
   il_ozel: {
-    label: 'İl Özel İdresi',
+    label: 'İl Özel İdaresi',
     kurumumuz: 'İl Özel İdaremiz',
     kurumunuz: 'İl Özel İdareniz',
     kurumu: 'İl Özel İdaresi',
@@ -84,10 +84,10 @@ export const INSTITUTION_MAP: Record<string, InstitutionSuffixes> = {
   },
   diger: {
     label: 'Diğer',
-    kurumumuz: 'Kurumumuz',
-    kurumunuz: 'Kurumunuz',
-    kurumu: 'Kurumu',
-    kurumlari: 'Kurumları'
+    kurumumuz: 'İdaremiz',
+    kurumunuz: 'İdareniz',
+    kurumu: 'İdaresi',
+    kurumlari: 'İdareleri'
   }
 }
 
@@ -145,7 +145,7 @@ export function getKurumumuzText(
 }
 
 export function toPossessiveSuffix(str: string): string {
-  if (!str) return 'Kurumumuzun'
+  if (!str) return 'İdaremizin'
   const trimmed = str.trim()
   const lower = trimmed.toLowerCase()
   if (
@@ -179,7 +179,7 @@ export function getKurumIhtiyacYeriDefault(
     kurum_tipi?: string
   } | null
 ): string {
-  if (!kurum) return 'Kurumumuzun'
+  if (!kurum) return 'İdaremizin'
   if (kurum.alt_kurum_bizim && String(kurum.alt_kurum_bizim).trim()) {
     return toPossessiveSuffix(kurum.alt_kurum_bizim.trim())
   }
@@ -195,7 +195,7 @@ export function getKurumIhtiyacYeriDefault(
       koy: 'Muhtarlığımızın',
       sgk: 'Müdürlüğümüzün',
       kurul: 'Kurulumuzun',
-      diger: 'Kurumumuzun'
+      diger: 'İdaremizin'
     }
     if (map[kurum.alt_kurum_tipi]) return map[kurum.alt_kurum_tipi]
   }
@@ -203,5 +203,5 @@ export function getKurumIhtiyacYeriDefault(
   if (kurum.kurum_tipi === 'ozel_butce') return 'Üniversitemizin'
   if (kurum.kurum_tipi === 'duzenleyici') return 'Kurulumuzun'
   if (kurum.kurum_tipi === 'genel_butce') return 'Müdürlüğümüzün'
-  return 'Kurumumuzun'
+  return 'İdaremizin'
 }

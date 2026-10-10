@@ -112,7 +112,7 @@ export function getIpcKurumBizimText(k: any): string {
       koy: 'Muhtarlığımız',
       sgk: 'Müdürlüğümüz',
       kurul: 'Kurulumuz',
-      diger: 'Kurumumuz'
+      diger: 'İdaremiz'
     }
     if (map[k.alt_kurum_tipi]) return map[k.alt_kurum_tipi]
   }
@@ -120,7 +120,7 @@ export function getIpcKurumBizimText(k: any): string {
   if (k?.kurum_tipi === 'ozel_butce') return 'Üniversitemiz'
   if (k?.kurum_tipi === 'duzenleyici') return 'Kurulumuz'
   if (k?.kurum_tipi === 'genel_butce') return 'Müdürlüğümüz'
-  return 'Kurumumuz'
+  return 'İdaremiz'
 }
 
 export function getIpcKurumIhtiyacYeri(k: any): string {
@@ -160,7 +160,7 @@ export function getIpcKurumIhtiyacYeri(k: any): string {
       koy: 'Muhtarlığımızın',
       sgk: 'Müdürlüğümüzün',
       kurul: 'Kurulumuzun',
-      diger: 'Kurumumuzun'
+      diger: 'İdaremizin'
     }
     if (map[k.alt_kurum_tipi]) return map[k.alt_kurum_tipi]
   }
@@ -168,7 +168,7 @@ export function getIpcKurumIhtiyacYeri(k: any): string {
   if (k?.kurum_tipi === 'ozel_butce') return 'Üniversitemizin'
   if (k?.kurum_tipi === 'duzenleyici') return 'Kurulumuzun'
   if (k?.kurum_tipi === 'genel_butce') return 'Müdürlüğümüzün'
-  return 'Kurumumuzun'
+  return 'İdaremizin'
 }
 
 export function formatTurkishDate(raw: any): string {

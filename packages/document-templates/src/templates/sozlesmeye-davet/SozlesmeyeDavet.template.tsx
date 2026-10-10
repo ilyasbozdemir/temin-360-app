@@ -72,7 +72,7 @@ export function SozlesmeyeDavet({
         {/* BODY */}
         <div style={{ textAlign: "justify", marginBottom: "20px", lineHeight: 1.5, fontSize: "10.5pt" }}>
           <div style={{ textIndent: "1.2cm", marginBottom: "8px" }}>
-            İdaremiz bünyesinde gerçekleştirilen &ldquo;<strong><EditableField name="dosyaKonusu" value={data.dosyaKonusu || data.isinAdi} placeholder="İşin Konusu" /></strong>&rdquo; işi uhdenizde kalmıştır.
+            İdaremiz bünyesinde gerçekleştirilen &ldquo;<strong><EditableField name="dosyaKonusu" value={data.dosyaKonusu ?? data.isinAdi} placeholder="İşin Konusu" /></strong>&rdquo; işi uhdenizde kalmıştır.
           </div>
           <div style={{ textIndent: "1.2cm", marginBottom: "8px" }}>
             Yasal yükümlülükleri yerine getirmek suretiyle işe ilişkin sözleşmeyi tebliğden itibaren <strong>10 (on) takvim günü</strong> içerisinde imzalamanız gerekmektedir.
@@ -86,10 +86,10 @@ export function SozlesmeyeDavet({
         <div style={{ width: "100%", marginBottom: "24px", display: "flex", justifyContent: "flex-end" }}>
           <div style={{ width: "240px", textAlign: "center", lineHeight: 1.4 }}>
             <div style={{ fontWeight: "bold", fontSize: "10.5pt" }}>
-              <EditableField name="baskanAdi" value={data.baskanAdi || data.onaylayanPersonelAdi} placeholder="Ad Soyad" />
+              <EditableField name="baskanAdi" value={data.baskanAdi ?? data.onaylayanPersonelAdi} placeholder="Ad Soyad" />
             </div>
             <div style={{ fontSize: "9.5pt", color: "#333" }}>
-              <EditableField name="baskanUnvan" value={data.baskanUnvan || data.onaylayanPersonelUnvan || "Harcama Yetkilisi"} placeholder="Ünvan" />
+              <EditableField name="baskanUnvan" value={data.baskanUnvan ?? (data.onaylayanPersonelUnvan || "Harcama Yetkilisi")} placeholder="Ünvan" />
             </div>
           </div>
         </div>

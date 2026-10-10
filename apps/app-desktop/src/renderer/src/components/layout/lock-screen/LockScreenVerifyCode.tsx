@@ -1,16 +1,16 @@
-import React from 'react'
-import { ClipboardCheck, Sparkles } from 'lucide-react'
+import React from "react";
+import { ClipboardCheck, Sparkles } from "lucide-react";
 
 interface LockScreenVerifyCodeProps {
-  recoveryEmail: string
-  testCode: string | null
-  recoveryWarning: string | null
-  recoveryCode: string
-  setRecoveryCode: (code: string) => void
-  loading: boolean
-  onVerify: () => void
-  onResend: () => void
-  onCancel: () => void
+  recoveryEmail: string;
+  testCode: string | null;
+  recoveryWarning: string | null;
+  recoveryCode: string;
+  setRecoveryCode: (code: string) => void;
+  loading: boolean;
+  onVerify: () => void;
+  onResend: () => void;
+  onCancel: () => void;
 }
 
 export function LockScreenVerifyCode({
@@ -22,16 +22,16 @@ export function LockScreenVerifyCode({
   loading,
   onVerify,
   onResend,
-  onCancel
+  onCancel,
 }: LockScreenVerifyCodeProps): React.JSX.Element {
   return (
     <div className="space-y-4">
       <p className="text-slate-650 dark:text-slate-300 text-xs leading-relaxed">
-        Kurtarma kodu <strong>{recoveryEmail}</strong> adresine başarıyla gönderildi. Lütfen gelen 6
-        haneli kodu girin.
+        Kurtarma kodu <strong>{recoveryEmail}</strong>{" "}
+        adresine başarıyla gönderildi. Lütfen gelen 6 haneli kodu girin.
       </p>
 
-      {testCode && (
+      {import.meta.env.DEV && testCode && (
         <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl flex flex-col gap-2 animate-in fade-in">
           <div className="flex items-center gap-2 text-xs font-semibold text-amber-800 dark:text-amber-300">
             <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
@@ -79,7 +79,7 @@ export function LockScreenVerifyCode({
         disabled={loading}
         className="w-full mt-2 py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white rounded-xl text-sm font-semibold transition-all shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer"
       >
-        {loading ? 'Doğrulanıyor...' : 'Kodu Doğrula'}
+        {loading ? "Doğrulanıyor..." : "Kodu Doğrula"}
       </button>
       <div className="flex gap-2">
         <button
@@ -97,5 +97,5 @@ export function LockScreenVerifyCode({
         </button>
       </div>
     </div>
-  )
+  );
 }

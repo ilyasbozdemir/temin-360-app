@@ -37,15 +37,20 @@ export default function LockScreen(): React.JSX.Element {
   const [recoveryWarning, setRecoveryWarning] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [pcInfo, setPcInfo] = useState<{ hostname?: string; osUsername?: string } | undefined>()
   const [showPassword, setShowPassword] = useState(false)
 
-  // Check if credentials are set up on mount and load settings & remembered credentials
+  // Check if credentials are set up on mount and load settings & remembered credentials & pcInfo
   useEffect(() => {
     const checkAuthSetup = async (): Promise<void> => {
       try {
         const res = await window.electron.ipcRenderer.invoke('db:check-auth-setup')
         if (res && !res.hasCredentials) {
           setIsSetupMode(true)
+        }
+        const info = await window.electron.ipcRenderer.invoke('system:get-pc-info')
+        if (info) {
+          setPcInfo(info)
         }
       } catch (err) {
         console.error('Check setup error:', err)
@@ -250,6 +255,7 @@ export default function LockScreen(): React.JSX.Element {
             setRememberMe={setRememberMe}
             loading={loading}
             recentUsers={recentUsers}
+            pcInfo={pcInfo}
             onSubmit={handleSubmit}
             onForgotPassword={() => {
               setError(null)

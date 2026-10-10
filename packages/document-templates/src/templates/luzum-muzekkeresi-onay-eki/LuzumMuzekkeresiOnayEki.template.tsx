@@ -139,13 +139,13 @@ export function LuzumMuzekkeresiOnayEki({
                   <EditableField
                     name="kurumMetni"
                     value={
-                      data.kurumMetni ||
-                      data.kurumumuz ||
+                      data.kurumMetni ??
+                      (data.kurumumuz ||
                       (data as any).altKurumBizim ||
                       getKurumName(data.kurumAdi, data.altKurumTipi) ||
-                      "Belediyemiz"
+                      "İdaremiz")
                     }
-                    placeholder="Belediyemiz"
+                    placeholder="İdaremiz"
                   />{" "}
                   için aşağıda müfredatı ve evsafı yazılı malzemelere ihtiyaç
                   görüldüğünden satın alınması arz olunur.

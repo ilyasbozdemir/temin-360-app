@@ -1,7 +1,12 @@
 import React from "react";
 import { DocumentLayout } from "../../document/DocumentLayout";
 import { EditableField } from "../../document/EditableField";
-import { DateEditableField } from "../../document/ApprovalSignature";
+import {
+  ApprovalSignature,
+  DateEditableField,
+  EditableOlurPlaceholder,
+  PersonelCard,
+} from "../../document/ApprovalSignature";
 import { PiyasaFiyatArastirmaGorevlendirmesiData } from "./PiyasaFiyatArastirmaGorevlendirmesi.schema";
 
 interface Props {
@@ -149,6 +154,17 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
   const konuMetni = data.dosyaKonusu ??
     "Piyasa Fiyat Araştırması Görevlendirmesi";
 
+  const fallbackKurum = data.altKurumBizim || data.kurumBizim || "İdaremiz";
+  const kurumumuzMetni =
+    data.kurumumuz &&
+    data.kurumumuz !== "Belediyemiz / İdaremiz" &&
+    data.kurumumuz !== "Belediyemiz"
+      ? data.kurumumuz
+      : fallbackKurum;
+
+  const isinAdiMetni =
+    data.isinAdi ?? "Alımı yapılacak";
+
   return (
     <DocumentLayout
       data={data as any}
@@ -237,13 +253,13 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
         >
           <EditableField
             name="kurumumuz"
-            value={data.kurumumuz || data.altKurumBizim || data.kurumBizim || "Belediyemiz"}
-            placeholder="Belediyemiz / İdaremiz"
+            value={kurumumuzMetni}
+            placeholder={fallbackKurum}
           />
           ,{" "}
           <EditableField
             name="isinAdi"
-            value={data.isinAdi || "Alımı yapılacak"}
+            value={isinAdiMetni}
           />{" "}
           işine ait fiyat araştırmasını yapmak üzere{" "}
           {gorevlendirilenler.length > 0
@@ -273,53 +289,32 @@ export const PiyasaFiyatArastirmaGorevlendirmesi: React.FC<Props> = ({
         </div>
 
         {/* Hazırlayan (Sağ) */}
-        <div
-          style={{
-            textAlign: "right",
-            marginBottom: "40px",
-            lineHeight: 1.3,
-            paddingRight: "20px",
-          }}
-        >
-          <EditableField
-            name="hazirlayanPersonelAdi"
-            value={data.hazirlayanPersonelAdi || ""}
-          />
-          <br />
-          <EditableField
-            name="hazirlayanPersonelUnvan"
-            value={data.hazirlayanPersonelUnvan || ""}
-          />
-        </div>
+        <PersonelCard
+          adSoyad={data.hazirlayanPersonelAdi}
+          unvan={data.hazirlayanPersonelUnvan}
+          align="right"
+          marginTop={20}
+          marginBottom={30}
+          nameField="hazirlayanPersonelAdi"
+          unvanField="hazirlayanPersonelUnvan"
+        />
 
         {/* OLUR Onay Bloğu (Orta) */}
-        <div
-          style={{
-            textAlign: "center",
-            marginTop: "25px",
-            marginBottom: "30px",
-            breakInside: "avoid",
-            pageBreakInside: "avoid",
-          }}
-        >
-          <strong>OLUR</strong>
-          <br />
-          <DateEditableField
-            name="dosyaTarihi"
-            value={data.dosyaTarihi || data.tarih || ""}
+        {data.olurYazisi !== false ? (
+          <ApprovalSignature
+            title={(data as any).olurBaslik || "OLUR"}
+            date={data.dosyaTarihi || data.tarih || ""}
+            adSoyad={data.onaylayanPersonelAdi}
+            unvan={data.onaylayanPersonelUnvan}
+            showSpace={true}
+            marginTop={25}
+            nameField="onaylayanPersonelAdi"
+            unvanField="onaylayanPersonelUnvan"
+            dateField="dosyaTarihi"
           />
-          <br />
-          <br />
-          <EditableField
-            name="onaylayanPersonelAdi"
-            value={data.onaylayanPersonelAdi || ""}
-          />
-          <br />
-          <EditableField
-            name="onaylayanPersonelUnvan"
-            value={data.onaylayanPersonelUnvan || ""}
-          />
-        </div>
+        ) : (
+          <EditableOlurPlaceholder />
+        )}
 
         {/* DAĞITIM (Sol Alt) */}
         <div

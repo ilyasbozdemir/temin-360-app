@@ -78,6 +78,14 @@ export function LuzumMuzekkeresiTeslimTesellum({
   const dosyaTarihiVal = (data as any).tarih || data.dosyaTarihi ||
     (data as any).onayaSunulanTarih || defaultToday;
 
+  const dosyaKonusuMetni = data.dosyaKonusu ?? data.isinAdi ?? "TESLİM TESELLÜM BELGESİ";
+  const fallbackKurum = (data as any).altKurumBizim || (data as any).kurumBizim || "İdaremiz";
+  const kurumumuzMetni =
+    data.kurumumuz && data.kurumumuz !== "Belediyemiz"
+      ? data.kurumumuz
+      : fallbackKurum;
+  const isinAdiMetni = data.isinAdi ?? "Doğrudan Temin";
+
   const firmaListesi: any[] = (data as any).firmaListesi || [];
   const winnerFirm = firmaListesi.find((f: any) => f.isWinner) ||
     firmaListesi[0];
@@ -169,7 +177,7 @@ export function LuzumMuzekkeresiTeslimTesellum({
                 >
                   <EditableField
                     name="dosyaKonusu"
-                    value={data.dosyaKonusu || data.isinAdi || "TESLİM TESELLÜM BELGESİ"}
+                    value={dosyaKonusuMetni}
                     placeholder="TESLİM TESELLÜM BELGESİ"
                   />
                 </div>
@@ -242,14 +250,14 @@ export function LuzumMuzekkeresiTeslimTesellum({
                 >
                   <EditableField
                     name="kurumumuz"
-                    value={data.kurumumuz || (data as any).altKurumBizim || "Belediyemiz"}
-                    placeholder="Belediyemiz"
+                    value={kurumumuzMetni}
+                    placeholder={fallbackKurum}
                   />{" "}
                   bünyesinde gerçekleştirilen{" "}
                   <strong>
                     <EditableField
                       name="isinAdi"
-                      value={data.isinAdi || "Doğrudan Temin"}
+                      value={isinAdiMetni}
                       placeholder="Doğrudan Temin"
                     />
                   </strong>{" "}

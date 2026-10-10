@@ -752,9 +752,9 @@ export async function resolveTemplateData(
                     koy: 'Muhtarlığımızın',
                     sgk: 'Müdürlüğümüzün',
                     kurul: 'Kurulumuzun',
-                    diger: 'Kurumumuzun'
+                    diger: 'İdaremizin'
                   };
-                  foundIhtiyacYeri = map[kRow.alt_kurum_tipi] || 'Kurumumuzun';
+                  foundIhtiyacYeri = map[kRow.alt_kurum_tipi] || 'İdaremizin';
                 } else if (kRow.kurum_tipi === 'belediye') {
                   foundIhtiyacYeri = 'Belediyemizin';
                 } else if (kRow.kurum_tipi === 'ozel_butce') {
@@ -764,7 +764,7 @@ export async function resolveTemplateData(
                 } else if (kRow.kurum_tipi === 'genel_butce') {
                   foundIhtiyacYeri = 'Müdürlüğümüzün';
                 } else {
-                  foundIhtiyacYeri = 'Kurumumuzun';
+                  foundIhtiyacYeri = 'İdaremizin';
                 }
               }
             }

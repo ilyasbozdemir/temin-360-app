@@ -291,14 +291,14 @@ export function TeknikSartname({
                     <div style={{ fontSize: "10pt", marginTop: "4px" }}>
                       <EditableField
                         name="hazirlayanPersonelAdi"
-                        value={data.hazirlayanPersonelAdi || "Teknik Personel / Uzman"}
+                        value={data.hazirlayanPersonelAdi ?? "Teknik Personel / Uzman"}
                         placeholder="Adı Soyadı"
                       />
                     </div>
                     <div style={{ fontSize: "9pt", color: "#475569" }}>
                       <EditableField
                         name="hazirlayanPersonelUnvan"
-                        value={data.hazirlayanPersonelUnvan || "Mühendis / Tekniker"}
+                        value={data.hazirlayanPersonelUnvan ?? "Mühendis / Tekniker"}
                         placeholder="Unvanı"
                       />
                     </div>
@@ -314,14 +314,14 @@ export function TeknikSartname({
                     <div style={{ fontSize: "10pt", marginTop: "4px" }}>
                       <EditableField
                         name="onaylayanPersonelAdi"
-                        value={data.onaylayanPersonelAdi || "Birim / Şube Müdürü"}
+                        value={data.onaylayanPersonelAdi ?? "Birim / Şube Müdürü"}
                         placeholder="Adı Soyadı"
                       />
                     </div>
                     <div style={{ fontSize: "9pt", color: "#475569" }}>
                       <EditableField
                         name="onaylayanPersonelUnvan"
-                        value={data.onaylayanPersonelUnvan || "Harcama Yetkilisi / Müdür"}
+                        value={data.onaylayanPersonelUnvan ?? "Harcama Yetkilisi / Müdür"}
                         placeholder="Unvanı"
                       />
                     </div>

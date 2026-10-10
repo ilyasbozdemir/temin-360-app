@@ -556,85 +556,6 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
 
           // Cihaz / PC Kimlik Bilgileri
           const devInfo = getDeviceInfo()
-          let pulledRemote = false
-          let remoteDeviceLabel: string | null = null
-
-          // 1. Önce uzaktaki en güncel yedek kontrol edilsin ("Pull Remote First")
-          try {
-            const listQuery = encodeURIComponent(`'${folderId}' in parents and trashed = false`)
-            const listRes = await fetchWithRetry(
-              `https://www.googleapis.com/drive/v3/files?q=${listQuery}&fields=files(id,name,modifiedTime,createdTime,description,appProperties)&orderBy=modifiedTime%20desc&pageSize=1`,
-              { headers: { Authorization: `Bearer ${cleanToken}` } }
-            )
-            if (listRes.ok) {
-              const listData = (await listRes.json()) as { files?: any[] }
-              const latestRemote = listData.files?.[0]
-              if (latestRemote) {
-                let lastSyncIso: string | undefined
-                try {
-                  const row = db
-                    .prepare("SELECT value FROM settings WHERE key = 'lastGdriveSync'")
-                    .get() as { value?: string }
-                  lastSyncIso = row?.value
-                } catch {
-                  // Fallback
-                }
-
-                const remoteTime = new Date(
-                  latestRemote.modifiedTime || latestRemote.createdTime
-                ).getTime()
-                const localSyncTime = lastSyncIso ? new Date(lastSyncIso).getTime() : 0
-                const remoteDevice =
-                  latestRemote.appProperties?.deviceLabel ||
-                  latestRemote.description?.match(/\[Cihaz:\s*([^\]]+)\]/)?.[1] ||
-                  null
-
-                // Uzaktaki dosya local sync zamanından yeniyse (> 3 saniye) ve başka cihazdan geldiyse (veya local sync yoksa)
-                if (
-                  remoteTime > localSyncTime + 3000 &&
-                  (!remoteDevice || remoteDevice !== devInfo.deviceLabel)
-                ) {
-                  console.log(
-                    `[Google Drive Sync] Uzakta daha güncel yedek tespit edildi (${latestRemote.name} - ${remoteDevice || 'Uzak Cihaz'}). İlk olarak güncel uzaktan alınıyor...`
-                  )
-                  const dlRes = await fetchWithRetry(
-                    `https://www.googleapis.com/drive/v3/files/${latestRemote.id}?alt=media`,
-                    { headers: { Authorization: `Bearer ${cleanToken}` } }
-                  )
-                  if (dlRes.ok) {
-                    const arrayBuffer = await dlRes.arrayBuffer()
-                    const remoteBuf = Buffer.from(arrayBuffer)
-                    const tempRemotePath = require('path').join(
-                      os.tmpdir(),
-                      `remote_sync_${Date.now()}.temin`
-                    )
-                    fs.writeFileSync(tempRemotePath, remoteBuf)
-
-                    if (!workspaceManager.isDirty()) {
-                      try {
-                        workspaceManager.replaceDatabase(tempRemotePath)
-                        console.log(
-                          '[Google Drive Sync] Yerel veritabanı uzaktaki güncel veri ile başarıyla yenilendi.'
-                        )
-                      } catch (rErr) {
-                        console.warn('[Google Drive Sync] Database replace warning:', rErr)
-                      }
-                    }
-                    try {
-                      fs.unlinkSync(tempRemotePath)
-                    } catch {}
-                    pulledRemote = true
-                    remoteDeviceLabel = remoteDevice
-                  }
-                }
-              }
-            }
-          } catch (checkErr) {
-            console.warn(
-              '[Google Drive Sync] Remote check hatası (Yerel yedekleme ile devam ediliyor):',
-              checkErr
-            )
-          }
 
           // Güncel yerel veriyi kaydet
           workspaceManager.save()
@@ -753,16 +674,12 @@ export function registerWorkspaceIpcHandlers(closeAllSecondaryWindows: () => voi
 
           workspaceManager.markSynced('gdrive')
 
-          const successMsg = pulledRemote
-            ? `${backupFileName} başarıyla yüklendi. (Uzaktaki güncel veriler [${remoteDeviceLabel || 'Diğer PC'}] önce yerel dosyaya aktarıldı, ardından değişiklikleriniz eklenip yedeklendi.)`
-            : `${backupFileName} başarıyla Google Drive 'TEMIN_360_YEDEKLER' klasörüne yüklendi (${devInfo.deviceLabel}).`
+          const successMsg = `${backupFileName} başarıyla Google Drive 'TEMIN_360_YEDEKLER' klasörüne yüklendi (${devInfo.deviceLabel}).`
 
           return {
             success: true,
             message: successMsg,
-            fileId: uploadedFile.id,
-            pulledRemote,
-            remoteDevice: remoteDeviceLabel
+            fileId: uploadedFile.id
           }
         }
 

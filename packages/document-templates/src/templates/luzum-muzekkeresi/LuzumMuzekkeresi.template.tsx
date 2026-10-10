@@ -205,7 +205,7 @@ export function LuzumMuzekkeresi({
                   Söz konusu ihtiyacın 4734 sayılı Kanunun{" "}
                   <EditableField
                     name="maddeNo"
-                    value={data.maddeNo || "ilgili"}
+                    value={data.maddeNo ?? "ilgili"}
                     placeholder="ilgili"
                   />{" "}
                   maddesine göre temini için gereğini olurlarınıza arz ederim.

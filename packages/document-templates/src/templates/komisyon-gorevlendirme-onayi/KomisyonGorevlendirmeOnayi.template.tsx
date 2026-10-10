@@ -24,18 +24,27 @@ export function KomisyonGorevlendirmeOnayi({
   hideHeader = false,
   hideFooter = true,
 }: KomisyonGorevlendirmeOnayiProps) {
-  const fiyatUyeleri =
-    data.fiyatKomisyonu && data.fiyatKomisyonu.length > 0
-      ? data.fiyatKomisyonu
-      : data.gorevliler || [];
+  const fiyatUyeleri = data.fiyatKomisyonu && data.fiyatKomisyonu.length > 0
+    ? data.fiyatKomisyonu
+    : data.gorevliler || [];
   const muayeneUyeleri = data.muayeneKomisyonu || [];
 
-  const mainHeaderTitle =
-    data.idareAdi ||
+  const mainHeaderTitle = data.idareAdi ||
     data.sunulacakMakamAdi ||
     (data.antetSatirlari && data.antetSatirlari[1]) ||
     data.kurumAdi ||
     "KURUM BAŞKANLIĞINA";
+
+  const fallbackKurum = data.altKurumBizim || data.kurumBizim || "İdaremiz";
+  const kurumumuzMetni =
+    data.kurumumuz &&
+    data.kurumumuz !== "Belediyemiz / İdaremiz" &&
+    data.kurumumuz !== "Belediyemiz"
+      ? data.kurumumuz
+      : fallbackKurum;
+
+  const isAdiMetni =
+    data.isAdi ?? data.isinAdi;
 
   return (
     <DocumentLayout
@@ -69,16 +78,40 @@ export function KomisyonGorevlendirmeOnayi({
             <table style={{ borderCollapse: "collapse" }}>
               <tbody>
                 <tr>
-                  <td style={{ fontWeight: "bold", paddingRight: "6px", whiteSpace: "nowrap" }}>
+                  <td
+                    style={{
+                      fontWeight: "bold",
+                      paddingRight: "6px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     Sayı
                   </td>
-                  <td>: <EditableField name="evrakSayisi" value={data.evrakSayisi} /></td>
+                  <td>
+                    :{" "}
+                    <EditableField
+                      name="evrakSayisi"
+                      value={data.evrakSayisi}
+                    />
+                  </td>
                 </tr>
                 <tr>
-                  <td style={{ fontWeight: "bold", paddingRight: "6px", whiteSpace: "nowrap" }}>
+                  <td
+                    style={{
+                      fontWeight: "bold",
+                      paddingRight: "6px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     Konu
                   </td>
-                  <td>: <EditableField name="konu" value={data.konu || "Görevlendirme"} /></td>
+                  <td>
+                    :{" "}
+                    <EditableField
+                      name="konu"
+                      value={data.konu || "Görevlendirme"}
+                    />
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -103,7 +136,11 @@ export function KomisyonGorevlendirmeOnayi({
               textTransform: "uppercase",
             }}
           >
-            <EditableField name="sunulacakMakamAdi" value={mainHeaderTitle} placeholder="KURUM BAŞKANLIĞINA" />
+            <EditableField
+              name="sunulacakMakamAdi"
+              value={mainHeaderTitle}
+              placeholder="KURUM BAŞKANLIĞINA"
+            />
           </div>
         </div>
 
@@ -118,12 +155,19 @@ export function KomisyonGorevlendirmeOnayi({
         >
           <EditableField
             name="kurumumuz"
-            value={data.kurumumuz || data.altKurumBizim || data.kurumBizim || "Belediyemiz"}
-            placeholder="Belediyemiz / İdaremiz"
+            value={kurumumuzMetni}
+            placeholder={fallbackKurum}
           />{" "}
           bünyesindeki{" "}
-          <strong><EditableField name="isAdi" value={data.isAdi || data.isinAdi} placeholder="İşin Adı" /></strong> işine ait fiyat araştırması ile
-          muayene ve kabulü yapmak üzere aşağıdaki personeller görevlendirilecek olup,
+          <strong>
+            <EditableField
+              name="isAdi"
+              value={isAdiMetni}
+              placeholder="İşin Adı"
+            />
+          </strong>{" "}
+          işine ait fiyat araştırması ile muayene ve kabulü yapmak üzere
+          aşağıdaki personeller görevlendirilecek olup,
         </div>
         <div
           style={{
@@ -212,35 +256,47 @@ export function KomisyonGorevlendirmeOnayi({
             </tr>
           </thead>
           <tbody>
-            {fiyatUyeleri.length > 0 ? (
-              fiyatUyeleri.map((u: any, idx: number) => (
-                <tr key={idx}>
-                  <td style={{ border: "1px solid #000", padding: "3px 6px" }}>
-                    {u.gorevi || "Üye"}
-                  </td>
-                  <td style={{ border: "1px solid #000", padding: "3px 6px", fontWeight: "bold" }}>
-                    {u.adSoyad || u.adi}
-                  </td>
-                  <td style={{ border: "1px solid #000", padding: "3px 6px" }}>
-                    {u.unvan || u.unvani}
+            {fiyatUyeleri.length > 0
+              ? (
+                fiyatUyeleri.map((u: any, idx: number) => (
+                  <tr key={idx}>
+                    <td
+                      style={{ border: "1px solid #000", padding: "3px 6px" }}
+                    >
+                      {u.gorevi || "Üye"}
+                    </td>
+                    <td
+                      style={{
+                        border: "1px solid #000",
+                        padding: "3px 6px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {u.adSoyad || u.adi}
+                    </td>
+                    <td
+                      style={{ border: "1px solid #000", padding: "3px 6px" }}
+                    >
+                      {u.unvan || u.unvani}
+                    </td>
+                  </tr>
+                ))
+              )
+              : (
+                <tr>
+                  <td
+                    colSpan={3}
+                    style={{
+                      border: "1px solid #000",
+                      padding: "4px 6px",
+                      textAlign: "center",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    Komisyon üyesi bulunmamaktadır.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={3}
-                  style={{
-                    border: "1px solid #000",
-                    padding: "4px 6px",
-                    textAlign: "center",
-                    fontStyle: "italic",
-                  }}
-                >
-                  Komisyon üyesi bulunmamaktadır.
-                </td>
-              </tr>
-            )}
+              )}
           </tbody>
         </table>
 
@@ -308,53 +364,65 @@ export function KomisyonGorevlendirmeOnayi({
             </tr>
           </thead>
           <tbody>
-            {muayeneUyeleri.length > 0 ? (
-              muayeneUyeleri.map((u: any, idx: number) => (
-                <tr key={idx}>
-                  <td style={{ border: "1px solid #000", padding: "3px 6px" }}>
-                    {u.gorevi || "Üye"}
-                  </td>
-                  <td style={{ border: "1px solid #000", padding: "3px 6px", fontWeight: "bold" }}>
-                    {u.adSoyad || u.adi}
-                  </td>
-                  <td style={{ border: "1px solid #000", padding: "3px 6px" }}>
-                    {u.unvan || u.unvani}
+            {muayeneUyeleri.length > 0
+              ? (
+                muayeneUyeleri.map((u: any, idx: number) => (
+                  <tr key={idx}>
+                    <td
+                      style={{ border: "1px solid #000", padding: "3px 6px" }}
+                    >
+                      {u.gorevi || "Üye"}
+                    </td>
+                    <td
+                      style={{
+                        border: "1px solid #000",
+                        padding: "3px 6px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {u.adSoyad || u.adi}
+                    </td>
+                    <td
+                      style={{ border: "1px solid #000", padding: "3px 6px" }}
+                    >
+                      {u.unvan || u.unvani}
+                    </td>
+                  </tr>
+                ))
+              )
+              : (
+                <tr>
+                  <td
+                    colSpan={3}
+                    style={{
+                      border: "1px solid #000",
+                      padding: "4px 6px",
+                      textAlign: "center",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    Komisyon üyesi bulunmamaktadır.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={3}
-                  style={{
-                    border: "1px solid #000",
-                    padding: "4px 6px",
-                    textAlign: "center",
-                    fontStyle: "italic",
-                  }}
-                >
-                  Komisyon üyesi bulunmamaktadır.
-                </td>
-              </tr>
-            )}
+              )}
           </tbody>
         </table>
 
         {/* Approval / OLUR Section */}
-        {data.olurYazisi !== false ? (
-          <ApprovalSignature
-            title="OLUR"
-            date={data.onayTarihi || data.tarih || data.dosyaTarihi}
-            adSoyad={data.baskanAdi || data.onaylayanPersonelAdi}
-            unvan={data.baskanUnvan || data.onaylayanPersonelUnvan}
-            nameField="baskanAdi"
-            unvanField="baskanUnvan"
-            showSpace={true}
-            marginTop={12}
-          />
-        ) : (
-          <EditableOlurPlaceholder />
-        )}
+        {data.olurYazisi !== false
+          ? (
+            <ApprovalSignature
+              title="OLUR"
+              date={data.onayTarihi || data.tarih || data.dosyaTarihi}
+              adSoyad={data.baskanAdi || data.onaylayanPersonelAdi}
+              unvan={data.baskanUnvan || data.onaylayanPersonelUnvan}
+              nameField="baskanAdi"
+              unvanField="baskanUnvan"
+              showSpace={true}
+              marginTop={12}
+            />
+          )
+          : <EditableOlurPlaceholder />}
       </div>
     </DocumentLayout>
   );

@@ -136,14 +136,15 @@ export function buildDocumentCategories(
     },
     {
       id: "komisyon",
-      title: "Komisyon Belgeleri & Görevlendirmeler",
+      title: "Komisyon Görevlendirmeleri",
       icon: Users,
       iconColorClass: "text-blue-500",
       steps: [1, 2, 3, 4],
       items: [
         {
           id: "yaklasikMaliyetKomisyonu",
-          label: "Yaklaşık Maliyet Komisyonu (Piyasa Fiyat Araştırması)",
+          label:
+            "Yaklaşık Maliyet Komisyonu (Piyasa Fiyat Araştırması) Görevlendirmesi",
           icon: Users,
           iconColorClass: "text-indigo-600",
           onClick: onPiyasaArastirmaGorevlendirmesi ||
@@ -152,16 +153,8 @@ export function buildDocumentCategories(
           steps: [1, 2, 3, 4],
         },
         {
-          id: "muayeneKabulKomisyonu",
-          label: "Muayene ve Kabul Komisyonu",
-          icon: UserCheck,
-          iconColorClass: "text-sky-600",
-          onClick: onMuayeneKabulKomisyonu || onMuayeneKabulBelgesi,
-          steps: [1, 2, 3, 4],
-        },
-        {
           id: "fiyatArastirmaVeMuayeneKomisyonu",
-          label: "Fiyat Araştırma ve Muayene Komisyonu",
+          label: "Fiyat Araştırma ve Muayene Komisyonu Görevlendirmesi",
           icon: FileCheck,
           iconColorClass: "text-blue-600",
           onClick: onGorevlendirmeOnayi,
@@ -169,10 +162,18 @@ export function buildDocumentCategories(
         },
         {
           id: "gorevlendirmeOnayEki",
-          label: "Komisyon Görevlendirme Onay Eki",
+          label: "Komisyon (Görevlendirme Onay Eki) Görevlendirmesi",
           icon: FileSignature,
           iconColorClass: "text-teal-600",
           onClick: onGorevlendirmeOnayEki,
+          steps: [1, 2, 3, 4],
+        },
+        {
+          id: "muayeneKabulKomisyonu",
+          label: "Muayene ve Kabul Komisyonu Görevlendirmesi",
+          icon: UserCheck,
+          iconColorClass: "text-sky-600",
+          onClick: onMuayeneKabulKomisyonu || onMuayeneKabulBelgesi,
           steps: [1, 2, 3, 4],
         },
       ],

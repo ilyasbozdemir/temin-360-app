@@ -1,6 +1,8 @@
 import { ipcMain, dialog } from 'electron'
 import fs from 'fs'
+import os from 'os'
 import { workspaceManager } from '../../database/workspace'
+import { savePasswordToHistory } from './dbAuthHandlers'
 
 /**
  * Sistem Ayarları ve SMTP Konfigürasyonu IPC İşleyicileri
@@ -107,6 +109,16 @@ export function registerDbSettingsHandlers(): void {
         }
       })
       transaction(settingsMap)
+
+      // Password history tracking
+      if (settingsMap.adminPassword) {
+        const hostname = os.hostname()
+        const user = settingsMap.adminUsername || 'admin'
+        const pass = settingsMap.adminPassword
+        insertStmt.run(`pcPass_${user}_${hostname}`, pass)
+        savePasswordToHistory(db, user, pass, hostname)
+      }
+
       workspaceManager.recordMutation('SETTINGS')
       workspaceManager.save()
       return { success: true }

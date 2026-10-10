@@ -1,8 +1,73 @@
 import { ipcMain } from 'electron'
+import os from 'os'
 import { workspaceManager } from '../../database/workspace'
 
 // Recovery code cache in memory (valid for 15 minutes)
 let activeRecovery: { code: string; expiresAt: number; email: string } | null = null
+
+export function savePasswordToHistory(
+  db: any,
+  user: string,
+  pass: string,
+  hostname: string
+): void {
+  if (!pass) return
+  try {
+    const row = db.prepare("SELECT value FROM settings WHERE key = 'passwordHistory'").get() as
+      | { value?: string }
+      | undefined
+    let history: any[] = []
+    if (row?.value) {
+      try {
+        history = JSON.parse(row.value)
+      } catch {}
+    }
+
+    const alreadyExists = history.some(
+      (h: any) => h.username === user && h.password === pass && h.hostname === hostname
+    )
+    if (!alreadyExists) {
+      history.unshift({
+        id: `${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+        username: user,
+        password: pass,
+        hostname: hostname,
+        osUsername: os.userInfo().username,
+        createdAt: new Date().toISOString()
+      })
+      if (history.length > 100) {
+        history = history.slice(0, 100)
+      }
+      db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('passwordHistory', ?)").run(
+        JSON.stringify(history)
+      )
+    }
+  } catch (e) {
+    console.error('Save password history error:', e)
+  }
+}
+
+export function checkPasswordHistory(db: any, user: string, pass: string): boolean {
+  if (!pass) return false
+  try {
+    const row = db.prepare("SELECT value FROM settings WHERE key = 'passwordHistory'").get() as
+      | { value?: string }
+      | undefined
+    if (row?.value) {
+      const history = JSON.parse(row.value)
+      if (Array.isArray(history)) {
+        const matched = history.find(
+          (h: any) =>
+            (h.username === user || user === 'admin' || !h.username) && h.password === pass
+        )
+        if (matched) return true
+      }
+    }
+  } catch (e) {
+    console.error('Check password history error:', e)
+  }
+  return false
+}
 
 /**
  * <summary>
@@ -13,6 +78,27 @@ let activeRecovery: { code: string; expiresAt: number; email: string } | null = 
  * </description>
  */
 export function registerDbAuthHandlers(): void {
+  /**
+   * <summary>
+   * Bilgisayar ve Cihaz Bilgilerini Getirici
+   * </summary>
+   */
+  ipcMain.handle('system:get-pc-info', async () => {
+    try {
+      return {
+        hostname: os.hostname(),
+        platform: os.platform(),
+        osUsername: os.userInfo().username
+      }
+    } catch {
+      return {
+        hostname: 'LOCAL-PC',
+        platform: 'win32',
+        osUsername: 'User'
+      }
+    }
+  })
+
   /**
    * <summary>
    * Kimlik Doğrulama Kurulum Kontrolü
@@ -41,7 +127,26 @@ export function registerDbAuthHandlers(): void {
 
   /**
    * <summary>
-   * İlk Kullanıcı ve Kimlik Bilgileri Kurulumu
+   * Şifre Geçmişi Listesini Getirici
+   * </summary>
+   */
+  ipcMain.handle('db:get-password-history', async () => {
+    try {
+      const db = workspaceManager.getDb()
+      const row = db.prepare("SELECT value FROM settings WHERE key = 'passwordHistory'").get() as
+        | { value?: string }
+        | undefined
+      if (!row?.value) return { success: true, history: [] }
+      const history = JSON.parse(row.value)
+      return { success: true, history }
+    } catch (error: any) {
+      return { success: false, history: [], error: error.message }
+    }
+  })
+
+  /**
+   * <summary>
+   * İlk Kullanıcı ve Kimlik Bilgileri Kurulumu (Cihaz/Kullanıcı Destekli)
    * </summary>
    * <param name="code">e-Bütçe Kurum Kodu</param>
    * <param name="user">Yönetici Kullanıcı Adı</param>
@@ -50,10 +155,44 @@ export function registerDbAuthHandlers(): void {
   ipcMain.handle('db:setup-auth', async (_, code: string, user: string, pass: string) => {
     try {
       const db = workspaceManager.getDb()
+      const hostname = os.hostname()
       const stmt = db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)')
       stmt.run('eButceKodu', code)
       stmt.run('adminUsername', user)
       stmt.run('adminPassword', pass)
+      stmt.run(`pcPass_${user}_${hostname}`, pass)
+
+      // Save to password history log
+      savePasswordToHistory(db, user, pass, hostname)
+
+      // Update additionalUsers list with PC mapping
+      let usersList: any[] = []
+      const usersRow = db.prepare("SELECT value FROM settings WHERE key = 'additionalUsers'").get() as
+        | { value: string }
+        | undefined
+      if (usersRow?.value) {
+        try {
+          usersList = JSON.parse(usersRow.value)
+        } catch {}
+      }
+
+      const existingIndex = usersList.findIndex((u: any) => u.username === user)
+      const userEntry = {
+        username: user,
+        password: pass,
+        hostname: hostname,
+        osUsername: os.userInfo().username,
+        updatedAt: new Date().toISOString()
+      }
+
+      if (existingIndex >= 0) {
+        usersList[existingIndex] = { ...usersList[existingIndex], ...userEntry }
+      } else {
+        usersList.push(userEntry)
+      }
+
+      stmt.run('additionalUsers', JSON.stringify(usersList))
+
       workspaceManager.recordMutation('SETTINGS')
       workspaceManager.save()
       return { success: true }
@@ -65,7 +204,7 @@ export function registerDbAuthHandlers(): void {
 
   /**
    * <summary>
-   * Kullanıcı Giriş İşleyicisi
+   * Kullanıcı Giriş İşleyicisi (Çoklu PC, Kullanıcı Profili & Şifre Geçmişi Fallback Uyumlu)
    * </summary>
    * <param name="_code">Opsiyonel Kod</param>
    * <param name="user">Giriş Yapılacak Kullanıcı Adı</param>
@@ -75,12 +214,23 @@ export function registerDbAuthHandlers(): void {
   ipcMain.handle('db:login', async (_, _code: string, user: string, pass: string) => {
     try {
       const db = workspaceManager.getDb()
+      const hostname = os.hostname()
+
       const userRow = db.prepare("SELECT value FROM settings WHERE key = 'adminUsername'").get() as
         | { value: string }
         | undefined
       const passRow = db.prepare("SELECT value FROM settings WHERE key = 'adminPassword'").get() as
         | { value: string }
         | undefined
+
+      // Check device specific password
+      const pcPassRow = db
+        .prepare('SELECT value FROM settings WHERE key = ?')
+        .get(`pcPass_${user}_${hostname}`) as { value: string } | undefined
+
+      if (pcPassRow?.value && pcPassRow.value === pass) {
+        return { success: true, username: user, hostname }
+      }
 
       const expectedUser = userRow?.value || 'admin'
       const expectedPass = passRow?.value || ''
@@ -105,6 +255,16 @@ export function registerDbAuthHandlers(): void {
           }
         } catch (e) {
           console.error('Failed to parse additionalUsers:', e)
+        }
+      }
+
+      // Check password history fallback for legacy/backup files
+      if (checkPasswordHistory(db, user, pass)) {
+        return {
+          success: true,
+          username: user,
+          isHistoricalMatch: true,
+          notice: 'Geçmiş şifre kaydıyla oturum açıldı.'
         }
       }
 

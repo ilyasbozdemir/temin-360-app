@@ -273,13 +273,13 @@ export async function loadDocumentPreviewData({
   baseData.onayTarihi =
     formatDateString(dosyaObj.onay_tarihi) || baseData.onayTarihi || formattedAcilisTarihi
 
-  baseData.kurumumuz = baseData.kurumumuz || ctx.kurumumuz || ctx.altKurumBizim || 'Belediyemiz'
+  baseData.kurumumuz = baseData.kurumumuz || ctx.kurumumuz || ctx.altKurumBizim || 'İdaremiz'
   baseData.ihtiyacYeri =
     dosyaObj.ihtiyac_yeri ||
     baseData.ihtiyacYeri ||
     ctx.ihtiyacYeri ||
     dosyaObj.ihtiyac_yeri_eki ||
-    'Belediyemizin'
+    'İdaremizin'
 
   // DATA_TeminDosyasi record & TANIM_Birim table automatic unit resolution
   let matchedBirimName =
