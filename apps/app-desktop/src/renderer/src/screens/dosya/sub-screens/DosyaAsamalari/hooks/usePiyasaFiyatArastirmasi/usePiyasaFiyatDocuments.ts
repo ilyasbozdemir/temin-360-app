@@ -278,31 +278,7 @@ export function usePiyasaFiyatDocuments(
             [activeDosyaId]
           )
           if (komsRes.success && komsRes.data && komsRes.data.length > 0) {
-            const maliyetOnly = komsRes.data.filter((tk: any) => {
-              if (tk.komisyon_id === 1) return true
-              if (tk.komisyon_id === 2) return false
-              const tur = (tk.komisyon_turu || '').toLowerCase()
-              if (tur.includes('maliyet') || tur.includes('fiyat')) return true
-              if (tur.includes('muayene') || tur.includes('kabul')) return false
-              return true
-            })
-            komisyonListesi = maliyetOnly.length > 0 ? maliyetOnly : komsRes.data
-          } else {
-            const fallbackRes = await window.electron.ipcRenderer.invoke(
-              'db:query',
-              `SELECT u.*, 
-                      p.ad_soyad as adSoyad, 
-                      p.unvan as unvan, 
-                      COALESCE(g.ad, 'Üye') as gorevi
-               FROM TANIM_KomisyonUye u
-               JOIN TANIM_Komisyon k ON u.komisyon_id = k.id
-               LEFT JOIN TANIM_Personel p ON u.personel_id = p.id
-               LEFT JOIN TANIM_KomisyonGorevi g ON u.gorev_id = g.id
-               WHERE (k.aktif_mi = 1 OR k.aktif_mi IS NULL)`
-            )
-            if (fallbackRes.success && fallbackRes.data) {
-              komisyonListesi = fallbackRes.data
-            }
+            komisyonListesi = komsRes.data.filter((tk: any) => resolveCommissionCategory(tk) === 'maliyet')
           }
         } catch (e) {
           console.error('Komisyon çekme hatası:', e)

@@ -6,66 +6,7 @@ import { formatDateString } from '../../../../contextBuilder/dateHelpers'
 import { LoadPreviewDataParams, LoadPreviewDataResult } from './types'
 
 export function applyRolePolicy(baseData: any, templateId: string, _komisyonSatirlari?: any[]): void {
-  const harcamaPolicy = TemplateRegistryService.resolveRoleVisibility(templateId, 'harcama_yetkilisi')
-  const onaylayanPolicy = TemplateRegistryService.resolveRoleVisibility(templateId, 'onaylayan')
-  const hazirlayanPolicy = TemplateRegistryService.resolveRoleVisibility(templateId, 'hazirlayan')
-  const talepEdenPolicy = TemplateRegistryService.resolveRoleVisibility(templateId, 'talep_eden')
-  const gerceklestirmePolicy = TemplateRegistryService.resolveRoleVisibility(templateId, 'gerceklestirme_gorevlisi')
-  const muhasebePolicy = TemplateRegistryService.resolveRoleVisibility(templateId, 'muhasebe')
-
-  if (harcamaPolicy === 'hide') {
-    baseData.harcamaYetkilisiAdi = ''
-    baseData.harcamaYetkilisiUnvan = ''
-    baseData.harcamaYetkilisi = ''
-    baseData.harcama_yetkilisi = ''
-  }
-
-  if (onaylayanPolicy === 'hide') {
-    baseData.onaylayanPersonelAdi = ''
-    baseData.onaylayanPersonelUnvan = ''
-    baseData.onaylayanPersonel = ''
-    baseData.onaylayan = ''
-    baseData.baskanAdi = ''
-    baseData.baskanUnvan = ''
-  }
-
-  if (hazirlayanPolicy === 'hide') {
-    baseData.hazirlayanPersonelAdi = ''
-    baseData.hazirlayanPersonelUnvan = ''
-    baseData.hazirlayanPersonel = ''
-    baseData.hazirlayan = ''
-  }
-
-  if (gerceklestirmePolicy === 'hide') {
-    baseData.gerceklestirmeGorevlisiAdi = ''
-    baseData.gerceklestirmeGorevlisiUnvan = ''
-    baseData.gerceklestirmeGorevlisi = ''
-    baseData.gerceklestirme_gorevlisi = ''
-  }
-
-  if (talepEdenPolicy === 'hide') {
-    baseData.talepEdenPersonelAdi = ''
-    baseData.talepEdenPersonelUnvan = ''
-    baseData.talepEdenPersonel = ''
-    baseData.talepEden = ''
-  }
-
-  if (muhasebePolicy === 'hide') {
-    baseData.mutemetAdi = ''
-    baseData.mutemetUnvan = ''
-    baseData.muhasebeYetkilisiAdi = ''
-    baseData.muhasebeYetkilisiUnvan = ''
-    baseData.muhasebeYetkilisi = ''
-  }
-
-  baseData.goster = {
-    harcamaYetkilisi: harcamaPolicy !== 'hide',
-    onaylayan: onaylayanPolicy !== 'hide',
-    hazirlayan: hazirlayanPolicy !== 'hide',
-    talepEden: talepEdenPolicy !== 'hide',
-    gerceklestirmeGorevlisi: gerceklestirmePolicy !== 'hide',
-    muhasebe: muhasebePolicy !== 'hide'
-  }
+  TemplateRegistryService.applyRolePolicy(baseData, templateId)
 }
 
 function dedupeMembers(members: any[]) {

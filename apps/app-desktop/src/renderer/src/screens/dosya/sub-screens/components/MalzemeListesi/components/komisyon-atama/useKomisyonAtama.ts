@@ -116,35 +116,10 @@ export function useKomisyonAtama({
             const allK = kRes.data
 
             // Maliyet komisyonu üyeleri
-            const mList = allK.filter(
-              (k: any) =>
-                k.komisyon_id === 1 ||
-                (k.komisyon_turu &&
-                  (k.komisyon_turu.toLowerCase().includes('maliyet') ||
-                    k.komisyon_turu.toLowerCase().includes('fiyat')))
-            )
+            const mList = allK.filter((k: any) => resolveCommissionCategory(k) === 'maliyet')
 
             // Muayene komisyonu üyeleri
-            const muList = allK.filter((k: any) => {
-              const isMuayene =
-                k.komisyon_id === 2 ||
-                (k.komisyon_turu &&
-                  (k.komisyon_turu.toLowerCase().includes('muayene') ||
-                    k.komisyon_turu.toLowerCase().includes('kabul')))
-              if (!isMuayene) return false
-
-              const g = (k.gorev || '').toLowerCase()
-              if (
-                g.includes('fiyat araştırma') ||
-                g.includes('harcama yetkili') ||
-                g.includes('muhasebe yetkili') ||
-                g.includes('gerçekleştirme') ||
-                g.includes('gerceklestirme')
-              ) {
-                return false
-              }
-              return true
-            })
+            const muList = allK.filter((k: any) => resolveCommissionCategory(k) === 'muayene')
 
             if (isMounted) {
               if (mList.length > 0) {

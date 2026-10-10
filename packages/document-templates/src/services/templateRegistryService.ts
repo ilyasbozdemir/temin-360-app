@@ -172,6 +172,75 @@ export class TemplateRegistryService {
   static filterMembersForTemplate<T extends Record<string, any>>(members: T[], templateId: string): T[] {
     return members.filter((m) => isMemberVisibleInDocument(m, [templateId]))
   }
+
+  /**
+   * Applies final role visibility policy to a document data object.
+   * If a role policy is 'hide', clears both primary fields and all alias fields.
+   */
+  static applyRolePolicy(baseData: any, templateId: string): void {
+    if (!baseData || typeof baseData !== 'object') return
+
+    const harcamaPolicy = this.resolveRoleVisibility(templateId, 'harcama_yetkilisi')
+    const onaylayanPolicy = this.resolveRoleVisibility(templateId, 'onaylayan')
+    const hazirlayanPolicy = this.resolveRoleVisibility(templateId, 'hazirlayan')
+    const talepEdenPolicy = this.resolveRoleVisibility(templateId, 'talep_eden')
+    const gerceklestirmePolicy = this.resolveRoleVisibility(templateId, 'gerceklestirme_gorevlisi')
+    const muhasebePolicy = this.resolveRoleVisibility(templateId, 'muhasebe')
+
+    if (harcamaPolicy === 'hide') {
+      baseData.harcamaYetkilisiAdi = ''
+      baseData.harcamaYetkilisiUnvan = ''
+      baseData.harcamaYetkilisi = ''
+      baseData.harcama_yetkilisi = ''
+    }
+
+    if (onaylayanPolicy === 'hide') {
+      baseData.onaylayanPersonelAdi = ''
+      baseData.onaylayanPersonelUnvan = ''
+      baseData.onaylayanPersonel = ''
+      baseData.onaylayan = ''
+      baseData.baskanAdi = ''
+      baseData.baskanUnvan = ''
+    }
+
+    if (hazirlayanPolicy === 'hide') {
+      baseData.hazirlayanPersonelAdi = ''
+      baseData.hazirlayanPersonelUnvan = ''
+      baseData.hazirlayanPersonel = ''
+      baseData.hazirlayan = ''
+    }
+
+    if (gerceklestirmePolicy === 'hide') {
+      baseData.gerceklestirmeGorevlisiAdi = ''
+      baseData.gerceklestirmeGorevlisiUnvan = ''
+      baseData.gerceklestirmeGorevlisi = ''
+      baseData.gerceklestirme_gorevlisi = ''
+    }
+
+    if (talepEdenPolicy === 'hide') {
+      baseData.talepEdenPersonelAdi = ''
+      baseData.talepEdenPersonelUnvan = ''
+      baseData.talepEdenPersonel = ''
+      baseData.talepEden = ''
+    }
+
+    if (muhasebePolicy === 'hide') {
+      baseData.mutemetAdi = ''
+      baseData.mutemetUnvan = ''
+      baseData.muhasebeYetkilisiAdi = ''
+      baseData.muhasebeYetkilisiUnvan = ''
+      baseData.muhasebeYetkilisi = ''
+    }
+
+    baseData.goster = {
+      harcamaYetkilisi: harcamaPolicy !== 'hide',
+      onaylayan: onaylayanPolicy !== 'hide',
+      hazirlayan: hazirlayanPolicy !== 'hide',
+      talepEden: talepEdenPolicy !== 'hide',
+      gerceklestirmeGorevlisi: gerceklestirmePolicy !== 'hide',
+      muhasebe: muhasebePolicy !== 'hide'
+    }
+  }
 }
 
 export {

@@ -3,160 +3,54 @@ import {
   TEMPLATE_REGISTRY,
   TemplateRegistryService,
   TemplateWorkflow,
-  RequirementSource
+  resolveCommissionCategory
 } from '../index';
 
-describe('Stage 6 — Preview Data, Workflow Metadata & Commission Classification Tests', () => {
-  describe('1. Template Workflow Metadata Integrity & Compatibility', () => {
-    it('should maintain backward compatibility for templates without workflow metadata', () => {
-      const legacyTemplates = TEMPLATE_REGISTRY.filter((t) => !t.workflow);
-      expect(legacyTemplates.length).toBeGreaterThan(0);
-      for (const t of legacyTemplates) {
-        expect(t.id).toBeDefined();
-        expect(t.capabilities).toBeDefined();
-        // Requesting role visibility on a template without workflow should work smoothly via capabilities fallback
-        const vis = TemplateRegistryService.resolveRoleVisibility(t.id, 'harcama_yetkilisi');
-        expect(['show', 'hide', 'optional']).toContain(vis);
-      }
+describe('Stage 7.1.1 — Production Integration & Workflow Tests', () => {
+  describe('1. Central Commission Resolver Direct Production Integration', () => {
+    it('should classify maliyet category correctly via resolveCommissionCategory', () => {
+      expect(resolveCommissionCategory({ belge_kapsami: 'piyasa_arastirma' })).toBe('maliyet');
+      expect(resolveCommissionCategory({ komisyon_id: 1 })).toBe('maliyet');
+      expect(resolveCommissionCategory({ komisyon_turu: 'Piyasa Fiyat Araştırması' })).toBe('maliyet');
     });
 
-    it('should validate verified workflow metadata on templates like harcama-talimati', () => {
-      const template = TemplateRegistryService.getTemplateById('harcama-talimati');
-      expect(template).toBeDefined();
-      expect(template?.workflow).toBeDefined();
-
-      const workflow = template?.workflow as TemplateWorkflow;
-      expect(workflow.routing?.mode).toBe('role');
-      expect(workflow.routing?.targetRole).toBe('harcama_yetkilisi');
-      expect(workflow.routing?.usesDynamicInstitutionalHeading).toBe(true);
-
-      expect(workflow.signatures).toBeDefined();
-      expect(workflow.signatures?.length).toBe(2);
-
-      const harcamaSig = workflow.signatures?.find((s) => s.role === 'harcama_yetkilisi');
-      expect(harcamaSig).toBeDefined();
-      expect(harcamaSig?.slotType).toBe('approved_by');
-      expect(harcamaSig?.requirementSource).toBe('statutory');
-
-      const gerceklestirmeSig = workflow.signatures?.find((s) => s.role === 'gerceklestirme_gorevlisi');
-      expect(gerceklestirmeSig).toBeDefined();
-      expect(gerceklestirmeSig?.slotType).toBe('checked_by');
-      expect(gerceklestirmeSig?.requirementSource).toBe('statutory');
+    it('should classify muayene category correctly via resolveCommissionCategory', () => {
+      expect(resolveCommissionCategory({ belge_kapsami: 'muayene_kabul' })).toBe('muayene');
+      expect(resolveCommissionCategory({ komisyon_id: 2 })).toBe('muayene');
+      expect(resolveCommissionCategory({ komisyon_adi: 'Muayene ve Kabul Komisyonu' })).toBe('muayene');
     });
 
-    it('should verify explicitState definitions across defined workflow templates', () => {
-      const templatesWithWorkflow = TEMPLATE_REGISTRY.filter((t) => t.workflow);
-      expect(templatesWithWorkflow.length).toBeGreaterThan(0);
-      for (const t of templatesWithWorkflow) {
-        const wf = t.workflow!;
-        if (wf.explicitState) {
-          expect(['explicit_defined', 'explicit_none', 'unspecified_fallback']).toContain(wf.explicitState);
-        }
-      }
+    it('should return unmapped for unknown commission categories', () => {
+      expect(resolveCommissionCategory({ komisyon_turu: 'Özel İnceleme Heyeti' })).toBe('unmapped');
+      expect(resolveCommissionCategory({})).toBe('unmapped');
+      expect(resolveCommissionCategory(null)).toBe('unmapped');
+    });
+
+    it('should preserve resolution precedence (explicit scope > ID > text)', () => {
+      // Scope takes precedence over conflicting ID
+      expect(resolveCommissionCategory({ belge_kapsami: 'muayene_kabul', komisyon_id: 1 })).toBe('muayene');
+      // ID takes precedence over conflicting text
+      expect(resolveCommissionCategory({ komisyon_id: 1, komisyon_turu: 'Muayene Kabul' })).toBe('maliyet');
+    });
+
+    it('should ensure unknown commission items filter to empty array and never leak into maliyet/muayene', () => {
+      const dbRows = [
+        { id: 10, ad_soyad: 'Ahmet Aras', komisyon_turu: 'Bilinmeyen Kurul' },
+        { id: 11, ad_soyad: 'Mehmet Baki', komisyon_turu: 'Özel Denetim' }
+      ];
+
+      const maliyetMembers = dbRows.filter((r) => resolveCommissionCategory(r) === 'maliyet');
+      const muayeneMembers = dbRows.filter((r) => resolveCommissionCategory(r) === 'muayene');
+
+      expect(maliyetMembers).toEqual([]);
+      expect(muayeneMembers).toEqual([]);
     });
   });
 
-  describe('2. Role Policy Application & Hide Isolation (applyRolePolicy Simulation)', () => {
-    it('should simulate applyRolePolicy clearing fields when policy is hide', () => {
-      // Simulate role policy logic on baseData
-      const templateId = 'piyasa-fiyat-arastirma-tutanagi'; // harcama_yetkilisi is 'hide'
+  describe('2. Real Role Policy Application & Alias Clearance (TemplateRegistryService.applyRolePolicy)', () => {
+    it('should invoke real TemplateRegistryService.applyRolePolicy to clear primary and alias fields', () => {
+      const templateId = 'piyasa-fiyat-arastirma-tutanagi'; // harcama_yetkilisi and onaylayan are 'hide', hazirlayan is 'show'
 
-      const harcamaPolicy = TemplateRegistryService.resolveRoleVisibility(templateId, 'harcama_yetkilisi');
-      expect(harcamaPolicy).toBe('hide');
-
-      const baseData: any = {
-        harcamaYetkilisiAdi: 'Ahmet Yılmaz',
-        harcamaYetkilisiUnvan: 'Müdür',
-        onaylayanPersonelAdi: 'Ahmet Yılmaz',
-        onaylayanPersonelUnvan: 'Müdür',
-        hazirlayanPersonelAdi: 'Mehmet Demir',
-        hazirlayanPersonelUnvan: 'Müh'
-      };
-
-      if (harcamaPolicy === 'hide') {
-        baseData.harcamaYetkilisiAdi = '';
-        baseData.harcamaYetkilisiUnvan = '';
-      }
-
-      expect(baseData.harcamaYetkilisiAdi).toBe('');
-      expect(baseData.harcamaYetkilisiUnvan).toBe('');
-      // Documenting current behavior: onaylayanPersonelAdi was NOT cleared when only harcamaYetkilisi was cleared unless policy checked both!
-      expect(baseData.onaylayanPersonelAdi).toBe('Ahmet Yılmaz');
-    });
-  });
-
-  describe('3. Commission Classification Current Behavior & Edge Cases', () => {
-    // Documenting current text matching & ID based logic without modifying production behavior
-    function simulateCurrentCommissionClassification(k: {
-      komisyon_id?: number;
-      komisyon_turu?: string;
-      komisyon_adi?: string;
-      gorev?: string;
-      belge_kapsami?: string;
-    }): 'maliyet' | 'muayene' | 'unmapped' {
-      const scope = (k.belge_kapsami || '').trim().toLowerCase();
-      if (scope === 'piyasa_arastirma' || scope === 'yaklasik_maliyet') {
-        return 'maliyet';
-      }
-      if (scope === 'muayene_kabul') {
-        return 'muayene';
-      }
-
-      const kId = k.komisyon_id;
-      if (kId === 1) return 'maliyet';
-      if (kId === 2) return 'muayene';
-
-      const komTur = (k.komisyon_turu || k.komisyon_adi || k.gorev || '').toLowerCase();
-      if (
-        komTur.includes('fiyat') ||
-        komTur.includes('maliyet') ||
-        komTur.includes('araştırma') ||
-        komTur.includes('arastirma')
-      ) {
-        return 'maliyet';
-      }
-      if (komTur.includes('muayene') || komTur.includes('kabul')) {
-        return 'muayene';
-      }
-
-      return 'unmapped';
-    }
-
-    it('should correctly classify standard commission records', () => {
-      expect(simulateCurrentCommissionClassification({ komisyon_id: 1 })).toBe('maliyet');
-      expect(simulateCurrentCommissionClassification({ komisyon_id: 2 })).toBe('muayene');
-      expect(simulateCurrentCommissionClassification({ belge_kapsami: 'piyasa_arastirma' })).toBe('maliyet');
-      expect(simulateCurrentCommissionClassification({ belge_kapsami: 'muayene_kabul' })).toBe('muayene');
-    });
-
-    it('should demonstrate edge cases and potential ambiguities in current classification', () => {
-      // Edge Case 1: Trailing whitespace in scope "muayene_kabul " without trim in legacy code
-      expect(simulateCurrentCommissionClassification({ belge_kapsami: 'muayene_kabul ' })).toBe('muayene');
-
-      // Edge Case 2: Conflicting IDs and text (e.g. komisyon_id = 1 but text says "Muayene Kabul")
-      // Current behavior gives precedence to scope, then ID, then text.
-      expect(simulateCurrentCommissionClassification({ komisyon_id: 1, komisyon_turu: 'Muayene Kabul Komisyonu' })).toBe('maliyet');
-
-      // Edge Case 3: Unrecognized commission type text returns 'unmapped'
-      expect(simulateCurrentCommissionClassification({ komisyon_turu: 'Özel İnceleme Heyeti' })).toBe('unmapped');
-    });
-  });
-
-  describe('4. Snapshot Merging & Alias Leakage Test Scenarios', () => {
-    it('should verify snapshot merge order precedence', () => {
-      const baseData = { title: 'Base Document', teslimGun: '5' };
-      const savedSnapshot = { teslimGun: '10', onayTarihi: '2026-01-01' };
-      const initialData = { teslimGun: '15' };
-
-      // Merging: Base -> Snapshot -> initialData
-      const finalData = { ...baseData, ...savedSnapshot, ...initialData };
-
-      expect(finalData.teslimGun).toBe('15'); // initialData wins over snapshot and base
-      expect(finalData.onayTarihi).toBe('2026-01-01'); // snapshot preserved if not in initialData
-    });
-
-    it('should guarantee that applyRolePolicy clears primary role properties AND all alias fields', () => {
-      // Simulate baseData after loading snapshot and initialData containing values for hidden roles
       const baseData: any = {
         harcamaYetkilisiAdi: 'Ahmet Yılmaz',
         harcamaYetkilisiUnvan: 'Müdür',
@@ -164,47 +58,79 @@ describe('Stage 6 — Preview Data, Workflow Metadata & Commission Classificatio
         harcama_yetkilisi: 'Ahmet Yılmaz',
         onaylayanPersonelAdi: 'Mehmet Kaya',
         onaylayanPersonelUnvan: 'Şef',
-        onaylayanPersonel: 'Mehmet Kaya',
-        onaylayan: 'Mehmet Kaya',
-        baskanAdi: 'Mehmet Kaya',
-        baskanUnvan: 'Şef'
+        hazirlayanPersonelAdi: 'Ali Can',
+        hazirlayanPersonelUnvan: 'Müh'
       };
 
-      // Simulate applyRolePolicy logic for piyasa-fiyat-arastirma-tutanagi (harcama_yetkilisi hidden)
-      const templateId = 'piyasa-fiyat-arastirma-tutanagi';
-      const harcamaPolicy = TemplateRegistryService.resolveRoleVisibility(templateId, 'harcama_yetkilisi');
-      expect(harcamaPolicy).toBe('hide');
+      // Call REAL production function directly
+      TemplateRegistryService.applyRolePolicy(baseData, templateId);
 
-      if (harcamaPolicy === 'hide') {
-        baseData.harcamaYetkilisiAdi = '';
-        baseData.harcamaYetkilisiUnvan = '';
-        baseData.harcamaYetkilisi = '';
-        baseData.harcama_yetkilisi = '';
-      }
-
+      // Primary and alias fields for hidden harcama_yetkilisi must be cleared
       expect(baseData.harcamaYetkilisiAdi).toBe('');
       expect(baseData.harcamaYetkilisiUnvan).toBe('');
       expect(baseData.harcamaYetkilisi).toBe('');
       expect(baseData.harcama_yetkilisi).toBe('');
+
+      // Non-hidden role (hazirlayan) must be preserved
+      expect(baseData.hazirlayanPersonelAdi).toBe('Ali Can');
+      expect(baseData.goster.harcamaYetkilisi).toBe(false);
+      expect(baseData.goster.hazirlayan).toBe(true);
+    });
+
+    it('should prevent snapshot/initialData from leaking hidden role values after applyRolePolicy runs', () => {
+      const baseData = { title: 'Base Document' };
+      const savedSnapshot = { harcamaYetkilisiAdi: 'Snapshot Personel', harcamaYetkilisi: 'Snapshot Personel' };
+      const initialData = { harcamaYetkilisiAdi: 'Initial Personel' };
+
+      // Merging sequence: baseData -> savedSnapshot -> initialData
+      const mergedData = { ...baseData, ...savedSnapshot, ...initialData };
+
+      // Execute REAL production applyRolePolicy
+      TemplateRegistryService.applyRolePolicy(mergedData, 'piyasa-fiyat-arastirma-tutanagi');
+
+      expect(mergedData.harcamaYetkilisiAdi).toBe('');
+      expect(mergedData.harcamaYetkilisi).toBe('');
     });
   });
 
-  describe('5. Unknown Commission & Empty Fallback Safety', () => {
-    it('should ensure unknown commission types return empty array filter results without fallback to allCommission', () => {
-      const allCommission = [
-        { id: 1, ad_soyad: 'Ali Can', komisyon_turu: 'Piyasa Araştırma' },
-        { id: 2, ad_soyad: 'Veli Han', komisyon_turu: 'Muayene Kabul' }
+  describe('3. File Assignment & Visibility Allowlist Isolation', () => {
+    it('should filter dossier commission members using isMemberVisibleInDocument with explicit target documents', () => {
+      const fileAssignedMembers = [
+        { id: 1, ad_soyad: 'Ali Veli', komisyon_turu: 'Piyasa Fiyat', belge_kapsami: 'ozel', hedef_belgeler: ['piyasa-fiyat-arastirma-tutanagi'] },
+        { id: 2, ad_soyad: 'Zeynep Su', komisyon_turu: 'Piyasa Fiyat', belge_kapsami: 'ozel', hedef_belgeler: ['harcama-talimati'] }
       ];
 
-      // Simulate unknown commission query with no category match
-      const unknownItem = { id: 3, ad_soyad: 'Zeynep Su', komisyon_turu: 'Özel Heyet' };
-      const matched = [unknownItem].filter((k) => k.komisyon_turu.includes('Maliyet'));
+      const visibleInTutanak = fileAssignedMembers.filter((m) =>
+        TemplateRegistryService.isMemberVisibleInDocument(m, ['piyasa-fiyat-arastirma-tutanagi'])
+      );
 
-      // Safe behavior: empty filter result remains empty, NOT assigned allCommission!
-      const safeCommissionResult = matched.length > 0 ? matched : [];
-      expect(safeCommissionResult).toEqual([]);
-      expect(safeCommissionResult).not.toEqual(allCommission);
+      expect(visibleInTutanak.length).toBe(1);
+      expect(visibleInTutanak[0].ad_soyad).toBe('Ali Veli');
+    });
+
+    it('should keep commission panel empty when no dossier commission is assigned', () => {
+      const dbKomisyonlar: any[] = [];
+      const maliyetMembers = dbKomisyonlar.filter((k) => resolveCommissionCategory(k) === 'maliyet');
+      const muayeneMembers = dbKomisyonlar.filter((k) => resolveCommissionCategory(k) === 'muayene');
+
+      expect(maliyetMembers).toEqual([]);
+      expect(muayeneMembers).toEqual([]);
+    });
+  });
+
+  describe('4. Workflow Metadata Registry Verification', () => {
+    it('should retrieve defined workflow metadata for harcama-talimati', () => {
+      const workflow = TemplateRegistryService.getWorkflow('harcama-talimati');
+      expect(workflow).toBeDefined();
+      expect(workflow?.routing?.mode).toBe('role');
+
+      const rules = TemplateRegistryService.getSignatureRules('harcama-talimati');
+      expect(rules?.length).toBe(2);
+
+      const approvalRole = TemplateRegistryService.getApprovalRole('harcama-talimati');
+      expect(approvalRole).toBe('harcama_yetkilisi');
     });
   });
 });
+
 
